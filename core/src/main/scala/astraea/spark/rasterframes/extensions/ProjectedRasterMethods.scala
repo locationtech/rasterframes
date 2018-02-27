@@ -2,14 +2,13 @@ package astraea.spark.rasterframes.extensions
 
 import java.time.ZonedDateTime
 
+import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.{RasterFrame, StandardColumns}
-import geotrellis.raster.{ProjectedRaster, Tile, TileLayout}
+import geotrellis.raster.{ProjectedRaster, Tile}
 import geotrellis.spark._
 import geotrellis.spark.tiling._
-import geotrellis.spark.io._
 import geotrellis.util.MethodExtensions
 import org.apache.spark.sql.SparkSession
-import astraea.spark.rasterframes.util._
 
 /**
  * Extension methods on [[ProjectedRaster]] for creating [[RasterFrame]]s.
@@ -17,8 +16,7 @@ import astraea.spark.rasterframes.util._
  * @since 8/10/17
  */
 trait ProjectedRasterMethods extends MethodExtensions[ProjectedRaster[Tile]] with StandardColumns {
-  import Implicits.WithSpatialContextRDDMethods
-  import Implicits.WithSpatioTemporalContextRDDMethods
+  import Implicits.{WithSpatialContextRDDMethods, WithSpatioTemporalContextRDDMethods}
 
   /**
    * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrame]] with a

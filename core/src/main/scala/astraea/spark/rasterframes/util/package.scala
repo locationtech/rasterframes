@@ -19,8 +19,18 @@
 
 package astraea.spark.rasterframes
 
+import geotrellis.proj4.WebMercator
+import geotrellis.raster.crop.TileCropMethods
+import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
+import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileLayout}
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
-import geotrellis.util.LazyLogging
+import geotrellis.raster.mask.TileMaskMethods
+import geotrellis.raster.merge.TileMergeMethods
+import geotrellis.raster.prototype.TilePrototypeMethods
+import geotrellis.spark.io.slippy.HadoopSlippyTileWriter
+import geotrellis.spark.tiling.{TilerKeyMethods, ZoomedLayoutScheme}
+import geotrellis.spark.{Bounds, ContextRDD, KeyBounds, MultibandTileLayerRDD, SpaceTimeKey, SpatialComponent, SpatialKey, TileLayerMetadata, TileLayerRDD}
+import geotrellis.util.{GetComponent, LazyLogging}
 import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
 import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
@@ -29,13 +39,28 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
 import shapeless.Lub
 
-
 /**
  * Internal utilities.
  *
  * @since 12/18/17
  */
 package object util extends LazyLogging {
+
+  /**
+   * Type lambda alias for components that have bounds with parameterized key.
+   * @tparam K bounds key type
+   */
+  type BoundsComponentOf[K] = {
+    type Get[M] = GetComponent[M, Bounds[K]]
+  }
+
+  // Type lambda aliases
+  type WithMergeMethods[V] = (V ⇒ TileMergeMethods[V])
+  type WithPrototypeMethods[V <: CellGrid] = (V ⇒ TilePrototypeMethods[V])
+  type WithCropMethods[V <: CellGrid] = (V ⇒ TileCropMethods[V])
+  type WithMaskMethods[V] = (V ⇒ TileMaskMethods[V])
+
+  type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
 
   /** Internal method for slapping the RasterFrame seal of approval on a DataFrame. */
   private[rasterframes] def certifyRasterframe(df: DataFrame): RasterFrame =

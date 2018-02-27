@@ -18,13 +18,15 @@ package astraea.spark
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
 import geotrellis.raster.{Tile, TileFeature}
-import geotrellis.spark.{Bounds, ContextRDD, Metadata, TileLayerMetadata}
-import geotrellis.util.GetComponent
+import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import shapeless.tag.@@
+
+import scala.language.higherKinds
+import scala.reflect.runtime.universe._
 
 /**
  *  Module providing support for RasterFrames.
@@ -64,14 +66,6 @@ package object rasterframes extends StandardColumns
   /** Tagged type for allowing compiler to help keep track of what has RasterFrame assurances applied to it. */
   trait RasterFrameTag
 
-  /**
-   * Type lambda alias for components that have bounds with parameterized key.
-   * @tparam K bounds key type
-   */
-  type BoundsComponentOf[K] = {
-    type get[M] = GetComponent[M, Bounds[K]]
-  }
-
   type TileFeatureLayerRDD[K, D] =
     RDD[(K, TileFeature[Tile, D])] with Metadata[TileLayerMetadata[K]]
 
@@ -81,6 +75,7 @@ package object rasterframes extends StandardColumns
       new ContextRDD(rdd, metadata)
   }
 
+  /** Provides evidence that a given primitive has an associated CellType. */
   trait HasCellType[T] extends Serializable
   object HasCellType {
     implicit val intHasCellType = new HasCellType[Int] {}
@@ -88,5 +83,20 @@ package object rasterframes extends StandardColumns
     implicit val byteHasCellType = new HasCellType[Byte] {}
     implicit val shortHasCellType = new HasCellType[Short] {}
     implicit val floatHasCellType = new HasCellType[Float] {}
+  }
+
+  /** Evidence type class for communicating that only standard key types are supported with the more general GeoTrellis type parameters. */
+  trait StandardLayerKey[T] extends Serializable {
+    val selfType: TypeTag[T]
+    def isType[R: TypeTag]: Boolean = typeOf[R] =:= selfType.tpe
+  }
+  object StandardLayerKey {
+    def apply[T: StandardLayerKey]: StandardLayerKey[T] = implicitly
+    implicit val spatialKeySupport = new StandardLayerKey[SpatialKey] {
+      override val selfType: TypeTag[SpatialKey] = implicitly
+    }
+    implicit val spatioTemporalKeySupport = new StandardLayerKey[SpaceTimeKey] {
+      override val selfType: TypeTag[SpaceTimeKey] = implicitly
+    }
   }
 }

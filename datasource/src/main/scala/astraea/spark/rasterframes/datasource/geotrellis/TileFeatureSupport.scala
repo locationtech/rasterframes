@@ -28,15 +28,11 @@ import geotrellis.raster.resample.ResampleMethod
 import geotrellis.raster.{CellGrid, CellType, GridBounds, TileFeature}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.{Extent, Geometry}
+import astraea.spark.rasterframes.util._
 
 import scala.reflect.ClassTag
 
 trait TileFeatureSupport {
-
-  type WithMergeMethods[V] = (V => TileMergeMethods[V])
-  type WithPrototypeMethods[V <: CellGrid] = (V => TilePrototypeMethods[V])
-  type WithCropMethods[V <: CellGrid] = (V => TileCropMethods[V])
-  type WithMaskMethods[V] = (V => TileMaskMethods[V])
 
   implicit class TileFeatureMethodsWrapper[V <: CellGrid: ClassTag: WithMergeMethods: WithPrototypeMethods: WithCropMethods: WithMaskMethods, D: MergeableData](val self: TileFeature[V, D])
     extends TileMergeMethods[TileFeature[V, D]]

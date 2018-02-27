@@ -132,7 +132,7 @@ class GTSQLSpec extends TestEnvironment with TestData  {
 
       val datasets = Seq(
         {
-          val tiles = Array.fill[Tile](30)(randomTile(5, 5, "float32"))
+          val tiles = Array.fill[Tile](30)(randomTile(5, 5, FloatCellType))
           tiles(1) = null
           tiles(11) = null
           tiles(29) = null

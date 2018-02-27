@@ -29,13 +29,14 @@ import astraea.spark.rasterframes.jts.SpatialFilters.{BetweenTimes, Contains ⇒
 import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.TileFeatureData
 import astraea.spark.rasterframes.util._
 import com.vividsolutions.jts.geom
-import geotrellis.raster.{MultibandTile, Tile, TileFeature}
+import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileFeature}
 import geotrellis.spark.io._
 import geotrellis.spark.io.avro.AvroRecordCodec
 import geotrellis.spark.util.KryoWrapper
 import geotrellis.spark.{LayerId, Metadata, SpatialKey, TileLayerMetadata, _}
 import geotrellis.util.LazyLogging
 import geotrellis.vector._
+import geotrellis.util._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.rdd.RDD
@@ -46,6 +47,9 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
 import spray.json.DefaultJsonProtocol._
 import spray.json.JsValue
+import TileFeatureSupport._
+import geotrellis.spark.tiling.{CutTiles, TilerKeyMethods}
+import SubdivideSupport._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -54,12 +58,13 @@ import scala.reflect.runtime.universe._
  * A Spark SQL `Relation` over a standard GeoTrellis layer.
  */
 case class GeoTrellisRelation(sqlContext: SQLContext,
-                              uri: URI,
-                              layerId: LayerId,
-                              numPartitions: Option[Int] = None,
-                              failOnUnrecognizedFilter: Boolean = false,
-                              filters: Seq[Filter] = Seq.empty)
-    extends BaseRelation with PrunedScan with LazyLogging {
+  uri: URI,
+  layerId: LayerId,
+  numPartitions: Option[Int] = None,
+  failOnUnrecognizedFilter: Boolean = false,
+  tileSubdivisions: Option[Int] = None,
+  filters: Seq[Filter] = Seq.empty)
+  extends BaseRelation with PrunedScan with LazyLogging {
 
   implicit val sc = sqlContext.sparkContext
 
@@ -112,6 +117,15 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
       )
     }
 
+  def subdividedTileLayerMetadata: Either[TileLayerMetadata[SpatialKey], TileLayerMetadata[SpaceTimeKey]] = {
+    tileSubdivisions.filter(_ > 1) match {
+      case None ⇒ tileLayerMetadata
+      case Some(divs) ⇒ tileLayerMetadata
+        .right.map(_.subdivide(divs))
+        .left.map(_.subdivide(divs))
+    }
+  }
+
   private object Cols {
     lazy val SK = SPATIAL_KEY_COLUMN.columnName
     lazy val TK = TEMPORAL_KEY_COLUMN.columnName
@@ -121,7 +135,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     lazy val EX = BOUNDS_COLUMN.columnName
   }
 
-  /** This unfortunate routine is here because the number bands in a  multiband layer isn't written
+  /** This unfortunate routine is here because the number bands in a multiband layer isn't written
    * in the metadata anywhere. This is potentially an expensive hack, which needs further quantifying of impact.
    * Another option is to force the user to specify the number of bands. */
   private lazy val peekBandCount = {
@@ -143,8 +157,8 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   override def schema: StructType = {
     val skSchema = ExpressionEncoder[SpatialKey]().schema
 
-    val skMetadata = attributes.readMetadata[JsValue](layerId) |>
-      (m ⇒ Metadata.fromJson(m.compactPrint)) |>
+    val skMetadata = subdividedTileLayerMetadata.
+      fold(_.asColumnMetadata, _.asColumnMetadata) |>
       (Metadata.empty.append.attachContext(_).tagSpatialKey.build)
 
     val keyFields = keyType match {
@@ -244,11 +258,16 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     }
   }
 
-  def query[T: AvroRecordCodec: ClassTag](reader: FilteringLayerReader[LayerId], columnIndexes: Seq[Int]) = {
-    tileLayerMetadata.fold(
+  private def subdivider[K: SpatialComponent, T <: CellGrid: WithCropMethods](divs: Int) = (p: (K, T)) ⇒ {
+    val newKeys = p._1.subdivide(divs)
+    val newTiles = p._2.subdivide(divs)
+    newKeys.zip(newTiles)
+  }
+
+  private def query[T <: CellGrid: WithCropMethods: WithMergeMethods: AvroRecordCodec: ClassTag](reader: FilteringLayerReader[LayerId], columnIndexes: Seq[Int]) = {
+    subdividedTileLayerMetadata.fold(
       // Without temporal key case
       (tlm: TileLayerMetadata[SpatialKey]) ⇒ {
-        val trans = tlm.mapTransform
 
         val parts = numPartitions.getOrElse(reader.defaultNumPartitions)
 
@@ -256,11 +275,15 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
           reader.query[SpatialKey, T, TileLayerMetadata[SpatialKey]](layerId, parts)
         )(applyFilter(_, _))
 
-        val rdd = query.result
+        val rdd = tileSubdivisions.filter(_ > 1) match {
+          case Some(divs) ⇒
+            query.result.flatMap(subdivider[SpatialKey, T](divs))
+          case None ⇒ query.result
+        }
 
+        val trans = tlm.mapTransform
         rdd
           .map { case (sk: SpatialKey, tile: T) ⇒
-
             val entries = columnIndexes.map {
               case 0 ⇒ sk
               case 1 ⇒ trans.keyToExtent(sk).jtsGeom
@@ -286,7 +309,11 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
           reader.query[SpaceTimeKey, T, TileLayerMetadata[SpaceTimeKey]](layerId, parts)
         )(applyFilterTemporal(_, _))
 
-        val rdd = query.result
+        val rdd = tileSubdivisions.filter(_ > 1) match {
+          case Some(divs) ⇒
+            query.result.flatMap(subdivider[SpaceTimeKey, T](divs))
+          case None ⇒ query.result
+        }
 
         rdd
           .map { case (stk: SpaceTimeKey, tile: T) ⇒

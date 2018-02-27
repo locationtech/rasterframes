@@ -21,7 +21,7 @@
 
 package astraea.spark.rasterframes
 
-import geotrellis.raster.Tile
+import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.rf.InternalRowTile
@@ -46,7 +46,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors with Int
     def forEveryConfig(test: (Tile) ⇒ Unit): Unit = {
       forEvery(tileSizes.combinations(2).toSeq) { case Seq(cols, rows) ⇒
         forEvery(ct) { c ⇒
-          val tile = randomTile(cols, rows, c)
+          val tile = randomTile(cols, rows, CellType.fromName(c))
           test(tile)
         }
       }

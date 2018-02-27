@@ -108,12 +108,8 @@ trait TestData {
   }
 
   def sampleTileLayerRDD(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
-    val raster = sampleGeoTiff.projectedRaster.reproject(LatLng)
-    val layout = LayoutDefinition(LatLng.worldExtent, TileLayout(36, 18, 128, 128))
-    val kb = KeyBounds(SpatialKey(0, 0), SpatialKey(layout.layoutCols, layout.layoutRows))
-    val tlm = TileLayerMetadata(raster.tile.cellType, layout, layout.extent, LatLng, kb)
-    val rdd = spark.sparkContext.makeRDD(Seq((raster.projectedExtent, raster.tile)))
-    ContextRDD(rdd.tileToLayout(tlm), tlm)
+    val rf = sampleGeoTiff.projectedRaster.toRF(128, 128)
+    rf.toTileLayerRDD(rf.tileColumns.head).left.get
   }
 
   object JTS {
@@ -136,48 +132,59 @@ object TestData extends TestData {
   val rnd =  new scala.util.Random(42)
 
   /** Construct a tile of given size and cell type populated with random values. */
-  def randomTile(cols: Int, rows: Int, cellTypeName: String): Tile = {
-    val cellType = CellType.fromName(cellTypeName)
-    val tile = ArrayTile.alloc(cellType, cols, rows)
-
-    def possibleND(c: Int) =
-      c == NODATA || c == byteNODATA || c == ubyteNODATA || c == shortNODATA || c == ushortNODATA
-
+  def randomTile(cols: Int, rows: Int, cellType: CellType): Tile = {
     // Initialize tile with some initial random values
-    var result = tile.dualMap(_ ⇒ rnd.nextInt())(_ ⇒ rnd.nextGaussian())
+    val base: Tile = cellType match {
+      case _: FloatCells ⇒
+        val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
+        ArrayTile(data, cols, rows)
+      case _: DoubleCells ⇒
+        val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
+        ArrayTile(data, cols, rows)
+      case _ ⇒
+        val words = cellType.bits / 8
+        val bytes = Array.ofDim[Byte](cols * rows * words)
+        rnd.nextBytes(bytes)
+        ArrayTile.fromBytes(bytes, cellType, cols, rows)
+    }
 
-    // Due to cell width narrowing and custom NoData values, we can end up randomly creating
-    // NoData values. While perhaps inefficient, the safest way to ensure a tile with no-NoData values
-    // with the current CellType API (GT 1.1), while still generating random data is to
-    // iteratively pass through all the cells and replace NoData values as we find them.
-    do {
-      result = result.dualMap(
-        z ⇒ if (isNoData(z)) rnd.nextInt() else z
-      ) (
-        z ⇒ if (isNoData(z)) rnd.nextGaussian() else z
-      )
-    } while (F.noDataCells(result) != 0L)
+    cellType match {
+      case _: NoNoData ⇒ base
+      case _ ⇒
+        // Due to cell width narrowing and custom NoData values, we can end up randomly creating
+        // NoData values. While perhaps inefficient, the safest way to ensure a tile with no-NoData values
+        // with the current CellType API (GT 1.1), while still generating random data is to
+        // iteratively pass through all the cells and replace NoData values as we find them.
+        var result = base
+        do {
+          result = result.dualMap(
+            z ⇒ if (isNoData(z)) rnd.nextInt(1 << cellType.bits) else z
+          ) (
+            z ⇒ if (isNoData(z)) rnd.nextGaussian() else z
+          )
+        } while (F.noDataCells(result) != 0L)
 
-    assert(F.noDataCells(result) == 0L,
-      s"Should not have any NoData cells for $cellTypeName:\n${result.asciiDraw()}")
-    result
+        assert(F.noDataCells(result) == 0L,
+          s"Should not have any NoData cells for $cellType:\n${result.asciiDraw()}")
+        result
+    }
   }
 
   /** Create a series of random tiles. */
   val makeTiles: (Int) ⇒ Array[Tile] = (count) ⇒
-    Array.fill(count)(randomTile(4, 4, "int8raw"))
+    Array.fill(count)(randomTile(4, 4, UByteCellType))
 
   def randomSpatialTileLayerRDD(
     rasterCols: Int, rasterRows: Int,
     layoutCols: Int, layoutRows: Int)(implicit sc: SparkContext): TileLayerRDD[SpatialKey] = {
-    val tile = randomTile(rasterCols, rasterRows, "uint8")
+    val tile = randomTile(rasterCols, rasterRows, UByteCellType)
     TileLayerRDDBuilders.createTileLayerRDD(tile, layoutCols, layoutRows, LatLng)._2
   }
 
   def randomSpatioTemporalTileLayerRDD(
     rasterCols: Int, rasterRows: Int,
     layoutCols: Int, layoutRows: Int)(implicit sc: SparkContext): TileLayerRDD[SpaceTimeKey] = {
-    val tile = randomTile(rasterCols, rasterRows, "uint8")
+    val tile = randomTile(rasterCols, rasterRows, UByteCellType)
     val tileLayout = TileLayout(layoutCols, layoutRows, rasterCols/layoutCols, rasterRows/layoutRows)
     TileLayerRDDBuilders.createSpaceTimeTileLayerRDD(Seq((tile, ZonedDateTime.now())), tileLayout, tile.cellType)
   }

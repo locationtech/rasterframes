@@ -84,7 +84,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
     }
 
     it("should count data and no-data cells") {
-      val ds = (Seq.fill[Tile](10)(injectND(10)(randomTile(10, 10, "uint8"))) :+ null).toDF("tile")
+      val ds = (Seq.fill[Tile](10)(injectND(10)(randomTile(10, 10, UByteConstantNoDataCellType))) :+ null).toDF("tile")
       val expectedNoData = 10 * 10
       val expectedData = 10 * 10 * 10 - expectedNoData
 
@@ -103,7 +103,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
     }
 
     it("should compute tile statistics") {
-      val ds = (Seq.fill[Tile](3)(randomTile(5, 5, "float32")) :+ null).toDS()
+      val ds = (Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)) :+ null).toDS()
       val means1 = ds.select(tileStats($"value")).map(s ⇒ Option(s).map(_.mean).getOrElse(0.0)).collect
       val means2 = ds.select(tileMean($"value")).collect.map(m ⇒ if (m.isNaN) 0.0 else m)
       // Compute the mean manually, knowing we're not dealing with no-data values.
@@ -114,7 +114,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
     }
 
     it("should compute per-tile histogram") {
-      val ds = Seq.fill[Tile](3)(randomTile(5, 5, "float32")).toDF("tiles")
+      val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatCellType)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
       val r1 = ds.select(tileHistogram($"tiles"))
@@ -127,7 +127,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
     }
 
     it("should compute aggregate histogram") {
-      val ds = Seq.fill[Tile](10)(randomTile(5, 5, "float32")).toDF("tiles")
+      val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
       val agg = ds.select(aggHistogram($"tiles")).as[CellHistogram]
       val hist = agg.collect()
@@ -142,14 +142,14 @@ class TileStatsSpec extends TestEnvironment with TestData  {
     }
 
     it("should compute aggregate mean") {
-      val ds = (Seq.fill[Tile](10)(randomTile(5, 5, "float32")) :+ null).toDF("tiles")
+      val ds = (Seq.fill[Tile](10)(randomTile(5, 5, FloatCellType)) :+ null).toDF("tiles")
       val agg = ds.select(aggMean($"tiles"))
       val stats = ds.select(aggStats($"tiles") as "stats").select($"stats.mean".as[Double])
       assert(agg.first() === stats.first())
     }
 
     it("should compute aggregate statistics") {
-      val ds = Seq.fill[Tile](10)(randomTile(5, 5, "float32")).toDF("tiles")
+      val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
 
       val exploded = ds.select(explodeTiles($"tiles"))
       val (mean, vrnc) = exploded.agg(avg($"tiles"), var_pop($"tiles")).as[(Double, Double)].first
@@ -175,7 +175,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
     it("should compute aggregate local stats") {
       val ave = (nums: Array[Double]) ⇒ nums.sum / nums.length
 
-      val ds = (Seq.fill[Tile](30)(randomTile(5, 5, "float32"))
+      val ds = (Seq.fill[Tile](30)(randomTile(5, 5, FloatConstantNoDataCellType))
         .map(injectND(2)) :+ null).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
@@ -239,7 +239,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
       val tsize = 5
       val count = 20
       val nds = 2
-      val tiles = (Seq.fill[Tile](count)(randomTile(tsize, tsize, "uint8ud255"))
+      val tiles = (Seq.fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
         .map(injectND(nds)) :+ null).toDF("tiles")
 
       val counts = tiles.select(noDataCells($"tiles")).collect().dropRight(1)
