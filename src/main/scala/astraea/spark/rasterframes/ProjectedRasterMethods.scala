@@ -1,0 +1,119 @@
+/*
+ * Copyright 2017 Astraea, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ package astraea.spark.rasterframes
+
+import java.time.ZonedDateTime
+
+import geotrellis.raster.{ProjectedRaster, Tile, TileLayout}
+import geotrellis.spark._
+import geotrellis.spark.tiling._
+import geotrellis.spark.io._
+import geotrellis.util.MethodExtensions
+import org.apache.spark.sql.SparkSession
+
+/**
+ * Extension methods on [[ProjectedRaster]] for creating [[RasterFrame]]s.
+ *
+ * @author sfitch
+ * @since 8/10/17
+ */
+trait ProjectedRasterMethods extends MethodExtensions[ProjectedRaster[Tile]] {
+
+  /**
+   * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrame]] with a
+   * single row.
+   *
+   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   */
+  def toRF(implicit spark: SparkSession): RasterFrame = toRF(TILE_COLUMN)
+
+
+  /**
+   * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrame]] with a
+   * single row.
+   *
+   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   */
+  def toRF(tileColName: String)(implicit spark: SparkSession): RasterFrame = {
+    val (cols, rows) = self.raster.dimensions
+    toRF(cols, rows, tileColName)
+  }
+
+  /**
+   * Convert the [[ProjectedRaster]] into a [[RasterFrame]] using the
+   * given dimensions as the target per-row tile size.
+   *
+   * @param tileCols Max number of horizontal cells per tile
+   * @param tileRows Max number of vertical cells per tile.
+   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   */
+  def toRF(tileCols: Int, tileRows: Int, tileColName: String = TILE_COLUMN)(implicit spark: SparkSession): RasterFrame =
+    toTileLayerRDD(tileCols, tileRows).toRF(tileColName)
+
+  /**
+   * Convert the [[ProjectedRaster]] into a [[RasterFrame]] using the
+   * given dimensions as the target per-row tile size and singular timestamp as the temporal component.
+   *
+   * @param tileCols Max number of horizontal cells per tile
+   * @param tileRows Max number of vertical cells per tile.
+   * @param timestamp Temporal key value to assign to tiles.
+   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   */
+  def toRF(tileCols: Int, tileRows: Int, timestamp: ZonedDateTime)(implicit spark: SparkSession): RasterFrame =
+    toTileLayerRDD(tileCols, tileRows, timestamp).toRF
+
+  /**
+   * Convert the [[ProjectedRaster]] into a [[TileLayerRDD[SpatialKey]] using the
+   * given dimensions as the target per-row tile size.
+   *
+   * @param tileCols Max number of horizontal cells per tile
+   * @param tileRows Max number of vertical cells per tile.
+   * @param spark [[SparkSession]] in which to create RDD
+   */
+  def toTileLayerRDD(tileCols: Int,
+                     tileRows: Int)(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
+    val layout = LayoutDefinition(self.rasterExtent, tileCols, tileRows)
+    val kb = KeyBounds(SpatialKey(0, 0), SpatialKey(layout.layoutCols - 1, layout.layoutRows - 1))
+    val tlm = TileLayerMetadata(self.tile.cellType, layout, self.extent, self.crs, kb)
+
+    val rdd = spark.sparkContext.makeRDD(Seq((self.projectedExtent, self.tile)))
+
+    val tiled = rdd.tileToLayout(tlm)
+
+    ContextRDD(tiled, tlm)
+  }
+
+  /**
+   * Convert the [[ProjectedRaster]] into a [[TileLayerRDD[SpaceTimeKey]] using the
+   * given dimensions as the target per-row tile size and singular timestamp as the temporal component.
+   *
+   * @param tileCols Max number of horizontal cells per tile
+   * @param tileRows Max number of vertical cells per tile.
+   * @param timestamp Temporal key value to assign to tiles.
+   * @param spark [[SparkSession]] in which to create RDD
+   */
+  def toTileLayerRDD(tileCols: Int, tileRows: Int, timestamp: ZonedDateTime)(implicit spark: SparkSession): TileLayerRDD[SpaceTimeKey] = {
+    val layout = LayoutDefinition(self.rasterExtent, tileCols, tileRows)
+    val kb = KeyBounds(SpaceTimeKey(0, 0, timestamp), SpaceTimeKey(layout.layoutCols - 1, layout.layoutRows - 1, timestamp))
+    val tlm = TileLayerMetadata(self.tile.cellType, layout, self.extent, self.crs, kb)
+
+    val rdd = spark.sparkContext.makeRDD(Seq((TemporalProjectedExtent(self.projectedExtent, timestamp), self.tile)))
+
+    val tiled = rdd.tileToLayout(tlm)
+
+    ContextRDD(tiled, tlm)
+  }
+}
