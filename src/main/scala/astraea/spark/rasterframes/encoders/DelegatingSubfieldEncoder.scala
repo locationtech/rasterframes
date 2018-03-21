@@ -47,7 +47,7 @@ trait DelegatingSubfieldEncoder {
       case (name, encoder) ⇒
         val enc = encoder.serializer.map(_.transform {
           case r: BoundReference if r != inputObject ⇒
-            InvokeSafely(inputObject, name, r.dataType)
+            Invoke(inputObject, name, r.dataType)
         })
         Literal(name) :: CreateStruct(enc) :: Nil
     })

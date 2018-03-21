@@ -48,12 +48,12 @@ object CellTypeEncoder {
         classOf[UTF8String],
         StringType,
         "fromString",
-        InvokeSafely(inputObject, "name", intermediateType) :: Nil
+        Invoke(inputObject, "name", intermediateType, Nil) :: Nil
       )
 
     val inputRow = GetColumnByOrdinal(0, schema)
     val deserializer: Expression =
-      StaticInvoke(CellType.getClass, ctType, "fromName", InvokeSafely(inputRow, "toString", intermediateType) :: Nil)
+      StaticInvoke(CellType.getClass, ctType, "fromName", Invoke(inputRow, "toString", intermediateType, Nil) :: Nil)
 
     ExpressionEncoder[CellType](schema, flat = false, Seq(serializer), deserializer, classTag[CellType])
   }

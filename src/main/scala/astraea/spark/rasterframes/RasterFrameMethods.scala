@@ -25,10 +25,10 @@ import geotrellis.util.{LazyLogging, MethodExtensions}
 import geotrellis.vector.ProjectedExtent
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.types.{Metadata, StructField}
+import org.apache.spark.sql.{Column, DataFrame, Dataset, TypedColumn}
 import spray.json._
 
 import scala.reflect.runtime.universe._
@@ -38,7 +38,7 @@ import scala.reflect.runtime.universe._
  * @author sfitch
  * @since 7/18/17
  */
-trait RasterFrameMethods extends MethodExtensions[RasterFrame] with RFSpatialColumnMethods with LazyLogging {
+trait RasterFrameMethods extends MethodExtensions[RasterFrame] with LazyLogging {
   type TileColumn = TypedColumn[Any, Tile]
 
   private val _df = self
@@ -210,12 +210,12 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame] with RFSpatialCol
    * Convert from RasterFrame to a GeoTrellis [[TileLayerMetadata]]
    * @param tileCol column with tiles to be the
    */
-  def toTileLayerRDD(tileCol: Column): Either[TileLayerRDD[SpatialKey], TileLayerRDD[SpaceTimeKey]] =
+  def toTileLayerRDD(tileCol: TileColumn): Either[TileLayerRDD[SpatialKey], TileLayerRDD[SpaceTimeKey]] =
     tileLayerMetadata.fold(
-      tlm ⇒ Left(ContextRDD(self.select(spatialKeyColumn, tileCol.as[Tile]).rdd, tlm)),
+      tlm ⇒ Left(ContextRDD(self.select(spatialKeyColumn, tileCol).rdd, tlm)),
       tlm ⇒ {
         val rdd = self
-          .select(spatialKeyColumn, temporalKeyColumn.get, tileCol.as[Tile])
+          .select(spatialKeyColumn, temporalKeyColumn.get, tileCol)
           .rdd
           .map { case (sk, tk, v) ⇒ (SpaceTimeKey(sk, tk), v) }
         Right(ContextRDD(rdd, tlm))

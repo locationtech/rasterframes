@@ -16,7 +16,9 @@
 
 package astraea.spark.rasterframes.functions
 
+import astraea.spark.rasterframes.expressions.{CellType, ExplodeTileExpression}
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.gt.types
 
 /**

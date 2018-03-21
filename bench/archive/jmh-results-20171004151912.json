@@ -1,0 +1,114 @@
+[
+    {
+        "jmhVersion" : "1.19",
+        "benchmark" : "astraea.spark.rasterframes.bench.StatsComputeBench.computeStats",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_121",
+        "vmVersion" : "25.121-b13",
+        "warmupIterations" : 5,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "uint16ud255",
+            "tileSize" : "240"
+        },
+        "primaryMetric" : {
+            "score" : 3733.8451732000003,
+            "scoreError" : 1891.03960219225,
+            "scoreConfidence" : [
+                1842.8055710077504,
+                5624.88477539225
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3445.045021,
+                "50.0" : 3545.588391,
+                "90.0" : 4609.119741,
+                "95.0" : 4609.119741,
+                "99.0" : 4609.119741,
+                "99.9" : 4609.119741,
+                "99.99" : 4609.119741,
+                "99.999" : 4609.119741,
+                "99.9999" : 4609.119741,
+                "100.0" : 4609.119741
+            },
+            "scoreUnit" : "ms/op",
+            "rawData" : [
+                [
+                    3549.978044,
+                    3445.045021,
+                    3545.588391,
+                    3519.494669,
+                    4609.119741
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.19",
+        "benchmark" : "astraea.spark.rasterframes.bench.StatsComputeBench.extractMean",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_121",
+        "vmVersion" : "25.121-b13",
+        "warmupIterations" : 5,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "uint16ud255",
+            "tileSize" : "240"
+        },
+        "primaryMetric" : {
+            "score" : 3297.8708100000003,
+            "scoreError" : 758.0220252511361,
+            "scoreConfidence" : [
+                2539.848784748864,
+                4055.8928352511366
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3168.440251,
+                "50.0" : 3194.10431,
+                "90.0" : 3638.115592,
+                "95.0" : 3638.115592,
+                "99.0" : 3638.115592,
+                "99.9" : 3638.115592,
+                "99.99" : 3638.115592,
+                "99.999" : 3638.115592,
+                "99.9999" : 3638.115592,
+                "100.0" : 3638.115592
+            },
+            "scoreUnit" : "ms/op",
+            "rawData" : [
+                [
+                    3299.087821,
+                    3194.10431,
+                    3638.115592,
+                    3189.606076,
+                    3168.440251
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+

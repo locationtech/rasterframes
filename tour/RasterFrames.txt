@@ -1,0 +1,320 @@
+/\r~\b~
+| \_\gA Tour of RasterFrames\s
+/\r~\b~
+
+---
+
+| \_\*\bOverview\s
+
+\r*\s Setup
+\r*\s Creating & Inspecting
+\r*\s Exploratory Data Analysis
+\r*\s SQL
+\r*\s GeoTrellis Operations
+\r*\s Rendering Results
+\r*\s Machine Learning
+
+---
+
+| \_\*\bSetup\s
+
+Initialization of RasterFrames involves having an initialized
+Spark session and calling the \*rfInit(SQLContext)\s function:
+
+```
+  implicit val spark = SparkSession.builder()
+     .master("local[*]")
+     .appName("RasterFrames")
+     .getOrCreate()
+  spark.sparkContext.setLogLevel("OFF")
+  import spark.implicits._
+
+  rfInit(spark.sqlContext)
+```
+
+---
+
+| \_\*\bReading Imagery\s
+
+Load a geo-referenced image via \_GeoTrellis\s routines:
+
+```
+  val scene =
+    SinglebandGeoTiff("../src/test/resources/L8-B8-Robinson-IL.tiff")
+```
+
+Convert it to a \_RasterFrame\s, discretizing it into \*64x64\s tile sizes:
+
+```
+  val rf = scene.projectedRaster.toRF(64, 64)
+```
+
+---
+
+| \_\*\bTake a Look\s
+
+
+Let's poke at the \*RasterFrame\s a bit:
+
+```
+  // RasterFrame schema
+  rf.printSchema
+  // Number of tiles created
+  println("Tile count: " + rf.count())
+  // View a sample of the contents
+  rf.show(8, false)
+```
+
+---
+
+| \_\*\bRasterFrame Columnar Functions\s
+
+
+A large part of \_RasterFrames\s functionality is provided
+through \_SparkSQL\s functions accepting one or more \*Tile\s
+columns as input.
+
+A few examples:
+
+| \*tileSum\s, \*tileSum\s, \*tileHistogram\s, \*noDataCells\s,
+| \*aggStats\s, \*tileToArray\s, \*arrayToTile\s, \*explodeTiles\s
+
+---
+
+| \_\*\bTile Statistics 1\s
+
+Confirm we have equally sized tiles:
+
+```
+  rf.select(tileDimensions($"tile")).distinct().show()
+```
+
+Count the number of no-data cells:
+
+```
+  rf.select(aggNoDataCells($"tile")).show(false)
+```
+
+---
+
+| \_\*\bTile Statistics 2\s
+
+
+Compute per-tile statistics:
+
+```
+  rf.select(tileStats($"tile")).show(8, false)
+```
+
+---
+
+| \_\*\bTile Statistics 3\s
+
+Compute some aggregate stats over all cells:
+
+```
+  rf.select(aggStats($"tile")).show(false)
+```
+
+---
+
+| \_\*\bAvailable in SQL Too!\s
+
+```
+  rf.createOrReplaceTempView("rf")
+  spark.sql("""
+    SELECT *,
+      rf_tileMean(tile) AS mean,
+      rf_dataCells(tile) AS cell_count
+    FROM rf
+  """).show(8)
+```
+
+---
+
+| \_\*\bArbitrary GeoTrellis Operations\s
+
+With the power of \_SparkSQL\s \*UDFs\s, we can create arbitrary functions
+over \*Tile\ss, making use of powerful \_GeoTrellis\s features.
+
+As an example, we'll use the GeoTrellis \*sigmoidal\s contrast
+adjustment function. First we define the \*UDF\s:
+
+```
+  val contrast = udf((t: Tile) ⇒ t.sigmoidal(0.2, 10))
+```
+
+--
+
+Let's append a new column with the contrast adjustment:
+
+```
+  val withAdjusted = rf.withColumn("adjusted", contrast($"tile")).asRF
+```
+
+---
+
+| \_\*\bTile Statistics 4\s
+
+Let's compare the before and after statistics:
+
+```
+  val before = rf.select(aggStats($"tile"))
+    .withColumn("which", lit("before"))
+
+  val after = withAdjusted.select(aggStats($"adjusted"))
+    .withColumn("which", lit("after"))
+
+  before.union(after).show(false)
+
+```
+
+---
+
+| \_\*\bRender Results\s
+
+\_RasterFrames\s provides special wrappers around \_GeoTrellis\s
+routines for converting \*Tile\ss in \_Spark\s back to a raster:
+
+```
+  val raster = withAdjusted.toRaster($"adjusted", 774, 500)
+  GeoTiff(raster).write("contrast-adjusted.tiff")
+```
+
+--
+
+Let's visually compare results:
+
+```
+  "open ../src/test/resources/L8-B8-Robinson-IL.tiff".!
+  "open contrast-adjusted.tiff".!
+```
+
+---
+
+/\r~\b~
+| \_\gMachine Learning with RasterFrames\s
+/\r~\b~
+
+---
+
+| \_\*\bK-Means Clustering\s
+
+In this example we are going to perform \*K-means clustering\s on the
+cells in our example scene. This is admittedly contrived, as there are
+simpler ways of doing this when you have single pixel values. However,
+it outlines the process for more sophisiticated examples.
+
+Firstly, \*SparkML\s doesn't like \*NoData\s/\*NaN\s values, so we set the
+\*Tile\ss no-data value to something arbitrary but valid:
+
+```
+  val forML = rf.select(
+    rf.spatialKeyColumn, withNoData($"tile", 99999) as "tile"
+  ).asRF
+```
+
+---
+
+| \_\*\bML-Pipeline 1\s
+
+Next we assemble the ML pipeline.  First we instantiate the
+\_RasterFrames\s \*TileExploder\s, which converts each
+\*Tile\s row into multiple cell rows.
+
+This is necessary because \_SparkML\s requires each ML
+observation to be on a separate row.
+
+```
+  val exploder = new TileExploder()
+```
+
+---
+
+| \_\*\bML-Pipeline 2\s
+
+Then the \_SparkML\s \*Transformer\s that wraps feature
+columns into a \_SparkML\s \*Vector\s:
+
+```
+  val assembler = new VectorAssembler().
+    setInputCols(Array("tile")).
+    setOutputCol("features")
+```
+
+Now the rest of the pipeline:
+
+```
+  val k = 4
+  val kmeans = new KMeans().setK(k)
+  val pipeline = new Pipeline().setStages(
+    Array(exploder, assembler, kmeans)
+  )
+```
+
+---
+
+| \_\*\bTrain & Score\s
+
+Train the model:
+
+```
+  val model = pipeline.fit(forML)
+```
+
+Score the data:
+
+```
+  val clusteredCells = model.transform(forML)
+```
+
+Peek at the results:
+
+```
+  clusteredCells.show()
+```
+
+---
+
+| \_\*\bCluster Assignments\s
+
+Count the number of cells in each cluster:
+
+```
+  clusteredCells.groupBy("prediction").count().show
+```
+
+---
+
+| \_\*\bRendering Results\s
+
+Converting the \_SparkML\s cluster assignments back into a
+geo-referenced raster requires a number of steps. We'll leave
+the details to the \_RasterFrames\s documentation.
+
+```
+  val tlm = rf.tileLayerMetadata.left.get
+  val retiled = clusteredCells.groupBy(forML.spatialKeyColumn).agg(
+    assembleTile($"column_index", $"row_index",
+    $"prediction", tlm.tileCols, tlm.tileRows,
+    ByteConstantNoDataCellType)
+  )
+  val clusteredRF = retiled.asRF($"spatial_key", tlm)
+  val raster3 = clusteredRF.toRaster($"prediction", 774, 500)
+  val clusterColors = IndexedColorMap.fromColorMap(
+    ColorRamps.Viridis.toColorMap((0 until k).toArray)
+  )
+  GeoTiff(raster3)
+    .copy(options = GeoTiffOptions(clusterColors))
+    .write("clustered.tiff")
+  "open clustered.tiff".!
+```
+
+---
+
+/\r~\b~
+| \gThe End\s
+/\r~\b~
+
+Please visit us at \_http://rasterframes.io\s!
+

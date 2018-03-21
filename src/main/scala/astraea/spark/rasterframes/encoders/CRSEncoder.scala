@@ -23,9 +23,7 @@ import geotrellis.proj4.CRS
 import org.apache.spark.sql.catalyst.ScalaReflection
 import org.apache.spark.sql.catalyst.analysis.GetColumnByOrdinal
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.catalyst.expressions._
-import org.apache.spark.sql.catalyst.expressions.objects._
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.{ObjectType, StringType, StructField, StructType}
 import org.apache.spark.unsafe.types.UTF8String
 
 import scala.reflect.classTag
@@ -38,7 +36,8 @@ import scala.reflect.classTag
  */
 object CRSEncoder {
   def apply(): ExpressionEncoder[CRS] = {
-
+    import org.apache.spark.sql.catalyst.expressions._
+    import org.apache.spark.sql.catalyst.expressions.objects._
     val ctType = ScalaReflection.dataTypeFor[CRS]
     val schema = StructType(Seq(StructField("crsProj4", StringType, false)))
     val inputObject = BoundReference(0, ctType, nullable = false)
@@ -49,7 +48,7 @@ object CRSEncoder {
         classOf[UTF8String],
         StringType,
         "fromString",
-        InvokeSafely(inputObject, "toProj4String", intermediateType) :: Nil
+        Invoke(inputObject, "toProj4String", intermediateType, Nil) :: Nil
       )
 
     val inputRow = GetColumnByOrdinal(0, schema)
@@ -58,7 +57,7 @@ object CRSEncoder {
         CRSEncoder.getClass,
         ctType,
         "fromString",
-        InvokeSafely(inputRow, "toString", intermediateType) :: Nil
+        Invoke(inputRow, "toString", intermediateType, Nil) :: Nil
       )
 
     ExpressionEncoder[CRS](schema, flat = false, Seq(serializer), deserializer, classTag[CRS])

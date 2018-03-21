@@ -20,13 +20,12 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes
-import geotrellis.raster._
+import geotrellis.raster.{NODATA, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow}
-import org.apache.spark.sql.gt.InternalRowTile
+import org.apache.spark.sql.catalyst.expressions.{Expression, Generator}
+import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.types._
-import spire.syntax.cfor.cfor
 
 /**
  * Catalyst expression for converting a tile column into a pixel column, with each tile pixel occupying a separate row.
@@ -50,42 +49,35 @@ private[rasterframes] case class ExplodeTileExpression(
         .map(n ⇒ StructField(n, DoubleType, false)))
   }
 
-  private def sample[T](things: Seq[T]) = scala.util.Random.shuffle(things)
-    .take(math.ceil(things.length * sampleFraction).toInt)
+  private def keep(): Boolean = {
+    if (sampleFraction >= 1.0) true
+    else scala.util.Random.nextDouble() <= sampleFraction
+  }
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
-    val tiles = Array.ofDim[Tile](children.length)
-    cfor(0)(_ < tiles.length, _ + 1) { index =>
-      val row = children(index).eval(input).asInstanceOf[InternalRow]
-      tiles(index) = if(row != null) InternalRowTile(row) else null
-    }
+    // Do we need to worry about deserializing all the tiles in a row like this?
+    val tiles = for (child ← children)
+      yield TileUDT.deserialize(child.eval(input).asInstanceOf[InternalRow])
+
     val dims = tiles.filter(_ != null).map(_.dimensions)
     if(dims.isEmpty) Seq.empty[InternalRow]
     else {
       require(
-        dims.distinct.length == 1,
+        dims.distinct.size == 1,
         "Multi-column explode requires equally sized tiles. Found " + dims
       )
 
-      val numOutCols = tiles.length + 2
+      def safeGet(tile: Tile, col: Int, row: Int): Double =
+        if (tile == null) NODATA else tile.getDouble(col, row)
+
       val (cols, rows) = dims.head
 
-      val retval = Array.ofDim[InternalRow](cols * rows)
-      cfor(0)(_ < rows, _ + 1) { row =>
-        cfor(0)(_ < cols, _ + 1) { col =>
-          val rowIndex = row * cols + col
-          val outCols = Array.ofDim[Any](numOutCols)
-          outCols(0) = col
-          outCols(1) = row
-          cfor(0)(_ < tiles.length, _ + 1) { index =>
-            val tile = tiles(index)
-            outCols(index + 2) = if(tile == null) doubleNODATA else tile.getDouble(col, row)
-          }
-          retval(rowIndex) = new GenericInternalRow(outCols)
-        }
-      }
-      if(sampleFraction < 1.0) sample(retval)
-      else retval
+      for {
+        row ← 0 until rows
+        col ← 0 until cols
+        if keep()
+        contents = Seq[Any](col, row) ++ tiles.map(safeGet(_, col, row))
+      } yield InternalRow(contents: _*)
     }
   }
 }
