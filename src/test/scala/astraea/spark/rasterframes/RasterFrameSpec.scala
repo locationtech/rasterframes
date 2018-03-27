@@ -203,8 +203,6 @@ class RasterFrameSpec extends TestEnvironment with TestData {
       }
     }
 
-
-
     it("should rasterize with a spatiotemporal key") {
       val rf = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toRF
 

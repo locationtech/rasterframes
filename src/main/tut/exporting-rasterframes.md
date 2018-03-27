@@ -96,6 +96,62 @@ equalized.select(aggStats($"tile")).show(false)
 equalized.select(aggStats($"equalized")).show(false)
 ```
 
+
+## Exporting a Raster
+
+For the purposes of debugging, the RasterFrame tiles can be reassembled back into a raster for viewing. However, 
+keep in mind that this will download all the data to the driver, and reassemble it in-memory. So it's not appropriate 
+for very large coverages.
+
+Here's how one might render the image to a georeferenced GeoTIFF file: 
+
+```tut:silent
+import geotrellis.raster.io.geotiff.GeoTiff
+val image = equalized.toRaster($"equalized", 774, 500)
+GeoTiff(image).write("target/scala-2.11/tut/rf-raster.tiff")
+```
+
+[*Download GeoTIFF*](rf-raster.tiff)
+
+Here's how one might render a raster frame to a false color PNG file:
+
+```tut:silent
+val colors = ColorMap.fromQuantileBreaks(image.tile.histogram, ColorRamps.BlueToOrange)
+image.tile.color(colors).renderPng().write("target/scala-2.11/tut/rf-raster.png")
+```
+
+![](rf-raster.png)
+
+## Exporting to a GeoTrellis Layer
+
+For future analysis it is helpful to persist a RasterFrame as a [GeoTrellis layer](http://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html).
+
+First, convert the RasterFrame into a TileLayerRDD. The return type is an Either;
+the `left` side is for spatial-only keyed data
+
+```tut:book
+val tlRDD = equalized.toTileLayerRDD($"equalized").left.get
+```
+
+Then create a GeoTrellis layer writer:
+
+```tut:silent
+import java.nio.file.Files
+import spray.json._
+import DefaultJsonProtocol._
+import geotrellis.spark.io._
+val p = Files.createTempDirectory("gt-store")
+val writer: LayerWriter[LayerId] = LayerWriter(p.toUri)
+
+val layerId = LayerId("equalized", 0)
+writer.write(layerId, tlRDD, index.ZCurveKeyIndexMethod)
+```
+
+Take a look at the metadata in JSON format:
+```tut
+AttributeStore(p.toUri).readMetadata[JsValue](layerId).prettyPrint
+```
+
 ## Converting to `RDD` and `TileLayerRDD`
 
 Since a `RasterFrame` is just a `DataFrame` with extra metadata, the method 
@@ -121,31 +177,6 @@ enhancing interoperation with GeoTrellis RDD extension methods.
 ```tut
 showType(rf.toTileLayerRDD($"tile".as[Tile]))
 ```
-
-## Exporting a Raster
-
-For the purposes of debugging, the RasterFrame tiles can be reassembled back into a raster for viewing. However, 
-keep in mind that this will download all the data to the driver, and reassemble it in-memory. So it's not appropriate 
-for very large coverages.
-
-Here's how one might render a raster frame to a false color PNG file:
-
-```tut:silent
-val image = equalized.toRaster($"equalized", 774, 500)
-val colors = ColorMap.fromQuantileBreaks(image.tile.histogram, ColorRamps.BlueToOrange)
-image.tile.color(colors).renderPng().write("target/scala-2.11/tut/rf-raster.png")
-```
-
-![](rf-raster.png)
-
-Here's how one might render the image to a georeferenced GeoTIFF file: 
-
-```tut:silent
-import geotrellis.raster.io.geotiff.GeoTiff
-GeoTiff(image).write("target/scala-2.11/tut/rf-raster.tiff")
-```
-
-[*Download GeoTIFF*](rf-raster.tiff)
 
 ```tut:invisible
 spark.stop()

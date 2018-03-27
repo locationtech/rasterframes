@@ -18,13 +18,18 @@
  */
 
 package examples
+import java.nio.file.Files
+
 import astraea.spark.rasterframes._
 import geotrellis.raster._
 import geotrellis.raster.render._
 import geotrellis.raster.io.geotiff.{GeoTiff, SinglebandGeoTiff}
-import geotrellis.spark.SpatialKey
+import geotrellis.spark.{LayerId, SpatialKey}
+import geotrellis.spark.io.LayerWriter
+import geotrellis.spark.io.file.{FileAttributeStore, FileLayerWriter}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import spray.json.JsValue
 
 object Exporting extends App {
 
@@ -144,6 +149,23 @@ object Exporting extends App {
   GeoTiff(image).write("target/scala-2.11/tut/rf-raster.tiff")
 
   //  [*Download GeoTIFF*](rf-raster.tiff)
+
+  //  # Exporting to a GeoTrellis Layer
+  // First, convert the RasterFrame into a TileLayerRDD. The return type is an Either;
+  // the `left` side is for spatial-only keyed data
+  val tlRDD = equalized.toTileLayerRDD($"equalized").left.get
+
+  // First create a GeoTrellis layer writer
+  import geotrellis.spark.io._
+  val p = Files.createTempDirectory("gt-store")
+  val writer: LayerWriter[LayerId] = LayerWriter(p.toUri)
+
+  val layerId = LayerId("equalized", 0)
+  writer.write(layerId, tlRDD, index.ZCurveKeyIndexMethod)
+
+  // Take a look at the metadata in JSON format:
+  import spray.json.DefaultJsonProtocol._
+  AttributeStore(p.toUri).readMetadata[JsValue](layerId).prettyPrint
 
   spark.stop()
 }

@@ -22,7 +22,7 @@ object ProjectPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
   val versions = Map(
-    "geotrellis" -> "1.2.0-RC1",
+    "geotrellis" -> "1.2.0-RC2",
     "spark" -> "2.1.0"
   )
 
@@ -39,11 +39,14 @@ object ProjectPlugin extends AutoPlugin {
     scalaVersion := "2.11.11",
     scalacOptions ++= Seq("-feature", "-deprecation"),
     cancelable in Global := true,
-//    resolvers ++= Seq(
-//      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases"
-//    ),
+    resolvers ++= Seq(
+      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases"
+    ),
     libraryDependencies ++= Seq(
       "com.chuusai" %% "shapeless" % "2.3.2",
+      //"org.locationtech.sfcurve" %% "sfcurve-zorder" % "0.2.0",
+      //"org.locationtech.geomesa" %% "geomesa-jts-spark" % "astraea.1",
+      "org.locationtech.geomesa" %% "geomesa-z3" % "1.3.5",
       spark("core") % Provided,
       spark("mllib") % Provided,
       spark("sql") % Provided,
@@ -145,7 +148,7 @@ object ProjectPlugin extends AutoPlugin {
         geotrellis("raster") % Tut
       ),
       fork in (Tut, runner) := true,
-      javaOptions in (Tut, runner) := Seq("-Xmx6G")
+      javaOptions in (Tut, runner) := Seq("-Xmx8G")
     )
 
     def buildInfoSettings: Seq[Def.Setting[_]] = Seq(

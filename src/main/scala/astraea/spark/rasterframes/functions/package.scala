@@ -18,6 +18,7 @@ package astraea.spark.rasterframes
 import geotrellis.raster.histogram.Histogram
 import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster._
+import geotrellis.raster.render.ascii.AsciiArtEncoder
 
 import scala.reflect.runtime.universe._
 
@@ -210,7 +211,7 @@ package object functions {
   private[rasterframes] val localDivide: (Tile, Tile) ⇒ Tile = safeEval(Divide.apply)
 
   /** Render tile as ASCII string. */
-  private[rasterframes] val renderAscii: (Tile) ⇒ String = safeEval(_.renderAscii())
+  private[rasterframes] val renderAscii: (Tile) ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
 
   /** Constructor for constant tiles */
   private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {

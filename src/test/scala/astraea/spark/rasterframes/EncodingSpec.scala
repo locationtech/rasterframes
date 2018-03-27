@@ -19,6 +19,7 @@
 
 package astraea.spark.rasterframes
 
+import geotrellis.proj4._
 import geotrellis.raster.{CellType, MultibandTile, Tile, TileFeature}
 import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
@@ -102,6 +103,14 @@ class EncodingSpec extends TestEnvironment with TestData  {
 
       val colNum = ds.select(key2col(ds(ds.columns.head))).as[Int].first()
       assert(colNum === 37)
+    }
+
+    it("should code RDD[CRS]") {
+      val ds = Seq[CRS](LatLng, WebMercator, ConusAlbers, Sinusoidal).toDS()
+      ds.printSchema()
+      ds.show
+      write(ds)
+      assert(ds.toDF.as[CRS].first === LatLng)
     }
   }
 
