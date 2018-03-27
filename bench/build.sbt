@@ -1,10 +1,10 @@
 enablePlugins(BenchmarkPlugin)
 
 libraryDependencies ++= Seq(
-  spark("core"),
-  spark("sql"),
-  geotrellis("spark"),
-  geotrellis("raster")
+  spark("core").value,
+  spark("sql").value,
+  geotrellis("spark").value,
+  geotrellis("raster").value
 )
 
 jmhIterations := Some(5)

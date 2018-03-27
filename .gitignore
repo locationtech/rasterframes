@@ -24,3 +24,4 @@ metastore_db
 .ensime*
 tour/jars
 tour/*.tiff
+scoverage-report*

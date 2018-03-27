@@ -29,7 +29,6 @@ import scala.util.matching.Regex
 /**
  * Plugin wrapping up the fine-grained settings associated with running JMH benchmarks
  *
- * @author sfitch
  * @since 9/8/17
  */
 object BenchmarkPlugin extends AutoPlugin {

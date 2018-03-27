@@ -1,20 +1,22 @@
-lazy val `raster-frames` = project
+addCommandAlias("makeSite", "docs/makeSite")
+
+lazy val root = project
   .in(file("."))
-  .enablePlugins(
-    SiteScaladocPlugin,
-    ParadoxSitePlugin,
-    TutPlugin,
-    GhpagesPlugin,
-    BuildInfoPlugin
-  )
-  .settings(name := "RasterFrames")
-  .settings(moduleName := "raster-frames")
+  .withId("RF")
+  .aggregate(core, datasource)
+  .settings(publishArtifact := false)
   .settings(releaseSettings)
-  .settings(docSettings)
-  .settings(buildInfoSettings)
+
+lazy val core = project
+
+lazy val datasource = project
+  .dependsOn(core % "test->test;compile->compile")
+
+lazy val docs = project
+  .dependsOn(core, datasource)
 
 lazy val bench = project
-  .dependsOn(`raster-frames`)
+  .dependsOn(core)
 
 initialCommands in console := """
   |import astraea.spark.rasterframes._

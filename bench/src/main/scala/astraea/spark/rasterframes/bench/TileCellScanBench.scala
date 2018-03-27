@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.gt.InternalRowTile
+import org.apache.spark.sql.rf.InternalRowTile
 import org.apache.spark.sql.gt.types.TileUDT
 import org.openjdk.jmh.annotations._
 
