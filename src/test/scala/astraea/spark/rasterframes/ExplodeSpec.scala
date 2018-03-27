@@ -66,14 +66,33 @@ class ExplodeSpec extends TestEnvironment with TestData {
       assert(exploded.count() < 9)
     }
 
-    it("should handle null tiles.") {
+    it("should handle null tiles") {
       val df = Seq[Tile](null, byteArrayTile, null, byteArrayTile, null).toDF("tile1")
       val exploded = df.select(explodeTiles($"tile1"))
       assert(exploded.count === byteArrayTile.size * 2)
-
       val df2 = Seq[(Tile, Tile)]((byteArrayTile, null), (null, byteArrayTile), (byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
       val exploded2 = df2.select(explodeTiles($"tile1", $"tile2"))
       assert(exploded2.count === byteArrayTile.size * 3)
+    }
+
+    it("should handle single tile with user-defined NoData value") {
+      // Create a tile with a single (wierd) no-data value
+      val tile: Tile = UShortArrayTile(rangeArray(9, _.toShort), 3, 3, 5.toShort)
+      val cells = Seq(tile).toDF("tile")
+        .select(explodeTiles($"tile"))
+        .select($"tile".as[Double])
+        .collect()
+
+      assert(cells.count(_.isNaN) === 1)
+    }
+
+    it("should handle user-defined NoData values in tile sampler") {
+      val tiles = allTileTypes.filter(t ⇒ !t.isInstanceOf[BitArrayTile]).map(_.withNoData(Some(3)))
+      val cells = tiles.toDF("tile")
+        .select(explodeTiles($"tile"))
+        .select($"tile".as[Double])
+        .collect()
+      assert(cells.count(_.isNaN) === tiles.size)
     }
 
     it("should convert tile into array") {
@@ -108,50 +127,48 @@ class ExplodeSpec extends TestEnvironment with TestData {
       assert(result2.cellType.asInstanceOf[UserDefinedNoData[_]].noDataValue === 0)
     }
 
-    it("should reassemble exploded tile") {
-      withClue("single tile") {
-        val df = Seq[Tile](byteArrayTile).toDF("tile")
-          .select(explodeTiles($"tile"))
+    it("should reassemble single exploded tile") {
+      val df = Seq[Tile](byteArrayTile).toDF("tile")
+        .select(explodeTiles($"tile"))
 
-        val assembled = df.agg(assembleTile(
+      val assembled = df.agg(assembleTile(
+        col(COLUMN_INDEX_COLUMN),
+        col(ROW_INDEX_COLUMN),
+        col(TILE_COLUMN),
+        3, 3, byteArrayTile.cellType
+      )).as[Tile]
+
+      val result = assembled.first()
+      assert(result === byteArrayTile)
+    }
+
+    it("should reassemble multiple exploded tiles") {
+      val image = sampleGeoTiff
+      val tinyTiles = image.projectedRaster.toRF(10, 10)
+
+      val exploded = tinyTiles.select(tinyTiles.spatialKeyColumn, explodeTiles(tinyTiles.tileColumns.head))
+
+      //exploded.printSchema()
+
+      val assembled = exploded.groupBy(tinyTiles.spatialKeyColumn)
+        .agg(assembleTile(
           col(COLUMN_INDEX_COLUMN),
           col(ROW_INDEX_COLUMN),
           col(TILE_COLUMN),
-          3, 3, byteArrayTile.cellType
-        )).as[Tile]
+          10, 10, IntConstantNoDataCellType
+        ))
 
-        val result = assembled.first()
-        assert(result === byteArrayTile)
-      }
+      val tlm = tinyTiles.tileLayerMetadata.left.get
 
-      withClue("multiple tiles") {
-        val image = sampleGeoTiff
-        val tinyTiles = image.projectedRaster.toRF(10, 10)
+      val rf = assembled.asRF(col(SPATIAL_KEY_COLUMN), tlm)
 
-        val exploded = tinyTiles.select(tinyTiles.spatialKeyColumn, explodeTiles(tinyTiles.tileColumns.head))
+      val (cols, rows) = image.tile.dimensions
 
-        //exploded.printSchema()
+      val recovered = rf.toRaster(col(TILE_COLUMN), cols, rows, NearestNeighbor)
 
-        val assembled = exploded.groupBy(tinyTiles.spatialKeyColumn)
-          .agg(assembleTile(
-            col(COLUMN_INDEX_COLUMN),
-            col(ROW_INDEX_COLUMN),
-            col(TILE_COLUMN),
-            10, 10, IntConstantNoDataCellType
-          ))
+      //GeoTiff(recovered).write("foo.tiff")
 
-        val tlm = tinyTiles.tileLayerMetadata.left.get
-
-        val rf = assembled.asRF(col(SPATIAL_KEY_COLUMN), tlm)
-
-        val (cols, rows) = image.tile.dimensions
-
-        val recovered = rf.toRaster(col(TILE_COLUMN), cols, rows, NearestNeighbor)
-
-        //GeoTiff(recovered).write("foo.tiff")
-
-        assert(image.tile.toArrayTile() === recovered.tile.toArrayTile())
-      }
+      assert(image.tile.toArrayTile() === recovered.tile.toArrayTile())
     }
   }
 

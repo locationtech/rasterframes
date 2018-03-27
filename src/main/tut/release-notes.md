@@ -1,4 +1,8 @@
 # Release Notes
+## 0.5.11
+
+* Significant performance improvement in `explodeTiles` (1-2 orders of magnitude). See [#38](https://github.com/s22s/raster-frames/issues/38)
+* Fixed bugs in `NoData` handling when converting to `Double` tiles.
 
 ## 0.5.10
 

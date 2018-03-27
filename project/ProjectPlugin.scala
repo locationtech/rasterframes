@@ -26,10 +26,7 @@ object ProjectPlugin extends AutoPlugin {
     "spark" -> "2.1.0"
   )
 
-  private def geotrellis(module: String) =
-    "org.locationtech.geotrellis" %% s"geotrellis-$module" % versions("geotrellis")
-  private def spark(module: String) =
-    "org.apache.spark" %% s"spark-$module" % versions("spark")
+  import autoImport._
 
   override def projectSettings = Seq(
     organization := "io.astraea",
@@ -79,6 +76,12 @@ object ProjectPlugin extends AutoPlugin {
   )
 
   object autoImport {
+
+    def geotrellis(module: String) =
+      "org.locationtech.geotrellis" %% s"geotrellis-$module" % versions("geotrellis")
+    def spark(module: String) =
+      "org.apache.spark" %% s"spark-$module" % versions("spark")
+
     def releaseSettings: Seq[Def.Setting[_]] = {
       val buildSite: (State) ⇒ State = releaseStepTask(makeSite)
       val publishSite: (State) ⇒ State = releaseStepTask(ghpagesPushSite)
@@ -124,9 +127,9 @@ object ProjectPlugin extends AutoPlugin {
       apiURL := Some(url("http://rasterframes.io/latest/api")),
       autoAPIMappings := false,
       paradoxProperties in Paradox ++= Map(
-        "github.base_url" -> "https://github.com/s22s/raster-frames"//,
-        //"scaladoc.org.apache.spark.sql.gt" -> "http://rasterframes.io/latest" //,
-        //"scaladoc.geotrellis.base_url" -> "https://geotrellis.github.io/scaladocs/latest"
+        "github.base_url" -> "https://github.com/s22s/raster-frames",
+        "scaladoc.org.apache.spark.sql.gt" -> "http://rasterframes.io/latest",
+        "scaladoc.geotrellis.base_url" -> "https://geotrellis.github.io/scaladocs/latest"
       ),
       sourceDirectory in Paradox := tutTargetDirectory.value,
       sourceDirectory in Paradox in paradoxTheme := sourceDirectory.value / "main" / "paradox" / "_template",

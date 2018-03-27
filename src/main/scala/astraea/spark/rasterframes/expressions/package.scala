@@ -24,6 +24,7 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, ExprCode}
+import org.apache.spark.sql.gt.InternalRowTile
 import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.types._
 
@@ -34,6 +35,7 @@ import org.apache.spark.sql.types._
  * @since 10/10/17
  */
 package object expressions {
+  import InternalRowTile.C._
   private def row(input: Any) = input.asInstanceOf[InternalRow]
 
   protected trait RequiresTile { self: UnaryExpression ⇒
@@ -51,10 +53,10 @@ package object expressions {
     def dataType: DataType = StringType
 
     override protected def nullSafeEval(input: Any): Any =
-      row(input).getUTF8String(TileUDT.C.CELL_TYPE)
+      row(input).getUTF8String(CELL_TYPE)
 
     protected def doGenCode(ctx: CodegenContext, ev: ExprCode): ExprCode =
-      defineCodeGen(ctx, ev, c ⇒ s"$c.getUTF8String(${TileUDT.C.CELL_TYPE});")
+      defineCodeGen(ctx, ev, c ⇒ s"$c.getUTF8String($CELL_TYPE);")
    }
 
   /** Extract a Tile's dimensions */
@@ -66,8 +68,8 @@ package object expressions {
 
     override protected def nullSafeEval(input: Any): Any = {
       val r = row(input)
-      val cols = r.getShort(TileUDT.C.COLS)
-      val rows = r.getShort(TileUDT.C.ROWS)
+      val cols = r.getShort(COLS)
+      val rows = r.getShort(ROWS)
       InternalRow(cols, rows)
     }
 
@@ -76,15 +78,11 @@ package object expressions {
       val rows = ctx.freshName("rows")
       nullSafeCodeGen(ctx, ev, eval ⇒
         s"""
-           final short $cols = $eval.getShort(${TileUDT.C.COLS});
-           final short $rows = $eval.getShort(${TileUDT.C.ROWS});
+           final short $cols = $eval.getShort($COLS);
+           final short $rows = $eval.getShort($ROWS);
            ${ev.value} = new GenericInternalRow(new Object[] { $cols, $rows });
-           //${ctx.setColumn(ev.value, ShortType, 0, cols)};
-           //${ctx.setColumn(ev.value, ShortType, 1, rows)};
          """
       )
     }
-
-      //defineCodeGen(ctx, ev, c ⇒ s"$c.getUTF8String(${TileUDT.C.CELL_TYPE})")
   }
 }

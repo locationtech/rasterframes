@@ -68,20 +68,22 @@ trait TestData {
 
   val multibandTile = MultibandTile(byteArrayTile, byteConstantTile)
 
+  def rangeArray[T: ClassTag](size: Int, conv: (Int ⇒ T)): Array[T] =
+    (1 to size).map(conv).toArray
+
   val allTileTypes: Seq[Tile] = {
     val rows = 3
     val cols = 3
-    val range = 1 to rows * cols
-    def rangeArray[T: ClassTag](conv: (Int ⇒ T)): Array[T] = range.map(conv).toArray
+    val size = rows * cols
     Seq(
       BitArrayTile(Array[Byte](0,1,2,3,4,5,6,7,8), 3*8, 3),
-      ByteArrayTile(rangeArray(_.toByte), rows, cols),
-      DoubleArrayTile(rangeArray(_.toDouble), rows, cols),
-      FloatArrayTile(rangeArray(_.toFloat), rows, cols),
-      IntArrayTile(rangeArray(identity), rows, cols),
-      ShortArrayTile(rangeArray(_.toShort), rows, cols),
-      UByteArrayTile(rangeArray(_.toByte), rows, cols),
-      UShortArrayTile(rangeArray(_.toShort), rows, cols)
+      ByteArrayTile(rangeArray(size, _.toByte), rows, cols),
+      DoubleArrayTile(rangeArray(size, _.toDouble), rows, cols),
+      FloatArrayTile(rangeArray(size, _.toFloat), rows, cols),
+      IntArrayTile(rangeArray(size, identity), rows, cols),
+      ShortArrayTile(rangeArray(size, _.toShort), rows, cols),
+      UByteArrayTile(rangeArray(size, _.toByte), rows, cols),
+      UShortArrayTile(rangeArray(size, _.toShort), rows, cols)
     )
   }
 
