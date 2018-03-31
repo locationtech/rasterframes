@@ -28,6 +28,7 @@ class GeoTiffDataSourceSpec
     with IntelliJPresentationCompilerHack {
 
   val cogPath = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
+  val nonCogPath = getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI
 
   describe("GeoTiff reading") {
 
@@ -37,6 +38,46 @@ class GeoTiffDataSourceSpec
         .loadRF(cogPath)
 
       assert(rf.count() > 10)
+    }
+
+    it("should lay out tiles correctly"){
+
+      val rf = spark.read
+        .geotiff
+        .loadRF(cogPath)
+
+      val tlm = rf.tileLayerMetadata.left.get
+      val gb = tlm.gridBounds
+      assert(gb.colMax > gb.colMin)
+      assert(gb.rowMax > gb.rowMin)
+    }
+
+    it("should lay out tiles correctly for non-tiled tif") {
+      val rf = spark.read
+        .geotiff
+        .loadRF(nonCogPath)
+
+      println(rf.count())
+      rf.show(false)
+
+      assert(rf.count() > 1)
+
+      import spark.implicits._
+      import org.apache.spark.sql.functions._
+      logger.info(
+        rf.agg(
+          min(col("spatial_key.row")) as "rowmin",
+          max(col("spatial_key.row")) as "rowmax",
+          min(col("spatial_key.col")) as "colmin",
+          max(col("spatial_key.col")) as "colmax"
+
+        ).first.toSeq.toString()
+      )
+      val tlm = rf.tileLayerMetadata.left.get
+      val gb = tlm.gridBounds
+      assert(gb.rowMax > gb.rowMin)
+      assert(gb.colMax > gb.colMin)
+
     }
 
     it("should write RF to parquet") {

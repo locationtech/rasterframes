@@ -1,6 +1,18 @@
 # Release Notes
 
-## 0.6.0
+## 0.6.x
+
+### 0.6.1
+
+* Added support for reading striped GeoTiffs (#64).
+* Moved extension methods associated with querying tagged columns to `DataFrameMethods` for supporting
+  temporal and spatial columns on non-RasterFrame DataFrames.
+* GeoTIFF and GeoTrellis DataSources automatically initialize RasterFrames.
+* Added `RasterFrame.toMultibandRaster`.
+* Added utility for rendering multiband tile as RGB composite PNG.
+* Added `RasterFrame.withRFColumnRenamed` to lessen boilerplate in maintaining `RasterFrame` type tag.  
+
+### 0.6.0
 
 * Upgraded to Spark 2.2.1. Added `VersionShims` to allow for Spark 2.1.x backwards compatibility.
 * Introduced separate `rasterframes-datasource` library for hosting sources from which to read RasterFrames.

@@ -24,6 +24,7 @@ import java.net.URI
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{DataSourceRegister, RelationProvider}
+import astraea.spark.rasterframes._
 
 /**
  *
@@ -36,6 +37,7 @@ class DefaultSource extends DataSourceRegister with RelationProvider {
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
     require(parameters.contains("path"), "'path' parameter required.")
     val uri: URI = URI.create(parameters("path"))
+    sqlContext.withRasterFrames
     GeoTiffRelation(sqlContext, uri)
   }
 }

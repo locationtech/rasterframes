@@ -177,7 +177,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
         )
     }
 
-    val extentField = StructField(Cols.EX, org.apache.spark.sql.jts.JTSTypes.PolygonTypeInstance, false)
+    val extentField = StructField(Cols.EX, org.apache.spark.sql.jts.JTSTypes.PolygonTypeInstance, true)
     StructType((keyFields :+ extentField) ++ tileFields)
   }
 

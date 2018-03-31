@@ -21,7 +21,6 @@ package astraea.spark.rasterframes
 
 import geotrellis.raster._
 import geotrellis.raster.resample.NearestNeighbor
-import org.apache.spark.sql.functions._
 
 
 /**

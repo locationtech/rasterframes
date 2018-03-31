@@ -44,7 +44,7 @@ trait Implicits {
   implicit class WithProjectedRasterMethods(val self: ProjectedRaster[Tile])
       extends ProjectedRasterMethods
 
-  implicit class WithDataFrameMethods(val self: DataFrame) extends DataFrameMethods
+  implicit class WithDataFrameMethods[D <: DataFrame](val self: D) extends DataFrameMethods[D]
 
   implicit class WithRasterFrameMethods(val self: RasterFrame) extends RasterFrameMethods
 

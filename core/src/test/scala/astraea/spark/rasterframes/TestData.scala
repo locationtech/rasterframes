@@ -102,6 +102,11 @@ trait TestData {
   }
   def l8Labels = readSingleband("L8-Labels-Elkton-VA.tiff")
 
+  def naipSample(band: Int) = {
+    require((1 to 4).contains(band), "Invalid band number")
+    readSingleband(s"NAIP-VA-b$band.tiff")
+  }
+
   def sampleTileLayerRDD(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
     val raster = sampleGeoTiff.projectedRaster.reproject(LatLng)
     val layout = LayoutDefinition(LatLng.worldExtent, TileLayout(36, 18, 128, 128))

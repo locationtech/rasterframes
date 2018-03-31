@@ -32,8 +32,7 @@ Here's an example downsampling a tile and rendering each tile as a matrix of num
 
 ```tut  
 val downsample = udf((t: Tile) => t.resample(4, 4))
-val render = udf((t: Tile) => "\n" + t.asciiDraw() + "\n")
-val downsampled = rf.select(render(downsample($"tile")) as "minime")
+val downsampled = rf.select(renderAscii(downsample($"tile")) as "minime")
 downsampled.show(5, false)
 ```
 

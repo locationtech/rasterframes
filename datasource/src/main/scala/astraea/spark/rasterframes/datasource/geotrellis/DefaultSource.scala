@@ -55,6 +55,8 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
     require(parameters.contains("layer"), "'layer' parameter for raster layer name required.")
     require(parameters.contains("zoom"), "'zoom' parameter for raster layer zoom level required.")
 
+    sqlContext.withRasterFrames
+
     registerOptimization(sqlContext, SpatialFilterPushdownRules)
 
     val uri: URI = URI.create(parameters("path"))

@@ -16,44 +16,44 @@
 
 package astraea.spark.rasterframes.extensions
 
+import astraea.spark.rasterframes.StandardColumns._
+import astraea.spark.rasterframes.util._
+import astraea.spark.rasterframes.{MetadataKeys, RasterFrame}
+import geotrellis.raster.Tile
 import geotrellis.spark.io._
 import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
 import org.apache.spark.sql.catalyst.expressions.Attribute
-import org.apache.spark.sql.gt._
-import org.apache.spark.sql.types.MetadataBuilder
-import org.apache.spark.sql.{Column, DataFrame}
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.types.{MetadataBuilder, StructField}
+import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
 import spray.json.JsonFormat
-import astraea.spark.rasterframes.util._
-import astraea.spark.rasterframes.{MetadataKeys, RasterFrame}
-import scala.util.Try
 
+import scala.util.Try
 
 /**
  * Extension methods over [[DataFrame]].
  *
  * @since 7/18/17
  */
-trait DataFrameMethods extends MethodExtensions[DataFrame] with MetadataKeys {
-  import Implicits.WithMetadataBuilderMethods
-  import Implicits.WithMetadataMethods
-  import Implicits.WithRasterFrameMethods
-  import Implicits.WithDataFrameMethods
+trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with MetadataKeys {
+  import Implicits.{WithDataFrameMethods, WithMetadataBuilderMethods, WithMetadataMethods, WithRasterFrameMethods}
 
   private def selector(column: Column) = (attr: Attribute) ⇒
     attr.name == column.columnName || attr.semanticEquals(column.expr)
 
   /** Map over the Attribute representation of Columns, modifying the one matching `column` with `op`. */
-  private[astraea] def mapColumnAttribute(column: Column, op: Attribute ⇒  Attribute): DataFrame = {
+  private[astraea] def mapColumnAttribute(column: Column, op: Attribute ⇒  Attribute): DF = {
     val analyzed = self.queryExecution.analyzed.output
     val selects = selector(column)
     val attrs = analyzed.map { attr ⇒
       if(selects(attr)) op(attr) else attr
     }
-    self.select(attrs.map(a ⇒ new Column(a)): _*)
+    self.select(attrs.map(a ⇒ new Column(a)): _*).asInstanceOf[DF]
   }
 
-  private[astraea] def addColumnMetadata(column: Column, op: MetadataBuilder ⇒ MetadataBuilder): DataFrame = {
+  private[astraea] def addColumnMetadata(column: Column, op: MetadataBuilder ⇒ MetadataBuilder): DF = {
     mapColumnAttribute(column, attr ⇒ {
       val md = new MetadataBuilder().withMetadata(attr.metadata)
       attr.withMetadata(op(md).build)
@@ -67,13 +67,13 @@ trait DataFrameMethods extends MethodExtensions[DataFrame] with MetadataKeys {
 
   private[astraea]
   def setSpatialColumnRole[K: SpatialComponent: JsonFormat](
-    column: Column, md: TileLayerMetadata[K]) =
+    column: Column, md: TileLayerMetadata[K]): DF =
     addColumnMetadata(column,
       _.attachContext(md.asColumnMetadata).tagSpatialKey
     )
 
   private[astraea]
-  def setTemporalColumnRole(column: Column) =
+  def setTemporalColumnRole(column: Column): DF =
     addColumnMetadata(column, _.tagTemporalKey)
 
   /** Get the role tag the column plays in the RasterFrame, if any. */
@@ -81,11 +81,47 @@ trait DataFrameMethods extends MethodExtensions[DataFrame] with MetadataKeys {
   def getColumnRole(column: Column): Option[String] =
     fetchMetadataValue(column, _.metadata.getString(SPATIAL_ROLE_KEY))
 
+  /** Get the names of the columns that are of type `Tile` */
+  def tileColumns: Seq[TypedColumn[Any, Tile]] =
+    self.schema.fields
+      .filter(_.dataType.typeName.equalsIgnoreCase(TileUDT.typeName))
+      .map(f ⇒ col(f.name).as[Tile])
+
+  /** Get the spatial column. */
+  def spatialKeyColumn: Option[TypedColumn[Any, SpatialKey]] = {
+    val key = findSpatialKeyField
+    key
+      .map(_.name)
+      .map(col(_).as[SpatialKey])
+  }
+
+  /** Get the temporal column, if any. */
+  def temporalKeyColumn: Option[TypedColumn[Any, TemporalKey]] = {
+    val key = findTemporalKeyField
+    key.map(_.name).map(col(_).as[TemporalKey])
+  }
+
+  /** Find the field tagged with the requested `role` */
+  private[rasterframes] def findRoleField(role: String): Option[StructField] =
+    self.schema.fields.find(
+      f ⇒
+        f.metadata.contains(SPATIAL_ROLE_KEY) &&
+          f.metadata.getString(SPATIAL_ROLE_KEY) == role
+    )
+
+  /** The spatial key is the first one found with context metadata attached to it. */
+  private[rasterframes] def findSpatialKeyField: Option[StructField] =
+    findRoleField(SPATIAL_KEY_COLUMN.columnName)
+
+  /** The temporal key is the first one found with the temporal tag. */
+  private[rasterframes] def findTemporalKeyField: Option[StructField] =
+    findRoleField(TEMPORAL_KEY_COLUMN.columnName)
+
   /** Renames all columns such that they start with the given prefix string.
    * Useful for preparing dataframes for joins where duplicate names may arise.
    */
-  def withPrefixedColumnNames(prefix: String): DataFrame =
-    self.columns.foldLeft(self)((df, c) ⇒ df.withColumnRenamed(c, s"$prefix$c"))
+  def withPrefixedColumnNames(prefix: String): DF =
+    self.columns.foldLeft(self)((df, c) ⇒ df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
 
   /** Converts this DataFrame to a RasterFrame after ensuring it has:
    *

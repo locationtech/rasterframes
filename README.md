@@ -11,12 +11,13 @@ Please see the [Getting Started](http://rasterframes.io/getting-started.html) se
 
 ## Documentation
 
+* [Giter8 Template](https://github.com/s22s/raster-frames.g8) (i.e. `sbt new s22s/raster-frames.g8`)
 * [Users' Manual](http://rasterframes.io/)
 * [API Documentation](http://rasterframes.io/latest/api/index.html) 
-* [List of available UDFs](http://rasterframes.io/latest/api/index.html#astraea.spark.rasterframes.ColumnFunctions)
+* [List of available UDFs](http://rasterframes.io/latest/api/index.html#astraea.spark.rasterframes.RasterFunctions)
 
 ## Copyright and License
 
-RasterFrames is released under the Apache 2.0 License, copyright Astraea, Inc. 2017.
+RasterFrames is released under the Apache 2.0 License, copyright Astraea, Inc. 2017-2018.
 
 
