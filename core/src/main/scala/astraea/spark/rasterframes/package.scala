@@ -39,7 +39,6 @@ package object rasterframes extends StandardColumns
   with StandardEncoders
   with SpatialEncoders
   with DataFrameFunctions.Library {
-  type Statistics = astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics
 
   /**
    * Initialization injection point. Must be called before any RasterFrame

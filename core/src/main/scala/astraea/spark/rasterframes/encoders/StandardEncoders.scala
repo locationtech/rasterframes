@@ -19,8 +19,7 @@
 
 package astraea.spark.rasterframes.encoders
 
-import astraea.spark.rasterframes.Statistics
-import geotrellis.raster.histogram.Histogram
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import geotrellis.raster.{MultibandTile, Tile}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TileLayerMetadata}
@@ -40,8 +39,8 @@ trait StandardEncoders {
   implicit val extentEncoder = ExpressionEncoder[Extent]()
   implicit val projectedExtentEncoder = ProjectedExtentEncoder()
   implicit val temporalProjectedExtentEncoder = TemporalProjectedExtentEncoder()
-  implicit def histogramDoubleEncoder = ExpressionEncoder[Histogram[Double]]()
-  implicit val statsEncoder = ExpressionEncoder[Statistics]()
+  implicit val statsEncoder = ExpressionEncoder[CellStatistics]()
+  implicit val histEncoder = ExpressionEncoder[CellHistogram]()
   implicit def tileLayerMetadataEncoder[K: TypeTag]: Encoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder[K]()
   implicit val layoutDefinitionEncoder = ExpressionEncoder[LayoutDefinition]()
   implicit val stkBoundsEncoder = ExpressionEncoder[KeyBounds[SpaceTimeKey]]()

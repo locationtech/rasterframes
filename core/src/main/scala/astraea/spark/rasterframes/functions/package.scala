@@ -15,7 +15,7 @@
  */
 package astraea.spark.rasterframes
 
-import geotrellis.raster.histogram.Histogram
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster._
 import geotrellis.raster.render.ascii.AsciiArtEncoder
@@ -30,7 +30,6 @@ import scala.reflect.runtime.universe._
  * @since 9/7/17
  */
 package object functions {
-  import astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics
 
   @inline
   private[rasterframes] def safeBinaryOp[T <: AnyRef, R >: T](op: (T, T) ⇒ R): ((T, T) ⇒ R) =
@@ -148,12 +147,12 @@ package object functions {
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
   /** Single tile histogram. */
-  private[rasterframes] val tileHistogram = safeEval[Tile, Histogram[Double]](_.histogramDouble)
+  private[rasterframes] val tileHistogram = safeEval[Tile, CellHistogram](t ⇒ CellHistogram(t.histogramDouble))
 
   /** Single tile statistics. Convenience for `tileHistogram.statistics`. */
-  private[rasterframes] val tileStats = safeEval[Tile, Statistics]((t: Tile) ⇒
-    if (t.cellType.isFloatingPoint) t.statisticsDouble.map(Statistics.apply).orNull
-    else t.statistics.map(Statistics.apply).orNull
+  private[rasterframes] val tileStats = safeEval[Tile, CellStatistics]((t: Tile) ⇒
+    if (t.cellType.isFloatingPoint) t.statisticsDouble.map(CellStatistics.apply).orNull
+    else t.statistics.map(CellStatistics.apply).orNull
   )
 
   /** Add up all the cell values. */

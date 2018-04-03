@@ -16,12 +16,15 @@
 
 package astraea.spark.rasterframes.functions
 
+import astraea.spark.rasterframes.encoders.StandardEncoders
+import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster.Tile
 import geotrellis.raster.histogram.{Histogram, StreamingHistogram}
+import geotrellis.spark.util.KryoSerializer
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.gt.types.{HistogramUDT, TileUDT}
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.types._
 
 /**
  * Histogram aggregation function for a full column of tiles.
@@ -31,26 +34,43 @@ import org.apache.spark.sql.types.{DataType, StructField, StructType}
 case class HistogramAggregateFunction() extends UserDefinedAggregateFunction {
   override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
 
-  override def bufferSchema: StructType = StructType(StructField("buffer", HistogramUDT) :: Nil)
+  override def bufferSchema: StructType = StructType(StructField("buffer", BinaryType) :: Nil)
 
-  override def dataType: DataType = new HistogramUDT()
+  override def dataType: DataType = StandardEncoders.histEncoder.schema
 
   override def deterministic: Boolean = true
 
+  @inline
+  private def marshall(hist: Histogram[Double]): Array[Byte] =
+    KryoSerializer.serialize(hist)
+
+  @inline
+  private def unmarshall(blob: Array[Byte]): Histogram[Double] =
+    KryoSerializer.deserialize(blob)
+
   override def initialize(buffer: MutableAggregationBuffer): Unit =
-    buffer(0) = StreamingHistogram()
+    buffer(0) = marshall(StreamingHistogram())
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val hist = buffer.getAs[Histogram[Double]](0)
+    val hist = unmarshall(buffer.getAs[Array[Byte]](0))
     val tile = input.getAs[Tile](0)
-    buffer(0) = safeEval((h: Histogram[Double], t: Tile) ⇒ h.merge(StreamingHistogram.fromTile(t)))(hist, tile)
+    val updatedHist = safeEval((h: Histogram[Double], t: Tile) ⇒ h.merge(StreamingHistogram.fromTile(t)))(hist, tile)
+    buffer(0) = marshall(updatedHist)
   }
 
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val hist1 = buffer1.getAs[Histogram[Double]](0)
-    val hist2 = buffer2.getAs[Histogram[Double]](0)
-    buffer1(0) = safeEval((h1: Histogram[Double], h2: Histogram[Double]) ⇒ h1 merge h2)(hist1, hist2)
+    val hist1 = unmarshall(buffer1.getAs[Array[Byte]](0))
+    val hist2 = unmarshall(buffer2.getAs[Array[Byte]](0))
+    val updatedHist = safeEval((h1: Histogram[Double], h2: Histogram[Double]) ⇒ h1 merge h2)(hist1, hist2)
+    buffer1(0) = marshall(updatedHist)
   }
 
-  override def evaluate(buffer: Row): Any = buffer.getAs[Histogram[Double]](0)
+  override def evaluate(buffer: Row): Any = {
+    val hist = unmarshall(buffer.getAs[Array[Byte]](0))
+    CellHistogram(hist)
+  }
+}
+
+object HistogramAggregateFunction {
+  case class RFTileHistogram()
 }

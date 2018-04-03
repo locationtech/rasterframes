@@ -20,8 +20,8 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.TestData.randomTile
+import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
-import geotrellis.raster.histogram.Histogram
 import geotrellis.raster.mapalgebra.local.{Max, Min}
 import org.apache.spark.sql.functions._
 
@@ -104,7 +104,6 @@ class TileStatsSpec extends TestEnvironment with TestData  {
 
     it("should compute tile statistics") {
       val ds = (Seq.fill[Tile](3)(randomTile(5, 5, "float32")) :+ null).toDS()
-      ds.printSchema()
       val means1 = ds.select(tileStats($"value")).map(s ⇒ Option(s).map(_.mean).getOrElse(0.0)).collect
       val means2 = ds.select(tileMean($"value")).collect.map(m ⇒ if (m.isNaN) 0.0 else m)
       // Compute the mean manually, knowing we're not dealing with no-data values.
@@ -115,32 +114,31 @@ class TileStatsSpec extends TestEnvironment with TestData  {
     }
 
     it("should compute per-tile histogram") {
-      val ds = (Seq.fill[Tile](3)(randomTile(5, 5, "float32")) :+ null).toDF("tiles")
+      val ds = Seq.fill[Tile](3)(randomTile(5, 5, "float32")).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
-      val r1 = ds.select(tileHistogram($"tiles").as[Histogram[Double]])
-      assert(r1.first.totalCount() === 5 * 5)
+      val r1 = ds.select(tileHistogram($"tiles"))
+      assert(r1.first.totalCount === 5 * 5)
       write(r1)
 
-      val r2 = sql("select rf_tileHistogram(tiles) from tmp")
+      val r2 = sql("select hist.* from (select rf_tileHistogram(tiles) as hist from tmp)").as[CellHistogram]
       write(r2)
-
-      assert(r1.first.mean === r2.as[Histogram[Double]].first.mean)
+      assert(r1.first.mean === r2.first.mean)
     }
 
     it("should compute aggregate histogram") {
       val ds = Seq.fill[Tile](10)(randomTile(5, 5, "float32")).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
-      val agg = ds.select(aggHistogram($"tiles")).as[Histogram[Double]]
+      val agg = ds.select(aggHistogram($"tiles")).as[CellHistogram]
       val hist = agg.collect()
       assert(hist.length === 1)
-      val stats = agg.map(_.statistics().get).as("stats")
+      val stats = agg.map(_.stats).as("stats")
       //stats.select("stats.*").show(false)
       assert(stats.first().stddev === 1.0 +- 0.3) // <-- playing with statistical fire :)
 
-      val hist2 = sql("select rf_aggHistogram(tiles) as hist from tmp").as[Histogram[Double]]
+      val hist2 = sql("select hist.* from (select rf_aggHistogram(tiles) as hist from tmp)").as[CellHistogram]
 
-      assert(hist2.first.totalCount() === 250)
+      assert(hist2.first.totalCount === 250)
     }
 
     it("should compute aggregate mean") {
@@ -157,7 +155,10 @@ class TileStatsSpec extends TestEnvironment with TestData  {
       val (mean, vrnc) = exploded.agg(avg($"tiles"), var_pop($"tiles")).as[(Double, Double)].first
 
       val stats = ds.select(aggStats($"tiles") as "stats")///.as[(Long, Double, Double, Double, Double)]
-      ds.select(aggStats($"tiles")).show(false)
+
+      noException shouldBe thrownBy {
+        ds.select(aggStats($"tiles")).collect()
+      }
 
       val agg = stats.select($"stats.variance".as[Double])
 

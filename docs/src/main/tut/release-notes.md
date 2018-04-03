@@ -2,6 +2,14 @@
 
 ## 0.6.x
 
+### 0.6.2
+
+* _Breaking_: Renamed/moved `astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics` to
+`astraea.spark.rasterframes.stats.CellStatistics`.
+* _Breaking_: `HistogramAggregateFunction` now generates a `astraea.spark.rasterframes.stats.CellHistogram`.
+
+  
+
 ### 0.6.1
 
 * Added support for reading striped GeoTiffs (#64).
