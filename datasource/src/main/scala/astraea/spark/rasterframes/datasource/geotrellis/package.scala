@@ -28,7 +28,7 @@ import shapeless.tag
 import shapeless.tag.@@
 
 /**
- * Module utilities.
+ * Extension:win
  *
  * @since 1/12/18
  */
@@ -55,12 +55,12 @@ package object geotrellis {
       reader.format("geotrellis-catalog").load(base.toASCIIString)
 
     def geotrellis: GeoTrellisRasterFrameReader =
-      tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](reader.format("geotrellis"))
+      tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](reader.format(DefaultSource.SHORT_NAME))
   }
 
   implicit class DataFrameWriterHasGeotrellisFormat[T](val writer: DataFrameWriter[T]) {
     def geotrellis: GeoTrellisRasterFrameWriter[T] =
-      tag[GeoTrellisRasterFrameWriterTag][DataFrameWriter[T]](writer.format("geotrellis"))
+      tag[GeoTrellisRasterFrameWriterTag][DataFrameWriter[T]](writer.format(DefaultSource.SHORT_NAME))
   }
 
   implicit class GeoTrellisWriterAddLayer[T](val writer: GeoTrellisRasterFrameWriter[T]) {

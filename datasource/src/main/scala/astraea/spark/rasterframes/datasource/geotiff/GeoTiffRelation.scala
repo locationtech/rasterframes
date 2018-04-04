@@ -22,13 +22,14 @@ package astraea.spark.rasterframes.datasource.geotiff
 import java.net.URI
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.util._
+import geotrellis.raster.TileLayout
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.io.hadoop._
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util._
-import geotrellis.vector.Extent
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
@@ -36,9 +37,6 @@ import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext}
-import astraea.spark.rasterframes.util._
-import geotrellis.raster.TileLayout
-import geotrellis.raster.io.geotiff.MultibandGeoTiff
 
 /**
  * Spark SQL data source over a single GeoTiff file. Works best with CoG compliant ones.

@@ -38,7 +38,7 @@ import scala.util.Try
  */
 @Experimental
 class DefaultSource extends DataSourceRegister with RelationProvider with CreatableRelationProvider {
-  def shortName(): String = "geotrellis"
+  def shortName(): String = DefaultSource.SHORT_NAME
 
   /**
    * Create a GeoTrellis data source.
@@ -106,4 +106,8 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
 
     createRelation(sqlContext, parameters)
   }
+}
+
+object DefaultSource {
+  final val SHORT_NAME = "geotrellis"
 }
