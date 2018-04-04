@@ -1,0 +1,1367 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>WithRasterFrameMethods - astraea.spark.rasterframes.extensions.Implicits.WithRasterFrameMethods</title>
+          <meta name="description" content="WithRasterFrameMethods - astraea.spark.rasterframes.extensions.Implicits.WithRasterFrameMethods" />
+          <meta name="keywords" content="WithRasterFrameMethods astraea.spark.rasterframes.extensions.Implicits.WithRasterFrameMethods" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img alt="Class" src="../../../../lib/class_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="astraea">astraea</a>.<a href="../../package.html" class="extype" name="astraea.spark">spark</a>.<a href="../package.html" class="extype" name="astraea.spark.rasterframes">rasterframes</a>.<a href="package.html" class="extype" name="astraea.spark.rasterframes.extensions">extensions</a>.<a href="Implicits.html" class="extype" name="astraea.spark.rasterframes.extensions.Implicits">Implicits</a></p>
+        <h1>WithRasterFrameMethods</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="Implicits.html" class="extype" name="astraea.spark.rasterframes.extensions.Implicits">package Implicits</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">WithRasterFrameMethods</span><span class="result"> extends <a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a>, <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span>, <a href="../MetadataKeys.html" class="extype" name="astraea.spark.rasterframes.MetadataKeys">MetadataKeys</a>, <a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a>, <a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a>, <a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a>, <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a>], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="astraea.spark.rasterframes.extensions.Implicits.WithRasterFrameMethods"><span>WithRasterFrameMethods</span></li><li class="in" name="astraea.spark.rasterframes.extensions.RasterFrameMethods"><span>RasterFrameMethods</span></li><li class="in" name="geotrellis.util.LazyLogging"><span>LazyLogging</span></li><li class="in" name="astraea.spark.rasterframes.MetadataKeys"><span>MetadataKeys</span></li><li class="in" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods"><span>RFSpatialColumnMethods</span></li><li class="in" name="astraea.spark.rasterframes.StandardColumns"><span>StandardColumns</span></li><li class="in" name="astraea.spark.rasterframes.encoders.StandardEncoders"><span>StandardEncoders</span></li><li class="in" name="geotrellis.util.MethodExtensions"><span>MethodExtensions</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="astraea.spark.rasterframes.extensions.Implicits.WithRasterFrameMethods#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(self:astraea.spark.rasterframes.RasterFrame):Implicits.this.WithRasterFrameMethods"></a>
+      <a id="&lt;init&gt;:WithRasterFrameMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">WithRasterFrameMethods</span><span class="params">(<span name="self">self: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@&lt;init&gt;(self:astraea.spark.rasterframes.RasterFrame):Implicits.this.WithRasterFrameMethods" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@##():Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#BOUNDS_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BOUNDS_COLUMN:org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Polygon]"></a>
+      <a id="BOUNDS_COLUMN:TypedColumn[Any,Polygon]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">BOUNDS_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="com.vividsolutions.jts.geom.Polygon">Polygon</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@BOUNDS_COLUMN:org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Polygon]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame column name for an tile bounds value.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame column name for an tile bounds value.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#CENTER_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="CENTER_COLUMN:org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Point]"></a>
+      <a id="CENTER_COLUMN:TypedColumn[Any,Point]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">CENTER_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="com.vividsolutions.jts.geom.Point">Point</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@CENTER_COLUMN:org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Point]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame column name for the center coordinates of the tile's bounds.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame column name for the center coordinates of the tile's bounds.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#COLUMN_INDEX_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="COLUMN_INDEX_COLUMN:org.apache.spark.sql.TypedColumn[Any,Int]"></a>
+      <a id="COLUMN_INDEX_COLUMN:TypedColumn[Any,Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">COLUMN_INDEX_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@COLUMN_INDEX_COLUMN:org.apache.spark.sql.TypedColumn[Any,Int]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default column index column for the cells of exploded tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Default column index column for the cells of exploded tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#METADATA_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="METADATA_COLUMN:org.apache.spark.sql.TypedColumn[Any,Map[String,String]]"></a>
+      <a id="METADATA_COLUMN:TypedColumn[Any,Map[String,String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">METADATA_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@METADATA_COLUMN:org.apache.spark.sql.TypedColumn[Any,Map[String,String]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default GeoTiff tags column.</p><div class="fullcomment"><div class="comment cmt"><p>Default GeoTiff tags column.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#ROW_INDEX_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ROW_INDEX_COLUMN:org.apache.spark.sql.TypedColumn[Any,Int]"></a>
+      <a id="ROW_INDEX_COLUMN:TypedColumn[Any,Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ROW_INDEX_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@ROW_INDEX_COLUMN:org.apache.spark.sql.TypedColumn[Any,Int]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default teil column index column for the cells of exploded tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Default teil column index column for the cells of exploded tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#SPATIAL_INDEX_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SPATIAL_INDEX_COLUMN:org.apache.spark.sql.TypedColumn[Any,Long]"></a>
+      <a id="SPATIAL_INDEX_COLUMN:TypedColumn[Any,Long]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SPATIAL_INDEX_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@SPATIAL_INDEX_COLUMN:org.apache.spark.sql.TypedColumn[Any,Long]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame column name for an added spatial index.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame column name for an added spatial index.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#SPATIAL_KEY_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]"></a>
+      <a id="SPATIAL_KEY_COLUMN:TypedColumn[Any,SpatialKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SPATIAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame spatial column name.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame spatial column name.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#TEMPORAL_KEY_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]"></a>
+      <a id="TEMPORAL_KEY_COLUMN:TypedColumn[Any,TemporalKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TEMPORAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame temporal column name.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame temporal column name.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#TILE_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TILE_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="TILE_COLUMN:TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TILE_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@TILE_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame tile column name.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame tile column name.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#TILE_FEATURE_DATA_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TILE_FEATURE_DATA_COLUMN:org.apache.spark.sql.Column"></a>
+      <a id="TILE_FEATURE_DATA_COLUMN:Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TILE_FEATURE_DATA_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@TILE_FEATURE_DATA_COLUMN:org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame <span class="extype" name="TileFeature.data">TileFeature.data</span> column name.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame <span class="extype" name="TileFeature.data">TileFeature.data</span> column name.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.StandardColumns#TIMESTAMP_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TIMESTAMP_COLUMN:org.apache.spark.sql.TypedColumn[Any,java.sql.Timestamp]"></a>
+      <a id="TIMESTAMP_COLUMN:TypedColumn[Any,Timestamp]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TIMESTAMP_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="java.sql.Timestamp">Timestamp</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@TIMESTAMP_COLUMN:org.apache.spark.sql.TypedColumn[Any,java.sql.Timestamp]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Default RasterFrame timestamp column name</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrame timestamp column name</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#addTemporalComponent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addTemporalComponent(value:java.time.ZonedDateTime):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="addTemporalComponent(ZonedDateTime):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addTemporalComponent</span><span class="params">(<span name="value">value: <span class="extype" name="java.time.ZonedDateTime">ZonedDateTime</span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@addTemporalComponent(value:java.time.ZonedDateTime):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Create a temporal key from the given time and assign it as thea temporal key for all rows.</p><div class="fullcomment"><div class="comment cmt"><p>Create a temporal key from the given time and assign it as thea temporal key for all rows.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#addTemporalComponent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addTemporalComponent(value:geotrellis.spark.TemporalKey):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="addTemporalComponent(TemporalKey):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addTemporalComponent</span><span class="params">(<span name="value">value: <span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@addTemporalComponent(value:geotrellis.spark.TemporalKey):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add a temporal key to the RasterFrame, assigning the same temporal key to all rows.</p><div class="fullcomment"><div class="comment cmt"><p>Add a temporal key to the RasterFrame, assigning the same temporal key to all rows.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#cellTypeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="cellTypeEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.CellType]"></a>
+      <a id="cellTypeEncoder:ExpressionEncoder[CellType]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cellTypeEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<a href="../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@cellTypeEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.CellType]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#clipLayerExtent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clipLayerExtent:astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="clipLayerExtent:RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clipLayerExtent</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@clipLayerExtent:astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Performs a full RDD scans of the key column for the data extent, and updates the <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span> data extent to match.</p><div class="fullcomment"><div class="comment cmt"><p>Performs a full RDD scans of the key column for the data extent, and updates the <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span> data extent to match.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@clone():Object" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#crs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crs:geotrellis.proj4.CRS"></a>
+      <a id="crs:CRS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crs</span><span class="result">: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@crs:geotrellis.proj4.CRS" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Get the CRS covering the RasterFrame.</p><div class="fullcomment"><div class="comment cmt"><p>Get the CRS covering the RasterFrame.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#crsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.proj4.CRS]"></a>
+      <a id="crsEncoder:ExpressionEncoder[CRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crsEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@crsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.proj4.CRS]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#envelopeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="envelopeEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[com.vividsolutions.jts.geom.Envelope]"></a>
+      <a id="envelopeEncoder:ExpressionEncoder[Envelope]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">envelopeEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="com.vividsolutions.jts.geom.Envelope">Envelope</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@envelopeEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[com.vividsolutions.jts.geom.Envelope]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#extentEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="extentEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.vector.Extent]"></a>
+      <a id="extentEncoder:ExpressionEncoder[Extent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">extentEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@extentEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.vector.Extent]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#histogramDoubleEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="histogramDoubleEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.histogram.Histogram[Double]]"></a>
+      <a id="histogramDoubleEncoder:ExpressionEncoder[Histogram[Double]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">histogramDoubleEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.raster.histogram.Histogram">Histogram</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@histogramDoubleEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.histogram.Histogram[Double]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#layoutDefinitionEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="layoutDefinitionEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.tiling.LayoutDefinition]"></a>
+      <a id="layoutDefinitionEncoder:ExpressionEncoder[LayoutDefinition]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layoutDefinitionEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.tiling.LayoutDefinition">LayoutDefinition</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@layoutDefinitionEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.tiling.LayoutDefinition]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="geotrellis.util.LazyLogging#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="logger:com.typesafe.scalalogging.Logger"></a>
+      <a id="logger:Logger"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@logger:com.typesafe.scalalogging.Logger" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>LazyLogging</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods#mapTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapTransform:geotrellis.spark.tiling.MapKeyTransform"></a>
+      <a id="mapTransform:MapKeyTransform"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapTransform</span><span class="result">: <span class="extype" name="geotrellis.spark.tiling.MapKeyTransform">MapKeyTransform</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@mapTransform:geotrellis.spark.tiling.MapKeyTransform" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns the key-space to map-space coordinate transform.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the key-space to map-space coordinate transform.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#multibandTileEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multibandTileEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.MultibandTile]"></a>
+      <a id="multibandTileEncoder:ExpressionEncoder[MultibandTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multibandTileEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@multibandTileEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#projectedExtentEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="projectedExtentEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.vector.ProjectedExtent]"></a>
+      <a id="projectedExtentEncoder:ExpressionEncoder[ProjectedExtent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">projectedExtentEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.vector.ProjectedExtent">ProjectedExtent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@projectedExtentEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.vector.ProjectedExtent]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.Implicits.WithRasterFrameMethods#self" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="self:astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="self:RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">self</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@self:astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithRasterFrameMethods">WithRasterFrameMethods</a> → MethodExtensions</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#singlebandTileEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="singlebandTileEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.Tile]"></a>
+      <a id="singlebandTileEncoder:ExpressionEncoder[Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">singlebandTileEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@singlebandTileEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#spaceTimeKeyEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spaceTimeKeyEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.SpaceTimeKey]"></a>
+      <a id="spaceTimeKeyEncoder:ExpressionEncoder[SpaceTimeKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spaceTimeKeyEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@spaceTimeKeyEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.SpaceTimeKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#spatialJoin" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialJoin(right:astraea.spark.rasterframes.RasterFrame,joinType:String):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="spatialJoin(RasterFrame,String):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialJoin</span><span class="params">(<span name="right">right: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>, <span name="joinType">joinType: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;inner&quot;</span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@spatialJoin(right:astraea.spark.rasterframes.RasterFrame,joinType:String):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Perform a spatial join between two raster frames.</p><div class="fullcomment"><div class="comment cmt"><p>Perform a spatial join between two raster frames. Currently ignores a temporal column if there is one.
+The left TileLayerMetadata is propagated to the result.</p><p>**WARNING: This is a work in progress, and only works if both raster frames have the same
+tile layer metadata. A more flexible spatial join is in the works.**
+</p></div><dl class="paramcmts block"><dt class="param">right</dt><dd class="cmt"><p>Right side of the join.</p></dd><dt class="param">joinType</dt><dd class="cmt"><p>One of: <code>inner</code>, <code>outer</code>, <code>left_outer</code>, <code>right_outer</code>, <code>leftsemi</code>.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@Experimental</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#spatialKeyColumn" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialKeyColumn:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]"></a>
+      <a id="spatialKeyColumn:TypedColumn[Any,SpatialKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialKeyColumn</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@spatialKeyColumn:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Get the spatial column.</p><div class="fullcomment"><div class="comment cmt"><p>Get the spatial column.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#spatialKeyEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialKeyEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.SpatialKey]"></a>
+      <a id="spatialKeyEncoder:ExpressionEncoder[SpatialKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialKeyEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@spatialKeyEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#statsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="statsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.Statistics]"></a>
+      <a id="statsEncoder:ExpressionEncoder[Statistics]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">statsEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<a href="../package.html#Statistics=astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics" class="extmbr" name="astraea.spark.rasterframes.Statistics">Statistics</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@statsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.Statistics]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#stkBoundsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stkBoundsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.KeyBounds[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="stkBoundsEncoder:ExpressionEncoder[KeyBounds[SpaceTimeKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stkBoundsEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.KeyBounds">KeyBounds</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@stkBoundsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.KeyBounds[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#temporalKeyEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="temporalKeyEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.TemporalKey]"></a>
+      <a id="temporalKeyEncoder:ExpressionEncoder[TemporalKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">temporalKeyEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@temporalKeyEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.TemporalKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#temporalProjectedExtentEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="temporalProjectedExtentEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.TemporalProjectedExtent]"></a>
+      <a id="temporalProjectedExtentEncoder:ExpressionEncoder[TemporalProjectedExtent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">temporalProjectedExtentEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.TemporalProjectedExtent">TemporalProjectedExtent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@temporalProjectedExtentEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.TemporalProjectedExtent]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#tileLayerMetadata" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileLayerMetadata:Either[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="tileLayerMetadata:Either[TileLayerMetadata[SpatialKey],TileLayerMetadata[SpaceTimeKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileLayerMetadata</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@tileLayerMetadata:Either[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Reassemble the <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span> record from DataFrame metadata.</p><div class="fullcomment"><div class="comment cmt"><p>Reassemble the <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span> record from DataFrame metadata.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#tileLayerMetadataEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileLayerMetadataEncoder[K](implicitevidence$1:reflect.runtime.universe.TypeTag[K]):org.apache.spark.sql.Encoder[geotrellis.spark.TileLayerMetadata[K]]"></a>
+      <a id="tileLayerMetadataEncoder[K](scala.reflect.api.JavaUniverse.TypeTag[K]):Encoder[TileLayerMetadata[K]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileLayerMetadataEncoder</span><span class="tparams">[<span name="K">K</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders.tileLayerMetadataEncoder.K">K</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Encoder">Encoder</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders.tileLayerMetadataEncoder.K">K</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@tileLayerMetadataEncoder[K](implicitevidence$1:reflect.runtime.universe.TypeTag[K]):org.apache.spark.sql.Encoder[geotrellis.spark.TileLayerMetadata[K]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#toMultibandRaster" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toMultibandRaster(tileCols:Seq[org.apache.spark.sql.Column],rasterCols:Int,rasterRows:Int,resampler:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.ProjectedRaster[geotrellis.raster.MultibandTile]"></a>
+      <a id="toMultibandRaster(Seq[Column],Int,Int,ResampleMethod):ProjectedRaster[MultibandTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toMultibandRaster</span><span class="params">(<span name="tileCols">tileCols: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.Column">Column</span>]</span>, <span name="rasterCols">rasterCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rasterRows">rasterRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="resampler">resampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../geotrellis/package.html">Bilinear</a></span></span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toMultibandRaster(tileCols:Seq[org.apache.spark.sql.Column],rasterCols:Int,rasterRows:Int,resampler:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.ProjectedRaster[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convert the Red, Green &amp; Blue assigned tiles in the RasterFrame into a single color composite raster.</p><div class="fullcomment"><div class="comment cmt"><p>Convert the Red, Green &amp; Blue assigned tiles in the RasterFrame into a single color composite raster.
+For RasterFrames keyed with temporal keys, they will be merged underterministically.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#toMultibandTileLayerRDD" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toMultibandTileLayerRDD(tileCols:org.apache.spark.sql.Column*):Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="toMultibandTileLayerRDD(Column*):Either[MultibandTileLayerRDD[SpatialKey],MultibandTileLayerRDD[SpaceTimeKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toMultibandTileLayerRDD</span><span class="params">(<span name="tileCols">tileCols: <span class="extype" name="org.apache.spark.sql.Column">Column</span>*</span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toMultibandTileLayerRDD(tileCols:org.apache.spark.sql.Column*):Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convert the specified tile columns in a Rasterrame to a GeoTrellis <span class="extype" name="MultibandTileLayerRDD">MultibandTileLayerRDD</span></p><div class="fullcomment"><div class="comment cmt"><p>Convert the specified tile columns in a Rasterrame to a GeoTrellis <span class="extype" name="MultibandTileLayerRDD">MultibandTileLayerRDD</span></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#toMultibandTileLayerRDD" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toMultibandTileLayerRDD:Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="toMultibandTileLayerRDD:Either[MultibandTileLayerRDD[SpatialKey],MultibandTileLayerRDD[SpaceTimeKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toMultibandTileLayerRDD</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toMultibandTileLayerRDD:Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convert all the tile columns in a Rasterrame to a GeoTrellis <span class="extype" name="MultibandTileLayerRDD">MultibandTileLayerRDD</span></p><div class="fullcomment"><div class="comment cmt"><p>Convert all the tile columns in a Rasterrame to a GeoTrellis <span class="extype" name="MultibandTileLayerRDD">MultibandTileLayerRDD</span></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#toRaster" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toRaster(tileCol:org.apache.spark.sql.Column,rasterCols:Int,rasterRows:Int,resampler:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.ProjectedRaster[geotrellis.raster.Tile]"></a>
+      <a id="toRaster(Column,Int,Int,ResampleMethod):ProjectedRaster[Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toRaster</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="rasterCols">rasterCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rasterRows">rasterRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="resampler">resampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../geotrellis/package.html">Bilinear</a></span></span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toRaster(tileCol:org.apache.spark.sql.Column,rasterCols:Int,rasterRows:Int,resampler:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.ProjectedRaster[geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convert the tiles in the RasterFrame into a single raster.</p><div class="fullcomment"><div class="comment cmt"><p>Convert the tiles in the RasterFrame into a single raster. For RasterFrames keyed with temporal keys, they
+will be merge undeterministically.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toString():String" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#toTileLayerRDD" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toTileLayerRDD(tileCol:org.apache.spark.sql.Column):Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="toTileLayerRDD(Column):Either[TileLayerRDD[SpatialKey],TileLayerRDD[SpaceTimeKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toTileLayerRDD</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#TileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.TileLayerRDD">TileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#TileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.TileLayerRDD">TileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toTileLayerRDD(tileCol:org.apache.spark.sql.Column):Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convert a single tile column from RasterFrame to a GeoTrellis <span class="extype" name="TileLayerRDD">TileLayerRDD</span></p><div class="fullcomment"><div class="comment cmt"><p>Convert a single tile column from RasterFrame to a GeoTrellis <span class="extype" name="TileLayerRDD">TileLayerRDD</span></p></div><dl class="paramcmts block"><dt class="param">tileCol</dt><dd class="cmt"><p>column with tiles to be the</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#uriEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uriEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[java.net.URI]"></a>
+      <a id="uriEncoder:ExpressionEncoder[URI]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uriEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="java.net.URI">URI</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@uriEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[java.net.URI]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods#withBounds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withBounds(colName:String):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="withBounds(String):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withBounds</span><span class="params">(<span name="colName">colName: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="../StandardColumns.html#BOUNDS_COLUMN:org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Polygon]">BOUNDS_COLUMN.columnName</a></span></span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@withBounds(colName:String):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Append a column containing the bounds of the row's spatial key.</p><div class="fullcomment"><div class="comment cmt"><p>Append a column containing the bounds of the row's spatial key.
+Coordinates are in native CRS.</p></div><dl class="paramcmts block"><dt class="param">colName</dt><dd class="cmt"><p>name of column to append. Defaults to &quot;bounds&quot;</p></dd><dt>returns</dt><dd class="cmt"><p>updated RasterFrame</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods#withCenter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCenter(colName:String):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="withCenter(String):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCenter</span><span class="params">(<span name="colName">colName: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="../StandardColumns.html#CENTER_COLUMN:org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Point]">CENTER_COLUMN.columnName</a></span></span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@withCenter(colName:String):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Append a column containing the center of the row's spatial key.</p><div class="fullcomment"><div class="comment cmt"><p>Append a column containing the center of the row's spatial key.
+Coordinate is in native CRS.</p></div><dl class="paramcmts block"><dt class="param">colName</dt><dd class="cmt"><p>name of column to append. Defaults to &quot;center&quot;</p></dd><dt>returns</dt><dd class="cmt"><p>updated RasterFrame</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods#withCenterLatLng" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCenterLatLng(colName:String):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="withCenterLatLng(String):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCenterLatLng</span><span class="params">(<span name="colName">colName: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;center&quot;</span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@withCenterLatLng(colName:String):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Append a column containing the center of the row's spatial key.</p><div class="fullcomment"><div class="comment cmt"><p>Append a column containing the center of the row's spatial key.
+Coordinate is in (longitude, latitude) (EPSG:4326).</p></div><dl class="paramcmts block"><dt class="param">colName</dt><dd class="cmt"><p>name of column to append. Defaults to &quot;center&quot;</p></dd><dt>returns</dt><dd class="cmt"><p>updated RasterFrame</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#withRFColumnRenamed" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRFColumnRenamed(existingName:String,newName:String):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="withRFColumnRenamed(String,String):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRFColumnRenamed</span><span class="params">(<span name="existingName">existingName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="newName">newName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@withRFColumnRenamed(existingName:String,newName:String):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A convenience over <code>DataFrame.withColumnRenamed</code> whereby the <code>RasterFrame</code> type is maintained.</p><div class="fullcomment"><div class="comment cmt"><p>A convenience over <code>DataFrame.withColumnRenamed</code> whereby the <code>RasterFrame</code> type is maintained.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods#withSpatialIndex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withSpatialIndex(colName:String,applyOrdering:Boolean):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="withSpatialIndex(String,Boolean):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withSpatialIndex</span><span class="params">(<span name="colName">colName: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="../StandardColumns.html#SPATIAL_INDEX_COLUMN:org.apache.spark.sql.TypedColumn[Any,Long]">SPATIAL_INDEX_COLUMN.columnName</a></span></span></span>, <span name="applyOrdering">applyOrdering: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">true</span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@withSpatialIndex(colName:String,applyOrdering:Boolean):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Appends a spatial index column</p><div class="fullcomment"><div class="comment cmt"><p>Appends a spatial index column</p></div><dl class="paramcmts block"><dt class="param">colName</dt><dd class="cmt"><p>name of new column to create. Defaults to <code>index</code></p></dd><dt class="param">applyOrdering</dt><dd class="cmt"><p>if true, adds <code>.orderBy(asc(colName))</code> to result. Defaults to <code>true</code></p></dd><dt>returns</dt><dd class="cmt"><p>RasterFrame with index column.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.extensions.RasterFrameMethods#withTimestamp" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withTimestamp(colName:String):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="withTimestamp(String):RasterFrame"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTimestamp</span><span class="params">(<span name="colName">colName: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="../StandardColumns.html#TIMESTAMP_COLUMN:org.apache.spark.sql.TypedColumn[Any,java.sql.Timestamp]">TIMESTAMP_COLUMN.columnName</a></span></span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@withTimestamp(colName:String):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Append a column containing the temporal key rendered as a TimeStamp.</p><div class="fullcomment"><div class="comment cmt"><p>Append a column containing the temporal key rendered as a TimeStamp.</p></div><dl class="paramcmts block"><dt class="param">colName</dt><dd class="cmt"><p>name of column to add</p></dd><dt>returns</dt><dd class="cmt"><p>updated RasterFrame</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">
+              <h3>Inherited from <a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></h3>
+            </div><div class="parent" name="geotrellis.util.LazyLogging">
+              <h3>Inherited from <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span></h3>
+            </div><div class="parent" name="astraea.spark.rasterframes.MetadataKeys">
+              <h3>Inherited from <a href="../MetadataKeys.html" class="extype" name="astraea.spark.rasterframes.MetadataKeys">MetadataKeys</a></h3>
+            </div><div class="parent" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">
+              <h3>Inherited from <a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a></h3>
+            </div><div class="parent" name="astraea.spark.rasterframes.StandardColumns">
+              <h3>Inherited from <a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></h3>
+            </div><div class="parent" name="astraea.spark.rasterframes.encoders.StandardEncoders">
+              <h3>Inherited from <a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></h3>
+            </div><div class="parent" name="geotrellis.util.MethodExtensions">
+              <h3>Inherited from <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a>]</h3>
+            </div><div class="parent" name="scala.Serializable">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

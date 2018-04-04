@@ -1,0 +1,1580 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>raster - geotrellis.raster</title>
+          <meta name="description" content="raster - geotrellis.raster" />
+          <meta name="keywords" content="raster geotrellis.raster" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'geotrellis.raster.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="geotrellis">geotrellis</a></p>
+        <h1>raster</h1><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">raster</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="geotrellis.raster.transform.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.summary.polygonal.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.split.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.reproject.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.merge.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.mask.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.interpolation.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.mapalgebra.focal.hillshade.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.density.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.distance.Implicits">Implicits</span>, <span class="extype" name="geotrellis.raster.crop.Implicits">Implicits</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="geotrellis.raster"><span>raster</span></li><li class="in" name="geotrellis.raster.transform.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.summary.polygonal.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.split.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.reproject.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.merge.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.mask.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.interpolation.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.mapalgebra.focal.hillshade.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.density.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.distance.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.raster.crop.Implicits"><span>Implicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="geotrellis.raster.CellType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling"></a>
+      <a id="CellType:CellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">CellType</span><span class="result"> = <span class="extype" name="geotrellis.raster.DataType">DataType</span> with <span class="extype" name="geotrellis.raster.NoDataHandling">NoDataHandling</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.DI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DI=DummyImplicit"></a>
+      <a id="DI:DI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DI</span><span class="result"> = <span class="extype" name="scala.Predef.DummyImplicit">DummyImplicit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@DI=DummyImplicit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.DoubleTileMapper" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DoubleTileMapper=geotrellis.macros.DoubleTileMapper"></a>
+      <a id="DoubleTileMapper:DoubleTileMapper"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DoubleTileMapper</span><span class="result"> = <span class="extype" name="geotrellis.macros.DoubleTileMapper">macros.DoubleTileMapper</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@DoubleTileMapper=geotrellis.macros.DoubleTileMapper" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.DoubleTileVisitor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DoubleTileVisitor=geotrellis.macros.DoubleTileVisitor"></a>
+      <a id="DoubleTileVisitor:DoubleTileVisitor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DoubleTileVisitor</span><span class="result"> = <span class="extype" name="geotrellis.macros.DoubleTileVisitor">macros.DoubleTileVisitor</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@DoubleTileVisitor=geotrellis.macros.DoubleTileVisitor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.mapalgebra.focal.hillshade.Implicits.HillshadeTuple" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="HillshadeTupleextendsAnyRef"></a>
+      <a id="HillshadeTuple:HillshadeTuple"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">HillshadeTuple</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@HillshadeTupleextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.IntTileMapper" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IntTileMapper=geotrellis.macros.IntTileMapper"></a>
+      <a id="IntTileMapper:IntTileMapper"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">IntTileMapper</span><span class="result"> = <span class="extype" name="geotrellis.macros.IntTileMapper">macros.IntTileMapper</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@IntTileMapper=geotrellis.macros.IntTileMapper" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.IntTileVisitor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IntTileVisitor=geotrellis.macros.IntTileVisitor"></a>
+      <a id="IntTileVisitor:IntTileVisitor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">IntTileVisitor</span><span class="result"> = <span class="extype" name="geotrellis.macros.IntTileVisitor">macros.IntTileVisitor</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@IntTileVisitor=geotrellis.macros.IntTileVisitor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.MultibandRaster" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultibandRaster=geotrellis.raster.Raster[geotrellis.raster.MultibandTile]"></a>
+      <a id="MultibandRaster:MultibandRaster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MultibandRaster</span><span class="result"> = <span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@MultibandRaster=geotrellis.raster.Raster[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.SinglebandRaster" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SinglebandRaster=geotrellis.raster.Raster[geotrellis.raster.Tile]"></a>
+      <a id="SinglebandRaster:SinglebandRaster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SinglebandRaster</span><span class="result"> = <span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@SinglebandRaster=geotrellis.raster.Raster[geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.density.Implicits.withDoubleKernelDensityMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withDoubleKernelDensityMethodsextendsDoubleKernelDensityMethods"></a>
+      <a id="withDoubleKernelDensityMethods:withDoubleKernelDensityMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withDoubleKernelDensityMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.density.DoubleKernelDensityMethods">DoubleKernelDensityMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withDoubleKernelDensityMethodsextendsDoubleKernelDensityMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.distance.Implicits.withEuclideanDistanceTileArrayCoordinateMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withEuclideanDistanceTileArrayCoordinateMethodsextendsEuclideanDistanceTileCoordinateArrayMethods"></a>
+      <a id="withEuclideanDistanceTileArrayCoordinateMethods:withEuclideanDistanceTileArrayCoordinateMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withEuclideanDistanceTileArrayCoordinateMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.distance.EuclideanDistanceTileCoordinateArrayMethods">EuclideanDistanceTileCoordinateArrayMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withEuclideanDistanceTileArrayCoordinateMethodsextendsEuclideanDistanceTileCoordinateArrayMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.distance.Implicits.withEuclideanDistanceTileArrayMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withEuclideanDistanceTileArrayMethodsextendsEuclideanDistanceTileArrayMethods"></a>
+      <a id="withEuclideanDistanceTileArrayMethods:withEuclideanDistanceTileArrayMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withEuclideanDistanceTileArrayMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.distance.EuclideanDistanceTileArrayMethods">EuclideanDistanceTileArrayMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withEuclideanDistanceTileArrayMethodsextendsEuclideanDistanceTileArrayMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.distance.Implicits.withEuclideanDistanceTileCoordinateMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withEuclideanDistanceTileCoordinateMethodsextendsEuclideanDistanceTileCoordinateMethods"></a>
+      <a id="withEuclideanDistanceTileCoordinateMethods:withEuclideanDistanceTileCoordinateMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withEuclideanDistanceTileCoordinateMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.distance.EuclideanDistanceTileCoordinateMethods">EuclideanDistanceTileCoordinateMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withEuclideanDistanceTileCoordinateMethodsextendsEuclideanDistanceTileCoordinateMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.distance.Implicits.withEuclideanDistanceTileMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withEuclideanDistanceTileMethodsextendsEuclideanDistanceTileMethods"></a>
+      <a id="withEuclideanDistanceTileMethods:withEuclideanDistanceTileMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withEuclideanDistanceTileMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.distance.EuclideanDistanceTileMethods">EuclideanDistanceTileMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withEuclideanDistanceTileMethodsextendsEuclideanDistanceTileMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.distance.Implicits.withEuclideanDistanceTileMultiPointMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withEuclideanDistanceTileMultiPointMethodsextendsEuclideanDistanceTileMultiPointMethods"></a>
+      <a id="withEuclideanDistanceTileMultiPointMethods:withEuclideanDistanceTileMultiPointMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withEuclideanDistanceTileMultiPointMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.distance.EuclideanDistanceTileMultiPointMethods">EuclideanDistanceTileMultiPointMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withEuclideanDistanceTileMultiPointMethodsextendsEuclideanDistanceTileMultiPointMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.crop.Implicits.withExtentCropMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withExtentCropMethods[T&lt;:&lt;?&gt;]extendsRasterCropMethods[T]"></a>
+      <a id="withExtentCropMethods[T&lt;:CellGrid]:withExtentCropMethods[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withExtentCropMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.raster.crop.RasterCropMethods">RasterCropMethods</span>[<span class="extype" name="geotrellis.raster.crop.Implicits.withExtentCropMethods.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withExtentCropMethods[T&lt;:geotrellis.raster.CellGrid]extendsRasterCropMethods[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.density.Implicits.withIntKernelDensityMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withIntKernelDensityMethodsextendsIntKernelDensityMethods"></a>
+      <a id="withIntKernelDensityMethods:withIntKernelDensityMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withIntKernelDensityMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.density.IntKernelDensityMethods">IntKernelDensityMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withIntKernelDensityMethodsextendsIntKernelDensityMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.interpolation.Implicits.withInverseDistanceWeightedMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withInverseDistanceWeightedMethods[D&lt;:&lt;?&gt;]extendsInverseDistanceWeightedMethods[D]"></a>
+      <a id="withInverseDistanceWeightedMethods[D]:withInverseDistanceWeightedMethods[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withInverseDistanceWeightedMethods</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.raster.interpolation.InverseDistanceWeightedMethods">InverseDistanceWeightedMethods</span>[<span class="extype" name="geotrellis.raster.interpolation.Implicits.withInverseDistanceWeightedMethods.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withInverseDistanceWeightedMethods[D]extendsInverseDistanceWeightedMethods[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.interpolation.Implicits.withKrigingInterpolationMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withKrigingInterpolationMethodsextendsMethodExtensions[Traversable[geotrellis.vector.PointFeature[Double]]]withSimpleKrigingMethodswithOrdinaryKrigingMethodswithUniversalKrigingMethodswithGeoKrigingMethods"></a>
+      <a id="withKrigingInterpolationMethods:withKrigingInterpolationMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withKrigingInterpolationMethods</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="scala.Traversable">Traversable</span>[<a href="../vector/package.html#PointFeature[D]=geotrellis.vector.Feature[geotrellis.vector.Point,D]" class="extmbr" name="geotrellis.vector.PointFeature">PointFeature</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>]]] with <span class="extype" name="geotrellis.raster.interpolation.SimpleKrigingMethods">SimpleKrigingMethods</span> with <span class="extype" name="geotrellis.raster.interpolation.OrdinaryKrigingMethods">OrdinaryKrigingMethods</span> with <span class="extype" name="geotrellis.raster.interpolation.UniversalKrigingMethods">UniversalKrigingMethods</span> with <span class="extype" name="geotrellis.raster.interpolation.GeoKrigingMethods">GeoKrigingMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withKrigingInterpolationMethodsextendsMethodExtensions[Traversable[geotrellis.vector.PointFeature[Double]]]withSimpleKrigingMethodswithOrdinaryKrigingMethodswithUniversalKrigingMethodswithGeoKrigingMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.summary.polygonal.Implicits.withMultibandTilePolygonalSummaryMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withMultibandTilePolygonalSummaryMethodsextendsMultibandTilePolygonalSummaryMethods"></a>
+      <a id="withMultibandTilePolygonalSummaryMethods:withMultibandTilePolygonalSummaryMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withMultibandTilePolygonalSummaryMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.summary.polygonal.MultibandTilePolygonalSummaryMethods">MultibandTilePolygonalSummaryMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withMultibandTilePolygonalSummaryMethodsextendsMultibandTilePolygonalSummaryMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.reproject.Implicits.withProjectedRasterReprojectMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withProjectedRasterReprojectMethods[T&lt;:&lt;?&gt;]extendsProjectedRasterReprojectMethods[T]"></a>
+      <a id="withProjectedRasterReprojectMethods[T&lt;:CellGrid]:withProjectedRasterReprojectMethods[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withProjectedRasterReprojectMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.raster.reproject.ProjectedRasterReprojectMethods">ProjectedRasterReprojectMethods</span>[<span class="extype" name="geotrellis.raster.reproject.Implicits.withProjectedRasterReprojectMethods.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withProjectedRasterReprojectMethods[T&lt;:geotrellis.raster.CellGrid]extendsProjectedRasterReprojectMethods[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.split.Implicits.withRasterExtentSplitMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRasterExtentSplitMethodsextendsRasterExtentSplitMethods"></a>
+      <a id="withRasterExtentSplitMethods:withRasterExtentSplitMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRasterExtentSplitMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.split.RasterExtentSplitMethods">RasterExtentSplitMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withRasterExtentSplitMethodsextendsRasterExtentSplitMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.mask.Implicits.withRasterMaskMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRasterMaskMethods[T&lt;:&lt;?&gt;]extendsRasterMaskMethods[T]"></a>
+      <a id="withRasterMaskMethods[T&lt;:CellGrid]:withRasterMaskMethods[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRasterMaskMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.raster.mask.RasterMaskMethods">RasterMaskMethods</span>[<span class="extype" name="geotrellis.raster.mask.Implicits.withRasterMaskMethods.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withRasterMaskMethods[T&lt;:geotrellis.raster.CellGrid]extendsRasterMaskMethods[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.merge.Implicits.withRasterMergeMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRasterMergeMethods[T&lt;:&lt;?&gt;]extendsRasterMergeMethods[T]"></a>
+      <a id="withRasterMergeMethods[T&lt;:CellGrid]:withRasterMergeMethods[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRasterMergeMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.raster.merge.RasterMergeMethods">RasterMergeMethods</span>[<span class="extype" name="geotrellis.raster.merge.Implicits.withRasterMergeMethods.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withRasterMergeMethods[T&lt;:geotrellis.raster.CellGrid]extendsRasterMergeMethods[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.split.Implicits.withRasterSplitMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRasterSplitMethods[T&lt;:&lt;?&gt;]extendsRasterSplitMethods[T]"></a>
+      <a id="withRasterSplitMethods[T&lt;:CellGrid]:withRasterSplitMethods[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRasterSplitMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.raster.split.RasterSplitMethods">RasterSplitMethods</span>[<span class="extype" name="geotrellis.raster.split.Implicits.withRasterSplitMethods.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withRasterSplitMethods[T&lt;:geotrellis.raster.CellGrid]extendsRasterSplitMethods[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.summary.polygonal.Implicits.withSinglebandTilePolygonalSummaryMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withSinglebandTilePolygonalSummaryMethodsextendsSinglebandTilePolygonalSummaryMethods"></a>
+      <a id="withSinglebandTilePolygonalSummaryMethods:withSinglebandTilePolygonalSummaryMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withSinglebandTilePolygonalSummaryMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.summary.polygonal.SinglebandTilePolygonalSummaryMethods">SinglebandTilePolygonalSummaryMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withSinglebandTilePolygonalSummaryMethodsextendsSinglebandTilePolygonalSummaryMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.transform.Implicits.withTransformMultibandTileMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withTransformMultibandTileMethodsextendsTransformMethods[geotrellis.raster.MultibandTile]"></a>
+      <a id="withTransformMultibandTileMethods:withTransformMultibandTileMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTransformMultibandTileMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.transform.TransformMethods">TransformMethods</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withTransformMultibandTileMethodsextendsTransformMethods[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.transform.Implicits.withTransformRasterMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withTransformRasterMethods[T&lt;:&lt;?&gt;]extendsTransformMethods[geotrellis.raster.Raster[T]]"></a>
+      <a id="withTransformRasterMethods[T&lt;:CellGrid]:withTransformRasterMethods[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTransformRasterMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.raster.transform.TransformMethods">TransformMethods</span>[<span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.transform.Implicits.withTransformRasterMethods.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withTransformRasterMethods[T&lt;:geotrellis.raster.CellGrid]extendsTransformMethods[geotrellis.raster.Raster[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.raster.transform.Implicits.withTransformTileMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withTransformTileMethodsextendsTransformTileMethods"></a>
+      <a id="withTransformTileMethods:withTransformTileMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTransformTileMethods</span><span class="result"> extends <span class="extype" name="geotrellis.raster.transform.TransformTileMethods">TransformTileMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@withTransformTileMethodsextendsTransformTileMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="geotrellis.raster#NODATA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NODATA:Int(-2147483648)"></a>
+      <a id="NODATA:Int(-2147483648)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">NODATA</span><span class="result">: Int(-2147483648)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@NODATA:Int(-2147483648)" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#b2d" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="b2d(n:Byte):Double"></a>
+      <a id="b2d(Byte):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">b2d</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@b2d(n:Byte):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#b2f" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="b2f(n:&lt;?&gt;):Float"></a>
+      <a id="b2f(Byte):Float"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">b2f</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@b2f(n:Byte):Float" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#b2i" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="b2i(n:Byte):Int"></a>
+      <a id="b2i(Byte):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">b2i</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@b2i(n:Byte):Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#b2s" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="b2s(n:&lt;?&gt;):Short"></a>
+      <a id="b2s(Byte):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">b2s</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@b2s(n:Byte):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#b2ub" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="b2ub(n:&lt;?&gt;):Byte"></a>
+      <a id="b2ub(Byte):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">b2ub</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@b2ub(n:Byte):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#b2us" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="b2us(n:&lt;?&gt;):Short"></a>
+      <a id="b2us(Byte):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">b2us</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@b2us(n:Byte):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#byteNODATA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="byteNODATA:Byte(-128)"></a>
+      <a id="byteNODATA:Byte(-128)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">byteNODATA</span><span class="result">: Byte(-128)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@byteNODATA:Byte(-128)" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#d2b" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="d2b(n:&lt;?&gt;):Byte"></a>
+      <a id="d2b(Double):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">d2b</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@d2b(n:Double):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#d2f" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="d2f(n:&lt;?&gt;):Float"></a>
+      <a id="d2f(Double):Float"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">d2f</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@d2f(n:Double):Float" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#d2i" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="d2i(n:Double):Int"></a>
+      <a id="d2i(Double):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">d2i</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@d2i(n:Double):Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#d2s" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="d2s(n:&lt;?&gt;):Short"></a>
+      <a id="d2s(Double):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">d2s</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@d2s(n:Double):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#d2ub" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="d2ub(n:&lt;?&gt;):Byte"></a>
+      <a id="d2ub(Double):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">d2ub</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@d2ub(n:Double):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#d2us" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="d2us(n:&lt;?&gt;):Short"></a>
+      <a id="d2us(Double):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">d2us</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@d2us(n:Double):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#doubleNODATA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="doubleNODATA:Double(NaN)"></a>
+      <a id="doubleNODATA:Double(NaN)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">doubleNODATA</span><span class="result">: Double(NaN)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@doubleNODATA:Double(NaN)" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#f2b" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="f2b(n:&lt;?&gt;):Byte"></a>
+      <a id="f2b(Float):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">f2b</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@f2b(n:Float):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#f2d" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="f2d(n:Float):Double"></a>
+      <a id="f2d(Float):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">f2d</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@f2d(n:Float):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#f2i" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="f2i(n:Float):Int"></a>
+      <a id="f2i(Float):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">f2i</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@f2i(n:Float):Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#f2s" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="f2s(n:&lt;?&gt;):Short"></a>
+      <a id="f2s(Float):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">f2s</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@f2s(n:Float):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#f2ub" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="f2ub(n:&lt;?&gt;):Byte"></a>
+      <a id="f2ub(Float):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">f2ub</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@f2ub(n:Float):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#f2us" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="f2us(n:&lt;?&gt;):Short"></a>
+      <a id="f2us(Float):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">f2us</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@f2us(n:Float):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#floatNODATA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="floatNODATA:Float(NaN)"></a>
+      <a id="floatNODATA:Float(NaN)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">floatNODATA</span><span class="result">: Float(NaN)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@floatNODATA:Float(NaN)" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#i2b" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="i2b(n:&lt;?&gt;):Byte"></a>
+      <a id="i2b(Int):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">i2b</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@i2b(n:Int):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#i2d" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="i2d(n:Int):Double"></a>
+      <a id="i2d(Int):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">i2d</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@i2d(n:Int):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#i2f" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="i2f(n:&lt;?&gt;):Float"></a>
+      <a id="i2f(Int):Float"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">i2f</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@i2f(n:Int):Float" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#i2s" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="i2s(n:&lt;?&gt;):Short"></a>
+      <a id="i2s(Int):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">i2s</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@i2s(n:Int):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#i2ub" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="i2ub(n:&lt;?&gt;):Byte"></a>
+      <a id="i2ub(Int):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">i2ub</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@i2ub(n:Int):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#i2us" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="i2us(n:&lt;?&gt;):Short"></a>
+      <a id="i2us(Int):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">i2us</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@i2us(n:Int):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#isData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isData(d:Double):Boolean"></a>
+      <a id="isData(Double):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isData</span><span class="params">(<span name="d">d: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@isData(d:Double):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#isData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isData(f:Float):Boolean"></a>
+      <a id="isData(Float):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isData</span><span class="params">(<span name="f">f: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@isData(f:Float):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#isData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isData(i:Int):Boolean"></a>
+      <a id="isData(Int):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isData</span><span class="params">(<span name="i">i: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@isData(i:Int):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#isNoData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isNoData(d:Double):Boolean"></a>
+      <a id="isNoData(Double):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isNoData</span><span class="params">(<span name="d">d: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@isNoData(d:Double):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#isNoData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isNoData(f:Float):Boolean"></a>
+      <a id="isNoData(Float):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isNoData</span><span class="params">(<span name="f">f: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@isNoData(f:Float):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#isNoData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isNoData(i:Int):Boolean"></a>
+      <a id="isNoData(Int):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isNoData</span><span class="params">(<span name="i">i: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@isNoData(i:Int):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#s2b" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="s2b(n:&lt;?&gt;):Byte"></a>
+      <a id="s2b(Short):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2b</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@s2b(n:Short):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#s2d" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="s2d(n:Short):Double"></a>
+      <a id="s2d(Short):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2d</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@s2d(n:Short):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#s2f" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="s2f(n:&lt;?&gt;):Float"></a>
+      <a id="s2f(Short):Float"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2f</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@s2f(n:Short):Float" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#s2i" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="s2i(n:Short):Int"></a>
+      <a id="s2i(Short):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2i</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@s2i(n:Short):Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#s2ub" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="s2ub(n:&lt;?&gt;):Byte"></a>
+      <a id="s2ub(Short):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2ub</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@s2ub(n:Short):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#s2us" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="s2us(n:&lt;?&gt;):Short"></a>
+      <a id="s2us(Short):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">s2us</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@s2us(n:Short):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#shortNODATA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shortNODATA:Short(-32768)"></a>
+      <a id="shortNODATA:Short(-32768)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shortNODATA</span><span class="result">: Short(-32768)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@shortNODATA:Short(-32768)" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ub2b" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ub2b(n:&lt;?&gt;):Byte"></a>
+      <a id="ub2b(Byte):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ub2b</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ub2b(n:Byte):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ub2d" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ub2d(n:Byte):Double"></a>
+      <a id="ub2d(Byte):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ub2d</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ub2d(n:Byte):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ub2f" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ub2f(n:&lt;?&gt;):Float"></a>
+      <a id="ub2f(Byte):Float"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ub2f</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ub2f(n:Byte):Float" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ub2i" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ub2i(n:Byte):Int"></a>
+      <a id="ub2i(Byte):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ub2i</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ub2i(n:Byte):Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ub2s" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ub2s(n:&lt;?&gt;):Short"></a>
+      <a id="ub2s(Byte):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ub2s</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ub2s(n:Byte):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ub2us" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ub2us(n:&lt;?&gt;):Short"></a>
+      <a id="ub2us(Byte):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ub2us</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ub2us(n:Byte):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ubyteNODATA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ubyteNODATA:Byte"></a>
+      <a id="ubyteNODATA:Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ubyteNODATA</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ubyteNODATA:Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#us2b" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="us2b(n:&lt;?&gt;):Byte"></a>
+      <a id="us2b(Short):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">us2b</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@us2b(n:Short):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#us2d" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="us2d(n:Short):Double"></a>
+      <a id="us2d(Short):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">us2d</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@us2d(n:Short):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#us2f" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="us2f(n:&lt;?&gt;):Float"></a>
+      <a id="us2f(Short):Float"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">us2f</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Float" class="extype" target="_top">Float</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@us2f(n:Short):Float" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#us2i" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="us2i(n:Short):Int"></a>
+      <a id="us2i(Short):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">us2i</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@us2i(n:Short):Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#us2s" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="us2s(n:&lt;?&gt;):Short"></a>
+      <a id="us2s(Short):Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">us2s</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@us2s(n:Short):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#us2ub" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="us2ub(n:&lt;?&gt;):Byte"></a>
+      <a id="us2ub(Short):Byte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">macro </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">us2ub</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@us2ub(n:Short):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster#ushortNODATA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ushortNODATA:Short"></a>
+      <a id="ushortNODATA:Short"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ushortNODATA</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.raster.package@ushortNODATA:Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="geotrellis.raster.transform.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.transform.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.summary.polygonal.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.summary.polygonal.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.split.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.split.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.reproject.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.reproject.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.merge.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.merge.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.mask.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.mask.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.interpolation.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.interpolation.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.mapalgebra.focal.hillshade.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.mapalgebra.focal.hillshade.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.density.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.density.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.distance.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.distance.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.raster.crop.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.crop.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

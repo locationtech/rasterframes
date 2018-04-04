@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Release Notes · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.6.1
+</div>
+</div>
+<select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting RasterFrames</a></li>
+  <li><a href="reference.html" class="page">Reference</a></li>
+  <li><a href="release-notes.html" class="active page">Release Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.6.1
+</div>
+</div>
+<select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting RasterFrames</a></li>
+  <li><a href="reference.html" class="page">Reference</a></li>
+  <li><a href="release-notes.html" class="active page">Release Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>Release Notes</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#release-notes" name="release-notes" class="anchor"><span class="anchor-link"></span></a>Release Notes</h1>
+<h2><a href="#0-6-x" name="0-6-x" class="anchor"><span class="anchor-link"></span></a>0.6.x</h2>
+<h3><a href="#0-6-1" name="0-6-1" class="anchor"><span class="anchor-link"></span></a>0.6.1</h3>
+<ul>
+  <li>Added support for reading striped GeoTiffs (#64).</li>
+  <li>Moved extension methods associated with querying tagged columns to <code>DataFrameMethods</code> for supporting  temporal and spatial columns on non-RasterFrame DataFrames.</li>
+  <li>GeoTIFF and GeoTrellis DataSources automatically initialize RasterFrames.</li>
+  <li>Added <code>RasterFrame.toMultibandRaster</code>.</li>
+  <li>Added utility for rendering multiband tile as RGB composite PNG.</li>
+  <li>Added <code>RasterFrame.withRFColumnRenamed</code> to lessen boilerplate in maintaining <code>RasterFrame</code> type tag.</li>
+</ul>
+<h3><a href="#0-6-0" name="0-6-0" class="anchor"><span class="anchor-link"></span></a>0.6.0</h3>
+<ul>
+  <li>Upgraded to Spark 2.2.1. Added <code>VersionShims</code> to allow for Spark 2.1.x backwards compatibility.</li>
+  <li>Introduced separate <code>rasterframes-datasource</code> library for hosting sources from which to read RasterFrames.</li>
+  <li>Implemented basic (but sufficient) temporal and spatial filter predicate push-down feature for the GeoTrellis layer datasource.</li>
+  <li>Added Catalyst expressions specifically for spatial relations, allowing for some polymorphism over JTS types.</li>
+  <li>Added a GeoTrellis Catalog <code>DataSource</code> for inspecting available layers and associated metadata at a URI</li>
+  <li>Added GeoTrellis Layer DataSource for reading GeoTrellis layers from any SPI-registered GeoTrellis backend (which includes HDFS, S3, Accumulo, HBase, Cassandra, etc.).</li>
+  <li>Ability to save a RasterFrame as a GeoTrellis layer to any SPI-registered GeoTrellis backends. Multi-column RasterFrames are written as Multiband tiles.</li>
+  <li>Addd a GeoTiff DataSource for directly loading a (preferably Cloud Optimized) GeoTiff as a RasterFrame, each row containing tiles as they are internally organized.</li>
+  <li>Fleshed out support for <code>MultibandTile</code> and <code>TileFeature</code> support in datasource.</li>
+  <li>Added typeclass for specifying merge operations on <code>TileFeature</code> data payload.</li>
+  <li>Added <code>withTemporalComponent</code> convenince method for creating appending a temporal key column with constant value.</li>
+  <li><em>Breaking</em>: Renamed <code>withExtent</code> to <code>withBounds</code>, and now returns a JTS <code>Polygon</code>.</li>
+  <li>Added <code>EnvelopeEncoder</code> for encoding JTS <code>Envelope</code> type.</li>
+  <li>Refactored build into separate <code>core</code> and <code>docs</code>, paving way for <code>pyrasterframes</code> polyglot module.</li>
+  <li>Added utility extension method <code>withPrefixedColumnNames</code> to <code>DataFrame</code>.</li>
+</ul>
+<h4><a href="#known-issues" name="known-issues" class="anchor"><span class="anchor-link"></span></a>Known Issues</h4>
+<ul>
+  <li>Writing multi-column RasterFrames to GeoTrellis layers requires all tiles to be of the same cell type.</li>
+</ul>
+<h2><a href="#0-5-x" name="0-5-x" class="anchor"><span class="anchor-link"></span></a>0.5.x</h2>
+<h3><a href="#0-5-12" name="0-5-12" class="anchor"><span class="anchor-link"></span></a>0.5.12</h3>
+<ul>
+  <li>Added <code>withSpatialIndex</code> to introduce a column assigning a z-curve index value based on the tile&rsquo;s centroid in EPSG:4326.</li>
+  <li>Added column-appending convenience methods: <code>withExtent</code>, <code>withCenter</code>, <code>withCenterLatLng</code></li>
+  <li>Documented example of creating a GeoTrellis layer from a RasterFrame.</li>
+  <li>Added Spark 2.2.0 forward-compatibility.</li>
+  <li>Upgraded to GeoTrellis 1.2.0-RC2.</li>
+</ul>
+<h3><a href="#0-5-11" name="0-5-11" class="anchor"><span class="anchor-link"></span></a>0.5.11</h3>
+<ul>
+  <li>Significant performance improvement in <code>explodeTiles</code> (1-2 orders of magnitude). See <a href="https://github.com/s22s/raster-frames/issues/38">#38</a></li>
+  <li>Fixed bugs in <code>NoData</code> handling when converting to <code>Double</code> tiles.</li>
+</ul>
+<h3><a href="#0-5-10" name="0-5-10" class="anchor"><span class="anchor-link"></span></a>0.5.10</h3>
+<ul>
+  <li>Upgraded to shapeless 2.3.2</li>
+  <li>Fixed <a href="https://github.com/s22s/raster-frames/issues/36">#36</a>, <a href="https://github.com/s22s/raster-frames/issues/37">#37</a></li>
+</ul>
+<h3><a href="#0-5-9" name="0-5-9" class="anchor"><span class="anchor-link"></span></a>0.5.9</h3>
+<ul>
+  <li>Ported to sbt 1.0.3</li>
+  <li>Added sbt-generated <code>astraea.spark.rasterframes.RFBuildInfo</code></li>
+  <li>Fixed bug in computing <code>aggMean</code> when one or more tiles are <code>null</code></li>
+  <li>Deprecated <code>rfIinit</code> in favor of <code>SparkSession.withRasterFrames</code> or <code>SQLContext.withRasterFrames</code> extension methods</li>
+</ul>
+<h3><a href="#0-5-8" name="0-5-8" class="anchor"><span class="anchor-link"></span></a>0.5.8</h3>
+<ul>
+  <li>Upgraded to GeoTrellis 1.2.0-RC1</li>
+  <li>Added <a href="https://github.com/marconilanna/REPLesent"><code>REPLsent</code>-based</a> tour of RasterFrames</li>
+  <li>Moved Giter8 template to separate repository <code>s22s/raster-frames.g8</code> due to sbt limitations</li>
+  <li>Updated <em>Getting Started</em> to reference new Giter8 repo</li>
+  <li>Changed SQL function name <code>rf_stats</code> and <code>rf_histogram</code> to <code>rf_aggStats</code> and <code>rf_aggHistogram</code>  for consistency with DataFrames API</li>
+</ul>
+<h3><a href="#0-5-7" name="0-5-7" class="anchor"><span class="anchor-link"></span></a>0.5.7</h3>
+<ul>
+  <li>Created faster implementation of aggregate statistics.</li>
+  <li>Fixed bug in deserialization of <code>TileUDT</code>s originating from <code>ConstantTile</code>s</li>
+  <li>Fixed bug in serialization of <code>NoDataFilter</code> within SparkML pipeline</li>
+  <li>Refactoring of UDF organization</li>
+  <li>Various documentation tweaks and updates</li>
+  <li>Added Giter8 template</li>
+</ul>
+<h3><a href="#0-5-6" name="0-5-6" class="anchor"><span class="anchor-link"></span></a>0.5.6</h3>
+<ul>
+  <li><code>TileUDF</code>s are encoded using directly into Catalyst&ndash;without Kryo&ndash;resulting in an insane  decrease in serialization time for small tiles (<code>int8</code>, &lt;= 128²), and pretty awesome speedup for  all other cell types other than <code>float32</code> (marginal slowing). While not measured, memory  footprint is expected to have gone down.</li>
+</ul>
+<h3><a href="#0-5-5" name="0-5-5" class="anchor"><span class="anchor-link"></span></a>0.5.5</h3>
+<ul>
+  <li><code>aggStats</code> and <code>tileMean</code> functions rewritten to compute simple statistics directly rather than using <code>StreamingHistogram</code></li>
+  <li><code>tileHistogramDouble</code> and <code>tileStatsDouble</code> were replaced by <code>tileHistogram</code> and <code>tileStats</code></li>
+  <li>Added <code>tileSum</code>, <code>tileMin</code> and <code>tileMax</code> functions</li>
+  <li>Added <code>aggMean</code>, <code>aggDataCells</code> and <code>aggNoDataCells</code> aggregate functions.</li>
+  <li>Added <code>localAggDataCells</code> and <code>localAggNoDataCells</code> cell-local (tile generating) fuctions</li>
+  <li>Added <code>tileToArray</code> and <code>arrayToTile</code></li>
+  <li>Overflow fix in <code>LocalStatsAggregateFunction</code></li>
+</ul>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="release-notes.html#release-notes" class="header">Release Notes</a>
+  <ul>
+    <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a></li>
+    <li><a href="release-notes.html#0-5-x" class="header">0.5.x</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">&copy; 2018
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

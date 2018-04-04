@@ -1,0 +1,1107 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>vector - geotrellis.vector</title>
+          <meta name="description" content="vector - geotrellis.vector" />
+          <meta name="keywords" content="vector geotrellis.vector" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'geotrellis.vector.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="geotrellis">geotrellis</a></p>
+        <h1>vector</h1><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">vector</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="geotrellis.vector.voronoi.Implicits">Implicits</span>, <span class="extype" name="geotrellis.vector.triangulation.Implicits">Implicits</span>, <span class="extype" name="geotrellis.vector.reproject.Implicits">Implicits</span>, <span class="extype" name="geotrellis.vector.SeqMethods">SeqMethods</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="geotrellis.vector"><span>vector</span></li><li class="in" name="geotrellis.vector.voronoi.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.vector.triangulation.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.vector.reproject.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.vector.SeqMethods"><span>SeqMethods</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="geotrellis.vector.GeometryCollectionFeature" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GeometryCollectionFeature[D&lt;:&lt;?&gt;]=geotrellis.vector.Feature[geotrellis.vector.GeometryCollection,D]"></a>
+      <a id="GeometryCollectionFeature[D]:GeometryCollectionFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">GeometryCollectionFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> = <span class="extype" name="geotrellis.vector.Feature">Feature</span>[<span class="extype" name="geotrellis.vector.GeometryCollection">GeometryCollection</span>, <span class="extype" name="geotrellis.vector.GeometryCollectionFeature.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@GeometryCollectionFeature[D]=geotrellis.vector.Feature[geotrellis.vector.GeometryCollection,D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector.LineFeature" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LineFeature[D&lt;:&lt;?&gt;]=geotrellis.vector.Feature[geotrellis.vector.Line,D]"></a>
+      <a id="LineFeature[D]:LineFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">LineFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> = <span class="extype" name="geotrellis.vector.Feature">Feature</span>[<span class="extype" name="geotrellis.vector.Line">Line</span>, <span class="extype" name="geotrellis.vector.LineFeature.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@LineFeature[D]=geotrellis.vector.Feature[geotrellis.vector.Line,D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector.MultiLineFeature" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultiLineFeature[D&lt;:&lt;?&gt;]=geotrellis.vector.Feature[geotrellis.vector.MultiLine,D]"></a>
+      <a id="MultiLineFeature[D]:MultiLineFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MultiLineFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> = <span class="extype" name="geotrellis.vector.Feature">Feature</span>[<span class="extype" name="geotrellis.vector.MultiLine">MultiLine</span>, <span class="extype" name="geotrellis.vector.MultiLineFeature.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@MultiLineFeature[D]=geotrellis.vector.Feature[geotrellis.vector.MultiLine,D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector.MultiPointFeature" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultiPointFeature[D&lt;:&lt;?&gt;]=geotrellis.vector.Feature[geotrellis.vector.MultiPoint,D]"></a>
+      <a id="MultiPointFeature[D]:MultiPointFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MultiPointFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> = <span class="extype" name="geotrellis.vector.Feature">Feature</span>[<span class="extype" name="geotrellis.vector.MultiPoint">MultiPoint</span>, <span class="extype" name="geotrellis.vector.MultiPointFeature.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@MultiPointFeature[D]=geotrellis.vector.Feature[geotrellis.vector.MultiPoint,D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector.MultiPolygonFeature" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultiPolygonFeature[D&lt;:&lt;?&gt;]=geotrellis.vector.Feature[geotrellis.vector.MultiPolygon,D]"></a>
+      <a id="MultiPolygonFeature[D]:MultiPolygonFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MultiPolygonFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> = <span class="extype" name="geotrellis.vector.Feature">Feature</span>[<span class="extype" name="geotrellis.vector.MultiPolygon">MultiPolygon</span>, <span class="extype" name="geotrellis.vector.MultiPolygonFeature.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@MultiPolygonFeature[D]=geotrellis.vector.Feature[geotrellis.vector.MultiPolygon,D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector.PointFeature" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PointFeature[D&lt;:&lt;?&gt;]=geotrellis.vector.Feature[geotrellis.vector.Point,D]"></a>
+      <a id="PointFeature[D]:PointFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PointFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> = <span class="extype" name="geotrellis.vector.Feature">Feature</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>, <span class="extype" name="geotrellis.vector.PointFeature.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@PointFeature[D]=geotrellis.vector.Feature[geotrellis.vector.Point,D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector.PolygonFeature" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PolygonFeature[D&lt;:&lt;?&gt;]=geotrellis.vector.Feature[geotrellis.vector.Polygon,D]"></a>
+      <a id="PolygonFeature[D]:PolygonFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PolygonFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> = <span class="extype" name="geotrellis.vector.Feature">Feature</span>[<span class="extype" name="geotrellis.vector.Polygon">Polygon</span>, <span class="extype" name="geotrellis.vector.PolygonFeature.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@PolygonFeature[D]=geotrellis.vector.Feature[geotrellis.vector.Polygon,D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectExtent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectExtentextendsAnyRef"></a>
+      <a id="ReprojectExtent:ReprojectExtent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectExtent</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectExtentextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectFeature[D]:ReprojectFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectGeometry" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectGeometryextendsAnyRef"></a>
+      <a id="ReprojectGeometry:ReprojectGeometry"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectGeometry</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectGeometryextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectGeometryCollection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectGeometryCollectionextendsAnyRef"></a>
+      <a id="ReprojectGeometryCollection:ReprojectGeometryCollection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectGeometryCollection</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectGeometryCollectionextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectGeometryCollectionFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectGeometryCollectionFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectGeometryCollectionFeature[D]:ReprojectGeometryCollectionFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectGeometryCollectionFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectGeometryCollectionFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectLine" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectLineextendsAnyRef"></a>
+      <a id="ReprojectLine:ReprojectLine"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectLine</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectLineextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectLineFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectLineFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectLineFeature[D]:ReprojectLineFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectLineFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectLineFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectMultiPoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectMultiPointextendsAnyRef"></a>
+      <a id="ReprojectMultiPoint:ReprojectMultiPoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectMultiPoint</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectMultiPointextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectMultiPointFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectMultiPointFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectMultiPointFeature[D]:ReprojectMultiPointFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectMultiPointFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectMultiPointFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectMutliLine" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectMutliLineextendsAnyRef"></a>
+      <a id="ReprojectMutliLine:ReprojectMutliLine"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectMutliLine</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectMutliLineextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectMutliLineFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectMutliLineFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectMutliLineFeature[D]:ReprojectMutliLineFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectMutliLineFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectMutliLineFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectMutliPolygon" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectMutliPolygonextendsAnyRef"></a>
+      <a id="ReprojectMutliPolygon:ReprojectMutliPolygon"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectMutliPolygon</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectMutliPolygonextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectMutliPolygonFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectMutliPolygonFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectMutliPolygonFeature[D]:ReprojectMutliPolygonFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectMutliPolygonFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectMutliPolygonFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectPoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectPointextendsAnyRef"></a>
+      <a id="ReprojectPoint:ReprojectPoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectPoint</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectPointextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectPointFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectPointFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectPointFeature[D]:ReprojectPointFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectPointFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectPointFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectPolygon" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectPolygonextendsAnyRef"></a>
+      <a id="ReprojectPolygon:ReprojectPolygon"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectPolygon</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectPolygonextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectPolygonFeature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectPolygonFeature[D&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="ReprojectPolygonFeature[D]:ReprojectPolygonFeature[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectPolygonFeature</span><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectPolygonFeature[D]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.reproject.Implicits.ReprojectTuple" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectTupleextendsAnyRef"></a>
+      <a id="ReprojectTuple:ReprojectTuple"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ReprojectTuple</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@ReprojectTupleextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.SeqMethods.SeqLineExtensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeqLineExtensionsextendsAnyRef"></a>
+      <a id="SeqLineExtensions:SeqLineExtensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SeqLineExtensions</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@SeqLineExtensionsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SeqMethods</dd></dl></div>
+    </li><li name="geotrellis.vector.SeqMethods.SeqMultiLineExtensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeqMultiLineExtensionsextendsAnyRef"></a>
+      <a id="SeqMultiLineExtensions:SeqMultiLineExtensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SeqMultiLineExtensions</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@SeqMultiLineExtensionsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SeqMethods</dd></dl></div>
+    </li><li name="geotrellis.vector.SeqMethods.SeqMultiPointExtensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeqMultiPointExtensionsextendsAnyRef"></a>
+      <a id="SeqMultiPointExtensions:SeqMultiPointExtensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SeqMultiPointExtensions</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@SeqMultiPointExtensionsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SeqMethods</dd></dl></div>
+    </li><li name="geotrellis.vector.SeqMethods.SeqMultiPolygonExtensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeqMultiPolygonExtensionsextendsAnyRef"></a>
+      <a id="SeqMultiPolygonExtensions:SeqMultiPolygonExtensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SeqMultiPolygonExtensions</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@SeqMultiPolygonExtensionsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SeqMethods</dd></dl></div>
+    </li><li name="geotrellis.vector.SeqMethods.SeqPointExtensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeqPointExtensionsextendsAnyRef"></a>
+      <a id="SeqPointExtensions:SeqPointExtensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SeqPointExtensions</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@SeqPointExtensionsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SeqMethods</dd></dl></div>
+    </li><li name="geotrellis.vector.SeqMethods.SeqPolygonExtensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeqPolygonExtensionsextendsAnyRef"></a>
+      <a id="SeqPolygonExtensions:SeqPolygonExtensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SeqPolygonExtensions</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@SeqPolygonExtensionsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SeqMethods</dd></dl></div>
+    </li><li name="geotrellis.vector.voronoi.Implicits.withDelaunayTriangulationArrayMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withDelaunayTriangulationArrayMethodsextendsDelaunayTriangulationArrayMethods"></a>
+      <a id="withDelaunayTriangulationArrayMethods:withDelaunayTriangulationArrayMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withDelaunayTriangulationArrayMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.voronoi.DelaunayTriangulationArrayMethods">DelaunayTriangulationArrayMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withDelaunayTriangulationArrayMethodsextendsDelaunayTriangulationArrayMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.voronoi.Implicits.withDelaunayTriangulationMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withDelaunayTriangulationMethodsextendsDelaunayTriangulationMethods"></a>
+      <a id="withDelaunayTriangulationMethods:withDelaunayTriangulationMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withDelaunayTriangulationMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.voronoi.DelaunayTriangulationMethods">DelaunayTriangulationMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withDelaunayTriangulationMethodsextendsDelaunayTriangulationMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.triangulation.Implicits.withDelaunayTriangulationMultiPointMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withDelaunayTriangulationMultiPointMethodsextendsDelaunayTriangulationMultiPointMethods"></a>
+      <a id="withDelaunayTriangulationMultiPointMethods:withDelaunayTriangulationMultiPointMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withDelaunayTriangulationMultiPointMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.triangulation.DelaunayTriangulationMultiPointMethods">DelaunayTriangulationMultiPointMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withDelaunayTriangulationMultiPointMethodsextendsDelaunayTriangulationMultiPointMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.voronoi.Implicits.withFastVoronoiDiagramArrayMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFastVoronoiDiagramArrayMethodsextendsFastVoronoiDiagramArrayMethods"></a>
+      <a id="withFastVoronoiDiagramArrayMethods:withFastVoronoiDiagramArrayMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFastVoronoiDiagramArrayMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.voronoi.FastVoronoiDiagramArrayMethods">FastVoronoiDiagramArrayMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withFastVoronoiDiagramArrayMethodsextendsFastVoronoiDiagramArrayMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.voronoi.Implicits.withFastVoronoiDiagramMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFastVoronoiDiagramMethodsextendsFastVoronoiDiagramMethods"></a>
+      <a id="withFastVoronoiDiagramMethods:withFastVoronoiDiagramMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFastVoronoiDiagramMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.voronoi.FastVoronoiDiagramMethods">FastVoronoiDiagramMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withFastVoronoiDiagramMethodsextendsFastVoronoiDiagramMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.voronoi.Implicits.withFastVoronoiDiagramMultiPointMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFastVoronoiDiagramMultiPointMethodsextendsFastVoronoiDiagramMultiPointMethods"></a>
+      <a id="withFastVoronoiDiagramMultiPointMethods:withFastVoronoiDiagramMultiPointMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFastVoronoiDiagramMultiPointMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.voronoi.FastVoronoiDiagramMultiPointMethods">FastVoronoiDiagramMultiPointMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withFastVoronoiDiagramMultiPointMethodsextendsFastVoronoiDiagramMultiPointMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.voronoi.Implicits.withVoronoiDiagramArrayMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withVoronoiDiagramArrayMethodsextendsVoronoiDiagramArrayMethods"></a>
+      <a id="withVoronoiDiagramArrayMethods:withVoronoiDiagramArrayMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withVoronoiDiagramArrayMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.voronoi.VoronoiDiagramArrayMethods">VoronoiDiagramArrayMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withVoronoiDiagramArrayMethodsextendsVoronoiDiagramArrayMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.voronoi.Implicits.withVoronoiDiagramMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withVoronoiDiagramMethodsextendsVoronoiDiagramMethods"></a>
+      <a id="withVoronoiDiagramMethods:withVoronoiDiagramMethods"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withVoronoiDiagramMethods</span><span class="result"> extends <span class="extype" name="geotrellis.vector.voronoi.VoronoiDiagramMethods">VoronoiDiagramMethods</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@withVoronoiDiagramMethodsextendsVoronoiDiagramMethods" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="geotrellis.vector#arrayLineToMultiLine" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="arrayLineToMultiLine(ps:Array[geotrellis.vector.Line]):geotrellis.vector.MultiLine"></a>
+      <a id="arrayLineToMultiLine(Array[Line]):MultiLine"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">arrayLineToMultiLine</span><span class="params">(<span name="ps">ps: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="geotrellis.vector.Line">Line</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.MultiLine">MultiLine</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@arrayLineToMultiLine(ps:Array[geotrellis.vector.Line]):geotrellis.vector.MultiLine" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#arrayPointToMultiPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="arrayPointToMultiPoint(ps:Array[geotrellis.vector.Point]):geotrellis.vector.MultiPoint"></a>
+      <a id="arrayPointToMultiPoint(Array[Point]):MultiPoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">arrayPointToMultiPoint</span><span class="params">(<span name="ps">ps: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.MultiPoint">MultiPoint</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@arrayPointToMultiPoint(ps:Array[geotrellis.vector.Point]):geotrellis.vector.MultiPoint" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#arrayPolygonToMultiPolygon" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="arrayPolygonToMultiPolygon(ps:Array[geotrellis.vector.Polygon]):geotrellis.vector.MultiPolygon"></a>
+      <a id="arrayPolygonToMultiPolygon(Array[Polygon]):MultiPolygon"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">arrayPolygonToMultiPolygon</span><span class="params">(<span name="ps">ps: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="geotrellis.vector.Polygon">Polygon</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.MultiPolygon">MultiPolygon</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@arrayPolygonToMultiPolygon(ps:Array[geotrellis.vector.Polygon]):geotrellis.vector.MultiPolygon" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#coordinateArrayToMultiPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="coordinateArrayToMultiPoint(ca:Array[com.vividsolutions.jts.geom.Coordinate]):geotrellis.vector.MultiPoint"></a>
+      <a id="coordinateArrayToMultiPoint(Array[Coordinate]):MultiPoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">coordinateArrayToMultiPoint</span><span class="params">(<span name="ca">ca: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="com.vividsolutions.jts.geom.Coordinate">Coordinate</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.MultiPoint">MultiPoint</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@coordinateArrayToMultiPoint(ca:Array[com.vividsolutions.jts.geom.Coordinate]):geotrellis.vector.MultiPoint" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#coordinateToPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="coordinateToPoint(c:com.vividsolutions.jts.geom.Coordinate):geotrellis.vector.Point"></a>
+      <a id="coordinateToPoint(Coordinate):Point"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">coordinateToPoint</span><span class="params">(<span name="c">c: <span class="extype" name="com.vividsolutions.jts.geom.Coordinate">Coordinate</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.Point">Point</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@coordinateToPoint(c:com.vividsolutions.jts.geom.Coordinate):geotrellis.vector.Point" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#multiLineToSeqLine" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="multiLineToSeqLine(ml:com.vividsolutions.jts.geom.MultiLineString):Seq[geotrellis.vector.Line]"></a>
+      <a id="multiLineToSeqLine(MultiLineString):Seq[Line]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multiLineToSeqLine</span><span class="params">(<span name="ml">ml: <span class="extype" name="com.vividsolutions.jts.geom.MultiLineString">MultiLineString</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Line">Line</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@multiLineToSeqLine(ml:com.vividsolutions.jts.geom.MultiLineString):Seq[geotrellis.vector.Line]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#multiPointToSeqPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="multiPointToSeqPoint(mp:com.vividsolutions.jts.geom.MultiPoint):Seq[geotrellis.vector.Point]"></a>
+      <a id="multiPointToSeqPoint(com.vividsolutions.jts.geom.MultiPoint):Seq[Point]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multiPointToSeqPoint</span><span class="params">(<span name="mp">mp: <span class="extype" name="com.vividsolutions.jts.geom.MultiPoint">com.vividsolutions.jts.geom.MultiPoint</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@multiPointToSeqPoint(mp:com.vividsolutions.jts.geom.MultiPoint):Seq[geotrellis.vector.Point]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#multiPolygonToSeqPolygon" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="multiPolygonToSeqPolygon(mp:com.vividsolutions.jts.geom.MultiPolygon):Seq[geotrellis.vector.Polygon]"></a>
+      <a id="multiPolygonToSeqPolygon(com.vividsolutions.jts.geom.MultiPolygon):Seq[Polygon]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multiPolygonToSeqPolygon</span><span class="params">(<span name="mp">mp: <span class="extype" name="com.vividsolutions.jts.geom.MultiPolygon">com.vividsolutions.jts.geom.MultiPolygon</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Polygon">Polygon</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@multiPolygonToSeqPolygon(mp:com.vividsolutions.jts.geom.MultiPolygon):Seq[geotrellis.vector.Polygon]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#pointListToCoordinateArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pointListToCoordinateArray(ps:List[geotrellis.vector.Point]):Array[com.vividsolutions.jts.geom.Coordinate]"></a>
+      <a id="pointListToCoordinateArray(List[Point]):Array[Coordinate]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pointListToCoordinateArray</span><span class="params">(<span name="ps">ps: <span class="extype" name="scala.List">List</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="com.vividsolutions.jts.geom.Coordinate">Coordinate</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@pointListToCoordinateArray(ps:List[geotrellis.vector.Point]):Array[com.vividsolutions.jts.geom.Coordinate]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#seqGeometryToGeometryCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="seqGeometryToGeometryCollection(gs:Seq[geotrellis.vector.Geometry]):geotrellis.vector.GeometryCollection"></a>
+      <a id="seqGeometryToGeometryCollection(Seq[Geometry]):GeometryCollection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">seqGeometryToGeometryCollection</span><span class="params">(<span name="gs">gs: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Geometry">Geometry</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.GeometryCollection">GeometryCollection</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@seqGeometryToGeometryCollection(gs:Seq[geotrellis.vector.Geometry]):geotrellis.vector.GeometryCollection" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#seqLineToMultiLine" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="seqLineToMultiLine(ps:Seq[geotrellis.vector.Line]):geotrellis.vector.MultiLine"></a>
+      <a id="seqLineToMultiLine(Seq[Line]):MultiLine"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">seqLineToMultiLine</span><span class="params">(<span name="ps">ps: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Line">Line</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.MultiLine">MultiLine</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@seqLineToMultiLine(ps:Seq[geotrellis.vector.Line]):geotrellis.vector.MultiLine" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#seqPointToMultiPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="seqPointToMultiPoint(ps:Seq[geotrellis.vector.Point]):geotrellis.vector.MultiPoint"></a>
+      <a id="seqPointToMultiPoint(Seq[Point]):MultiPoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">seqPointToMultiPoint</span><span class="params">(<span name="ps">ps: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.MultiPoint">MultiPoint</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@seqPointToMultiPoint(ps:Seq[geotrellis.vector.Point]):geotrellis.vector.MultiPoint" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#seqPolygonToMultiPolygon" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="seqPolygonToMultiPolygon(ps:Seq[geotrellis.vector.Polygon]):geotrellis.vector.MultiPolygon"></a>
+      <a id="seqPolygonToMultiPolygon(Seq[Polygon]):MultiPolygon"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">seqPolygonToMultiPolygon</span><span class="params">(<span name="ps">ps: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Polygon">Polygon</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.MultiPolygon">MultiPolygon</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@seqPolygonToMultiPolygon(ps:Seq[geotrellis.vector.Polygon]):geotrellis.vector.MultiPolygon" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#tupleListToPointList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tupleListToPointList(tl:Seq[(Double,Double)]):Seq[geotrellis.vector.Point]"></a>
+      <a id="tupleListToPointList(Seq[(Double,Double)]):Seq[Point]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tupleListToPointList</span><span class="params">(<span name="tl">tl: <span class="extype" name="scala.Seq">Seq</span>[(<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>)]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@tupleListToPointList(tl:Seq[(Double,Double)]):Seq[geotrellis.vector.Point]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#tupleListToPointList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tupleListToPointList(tl:List[(Double,Double)]):List[geotrellis.vector.Point]"></a>
+      <a id="tupleListToPointList(List[(Double,Double)]):List[Point]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tupleListToPointList</span><span class="params">(<span name="tl">tl: <span class="extype" name="scala.List">List</span>[(<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>)]</span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@tupleListToPointList(tl:List[(Double,Double)]):List[geotrellis.vector.Point]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#tupleOfDoubleToPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tupleOfDoubleToPoint(t:(Int,Int)):geotrellis.vector.Point"></a>
+      <a id="tupleOfDoubleToPoint((Int,Int)):Point"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tupleOfDoubleToPoint</span><span class="params">(<span name="t">t: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>)</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.Point">Point</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@tupleOfDoubleToPoint(t:(Int,Int)):geotrellis.vector.Point" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#tupleOfIntToPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tupleOfIntToPoint(t:(Double,Double)):geotrellis.vector.Point"></a>
+      <a id="tupleOfIntToPoint((Double,Double)):Point"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tupleOfIntToPoint</span><span class="params">(<span name="t">t: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>)</span>)</span><span class="result">: <span class="extype" name="geotrellis.vector.Point">Point</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@tupleOfIntToPoint(t:(Double,Double)):geotrellis.vector.Point" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.vector#tupleSeqToMultiPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tupleSeqToMultiPoint(ts:Set[(Double,Double)]):Set[geotrellis.vector.Point]"></a>
+      <a id="tupleSeqToMultiPoint(Set[(Double,Double)]):Set[Point]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tupleSeqToMultiPoint</span><span class="params">(<span name="ts">ts: <span class="extype" name="scala.Predef.Set">Set</span>[(<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>)]</span>)</span><span class="result">: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="geotrellis.vector.Point">Point</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.vector.package@tupleSeqToMultiPoint(ts:Set[(Double,Double)]):Set[geotrellis.vector.Point]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="geotrellis.vector.voronoi.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.vector.voronoi.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.vector.triangulation.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.vector.triangulation.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.vector.reproject.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.vector.reproject.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.vector.SeqMethods">
+              <h3>Inherited from <span class="extype" name="geotrellis.vector.SeqMethods">SeqMethods</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

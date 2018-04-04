@@ -12,7 +12,7 @@ gtag('js', new Date());
 gtag('config', 'UA-106630615-1');
 </script>
 
-<title>RasterFrames</title>
+<title>Getting Started · RasterFrames</title>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
@@ -41,7 +41,7 @@ gtag('config', 'UA-106630615-1');
 <div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
 <nav class="off-canvas-nav">
 <div class="nav-home">
-<a href="index.html" class="active">
+<a href="index.html" >
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
@@ -51,7 +51,7 @@ gtag('config', 'UA-106630615-1');
 <select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
   <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
   <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
   <li><a href="apps/index.html" class="page">Applications</a>
@@ -83,7 +83,7 @@ H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C1
 C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
 </a>
 <img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
-<!-- <div class="title"><a href="index.html" class="active">RasterFrames</a></div>
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
  -->
 <a href="http://www.astraea.earth" class="logo show-for-medium">
 <img style="max-height: 40px;" src="images/astraea.png"/>
@@ -96,7 +96,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="medium-3 large-2 show-for-medium column">
 <nav class="site-nav">
 <div class="nav-home">
-<a href="index.html" class="active">
+<a href="index.html" >
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
@@ -106,7 +106,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
   <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
   <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
   <li><a href="apps/index.html" class="page">Applications</a>
@@ -134,75 +134,60 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 
 <div class="page-header row">
 <div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>Getting Started</li>
+</ul>
+</div>
 </div>
 </div>
 
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
-<h1><a href="#rasterframes" name="rasterframes" class="anchor"><span class="anchor-link"></span></a>RasterFrames</h1>
-<p><em>RasterFrames™</em> brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of <a href="https://geotrellis.io/">GeoTrellis</a>. </p>
-<p>The source code can be found on GitHub at <a href="https://github.com/locationtech/rasterframes">locationtech/rasterframes</a>.</p>
-<p>The underlying purpose of RasterFrames™ is to allow data scientists and software developers to process and analyze geospatial-temporal raster data with the same flexibility and ease as any other Spark Catalyst data type. At its core is a user-defined type (UDT) called <a href="http://rasterframes.io/latest/api/org/apache/spark/sql/gt/types/TileUDT.html"><code>TileUDT</code></a>, which encodes a GeoTrellis <a href="http://rasterframes.io/latest/api/geotrellis/raster/Tile.html"><code>Tile</code></a> in a form the Spark Catalyst engine can process. Furthermore, we extend the definition of a DataFrame to encompass some additional invariants, allowing for geospatial operations within and between RasterFrames to occur, while still maintaining necessary geo-referencing constructs.</p>
-<p>To learn more, please see the <a href="getting-started.html">Getting Started</a> section of this manual.</p>
-<img src="RasterFramePipeline.svg" width="600px"/><div class="callout note "><div class="callout-title">Note</div>
-<p>RasterFrames™ is a new project under active development. Feedback and contributions are welcomed as we look to improve it. Please <a href="https://github.com/locationtech/rasterframes/issues">submit an issue</a> if there&rsquo;s a particular feature you think should be included.</p></div><div class="md-left">
-<h2><a href="#detailed-contents" name="detailed-contents" class="anchor"><span class="anchor-link"></span></a>Detailed Contents</h2>
-<div class="toc ">
-<ul>
-  <li><a href="index.html#related-links" class="header">Related Links</a></li>
-  <li><a href="getting-started.html" class="page">Getting Started</a>
-  <ul>
-    <li><a href="getting-started.html#quick-start" class="header">Quick Start</a></li>
-    <li><a href="getting-started.html#general-setup" class="header">General Setup</a></li>
-  </ul></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a>
-  <ul>
-    <li><a href="creating-rasterframes.html#initialization" class="header">Initialization</a></li>
-    <li><a href="creating-rasterframes.html#reading-a-geotiff" class="header">Reading a GeoTIFF</a></li>
-    <li><a href="creating-rasterframes.html#reading-a-geotrellis-layer" class="header">Reading a GeoTrellis Layer</a></li>
-    <li><a href="creating-rasterframes.html#writing-a-geotrellis-layer" class="header">Writing a GeoTrellis Layer</a></li>
-    <li><a href="creating-rasterframes.html#using-geotrellis-apis" class="header">Using GeoTrellis APIs</a></li>
-    <li><a href="creating-rasterframes.html#inspecting-a-rasterframe" class="header">Inspecting a <code>RasterFrame</code></a></li>
-  </ul></li>
-  <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
-  <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
-  </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
-  <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
-  </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting RasterFrames</a>
-  <ul>
-    <li><a href="exporting-rasterframes.html#converting-to-array" class="header">Converting to Array</a></li>
-    <li><a href="exporting-rasterframes.html#writing-to-parquet" class="header">Writing to Parquet</a></li>
-    <li><a href="exporting-rasterframes.html#exporting-a-raster" class="header">Exporting a Raster</a></li>
-    <li><a href="exporting-rasterframes.html#exporting-to-a-geotrellis-layer" class="header">Exporting to a GeoTrellis Layer</a></li>
-    <li><a href="exporting-rasterframes.html#converting-to-rdd-and-tilelayerrdd" class="header">Converting to <code>RDD</code> and <code>TileLayerRDD</code></a></li>
-  </ul></li>
-  <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release Notes</a>
-  <ul>
-    <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a></li>
-    <li><a href="release-notes.html#0-5-x" class="header">0.5.x</a></li>
-  </ul></li>
-</ul>
-</div></div><div class="md-right">
-<h2><a href="#related-links" name="related-links" class="anchor"><span class="anchor-link"></span></a>Related Links</h2>
-<ul>
-  <li><a href="https://gitter.im/s22s/raster-frames">Gitter Channel</a>&nbsp;&nbsp;<a href="https://gitter.im/s22s/raster-frames?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/s22s/raster-frames.svg" alt="Join the chat at https://gitter.im/s22s/raster-frames" /></a></li>
-  <li><a href="latest/api/index.html">API Documentation</a></li>
-  <li><a href="https://github.com/locationtech/rasterframes">GitHub Repository</a></li>
-  <li><a href="https://docs.geotrellis.io/en/latest/">GeoTrellis Documentation</a></li>
-  <li><a href="http://www.astraea.earth/">Astraea, Inc.</a> (the company behind RasterFrames)</li>
-</ul></div><div class="md-clear">
-<p>&nbsp;</p></div>
+<h1><a href="#getting-started" name="getting-started" class="anchor"><span class="anchor-link"></span></a>Getting Started</h1>
+<h2><a href="#quick-start" name="quick-start" class="anchor"><span class="anchor-link"></span></a>Quick Start</h2>
+<h3><a href="#macos" name="macos" class="anchor"><span class="anchor-link"></span></a>macOS</h3>
+<ol>
+  <li>If not already, install <a href="https://brew.sh/">Homebrew</a></li>
+  <li>Run <code>brew install sbt</code></li>
+  <li>Run <code>sbt new s22s/raster-frames.g8</code></li>
+</ol>
+<h3><a href="#linux" name="linux" class="anchor"><span class="anchor-link"></span></a>Linux</h3>
+<ol>
+  <li>Install <a href="http://www.scala-sbt.org/release/docs/Installing-sbt-on-Linux.html">sbt</a></li>
+  <li>Run <code>sbt new s22s/raster-frames.g8</code></li>
+</ol>
+<h3><a href="#windows" name="windows" class="anchor"><span class="anchor-link"></span></a>Windows</h3>
+<ol>
+  <li>Install <a href="http://www.scala-sbt.org/release/docs/Installing-sbt-on-Windows.html">sbt</a></li>
+  <li>Run <code>sbt new s22s/raster-frames.g8</code></li>
+</ol>
+<h2><a href="#general-setup" name="general-setup" class="anchor"><span class="anchor-link"></span></a>General Setup</h2>
+<p><em>RasterFrames</em> is published via <a href="http://search.maven.org/#search%7Cga%7C1%7Craster-frames">Maven Central</a>.</p>
+<p>To use RasterFrames, add the following library dependencies:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "io.astraea" %% "raster-frames" % "x.y.z"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;io.astraea&lt;/groupId&gt;
+  &lt;artifactId&gt;raster-frames_2.11&lt;/artifactId&gt;
+  &lt;version&gt;x.y.z&lt;/version&gt;
+&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
+  compile group: 'io.astraea', name: 'raster-frames_2.11', version: 'x.y.z'
+}</code></pre></dd></dl><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "io.astraea" %% "raster-frames-datasource" % "x.y.z"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;io.astraea&lt;/groupId&gt;
+  &lt;artifactId&gt;raster-frames-datasource_2.11&lt;/artifactId&gt;
+  &lt;version&gt;x.y.z&lt;/version&gt;
+&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
+  compile group: 'io.astraea', name: 'raster-frames-datasource_2.11', version: 'x.y.z'
+}</code></pre></dd></dl>
+<p>It assumes that SparkSQL 2.2.x is available in the runtime classpath. Here&rsquo;s how to add it explicitly:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.apache.spark" % "spark-sql" % "2.2.0"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.spark&lt;/groupId&gt;
+  &lt;artifactId&gt;spark-sql&lt;/artifactId&gt;
+  &lt;version&gt;2.2.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
+  compile group: 'org.apache.spark', name: 'spark-sql', version: '2.2.0'
+}</code></pre></dd></dl><div class="callout note "><div class="callout-title">Note</div>
+<p>Most of the following examples are shown using the Spark DataFrames API. However, many could also be rewritten to use the Spark SQL API instead. We hope to add more examples in that form in the future.</p></div>
 <div class="nav-next">
-<p><strong>Next:</strong> <a href="getting-started.html">Getting Started</a></p>
+<p><strong>Next:</strong> <a href="creating-rasterframes.html">Creating RasterFrames</a></p>
 </div>
 </div>
 <div class="large-3 show-for-large column" data-sticky-container>
@@ -211,10 +196,10 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="nav-title">On this page:</div>
 <div class="nav-toc">
 <ul>
-  <li><a href="index.html#rasterframes" class="header">RasterFrames</a>
+  <li><a href="getting-started.html#getting-started" class="header">Getting Started</a>
   <ul>
-    <li><a href="index.html#detailed-contents" class="header">Detailed Contents</a></li>
-    <li><a href="index.html#related-links" class="header">Related Links</a></li>
+    <li><a href="getting-started.html#quick-start" class="header">Quick Start</a></li>
+    <li><a href="getting-started.html#general-setup" class="header">General Setup</a></li>
   </ul></li>
 </ul>
 </div>
