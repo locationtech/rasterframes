@@ -2,14 +2,14 @@ import com.typesafe.sbt.SbtGit.git
 
 enablePlugins(SiteScaladocPlugin, ParadoxSitePlugin, TutPlugin, GhpagesPlugin, ScalaUnidocPlugin)
 
-name := "raster-frames-docs"
+name := "rasterframes-docs"
 
 libraryDependencies ++= Seq(
   spark("mllib").value % Tut,
   spark("sql").value % Tut
 )
 
-git.remoteRepo := "git@github.com:s22s/raster-frames.git"
+git.remoteRepo := "git@github.com:locationtech/rasterframes.git"
 apiURL := Some(url("http://rasterframes.io/latest/api"))
 autoAPIMappings := true
 ghpagesNoJekyll := true
@@ -19,10 +19,10 @@ ScalaUnidoc / siteSubdirName := "latest/api"
 addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
 
 Paradox / paradoxProperties ++= Map(
-  "github.base_url" -> "https://github.com/s22s/raster-frames",
+  "github.base_url" -> "https://github.com/locationtech/rasterframes"
   //"scaladoc.org.apache.spark.sql.gt" -> "http://rasterframes.io/latest",
   //"scaladoc.geotrellis.base_url" -> "https://geotrellis.github.io/scaladocs/latest",
-  "snip.pyexamples.base_dir" -> (baseDirectory.value + "/../pyrasterframes/python/test/examples")
+  // "snip.pyexamples.base_dir" -> (baseDirectory.value + "/../pyrasterframes/python/test/examples")
 )
 Paradox / paradoxTheme := Some(builtinParadoxTheme("generic"))
 Paradox / paradoxGroups := Map("Language" -> Seq("Scala", "Python"))

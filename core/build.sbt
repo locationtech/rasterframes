@@ -1,6 +1,6 @@
 enablePlugins(BuildInfoPlugin)
 
-moduleName := "raster-frames"
+moduleName := "rasterframes"
 
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",

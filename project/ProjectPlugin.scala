@@ -18,11 +18,11 @@ object ProjectPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectSettings = Seq(
-    organization := "io.astraea",
-    organizationName := "Astraea, Inc.",
+    organization := "org.locationtech.rasterframes",
+    organizationName := "LocationTech RasterFrames",
     startYear := Some(2017),
     homepage := Some(url("http://rasterframes.io")),
-    scmInfo := Some(ScmInfo(url("https://github.com/s22s/raster-frames"), "git@github.com:s22s/raster-frames.git")),
+    scmInfo := Some(ScmInfo(url("https://github.com/locationtech/rasterframes"), "git@github.com:locationtech/rasterframes.git")),
     description := "RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis",
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion := "2.11.12",

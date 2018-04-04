@@ -1,4 +1,4 @@
-moduleName := "raster-frames-datasource"
+moduleName := "rasterframes-datasource"
 
 libraryDependencies ++= Seq(
   geotrellis("s3").value,
