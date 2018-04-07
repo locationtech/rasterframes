@@ -4,6 +4,7 @@
 
 ### 0.6.2
 
+* Updated to GeoMesa version 2.0.0-rc.1.
 * Added for for writing GeoTIFFs from RasterFrames via with DataFrameWriter.
 * Added `spark.read.geotrellis.withNumPartitions(Int)` for setting the initial number of partitions to use when reading a layer.
 * Added `spark.read.geotrellis.withTileSubdivisions(Int)` for evenly subdividing tiles before they become rows in a RasterFrame.
