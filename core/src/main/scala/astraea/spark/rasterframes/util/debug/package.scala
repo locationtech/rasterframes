@@ -25,7 +25,8 @@ import java.net.URI
 import astraea.spark.rasterframes._
 import geotrellis.proj4.WebMercator
 import geotrellis.raster.MultibandTile
-import geotrellis.raster.io.geotiff.MultibandGeoTiff
+import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
+import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff}
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpatialKey}
 import geotrellis.spark.io.slippy.HadoopSlippyTileWriter
 import geotrellis.spark.tiling.ZoomedLayoutScheme
@@ -44,7 +45,7 @@ package object debug {
       val spark = self.sparkSession
       implicit val sc = spark.sparkContext
 
-      val tgtCrs = WebMercator
+      val tgtCrs =  self.crs //WebMercator
 
       val scheme = ZoomedLayoutScheme(tgtCrs)
       val mapTransform = scheme
@@ -54,7 +55,8 @@ package object debug {
 
       val writer = new HadoopSlippyTileWriter[MultibandTile](dest.toASCIIString, "tiff")({ (key, tile) =>
         val extent = mapTransform(key)
-        MultibandGeoTiff(tile, extent, tgtCrs).toByteArray
+        val opts = GeoTiffOptions.DEFAULT.mapWhen(_ ⇒ tile.bands.lengthCompare(3) == 0, _.copy(colorSpace = ColorSpace.RGB))
+        MultibandGeoTiff(tile, extent, tgtCrs, opts).toByteArray
       })
 
       /** If there's a temporal component to the key, we drop it blindly. */

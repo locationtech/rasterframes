@@ -19,17 +19,14 @@
 
 package astraea.spark.rasterframes
 
-import geotrellis.proj4.WebMercator
+import geotrellis.raster.CellGrid
 import geotrellis.raster.crop.TileCropMethods
-import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
-import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileLayout}
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
-import geotrellis.spark.io.slippy.HadoopSlippyTileWriter
-import geotrellis.spark.tiling.{TilerKeyMethods, ZoomedLayoutScheme}
-import geotrellis.spark.{Bounds, ContextRDD, KeyBounds, MultibandTileLayerRDD, SpaceTimeKey, SpatialComponent, SpatialKey, TileLayerMetadata, TileLayerRDD}
+import geotrellis.spark.Bounds
+import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{GetComponent, LazyLogging}
 import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
 import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference}
@@ -45,6 +42,13 @@ import shapeless.Lub
  * @since 12/18/17
  */
 package object util extends LazyLogging {
+
+  import reflect.ClassTag
+  import reflect.runtime.universe._
+
+  implicit class TypeTagCanBeClassTag[T](val t: TypeTag[T]) extends AnyVal {
+    def asClassTag: ClassTag[T] = ClassTag[T](t.mirror.runtimeClass(t.tpe))
+  }
 
   /**
    * Type lambda alias for components that have bounds with parameterized key.
@@ -80,9 +84,7 @@ package object util extends LazyLogging {
     op.getClass.getSimpleName.replace("$", "").toLowerCase
 
 
-  // $COVERAGE-OFF$
   implicit class WithWiden[A, B](thing: Either[A, B]) {
-
     /** Returns the value as a LUB of the Left & Right items. */
     def widen[Out](implicit ev: Lub[A, B, Out]): Out =
       thing.fold(identity, identity).asInstanceOf[Out]
@@ -131,5 +133,4 @@ package object util extends LazyLogging {
     logger.error("Extended rule resolution not available in this version of Spark")
     analyzer(sqlContext).extendedResolutionRules
   }
-  // $COVERAGE-ON$
 }

@@ -5,17 +5,15 @@ package astraea.spark.rasterframes
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 
+import astraea.spark.rasterframes.util._
 import geotrellis.proj4.LatLng
-import geotrellis.raster.render.{ColorMap, ColorRamp, ColorRamps}
-import geotrellis.raster.{IntCellType, ProjectedRaster, Tile, TileFeature, TileLayout, UByteCellType}
+import geotrellis.raster.render.{ColorMap, ColorRamp}
+import geotrellis.raster.{ProjectedRaster, Tile, TileFeature, TileLayout, UByteCellType}
 import geotrellis.spark._
-import geotrellis.spark.io._
 import geotrellis.spark.tiling._
 import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.sql.functions._
-import astraea.spark.rasterframes.util._
-import geotrellis.spark.reproject.Reproject
+import org.apache.spark.sql.{SQLContext, SparkSession}
 
 import scala.util.control.NonFatal
 
@@ -155,7 +153,6 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       assert(wt.columns.contains(TEMPORAL_KEY_COLUMN.columnName))
 
       val joined = wt.spatialJoin(wt, "outer")
-      joined.printSchema
 
       // Should be both left and right column names.
       assert(joined.columns.count(_.contains(TEMPORAL_KEY_COLUMN.columnName)) === 2)
@@ -169,14 +166,13 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       val right = left.withColumnRenamed(left.tileColumns.head.columnName, "rightTile")
         .asRF
 
-      val joined = left.spatialJoin(right, "inner")
-      joined.printSchema
+      val joined = left.spatialJoin(right)
+      // since right is a copy of left, should not drop any rows with inner join
+      assert(joined.count === left.count)
 
       // Should use left's key column names
       assert(joined.spatialKeyColumn.columnName === left.spatialKeyColumn.columnName)
       assert(joined.temporalKeyColumn.map(_.columnName) === left.temporalKeyColumn.map(_.columnName))
-      // since right is a copy of left, should not drop any rows with inner join
-      assert(joined.count === left.count)
 
     }
 
@@ -307,7 +303,6 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
         val green = TestData.naipSample(2).projectedRaster.toRF.withRFColumnRenamed("tile", "green")
         val blue = TestData.naipSample(3).projectedRaster.toRF.withRFColumnRenamed("tile", "blue")
         val joined = blue.spatialJoin(green).spatialJoin(red)
-        joined.printSchema
 
         noException shouldBe thrownBy {
           val raster = joined.toMultibandRaster(Seq($"red", $"green", $"blue"), 256, 256)
