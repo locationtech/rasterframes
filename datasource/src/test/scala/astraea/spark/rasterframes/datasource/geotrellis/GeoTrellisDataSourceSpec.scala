@@ -242,8 +242,6 @@ class GeoTrellisDataSourceSpec
 
       assertEqual(raster.tile, sampleGeoTiff.tile)
 
-      rf.debugTileExport(new File("target/slippy2").toURI)
-
       //GeoTiff(raster).write("target/from-split.tiff")
       // 774 x 500
     }

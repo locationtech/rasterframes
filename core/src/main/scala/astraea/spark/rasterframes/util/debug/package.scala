@@ -39,37 +39,6 @@ import org.apache.spark.annotation.Experimental
  */
 package object debug {
   implicit class RasterFrameWithDebug(val self: RasterFrame)  {
-    /** Create a slippy map directory structure export of raster frame, for debugging purposes only. */
-    @Experimental
-    def debugTileExport(dest: URI, zoomLevel: Int = 8): Unit = {
-      val spark = self.sparkSession
-      implicit val sc = spark.sparkContext
-
-      val tgtCrs =  self.crs //WebMercator
-
-      val scheme = ZoomedLayoutScheme(tgtCrs)
-      val mapTransform = scheme
-        .levelForZoom(zoomLevel)
-        .layout
-        .mapTransform
-
-      val writer = new HadoopSlippyTileWriter[MultibandTile](dest.toASCIIString, "tiff")({ (key, tile) =>
-        val extent = mapTransform(key)
-        val opts = GeoTiffOptions.DEFAULT.mapWhen(_ ⇒ tile.bands.lengthCompare(3) == 0, _.copy(colorSpace = ColorSpace.RGB))
-        MultibandGeoTiff(tile, extent, tgtCrs, opts).toByteArray
-      })
-
-      /** If there's a temporal component to the key, we drop it blindly. */
-      val tlrdd: MultibandTileLayerRDD[SpatialKey] = self.toMultibandTileLayerRDD(self.tileColumns: _*) match {
-        case Left(spatial) ⇒ spatial
-        case Right(origRDD) ⇒
-          val newMD = origRDD.metadata.map(_.spatialKey)
-          val rdd = origRDD.map { case (k, v) ⇒ (k.spatialKey, v)}
-          ContextRDD(rdd, newMD)
-      }
-
-      writer.write(zoomLevel, tlrdd)
-    }
 
     /** Renders the whole schema with metadata as a JSON string. */
     def describeFullSchema: String = {
