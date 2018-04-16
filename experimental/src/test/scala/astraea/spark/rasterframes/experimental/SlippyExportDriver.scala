@@ -28,7 +28,7 @@ import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import org.apache.spark.sql.SparkSession
 
-object SlippyExportTest {
+object SlippyExportDriver {
   def main(args: Array[String]): Unit = {
 
     implicit val spark = SparkSession
@@ -51,8 +51,8 @@ object SlippyExportTest {
 
     val rf = pr.toRF(64, 64)
 
-    rf.exportGeoTiffTiles(new File("target/slippy-tiff").toURI)
+    //rf.exportGeoTiffTiles(new File("target/slippy-tiff").toURI)
 
-    rf.exportSlippyMap(new File("target/slippy-png").toURI)
+    rf.exportSlippyMap(new File("target/slippy-png/").toURI)
   }
 }

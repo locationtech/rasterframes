@@ -20,22 +20,27 @@
 
 package astraea.spark.rasterframes.experimental
 
-import geotrellis.util.MethodExtensions
 import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util._
-import geotrellis.proj4.WebMercator
-import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
-import geotrellis.raster.io.geotiff._
-import geotrellis.raster.resample.Bilinear
+import geotrellis.proj4.{LatLng, WebMercator}
 import geotrellis.raster._
-import geotrellis.raster.render.{ColorMap, ColorMaps, ColorRamps}
+import geotrellis.raster.io.geotiff._
+import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
+import geotrellis.raster.render.{ColorMap, ColorRamps}
+import geotrellis.raster.resample.Bilinear
 import geotrellis.spark._
 import geotrellis.spark.io.slippy.HadoopSlippyTileWriter
+import geotrellis.spark.pyramid.Pyramid
 import geotrellis.spark.tiling.ZoomedLayoutScheme
+import geotrellis.util.MethodExtensions
+import org.apache.commons.lang3.text.StrSubstitutor
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.annotation.Experimental
 
+import scala.io.Source
 import scala.util.Try
 
 /**
@@ -82,11 +87,16 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
   /**
    * Export tiles as a slippy map. For debugging purposes only.
    * NB: Temporal components are ignored blindly.
+   * @param dest URI for Hadoop supported storage endpoint (e.g. 'file://', 'hdfs://', etc.).
+   * @param colorMap Optional color map to use for rendering tiles in non-RGB RasterFrames.
    */
   @Experimental
   def exportSlippyMap(dest: URI, colorMap: Option[ColorMap] = None): Unit = {
     val spark = self.sparkSession
     implicit val sc = spark.sparkContext
+
+    val tileDirName = "rf-tiles"
+
 
     val inputRDD: MultibandTileLayerRDD[SpatialKey] = self.toMultibandTileLayerRDD(self.tileColumns: _*) match {
       case Left(spatial) ⇒ spatial
@@ -99,8 +109,7 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
     val layoutScheme = ZoomedLayoutScheme(WebMercator, tileSize = 256)
 
     val (zoom, reprojected) = inputRDD.reproject(WebMercator, layoutScheme, Bilinear)
-
-    val writer = new HadoopSlippyTileWriter[MultibandTile](dest.toASCIIString, "png")({ (_, tile) =>
+    val writer = new HadoopSlippyTileWriter[MultibandTile](dest.toASCIIString + "/" + tileDirName, "png")({ (_, tile) =>
       val png = if(colorMap.isEmpty && tile.bands.lengthCompare(3) == 0) {
         // `Try` below is due to https://github.com/locationtech/geotrellis/issues/2621
         tile.mapBands((_, t) ⇒ Try(t.rescale(0, 255)).getOrElse(t)).renderPng()
@@ -113,11 +122,37 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
       png.bytes
     })
 
-    writer.write(zoom, reprojected)
+    val center = reprojected.metadata.extent.center.reproject(WebMercator, LatLng)
+
+    SlippyExport.writeHtml(dest, sc.hadoopConfiguration, Map(
+      "maxZoom" -> zoom.toString,
+      "id" -> tileDirName,
+      "viewLat" -> center.y.toString,
+      "viewLon" -> center.x.toString
+    ))
+
+    // Pyramiding up the zoom levels, write our tiles out to the local file system.
+    Pyramid.upLevels(reprojected, layoutScheme, zoom, Bilinear) { (rdd, z) =>
+      writer.write(z, rdd)
+    }
   }
 }
 
 object SlippyExport {
+  import scala.collection.JavaConverters._
   implicit class RasterFrameHasSlippy(val self: RasterFrame) extends SlippyExport
+  private def writeHtml(dest: URI, conf: Configuration, subs: Map[String, String]): Unit = {
+    val rawLines = Source.fromInputStream(getClass.getResourceAsStream("/slippy.html")).getLines()
+
+    val subst = new StrSubstitutor(subs.asJava)
+
+    val fs = FileSystem.get(dest, conf)
+    withResource(fs.create(new Path(new Path(dest), "index.html"), true)) { out ⇒
+      for(line ← rawLines) {
+        out.writeBytes(subst.replace(line))
+        out.writeChar('\n')
+      }
+    }
+  }
 }
 

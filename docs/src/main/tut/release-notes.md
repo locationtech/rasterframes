@@ -8,8 +8,9 @@
 * Added for for writing GeoTIFFs from RasterFrames via with DataFrameWriter.
 * Added `spark.read.geotrellis.withNumPartitions(Int)` for setting the initial number of partitions to use when reading a layer.
 * Added `spark.read.geotrellis.withTileSubdivisions(Int)` for evenly subdividing tiles before they become rows in a RasterFrame.
-* Added `astraea.spark.rasterframes.util.debug` hosting debug feature to export RasterFrame as a slippy-tile directory structure.
-  _Experimental and not for long-term use_.
+* Added `experimental` package for sandboxing new feature ideas.
+* Added `SlippyExport` experimental feature for exporting the contents of a RasterFrame as a [SlippyMap](https://wiki.openstreetmap.org/wiki/Slippy_Map)
+  tile image directory structure and Leaflet-enabled HTML file. 
 * _Change_: Default interpoation for `toRaster` and `toMultibandRaster` has been changed from `Bilinear` to `NearestNeighbor`.
 * _Breaking_: Renamed/moved `astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics` to
 `astraea.spark.rasterframes.stats.CellStatistics`.
