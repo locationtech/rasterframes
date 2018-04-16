@@ -39,8 +39,9 @@ abstract class SpatialContextRDDMethods[T <: CellGrid](implicit spark: SparkSess
   def toRF(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrame = toRF(TILE_COLUMN.columnName)
 
   def toRF(tileColumnName: String)(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrame = {
-    val df = self.toDataFrame
-    df.setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
+    val df = self.toDataFrame.setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
+    val defName = TILE_COLUMN.columnName
+    df.mapWhen(_ ⇒ tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
       .certify
   }
 }
@@ -56,9 +57,11 @@ abstract class SpatioTemporalContextRDDMethods[T <: CellGrid](
   def toRF(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrame = toRF(TILE_COLUMN.columnName)
 
   def toRF(tileColumnName: String)(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrame = {
-    self.toDataFrame
+    val df = self.toDataFrame
       .setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
       .setTemporalColumnRole(TEMPORAL_KEY_COLUMN)
+    val defName = TILE_COLUMN.columnName
+    df.mapWhen(_ ⇒ tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
       .certify
   }
 }

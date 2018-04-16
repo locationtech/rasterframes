@@ -74,6 +74,10 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       )
 
       assert(rf.count() === 4)
+
+      val cols = tileLayerRDD.toRF("foo").columns
+      assert(!cols.contains("tile"))
+      assert(cols.contains("foo"))
     }
 
     it("should implicitly convert from spatiotemporal layer type") {
@@ -93,6 +97,9 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
           println(rf.schema.prettyJson)
           throw ex
       }
+      val cols = tileLayerRDD.toRF("foo").columns
+       assert(!cols.contains("tile"))
+       assert(cols.contains("foo"))
     }
 
     it("should implicitly convert layer of TileFeature") {
