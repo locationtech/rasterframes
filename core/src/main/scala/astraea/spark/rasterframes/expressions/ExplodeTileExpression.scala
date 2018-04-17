@@ -71,13 +71,13 @@ private[rasterframes] case class ExplodeTileExpression(
       val (cols, rows) = dims.head
 
       val retval = Array.ofDim[InternalRow](cols * rows)
-      cfor(0)(_ < rows, _ + 1) { row =>
-        cfor(0)(_ < cols, _ + 1) { col =>
+      cfor(0)(_ < rows, _ + 1) { row ⇒
+        cfor(0)(_ < cols, _ + 1) { col ⇒
           val rowIndex = row * cols + col
           val outCols = Array.ofDim[Any](numOutCols)
           outCols(0) = col
           outCols(1) = row
-          cfor(0)(_ < tiles.length, _ + 1) { index =>
+          cfor(0)(_ < tiles.length, _ + 1) { index ⇒
             val tile = tiles(index)
             outCols(index + 2) = if(tile == null) doubleNODATA else tile.getDouble(col, row)
           }
