@@ -3,7 +3,7 @@ addCommandAlias("console", "datasource/console")
 
 lazy val root = project
   .in(file("."))
-  .withId("RF")
+  .withId("RasterFrames")
   .aggregate(core, datasource)
   .settings(publishArtifact := false)
   .settings(releaseSettings)
