@@ -3,8 +3,6 @@ addCommandAlias("console", "datasource/console")
 
 lazy val root = project
   .in(file("."))
-  .withId("RF")
-  .aggregate(core, datasource, pyrasterframes)
   .withId("RasterFrames")
   .aggregate(core, datasource, pyrasterframes, experimental)
   .settings(publishArtifact := false)
@@ -24,7 +22,7 @@ lazy val datasource = project
 lazy val experimental = project
   .dependsOn(core % "test->test;compile->compile")
   .dependsOn(datasource % "test->test;compile->compile")
-
+  .disablePlugins(SparkPackagePlugin)
 
 lazy val docs = project
   .dependsOn(core, datasource)
