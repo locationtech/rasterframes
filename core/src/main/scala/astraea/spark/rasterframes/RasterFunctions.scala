@@ -84,6 +84,10 @@ trait RasterFunctions {
   def cellType(col: Column): TypedColumn[Any, String] =
     expressions.CellTypeExpression(col.expr).asColumn.as[String]
 
+  /** Change the Tile's cell type */
+  def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
+    udf[Tile, Tile](F.convertCellType(cellType)).apply(col).as[Tile]
+
   /** Assign a `NoData` value to the Tiles. */
   def withNoData(col: Column, nodata: Double) = withAlias("withNoData", col)(
     udf[Tile, Tile](F.withNoData(nodata)).apply(col)

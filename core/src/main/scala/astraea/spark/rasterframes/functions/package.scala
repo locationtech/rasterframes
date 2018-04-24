@@ -143,6 +143,9 @@ package object functions {
   /** Computes the column aggregate statistics */
   private[rasterframes] val aggStats = CellStatsAggregateFunction()
 
+  /** Change the tile's cell type. */
+  private[rasterframes] def convertCellType(cellType: CellType) = safeEval[Tile, Tile](_.convert(cellType))
+
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 

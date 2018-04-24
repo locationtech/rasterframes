@@ -59,7 +59,7 @@ case class CellMeanAggregateFunction(child: Expression) extends DeclarativeAggre
     count.left + count.right
   )
 
-  val evaluateExpression = sum / Cast(count, DoubleType)
+  val evaluateExpression = sum / new Cast(count, DoubleType)
 
   def inputTypes = Seq(TileUDT)
 
