@@ -18,7 +18,8 @@ object ProjectPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectSettings = Seq(
-    organization := "org.locationtech.rasterframes",
+    //organization := "org.locationtech.rasterframes",
+    organization := "io.astraea",
     organizationName := "LocationTech RasterFrames",
     startYear := Some(2017),
     homepage := Some(url("http://rasterframes.io")),

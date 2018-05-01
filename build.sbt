@@ -5,7 +5,7 @@ lazy val root = project
   .in(file("."))
   .withId("RasterFrames")
   .aggregate(core, datasource, pyrasterframes, experimental)
-  .settings(publishArtifact := false)
+  .settings(publish / skip := true)
   .settings(releaseSettings)
 
 lazy val core = project
@@ -31,5 +31,5 @@ lazy val docs = project
 lazy val bench = project
   .dependsOn(core)
   .disablePlugins(SparkPackagePlugin)
-
+  .settings(publish / skip := true)
 

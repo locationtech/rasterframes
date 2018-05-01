@@ -18,12 +18,11 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental
+package astraea.spark.rasterframes.experimental.slippy
 
 import java.io.File
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.experimental.SlippyExport._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import org.apache.spark.sql.SparkSession
