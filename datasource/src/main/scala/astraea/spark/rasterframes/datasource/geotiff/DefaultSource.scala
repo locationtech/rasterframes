@@ -19,32 +19,23 @@
 
 package astraea.spark.rasterframes.datasource.geotiff
 
-import java.net.URI
-
-import org.apache.spark.annotation.Experimental
-import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
-import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
+import _root_.geotrellis.raster.io.geotiff.GeoTiff
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.datasource._
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.io.geotiff.GeoTiff
-
-import scala.util.Try
+import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
+import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode}
 
 /**
- *
+ * Spark SQL data source over GeoTIFF files.
  * @since 1/14/18
  */
-@Experimental
 class DefaultSource extends DataSourceRegister with RelationProvider with CreatableRelationProvider with LazyLogging {
   def shortName() = DefaultSource.SHORT_NAME
 
   def path(parameters: Map[String, String]) =
-    parameters.get(DefaultSource.PATH_PARAM).flatMap(p ⇒ Try(URI.create(p)).toOption)
-
-  def num(key: String, parameters: Map[String, String]) =
-    parameters.get(key).map(_.toLong)
-
+    uriParam(DefaultSource.PATH_PARAM, parameters)
 
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
     val pathO = path(parameters)
@@ -65,8 +56,8 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
 
     val tl = rf.tileLayerMetadata.widen.layout.tileLayout
 
-    val cols = num(DefaultSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(tl.totalCols)
-    val rows = num(DefaultSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(tl.totalRows)
+    val cols = numParam(DefaultSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(tl.totalCols)
+    val rows = numParam(DefaultSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(tl.totalRows)
 
     require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a GeoTIFF of size $cols x $rows. (Too big!)")
 

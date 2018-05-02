@@ -18,9 +18,23 @@
  */
 
 package astraea.spark.rasterframes
+
+import java.net.URI
+
+import scala.util.Try
+
 /**
+ * Module utilities
  *
  * @since 1/13/18
  */
 package object datasource {
+
+  private[rasterframes]
+  def numParam(key: String, parameters: Map[String, String]): Option[Long] =
+    parameters.get(key).map(_.toLong)
+
+  private[rasterframes]
+  def uriParam(key: String, parameters: Map[String, String]) =
+    parameters.get(key).flatMap(p ⇒ Try(URI.create(p)).toOption)
 }

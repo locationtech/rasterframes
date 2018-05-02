@@ -18,7 +18,7 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental
+package astraea.spark.rasterframes.experimental.slippy
 
 import java.net.URI
 

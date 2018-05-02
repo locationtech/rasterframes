@@ -26,6 +26,7 @@ import astraea.spark.rasterframes._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import org.apache.spark.sql.SparkSession
+import SlippyExport._
 
 object SlippyExportDriver {
   def main(args: Array[String]): Unit = {
