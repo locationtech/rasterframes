@@ -3,23 +3,9 @@ import sbt.Keys.`package`
 
 enablePlugins(SparkPackagePlugin, AssemblyPlugin)
 
-lazy val pyZip = taskKey[File]("Create a minimal pyrasterframes zip distribution.")
-
-val pysparkCmd = taskKey[Unit]("Builds pyspark package and emits command string for running pyspark with package")
-
-lazy val pyTest = taskKey[Unit]("Run pyrasterframes tests.")
-
-lazy val pyExamples = taskKey[Unit]("Run pyrasterframes examples.")
-
-lazy val pyEgg = taskKey[Unit]("Creates a Python .egg file")
-
-lazy val spJarFile = Def.taskDyn {
-  if (spShade.value) {
-    Def.task((assembly in spPackage).value)
-  } else {
-    Def.task(spPackage.value)
-  }
-}
+//--------------------------------------------------------------------
+// Spark Packages Plugin
+//--------------------------------------------------------------------
 
 spName := "io.astraea/pyrasterframes"
 sparkVersion := rfSparkVersion.value
@@ -64,15 +50,70 @@ spPublishLocal := {
   spPublishLocal.value
 }
 
-pyZip := {
+//--------------------------------------------------------------------
+// Python Build
+//--------------------------------------------------------------------
+
+lazy val pythonSource = settingKey[File]("Default Python source directory.")
+pythonSource := baseDirectory.value / "python"
+
+val Python = config("Python")
+
+Python / target := target.value / "python-dist"
+
+// Alias
+lazy val pyZip = Python / packageBin
+
+Python / packageBin / artifact := {
+  val java = (Compile / packageBin / artifact).value
+  java.withType("zip").withClassifier(Some("python")).withExtension("zip")
+}
+
+Python / packageBin / artifactPath := {
+  val dir = (Python / target).value
+  val art = (Python / packageBin / artifact).value
+  val ver = version.value
+  dir / s"${art.name}-python-$ver.zip"
+}
+
+//Python / packageBin / crossVersion := CrossVersion.disabled
+
+//artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
+//  // Couldn't figure out how to config scope this, so having to handle for whole module
+//  artifact.classifier match {
+//    case Some("python") ⇒
+//      val ver = version.value
+//      s"${artifact.name}-python-${ver}.${artifact.extension}"
+//    case _ ⇒ artifactName.value(sv, module, artifact)
+//  }
+//}
+
+addArtifact(Python / packageBin / artifact, Python / packageBin)
+
+val pysparkCmd = taskKey[Unit]("Builds pyspark package and emits command string for running pyspark with package")
+
+lazy val pyTest = taskKey[Unit]("Run pyrasterframes tests.")
+
+lazy val pyExamples = taskKey[Unit]("Run pyrasterframes examples.")
+
+lazy val pyEgg = taskKey[Unit]("Creates a Python .egg file")
+
+lazy val spJarFile = Def.taskDyn {
+  if (spShade.value) {
+    Def.task((assembly in spPackage).value)
+  } else {
+    Def.task(spPackage.value)
+  }
+}
+
+Python / packageBin := {
   val jar = (`package` in Compile).value
-  val license = baseDirectory.value / "python" / "LICENSE.md"
-  val pyDir = baseDirectory.value / "python" / "pyrasterframes"
+  val license = pythonSource.value / "LICENSE.md"
+  val pyDir = pythonSource.value / "pyrasterframes"
   val files = (IO.listFiles(pyDir, GlobFilter("*.py") | GlobFilter("*.rst")) ++ Seq(jar, license))
     .map(f => (f, "pyrasterframes/" + f.getName))
-  val zipFile = target.value / "python-dist" / "pyrasterframes.zip"
+  val zipFile = (Python / packageBin / artifactPath).value
   IO.zip(files, zipFile)
-
   zipFile
 }
 
@@ -86,12 +127,10 @@ pysparkCmd := {
 
 ivyPaths in pysparkCmd := ivyPaths.value.withIvyHome(target.value / "ivy")
 
-//credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-
 pyTest := {
   val _ = spPublishLocal.value
   val s = streams.value
-  val wd = baseDirectory.value / "python"
+  val wd = pythonSource.value
   Process("python setup.py test", wd) ! s.log
 }
 
@@ -99,14 +138,13 @@ Test / test := (Test / test).dependsOn(pyTest).value
 
 pyEgg := {
   val s = streams.value
-  val wd = baseDirectory.value / "python"
+  val wd = pythonSource.value
   Process("python setup.py bdist_egg", wd) ! s.log
 }
 
 pyExamples := {
   val _ = spPublishLocal.value
   val s = streams.value
-  val wd = baseDirectory.value / "python"
+  val wd = pythonSource.value
   Process("python setup.py examples", wd) ! s.log
 }
-
