@@ -62,7 +62,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions {
   /** DESERIALIZATION **/
 
   def generateTile(cellType: String, cols: Int, rows: Int, bytes: Array[Byte]): ArrayTile = {
-    ArrayTile.fromBytes(bytes, PyRFContext.this.cellType(cellType), cols, rows)
+    ArrayTile.fromBytes(bytes, this.cellType(cellType), cols, rows)
   }
 
   def generateGeometry(obj: Array[Byte]): Geometry = {

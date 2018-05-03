@@ -1,6 +1,9 @@
 import scala.sys.process.Process
+import sbt.Keys.`package`
 
 enablePlugins(SparkPackagePlugin, AssemblyPlugin)
+
+lazy val pyZip = taskKey[File]("Create a minimal pyrasterframes zip distribution.")
 
 val pysparkCmd = taskKey[Unit]("Builds pyspark package and emits command string for running pyspark with package")
 
@@ -59,6 +62,18 @@ spPublishLocal := {
   val cacheDir = home / "cache" / id.organization / id.name
   IO.delete(cacheDir)
   spPublishLocal.value
+}
+
+pyZip := {
+  val jar = (`package` in Compile).value
+  val license = baseDirectory.value / "python" / "LICENSE.md"
+  val pyDir = baseDirectory.value / "python" / "pyrasterframes"
+  val files = (IO.listFiles(pyDir, GlobFilter("*.py") | GlobFilter("*.rst")) ++ Seq(jar, license))
+    .map(f => (f, "pyrasterframes/" + f.getName))
+  val zipFile = target.value / "python-dist" / "pyrasterframes.zip"
+  IO.zip(files, zipFile)
+
+  zipFile
 }
 
 pysparkCmd := {
