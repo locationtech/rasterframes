@@ -1,7 +1,11 @@
+"""
+The operations in this file are designed for development and testing only.
+"""
+
+
 from setuptools import setup, find_packages
 import distutils.log
 import importlib
-from pathlib import Path
 
 
 def _extract_module(mod):
@@ -24,19 +28,21 @@ class ExampleCommand(distutils.cmd.Command):
     ]
 
     def initialize_options(self):
+        from pathlib import Path
         """Set default values for options."""
         # Each user option must be listed here with their default value.
         self.examples = filter(lambda x: not x.name.startswith('_'),
                                list(Path('./examples').resolve().glob('*.py')))
 
     def _check_ex_path(self, ex):
+        from pathlib import Path
         file = Path(ex)
         if not file.suffix:
             file = file.with_suffix('.py')
         file = (Path('./examples') / file).resolve()
 
         assert file.is_file(), ('Invalid example %s' % file)
-        return file.with_suffix('')
+        return file
 
     def finalize_options(self):
         """Post-process options."""
@@ -59,6 +65,40 @@ class ExampleCommand(distutils.cmd.Command):
                 print(traceback.format_exc())
 
 
+class ZipCommand(distutils.cmd.Command):
+    """A custom command to create a minimal zip distribution."""
+
+    description = 'create a minimal pyrasterframes source zip file'
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """Create the zip."""
+        import zipfile
+        from pathlib import Path
+        import os
+        zfile = 'pyrasterframes.zip'
+
+        if os.path.isfile(zfile):
+            os.remove(zfile)
+        with zipfile.ZipFile(zfile, 'w') as przip:
+            przip.write('pyrasterframes')
+            # Bring in source files and readme
+            patterns = ['*.py', '*.rst', '*.jar']
+            root = Path('.').resolve()
+            for pattern in patterns:
+                for file in list(root.glob('pyrasterframes/' + pattern)):
+                    przip.write(str(file.relative_to(root)))
+            # Put a copy of the license in the zip
+            przip.write('LICENSE.md', 'pyrasterframes/LICENSE.md')
+
+
+
 
 
 with open('README.rst') as f:
@@ -75,31 +115,33 @@ setup_args = dict(
     author='Simeon H.K. Fitch',
     author_email='fitch@astraea.io',
     license='Apache 2',
-    setup_requires=['pytest-runner', pyspark_ver],
+    setup_requires=['pytest-runner', pyspark_ver, 'pathlib'],
     install_requires=[
-        pyspark_ver,
+        # pyspark_ver,
+        # 'pathlib'
     ],
     tests_require=[
         pyspark_ver,
         'pytest==3.4.2'
     ],
     test_suite="pytest-runner",
-    packages=['.'] + find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['tests', 'examples']),
     include_package_data=True,
-    package_data={'.':['LICENSE', 'static/*']},
-    exclude_package_data={'.':['setup.cfg']},
+    package_data={'.':['LICENSE.md'], 'pyrasterframes':['*.jar']},
+    exclude_package_data={'.':['setup.*', 'README.*']},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Other Environment',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Operating System :: Unix',
-        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python',
         'Topic :: Software Development :: Libraries'
     ],
     zip_safe=False,
     cmdclass={
-        'examples': ExampleCommand
+        'examples': ExampleCommand,
+        'minzip': ZipCommand
     }
     # entry_points={
     #     "console_scripts": ['pyrasterframes=pyrasterframes:console']

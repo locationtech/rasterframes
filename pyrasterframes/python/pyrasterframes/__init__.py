@@ -24,6 +24,7 @@ def _rf_init(spark_session):
     if not hasattr(spark_session, "rasterframes"):
         spark_session.rasterframes = RFContext(spark_session)
         spark_session.sparkContext._rf_context = spark_session.rasterframes
+
     return spark_session
 
 
@@ -45,7 +46,9 @@ def _convertDF(df, sp_key = None, metadata = None):
 
 
 _prevFJ = UserDefinedType.fromJson
-def _fromJson(json_val):
+# this classmethod annotation is needed for 2.7
+@classmethod
+def _fromJson(cls, json_val):
     if str(json_val['class']).startswith('org.apache.spark.sql.jts'):
         json_val['pyClass'] = 'pyrasterframes.GeometryUDT'
 
@@ -65,4 +68,6 @@ DataFrameReader.geotrellis = lambda df_reader, path: _reader(df_reader, "geotrel
 
 # If you don't have Python support, you will get it anyway
 UserDefinedType.fromJson = _fromJson
+
+
 

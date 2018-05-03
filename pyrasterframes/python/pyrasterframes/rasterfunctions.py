@@ -6,19 +6,9 @@ signatures are handled here as well.
 
 
 from __future__ import absolute_import
-from pyspark import SparkContext
 from pyspark.sql.types import *
 from pyspark.sql.column import Column, _to_java_column
-
-
-def _checked_context():
-    """ Get the active SparkContext and throw an error if it is not enabled for RasterFrames."""
-    sc = SparkContext._active_spark_context
-    if not hasattr(sc, '_rf_context'):
-        print(vars(sc))
-        raise AttributeError(
-            "RasterFrames have not been enabled for the active session. Call 'SparkSession.withRasterFrames()'.")
-    return sc._rf_context._jrfctx
+from pyrasterframes.context import _checked_context
 
 
 def _celltype(cellTypeStr):

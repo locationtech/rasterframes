@@ -11,7 +11,7 @@ from pyspark.sql import SparkSession, DataFrame, Column, Row
 from pyspark.sql.types import *
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
-from pyrasterframes.rasterfunctions import _checked_context
+from pyrasterframes.context import _checked_context
 
 __all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'GeometryUDT', 'TileExploder']
 
