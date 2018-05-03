@@ -26,13 +26,21 @@ To use RasterFrames, add the following library dependencies:
 
 @@dependency[sbt,Maven,Gradle] {
   group="io.astraea"
-  artifact="raster-frames_2.11"
+  artifact="rasterframes_2.11"
   version="x.y.z"
 }
 
 @@dependency[sbt,Maven,Gradle] {
   group="io.astraea"
-  artifact="raster-frames-datasource_2.11"
+  artifact="rasterframes-datasource_2.11"
+  version="x.y.z"
+}
+
+Optional:
+
+@@dependency[sbt,Maven,Gradle] {
+  group="io.astraea"
+  artifact="rasterframes-experimental_2.11"
   version="x.y.z"
 }
 
