@@ -20,24 +20,27 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
-import java.net.URL
-import java.nio.file.{Files, Path, Paths}
+import java.net.URI
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.time.{Duration, Instant}
 
 import astraea.spark.rasterframes.util._
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.io.MD5Hash
+import scalaz.stream
+import scalaz.stream.hash
 
 import scala.util.Try
+import scala.util.control.NonFatal
 
 /**
  * Support for downloading scene files from AWS PDS and caching them.
  *
  * @since 5/4/18
  */
-trait SceneFileCacheSupport { self: LazyLogging ⇒
-  lazy val MAX_LIST_AGE_HOURS: Int = sys.props.get("rasterframes.scene.list.age.max")
+trait ResourceCacheSupport { self: StrictLogging  ⇒
+  def maxCacheFileAgeHours: Int = sys.props.get("rasterframes.resource.age.max")
     .flatMap(v ⇒ Try(v.toInt).toOption)
     .getOrElse(24)
 
@@ -48,13 +51,13 @@ trait SceneFileCacheSupport { self: LazyLogging ⇒
     }
     else {
       val time = Files.getLastModifiedTime(p)
-      val exp = time.toInstant.isAfter(Instant.now().plus(Duration.ofHours(MAX_LIST_AGE_HOURS)))
+      val exp = time.toInstant.isAfter(Instant.now().plus(Duration.ofHours(maxCacheFileAgeHours)))
       if(exp) logger.debug(s"'$p' is expired with mod time of '$time'")
       exp
     }
   }
 
-  private lazy val cacheDir: Path =
+  protected lazy val cacheDir: Path =
     sys.props.get("user.home")
       .map(Paths.get(_))
       .filter(root ⇒ Files.isDirectory(root) && Files.isWritable(root))
@@ -63,22 +66,44 @@ trait SceneFileCacheSupport { self: LazyLogging ⇒
       .map(base ⇒ base.when(Files.exists(_)).getOrElse(Files.createDirectory(base)))
       .getOrElse(Files.createTempDirectory("rf_"))
 
-  protected def sceneFile(url: URL): Path = {
-    val hash = MD5Hash.digest(url.toExternalForm).toString
-    val ext = FilenameUtils.getExtension(url.getPath)
-    val localFileName = s"$hash.$ext"
-    val dest = cacheDir.resolve(localFileName)
-    dest.when(f ⇒ !expired(f)).getOrElse {
+  protected def cacheName(path: Either[URI, Path]): Path = {
+    val (name, hash) = path match {
+      case Left(uri) ⇒
+        (FilenameUtils.getName(uri.getPath), MD5Hash.digest(uri.toASCIIString))
+      case Right(p) ⇒
+        (p.getFileName.toString, MD5Hash.digest(p.toString))
+    }
+    val basename = FilenameUtils.getBaseName(name)
+    val extension = FilenameUtils.getExtension(name)
+    val localFileName = s"$basename-$hash.$extension"
+    cacheDir.resolve(localFileName)
+  }
+
+  protected def cachedURI(uri: URI): Option[Path] = {
+    val dest = cacheName(Left(uri))
+    dest.when(f ⇒ !expired(f)).orElse {
       import sys.process._
       try {
-        logger.info(s"Downloading '$url' to '$dest'")
-        (url #> dest.toFile).!!
+        logger.info(s"Downloading '$uri' to '$dest'")
+        (uri.toURL #> dest.toFile).!!
+        Some(dest)
       }
       catch {
-        case t: Throwable ⇒ Files.delete(dest)
-          throw t
+        case NonFatal(_) ⇒
+          Try(Files.delete(dest))
+          logger.warn(s"'$uri' not found")
+          Files.write(
+            cacheDir.resolve("failed-uris.txt"),
+            (uri.toASCIIString + "\n").getBytes,
+            StandardOpenOption.CREATE, StandardOpenOption.APPEND
+          )
+          None
       }
-      dest
     }
   }
+
+  protected def cachedFile(fileName: Path): Option[Path] = {
+     val dest = cacheName(Right(fileName))
+     dest.when(f ⇒ !expired(f))
+   }
 }

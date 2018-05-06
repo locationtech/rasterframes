@@ -24,6 +24,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
+import org.apache.spark.sql.types._
 
 /**
  * Constructs a dataframe from the available scenes
@@ -33,11 +34,19 @@ import org.apache.spark.sql.sources._
 case class MODISCatalogRelation(sqlContext: SQLContext, sceneListPath: String)
   extends BaseRelation with TableScan {
 
+  private val inputSchema = StructType(Seq(
+    StructField("date", DateType, false),
+    StructField("download_url", StringType, false),
+    StructField("gid", StringType, false)
+  ))
+
   private lazy val preloaded = {
     import sqlContext.implicits._
     val catalog = sqlContext.read
       .option("header", "true")
+      .option("mode", "DROPMALFORMED")
       .option("timestampFormat", "yyyy-MM-dd HH:mm:ss")
+      .schema(inputSchema)
       .csv(sceneListPath)
 
     val result = catalog

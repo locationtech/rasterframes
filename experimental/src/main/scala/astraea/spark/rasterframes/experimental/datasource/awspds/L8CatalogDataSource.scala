@@ -21,9 +21,10 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 
-import java.net.URL
+import java.io.FileNotFoundException
+import java.net.URI
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 
@@ -41,10 +42,11 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
   }
 }
 
-object L8CatalogDataSource extends LazyLogging with SceneFileCacheSupport {
+object L8CatalogDataSource extends StrictLogging with ResourceCacheSupport {
   val NAME = "awsl8-catalog"
-  private val remoteSource = new URL("http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz")
-  private lazy val sceneListFile = sceneFile(remoteSource)
+  private val remoteSource = URI.create("http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz")
+  private lazy val sceneListFile =
+    cachedURI(remoteSource).getOrElse(throw new FileNotFoundException(remoteSource.toString))
 }
 
 

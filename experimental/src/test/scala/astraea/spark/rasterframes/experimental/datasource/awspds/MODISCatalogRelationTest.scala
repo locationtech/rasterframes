@@ -19,46 +19,49 @@
  */
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
+import java.net.URL
+
 import astraea.spark.rasterframes.TestEnvironment
+import org.apache.spark.sql.functions._
+
 
 /**
- *
+ * Test rig for MODIS catalog stuff.
  *
  * @since 5/4/18
  */
 class MODISCatalogRelationTest extends TestEnvironment {
   describe("Representing MODIS scenes as a Spark data source") {
     import spark.implicits._
+    val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
+    val scenes = catalog
+      .where($"acquisitionDate" === to_date(lit("2018-01-01"), "yyyy-MM-dd"))
+      .where($"tileId".contains("h24v03"))
+
     it("should provide a non-empty catalog") {
-      val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
-      val scenes = catalog.filter($"tileId".contains("h11v12"))
-      scenes.show(false)
       assert(scenes.count() === 1)
     }
 
     it("should construct band specific download URLs") {
-      val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
-      val b01 = catalog.limit(1).select(modis_band_url("B01"))
+      val b01 = scenes.select(modis_band_url("B01"))
       b01.show(false)
+      noException shouldBe thrownBy {
+        new URL(b01.first())
+      }
     }
 
     it("should download geotiff as blob") {
       import org.apache.spark.sql.functions.{length ⇒ alength, _}
-      val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
-      val b01 = catalog.limit(1).select(download(modis_band_url("B01")))
-        .withColumn("B01_size", alength(col("B01_data")))
-      b01.printSchema
-      b01.show(true)
+      val b01 = scenes.limit(1)
+        .select(download(modis_band_url("B01")) as "data")
+        .select(alength($"data").as[Long])
+      assert(b01.first() >= 4000000)
     }
 
     it("should download geotiff as tiles") {
-      val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
-      val b01 = catalog
+      val b01 = scenes
         .select($"*", download_tiles(modis_band_url("B01")))
-        .where($"tileId".contains("h24v03"))
-      b01.printSchema()
-      b01.show(200)
-      //b01.select("B01_spatial_key", "B01_tile").show(200, false)
+      assert(b01.count() === 25)
     }
   }
 }

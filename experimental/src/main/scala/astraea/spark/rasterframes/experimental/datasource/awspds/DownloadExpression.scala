@@ -36,7 +36,7 @@ import org.apache.spark.unsafe.types.UTF8String
  * @since 5/4/18
  */
 case class DownloadExpression(override val child: Expression, colPrefix: String) extends UnaryExpression
-  with Generator with CodegenFallback with GeoTiffInfoSupport with DownloadSupport with LazyLogging {
+  with CodegenFallback with GeoTiffInfoSupport with DownloadSupport with LazyLogging {
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if(child.dataType == StringType) TypeCheckSuccess
@@ -45,13 +45,10 @@ case class DownloadExpression(override val child: Expression, colPrefix: String)
     )
   }
 
-  override def elementSchema: StructType = StructType(Seq(
-    StructField(colPrefix + "_data", BinaryType, true)
-  ))
+  override def dataType = BinaryType
 
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+  override def eval(input: InternalRow): Any = {
     val urlString = child.eval(input).asInstanceOf[UTF8String]
-    val bytes = downloadBytes(urlString.toString)
-    Traversable(new GenericInternalRow(Array[Any](bytes)))
+    downloadBytes(urlString.toString)
   }
 }

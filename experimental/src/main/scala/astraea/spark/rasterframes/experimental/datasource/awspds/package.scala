@@ -24,24 +24,25 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf.CanBeColumn
 /**
- *
+ * Module support.
  *
  * @since 5/4/18
  */
 package object awspds {
+  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
   /**
    * Constructs link with the form:
    * `https://modis-pds.s3.amazonaws.com/MCD43A4.006/23/15/2013003/MCD43A4.A2013003.h23v15.006.2016125143738_${bandID}.TIF`
    * @param bandID Band ID suffix, e.g. "B04"
    * @return
    */
-  def modis_band_url(bandID: String): Column = {
+  def modis_band_url(bandID: String): TypedColumn[Any, String] = {
     concat(col("download_url"), concat(col("gid"), lit(s"_$bandID.TIF")))
-  }.as(bandID)
+  }.as(bandID).as[String]
 
-  def download(urlColumn: Column): Column = {
+  def download(urlColumn: Column): TypedColumn[Any, Array[Byte]] = {
     DownloadExpression(urlColumn.expr, urlColumn.columnName).asColumn
-  }
+  }.as[Array[Byte]]
 
   def download_tiles(urlColumn: Column): Column = {
     DownloadTilesExpression(urlColumn.expr, urlColumn.columnName).asColumn
