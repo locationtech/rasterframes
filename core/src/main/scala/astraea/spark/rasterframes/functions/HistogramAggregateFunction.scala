@@ -31,7 +31,7 @@ import org.apache.spark.sql.types._
  *
  * @since 4/24/17
  */
-case class HistogramAggregateFunction() extends UserDefinedAggregateFunction {
+case class HistogramAggregateFunction(numBuckets: Int = StreamingHistogram.DEFAULT_NUM_BUCKETS) extends UserDefinedAggregateFunction {
   override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
 
   override def bufferSchema: StructType = StructType(StructField("buffer", BinaryType) :: Nil)
@@ -49,19 +49,22 @@ case class HistogramAggregateFunction() extends UserDefinedAggregateFunction {
     KryoSerializer.deserialize(blob)
 
   override def initialize(buffer: MutableAggregationBuffer): Unit =
-    buffer(0) = marshall(StreamingHistogram())
+    buffer(0) = marshall(StreamingHistogram(numBuckets))
+
+  private val safeMerge = safeEval((h1: Histogram[Double], h2: Histogram[Double]) ⇒ h1 merge h2)
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val hist = unmarshall(buffer.getAs[Array[Byte]](0))
     val tile = input.getAs[Tile](0)
-    val updatedHist = safeEval((h: Histogram[Double], t: Tile) ⇒ h.merge(StreamingHistogram.fromTile(t)))(hist, tile)
+    val hist1 = unmarshall(buffer.getAs[Array[Byte]](0))
+    val hist2 = safeEval(StreamingHistogram.fromTile(_: Tile, numBuckets))(tile)
+    val updatedHist = safeMerge(hist1, hist2)
     buffer(0) = marshall(updatedHist)
   }
 
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     val hist1 = unmarshall(buffer1.getAs[Array[Byte]](0))
     val hist2 = unmarshall(buffer2.getAs[Array[Byte]](0))
-    val updatedHist = safeEval((h1: Histogram[Double], h2: Histogram[Double]) ⇒ h1 merge h2)(hist1, hist2)
+    val updatedHist = safeMerge(hist1, hist2)
     buffer1(0) = marshall(updatedHist)
   }
 

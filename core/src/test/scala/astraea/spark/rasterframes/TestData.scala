@@ -139,7 +139,7 @@ object TestData extends TestData {
         val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
         ArrayTile(data, cols, rows)
       case _: DoubleCells ⇒
-        val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
+        val data = Array.fill(cols * rows)(rnd.nextGaussian())
         ArrayTile(data, cols, rows)
       case _ ⇒
         val words = cellType.bits / 8

@@ -19,9 +19,12 @@
 
 package astraea.spark.rasterframes
 
+
 import astraea.spark.rasterframes.TestData.randomTile
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
+import geotrellis.raster.histogram.StreamingHistogram
+import geotrellis.spark._
 import geotrellis.raster.mapalgebra.local.{Max, Min}
 import org.apache.spark.sql.functions._
 
@@ -31,9 +34,11 @@ import org.apache.spark.sql.functions._
  *
  * @since 9/18/17
  */
-class TileStatsSpec extends TestEnvironment with TestData  {
+class TileStatsSpec extends TestEnvironment with TestData {
+
   import TestData.injectND
   import sqlContext.implicits._
+
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._
     it("should report dimensions") {
@@ -88,7 +93,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
       val expectedNoData = 10 * 10
       val expectedData = 10 * 10 * 10 - expectedNoData
 
-      logger.debug(ds.select($"tile").as[Tile].first.cellType.name)
+      //logger.debug(ds.select($"tile").as[Tile].first.cellType.name)
 
       assert(ds.select(dataCells($"tile") as "cells").agg(sum("cells")).as[Long].first() === expectedData)
       assert(ds.select(noDataCells($"tile") as "cells").agg(sum("cells")).as[Long].first() === expectedNoData)
@@ -107,7 +112,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
       val means1 = ds.select(tileStats($"value")).map(s ⇒ Option(s).map(_.mean).getOrElse(0.0)).collect
       val means2 = ds.select(tileMean($"value")).collect.map(m ⇒ if (m.isNaN) 0.0 else m)
       // Compute the mean manually, knowing we're not dealing with no-data values.
-      val means = ds.select(tileToArray[Float]($"value")).map(a ⇒ if (a == null) 0.0 else a.sum/a.length).collect
+      val means = ds.select(tileToArray[Float]($"value")).map(a ⇒ if (a == null) 0.0 else a.sum / a.length).collect
 
       forAll(means.zip(means1)) { case (l, r) ⇒ assert(l === r +- 1e-6) }
       forAll(means.zip(means2)) { case (l, r) ⇒ assert(l === r +- 1e-6) }
@@ -126,19 +131,43 @@ class TileStatsSpec extends TestEnvironment with TestData  {
       assert(r1.first.mean === r2.first.mean)
     }
 
+    it("foo") {
+      val tileSize = 5
+      def rndTile = {
+        val data = Array.fill(tileSize * tileSize)(scala.util.Random.nextGaussian())
+        ArrayTile(data, tileSize, tileSize): Tile
+      }
+
+      val rdd = spark.sparkContext.makeRDD(Seq((1, rndTile), (2, rndTile), (3, rndTile)))
+      val h = rdd.histogram()
+      println(h.totalCount())
+      println(h.binCounts().map(_._2).sum)
+      println(h.asInstanceOf[StreamingHistogram].buckets().map(_._2).sum)
+    }
+
     it("should compute aggregate histogram") {
-      val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
+      val tileSize = 5
+      val rows = 10
+      val ds = Seq.fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
       val agg = ds.select(aggHistogram($"tiles")).as[CellHistogram]
-      val hist = agg.collect()
-      assert(hist.length === 1)
+      val histArray = agg.collect()
+      assert(histArray.length === 1)
+
+      // examine histogram info
+      val hist = histArray.head
+      //logger.info(hist.asciiHistogram(128))
+      //logger.info(hist.asciiStats)
+      assert(hist.totalCount === rows * tileSize * tileSize)
+      assert(hist.bins.map(_.count).sum === rows * tileSize * tileSize)
+
       val stats = agg.map(_.stats).as("stats")
       //stats.select("stats.*").show(false)
       assert(stats.first().stddev === 1.0 +- 0.3) // <-- playing with statistical fire :)
 
       val hist2 = sql("select hist.* from (select rf_aggHistogram(tiles) as hist from tmp)").as[CellHistogram]
 
-      assert(hist2.first.totalCount === 250)
+      assert(hist2.first.totalCount === rows * tileSize * tileSize)
     }
 
     it("should compute aggregate mean") {
@@ -154,7 +183,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
       val exploded = ds.select(explodeTiles($"tiles"))
       val (mean, vrnc) = exploded.agg(avg($"tiles"), var_pop($"tiles")).as[(Double, Double)].first
 
-      val stats = ds.select(aggStats($"tiles") as "stats")///.as[(Long, Double, Double, Double, Double)]
+      val stats = ds.select(aggStats($"tiles") as "stats") ///.as[(Long, Double, Double, Double, Double)]
 
       noException shouldBe thrownBy {
         ds.select(aggStats($"tiles")).collect()
@@ -216,7 +245,7 @@ class TileStatsSpec extends TestEnvironment with TestData  {
 
       val countArray = dsNd.select(localAggDataCells($"tiles")).first().toArray()
       val expectedCount = (completeTile.localDefined().toArray zip incompleteTile.localDefined().toArray())
-          .toSeq.map(pr ⇒ pr._1 * 20 + pr._2)
+        .toSeq.map(pr ⇒ pr._1 * 20 + pr._2)
       assert(countArray === expectedCount)
 
       val countNodataArray = dsNd.select((localAggNoDataCells($"tiles"))).first().toArray

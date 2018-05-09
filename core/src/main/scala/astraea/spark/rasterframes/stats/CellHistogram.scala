@@ -19,7 +19,7 @@
  */
 
 package astraea.spark.rasterframes.stats
-import geotrellis.raster.histogram.{Histogram ⇒ GTHistogram}
+import geotrellis.raster.histogram.{StreamingHistogram, Histogram ⇒ GTHistogram}
 
 /**
  * Container for computed aggregate histogram.
@@ -59,6 +59,9 @@ object CellHistogram {
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
     val stats = CellStatistics(hist.statistics().get)
-    CellHistogram(stats, hist.binCounts().map(p ⇒ Bin(p._1, p._2)))
+    // Code should be this, but can't due to geotrellis#2664:
+    // val bins = hist.binCounts().map(p ⇒ Bin(p._1, p._2))
+    val bins = hist.asInstanceOf[StreamingHistogram].buckets().map(b ⇒ Bin(b.label, b.count))
+    CellHistogram(stats, bins)
   }
 }
