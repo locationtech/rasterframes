@@ -20,9 +20,10 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 import java.net.URL
+import java.sql.Date
+import java.time.LocalDate
 
-import astraea.spark.rasterframes.TestEnvironment
-import org.apache.spark.sql.functions._
+import astraea.spark.rasterframes.{TestEnvironment, _}
 
 
 /**
@@ -35,7 +36,7 @@ class MODISCatalogRelationTest extends TestEnvironment {
     import spark.implicits._
     val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
     val scenes = catalog
-      .where($"acquisitionDate" === to_date(lit("2018-01-01"), "yyyy-MM-dd"))
+      .where($"acquisitionDate".as[Date] at LocalDate.of(2018, 1, 1))
       .where($"tileId".contains("h24v03"))
 
     it("should provide a non-empty catalog") {
@@ -51,7 +52,7 @@ class MODISCatalogRelationTest extends TestEnvironment {
     }
 
     it("should download geotiff as blob") {
-      import org.apache.spark.sql.functions.{length ⇒ alength, _}
+      import org.apache.spark.sql.functions.{length ⇒ alength}
       val b01 = scenes.limit(1)
         .select(download(modis_band_url("B01")) as "data")
         .select(alength($"data").as[Long])

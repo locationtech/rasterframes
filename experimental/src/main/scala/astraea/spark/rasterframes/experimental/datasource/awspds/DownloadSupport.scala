@@ -20,10 +20,12 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
-import java.io.ByteArrayOutputStream
-import java.net.URL
-
 import com.typesafe.scalalogging.LazyLogging
+import org.apache.commons.httpclient._
+import org.apache.commons.httpclient.methods._
+import org.apache.commons.httpclient.params.HttpMethodParams
+import java.io._
+
 
 /**
  * Common support for downloading data.
@@ -35,11 +37,15 @@ trait DownloadSupport { self: LazyLogging ⇒
    * This is probably in the "insanely inefficient" category. Currently just a proof of concept.
    */
   protected val downloadBytes = (s: String) ⇒ {
-    import sys.process._
-    val url = new URL(s)
-    logger.info("Downloading: " + url)
-    val baos = new ByteArrayOutputStream()
-    (url #> baos).!
-    baos.toByteArray
+    val client = new HttpClient()
+    val method = new GetMethod(s)
+    method.getParams.setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, true))
+    method.getParams.setIntParameter(HttpMethodParams.BUFFER_WARN_TRIGGER_LIMIT, 1024 * 1024 * 100)
+    logger.info("Downloading: " + s)
+    val status = client.executeMethod(method)
+    status match {
+      case HttpStatus.SC_OK ⇒ method.getResponseBody
+      case _ ⇒ throw new FileNotFoundException(s"Unable to download '$s': ${method.getStatusLine}")
+    }
   }
 }

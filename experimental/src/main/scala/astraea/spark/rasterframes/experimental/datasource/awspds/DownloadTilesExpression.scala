@@ -38,8 +38,11 @@ import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
+import scala.util.control.NonFatal
+
 /**
- *
+ * Catalyst generator to convert a geotiff download URL into a series of rows containing the internal
+ * tiles and associated extents.
  *
  * @since 5/4/18
  */
@@ -63,35 +66,41 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
   ))
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
-    val urlString = child.eval(input).asInstanceOf[UTF8String]
-    val bytes = ByteBuffer.wrap(downloadBytes(urlString.toString))
-    val (info, layerMetadata) = extractGeoTiffLayout(bytes)
-    //See if GeoTiff is CoG compliant
-    if(info.segmentLayout.isTiled) {
-      val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
-      val rows = Array.ofDim[InternalRow](geotile.segmentCount)
-      for(i ← rows.indices) {
-        val seg: GeoTiffSegment = geotile.getSegment(i)
-        val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
-        val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
-        val sk = SpatialKey(layoutCol, layoutRow)
-        val arraytile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
-        val extent = layerMetadata.mapTransform(sk)
-        val tile = TileUDT.serialize(arraytile)
-        val e = extentEncoder.toRow(extent)
-        val skEnc = spatialKeyEncoder.toRow(sk)
-        val tlm = tlmEncoder.toRow(layerMetadata)
-        rows(i) = InternalRow(tlm, skEnc, e, tile)
+    try {
+      val urlString = child.eval(input).asInstanceOf[UTF8String]
+      val bytes = ByteBuffer.wrap(downloadBytes(urlString.toString))
+      val (info, layerMetadata) = extractGeoTiffLayout(bytes)
+      //See if GeoTiff is CoG compliant
+      if(info.segmentLayout.isTiled) {
+        val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
+        val rows = Array.ofDim[InternalRow](geotile.segmentCount)
+        for(i ← rows.indices) {
+          val seg: GeoTiffSegment = geotile.getSegment(i)
+          val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
+          val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
+          val sk = SpatialKey(layoutCol, layoutRow)
+          val arraytile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
+          val extent = layerMetadata.mapTransform(sk)
+          val tile = TileUDT.serialize(arraytile)
+          val e = extentEncoder.toRow(extent)
+          val skEnc = spatialKeyEncoder.toRow(sk)
+          val tlm = tlmEncoder.toRow(layerMetadata)
+          rows(i) = InternalRow(tlm, skEnc, e, tile)
+        }
+        rows
       }
-      rows
+      else {
+        val geotiff = GeoTiffReader.readSingleband(bytes)
+        val tile = TileUDT.serialize(geotiff.tile)
+        val e = extentEncoder.toRow(geotiff.extent)
+        val sk = spatialKeyEncoder.toRow(SpatialKey(0, 0))
+        val tlm = tlmEncoder.toRow(layerMetadata)
+        Traversable(InternalRow(tlm, sk, e, tile))
+      }
     }
-    else {
-      val geotiff = GeoTiffReader.readSingleband(bytes)
-      val tile = TileUDT.serialize(geotiff.tile)
-      val e = extentEncoder.toRow(geotiff.extent)
-      val sk = spatialKeyEncoder.toRow(SpatialKey(0, 0))
-      val tlm = tlmEncoder.toRow(layerMetadata)
-      Traversable(InternalRow(tlm, sk, e, tile))
+    catch {
+      case NonFatal(ex) ⇒ logger.error("Error fetching data", ex)
+        Traversable.empty
     }
   }
 }

@@ -24,7 +24,7 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 import java.io.FileNotFoundException
 import java.net.URI
 
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 
@@ -34,7 +34,7 @@ import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationP
  * @since 9/28/17
  */
 class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
-  val shortName = L8CatalogDataSource.NAME
+  def shortName = L8CatalogDataSource.NAME
 
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val path = parameters.getOrElse("path", L8CatalogDataSource.sceneListFile.toUri.toASCIIString)
@@ -42,8 +42,8 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
   }
 }
 
-object L8CatalogDataSource extends StrictLogging with ResourceCacheSupport {
-  val NAME = "awsl8-catalog"
+object L8CatalogDataSource extends LazyLogging with ResourceCacheSupport {
+  final val NAME: String = "awsl8-catalog"
   private val remoteSource = URI.create("http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz")
   private lazy val sceneListFile =
     cachedURI(remoteSource).getOrElse(throw new FileNotFoundException(remoteSource.toString))

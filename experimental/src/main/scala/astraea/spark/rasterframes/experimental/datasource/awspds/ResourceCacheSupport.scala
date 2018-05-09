@@ -25,11 +25,9 @@ import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.time.{Duration, Instant}
 
 import astraea.spark.rasterframes.util._
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
 import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.io.MD5Hash
-import scalaz.stream
-import scalaz.stream.hash
 
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -39,7 +37,7 @@ import scala.util.control.NonFatal
  *
  * @since 5/4/18
  */
-trait ResourceCacheSupport { self: StrictLogging  ⇒
+trait ResourceCacheSupport extends DownloadSupport { self: LazyLogging  ⇒
   def maxCacheFileAgeHours: Int = sys.props.get("rasterframes.resource.age.max")
     .flatMap(v ⇒ Try(v.toInt).toOption)
     .getOrElse(24)
@@ -59,11 +57,13 @@ trait ResourceCacheSupport { self: StrictLogging  ⇒
 
   protected lazy val cacheDir: Path =
     sys.props.get("user.home")
+      .filterNot(_.startsWith("hdfs"))
       .map(Paths.get(_))
       .filter(root ⇒ Files.isDirectory(root) && Files.isWritable(root))
-      .orElse(Option(Paths.get(".")))
+      .orElse(Option(Paths.get("/tmp")))
       .map(_.resolve(".rasterFrames"))
       .map(base ⇒ base.when(Files.exists(_)).getOrElse(Files.createDirectory(base)))
+      .filter(Files.exists(_))
       .getOrElse(Files.createTempDirectory("rf_"))
 
   protected def cacheName(path: Either[URI, Path]): Path = {
@@ -82,10 +82,9 @@ trait ResourceCacheSupport { self: StrictLogging  ⇒
   protected def cachedURI(uri: URI): Option[Path] = {
     val dest = cacheName(Left(uri))
     dest.when(f ⇒ !expired(f)).orElse {
-      import sys.process._
       try {
-        logger.info(s"Downloading '$uri' to '$dest'")
-        (uri.toURL #> dest.toFile).!!
+        val bytes = downloadBytes(uri.toASCIIString)
+        Files.write(dest, bytes)
         Some(dest)
       }
       catch {

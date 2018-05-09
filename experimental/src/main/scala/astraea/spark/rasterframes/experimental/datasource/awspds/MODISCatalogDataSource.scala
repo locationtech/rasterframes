@@ -25,9 +25,10 @@ import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
+import scalaz.stream.nio.file
 
 /**
  * DataSource over the catalog of AWS PDS for MODIS MCD43A4 Surface Reflectance data product
@@ -45,19 +46,19 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider {
      * @param parameters optional parameters are:
      *                   `path`-path to aggregate scene file. Only specify if you don't want one constructed
      *                   `start`-start date for first scene files to fetch. default: "2013-01-01"
-     *                   `end`-end date for last scene file to fetch. default: today's date
+     *                   `end`-end date for last scene file to fetch. default: today's date - 7 days
      *                    `useBlacklist`-if false, ignore list of known missing scene files on AWS
      */
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val start = parameters.get("start").map(LocalDate.parse).getOrElse(LocalDate.of(2013, 1, 1))
-    val end = parameters.get("end").map(LocalDate.parse).getOrElse(LocalDate.now())
+    val end = parameters.get("end").map(LocalDate.parse).getOrElse(LocalDate.now().minusDays(7))
     val useBlacklist = parameters.get("useBlacklist").forall(_.toBoolean)
-    val path = parameters.getOrElse("path", MODISCatalogDataSource.sceneListFile(start, end, useBlacklist).toAbsolutePath.toString)
+    val path = parameters.getOrElse("path", "file://" + MODISCatalogDataSource.sceneListFile(start, end, useBlacklist).toAbsolutePath.toString)
     MODISCatalogRelation(sqlContext, path)
   }
 }
 
-object MODISCatalogDataSource extends StrictLogging with ResourceCacheSupport {
+object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
   val NAME = "modis-catalog"
   val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
   override def maxCacheFileAgeHours: Int = Int.MaxValue
@@ -103,18 +104,20 @@ object MODISCatalogDataSource extends StrictLogging with ResourceCacheSupport {
   }
 
   private def sceneListFile(start: LocalDate, end: LocalDate, useBlacklist: Boolean) = {
+    logger.info(s"Using '$cacheDir' for scene file cache")
     val basename = Paths.get(s"$NAME-$start-to-$end.csv")
     cachedFile(basename).getOrElse {
       val retval = cacheName(Right(basename))
       Files.write(retval, "date,download_url,gid\n".getBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
       sceneFiles(start, end, useBlacklist).par
         .flatMap(cachedURI)
+        .toArray
         .foreach(p ⇒ {
           val content = Files.readAllLines(p)
           if(!content.isEmpty) {
             // Drop header
             content.remove(0)
-            Files.write(retval, content, StandardOpenOption.APPEND)
+            Files.write(retval, content, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
           }
         })
 

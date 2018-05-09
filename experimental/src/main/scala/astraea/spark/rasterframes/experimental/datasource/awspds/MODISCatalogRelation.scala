@@ -44,7 +44,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneListPath: String)
     import sqlContext.implicits._
     val catalog = sqlContext.read
       .option("header", "true")
-      .option("mode", "DROPMALFORMED")
+      .option("mode", "FAILFAST")
       .option("timestampFormat", "yyyy-MM-dd HH:mm:ss")
       .schema(inputSchema)
       .csv(sceneListPath)
@@ -54,7 +54,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneListPath: String)
       .select(
         $"split_gid"(0) as "productId",
         $"date" as "acquisitionDate",
-        $"split_gid"(2) as "tileId",
+        $"split_gid"(2) as "granuleId",
         regexp_replace($"download_url", "index.html", "") as "download_url",
         $"gid"
       )
