@@ -21,6 +21,7 @@ package astraea.spark.rasterframes.datasource
 import java.net.URI
 
 import _root_.geotrellis.spark.LayerId
+import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
 import astraea.spark.rasterframes.{RasterFrame, _}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col
@@ -28,7 +29,7 @@ import shapeless.tag
 import shapeless.tag.@@
 
 /**
- * Module utilities.
+ * Extension methods for literate and type-safe loading of geotrellis layers.
  *
  * @since 1/12/18
  */
@@ -55,35 +56,44 @@ package object geotrellis {
       reader.format("geotrellis-catalog").load(base.toASCIIString)
 
     def geotrellis: GeoTrellisRasterFrameReader =
-      tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](reader.format("geotrellis"))
+      tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](reader.format(SHORT_NAME))
   }
 
   implicit class DataFrameWriterHasGeotrellisFormat[T](val writer: DataFrameWriter[T]) {
     def geotrellis: GeoTrellisRasterFrameWriter[T] =
-      tag[GeoTrellisRasterFrameWriterTag][DataFrameWriter[T]](writer.format("geotrellis"))
+      tag[GeoTrellisRasterFrameWriterTag][DataFrameWriter[T]](writer.format(SHORT_NAME))
   }
 
   implicit class GeoTrellisWriterAddLayer[T](val writer: GeoTrellisRasterFrameWriter[T]) {
     def asLayer(id: LayerId): DataFrameWriter[T] =
       writer
-        .option("layer", id.name)
-        .option("zoom", id.zoom.toString)
+        .option(LAYER_PARAM, id.name)
+        .option(ZOOM_PARAM, id.zoom.toString)
 
     def asLayer(layer: Layer): DataFrameWriter[T] =
       asLayer(layer.id)
         .option("path", layer.base.toASCIIString)
   }
 
-    /** Extension methods for loading a RasterFrame from a tagged `DataFrameReader`. */
+  /** Extension methods for loading a RasterFrame from a tagged `DataFrameReader`. */
   implicit class GeoTrellisReaderWithRF(val reader: GeoTrellisRasterFrameReader) {
+    def withTileSubdivisions(divs: Int): GeoTrellisRasterFrameReader =
+      tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](
+        reader.option(DefaultSource.TILE_SUBDIVISIONS_PARAM, divs)
+      )
+
+    def withNumPartitions(partitions: Int): GeoTrellisRasterFrameReader =
+      tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](
+        reader.option(DefaultSource.NUM_PARTITIONS_PARAM, partitions)
+      )
+
     def loadRF(uri: URI, id: LayerId): RasterFrame =
       reader
-        .option("layer", id.name)
-        .option("zoom", id.zoom.toString)
+        .option(LAYER_PARAM, id.name)
+        .option(ZOOM_PARAM, id.zoom.toString)
         .load(uri.toASCIIString)
         .asRF
 
     def loadRF(layer: Layer): RasterFrame = loadRF(layer.base, layer.id)
   }
-
 }

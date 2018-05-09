@@ -18,6 +18,8 @@
  */
 package astraea.spark.rasterframes.datasource.geotiff
 
+import java.nio.file.Paths
+
 import astraea.spark.rasterframes._
 
 /**
@@ -80,11 +82,24 @@ class GeoTiffDataSourceSpec
 
     }
 
-    it("should write RF to parquet") {
+    it("should write GeoTIFF RF to parquet") {
       val rf = spark.read
         .geotiff
         .loadRF(cogPath)
       assert(write(rf))
+    }
+
+    it("should write GeoTIFF") {
+
+      val rf = spark.read
+        .geotiff
+        .loadRF(cogPath)
+
+      val out = Paths.get(outputLocalPath, "example-geotiff.tiff")
+      //val out = Paths.get("target", "example-geotiff.tiff")
+      noException shouldBe thrownBy {
+        rf.write.geotiff.save(out.toString)
+      }
     }
   }
 }

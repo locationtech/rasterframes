@@ -19,13 +19,14 @@
 
 package astraea.spark.rasterframes.extensions
 
-import astraea.spark.rasterframes.RasterFrame
-import geotrellis.raster.{ProjectedRaster, Tile, TileFeature}
+import astraea.spark.rasterframes.{PairRDDConverter, RasterFrame}
+import astraea.spark.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
+import geotrellis.raster._
 import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialComponent, SpatialKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
-import org.apache.spark.sql.types.{MetadataBuilder, Metadata => SMetadata}
+import org.apache.spark.sql.types.{MetadataBuilder, Metadata ⇒ SMetadata}
 import spray.json.JsonFormat
 
 import scala.reflect.ClassTag
@@ -41,32 +42,31 @@ trait Implicits {
 
   implicit class WithSQLContextMethods(val self: SQLContext) extends SQLContextMethods
 
-  implicit class WithProjectedRasterMethods(val self: ProjectedRaster[Tile])
-      extends ProjectedRasterMethods
+  implicit class WithProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithPrototypeMethods: TypeTag](
+    val self: ProjectedRaster[T]) extends ProjectedRasterMethods[T]
 
   implicit class WithDataFrameMethods[D <: DataFrame](val self: D) extends DataFrameMethods[D]
 
   implicit class WithRasterFrameMethods(val self: RasterFrame) extends RasterFrameMethods
 
-  implicit class WithSpatialContextRDDMethods(
-    val self: RDD[(SpatialKey, Tile)] with Metadata[TileLayerMetadata[SpatialKey]]
-  )(implicit spark: SparkSession) extends SpatialContextRDDMethods
+  implicit class WithSpatialContextRDDMethods[T <: CellGrid](
+    val self: RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]
+  )(implicit spark: SparkSession) extends SpatialContextRDDMethods[T]
 
-  implicit class WithSpatioTemporalContextRDDMethods(
-    val self: RDD[(SpaceTimeKey, Tile)] with Metadata[TileLayerMetadata[SpaceTimeKey]]
-  )(implicit spark: SparkSession) extends SpatioTemporalContextRDDMethods
+  implicit class WithSpatioTemporalContextRDDMethods[T <: CellGrid](
+    val self: RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]
+  )(implicit spark: SparkSession) extends SpatioTemporalContextRDDMethods[T]
 
-  implicit class WithTFContextRDDMethods[K: SpatialComponent: JsonFormat: ClassTag: TypeTag,
-                                         D: TypeTag](
-    val self: RDD[(K, TileFeature[Tile, D])] with Metadata[TileLayerMetadata[K]]
-  )(implicit spark: SparkSession)
-      extends TFContextRDDMethods[K, D]
-
-  implicit class WithTFSTContextRDDMethods[D: TypeTag](
-    val self: RDD[(SpaceTimeKey, TileFeature[Tile, D])] with Metadata[
-      TileLayerMetadata[SpaceTimeKey]]
-  )(implicit spark: SparkSession)
-      extends TFSTContextRDDMethods[D]
+//  implicit class WithTFContextRDDMethods[K: SpatialComponent: JsonFormat: TypeTag, D: TypeTag](
+//    val self: RDD[(K, TileFeature[Tile, D])] with Metadata[TileLayerMetadata[K]]
+//  )(implicit spark: SparkSession)
+//      extends TFContextRDDMethods[K, D]
+//
+//  implicit class WithTFSTContextRDDMethods[D: TypeTag](
+//    val self: RDD[(SpaceTimeKey, TileFeature[Tile, D])] with Metadata[
+//      TileLayerMetadata[SpaceTimeKey]]
+//  )(implicit spark: SparkSession)
+//      extends TFSTContextRDDMethods[D]
 
   private[astraea] implicit class WithMetadataMethods[R: JsonFormat](val self: R)
       extends MetadataMethods[R]

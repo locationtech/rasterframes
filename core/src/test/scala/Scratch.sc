@@ -1,16 +1,3 @@
-import com.vividsolutions.jts.geom._
-import org.geotools.geometry.jts.JTSFactoryFinder
+val s = Seq(1,2,3,4,5)
 
-val f = JTSFactoryFinder.getGeometryFactory
-
-val pt = f.createPoint(new Coordinate(1, 2))
-
-val poly = f.createPolygon(Array(new Coordinate(0, 0), new Coordinate(0, 3), new Coordinate(3, 3), new Coordinate(3, 0), new Coordinate(0, 0)))
-
-
-poly.intersects(pt)
-pt.intersects(poly)
-pt.intersects(pt)
-
-
-Double.NaN.toInt
+s.patch(1, Seq(9), 1)

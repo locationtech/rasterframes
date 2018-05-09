@@ -22,9 +22,14 @@ import java.io.File
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
 import astraea.spark.rasterframes.util._
+import astraea.spark.rasterframes.util.debug._
 import geotrellis.proj4.LatLng
 import geotrellis.raster._
+import geotrellis.raster.io.geotiff.GeoTiff
+import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
+import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.io.avro.AvroRecordCodec
@@ -37,33 +42,40 @@ import org.apache.hadoop.fs.FileUtil
 import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.functions.{udf ⇒ sparkUdf, _}
 import org.apache.spark.sql.{DataFrame, Row}
-import org.scalatest.{BeforeAndAfter, Inspectors}
+import org.scalatest.{BeforeAndAfterAll, Inspectors}
 import org.apache.avro.generic._
 import org.apache.spark.storage.StorageLevel
 
-import scala.math.{min, max}
+import scala.math.{max, min}
 
 class GeoTrellisDataSourceSpec
-    extends TestEnvironment with TestData with BeforeAndAfter with Inspectors
-    with IntelliJPresentationCompilerHack {
+    extends TestEnvironment with TestData with BeforeAndAfterAll with Inspectors
+    with RasterMatchers with IntelliJPresentationCompilerHack {
 
+  val tileSize = 12
   lazy val layer = Layer(new File(outputLocalPath).toURI, LayerId("test-layer", 4))
   lazy val tfLayer = Layer(new File(outputLocalPath).toURI, LayerId("test-tf-layer", 4))
+  lazy val sampleImageLayer = Layer(new File(outputLocalPath).toURI, LayerId("sample", 0))
   val now = ZonedDateTime.now()
   val tileCoordRange = 2 to 5
 
   lazy val testRdd = {
+    val ct = IntCellType
+
+    //UByteConstantNoDataCellType
     val recs: Seq[(SpaceTimeKey, Tile)] = for {
       col ← tileCoordRange
       row ← tileCoordRange
-    } yield SpaceTimeKey(col, row, now) -> ArrayTile.alloc(DoubleConstantNoDataCellType, 12, 12)
-
+    } yield SpaceTimeKey(col, row, now) -> TestData.randomTile(tileSize, tileSize, ct)
     val rdd = sc.parallelize(recs)
-    val scheme = ZoomedLayoutScheme(LatLng, tileSize = 12)
+    val scheme = ZoomedLayoutScheme(LatLng, tileSize = tileSize)
     val layerLayout = scheme.levelForZoom(4).layout
-    val layerBounds = KeyBounds(SpaceTimeKey(2, 2, now.minusMonths(1)), SpaceTimeKey(5, 5, now.plusMonths(1)))
+    val layerBounds = KeyBounds(
+      SpaceTimeKey(tileCoordRange.start, tileCoordRange.start, now.minusMonths(1)),
+      SpaceTimeKey(tileCoordRange.end, tileCoordRange.end, now.plusMonths(1))
+    )
     val md = TileLayerMetadata[SpaceTimeKey](
-      cellType = DoubleConstantNoDataCellType,
+      cellType = ct,
       crs = LatLng,
       bounds = layerBounds,
       layout = layerLayout,
@@ -71,7 +83,7 @@ class GeoTrellisDataSourceSpec
     ContextRDD(rdd, md)
   }
 
-  before {
+  override def beforeAll =  {
     val outputDir = new File(layer.base)
     FileUtil.fullyDelete(outputDir)
     outputDir.deleteOnExit()
@@ -102,8 +114,12 @@ class GeoTrellisDataSourceSpec
     val writer = LayerWriter(tfLayer.base)
     val tlfRdd = ContextRDD(tfRdd, testRdd.metadata)
     writer.write(tfLayer.id, tlfRdd, ZCurveKeyIndexMethod.byDay())
-  }
 
+    //TestData.sampleTileLayerRDD.toRF.write.geotrellis.asLayer(sampleImageLayer).save()
+    val writer2 = LayerWriter(sampleImageLayer.base)
+    val imgRDD = TestData.sampleTileLayerRDD
+    writer2.write(sampleImageLayer.id, imgRDD, ZCurveKeyIndexMethod)
+  }
 
   describe("DataSource reading") {
     def layerReader = spark.read.geotrellis
@@ -150,19 +166,95 @@ class GeoTrellisDataSourceSpec
   }
 
   describe("DataSource options") {
-    def layerReader = spark.read.geotrellis
-
     it("should respect partitions 2") {
       val expected = 2
-      val df = spark.read.option("numPartitions", expected)
-          .geotrellis.loadRF(layer)
+      val df = spark.read.geotrellis
+        .withNumPartitions(expected)
+        .loadRF(layer)
       assert(df.rdd.partitions.length === expected)
     }
     it("should respect partitions 20") {
       val expected = 20
-      val df = spark.read.option("numPartitions", expected)
-        .geotrellis.loadRF(layer)
+      val df = spark.read.geotrellis
+        .withNumPartitions(expected)
+        .loadRF(layer)
       assert(df.rdd.partitions.length === expected)
+    }
+    it("should respect subdivide 2") {
+      val param = 2
+      val df: RasterFrame = spark.read.geotrellis
+        .withTileSubdivisions(param)
+        .loadRF(layer)
+
+      val dims = df.select(tileDimensions(df.tileColumns.head)("cols"), tileDimensions(df.tileColumns.head)("rows")).first()
+      assert(dims.getAs[Int](0) === tileSize / param)
+      assert(dims.getAs[Int](1) === tileSize / param)
+
+      // row count will increase
+      assert(df.count === testRdd.count() * param * param)
+    }
+    it("should respect subdivide with TileFeature"){
+      val param = 2
+      val rf: RasterFrame = spark.read.geotrellis
+        .withTileSubdivisions(param)
+        .loadRF(tfLayer)
+
+      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+        .first()
+      assert(dims.getAs[Int](0) === tileSize / param)
+      assert(dims.getAs[Int](1) === tileSize / param)
+
+      assert(rf.count() === testRdd.count() * param * param)
+    }
+
+    it("should respect both subdivideTile and numPartitions"){
+      val subParam = 3
+
+      val rf = spark.read
+        .geotrellis
+        .withNumPartitions(7)
+        .withTileSubdivisions(subParam)
+        .loadRF(layer)
+
+      // is it partitioned correctly?
+      assert(rf.rdd.partitions.length === 7)
+
+      // is it subdivided?
+      assert(rf.count === testRdd.count * subParam * subParam)
+      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+        .first()
+      assert(dims.getAs[Int](0) === tileSize / subParam)
+      assert(dims.getAs[Int](1) === tileSize / subParam)
+    }
+
+    it("should subdivide tiles properly") {
+      val subs = 4
+      val rf = spark.read.geotrellis
+        .withTileSubdivisions(subs)
+        .loadRF(sampleImageLayer)
+
+
+      assert(rf.count === (TestData.sampleTileLayerRDD.count * subs * subs))
+
+      val (width, height) = sampleGeoTiff.tile.dimensions
+
+      val raster = rf.toRaster(rf.tileColumns.head, width, height, NearestNeighbor)
+
+      assertEqual(raster.tile, sampleGeoTiff.tile)
+
+      //GeoTiff(raster).write("target/from-split.tiff")
+      // 774 x 500
+    }
+
+    it("should throw on subdivide 5") {
+      // only throws when an action is taken...
+      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(5).loadRF(layer).cache)
+    }
+    it("should throw on subdivide 13") {
+      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(13).loadRF(layer).cache)
+    }
+    it("should throw on subdivide -3") {
+      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(-3).loadRF(layer).count)
     }
   }
 
@@ -328,6 +420,38 @@ class GeoTrellisDataSourceSpec
       val rf = layerReader.loadRF(tfLayer)
       //rf.show(false)
       assert(rf.collect().length === testRdd.count())
+    }
+    it("should respect subdivideTile option on TileFeature RasterFrame") {
+      val subParam = 4
+      val rf = spark.read.option(TILE_SUBDIVISIONS_PARAM, subParam).geotrellis.loadRF(tfLayer)
+
+      assert(rf.count === testRdd.count * subParam * subParam)
+
+      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+        .first()
+      assert(dims.getAs[Int](0) === tileSize / subParam)
+      assert(dims.getAs[Int](1) === tileSize / subParam)
+    }
+    it("should respect both `subdivideTile` and `numPartition` options on TileFeature"){
+      val subParam = 2
+
+      val rf = spark.read
+        .option(TILE_SUBDIVISIONS_PARAM, subParam)
+        .option(NUM_PARTITIONS_PARAM, 10)
+        .geotrellis.loadRF(tfLayer)
+
+      // is it subdivided?
+      assert(rf.count === testRdd.count * subParam * subParam)
+      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+        .first()
+      assert(dims.getAs[Int](0) === tileSize / subParam)
+      assert(dims.getAs[Int](1) === tileSize / subParam)
+
+      // is it partitioned correctly?
+      assert(rf.rdd.partitions.length === 10)
+    }
+    it("should respect options on spatial-only TileFeature"){
+      assert(true === true)
     }
   }
 }

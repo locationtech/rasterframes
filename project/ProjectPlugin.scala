@@ -18,7 +18,8 @@ object ProjectPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectSettings = Seq(
-    organization := "org.locationtech.rasterframes",
+    //organization := "org.locationtech.rasterframes",
+    organization := "io.astraea",
     organizationName := "LocationTech RasterFrames",
     startYear := Some(2017),
     homepage := Some(url("http://rasterframes.io")),
@@ -31,12 +32,12 @@ object ProjectPlugin extends AutoPlugin {
     cancelable in Global := true,
     resolvers ++= Seq(
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
-      "boundless-releases" at "https://repo.boundlessgeo.com/main/",
-//      "osgeo-releases" at "http://download.osgeo.org/webdav/geotools/",
-      Resolver.bintrayRepo("s22s", "maven")
+      "boundless-releases" at "https://repo.boundlessgeo.com/main/"
     ),
+
     rfSparkVersion in ThisBuild := "2.2.1" ,
-    rfGeotrellisVersion in ThisBuild := "1.2.0",
+    rfGeoTrellisVersion in ThisBuild := "1.2.1",
+    rfGeoMesaVersion in ThisBuild := "2.0.0",
 
     publishTo := sonatypePublishTo.value,
     publishMavenStyle := true,
@@ -69,10 +70,11 @@ object ProjectPlugin extends AutoPlugin {
 
   object autoImport {
     val rfSparkVersion = settingKey[String]("Apache Spark version")
-    val rfGeotrellisVersion = settingKey[String]("GeoTrellis version")
+    val rfGeoTrellisVersion = settingKey[String]("GeoTrellis version")
+    val rfGeoMesaVersion = settingKey[String]("GeoMesa version")
 
     def geotrellis(module: String) = Def.setting {
-      "org.locationtech.geotrellis" %% s"geotrellis-$module" % rfGeotrellisVersion.value
+      "org.locationtech.geotrellis" %% s"geotrellis-$module" % rfGeoTrellisVersion.value
     }
     def spark(module: String) = Def.setting {
       "org.apache.spark" %% s"spark-$module" % rfSparkVersion.value

@@ -19,14 +19,13 @@
 
 package astraea.spark.rasterframes.encoders
 
-import astraea.spark.rasterframes.Statistics
-import geotrellis.raster.histogram.Histogram
-import geotrellis.raster.{MultibandTile, Tile}
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import geotrellis.raster.Tile
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TileLayerMetadata}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.Encoder
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.{Encoder, Encoders}
 
 import scala.reflect.runtime.universe._
 
@@ -34,21 +33,21 @@ import scala.reflect.runtime.universe._
  * Implicit encoder definitions for RasterFrame types.
  */
 trait StandardEncoders {
+  implicit val spatialKeyEncoder = ExpressionEncoder[SpatialKey]
+  implicit val temporalKeyEncoder = ExpressionEncoder[TemporalKey]
+  implicit val spaceTimeKeyEncoder = ExpressionEncoder[SpaceTimeKey]
+  implicit val statsEncoder = ExpressionEncoder[CellStatistics]
+  implicit val histEncoder = ExpressionEncoder[CellHistogram]
+  implicit val layoutDefinitionEncoder = ExpressionEncoder[LayoutDefinition]
+  implicit val stkBoundsEncoder = ExpressionEncoder[KeyBounds[SpaceTimeKey]]
+  implicit val extentEncoder = ExpressionEncoder[Extent]
+
   implicit def singlebandTileEncoder = ExpressionEncoder[Tile]()
-  implicit def multibandTileEncoder = ExpressionEncoder[MultibandTile]()
+  implicit def tileLayerMetadataEncoder[K: TypeTag]: Encoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder[K]()
   implicit val crsEncoder = CRSEncoder()
-  implicit val extentEncoder = ExpressionEncoder[Extent]()
   implicit val projectedExtentEncoder = ProjectedExtentEncoder()
   implicit val temporalProjectedExtentEncoder = TemporalProjectedExtentEncoder()
-  implicit def histogramDoubleEncoder = ExpressionEncoder[Histogram[Double]]()
-  implicit val statsEncoder = ExpressionEncoder[Statistics]()
-  implicit def tileLayerMetadataEncoder[K: TypeTag]: Encoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder[K]()
-  implicit val layoutDefinitionEncoder = ExpressionEncoder[LayoutDefinition]()
-  implicit val stkBoundsEncoder = ExpressionEncoder[KeyBounds[SpaceTimeKey]]()
   implicit val cellTypeEncoder = CellTypeEncoder()
-  implicit val spatialKeyEncoder = ExpressionEncoder[SpatialKey]()
-  implicit val temporalKeyEncoder = ExpressionEncoder[TemporalKey]()
-  implicit val spaceTimeKeyEncoder = ExpressionEncoder[SpaceTimeKey]()
   implicit val uriEncoder = URIEncoder()
   implicit val envelopeEncoder = EnvelopeEncoder()
 }

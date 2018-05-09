@@ -16,38 +16,32 @@
 
 package astraea.spark.rasterframes.extensions
 
-import astraea.spark.rasterframes.RasterFrame
-import astraea.spark.rasterframes.extensions.Implicits._
+import astraea.spark.rasterframes.PairRDDConverter._
 import astraea.spark.rasterframes.StandardColumns._
-import geotrellis.raster.{Tile, TileFeature}
+import astraea.spark.rasterframes.extensions.Implicits._
+import astraea.spark.rasterframes.util._
+import astraea.spark.rasterframes.{PairRDDConverter, RasterFrame}
+import geotrellis.raster.{CellGrid, Tile}
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.util.MethodExtensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
-import spray.json.JsonFormat
-import astraea.spark.rasterframes.util._
-import scala.reflect.ClassTag
-import scala.reflect.runtime.universe._
-
 
 /**
- * Extension method on `ContextRDD`-shaped [[Tile]] RDDs with appropriate context bounds to create a RasterFrame.
+ * Extension method on `ContextRDD`-shaped RDDs with appropriate context bounds to create a RasterFrame.
  * @since 7/18/17
  */
-abstract class SpatialContextRDDMethods(implicit spark: SparkSession)
-    extends MethodExtensions[RDD[(SpatialKey, Tile)] with Metadata[TileLayerMetadata[SpatialKey]]] {
+abstract class SpatialContextRDDMethods[T <: CellGrid](implicit spark: SparkSession)
+    extends MethodExtensions[RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]] {
+  import PairRDDConverter._
 
-  def toRF: RasterFrame = toRF(TILE_COLUMN.columnName)
+  def toRF(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrame = toRF(TILE_COLUMN.columnName)
 
-  def toRF(tileColumnName: String): RasterFrame = {
-    import spark.implicits._
-
-    val rdd = self: RDD[(SpatialKey, Tile)]
-    val df = rdd
-      .toDF(SPATIAL_KEY_COLUMN.columnName, tileColumnName)
-
-    df.setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
+  def toRF(tileColumnName: String)(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrame = {
+    val df = self.toDataFrame.setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
+    val defName = TILE_COLUMN.columnName
+    df.mapWhen(_ ⇒ tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
       .certify
   }
 }
@@ -56,63 +50,18 @@ abstract class SpatialContextRDDMethods(implicit spark: SparkSession)
  * Extension method on `ContextRDD`-shaped [[Tile]] RDDs keyed with [[SpaceTimeKey]], with appropriate context bounds to create a RasterFrame.
  * @since 9/11/17
  */
-abstract class SpatioTemporalContextRDDMethods(implicit spark: SparkSession)
-  extends MethodExtensions[RDD[(SpaceTimeKey, Tile)] with Metadata[TileLayerMetadata[SpaceTimeKey]]] {
+abstract class SpatioTemporalContextRDDMethods[T <: CellGrid](
+  implicit spark: SparkSession)
+  extends MethodExtensions[RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]] {
 
-  def toRF: RasterFrame = {
-    import spark.implicits._
+  def toRF(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrame = toRF(TILE_COLUMN.columnName)
 
-    val rdd = self: RDD[(SpaceTimeKey, Tile)]
-    val df = rdd
-      .map { case (k, v) ⇒ (k.spatialKey, k.temporalKey, v)}
-      .toDF(SPATIAL_KEY_COLUMN.columnName, TEMPORAL_KEY_COLUMN.columnName, TILE_COLUMN.columnName)
-
-    df
+  def toRF(tileColumnName: String)(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrame = {
+    val df = self.toDataFrame
       .setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
       .setTemporalColumnRole(TEMPORAL_KEY_COLUMN)
-      .certify
-  }
-}
-
-/**
- * Extension method on `ContextRDD`-shaped [[TileFeature]] RDDs with appropriate context bounds to create a RasterFrame.
- * @since 7/18/17
- */
-abstract class TFContextRDDMethods[K: SpatialComponent: JsonFormat: ClassTag: TypeTag, D: TypeTag](implicit spark: SparkSession)
-    extends MethodExtensions[RDD[(K, TileFeature[Tile, D])] with Metadata[TileLayerMetadata[K]]] {
-
-  def toRF: RasterFrame = {
-    import spark.implicits._
-    val rdd = self: RDD[(K, TileFeature[Tile, D])]
-
-    val df = rdd
-      .map { case (k, v) ⇒ (k, v.tile, v.data) }
-      .toDF(SPATIAL_KEY_COLUMN.columnName, TILE_COLUMN.columnName, TILE_FEATURE_DATA_COLUMN.columnName)
-
-    df
-      .setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
-      .certify
-  }
-}
-
-/**
- * Extension method on `ContextRDD`-shaped [[TileFeature]] RDDs with appropriate context bounds to create a RasterFrame.
- * @since 7/18/17
- */
-abstract class TFSTContextRDDMethods[D: TypeTag](implicit spark: SparkSession)
-  extends MethodExtensions[RDD[(SpaceTimeKey, TileFeature[Tile, D])] with Metadata[TileLayerMetadata[SpaceTimeKey]]] {
-
-  def toRF: RasterFrame = {
-    import spark.implicits._
-    val rdd = self: RDD[(SpaceTimeKey, TileFeature[Tile, D])]
-
-    val df = rdd
-      .map { case (k, v) ⇒ (k.spatialKey, k.temporalKey, v.tile, v.data)}
-      .toDF(SPATIAL_KEY_COLUMN.columnName, TEMPORAL_KEY_COLUMN.columnName, TILE_COLUMN.columnName, TILE_FEATURE_DATA_COLUMN.columnName)
-
-    df
-      .setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
-      .setTemporalColumnRole(TEMPORAL_KEY_COLUMN)
+    val defName = TILE_COLUMN.columnName
+    df.mapWhen(_ ⇒ tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
       .certify
   }
 }

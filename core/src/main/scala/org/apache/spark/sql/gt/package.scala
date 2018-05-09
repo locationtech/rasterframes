@@ -16,7 +16,7 @@
 
 package org.apache.spark.sql
 
-import org.apache.spark.sql.gt.types.{HistogramUDT, TileUDT}
+import org.apache.spark.sql.gt.types.TileUDT
 
 /**
  * Module of GeoTrellis UDTs for Spark/Catalyst.
@@ -28,6 +28,5 @@ package object gt {
     // Referencing the companion objects here is intended to have it's constructor called,
     // which is where the registration actually happens.
     TileUDT
-    HistogramUDT
   }
 }

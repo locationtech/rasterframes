@@ -108,16 +108,6 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
 }
 
 object CellStatsAggregateFunction {
-  case class Statistics(dataCells: Long, min: Double, max: Double, mean: Double, variance: Double)
-  object Statistics {
-    // Convert GeoTrellis stats object into our simplified one.
-    def apply(stats: geotrellis.raster.summary.Statistics[Double]) =
-      new Statistics(stats.dataCells, stats.zmin, stats.zmax, stats.mean, stats.stddev * stats.stddev)
-
-    def apply(stats: geotrellis.raster.summary.Statistics[Int])(implicit d: DummyImplicit) =
-      new Statistics(stats.dataCells, stats.zmin.toDouble, stats.zmax.toDouble, stats.mean, stats.stddev * stats.stddev)
-  }
-
   /**  Column index values. */
   private object C {
     val COUNT = 0

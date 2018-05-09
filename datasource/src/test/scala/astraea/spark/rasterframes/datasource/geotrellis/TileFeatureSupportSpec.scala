@@ -21,11 +21,12 @@ package astraea.spark.rasterframes.datasource.geotrellis
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
+import astraea.spark.rasterframes.util.{WithCropMethods, WithMaskMethods, WithMergeMethods, WithPrototypeMethods}
 import geotrellis.proj4.LatLng
 import geotrellis.raster.crop.Crop
 import geotrellis.raster.rasterize.Rasterizer
 import geotrellis.raster.resample.Bilinear
-import geotrellis.raster.{CellGrid, GridBounds, IntCellType, ShortConstantNoDataCellType, Tile, TileFeature, TileLayout}
+import geotrellis.raster.{CellGrid, GridBounds, IntCellType, ShortCellType, ShortConstantNoDataCellType, Tile, TileFeature, TileLayout}
 import geotrellis.spark.tiling.Implicits._
 import geotrellis.spark.tiling._
 import geotrellis.vector.{Extent, ProjectedExtent}
@@ -167,7 +168,7 @@ object TileFeatureSupportSpec {
     sc.parallelize((1 to n).map(i => {
       val (latMin, latMax) = rnd.nextOrderedPair(90)
       val (lonMin, lonMax) = rnd.nextOrderedPair(180)
-      (ProjectedExtent(Extent(lonMin, latMin, lonMax, latMax),LatLng),TestData.randomTile(20, 20, "int16"))
+      (ProjectedExtent(Extent(lonMin, latMin, lonMax, latMax),LatLng),TestData.randomTile(20, 20, ShortCellType))
     }))
   }
 

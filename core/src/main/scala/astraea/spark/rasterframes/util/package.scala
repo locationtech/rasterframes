@@ -19,8 +19,15 @@
 
 package astraea.spark.rasterframes
 
+import geotrellis.raster.CellGrid
+import geotrellis.raster.crop.TileCropMethods
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
-import geotrellis.util.LazyLogging
+import geotrellis.raster.mask.TileMaskMethods
+import geotrellis.raster.merge.TileMergeMethods
+import geotrellis.raster.prototype.TilePrototypeMethods
+import geotrellis.spark.Bounds
+import geotrellis.spark.tiling.TilerKeyMethods
+import geotrellis.util.{GetComponent, LazyLogging}
 import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
 import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
@@ -29,13 +36,35 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
 import shapeless.Lub
 
-
 /**
  * Internal utilities.
  *
  * @since 12/18/17
  */
 package object util extends LazyLogging {
+
+  import reflect.ClassTag
+  import reflect.runtime.universe._
+
+  implicit class TypeTagCanBeClassTag[T](val t: TypeTag[T]) extends AnyVal {
+    def asClassTag: ClassTag[T] = ClassTag[T](t.mirror.runtimeClass(t.tpe))
+  }
+
+  /**
+   * Type lambda alias for components that have bounds with parameterized key.
+   * @tparam K bounds key type
+   */
+  type BoundsComponentOf[K] = {
+    type Get[M] = GetComponent[M, Bounds[K]]
+  }
+
+  // Type lambda aliases
+  type WithMergeMethods[V] = (V ⇒ TileMergeMethods[V])
+  type WithPrototypeMethods[V <: CellGrid] = (V ⇒ TilePrototypeMethods[V])
+  type WithCropMethods[V <: CellGrid] = (V ⇒ TileCropMethods[V])
+  type WithMaskMethods[V] = (V ⇒ TileMaskMethods[V])
+
+  type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
 
   /** Internal method for slapping the RasterFrame seal of approval on a DataFrame. */
   private[rasterframes] def certifyRasterframe(df: DataFrame): RasterFrame =
@@ -55,9 +84,7 @@ package object util extends LazyLogging {
     op.getClass.getSimpleName.replace("$", "").toLowerCase
 
 
-  // $COVERAGE-OFF$
   implicit class WithWiden[A, B](thing: Either[A, B]) {
-
     /** Returns the value as a LUB of the Left & Right items. */
     def widen[Out](implicit ev: Lub[A, B, Out]): Out =
       thing.fold(identity, identity).asInstanceOf[Out]
@@ -106,5 +133,4 @@ package object util extends LazyLogging {
     logger.error("Extended rule resolution not available in this version of Spark")
     analyzer(sqlContext).extendedResolutionRules
   }
-  // $COVERAGE-ON$
 }

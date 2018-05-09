@@ -4,8 +4,8 @@ moduleName := "rasterframes"
 
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",
-  "org.locationtech.geomesa" %% "geomesa-z3" % "1.3.5",
-  "org.locationtech.geomesa" %% "geomesa-spark-jts" % "2.0.0-astraea.1" exclude("jgridshift", "jgridshift"),
+  "org.locationtech.geomesa" %% "geomesa-z3" % rfGeoMesaVersion.value,
+  "org.locationtech.geomesa" %% "geomesa-spark-jts" % rfGeoMesaVersion.value exclude("jgridshift", "jgridshift"),
   spark("core").value % Provided,
   spark("mllib").value % Provided,
   spark("sql").value % Provided,
@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
 )
 
 buildInfoKeys ++= Seq[BuildInfoKey](
-  name, version, scalaVersion, sbtVersion, rfGeotrellisVersion, rfSparkVersion
+  name, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
 )
 
 buildInfoPackage := "astraea.spark.rasterframes"

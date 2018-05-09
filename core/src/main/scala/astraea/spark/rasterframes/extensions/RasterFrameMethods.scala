@@ -21,15 +21,14 @@ import java.time.ZonedDateTime
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.{MetadataKeys, RasterFrame}
 import geotrellis.proj4.CRS
-import geotrellis.raster.resample.{Bilinear, ResampleMethod}
-import geotrellis.raster.{CellGrid, MultibandTile, ProjectedRaster, Tile, TileLayout}
+import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
+import geotrellis.raster.{MultibandTile, ProjectedRaster, Tile, TileLayout}
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.tiling.{LayoutDefinition, Tiler}
 import geotrellis.util.{LazyLogging, MethodExtensions}
 import geotrellis.vector.ProjectedExtent
 import org.apache.spark.annotation.Experimental
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{Metadata, TimestampType}
@@ -302,7 +301,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   def toRaster(tileCol: Column,
                rasterCols: Int,
                rasterRows: Int,
-               resampler: ResampleMethod = Bilinear): ProjectedRaster[Tile] = {
+               resampler: ResampleMethod = NearestNeighbor): ProjectedRaster[Tile] = {
 
     val clipped = clipLayerExtent
 
@@ -338,7 +337,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
     tileCols: Seq[Column],
     rasterCols: Int,
     rasterRows: Int,
-    resampler: ResampleMethod = Bilinear): ProjectedRaster[MultibandTile] = {
+    resampler: ResampleMethod = NearestNeighbor): ProjectedRaster[MultibandTile] = {
 
     val clipped = clipLayerExtent
 

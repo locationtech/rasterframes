@@ -22,9 +22,9 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
 import astraea.spark.rasterframes.expressions.ExplodeTileExpression
 import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMeanAggregateFunction}
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions ⇒ F}
 import com.vividsolutions.jts.geom.Envelope
-import geotrellis.raster.histogram.Histogram
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
@@ -84,21 +84,25 @@ trait RasterFunctions {
   def cellType(col: Column): TypedColumn[Any, String] =
     expressions.CellTypeExpression(col.expr).asColumn.as[String]
 
+  /** Change the Tile's cell type */
+  def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
+    udf[Tile, Tile](F.convertCellType(cellType)).apply(col).as[Tile]
+
   /** Assign a `NoData` value to the Tiles. */
   def withNoData(col: Column, nodata: Double) = withAlias("withNoData", col)(
     udf[Tile, Tile](F.withNoData(nodata)).apply(col)
   ).as[Tile]
 
   /**  Compute the full column aggregate floating point histogram. */
-  def aggHistogram(col: Column): TypedColumn[Any, Histogram[Double]] =
+  def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] =
   withAlias("histogram", col)(
     F.aggHistogram(col)
-  ).as[Histogram[Double]]
+  ).as[CellHistogram]
 
   /** Compute the full column aggregate floating point statistics. */
-  def aggStats(col: Column): TypedColumn[Any, Statistics] = withAlias("aggStats", col)(
+  def aggStats(col: Column): TypedColumn[Any, CellStatistics] = withAlias("aggStats", col)(
     F.aggStats(col)
-  ).as[Statistics]
+  ).as[CellStatistics]
 
   /** Computes the column aggregate mean. */
   def aggMean(col: Column) = CellMeanAggregateFunction(col.expr)
@@ -140,16 +144,16 @@ trait RasterFunctions {
   ).as[Double]
 
   /** Compute TileHistogram of Tile values. */
-  def tileHistogram(col: Column): TypedColumn[Any, Histogram[Double]] =
+  def tileHistogram(col: Column): TypedColumn[Any, CellHistogram] =
   withAlias("tileHistogram", col)(
-    udf[Histogram[Double], Tile](F.tileHistogram).apply(col)
-  ).as[Histogram[Double]]
+    udf[CellHistogram, Tile](F.tileHistogram).apply(col)
+  ).as[CellHistogram]
 
   /** Compute statistics of Tile values. */
-  def tileStats(col: Column): TypedColumn[Any, Statistics] =
+  def tileStats(col: Column): TypedColumn[Any, CellStatistics] =
   withAlias("tileStats", col)(
-    udf[Statistics, Tile](F.tileStats).apply(col)
-  ).as[Statistics]
+    udf[CellStatistics, Tile](F.tileStats).apply(col)
+  ).as[CellStatistics]
 
   /** Counts the number of non-NoData cells per Tile. */
   def dataCells(tile: Column): TypedColumn[Any, Long] =
