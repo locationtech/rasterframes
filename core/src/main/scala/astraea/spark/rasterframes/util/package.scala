@@ -115,6 +115,15 @@ package object util extends LazyLogging {
     try { thunk(t) } finally { t.close() }
   }
 
+  /** Report the time via slf4j it takes to execute a code block. Annotated with given tag. */
+  def time[R](tag: String)(block: ⇒ R): R = {
+    val start = System.currentTimeMillis()
+    val result = block
+    val end = System.currentTimeMillis()
+    logger.info(f"Elapsed time of $tag - ${(end - start)*1e-3}%.4fs")
+    result
+  }
+
   /** Anything that structurally has a close method. */
   type CloseLike = { def close(): Unit }
 

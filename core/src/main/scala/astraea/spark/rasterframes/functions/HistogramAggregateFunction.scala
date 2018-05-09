@@ -70,7 +70,3 @@ case class HistogramAggregateFunction() extends UserDefinedAggregateFunction {
     CellHistogram(hist)
   }
 }
-
-object HistogramAggregateFunction {
-  case class RFTileHistogram()
-}

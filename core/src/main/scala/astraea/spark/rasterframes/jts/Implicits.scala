@@ -19,8 +19,8 @@
 
 package astraea.spark.rasterframes.jts
 
-import java.sql.Timestamp
-import java.time.ZonedDateTime
+import java.sql.{Date, Timestamp}
+import java.time.{LocalDate, ZonedDateTime}
 
 import astraea.spark.rasterframes.expressions.SpatialExpression.{Contains, Intersects}
 import com.vividsolutions.jts.geom._
@@ -74,6 +74,23 @@ trait Implicits extends SpatialConstructors {
 
     def at(time: Timestamp): TypedColumn[Any, Boolean] = (self === lit(time)).as[Boolean]
     def at(time: ZonedDateTime): TypedColumn[Any, Boolean] = at(time: Timestamp)
+  }
+
+  implicit class DateColumnMethods(val self: TypedColumn[Any, Date])
+    extends MethodExtensions[TypedColumn[Any, Date]] {
+
+    import scala.language.implicitConversions
+
+    private implicit def ld2ts(date: LocalDate): Date = Date.valueOf(date)
+
+    def betweenTimes(start: Date, end: Date): TypedColumn[Any, Boolean] =
+      self.between(lit(start), lit(end)).as[Boolean]
+
+    def betweenTimes(start: LocalDate, end: LocalDate): TypedColumn[Any, Boolean] =
+      betweenTimes(start: Date, end: Date)
+
+    def at(date: Date): TypedColumn[Any, Boolean] = (self === lit(date)).as[Boolean]
+    def at(date: LocalDate): TypedColumn[Any, Boolean] = at(date: Date)
   }
 }
 

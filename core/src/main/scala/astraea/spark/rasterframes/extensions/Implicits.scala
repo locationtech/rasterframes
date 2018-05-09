@@ -57,17 +57,6 @@ trait Implicits {
     val self: RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]
   )(implicit spark: SparkSession) extends SpatioTemporalContextRDDMethods[T]
 
-//  implicit class WithTFContextRDDMethods[K: SpatialComponent: JsonFormat: TypeTag, D: TypeTag](
-//    val self: RDD[(K, TileFeature[Tile, D])] with Metadata[TileLayerMetadata[K]]
-//  )(implicit spark: SparkSession)
-//      extends TFContextRDDMethods[K, D]
-//
-//  implicit class WithTFSTContextRDDMethods[D: TypeTag](
-//    val self: RDD[(SpaceTimeKey, TileFeature[Tile, D])] with Metadata[
-//      TileLayerMetadata[SpaceTimeKey]]
-//  )(implicit spark: SparkSession)
-//      extends TFSTContextRDDMethods[D]
-
   private[astraea] implicit class WithMetadataMethods[R: JsonFormat](val self: R)
       extends MetadataMethods[R]
 

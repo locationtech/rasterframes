@@ -20,17 +20,7 @@
 
 package astraea.spark.rasterframes.util
 
-import java.net.URI
-
 import astraea.spark.rasterframes._
-import geotrellis.proj4.WebMercator
-import geotrellis.raster.MultibandTile
-import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
-import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff}
-import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpatialKey}
-import geotrellis.spark.io.slippy.HadoopSlippyTileWriter
-import geotrellis.spark.tiling.ZoomedLayoutScheme
-import org.apache.spark.annotation.Experimental
 
 /**
  * Additional debugging routines. No guarantees these are or will remain stable.
