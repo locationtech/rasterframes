@@ -37,7 +37,7 @@ class MODISCatalogRelationTest extends TestEnvironment {
     val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
     val scenes = catalog
       .where($"acquisitionDate".as[Date] at LocalDate.of(2018, 1, 1))
-      .where($"tileId".contains("h24v03"))
+      .where($"granuleId".contains("h24v03"))
 
     it("should provide a non-empty catalog") {
       assert(scenes.count() === 1)
