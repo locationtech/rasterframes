@@ -19,17 +19,36 @@
  */
 
 package astraea.spark.rasterframes.stats
-import astraea.spark.rasterframes.stats.CellHistogram.Bin
 import geotrellis.raster.histogram.{Histogram ⇒ GTHistogram}
 
 /**
- * Container for histogram computed
+ * Container for computed aggregate histogram.
  *
  * @since 4/3/18
  */
-case class CellHistogram(stats: CellStatistics, bins: Seq[Bin]) {
+case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
   def mean = stats.mean
   def totalCount = stats.dataCells
+  def asciiStats = stats.asciiStats
+  def asciiHistogram(width: Int = 80)= {
+    val labels = bins.map(_.value)
+    val counts = bins.map(_.count)
+    val maxCount = counts.max.toFloat
+    val maxLabelLen = labels.map(_.toString.length).max
+    val maxCountLen = counts.map(c ⇒ f"$c%,d".length).max
+    val fmt = s"%${maxLabelLen}s: %,${maxCountLen}d | %s"
+    val barlen = width - fmt.format(0, 0, "").length
+
+    val lines = for {
+      (l, c) ← labels.zip(counts)
+    } yield {
+      val width = (barlen * (c/maxCount)).round
+      val bar = "*" * width
+      fmt.format(l, c, bar)
+    }
+
+    lines.mkString("\n")
+  }
 }
 
 object CellHistogram {

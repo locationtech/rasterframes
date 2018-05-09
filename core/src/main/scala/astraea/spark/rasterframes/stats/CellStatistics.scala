@@ -27,6 +27,14 @@ package astraea.spark.rasterframes.stats
  */
 case class CellStatistics(dataCells: Long, min: Double, max: Double, mean: Double, variance: Double) {
   def stddev: Double = math.sqrt(variance)
+  def asciiStats = Seq(
+    "dataCells: " + dataCells,
+    "min: " + min,
+    "max: " + max,
+    "mean: " + mean,
+    "variance: " + variance,
+    "stddev: " + math.sqrt(variance)
+  ).mkString("\n")
 }
 object CellStatistics {
   // Convert GeoTrellis stats object into our simplified one.
