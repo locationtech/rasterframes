@@ -3,18 +3,18 @@ FROM jupyter/pyspark-notebook:92fe05d1e7e5
 MAINTAINER Astraea
 
 ENV RF_LIB_LOC /usr/lib
-ENV PY_RF_JAR $RF_LIB_LOC/pyrasterframes.jar
+ENV RF_JAR $RF_LIB_LOC/rasterframes.jar
 ENV PY_RF_ZIP $RF_LIB_LOC/pyrasterframes.zip
 ENV PY_RF_DATA $HOME/samples/
 
 COPY *.zip $PY_RF_ZIP
-COPY *.jar $PY_RF_JAR
+COPY *.jar $RF_JAR
 COPY *.ipynb $HOME/
 
 USER root
 
-RUN echo "spark.driver.extraClassPath $PY_RF_JAR" >> /usr/local/spark/conf/spark-defaults.conf  && \
-    echo "spark.executor.extraClassPath $PY_RF_JAR" >> /usr/local/spark/conf/spark-defaults.conf
+RUN echo "spark.driver.extraClassPath $RF_JAR" >> /usr/local/spark/conf/spark-defaults.conf  && \
+    echo "spark.executor.extraClassPath $RF_JAR" >> /usr/local/spark/conf/spark-defaults.conf
 
 RUN mkdir $PY_RF_DATA
 COPY ./samples/* $PY_RF_DATA
@@ -24,9 +24,9 @@ USER $NB_UID
 
 ENV SPARK_OPTS $SPARK_OPTS \
     --py-files $PY_RF_ZIP \
-    --jars $PY_RF_JAR \
-    --driver-class-path $PY_RF_JAR \
-    --conf spark.executor.extraClassPath=$PY_RF_JAR
+    --jars $RF_JAR \
+    --driver-class-path $RF_JAR \
+    --conf spark.executor.extraClassPath=$RF_JAR
 
 ENV PYTHONPATH $PYTHONPATH:$PY_RF_ZIP
 

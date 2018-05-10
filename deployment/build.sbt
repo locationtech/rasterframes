@@ -12,7 +12,7 @@ rfNotebookContainer := {
   val wd = baseDirectory.value / "docker"/ "jupyter"
 
   val ver = (version in LocalRootProject).value
-  val assemblyFile = (assembly in LocalRootProject).value
+  val assemblyFile = (assembly in LocalProject("pyrasterframes")).value
   val PyZipFile = (packageBin in (LocalProject("pyrasterframes"), config("Python"))).value
 
   val copiedFiles = Seq(assemblyFile, PyZipFile)
@@ -27,7 +27,7 @@ rfNotebookContainer := {
   val targetFile = wd / s"$imageName.tar"
   Process("docker-compose build", wd) ! logger
   Process(s"docker tag $imageName:latest $imageName:$ver", wd) ! logger
-  Process(s"docker save -o $targetFile $imageName:$ver") ! logger
+  //Process(s"docker save -o $targetFile $imageName:$ver") ! logger
 
   IO.delete(copiedFiles)
   logger.info("Removed copied artifacts")
