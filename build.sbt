@@ -16,7 +16,7 @@ lazy val core = project
   .disablePlugins(SparkPackagePlugin)
 
 lazy val pyrasterframes = project
-  .dependsOn(core, datasource)
+  .dependsOn(core, datasource, experimental)
   .settings(assemblySettings)
 
 lazy val datasource = project
