@@ -8,6 +8,10 @@ lazy val root = project
   .settings(publish / skip := true)
   .settings(releaseSettings)
 
+lazy val deployment = project
+  .dependsOn(root)
+  .disablePlugins(SparkPackagePlugin)
+
 lazy val core = project
   .disablePlugins(SparkPackagePlugin)
 
