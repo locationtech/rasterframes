@@ -3,7 +3,7 @@ version: '3'
 services:
   rasterframes-notebooks:
     build: .
-    image: rasterframes-notebooks
+    image: s22s/rasterframes-notebooks
     ports:
       # jupyter notebook port
       - "8888:8888"
