@@ -58,7 +58,7 @@ object CellHistogram {
     CellHistogram(stats, hist.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2)))
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
-    val stats = CellStatistics(hist.statistics().get)
+    val stats = hist.statistics().map(CellStatistics.apply).getOrElse(CellStatistics.empty)
     // Code should be this, but can't due to geotrellis#2664:
     // val bins = hist.binCounts().map(p ⇒ Bin(p._1, p._2))
     val bins = hist.asInstanceOf[StreamingHistogram].buckets().map(b ⇒ Bin(b.label, b.count))
