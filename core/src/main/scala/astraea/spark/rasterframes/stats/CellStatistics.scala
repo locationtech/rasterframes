@@ -43,4 +43,6 @@ object CellStatistics {
 
   def apply(stats: geotrellis.raster.summary.Statistics[Int])(implicit d: DummyImplicit) =
     new CellStatistics(stats.dataCells, stats.zmin.toDouble, stats.zmax.toDouble, stats.mean, stats.stddev * stats.stddev)
+
+  def empty = new CellStatistics(0, Double.NaN, Double.NaN, Double.NaN, Double.NaN)
 }
