@@ -5,7 +5,7 @@ import scala.sys.process.Process
 
 moduleName := "rasterframes-deployment"
 
-lazy val rfNotebookContainer = taskKey[File]("Build a Docker container that supports RasterFrames notebooks.")
+lazy val rfNotebookContainer = taskKey[Unit]("Build a Docker container that supports RasterFrames notebooks.")
 
 rfNotebookContainer := {
   val logger = streams.value.log
@@ -23,13 +23,13 @@ rfNotebookContainer := {
       dest
   })
 
-  val imageName = "rasterframes-notebooks"
-  val targetFile = wd / s"$imageName.tar"
+  val imageName = "s22s/rasterframes-notebooks"
+  //val targetFile = wd / s"$imageName.tar"
   Process("docker-compose build", wd) ! logger
   Process(s"docker tag $imageName:latest $imageName:$ver", wd) ! logger
   //Process(s"docker save -o $targetFile $imageName:$ver") ! logger
 
   IO.delete(copiedFiles)
   logger.info("Removed copied artifacts")
-  targetFile
+  //targetFile
 }

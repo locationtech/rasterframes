@@ -22,6 +22,8 @@ RUN chown -R $NB_UID:$NB_GID $HOME
 
 USER $NB_UID
 
+EXPOSE 4040 4041 4042 4043 4044
+
 ENV SPARK_OPTS $SPARK_OPTS \
     --py-files $PY_RF_ZIP \
     --jars $RF_JAR \
