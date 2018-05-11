@@ -25,6 +25,7 @@ import java.io.FileNotFoundException
 import java.net.URI
 
 import com.typesafe.scalalogging.LazyLogging
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 
@@ -37,7 +38,11 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
   def shortName = L8CatalogDataSource.NAME
 
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val path = parameters.getOrElse("path", L8CatalogDataSource.sceneListFile.toUri.toASCIIString)
+    require(parameters.get("path").isEmpty, "MODISCatalogDataSource doesn't support specifying a path. Please use `load()`.")
+
+    val conf = sqlContext.sparkContext.hadoopConfiguration
+    implicit val fs = FileSystem.get(conf)
+    val path = L8CatalogDataSource.sceneListFile
     L8CatalogRelation(sqlContext, path)
   }
 }
@@ -45,7 +50,7 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
 object L8CatalogDataSource extends LazyLogging with ResourceCacheSupport {
   final val NAME: String = "awsl8-catalog"
   private val remoteSource = URI.create("http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz")
-  private lazy val sceneListFile =
+  private def sceneListFile(implicit fs: FileSystem) =
     cachedURI(remoteSource).getOrElse(throw new FileNotFoundException(remoteSource.toString))
 }
 

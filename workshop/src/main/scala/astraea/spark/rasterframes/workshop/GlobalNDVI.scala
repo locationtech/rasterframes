@@ -30,6 +30,7 @@ import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.{LatLng, Sinusoidal}
 import geotrellis.raster._
+import geotrellis.raster.io.geotiff
 import geotrellis.vector._
 import geotrellis.vector.io.json.JsonFeatureCollection
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -39,6 +40,11 @@ import spray.json.DefaultJsonProtocol._
 
 /**
  * Visually inspect against https://neo.sci.gsfc.nasa.gov/view.php
+ *
+ * Run with something like
+ * {{
+ * spark-submit  --class astraea.spark.rasterframes.workshop.GlobalNDVI ./workshop-assembly-0.6.2-SNAPSHOT.jar s3://somebucket/someplace
+ * }}
  *
  * @since 5/6/18
  */
@@ -50,6 +56,8 @@ object GlobalNDVI extends LazyLogging {
 
     implicit val spark = SparkSession.builder().appName(getClass.getName).getOrCreate()
       .withRasterFrames
+
+    logger.info("GlobalNDVI initialized with args: " + args.mkString(" "))
 
     import spark.implicits._
 
@@ -65,11 +73,10 @@ object GlobalNDVI extends LazyLogging {
     val tilesFile = baseDir + s"/modis-nir-red-$TOI.parquet"
     val conf = spark.sparkContext.hadoopConfiguration
     val fs = FileSystem.get(URI.create(tilesFile), conf)
-    val exists = fs.exists(new Path(tilesFile))
+    val build = args.contains("-b")
 
-    val joined = if (!exists) {
+    val joined = if (build) {
       time("prepration") {
-
         val catalog = spark.read
           .format(MODISCatalogDataSource.NAME)
           .option("start", TOI.toString)
@@ -110,7 +117,8 @@ object GlobalNDVI extends LazyLogging {
         (nir - red) / (nir + red)
       })
 
-      val withNDVI = joined.withColumn("ndvi", ndvi($"B02_tile", $"B01_tile"))
+      val withNDVI = joined
+        .withColumn("ndvi", ndvi($"B02_tile", $"B01_tile"))
       withNDVI.printSchema()
 
       val hist = withNDVI.select(aggHistogram($"B01_tile"), aggHistogram($"B02_tile"), aggHistogram($"ndvi")).cache()
@@ -134,18 +142,22 @@ object GlobalNDVI extends LazyLogging {
       })
 
       val scored = withNDVI
-          .withColumn("zscores", zscoreRange($"ndvi"))
-        .select($"B01_extent" as "extent", $"zscores._1" as "zscoreMin", $"zscores._2" as "zscoreMax")
+        .withColumn("zscores", zscoreRange($"ndvi"))
+        .select($"B01_extent" as "extent", $"ndvi", $"zscores._1" as "zscoreMin", $"zscores._2" as "zscoreMax")
         .na.drop
         .orderBy(desc("zscoreMax"))
-        .as[(Extent, Double, Double)]
+        .as[(Extent, Tile, Double, Double)]
         .cache()
 
-      scored.show(20, false)
       scored.write.mode(SaveMode.Overwrite).parquet(baseDir + s"/scored-global-ndvi-$stamp.parquet")
 
-      val geoms = scored.limit(20)
-        .map { case (extent, _, zscoreMax) ⇒
+      scored.limit(10).collect.zipWithIndex.foreach { case ((extent, tile, min, max), idx) ⇒
+        geotiff.GeoTiff(tile + 1, extent, Sinusoidal).write(s"tile-$idx-$max.tiff")
+      }
+
+      val geoms = scored.limit(10)
+        .select($"extent".as[Extent], $"zscoreMax".as[Double])
+        .map { case (extent, zscoreMax) ⇒
           Feature(extent.toPolygon().reproject(Sinusoidal, LatLng), Map("zscoreMax" -> zscoreMax))
         }
         .collect

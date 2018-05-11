@@ -20,19 +20,21 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
+import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
 
 /**
  * Constructs a dataframe from the available scenes
  *
  * @since 5/4/18
  */
-case class MODISCatalogRelation(sqlContext: SQLContext, sceneListPath: String)
-  extends BaseRelation with TableScan {
+case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
+  extends BaseRelation with TableScan with LazyLogging {
 
   private val inputSchema = StructType(Seq(
     StructField("date", DateType, false),
@@ -40,14 +42,24 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneListPath: String)
     StructField("gid", StringType, false)
   ))
 
-  private lazy val preloaded = {
+  def schema = StructType(Seq(
+    StructField("productId", StringType, false),
+    StructField("acquisitionDate", DateType, false),
+    StructField("granuleId", StringType, false),
+    StructField("download_url", StringType, false),
+    StructField("gid", StringType, false)
+  ))
+
+  def buildScan(): RDD[Row] = {
     import sqlContext.implicits._
+
+    logger.info("Scene file is: " + sceneList)
     val catalog = sqlContext.read
       .option("header", "true")
-      .option("mode", "FAILFAST")
+      .option("mode", "DROPMALFORMED") // <--- mainly for the fact that we have internal headers from the concat
       .option("timestampFormat", "yyyy-MM-dd HH:mm:ss")
       .schema(inputSchema)
-      .csv(sceneListPath)
+      .csv(sceneList.toString)
 
     val result = catalog
       .withColumn("split_gid", split($"gid", "\\."))
@@ -59,12 +71,8 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneListPath: String)
         $"gid"
       )
       .drop($"split_gid")
-    result
+    result.rdd
   }
-
-  def schema = preloaded.schema
-
-  def buildScan(): RDD[Row] = preloaded.rdd
 }
 
 

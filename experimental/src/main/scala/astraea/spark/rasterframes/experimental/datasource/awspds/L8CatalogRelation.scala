@@ -26,14 +26,14 @@ import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Row, SQLContext}
-
+import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
 /**
  * Schema definition and parser for AWS PDS L8 scene data.
  *
  * @author sfitch
  * @since 9/28/17
  */
-case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: String)
+case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
   extends BaseRelation with TableScan with LazyLogging {
 
   def schema = StructType(Seq(
@@ -56,7 +56,7 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: String)
     val catalog = sqlContext.read
       .schema(schema)
       .option("header", "true")
-      .csv(sceneListPath)
+      .csv(sceneListPath.toString)
       .withColumn("url",  regexp_replace($"download_url", "index.html", ""))
       .drop("download_url")
       .withColumnRenamed("url", "download_url")

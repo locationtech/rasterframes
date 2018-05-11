@@ -35,6 +35,7 @@ class MODISCatalogRelationTest extends TestEnvironment {
   describe("Representing MODIS scenes as a Spark data source") {
     import spark.implicits._
     val catalog = spark.read.format(MODISCatalogDataSource.NAME).load()
+    catalog.printSchema
     val scenes = catalog
       .where($"acquisitionDate".as[Date] at LocalDate.of(2018, 1, 1))
       .where($"granuleId".contains("h24v03"))
@@ -55,14 +56,20 @@ class MODISCatalogRelationTest extends TestEnvironment {
       import org.apache.spark.sql.functions.{length ⇒ alength}
       val b01 = scenes.limit(1)
         .select(download(modis_band_url("B01")) as "data")
-        .select(alength($"data").as[Long])
-      assert(b01.first() >= 4000000)
+
+      val len = b01.select(alength($"data").as[Long])
+      assert(len.first() >= 4000000)
     }
 
     it("should download geotiff as tiles") {
       val b01 = scenes
-        .select($"*", download_tiles(modis_band_url("B01")))
+        .select($"*", download_tiles(modis_band_url("B01"))).cache()
       assert(b01.count() === 25)
+
+//      val kv = b01.select($"B01_extent", $"B01_tile").as[(Extent, Tile)]
+//      kv.collect.zipWithIndex.foreach { case ((extent, tile), idx) ⇒
+//        GeoTiff(tile, extent, Sinusoidal).write(s"target/b01-tile-$idx.tiff")
+//      }
     }
   }
 }
