@@ -36,7 +36,9 @@ import spray.json._
  * @author sfitch 
  * @since 11/6/17
  */
-class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions {
+class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
+  with org.locationtech.geomesa.spark.jts.DataFrameFunctions.Library {
+
   sparkSession.withRasterFrames
 
   /**
