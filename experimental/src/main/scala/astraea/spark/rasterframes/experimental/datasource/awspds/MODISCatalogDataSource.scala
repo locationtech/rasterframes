@@ -21,14 +21,16 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import java.net.URI
-import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
+import astraea.spark.rasterframes.util.withResource
+import com.typesafe.scalalogging.LazyLogging
+import org.apache.hadoop.fs.{FileSystem, Path ⇒ HadoopPath}
+import org.apache.hadoop.io.IOUtils
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
-import scalaz.stream.nio.file
+
 
 /**
  * DataSource over the catalog of AWS PDS for MODIS MCD43A4 Surface Reflectance data product
@@ -38,22 +40,25 @@ import scalaz.stream.nio.file
  *
  * @since 5/4/18
  */
-class MODISCatalogDataSource extends DataSourceRegister with RelationProvider {
+class MODISCatalogDataSource extends DataSourceRegister with RelationProvider with LazyLogging  {
   override def shortName(): String = MODISCatalogDataSource.NAME
   /**
      * Create a MODIS catalog data source.
      * @param sqlContext spark stuff
      * @param parameters optional parameters are:
-     *                   `path`-path to aggregate scene file. Only specify if you don't want one constructed
      *                   `start`-start date for first scene files to fetch. default: "2013-01-01"
      *                   `end`-end date for last scene file to fetch. default: today's date - 7 days
      *                    `useBlacklist`-if false, ignore list of known missing scene files on AWS
      */
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
+    require(parameters.get("path").isEmpty, "MODISCatalogDataSource doesn't support specifying a path. Please use `load()`.")
     val start = parameters.get("start").map(LocalDate.parse).getOrElse(LocalDate.of(2013, 1, 1))
     val end = parameters.get("end").map(LocalDate.parse).getOrElse(LocalDate.now().minusDays(7))
     val useBlacklist = parameters.get("useBlacklist").forall(_.toBoolean)
-    val path = parameters.getOrElse("path", "file://" + MODISCatalogDataSource.sceneListFile(start, end, useBlacklist).toAbsolutePath.toString)
+
+    val conf = sqlContext.sparkContext.hadoopConfiguration
+    implicit val fs = FileSystem.get(conf)
+    val path = MODISCatalogDataSource.sceneListFile(start, end, useBlacklist)
     MODISCatalogRelation(sqlContext, path)
   }
 }
@@ -103,24 +108,29 @@ object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
     } yield URI.create(s"$MCD43A4_BASE${currDay}_scenes.txt")
   }
 
-  private def sceneListFile(start: LocalDate, end: LocalDate, useBlacklist: Boolean) = {
+  private def sceneListFile(start: LocalDate, end: LocalDate, useBlacklist: Boolean)(implicit fs: FileSystem): HadoopPath = {
     logger.info(s"Using '$cacheDir' for scene file cache")
-    val basename = Paths.get(s"$NAME-$start-to-$end.csv")
+    val basename = new HadoopPath(s"$NAME-$start-to-$end.csv")
     cachedFile(basename).getOrElse {
       val retval = cacheName(Right(basename))
-      Files.write(retval, "date,download_url,gid\n".getBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-      sceneFiles(start, end, useBlacklist).par
-        .flatMap(cachedURI)
+      val inputs = sceneFiles(start, end, useBlacklist).par
+        .flatMap(cachedURI(_))
         .toArray
-        .foreach(p ⇒ {
-          val content = Files.readAllLines(p)
-          if(!content.isEmpty) {
-            // Drop header
-            content.remove(0)
-            Files.write(retval, content, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
+      try {
+        fs.createNewFile(retval)
+        fs.concat(retval, inputs)
+      }
+      catch {
+        case _ :UnsupportedOperationException ⇒
+          // concat not supporty by RawLocalFileSystem
+          withResource(fs.create(retval)) { out ⇒
+            inputs.foreach { p ⇒
+              withResource(fs.open(p)) { in ⇒
+                IOUtils.copyBytes(in, out, 1 << 15)
+              }
+            }
           }
-        })
-
+      }
       retval
     }
   }
