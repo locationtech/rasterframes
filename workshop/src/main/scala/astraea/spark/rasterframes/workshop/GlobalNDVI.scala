@@ -27,6 +27,8 @@ import java.time.LocalDate
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.experimental.datasource.awspds._
 import astraea.spark.rasterframes.util._
+import breeze.linalg
+import breeze.linalg.tile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.{LatLng, Sinusoidal}
 import geotrellis.raster._
@@ -36,6 +38,7 @@ import geotrellis.vector.io.json.JsonFeatureCollection
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark._
 import spray.json.DefaultJsonProtocol._
 
 /**
@@ -54,7 +57,10 @@ object GlobalNDVI extends LazyLogging {
       throw new IllegalArgumentException("First argument should be an output path.")
     }
 
-    implicit val spark = SparkSession.builder().appName(getClass.getName).getOrCreate()
+    implicit val spark = SparkSession.builder()
+      .appName(getClass.getName)
+      .config("spark.driver.maxResultSize", "500M")
+      .getOrCreate()
       .withRasterFrames
 
     logger.info("GlobalNDVI initialized with args: " + args.mkString(" "))
@@ -63,7 +69,7 @@ object GlobalNDVI extends LazyLogging {
 
     val baseDir = args(0)
 
-    val numPartitions = 400
+    val numPartitions = 600
     val TOI = LocalDate.of(2017, 6, 7)
 
     val stamp = args.lift(1).getOrElse(
@@ -73,9 +79,9 @@ object GlobalNDVI extends LazyLogging {
     val tilesFile = baseDir + s"/modis-nir-red-$TOI.parquet"
     val conf = spark.sparkContext.hadoopConfiguration
     val fs = FileSystem.get(URI.create(tilesFile), conf)
-    val build = args.contains("-b")
+    val exists = fs.exists(new Path(tilesFile))
 
-    val joined = if (build) {
+    val joined = if (!exists) {
       time("prepration") {
         val catalog = spark.read
           .format(MODISCatalogDataSource.NAME)
@@ -143,11 +149,11 @@ object GlobalNDVI extends LazyLogging {
 
       val scored = withNDVI
         .withColumn("zscores", zscoreRange($"ndvi"))
-        .select($"B01_extent" as "extent", $"ndvi", $"zscores._1" as "zscoreMin", $"zscores._2" as "zscoreMax")
+        .select($"B01_extent" as "extent", $"tile", $"zscores._1" as "zscoreMin", $"zscores._2" as "zscoreMax")
         .na.drop
         .orderBy(desc("zscoreMax"))
         .as[(Extent, Tile, Double, Double)]
-        .cache()
+          .cache()
 
       scored.write.mode(SaveMode.Overwrite).parquet(baseDir + s"/scored-global-ndvi-$stamp.parquet")
 
