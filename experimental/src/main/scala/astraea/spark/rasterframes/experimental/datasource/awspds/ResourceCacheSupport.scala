@@ -21,12 +21,12 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import java.net.URI
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.time.{Duration, Instant}
 
 import astraea.spark.rasterframes.util._
-import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.FilenameUtils
+import org.apache.hadoop.fs.{FileSystem, Path ⇒ HadoopPath}
 import org.apache.hadoop.io.MD5Hash
 
 import scala.util.Try
@@ -42,66 +42,58 @@ trait ResourceCacheSupport extends DownloadSupport { self: LazyLogging  ⇒
     .flatMap(v ⇒ Try(v.toInt).toOption)
     .getOrElse(24)
 
-  protected def expired(p: Path): Boolean = {
-    if(!Files.exists(p)) {
+  protected def expired(p: HadoopPath)(implicit fs: FileSystem): Boolean = {
+    if(!fs.exists(p)) {
       logger.debug(s"'$p' does not yet exist")
       true
     }
     else {
-      val time = Files.getLastModifiedTime(p)
-      val exp = time.toInstant.isAfter(Instant.now().plus(Duration.ofHours(maxCacheFileAgeHours)))
+
+      val time = fs.getFileStatus(p).getModificationTime
+      val exp = Instant.ofEpochMilli(time).isAfter(Instant.now().plus(Duration.ofHours(maxCacheFileAgeHours)))
       if(exp) logger.debug(s"'$p' is expired with mod time of '$time'")
       exp
     }
   }
 
-  protected lazy val cacheDir: Path =
-    sys.props.get("user.home")
-      .filterNot(_.startsWith("hdfs"))
-      .map(Paths.get(_))
-      .filter(root ⇒ Files.isDirectory(root) && Files.isWritable(root))
-      .orElse(Option(Paths.get("/tmp")))
-      .map(_.resolve(".rasterFrames"))
-      .map(base ⇒ base.when(Files.exists(_)).getOrElse(Files.createDirectory(base)))
-      .filter(Files.exists(_))
-      .getOrElse(Files.createTempDirectory("rf_"))
+  protected def cacheDir(implicit fs: FileSystem): HadoopPath = {
+    val home = fs.getHomeDirectory
+    val cacheDir = new HadoopPath(home, ".rf_cache")
+    if(!fs.exists(cacheDir)) fs.mkdirs(cacheDir)
+    cacheDir
+  }
 
-  protected def cacheName(path: Either[URI, Path]): Path = {
+  protected def cacheName(path: Either[URI, HadoopPath])(implicit fs: FileSystem): HadoopPath = {
     val (name, hash) = path match {
       case Left(uri) ⇒
-        (FilenameUtils.getName(uri.getPath), MD5Hash.digest(uri.toASCIIString))
+        (uri.getPath, MD5Hash.digest(uri.toASCIIString))
       case Right(p) ⇒
-        (p.getFileName.toString, MD5Hash.digest(p.toString))
+        (p.toString, MD5Hash.digest(p.toString))
     }
     val basename = FilenameUtils.getBaseName(name)
     val extension = FilenameUtils.getExtension(name)
     val localFileName = s"$basename-$hash.$extension"
-    cacheDir.resolve(localFileName)
+    new HadoopPath(cacheDir, localFileName)
   }
 
-  protected def cachedURI(uri: URI): Option[Path] = {
+  protected def cachedURI(uri: URI)(implicit fs: FileSystem): Option[HadoopPath] = {
     val dest = cacheName(Left(uri))
     dest.when(f ⇒ !expired(f)).orElse {
       try {
         val bytes = downloadBytes(uri.toASCIIString)
-        Files.write(dest, bytes)
+        withResource(fs.create(dest))(_.write(bytes))
         Some(dest)
       }
       catch {
         case NonFatal(_) ⇒
-          Try(Files.delete(dest))
+          Try(fs.delete(dest, false))
           logger.warn(s"'$uri' not found")
-          Files.write(
-            cacheDir.resolve("failed-uris.txt"),
-            (uri.toASCIIString + "\n").getBytes,
-            StandardOpenOption.CREATE, StandardOpenOption.APPEND
-          )
           None
       }
     }
   }
 
-  protected def cachedFile(fileName: Path): Option[Path] = {
+  protected def cachedFile(fileName: HadoopPath)(implicit fs: FileSystem): Option[HadoopPath] = {
      val dest = cacheName(Right(fileName))
      dest.when(f ⇒ !expired(f))
    }

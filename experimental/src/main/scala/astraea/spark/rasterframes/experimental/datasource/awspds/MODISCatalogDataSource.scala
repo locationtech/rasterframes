@@ -117,7 +117,6 @@ object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
         .flatMap(cachedURI(_))
         .toArray
       try {
-        fs.createNewFile(retval)
         fs.concat(retval, inputs)
       }
       catch {

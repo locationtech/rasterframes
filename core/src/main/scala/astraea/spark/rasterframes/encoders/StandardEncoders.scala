@@ -25,7 +25,6 @@ import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TileLayerMetadata}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.{Encoder, Encoders}
 
 import scala.reflect.runtime.universe._
 
@@ -33,23 +32,23 @@ import scala.reflect.runtime.universe._
  * Implicit encoder definitions for RasterFrame types.
  */
 trait StandardEncoders {
-  implicit val spatialKeyEncoder = ExpressionEncoder[SpatialKey]
-  implicit val temporalKeyEncoder = ExpressionEncoder[TemporalKey]
-  implicit val spaceTimeKeyEncoder = ExpressionEncoder[SpaceTimeKey]
-  implicit val statsEncoder = ExpressionEncoder[CellStatistics]
-  implicit val histEncoder = ExpressionEncoder[CellHistogram]
-  implicit val layoutDefinitionEncoder = ExpressionEncoder[LayoutDefinition]
-  implicit val stkBoundsEncoder = ExpressionEncoder[KeyBounds[SpaceTimeKey]]
-  implicit val extentEncoder = ExpressionEncoder[Extent]
+  implicit def spatialKeyEncoder = ExpressionEncoder[SpatialKey]
+  implicit def temporalKeyEncoder = ExpressionEncoder[TemporalKey]
+  implicit def spaceTimeKeyEncoder = ExpressionEncoder[SpaceTimeKey]
+  implicit def statsEncoder = ExpressionEncoder[CellStatistics]
+  implicit def histEncoder = ExpressionEncoder[CellHistogram]
+  implicit def layoutDefinitionEncoder = ExpressionEncoder[LayoutDefinition]
+  implicit def stkBoundsEncoder = ExpressionEncoder[KeyBounds[SpaceTimeKey]]
+  implicit def extentEncoder = ExpressionEncoder[Extent]
 
   implicit def singlebandTileEncoder = ExpressionEncoder[Tile]()
-  implicit def tileLayerMetadataEncoder[K: TypeTag]: Encoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder[K]()
-  implicit val crsEncoder = CRSEncoder()
-  implicit val projectedExtentEncoder = ProjectedExtentEncoder()
-  implicit val temporalProjectedExtentEncoder = TemporalProjectedExtentEncoder()
-  implicit val cellTypeEncoder = CellTypeEncoder()
-  implicit val uriEncoder = URIEncoder()
-  implicit val envelopeEncoder = EnvelopeEncoder()
+  implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder[K]()
+  implicit def crsEncoder = CRSEncoder()
+  implicit def projectedExtentEncoder = ProjectedExtentEncoder()
+  implicit def temporalProjectedExtentEncoder = TemporalProjectedExtentEncoder()
+  implicit def cellTypeEncoder = CellTypeEncoder()
+  implicit def uriEncoder = URIEncoder()
+  implicit def envelopeEncoder = EnvelopeEncoder()
 }
 
 object StandardEncoders extends StandardEncoders
