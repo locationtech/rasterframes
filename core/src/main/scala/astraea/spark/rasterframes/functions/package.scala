@@ -17,7 +17,7 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import geotrellis.raster.mapalgebra.local._
-import geotrellis.raster._
+import geotrellis.raster.{Tile, _}
 import geotrellis.raster.render.ascii.AsciiArtEncoder
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.gt.types
@@ -214,14 +214,39 @@ package object functions {
   /** Cell-wise addition between tiles. */
   private[rasterframes] val localAdd: (Tile, Tile) ⇒ Tile = safeEval(Add.apply)
 
+  /** Cell-wise addition of a scalar to a tile. */
+  private[rasterframes] val localAddScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    t.localAdd(scalar)
+  })
+
   /** Cell-wise subtraction between tiles. */
   private[rasterframes] val localSubtract: (Tile, Tile) ⇒ Tile = safeEval(Subtract.apply)
+
+  /** Cell-wise subtraction of a scalar from a tile. */
+  private[rasterframes] val localSubtractScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    t.localSubtract(scalar)
+  })
 
   /** Cell-wise multiplication between tiles. */
   private[rasterframes] val localMultiply: (Tile, Tile) ⇒ Tile = safeEval(Multiply.apply)
 
+  /** Cell-wise multiplication of a tile by a scalar. */
+  private[rasterframes] val localMultiplyScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    t.localMultiply(scalar)
+  })
+
   /** Cell-wise division between tiles. */
   private[rasterframes] val localDivide: (Tile, Tile) ⇒ Tile = safeEval(Divide.apply)
+
+  /** Cell-wise division of a tile by a scalar. */
+  private[rasterframes] val localDivideScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    t.localDivide(scalar)
+  })
+
+  /** Cell-wise normalized difference of tiles. */
+  private[rasterframes] val normalizedDifference:  (Tile, Tile) ⇒ Tile = safeEval((t1: Tile, t2:Tile) => {
+    Divide(Subtract(t1, t2), Add(t1, t2))
+  })
 
   /** Render tile as ASCII string. */
   private[rasterframes] val renderAscii: (Tile) ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
@@ -240,6 +265,14 @@ package object functions {
       case ct: DoubleCells ⇒ DoubleConstantTile(value.doubleValue(), cols, rows, ct)
     }
   }
+
+  /** Alias for constant tiles of zero */
+  private[rasterframes] val tileZeros: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+    makeConstantTile(0, cols, rows, cellTypeName)
+
+  /** Alias for constant tiles of one */
+  private[rasterframes] val tileOnes: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+    makeConstantTile(1, cols, rows, cellTypeName)
 
   private[rasterframes] val cellTypes: () ⇒ Seq[String] = () ⇒
     Seq(
@@ -262,6 +295,8 @@ package object functions {
 
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_makeConstantTile", makeConstantTile)
+    sqlContext.udf.register("rf_tileZeros", tileZeros)
+    sqlContext.udf.register("rf_tileOnes", tileOnes)
     sqlContext.udf.register("rf_tileToArrayInt", tileToArray[Int])
     sqlContext.udf.register("rf_tileToArrayDouble", tileToArray[Double])
     sqlContext.udf.register("rf_aggHistogram", aggHistogram)
@@ -280,9 +315,14 @@ package object functions {
     sqlContext.udf.register("rf_localAggMean", localAggMean)
     sqlContext.udf.register("rf_localAggCount", localAggCount)
     sqlContext.udf.register("rf_localAdd", localAdd)
+    sqlContext.udf.register("rf_localAddScalar", localAddScalar)
     sqlContext.udf.register("rf_localSubtract", localSubtract)
+    sqlContext.udf.register("rf_localSubtractScalar", localSubtractScalar)
     sqlContext.udf.register("rf_localMultiply", localMultiply)
+    sqlContext.udf.register("rf_localMultiplyScalar", localMultiplyScalar)
     sqlContext.udf.register("rf_localDivide", localDivide)
+    sqlContext.udf.register("rf_localDivideScalar", localDivideScalar)
+    sqlContext.udf.register("rf_normalizedDifference", normalizedDifference)
     sqlContext.udf.register("rf_cellTypes", cellTypes)
     sqlContext.udf.register("rf_renderAscii", renderAscii)
   }

@@ -18,7 +18,6 @@
  */
 package astraea.spark.rasterframes.py
 
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import org.apache.spark.sql._
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util.withAlias
@@ -87,12 +86,6 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def tileLayerMetadata(df: DataFrame): String =
     // The `fold` is required because an `Either` is retured, depending on the key type.
     df.asRF.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
-
-  def normalizedDifference(left: Column, right: Column): Column = {
-    withAlias("norm_diff", left, right)(
-      localDivide(localSubtract(left, right), localAdd(left, right))
-    ).as[Tile]
-  }
 
   def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = {
     df.asRF.spatialJoin(right.asRF)

@@ -29,7 +29,7 @@ import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.functions.{udf, lit}
 import org.apache.spark.sql.rf._
 
 import scala.reflect.runtime.universe._
@@ -209,11 +209,19 @@ trait RasterFunctions {
     udf(F.localAdd).apply(left, right)
   ).as[Tile]
 
+  /** Cellwise addition of a scalar to a tile. */
+  def localAddScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
+    udf(F.localAddScalar(_, value)).apply(tileCol).as(s"localAddScalar($tileCol, $value)").as[Tile]
+
   /** Cellwise subtraction between two Tiles. */
   def localSubtract(left: Column, right: Column): TypedColumn[Any, Tile] =
   withAlias("localSubtract", left, right)(
     udf(F.localSubtract).apply(left, right)
   ).as[Tile]
+
+  /** Cellwise subtraction of a scalar from a tile. */
+  def localSubtractScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
+    udf(F.localSubtractScalar(_, value)).apply(tileCol).as(s"localSubtractScalar($tileCol, $value)").as[Tile]
 
   /** Cellwise multiplication between two Tiles. */
   def localMultiply(left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -221,11 +229,19 @@ trait RasterFunctions {
     udf(F.localMultiply).apply(left, right)
   ).as[Tile]
 
+  /** Cellwise multiplication of a tile by a scalar. */
+  def localMultiplyScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
+    udf(F.localMultiplyScalar(_, value)).apply(tileCol).as(s"localMultiplyScalar($tileCol, $value)").as[Tile]
+
   /** Cellwise division between two Tiles. */
   def localDivide(left: Column, right: Column): TypedColumn[Any, Tile] =
   withAlias("localDivide", left, right)(
     udf(F.localDivide).apply(left, right)
   ).as[Tile]
+
+  /** Cellwise division of a tile by a scalar. */
+  def localDivideScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
+    udf(F.localDivideScalar(_, value)).apply(tileCol).as(s"localDivideScalar($tileCol, $value)").as[Tile]
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def localAlgebra(op: LocalTileBinaryOp, left: Column, right: Column):
@@ -233,6 +249,24 @@ trait RasterFunctions {
     withAlias(opName(op), left, right)(
       udf[Tile, Tile, Tile](op.apply).apply(left, right)
     ).as[Tile]
+
+  /** Compute the normalized difference of two tile columns */
+  def normalizedDifference(left: Column, right: Column): TypedColumn[Any, Tile] =
+    withAlias("normalizedDifference", left, right)(
+      udf(F.normalizedDifference).apply(left, right)
+    ).as[Tile]
+
+  /** Constructor for constant tile column */
+  def makeConstantTile(value: Number, cols: Int, rows: Int, cellType: String): TypedColumn[Any, Tile] =
+    udf(() => F.makeConstantTile(value, cols, rows, cellType)).apply().as(s"constant_$cellType").as[Tile]
+
+  /** Alias for column of constant tiles of zero */
+  def tileZeros(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
+    udf(() => F.tileZeros(cols, rows, cellType)).apply().as(s"zeros_$cellType").as[Tile]
+
+  /** Alias for column of constant tiles of one */
+  def tileOnes(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
+    udf(() => F.tileOnes(cols, rows, cellType)).apply().as(s"ones_$cellType").as[Tile]
 
   /** Render Tile as ASCII string for debugging purposes. */
   @Experimental
