@@ -1,4 +1,4 @@
-# Exporting RasterFrames
+# Exporting&nbsp;RasterFrames
 
 ```tut:invisible
 import astraea.spark.rasterframes._

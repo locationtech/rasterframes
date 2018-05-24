@@ -49,6 +49,7 @@ Please [submit an issue](https://github.com/locationtech/rasterframes/issues) if
 
 @@@ index
 * [Getting Started](getting-started.md)
+* [PyRasterFrames](pyrasterframes.md)
 * [Creating RasterFrames](creating-rasterframes.md)
 * [Spatial Queries](spatial-queries.md)
 * [Applications](apps/index.md)

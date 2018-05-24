@@ -1,4 +1,4 @@
-# Creating RasterFrames
+# Creating&nbsp;RasterFrames
 
 ## Initialization
 
