@@ -21,7 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource.geojson
 
 import astraea.spark.rasterframes.TestEnvironment
-import org.apache.spark.sql.types.MapType
+import org.apache.spark.sql.types.{LongType, MapType}
 
 /**
  * Test rig for GeoJsonRelation.
@@ -30,12 +30,28 @@ import org.apache.spark.sql.types.MapType
  */
 class GeoJsonDataSourceTest extends TestEnvironment {
 
+  val examplePath = getClass.getResource("/example.geojson").toURI.toASCIIString
+
   describe("GeoJson spark reader") {
-    it("should read geometry") {
-      val examplePath = getClass.getResource("/example.json").toURI.toASCIIString
-      val results = spark.read.format("geojson").load(examplePath)
+    it("should read geometry without inference") {
+      val results = spark.read
+        .option(DefaultSource.INFER_SCHEMA, false)
+        .format("geojson")
+        .load(examplePath)
       assert(results.columns.length === 2)
       assert(results.schema.fields(1).dataType.isInstanceOf[MapType])
+      assert(results.count() === 3)
+    }
+
+    it("should read geometry") {
+      val results = spark.read
+        .option(DefaultSource.INFER_SCHEMA, true)
+        .format("geojson")
+        .load(examplePath)
+      results.printSchema()
+      results.show(false)
+      assert(results.columns.length === 4)
+      assert(results.schema.fields(1).dataType == LongType)
       assert(results.count() === 3)
     }
   }

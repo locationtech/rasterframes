@@ -7,7 +7,8 @@
         "coordinates": [102.0, 0.5]
       },
       "properties": {
-        "prop0": "value0"
+        "ID": 1,
+        "prop0": "big"
       }
     },
     { "type": "Feature",
@@ -18,7 +19,8 @@
         ]
       },
       "properties": {
-        "prop0": "value0",
+        "ID": 2,
+        "prop0": "fish",
         "prop1": 0.0
       }
     },
@@ -33,8 +35,9 @@
         ]
       },
       "properties": {
-        "prop0": "value0",
-        "prop1": { "this": "that" }
+        "ID": 3,
+        "prop0": "found",
+        "prop1": 22.0
       }
     }
   ]

@@ -23,7 +23,6 @@ package astraea.spark.rasterframes.experimental.datasource.geojson
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.locationtech.geomesa.spark.jts._
-import astraea.spark.rasterframes.datasource._
 import org.apache.spark.annotation.Experimental
 
 /**
@@ -41,12 +40,13 @@ class DefaultSource extends DataSourceRegister with RelationProvider {
       throw new IllegalArgumentException("Valid URI 'path' parameter required.")
     )
     sqlContext.withJTS
-    GeoJsonRelation(sqlContext, path)
+    val infer = parameters.get(DefaultSource.INFER_SCHEMA).map(_.toBoolean).getOrElse(true)
+    GeoJsonRelation(sqlContext, path, infer)
   }
 }
 
 object DefaultSource {
   final val SHORT_NAME = "geojson"
   final val PATH_PARAM = "path"
-
+  final val INFER_SCHEMA = "inferSchema"
 }
