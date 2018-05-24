@@ -211,7 +211,7 @@ trait RasterFunctions {
 
   /** Cellwise addition of a scalar to a tile. */
   def localAddScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localAddScalar(_, value)).apply(tileCol).as(s"localAddScalar($tileCol, $value)").as[Tile]
+    udf(F.localAddScalar(_: Tile, value)).apply(tileCol).as(s"localAddScalar($tileCol, $value)").as[Tile]
 
   /** Cellwise subtraction between two Tiles. */
   def localSubtract(left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -221,7 +221,7 @@ trait RasterFunctions {
 
   /** Cellwise subtraction of a scalar from a tile. */
   def localSubtractScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localSubtractScalar(_, value)).apply(tileCol).as(s"localSubtractScalar($tileCol, $value)").as[Tile]
+    udf(F.localSubtractScalar(_: Tile, value)).apply(tileCol).as(s"localSubtractScalar($tileCol, $value)").as[Tile]
 
   /** Cellwise multiplication between two Tiles. */
   def localMultiply(left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -231,7 +231,7 @@ trait RasterFunctions {
 
   /** Cellwise multiplication of a tile by a scalar. */
   def localMultiplyScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localMultiplyScalar(_, value)).apply(tileCol).as(s"localMultiplyScalar($tileCol, $value)").as[Tile]
+    udf(F.localMultiplyScalar(_: Tile, value)).apply(tileCol).as(s"localMultiplyScalar($tileCol, $value)").as[Tile]
 
   /** Cellwise division between two Tiles. */
   def localDivide(left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -241,7 +241,7 @@ trait RasterFunctions {
 
   /** Cellwise division of a tile by a scalar. */
   def localDivideScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localDivideScalar(_, value)).apply(tileCol).as(s"localDivideScalar($tileCol, $value)").as[Tile]
+    udf(F.localDivideScalar(_: Tile, value)).apply(tileCol).as(s"localDivideScalar($tileCol, $value)").as[Tile]
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def localAlgebra(op: LocalTileBinaryOp, left: Column, right: Column):

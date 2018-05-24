@@ -5,6 +5,7 @@
 ### 0.7.0
 
 * PySpark support! See `pyrasterframes/python/README.rst` to get started.
+* Added RasterFrames-enabled Jupyter Notebook Docker Container package. See `deployment/README.md` for details.
 * Updated to GeoMesa version 2.0.1.
 * Added for for writing GeoTIFFs from RasterFrames via `DataFrameWriter`.
 * Added `spark.read.geotrellis.withNumPartitions(Int)` for setting the initial number of partitions to use when reading a layer.
@@ -13,6 +14,7 @@
 * Added experimental GeoJSON DataSource with schema inferfence on feature properties.
 * Added `SlippyExport` experimental feature for exporting the contents of a RasterFrame as a [SlippyMap](https://wiki.openstreetmap.org/wiki/Slippy_Map)
   tile image directory structure and Leaflet-enabled HTML file. 
+* Added experimental DataSource implementations for [MODIS](https://registry.opendata.aws/modis/) and [Landsat 8](https://registry.opendata.aws/landsat-8/) catalogs on AWS PDS.   
 * _Change_: Default interpoation for `toRaster` and `toMultibandRaster` has been changed from `Bilinear` to `NearestNeighbor`.
 * _Breaking_: Renamed/moved `astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics` to
 `astraea.spark.rasterframes.stats.CellStatistics`.
