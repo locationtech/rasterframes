@@ -221,7 +221,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DeclarativeAggregate → AggregateFunction</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(number:&lt;?&gt;):org.apache.spark.sql.catalyst.trees.TreeNode[_]"></a>
+      <a id="apply(number:Int):org.apache.spark.sql.catalyst.trees.TreeNode[_]"></a>
       <a id="apply(Int):TreeNode[_]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -397,7 +397,7 @@
               
         </dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#collect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="collect[B&lt;:&lt;?&gt;](pf:&lt;?&gt;):Seq[B]"></a>
+      <a id="collect[B](pf:PartialFunction[BaseType,B]):Seq[B]"></a>
       <a id="collect[B](PartialFunction[Expression,B]):Seq[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -414,7 +414,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#collectFirst" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="collectFirst[B&lt;:&lt;?&gt;](pf:&lt;?&gt;):Option[B]"></a>
+      <a id="collectFirst[B](pf:PartialFunction[BaseType,B]):Option[B]"></a>
       <a id="collectFirst[B](PartialFunction[Expression,B]):Option[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -584,7 +584,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="astraea.spark.rasterframes.functions.CellCountAggregateFunction">CellCountAggregateFunction</a> → DeclarativeAggregate</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#fastEquals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fastEquals(other:&lt;?&gt;):Boolean"></a>
+      <a id="fastEquals(other:org.apache.spark.sql.catalyst.trees.TreeNode[_]):Boolean"></a>
       <a id="fastEquals(TreeNode[_]):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -624,7 +624,7 @@
               
         </dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#find" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="find(f:&lt;?&gt;):Option[BaseType]"></a>
+      <a id="find(f:BaseType=&gt;Boolean):Option[BaseType]"></a>
       <a id="find((Expression)⇒Boolean):Option[Expression]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -658,7 +658,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>Expression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#flatMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="flatMap[A&lt;:&lt;?&gt;](f:&lt;?&gt;):Seq[A]"></a>
+      <a id="flatMap[A](f:BaseType=&gt;TraversableOnce[A]):Seq[A]"></a>
       <a id="flatMap[A]((Expression)⇒TraversableOnce[A]):Seq[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -692,7 +692,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AggregateFunction → Expression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#foreach" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="foreach(f:&lt;?&gt;):Unit"></a>
+      <a id="foreach(f:BaseType=&gt;Unit):Unit"></a>
       <a id="foreach((Expression)⇒Unit):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -709,7 +709,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#foreachUp" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="foreachUp(f:&lt;?&gt;):Unit"></a>
+      <a id="foreachUp(f:BaseType=&gt;Unit):Unit"></a>
       <a id="foreachUp((Expression)⇒Unit):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -726,7 +726,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.expressions.Expression#genCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="genCode(ctx:&lt;?&gt;):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
+      <a id="genCode(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
       <a id="genCode(CodegenContext):ExprCode"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -743,7 +743,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Expression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#generateTreeString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="generateTreeString(depth:&lt;?&gt;,lastChildren:&lt;?&gt;,builder:&lt;?&gt;,verbose:&lt;?&gt;,prefix:&lt;?&gt;,addSuffix:&lt;?&gt;):StringBuilder"></a>
+      <a id="generateTreeString(depth:Int,lastChildren:Seq[Boolean],builder:StringBuilder,verbose:Boolean,prefix:String,addSuffix:Boolean):StringBuilder"></a>
       <a id="generateTreeString(Int,Seq[Boolean],StringBuilder,Boolean,String,Boolean):StringBuilder"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -913,7 +913,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#makeCopy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="makeCopy(newArgs:&lt;?&gt;):BaseType"></a>
+      <a id="makeCopy(newArgs:Array[AnyRef]):BaseType"></a>
       <a id="makeCopy(Array[AnyRef]):Expression"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -921,7 +921,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">makeCopy</span><span class="params">(<span name="newArgs">newArgs: <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
+        <span class="name">makeCopy</span><span class="params">(<span name="newArgs">newArgs: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#astraea.spark.rasterframes.functions.CellCountAggregateFunction@makeCopy(newArgs:Array[AnyRef]):BaseType" title="Permalink" target="_top">
@@ -930,7 +930,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#map" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="map[A&lt;:&lt;?&gt;](f:&lt;?&gt;):Seq[A]"></a>
+      <a id="map[A](f:BaseType=&gt;A):Seq[A]"></a>
       <a id="map[A]((Expression)⇒A):Seq[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -947,7 +947,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#mapChildren" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="mapChildren(f:&lt;?&gt;):BaseType"></a>
+      <a id="mapChildren(f:BaseType=&gt;BaseType):BaseType"></a>
       <a id="mapChildren((Expression)⇒Expression):Expression"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -964,7 +964,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#mapProductIterator" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="mapProductIterator[B&lt;:&lt;?&gt;](f:&lt;?&gt;)(implicitevidence$1:&lt;?&gt;):Array[B]"></a>
+      <a id="mapProductIterator[B](f:Any=&gt;B)(implicitevidence$1:scala.reflect.ClassTag[B]):Array[B]"></a>
       <a id="mapProductIterator[B]((Any)⇒B)(ClassTag[B]):Array[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -972,7 +972,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">mapProductIterator</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>) ⇒ <span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>
+        <span class="name">mapProductIterator</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>) ⇒ <span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#astraea.spark.rasterframes.functions.CellCountAggregateFunction@mapProductIterator[B](f:Any=&gt;B)(implicitevidence$1:scala.reflect.ClassTag[B]):Array[B]" title="Permalink" target="_top">
@@ -1134,7 +1134,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#p" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="p(number:&lt;?&gt;):BaseType"></a>
+      <a id="p(number:Int):BaseType"></a>
       <a id="p(Int):Expression"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -1440,7 +1440,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#transformDown" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="transformDown(rule:&lt;?&gt;):BaseType"></a>
+      <a id="transformDown(rule:PartialFunction[BaseType,BaseType]):BaseType"></a>
       <a id="transformDown(PartialFunction[Expression,Expression]):Expression"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -1628,7 +1628,7 @@
               
         </dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#withNewChildren" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withNewChildren(newChildren:&lt;?&gt;):BaseType"></a>
+      <a id="withNewChildren(newChildren:Seq[BaseType]):BaseType"></a>
       <a id="withNewChildren(Seq[Expression]):Expression"></a>
       <h4 class="signature">
       <span class="modifier_kind">

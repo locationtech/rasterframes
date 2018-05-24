@@ -12,7 +12,7 @@ gtag('js', new Date());
 gtag('config', 'UA-106630615-1');
 </script>
 
-<title>Exporting RasterFrames · RasterFrames</title>
+<title>Exporting&nbsp;RasterFrames · RasterFrames</title>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
@@ -45,15 +45,16 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.6.1
+0.7.0-RC1
 </div>
 </div>
 <select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting Started</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
   <li><a href="apps/index.html" class="page">Applications</a>
   <ul>
     <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
@@ -65,9 +66,9 @@ gtag('config', 'UA-106630615-1');
     <li><a href="ml/clustering.html" class="page">Clustering</a></li>
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="active page">Exporting RasterFrames</a></li>
+  <li><a href="exporting-rasterframes.html" class="active page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
 </ul>
 </div>
 
@@ -100,15 +101,16 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.6.1
+0.7.0-RC1
 </div>
 </div>
 <select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting Started</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
   <li><a href="apps/index.html" class="page">Applications</a>
   <ul>
     <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
@@ -120,9 +122,9 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="ml/clustering.html" class="page">Clustering</a></li>
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="active page">Exporting RasterFrames</a></li>
+  <li><a href="exporting-rasterframes.html" class="active page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
 </ul>
 </div>
 
@@ -137,7 +139,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="nav-breadcrumbs">
 <ul>
   <li><a href="index.html">RasterFrames</a></li>
-  <li>Exporting RasterFrames</li>
+  <li>Exporting&nbsp;RasterFrames</li>
 </ul>
 </div>
 </div>
@@ -145,7 +147,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
-<h1><a href="#exporting-rasterframes" name="exporting-rasterframes" class="anchor"><span class="anchor-link"></span></a>Exporting RasterFrames</h1>
+<h1><a href="#exporting-nbsp-rasterframes" name="exporting-nbsp-rasterframes" class="anchor"><span class="anchor-link"></span></a>Exporting&nbsp;RasterFrames</h1>
 <p>While the goal of RasterFrames is to make it as easy as possible to do your geospatial analysis with a single construct, it is helpful to be able to transform it into other representations for various use cases.</p>
 <h2><a href="#converting-to-array" name="converting-to-array" class="anchor"><span class="anchor-link"></span></a>Converting to Array</h2>
 <p>The cell values within a <code>Tile</code> are encoded internally as an array. There may be use cases where the additional context provided by the <code>Tile</code> construct is no longer needed and one would prefer to work with the underlying array data.</p>
@@ -174,11 +176,11 @@ scala&gt; tileBack.drop(&quot;tileData&quot;).show(5, 40)
 +-----------+--------------------------------------+
 |spatial_key|                             tileAgain|
 +-----------+--------------------------------------+
-|      [6,3]|ShortRawArrayTile([S@470467b0,128,128)|
-|      [4,0]|ShortRawArrayTile([S@3bca8557,128,128)|
-|      [0,0]|ShortRawArrayTile([S@40478af8,128,128)|
-|      [4,2]|ShortRawArrayTile([S@48c122dc,128,128)|
-|      [0,2]|ShortRawArrayTile([S@2c1ce593,128,128)|
+|      [6,3]|ShortRawArrayTile([S@14922268,128,128)|
+|      [4,0]| ShortRawArrayTile([S@663b31a,128,128)|
+|      [0,0]| ShortRawArrayTile([S@69b96cd,128,128)|
+|      [4,2]|ShortRawArrayTile([S@5e4b9f22,128,128)|
+|      [0,2]|ShortRawArrayTile([S@5b4f77e1,128,128)|
 +-----------+--------------------------------------+
 only showing top 5 rows
 
@@ -191,11 +193,11 @@ scala&gt; tileBackAgain.drop(&quot;tileData&quot;).show(5, 50)
 +-----------+--------------------------------------------------+
 |spatial_key|                                         tileAgain|
 +-----------+--------------------------------------------------+
-|      [6,3]|ShortUserDefinedNoDataArrayTile([S@161267b6,128...|
-|      [4,0]|ShortUserDefinedNoDataArrayTile([S@6f1fd7c1,128...|
-|      [0,0]|ShortUserDefinedNoDataArrayTile([S@648c8c22,128...|
-|      [4,2]|ShortUserDefinedNoDataArrayTile([S@7b742ec1,128...|
-|      [0,2]|ShortUserDefinedNoDataArrayTile([S@7e5ed9ce,128...|
+|      [6,3]|ShortUserDefinedNoDataArrayTile([S@43aa4e0d,128...|
+|      [4,0]|ShortUserDefinedNoDataArrayTile([S@54a30614,128...|
+|      [0,0]|ShortUserDefinedNoDataArrayTile([S@166913c2,128...|
+|      [4,2]|ShortUserDefinedNoDataArrayTile([S@301b21f,128,...|
+|      [0,2]|ShortUserDefinedNoDataArrayTile([S@124a5e54,128...|
 +-----------+--------------------------------------------------+
 only showing top 5 rows
 
@@ -372,7 +374,7 @@ scala.Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrell
 <div class="nav-title">On this page:</div>
 <div class="nav-toc">
 <ul>
-  <li><a href="exporting-rasterframes.html#exporting-rasterframes" class="header">Exporting RasterFrames</a>
+  <li><a href="exporting-rasterframes.html#exporting-nbsp-rasterframes" class="header">Exporting&nbsp;RasterFrames</a>
   <ul>
     <li><a href="exporting-rasterframes.html#converting-to-array" class="header">Converting to Array</a></li>
     <li><a href="exporting-rasterframes.html#writing-to-parquet" class="header">Writing to Parquet</a></li>

@@ -45,13 +45,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">WithSpatialContextRDDMethods</span><span class="result"> extends <a href="SpatialContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">SpatialContextRDDMethods</a></span>
+        <span class="name">WithSpatialContextRDDMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <a href="SpatialContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">SpatialContextRDDMethods</a>[<span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>]</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="SpatialContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">SpatialContextRDDMethods</a>, <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="SpatialContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">SpatialContextRDDMethods</a>[<span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>], <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -89,18 +89,18 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatialContextRDDMethods"></a>
-      <a id="&lt;init&gt;:WithSpatialContextRDDMethods"></a>
+      <a id="&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatialContextRDDMethods[T]"></a>
+      <a id="&lt;init&gt;:WithSpatialContextRDDMethods[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">WithSpatialContextRDDMethods</span><span class="params">(<span name="self">self: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span>
+        <span class="name">WithSpatialContextRDDMethods</span><span class="params">(<span name="self">self: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatialContextRDDMethods" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatialContextRDDMethods[T]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -365,18 +365,18 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods#self" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]"></a>
-      <a id="self:RDD[(SpatialKey,Tile)]withMetadata[TileLayerMetadata[SpatialKey]]"></a>
+      <a id="self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]"></a>
+      <a id="self:RDD[(SpatialKey,T)]withMetadata[TileLayerMetadata[SpatialKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">self</span><span class="result">: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]</span>
+        <span class="name">self</span><span class="result">: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -399,35 +399,35 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods#toRF" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toRF(tileColumnName:String):astraea.spark.rasterframes.RasterFrame"></a>
-      <a id="toRF(String):RasterFrame"></a>
+      <a id="toRF(tileColumnName:String)(implicitconverter:astraea.spark.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="toRF(String)(PairRDDConverter[SpatialKey,T]):RasterFrame"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toRF</span><span class="params">(<span name="tileColumnName">tileColumnName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+        <span class="name">toRF</span><span class="params">(<span name="tileColumnName">tileColumnName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="converter">converter: <a href="../PairRDDConverter.html" class="extype" name="astraea.spark.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@toRF(tileColumnName:String):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@toRF(tileColumnName:String)(implicitconverter:astraea.spark.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="SpatialContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">SpatialContextRDDMethods</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods#toRF" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toRF:astraea.spark.rasterframes.RasterFrame"></a>
-      <a id="toRF:RasterFrame"></a>
+      <a id="toRF(implicitconverter:astraea.spark.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):astraea.spark.rasterframes.RasterFrame"></a>
+      <a id="toRF(PairRDDConverter[SpatialKey,T]):RasterFrame"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toRF</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
+        <span class="name">toRF</span><span class="params">(<span class="implicit">implicit </span><span name="converter">converter: <a href="../PairRDDConverter.html" class="extype" name="astraea.spark.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@toRF:astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithSpatialContextRDDMethods@toRF(implicitconverter:astraea.spark.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -528,9 +528,9 @@
 
         <div id="inheritedMembers">
         <div class="parent" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">
-              <h3>Inherited from <a href="SpatialContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">SpatialContextRDDMethods</a></h3>
+              <h3>Inherited from <a href="SpatialContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods">SpatialContextRDDMethods</a>[<span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>]</h3>
             </div><div class="parent" name="geotrellis.util.MethodExtensions">
-              <h3>Inherited from <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]]</h3>
+              <h3>Inherited from <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithSpatialContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]]</h3>
             </div><div class="parent" name="scala.Serializable">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
             </div><div class="parent" name="java.io.Serializable">

@@ -121,18 +121,18 @@
       <p class="shortcomment cmt">Extension methods used for transforming the metadata in a ContextRDD.</p><div class="fullcomment"><div class="comment cmt"><p>Extension methods used for transforming the metadata in a ContextRDD.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/18/17</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.extensions.ProjectedRasterMethods" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ProjectedRasterMethodsextendsMethodExtensions[geotrellis.raster.ProjectedRaster[geotrellis.raster.Tile]]withStandardColumns"></a>
-      <a id="ProjectedRasterMethods:ProjectedRasterMethods"></a>
+      <a id="ProjectedRasterMethods[T&lt;:geotrellis.raster.CellGrid]extendsMethodExtensions[geotrellis.raster.ProjectedRaster[T]]withStandardColumns"></a>
+      <a id="ProjectedRasterMethods[T&lt;:CellGrid]:ProjectedRasterMethods[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ProjectedRasterMethods.html"><span class="name">ProjectedRasterMethods</span></a><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]] with <a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></span>
+        <a href="ProjectedRasterMethods.html"><span class="name">ProjectedRasterMethods</span></a><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.ProjectedRasterMethods.T">T</span>]] with <a href="../StandardColumns.html" class="extype" name="astraea.spark.rasterframes.StandardColumns">StandardColumns</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@ProjectedRasterMethodsextendsMethodExtensions[geotrellis.raster.ProjectedRaster[geotrellis.raster.Tile]]withStandardColumns" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@ProjectedRasterMethods[T&lt;:geotrellis.raster.CellGrid]extendsMethodExtensions[geotrellis.raster.ProjectedRaster[T]]withStandardColumns" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -210,73 +210,39 @@
       <p class="shortcomment cmt">Extension methods on <span class="extype" name="SparkSession">SparkSession</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Extension methods on <span class="extype" name="SparkSession">SparkSession</span>.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>10/30/17</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="SpatialContextRDDMethodsextendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]]"></a>
-      <a id="SpatialContextRDDMethods:SpatialContextRDDMethods"></a>
+      <a id="SpatialContextRDDMethods[T&lt;:geotrellis.raster.CellGrid]extendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]]"></a>
+      <a id="SpatialContextRDDMethods[T&lt;:CellGrid]:SpatialContextRDDMethods[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="SpatialContextRDDMethods.html"><span class="name">SpatialContextRDDMethods</span></a><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]]</span>
+        <a href="SpatialContextRDDMethods.html"><span class="name">SpatialContextRDDMethods</span></a><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.SpatialContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@SpatialContextRDDMethodsextendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@SpatialContextRDDMethods[T&lt;:geotrellis.raster.CellGrid]extendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="Tile">Tile</span> RDDs with appropriate context bounds to create a RasterFrame.</p><div class="fullcomment"><div class="comment cmt"><p>Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="Tile">Tile</span> RDDs with appropriate context bounds to create a RasterFrame.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/18/17</p></dd></dl></div>
+      <p class="shortcomment cmt">Extension method on <code>ContextRDD</code>-shaped RDDs with appropriate context bounds to create a RasterFrame.</p><div class="fullcomment"><div class="comment cmt"><p>Extension method on <code>ContextRDD</code>-shaped RDDs with appropriate context bounds to create a RasterFrame.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/18/17</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.extensions.SpatioTemporalContextRDDMethods" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="SpatioTemporalContextRDDMethodsextendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]]"></a>
-      <a id="SpatioTemporalContextRDDMethods:SpatioTemporalContextRDDMethods"></a>
+      <a id="SpatioTemporalContextRDDMethods[T&lt;:geotrellis.raster.CellGrid]extendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]]"></a>
+      <a id="SpatioTemporalContextRDDMethods[T&lt;:CellGrid]:SpatioTemporalContextRDDMethods[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="SpatioTemporalContextRDDMethods.html"><span class="name">SpatioTemporalContextRDDMethods</span></a><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]]</span>
+        <a href="SpatioTemporalContextRDDMethods.html"><span class="name">SpatioTemporalContextRDDMethods</span></a><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.SpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@SpatioTemporalContextRDDMethodsextendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@SpatioTemporalContextRDDMethods[T&lt;:geotrellis.raster.CellGrid]extendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="Tile">Tile</span> RDDs keyed with <span class="extype" name="SpaceTimeKey">SpaceTimeKey</span>, with appropriate context bounds to create a RasterFrame.</p><div class="fullcomment"><div class="comment cmt"><p>Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="Tile">Tile</span> RDDs keyed with <span class="extype" name="SpaceTimeKey">SpaceTimeKey</span>, with appropriate context bounds to create a RasterFrame.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/11/17</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.extensions.TFContextRDDMethods" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="TFContextRDDMethods[K,D]extendsMethodExtensions[org.apache.spark.rdd.RDD[(K,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D])]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]]"></a>
-      <a id="TFContextRDDMethods[K,D]:TFContextRDDMethods[K,D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="TFContextRDDMethods.html"><span class="name">TFContextRDDMethods</span></a><span class="tparams">[<span name="K">K</span>, <span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.D">D</span>])] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@TFContextRDDMethods[K,D]extendsMethodExtensions[org.apache.spark.rdd.RDD[(K,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D])]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]]" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="TileFeature">TileFeature</span> RDDs with appropriate context bounds to create a RasterFrame.</p><div class="fullcomment"><div class="comment cmt"><p>Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="TileFeature">TileFeature</span> RDDs with appropriate context bounds to create a RasterFrame.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/18/17</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.extensions.TFSTContextRDDMethods" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="TFSTContextRDDMethods[D]extendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D])]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]]"></a>
-      <a id="TFSTContextRDDMethods[D]:TFSTContextRDDMethods[D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="TFSTContextRDDMethods.html"><span class="name">TFSTContextRDDMethods</span></a><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.TFSTContextRDDMethods.D">D</span>])] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.package@TFSTContextRDDMethods[D]extendsMethodExtensions[org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D])]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]]" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="TileFeature">TileFeature</span> RDDs with appropriate context bounds to create a RasterFrame.</p><div class="fullcomment"><div class="comment cmt"><p>Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="TileFeature">TileFeature</span> RDDs with appropriate context bounds to create a RasterFrame.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/18/17</p></dd></dl></div>
     </li></ol>
             </div>
 

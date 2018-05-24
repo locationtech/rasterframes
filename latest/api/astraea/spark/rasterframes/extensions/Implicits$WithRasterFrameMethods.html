@@ -409,7 +409,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">cellTypeEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<a href="../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a>]</span>
@@ -484,7 +484,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">crsEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
@@ -501,7 +501,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">envelopeEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="com.vividsolutions.jts.geom.Envelope">Envelope</span>]</span>
@@ -552,7 +552,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">extentEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>
@@ -620,19 +620,19 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#histogramDoubleEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="histogramDoubleEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.histogram.Histogram[Double]]"></a>
-      <a id="histogramDoubleEncoder:ExpressionEncoder[Histogram[Double]]"></a>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#histEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="histEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.stats.CellHistogram]"></a>
+      <a id="histEncoder:ExpressionEncoder[CellHistogram]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">histogramDoubleEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.raster.histogram.Histogram">Histogram</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>]]</span>
+        <span class="name">histEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<a href="../stats/CellHistogram.html" class="extype" name="astraea.spark.rasterframes.stats.CellHistogram">CellHistogram</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@histogramDoubleEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.histogram.Histogram[Double]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@histEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.stats.CellHistogram]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -660,7 +660,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">layoutDefinitionEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.tiling.LayoutDefinition">LayoutDefinition</span>]</span>
@@ -705,23 +705,6 @@
       </a>
     </span>
       <p class="shortcomment cmt">Returns the key-space to map-space coordinate transform.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the key-space to map-space coordinate transform.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RFSpatialColumnMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RFSpatialColumnMethods">RFSpatialColumnMethods</a></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#multibandTileEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="multibandTileEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.MultibandTile]"></a>
-      <a id="multibandTileEncoder:ExpressionEncoder[MultibandTile]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">multibandTileEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@multibandTileEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -779,7 +762,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">projectedExtentEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.vector.ProjectedExtent">ProjectedExtent</span>]</span>
@@ -830,7 +813,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">spaceTimeKeyEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]</span>
@@ -887,7 +870,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">spatialKeyEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
@@ -899,18 +882,18 @@ tile layer metadata. A more flexible spatial join is in the works.**
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#statsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="statsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.Statistics]"></a>
-      <a id="statsEncoder:ExpressionEncoder[Statistics]"></a>
+      <a id="statsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.stats.CellStatistics]"></a>
+      <a id="statsEncoder:ExpressionEncoder[CellStatistics]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">statsEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<a href="../package.html#Statistics=astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics" class="extmbr" name="astraea.spark.rasterframes.Statistics">Statistics</a>]</span>
+        <span class="name">statsEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<a href="../stats/CellStatistics.html" class="extype" name="astraea.spark.rasterframes.stats.CellStatistics">CellStatistics</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@statsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.Statistics]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@statsEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[astraea.spark.rasterframes.stats.CellStatistics]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -921,7 +904,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">stkBoundsEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.KeyBounds">KeyBounds</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
@@ -955,7 +938,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">temporalKeyEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span>]</span>
@@ -972,7 +955,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">temporalProjectedExtentEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.TemporalProjectedExtent">TemporalProjectedExtent</span>]</span>
@@ -1002,18 +985,18 @@ tile layer metadata. A more flexible spatial join is in the works.**
       <p class="shortcomment cmt">Reassemble the <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span> record from DataFrame metadata.</p><div class="fullcomment"><div class="comment cmt"><p>Reassemble the <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span> record from DataFrame metadata.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFrameMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.RasterFrameMethods">RasterFrameMethods</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#tileLayerMetadataEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="tileLayerMetadataEncoder[K](implicitevidence$1:reflect.runtime.universe.TypeTag[K]):org.apache.spark.sql.Encoder[geotrellis.spark.TileLayerMetadata[K]]"></a>
-      <a id="tileLayerMetadataEncoder[K](scala.reflect.api.JavaUniverse.TypeTag[K]):Encoder[TileLayerMetadata[K]]"></a>
+      <a id="tileLayerMetadataEncoder[K](implicitevidence$1:reflect.runtime.universe.TypeTag[K]):org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.TileLayerMetadata[K]]"></a>
+      <a id="tileLayerMetadataEncoder[K](scala.reflect.api.JavaUniverse.TypeTag[K]):ExpressionEncoder[TileLayerMetadata[K]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">tileLayerMetadataEncoder</span><span class="tparams">[<span name="K">K</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders.tileLayerMetadataEncoder.K">K</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Encoder">Encoder</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders.tileLayerMetadataEncoder.K">K</span>]]</span>
+        <span class="name">tileLayerMetadataEncoder</span><span class="tparams">[<span name="K">K</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders.tileLayerMetadataEncoder.K">K</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders.tileLayerMetadataEncoder.K">K</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@tileLayerMetadataEncoder[K](implicitevidence$1:reflect.runtime.universe.TypeTag[K]):org.apache.spark.sql.Encoder[geotrellis.spark.TileLayerMetadata[K]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@tileLayerMetadataEncoder[K](implicitevidence$1:reflect.runtime.universe.TypeTag[K]):org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[geotrellis.spark.TileLayerMetadata[K]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1027,7 +1010,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toMultibandRaster</span><span class="params">(<span name="tileCols">tileCols: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.Column">Column</span>]</span>, <span name="rasterCols">rasterCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rasterRows">rasterRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="resampler">resampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../geotrellis/package.html">Bilinear</a></span></span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+        <span class="name">toMultibandRaster</span><span class="params">(<span name="tileCols">tileCols: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.Column">Column</span>]</span>, <span name="rasterCols">rasterCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rasterRows">rasterRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="resampler">resampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../geotrellis/package.html">NearestNeighbor</a></span></span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toMultibandRaster(tileCols:Seq[org.apache.spark.sql.Column],rasterCols:Int,rasterRows:Int,resampler:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.ProjectedRaster[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
@@ -1079,7 +1062,7 @@ For RasterFrames keyed with temporal keys, they will be merged underterministica
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toRaster</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="rasterCols">rasterCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rasterRows">rasterRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="resampler">resampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../geotrellis/package.html">Bilinear</a></span></span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">toRaster</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="rasterCols">rasterCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rasterRows">rasterRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="resampler">resampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../geotrellis/package.html">NearestNeighbor</a></span></span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#astraea.spark.rasterframes.extensions.Implicits$WithRasterFrameMethods@toRaster(tileCol:org.apache.spark.sql.Column,rasterCols:Int,rasterRows:Int,resampler:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.ProjectedRaster[geotrellis.raster.Tile]" title="Permalink" target="_top">
@@ -1128,7 +1111,7 @@ will be merge undeterministically.</p></div><dl class="attributes block"> <dt>De
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">uriEncoder</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.encoders.ExpressionEncoder">ExpressionEncoder</span>[<span class="extype" name="java.net.URI">URI</span>]</span>

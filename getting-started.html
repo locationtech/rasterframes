@@ -12,7 +12,7 @@ gtag('js', new Date());
 gtag('config', 'UA-106630615-1');
 </script>
 
-<title>Getting Started · RasterFrames</title>
+<title>Getting&nbsp;Started · RasterFrames</title>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
@@ -45,15 +45,16 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.6.1
+0.7.0-RC1
 </div>
 </div>
 <select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
+  <li><a href="getting-started.html" class="active page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
   <li><a href="apps/index.html" class="page">Applications</a>
   <ul>
     <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
@@ -65,9 +66,9 @@ gtag('config', 'UA-106630615-1');
     <li><a href="ml/clustering.html" class="page">Clustering</a></li>
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting RasterFrames</a></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
 </ul>
 </div>
 
@@ -100,15 +101,16 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.6.1
+0.7.0-RC1
 </div>
 </div>
 <select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial Queries</a></li>
+  <li><a href="getting-started.html" class="active page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
   <li><a href="apps/index.html" class="page">Applications</a>
   <ul>
     <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
@@ -120,9 +122,9 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="ml/clustering.html" class="page">Clustering</a></li>
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting RasterFrames</a></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
 </ul>
 </div>
 
@@ -137,7 +139,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="nav-breadcrumbs">
 <ul>
   <li><a href="index.html">RasterFrames</a></li>
-  <li>Getting Started</li>
+  <li>Getting&nbsp;Started</li>
 </ul>
 </div>
 </div>
@@ -145,49 +147,46 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
-<h1><a href="#getting-started" name="getting-started" class="anchor"><span class="anchor-link"></span></a>Getting Started</h1>
+<h1><a href="#getting-nbsp-started" name="getting-nbsp-started" class="anchor"><span class="anchor-link"></span></a>Getting&nbsp;Started</h1>
 <h2><a href="#quick-start" name="quick-start" class="anchor"><span class="anchor-link"></span></a>Quick Start</h2>
-<h3><a href="#macos" name="macos" class="anchor"><span class="anchor-link"></span></a>macOS</h3>
+<p>RasterFrames is available in in a Jupyter Notebook Docker container for quick experimentation.</p>
 <ol>
-  <li>If not already, install <a href="https://brew.sh/">Homebrew</a></li>
-  <li>Run <code>brew install sbt</code></li>
-  <li>Run <code>sbt new s22s/raster-frames.g8</code></li>
+  <li>Install <a href="https://www.docker.com/get-docker">Docker</a> for your OS flavor.</li>
+  <li>Run<br/> <code>docker run -it --rm -p 8888:8888 -p 4040-4044:4040-4044 s22s/rasterframes-notebooks</code></li>
 </ol>
-<h3><a href="#linux" name="linux" class="anchor"><span class="anchor-link"></span></a>Linux</h3>
-<ol>
-  <li>Install <a href="http://www.scala-sbt.org/release/docs/Installing-sbt-on-Linux.html">sbt</a></li>
-  <li>Run <code>sbt new s22s/raster-frames.g8</code></li>
-</ol>
-<h3><a href="#windows" name="windows" class="anchor"><span class="anchor-link"></span></a>Windows</h3>
-<ol>
-  <li>Install <a href="http://www.scala-sbt.org/release/docs/Installing-sbt-on-Windows.html">sbt</a></li>
-  <li>Run <code>sbt new s22s/raster-frames.g8</code></li>
-</ol>
+<p>Additional instructions can be found <a href="https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md">here</a>.</p>
 <h2><a href="#general-setup" name="general-setup" class="anchor"><span class="anchor-link"></span></a>General Setup</h2>
-<p><em>RasterFrames</em> is published via <a href="http://search.maven.org/#search%7Cga%7C1%7Craster-frames">Maven Central</a>.</p>
-<p>To use RasterFrames, add the following library dependencies:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "io.astraea" %% "raster-frames" % "x.y.z"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<p><em>RasterFrames</em> is published via <a href="http://search.maven.org/#search%7Cga%7C1%7Crasterframes">Maven Central</a> (click link to see latest versions).</p>
+<p>To use RasterFrames, add the following library dependencies:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "io.astraea" %% "rasterframes" % "x.y.z"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;io.astraea&lt;/groupId&gt;
-  &lt;artifactId&gt;raster-frames_2.11&lt;/artifactId&gt;
+  &lt;artifactId&gt;rasterframes_2.11&lt;/artifactId&gt;
   &lt;version&gt;x.y.z&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'io.astraea', name: 'raster-frames_2.11', version: 'x.y.z'
-}</code></pre></dd></dl><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "io.astraea" %% "raster-frames-datasource" % "x.y.z"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+  compile group: 'io.astraea', name: 'rasterframes_2.11', version: 'x.y.z'
+}</code></pre></dd></dl><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "io.astraea" %% "rasterframes-datasource" % "x.y.z"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;io.astraea&lt;/groupId&gt;
-  &lt;artifactId&gt;raster-frames-datasource_2.11&lt;/artifactId&gt;
+  &lt;artifactId&gt;rasterframes-datasource_2.11&lt;/artifactId&gt;
   &lt;version&gt;x.y.z&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'io.astraea', name: 'raster-frames-datasource_2.11', version: 'x.y.z'
+  compile group: 'io.astraea', name: 'rasterframes-datasource_2.11', version: 'x.y.z'
 }</code></pre></dd></dl>
-<p>It assumes that SparkSQL 2.2.x is available in the runtime classpath. Here&rsquo;s how to add it explicitly:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.apache.spark" % "spark-sql" % "2.2.0"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<p>Optional:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "io.astraea" %% "rasterframes-experimental" % "x.y.z"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;io.astraea&lt;/groupId&gt;
+  &lt;artifactId&gt;rasterframes-experimental_2.11&lt;/artifactId&gt;
+  &lt;version&gt;x.y.z&lt;/version&gt;
+&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
+  compile group: 'io.astraea', name: 'rasterframes-experimental_2.11', version: 'x.y.z'
+}</code></pre></dd></dl>
+<p>It assumes that SparkSQL 2.2.x is available in the runtime classpath. Here&rsquo;s how to add it explicitly:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.apache.spark" % "spark-sql" % "2.2.1"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;org.apache.spark&lt;/groupId&gt;
   &lt;artifactId&gt;spark-sql&lt;/artifactId&gt;
-  &lt;version&gt;2.2.0&lt;/version&gt;
+  &lt;version&gt;2.2.1&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.apache.spark', name: 'spark-sql', version: '2.2.0'
+  compile group: 'org.apache.spark', name: 'spark-sql', version: '2.2.1'
 }</code></pre></dd></dl><div class="callout note "><div class="callout-title">Note</div>
 <p>Most of the following examples are shown using the Spark DataFrames API. However, many could also be rewritten to use the Spark SQL API instead. We hope to add more examples in that form in the future.</p></div>
 <div class="nav-next">
-<p><strong>Next:</strong> <a href="creating-rasterframes.html">Creating RasterFrames</a></p>
+<p><strong>Next:</strong> <a href="pyrasterframes.html">RasterFrames&nbsp;in&nbsp;Python</a></p>
 </div>
 </div>
 <div class="large-3 show-for-large column" data-sticky-container>
@@ -196,7 +195,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="nav-title">On this page:</div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html#getting-started" class="header">Getting Started</a>
+  <li><a href="getting-started.html#getting-nbsp-started" class="header">Getting&nbsp;Started</a>
   <ul>
     <li><a href="getting-started.html#quick-start" class="header">Quick Start</a></li>
     <li><a href="getting-started.html#general-setup" class="header">General Setup</a></li>

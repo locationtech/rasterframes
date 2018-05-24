@@ -28,10 +28,12 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img alt="Class" src="../../../../../lib/class_big.png" />
+        <a href="DefaultSource$.html" title="See companion object"><img alt="Class/Object" src="../../../../../lib/class_to_object_big.png" /></a>
         <p id="owner"><a href="../../../../package.html" class="extype" name="astraea">astraea</a>.<a href="../../../package.html" class="extype" name="astraea.spark">spark</a>.<a href="../../package.html" class="extype" name="astraea.spark.rasterframes">rasterframes</a>.<a href="../package.html" class="extype" name="astraea.spark.rasterframes.datasource">datasource</a>.<a href="package.html" class="extype" name="astraea.spark.rasterframes.datasource.geotiff">geotiff</a></p>
-        <h1>DefaultSource</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="package.html" class="extype" name="astraea.spark.rasterframes.datasource.geotiff">package geotiff</a>
+        <h1><a href="DefaultSource$.html" title="See companion object">DefaultSource</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="DefaultSource$.html" title="See companion object">object DefaultSource</a>
+            | <a href="package.html" class="extype" name="astraea.spark.rasterframes.datasource.geotiff">package geotiff</a>
           </div></span></h3><span class="permalink">
       <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.DefaultSource" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
@@ -45,16 +47,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">DefaultSource</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span></span>
+        <span class="name">DefaultSource</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span> with <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@Experimental</span><span class="args">()</span>
-              
-        </dd><dt>Since</dt><dd><p>1/14/18</p></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Spark SQL data source over GeoTIFF files.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/14/18</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span>, <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span>, <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span>, <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span>, <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -72,7 +71,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource"><span>DefaultSource</span></li><li class="in" name="org.apache.spark.sql.sources.RelationProvider"><span>RelationProvider</span></li><li class="in" name="org.apache.spark.sql.sources.DataSourceRegister"><span>DataSourceRegister</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource"><span>DefaultSource</span></li><li class="in" name="com.typesafe.scalalogging.LazyLogging"><span>LazyLogging</span></li><li class="in" name="org.apache.spark.sql.sources.CreatableRelationProvider"><span>CreatableRelationProvider</span></li><li class="in" name="org.apache.spark.sql.sources.RelationProvider"><span>RelationProvider</span></li><li class="in" name="org.apache.spark.sql.sources.DataSourceRegister"><span>DataSourceRegister</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -209,6 +208,23 @@
               
         </dd></dl></div>
     </li><li name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource#createRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="createRelation(sqlContext:org.apache.spark.sql.SQLContext,mode:org.apache.spark.sql.SaveMode,parameters:Map[String,String],data:org.apache.spark.sql.DataFrame):org.apache.spark.sql.sources.BaseRelation"></a>
+      <a id="createRelation(SQLContext,SaveMode,Map[String,String],DataFrame):BaseRelation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">createRelation</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="mode">mode: <span class="extype" name="org.apache.spark.sql.SaveMode">SaveMode</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="data">data: <a href="../../../../../org/apache/spark/sql/package.html#DataFrame=org.apache.spark.sql.Dataset[org.apache.spark.sql.Row]" class="extmbr" name="org.apache.spark.sql.DataFrame">DataFrame</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.DefaultSource@createRelation(sqlContext:org.apache.spark.sql.SQLContext,mode:org.apache.spark.sql.SaveMode,parameters:Map[String,String],data:org.apache.spark.sql.DataFrame):org.apache.spark.sql.sources.BaseRelation" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource">DefaultSource</a> → CreatableRelationProvider</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource#createRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="createRelation(sqlContext:org.apache.spark.sql.SQLContext,parameters:Map[String,String]):astraea.spark.rasterframes.datasource.geotiff.GeoTiffRelation"></a>
       <a id="createRelation(SQLContext,Map[String,String]):GeoTiffRelation"></a>
       <h4 class="signature">
@@ -333,6 +349,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="com.typesafe.scalalogging.LazyLogging#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="logger:com.typesafe.scalalogging.Logger"></a>
+      <a id="logger:Logger"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.DefaultSource@logger:com.typesafe.scalalogging.Logger" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>LazyLogging</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -384,6 +417,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource#path" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="path(parameters:Map[String,String]):Option[java.net.URI]"></a>
+      <a id="path(Map[String,String]):Option[URI]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">path</span><span class="params">(<span name="parameters">parameters: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="java.net.URI">URI</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.DefaultSource@path(parameters:Map[String,String]):Option[java.net.URI]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource#shortName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="shortName():String"></a>
       <a id="shortName():String"></a>
@@ -513,7 +563,11 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="org.apache.spark.sql.sources.RelationProvider">
+        <div class="parent" name="com.typesafe.scalalogging.LazyLogging">
+              <h3>Inherited from <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></h3>
+            </div><div class="parent" name="org.apache.spark.sql.sources.CreatableRelationProvider">
+              <h3>Inherited from <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span></h3>
+            </div><div class="parent" name="org.apache.spark.sql.sources.RelationProvider">
               <h3>Inherited from <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span></h3>
             </div><div class="parent" name="org.apache.spark.sql.sources.DataSourceRegister">
               <h3>Inherited from <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span></h3>

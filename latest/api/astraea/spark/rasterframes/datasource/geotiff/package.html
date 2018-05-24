@@ -47,7 +47,8 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/16/18</p></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Extension methods enabled by this module.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/16/18</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -105,8 +106,25 @@
       </a>
     </span>
       <p class="shortcomment cmt">Adds <code>geotiff</code> format specifier to <code>DataFrameReader</code>.</p>
+    </li><li name="astraea.spark.rasterframes.datasource.geotiff.DataFrameWriterHasGeoTiffFormat" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DataFrameWriterHasGeoTiffFormat[T]extendsAnyRef"></a>
+      <a id="DataFrameWriterHasGeoTiffFormat[T]:DataFrameWriterHasGeoTiffFormat[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$DataFrameWriterHasGeoTiffFormat.html"><span class="name">DataFrameWriterHasGeoTiffFormat</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@DataFrameWriterHasGeoTiffFormat[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DefaultSourceextendsDataSourceRegisterwithRelationProvider"></a>
+      <a id="DefaultSourceextendsDataSourceRegisterwithRelationProviderwithCreatableRelationProviderwithLazyLogging"></a>
       <a id="DefaultSource:DefaultSource"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -114,17 +132,32 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DefaultSource.html"><span class="name">DefaultSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span></span>
+        <a href="DefaultSource.html"><span class="name">DefaultSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span> with <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@DefaultSourceextendsDataSourceRegisterwithRelationProvider" title="Permalink" target="_top">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@DefaultSourceextendsDataSourceRegisterwithRelationProviderwithCreatableRelationProviderwithLazyLogging" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@Experimental</span><span class="args">()</span>
-              
-        </dd><dt>Since</dt><dd><p>1/14/18</p></dd></dl></div>
+      <p class="shortcomment cmt">Spark SQL data source over GeoTIFF files.</p><div class="fullcomment"><div class="comment cmt"><p>Spark SQL data source over GeoTIFF files.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/14/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="GeoTiffInfoSupportextendsAnyRef"></a>
+      <a id="GeoTiffInfoSupport:GeoTiffInfoSupport"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="GeoTiffInfoSupport.html"><span class="name">GeoTiffInfoSupport</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@GeoTiffInfoSupportextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Utility mix in for generating a tlm from GeoTiff headers.</p><div class="fullcomment"><div class="comment cmt"><p>Utility mix in for generating a tlm from GeoTiff headers.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffRasterFrameReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="GeoTiffRasterFrameReader=shapeless.tag.@@[org.apache.spark.sql.DataFrameReader,astraea.spark.rasterframes.datasource.geotiff.package.GeoTiffRasterFrameReaderTag]"></a>
       <a id="GeoTiffRasterFrameReader:GeoTiffRasterFrameReader"></a>
@@ -160,6 +193,41 @@ a RasterFrame in expected form.</p>
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffRasterFrameWriter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GeoTiffRasterFrameWriter[T]=shapeless.tag.@@[org.apache.spark.sql.DataFrameWriter[T],astraea.spark.rasterframes.datasource.geotiff.package.GeoTiffRasterFrameWriterTag]"></a>
+      <a id="GeoTiffRasterFrameWriter[T]:GeoTiffRasterFrameWriter[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">GeoTiffRasterFrameWriter</span><span class="tparams">[<span name="T">T</span>]</span><span class="result"> = <span class="extype" name="org.apache.spark.sql.DataFrameWriter">DataFrameWriter</span>[<span class="extype" name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffRasterFrameWriter.T">T</span>] with <span class="extype" name="shapeless.tag.Tagged">Tagged</span>[<a href="package$$GeoTiffRasterFrameWriterTag.html" class="extype" name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffRasterFrameWriterTag">GeoTiffRasterFrameWriterTag</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@GeoTiffRasterFrameWriter[T]=shapeless.tag.@@[org.apache.spark.sql.DataFrameWriter[T],astraea.spark.rasterframes.datasource.geotiff.package.GeoTiffRasterFrameWriterTag]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Tagged type construction for enabling type-safe extension methods for writing
+a RasterFrame to a GeoTIFF.</p>
+    </li><li name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffRasterFrameWriterTag" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="GeoTiffRasterFrameWriterTagextendsAnyRef"></a>
+      <a id="GeoTiffRasterFrameWriterTag:GeoTiffRasterFrameWriterTag"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$GeoTiffRasterFrameWriterTag.html"><span class="name">GeoTiffRasterFrameWriterTag</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@GeoTiffRasterFrameWriterTagextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffReaderWithRF" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="GeoTiffReaderWithRFextendsAnyRef"></a>
       <a id="GeoTiffReaderWithRF:GeoTiffReaderWithRF"></a>
@@ -178,7 +246,7 @@ a RasterFrame in expected form.</p>
     </span>
       <p class="shortcomment cmt">Adds <code>loadRF</code> to appropriately tagged <code>DataFrameReader</code></p>
     </li><li name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="GeoTiffRelationextendsBaseRelationwithPrunedScanwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="GeoTiffRelationextendsBaseRelationwithPrunedScanwithGeoTiffInfoSupportwithLazyLoggingwithProductwithSerializable"></a>
       <a id="GeoTiffRelation:GeoTiffRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -186,10 +254,10 @@ a RasterFrame in expected form.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="GeoTiffRelation.html"><span class="name">GeoTiffRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="uri">uri: <span class="extype" name="java.net.URI">URI</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span> with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="GeoTiffRelation.html"><span class="name">GeoTiffRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="uri">uri: <span class="extype" name="java.net.URI">URI</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span> with <a href="GeoTiffInfoSupport.html" class="extype" name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport">GeoTiffInfoSupport</a> with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@GeoTiffRelationextendsBaseRelationwithPrunedScanwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@GeoTiffRelationextendsBaseRelationwithPrunedScanwithGeoTiffInfoSupportwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -200,7 +268,27 @@ a RasterFrame in expected form.</p>
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="astraea.spark.rasterframes.datasource.geotiff.DefaultSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DefaultSource"></a>
+      <a id="DefaultSource:DefaultSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DefaultSource$.html"><span class="name">DefaultSource</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotiff.package@DefaultSource" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
 
         
 

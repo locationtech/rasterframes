@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TFContextRDDMethods - astraea.spark.rasterframes.extensions.TFContextRDDMethods</title>
-          <meta name="description" content="TFContextRDDMethods - astraea.spark.rasterframes.extensions.TFContextRDDMethods" />
-          <meta name="keywords" content="TFContextRDDMethods astraea.spark.rasterframes.extensions.TFContextRDDMethods" />
+          <title>BoundsHasSubdivide - astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide</title>
+          <meta name="description" content="BoundsHasSubdivide - astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide" />
+          <meta name="keywords" content="BoundsHasSubdivide astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -16,7 +16,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../../index.html';
-            var hash = 'astraea.spark.rasterframes.extensions.TFContextRDDMethods';
+            var hash = 'astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -29,11 +29,11 @@
         <body class="type">
       <div id="definition">
         <img alt="Class" src="../../../../lib/class_big.png" />
-        <p id="owner"><a href="../../../package.html" class="extype" name="astraea">astraea</a>.<a href="../../package.html" class="extype" name="astraea.spark">spark</a>.<a href="../package.html" class="extype" name="astraea.spark.rasterframes">rasterframes</a>.<a href="package.html" class="extype" name="astraea.spark.rasterframes.extensions">extensions</a></p>
-        <h1>TFContextRDDMethods</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="package.html" class="extype" name="astraea.spark.rasterframes.extensions">package extensions</a>
+        <p id="owner"><a href="../../../package.html" class="extype" name="astraea">astraea</a>.<a href="../../package.html" class="extype" name="astraea.spark">spark</a>.<a href="../package.html" class="extype" name="astraea.spark.rasterframes">rasterframes</a>.<a href="package.html" class="extype" name="astraea.spark.rasterframes.util">util</a>.<a href="SubdivideSupport.html" class="extype" name="astraea.spark.rasterframes.util.SubdivideSupport">SubdivideSupport</a></p>
+        <h1>BoundsHasSubdivide</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="SubdivideSupport.html" class="extype" name="astraea.spark.rasterframes.util.SubdivideSupport">package SubdivideSupport</a>
           </div></span></h3><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -41,21 +41,18 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
+        <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">TFContextRDDMethods</span><span class="tparams">[<span name="K">K</span>, <span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.D">D</span>])] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]]]</span>
+        <span class="name">BoundsHasSubdivide</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Extension method on <code>ContextRDD</code>-shaped <span class="extype" name="TileFeature">TileFeature</span> RDDs with appropriate context bounds to create a RasterFrame.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/18/17</p></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.D">D</span>])] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]]], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
-        </div><div class="toggleContainer block">
-            <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="Implicits$WithTFContextRDDMethods.html" class="extype" name="astraea.spark.rasterframes.extensions.Implicits.WithTFContextRDDMethods">WithTFContextRDDMethods</a></div>
-          </div></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
         
 
       <div id="mbrsel">
@@ -72,7 +69,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods"><span>TFContextRDDMethods</span></li><li class="in" name="geotrellis.util.MethodExtensions"><span>MethodExtensions</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide"><span>BoundsHasSubdivide</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -91,19 +88,19 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="astraea.spark.rasterframes.extensions.TFContextRDDMethods#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;()(implicitevidence$1:geotrellis.spark.SpatialComponent[K],implicitevidence$2:spray.json.JsonFormat[K],implicitevidence$3:scala.reflect.ClassTag[K],implicitevidence$4:reflect.runtime.universe.TypeTag[K],implicitevidence$5:reflect.runtime.universe.TypeTag[D],implicitspark:org.apache.spark.sql.SparkSession):astraea.spark.rasterframes.extensions.TFContextRDDMethods[K,D]"></a>
-      <a id="&lt;init&gt;:TFContextRDDMethods[K,D]"></a>
+              <ol><li name="astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(self:geotrellis.spark.Bounds[K])(implicitevidence$1:geotrellis.spark.SpatialComponent[K]):SubdivideSupport.this.BoundsHasSubdivide[K]"></a>
+      <a id="&lt;init&gt;:BoundsHasSubdivide[K]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TFContextRDDMethods</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../../../../geotrellis/spark/package.html#SpatialComponent[K]=geotrellis.util.Component[K,geotrellis.spark.SpatialKey]" class="extmbr" name="geotrellis.spark.SpatialComponent">SpatialComponent</a>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]</span>, <span name="arg1">arg1: <span class="extype" name="spray.json.JsonFormat">JsonFormat</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]</span>, <span name="arg2">arg2: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]</span>, <span name="arg3">arg3: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]</span>, <span name="arg4">arg4: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.D">D</span>]</span>, <span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span>
+        <span class="name">BoundsHasSubdivide</span><span class="params">(<span name="self">self: <span class="extype" name="geotrellis.spark.Bounds">Bounds</span>[<span class="extype" name="astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide.K">K</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../../../../geotrellis/spark/package.html#SpatialComponent[K]=geotrellis.util.Component[K,geotrellis.spark.SpatialKey]" class="extmbr" name="geotrellis.spark.SpatialComponent">SpatialComponent</a>[<span class="extype" name="astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide.K">K</span>]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@&lt;init&gt;()(implicitevidence$1:geotrellis.spark.SpatialComponent[K],implicitevidence$2:spray.json.JsonFormat[K],implicitevidence$3:scala.reflect.ClassTag[K],implicitevidence$4:reflect.runtime.universe.TypeTag[K],implicitevidence$5:reflect.runtime.universe.TypeTag[D],implicitspark:org.apache.spark.sql.SparkSession):astraea.spark.rasterframes.extensions.TFContextRDDMethods[K,D]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@&lt;init&gt;(self:geotrellis.spark.Bounds[K])(implicitevidence$1:geotrellis.spark.SpatialComponent[K]):SubdivideSupport.this.BoundsHasSubdivide[K]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -113,30 +110,10 @@
 
         
 
-        <div id="values" class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="geotrellis.util.MethodExtensions#self" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="self:T"></a>
-      <a id="self:RDD[(K,TileFeature[Tile,D])]withMetadata[TileLayerMetadata[K]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">self</span><span class="result">: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.D">D</span>])] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@self:T" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>MethodExtensions</dd></dl></div>
-    </li></ol>
-            </div>
+        
 
         <div id="values" class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
@@ -149,7 +126,7 @@
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@!=(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -166,7 +143,7 @@
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@##():Int" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@##():Int" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -183,7 +160,7 @@
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@==(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@==(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -200,7 +177,7 @@
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@asInstanceOf[T0]:T0" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -217,7 +194,7 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@clone():Object" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@clone():Object" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -240,7 +217,7 @@
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -257,7 +234,7 @@
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@equals(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -274,7 +251,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@finalize():Unit" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@finalize():Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -297,7 +274,7 @@
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@getClass():Class[_]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@getClass():Class[_]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -314,7 +291,7 @@
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@hashCode():Int" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@hashCode():Int" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -331,7 +308,7 @@
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -348,7 +325,7 @@
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -365,7 +342,7 @@
         <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@notify():Unit" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@notify():Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -382,11 +359,28 @@
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@notifyAll():Unit" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@notifyAll():Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide#subdivide" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="subdivide(divs:Int):geotrellis.spark.Bounds[K]"></a>
+      <a id="subdivide(Int):Bounds[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">subdivide</span><span class="params">(<span name="divs">divs: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <span class="extype" name="geotrellis.spark.Bounds">Bounds</span>[<span class="extype" name="astraea.spark.rasterframes.util.SubdivideSupport.BoundsHasSubdivide.K">K</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@subdivide(divs:Int):geotrellis.spark.Bounds[K]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -399,28 +393,11 @@
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.extensions.TFContextRDDMethods#toRF" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toRF:astraea.spark.rasterframes.RasterFrame"></a>
-      <a id="toRF:RasterFrame"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toRF</span><span class="result">: <a href="../package.html#RasterFrame=shapeless.tag.@@[org.apache.spark.sql.DataFrame,astraea.spark.rasterframes.package.RasterFrameTag]" class="extmbr" name="astraea.spark.rasterframes.RasterFrame">RasterFrame</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@toRF:astraea.spark.rasterframes.RasterFrame" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -433,7 +410,7 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@toString():String" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@toString():String" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -450,7 +427,7 @@
         <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@wait():Unit" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@wait():Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -473,7 +450,7 @@
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -496,7 +473,7 @@
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.extensions.TFContextRDDMethods@wait(x$1:Long):Unit" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.SubdivideSupport$BoundsHasSubdivide@wait(x$1:Long):Unit" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -516,13 +493,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="geotrellis.util.MethodExtensions">
-              <h3>Inherited from <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.D">D</span>])] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.extensions.TFContextRDDMethods.K">K</span>]]]</h3>
-            </div><div class="parent" name="scala.Serializable">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
-            </div><div class="parent" name="java.io.Serializable">
-              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
