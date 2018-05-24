@@ -1,14 +1,16 @@
 # Release Notes
 
-## 0.6.x
+## 0.7.x
 
-### 0.6.2
+### 0.7.0
 
-* Updated to GeoMesa version 2.0.0-rc.1.
-* Added for for writing GeoTIFFs from RasterFrames via with DataFrameWriter.
+* PySpark support! See `pyrasterframes/python/README.rst` to get started.
+* Updated to GeoMesa version 2.0.1.
+* Added for for writing GeoTIFFs from RasterFrames via `DataFrameWriter`.
 * Added `spark.read.geotrellis.withNumPartitions(Int)` for setting the initial number of partitions to use when reading a layer.
 * Added `spark.read.geotrellis.withTileSubdivisions(Int)` for evenly subdividing tiles before they become rows in a RasterFrame.
 * Added `experimental` package for sandboxing new feature ideas.
+* Added experimental GeoJSON DataSource with schema inferfence on feature properties.
 * Added `SlippyExport` experimental feature for exporting the contents of a RasterFrame as a [SlippyMap](https://wiki.openstreetmap.org/wiki/Slippy_Map)
   tile image directory structure and Leaflet-enabled HTML file. 
 * _Change_: Default interpoation for `toRaster` and `toMultibandRaster` has been changed from `Bilinear` to `NearestNeighbor`.
@@ -16,6 +18,7 @@
 `astraea.spark.rasterframes.stats.CellStatistics`.
 * _Breaking_: `HistogramAggregateFunction` now generates a `astraea.spark.rasterframes.stats.CellHistogram`.
 
+## 0.6.x
   
 ### 0.6.1
 
