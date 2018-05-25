@@ -84,6 +84,25 @@ class GTSQLSpec extends TestEnvironment with TestData  {
       }
     }
 
+    it("should support masking") {
+
+      withClue("mask") {
+        val ds = Seq[(Tile, Tile)]((byteArrayTile, maskingTile)).toDF("left", "right")
+        val result = ds.select(mask($"left", $"right"))
+        val expected = ByteArrayTile(Array[Byte](1, 2, 3, byteNODATA, byteNODATA, byteNODATA, 7, 8, 9), 3, 3)
+
+        assertEqual(result.first(), expected)
+      }
+
+      withClue("inverse mask") {
+        val ds = Seq[(Tile, Tile)]((byteArrayTile, maskingTile)).toDF("left", "right")
+        val result = ds.select(inverseMask($"left", $"right"))
+        val expected = ByteArrayTile(Array[Byte](byteNODATA, byteNODATA, byteNODATA, 4, 5, 6, byteNODATA, byteNODATA, byteNODATA), 3, 3)
+
+        assertEqual(result.first(), expected)
+      }
+    }
+
     it("should support local algebra") {
       val ds = Seq[(Tile, Tile)]((byteArrayTile, byteConstantTile)).toDF("left", "right")
       ds.createOrReplaceTempView("tmp")

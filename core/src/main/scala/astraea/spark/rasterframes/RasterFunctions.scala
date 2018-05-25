@@ -268,6 +268,18 @@ trait RasterFunctions {
   def tileOnes(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
     udf(() => F.tileOnes(cols, rows, cellType)).apply().as(s"ones_$cellType").as[Tile]
 
+  /** Where the mask tile contains NODATA, replace values in the source tile with NODATA */
+  def mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
+    withAlias("mask", sourceTile, maskTile)(
+      udf(F.mask).apply(sourceTile, maskTile)
+    ).as[Tile]
+
+  /** Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
+  def inverseMask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
+    withAlias("inverseMask", sourceTile, maskTile)(
+      udf(F.inverseMask).apply(sourceTile, maskTile)
+    ).as[Tile]
+
   /** Render Tile as ASCII string for debugging purposes. */
   @Experimental
   def renderAscii(col: Column): TypedColumn[Any, String] =

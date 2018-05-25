@@ -293,7 +293,27 @@ package object functions {
       DoubleConstantNoDataCellType
     ).map(_.toString).distinct
 
+  /**
+    * Generate a tile with the values from the data tile, but where cells in the
+    * masking tile contain NODATA, replace the data value with NODATA.
+    */
+  private[rasterframes] val mask: (Tile, Tile) => Tile =
+    (dataTile: Tile, maskingTile:Tile) => {
+      Mask(dataTile, Defined(maskingTile), 0, NODATA)
+    }
+
+  /**
+    * Generate a tile with the values from the data tile, but where cells in the
+    * masking tile DO NOT contain NODATA, replace the data value with NODATA.
+    */
+  private[rasterframes] val inverseMask: (Tile, Tile) => Tile =
+    (dataTile: Tile, maskingTile:Tile) => {
+      InverseMask(dataTile, Defined(maskingTile), 0, NODATA)
+    }
+
   def register(sqlContext: SQLContext): Unit = {
+    sqlContext.udf.register("rf_mask", mask)
+    sqlContext.udf.register("rf_inverseMask", inverseMask)
     sqlContext.udf.register("rf_makeConstantTile", makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", tileZeros)
     sqlContext.udf.register("rf_tileOnes", tileOnes)

@@ -64,6 +64,7 @@ trait TestData {
   def squareIncrementingTile(size: Int): Tile = ByteArrayTile((1 to (size * size)).map(_.toByte).toArray, size, size)
 
   val byteArrayTile: Tile = squareIncrementingTile(3)
+  val maskingTile: Tile = ByteArrayTile(Array[Byte](-4, -4, -4, byteNODATA, byteNODATA, byteNODATA, 15, 15, 15), 3, 3)
   val bitConstantTile = BitConstantTile(1, 2, 2)
   val byteConstantTile = ByteConstantTile(7, 3, 3)
 

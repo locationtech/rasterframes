@@ -143,6 +143,8 @@ _rf_column_functions = {
     'localAggMean': 'Compute the cellwise/local mean operation between Tiles in a column.',
     'localAggDataCells': 'Compute the cellwise/local count of non-NoData cells for all Tiles in a column.',
     'localAggNoDataCells': 'Compute the cellwise/local count of NoData cells for all Tiles in a column.',
+    'mask': 'Where the mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA.',
+    'inverseMask': 'Where the mask (second) tile DOES NOT contain NODATA, replace values in the source (first) tile with NODATA.',
     # ------- JTS functions -------
     # spatial constructors
     'st_geomFromGeoHash': '',
