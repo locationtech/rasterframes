@@ -146,6 +146,13 @@ package object functions {
   /** Change the tile's cell type. */
   private[rasterframes] def convertCellType(cellType: CellType) = safeEval[Tile, Tile](_.convert(cellType))
 
+  /** Change the tile's cell type. */
+  private[rasterframes] def convertCellType(cellTypeName: String) =
+    safeEval[Tile, Tile](_.convert(CellType.fromName(cellTypeName)))
+
+  /** Convert the cell type of Tile */
+  private[rasterframes] val convertCellType: (Tile, String) ⇒ Tile = (t: Tile, s: String) ⇒ t.convert(CellType.fromName(s))
+
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
@@ -274,6 +281,7 @@ package object functions {
   private[rasterframes] val tileOnes: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
     makeConstantTile(1, cols, rows, cellTypeName)
 
+
   private[rasterframes] val cellTypes: () ⇒ Seq[String] = () ⇒
     Seq(
       BitCellType,
@@ -328,7 +336,7 @@ package object functions {
     sqlContext.udf.register("rf_tileHistogram", tileHistogram)
     sqlContext.udf.register("rf_tileStats", tileStats)
     sqlContext.udf.register("rf_dataCells", dataCells)
-    sqlContext.udf.register("rf_nodataCells", dataCells)
+    sqlContext.udf.register("rf_noDataCells", dataCells)
     sqlContext.udf.register("rf_localAggStats", localAggStats)
     sqlContext.udf.register("rf_localAggMax", localAggMax)
     sqlContext.udf.register("rf_localAggMin", localAggMin)
@@ -345,5 +353,6 @@ package object functions {
     sqlContext.udf.register("rf_normalizedDifference", normalizedDifference)
     sqlContext.udf.register("rf_cellTypes", cellTypes)
     sqlContext.udf.register("rf_renderAscii", renderAscii)
+    sqlContext.udf.register("rf_convertCellType", convertCellType)
   }
 }
