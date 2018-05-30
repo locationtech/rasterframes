@@ -21,6 +21,7 @@
 * _Breaking_: Renamed/moved `astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics` to
 `astraea.spark.rasterframes.stats.CellStatistics`.
 * _Breaking_: `HistogramAggregateFunction` now generates the new type `astraea.spark.rasterframes.stats.CellHistogram`.
+* _Breaking_: `box2D` renamed `envelope`.
 
 ## 0.6.x
   
