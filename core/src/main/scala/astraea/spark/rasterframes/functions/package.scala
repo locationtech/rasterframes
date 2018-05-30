@@ -218,36 +218,59 @@ package object functions {
   /** Compute the cell-wise count of non-NA across tiles. */
   private[rasterframes] val localAggNodataCount = new LocalCountAggregateFunction(false)
 
+  /** Convert the tile to a floating point type as needed for scalar operations. */
+  private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
+
   /** Cell-wise addition between tiles. */
   private[rasterframes] val localAdd: (Tile, Tile) ⇒ Tile = safeEval(Add.apply)
 
   /** Cell-wise addition of a scalar to a tile. */
-  private[rasterframes] val localAddScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+  private[rasterframes] val localAddScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
     t.localAdd(scalar)
+  })
+
+  /** Cell-wise addition of a scalar to a tile. */
+  private[rasterframes] val localAddScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localAdd(scalar)
   })
 
   /** Cell-wise subtraction between tiles. */
   private[rasterframes] val localSubtract: (Tile, Tile) ⇒ Tile = safeEval(Subtract.apply)
 
   /** Cell-wise subtraction of a scalar from a tile. */
-  private[rasterframes] val localSubtractScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+  private[rasterframes] val localSubtractScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
     t.localSubtract(scalar)
+  })
+
+  /** Cell-wise subtraction of a scalar from a tile. */
+  private[rasterframes] val localSubtractScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localSubtract(scalar)
   })
 
   /** Cell-wise multiplication between tiles. */
   private[rasterframes] val localMultiply: (Tile, Tile) ⇒ Tile = safeEval(Multiply.apply)
 
   /** Cell-wise multiplication of a tile by a scalar. */
-  private[rasterframes] val localMultiplyScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+  private[rasterframes] val localMultiplyScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
     t.localMultiply(scalar)
+  })
+
+  /** Cell-wise multiplication of a tile by a scalar. */
+  private[rasterframes] val localMultiplyScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localMultiply(scalar)
   })
 
   /** Cell-wise division between tiles. */
   private[rasterframes] val localDivide: (Tile, Tile) ⇒ Tile = safeEval(Divide.apply)
 
   /** Cell-wise division of a tile by a scalar. */
-  private[rasterframes] val localDivideScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+  private[rasterframes] val localDivideScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
     t.localDivide(scalar)
+  })
+
+  /** Cell-wise division of a tile by a scalar. */
+  private[rasterframes] val localDivideScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localDivide(scalar)
   })
 
   /** Cell-wise normalized difference of tiles. */
@@ -344,12 +367,16 @@ package object functions {
     sqlContext.udf.register("rf_localAggCount", localAggCount)
     sqlContext.udf.register("rf_localAdd", localAdd)
     sqlContext.udf.register("rf_localAddScalar", localAddScalar)
+    sqlContext.udf.register("rf_localAddScalarInt", localAddScalarInt)
     sqlContext.udf.register("rf_localSubtract", localSubtract)
     sqlContext.udf.register("rf_localSubtractScalar", localSubtractScalar)
+    sqlContext.udf.register("rf_localSubtractScalarInt", localSubtractScalarInt)
     sqlContext.udf.register("rf_localMultiply", localMultiply)
     sqlContext.udf.register("rf_localMultiplyScalar", localMultiplyScalar)
+    sqlContext.udf.register("rf_localMultiplyScalarInt", localMultiplyScalarInt)
     sqlContext.udf.register("rf_localDivide", localDivide)
     sqlContext.udf.register("rf_localDivideScalar", localDivideScalar)
+    sqlContext.udf.register("rf_localDivideScalarInt", localDivideScalarInt)
     sqlContext.udf.register("rf_normalizedDifference", normalizedDifference)
     sqlContext.udf.register("rf_cellTypes", cellTypes)
     sqlContext.udf.register("rf_renderAscii", renderAscii)

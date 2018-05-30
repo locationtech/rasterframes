@@ -214,8 +214,14 @@ trait RasterFunctions {
   ).as[Tile]
 
   /** Cellwise addition of a scalar to a tile. */
-  def localAddScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localAddScalar(_: Tile, value)).apply(tileCol).as(s"localAddScalar($tileCol, $value)").as[Tile]
+  def localAddScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match {
+      case i: Int => F.localAddScalarInt(_: Tile, i)
+      case d: Double => F.localAddScalar(_: Tile, d)
+    }
+
+    udf(f).apply(tileCol).as(s"localAddScalar($tileCol, $value)").as[Tile]
+  }
 
   /** Cellwise subtraction between two Tiles. */
   def localSubtract(left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -224,8 +230,14 @@ trait RasterFunctions {
   ).as[Tile]
 
   /** Cellwise subtraction of a scalar from a tile. */
-  def localSubtractScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localSubtractScalar(_: Tile, value)).apply(tileCol).as(s"localSubtractScalar($tileCol, $value)").as[Tile]
+  def localSubtractScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match {
+      case i: Int => F.localSubtractScalarInt(_: Tile, i)
+      case d: Double => F.localSubtractScalar(_: Tile, d)
+    }
+
+    udf(f).apply(tileCol).as(s"localSubtractScalar($tileCol, $value)").as[Tile]
+  }
 
   /** Cellwise multiplication between two Tiles. */
   def localMultiply(left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -234,8 +246,14 @@ trait RasterFunctions {
   ).as[Tile]
 
   /** Cellwise multiplication of a tile by a scalar. */
-  def localMultiplyScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localMultiplyScalar(_: Tile, value)).apply(tileCol).as(s"localMultiplyScalar($tileCol, $value)").as[Tile]
+  def localMultiplyScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match {
+      case i: Int => F.localMultiplyScalarInt(_: Tile, i)
+      case d: Double => F.localMultiplyScalar(_: Tile, d)
+    }
+
+    udf(f).apply(tileCol).as(s"localMultiplyScalar($tileCol, $value)").as[Tile]
+  }
 
   /** Cellwise division between two Tiles. */
   def localDivide(left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -244,8 +262,14 @@ trait RasterFunctions {
   ).as[Tile]
 
   /** Cellwise division of a tile by a scalar. */
-  def localDivideScalar(tileCol: Column, value: Double): TypedColumn[Any, Tile] =
-    udf(F.localDivideScalar(_: Tile, value)).apply(tileCol).as(s"localDivideScalar($tileCol, $value)").as[Tile]
+  def localDivideScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match {
+      case i: Int => F.localDivideScalarInt(_: Tile, i)
+      case d: Double => F.localDivideScalar(_: Tile, d)
+    }
+
+    udf(f).apply(tileCol).as(s"localDivideScalar($tileCol, $value)").as[Tile]
+  }
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def localAlgebra(op: LocalTileBinaryOp, left: Column, right: Column):

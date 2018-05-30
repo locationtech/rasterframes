@@ -98,6 +98,7 @@ _rf_unique_functions = {
     'makeConstantTile': _create_makeConstantTile(),
     'tileZeros': _create_tileZeros(),
     'tileOnes': _create_tileOnes(),
+    'cellTypes': lambda: _context_call('cellTypes')
 }
 
 
@@ -224,7 +225,9 @@ _rf_column_functions = {
 }
 
 
-__all__ = list(_rf_column_functions.keys()) + list(_rf_column_scalar_functions.keys()) + list(_rf_unique_functions.keys())
+__all__ = list(_rf_column_functions.keys()) + \
+          list(_rf_column_scalar_functions.keys()) + \
+          list(_rf_unique_functions.keys())
 
 
 def _create_column_function(name, doc=""):
