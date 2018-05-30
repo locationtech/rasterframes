@@ -20,7 +20,6 @@ package astraea.spark.rasterframes.py
 
 import org.apache.spark.sql._
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.util.withAlias
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.raster.{ArrayTile, CellType, Tile}
 import geotrellis.spark.{SpatialKey, TileLayerMetadata}
@@ -60,7 +59,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     */
   def cellType(name: String): CellType = CellType.fromName(name)
 
-  def cellTypes: Seq[String] = cellTypes
+  def cellTypes: Seq[String] = astraea.spark.rasterframes.functions.cellTypes()
 
   /** DESERIALIZATION **/
 
