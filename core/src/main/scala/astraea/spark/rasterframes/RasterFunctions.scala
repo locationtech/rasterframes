@@ -60,7 +60,7 @@ trait RasterFunctions {
   def tileDimensions(col: Column): Column = expressions.DimensionsExpression(col.expr).asColumn
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
-  def box2D(col: Column): TypedColumn[Any, Envelope] = expressions.Box2DExpression(col.expr).asColumn.as[Envelope]
+  def envelope(col: Column): TypedColumn[Any, Envelope] = expressions.EnvelopeExpression(col.expr).asColumn.as[Envelope]
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
