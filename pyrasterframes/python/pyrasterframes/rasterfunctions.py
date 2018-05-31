@@ -8,7 +8,7 @@ signatures are handled here as well.
 from __future__ import absolute_import
 from pyspark.sql.types import *
 from pyspark.sql.column import Column, _to_java_column
-from pyrasterframes.context import _checked_context
+from .context import _checked_context
 
 
 THIS_MODULE = 'pyrasterframes'
@@ -91,6 +91,16 @@ def _create_tileOnes():
     return _
 
 
+def _create_rasterize():
+    """ Create a function mapping to the Scala rasterize function. """
+    def _(geometryCol, boundsCol, valueCol, numCols, numRows):
+        jfcn = getattr(_checked_context(), 'rasterize')
+        return Column(jfcn(_to_java_column(geometryCol), _to_java_column(boundsCol), _to_java_column(valueCol), numCols, numRows))
+    _.__name__ = 'rasterize'
+    _.__doc__ = 'Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value.'
+    _.__module__ = THIS_MODULE
+    return _
+
 _rf_unique_functions = {
     'assembleTile': _create_assembleTile(),
     'arrayToTile': _create_arrayToTile(),
@@ -98,7 +108,8 @@ _rf_unique_functions = {
     'makeConstantTile': _create_makeConstantTile(),
     'tileZeros': _create_tileZeros(),
     'tileOnes': _create_tileOnes(),
-    'cellTypes': lambda: _context_call('cellTypes')
+    'cellTypes': lambda: _context_call('cellTypes'),
+    'rasterize': _create_rasterize()
 }
 
 
@@ -115,7 +126,7 @@ _rf_column_functions = {
     # ------- RasterFrames functions -------
     'explodeTiles': 'Create a row for each cell in Tile.',
     'tileDimensions': 'Query the number of (cols, rows) in a Tile.',
-    'box2D': 'Extracts the bounding box (envelope) of the geometry.',
+    'envelope': 'Extracts the bounding box (envelope) of the geometry.',
     'tileToIntArray': 'Flattens Tile into an array of integers.',
     'tileToDoubleArray': 'Flattens Tile into an array of doubles.',
     'cellType': 'Extract the Tile\'s cell type',

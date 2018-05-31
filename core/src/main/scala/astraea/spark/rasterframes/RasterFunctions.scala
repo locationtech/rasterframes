@@ -308,7 +308,7 @@ trait RasterFunctions {
       udf(F.inverseMask).apply(sourceTile, maskTile)
     ).as[Tile]
 
-  /** Convert */
+  /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
     withAlias("rasterize", geometry)(
       udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)

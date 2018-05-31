@@ -60,7 +60,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     */
   def cellType(name: String): CellType = CellType.fromName(name)
 
-  def cellTypes: Seq[String] = cellTypes
+  def cellTypes: Seq[String] = astraea.spark.rasterframes.functions.cellTypes()
 
   /** DESERIALIZATION **/
 
@@ -68,9 +68,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     ArrayTile.fromBytes(bytes, this.cellType(cellType), cols, rows)
   }
 
-  def generateGeometry(obj: Array[Byte]): Geometry = {
-    WKBUtils.read(obj)
-  }
+  def generateGeometry(obj: Array[Byte]): Geometry =  WKBUtils.read(obj)
 
   def tileColumns(df: DataFrame): Array[Column] =
     df.asRF.tileColumns.toArray
@@ -89,9 +87,8 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     // The `fold` is required because an `Either` is retured, depending on the key type.
     df.asRF.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
 
-  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = {
-    df.asRF.spatialJoin(right.asRF)
-  }
+  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = df.asRF.spatialJoin(right.asRF)
 
+  def withBounds(df: DataFrame): RasterFrame = df.asRF.withBounds()
 
 }

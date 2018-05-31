@@ -31,6 +31,10 @@ Run tests
     OR
 
     $ python setup.py test
+    $ # To run verbosely:
+    $ python setup.py test --addopts -s
+    $ # To run a specific test:
+    $ python setup.py test --addopts "-k my_test_name"
 
 Run examples
 
