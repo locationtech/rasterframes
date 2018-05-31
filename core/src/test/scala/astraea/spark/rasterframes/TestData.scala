@@ -18,7 +18,6 @@
 
 package astraea.spark.rasterframes
 
-import java.nio.file.Path
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes.{functions ⇒ F}
@@ -26,17 +25,16 @@ import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
 import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.{GeoTiff, SinglebandGeoTiff}
-import geotrellis.spark.testkit.TileLayerRDDBuilders
-import geotrellis.spark.tiling.{CRSWorldExtent, LayoutDefinition}
+import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.spark._
+import geotrellis.spark.testkit.TileLayerRDDBuilders
+import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.commons.io.IOUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 
 import scala.reflect.ClassTag
-import scala.util.Random
 
 /**
  * Pre-configured data constructs for testing.

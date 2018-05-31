@@ -73,6 +73,14 @@ class RasterFrame(DataFrame):
         df = ctx._jrfctx.spatialJoin(self._jdf, other_df._jdf)
         return RasterFrame(df, ctx._spark_session)
 
+    def withBounds(self):
+        """
+        Add a column called "bounds" containing the extent of each row.
+        :return: RasterFrame with "bounds" collumn.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withBounds(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
 
 class TileUDT(UserDefinedType):
     """User-defined type (UDT).
