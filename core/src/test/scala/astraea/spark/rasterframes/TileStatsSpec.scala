@@ -19,7 +19,6 @@
 
 package astraea.spark.rasterframes
 
-
 import astraea.spark.rasterframes.TestData.randomTile
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
@@ -27,6 +26,9 @@ import geotrellis.raster.histogram.StreamingHistogram
 import geotrellis.spark._
 import geotrellis.raster.mapalgebra.local.{Max, Min}
 import org.apache.spark.sql.functions._
+
+import scala.util.Random
+import scala.util.Random._
 
 /**
  * Test rig associated with computing statistics and other descriptive
@@ -60,6 +62,30 @@ class TileStatsSpec extends TestEnvironment with TestData {
       df.repartition(4).createOrReplaceTempView("tmp")
       assert(sql("select dims.* from (select rf_tileDimensions(tile2) as dims from tmp)")
         .as[(Int, Int)].first() === (3, 3))
+    }
+
+    // tiles defined for the next few tests
+    val tile1 = randomIntTile
+    val tile2 = ArrayTile(Array(-5, -4, -3, -2, -1, 0, 1, 2, 3), 3, 3)
+    val tile3 = ArrayTile(Array(NODATA, NODATA, NODATA, NODATA, NODATA, NODATA, 1, 1, 1), 3, 3)
+    val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
+
+    it("should compute accurate item counts") {
+      val checkedValues = Seq[Double](0, .23, 3, 1.8)
+      val checkCount = checkedValues
+        .map(x => ds.select(tileHistogram($"tiles")).first().bins.apply(math.floor(x).toInt).count)
+      ds.select(tileHistogram($"tiles")).show(false)
+      print(checkedValues)
+      // Why is the result of this op the same as checkedValues???
+      val result = checkedValues.map(x => ds.select(tileHistogram($"tiles")).first().itemCount(x))
+      assert(result == checkCount)
+    }
+
+    it("Should compute quantiles"){
+      val numBreaks = 3
+      val breaks = ds.select(tileHistogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
+      assert(breaks.apply(1).length === numBreaks)
+      assert(breaks.apply(2).max == 1 && breaks.apply(2).min == 1)
     }
 
     it("should support local min/max") {

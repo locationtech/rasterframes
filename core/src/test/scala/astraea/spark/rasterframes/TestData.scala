@@ -67,6 +67,8 @@ trait TestData {
   val maskingTile: Tile = ByteArrayTile(Array[Byte](-4, -4, -4, byteNODATA, byteNODATA, byteNODATA, 15, 15, 15), 3, 3)
   val bitConstantTile = BitConstantTile(1, 2, 2)
   val byteConstantTile = ByteConstantTile(7, 3, 3)
+  val rand = new Random(1)
+  val randomIntTile: Tile = ArrayTile((0 to 65536).map(_ => rand.nextInt(5)).toArray, 255, 255)
 
   val multibandTile = MultibandTile(byteArrayTile, byteConstantTile)
 
