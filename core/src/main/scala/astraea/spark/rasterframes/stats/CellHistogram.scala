@@ -57,9 +57,10 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
     // look at each pair of consecutive bins, and when one bin is <= the value
     // and the other is > the value, return the smaller bin label
     val sorted = bins.sortBy(_.value)
-    require(label <= labels.max && label >= labels.min, "Label must be within the range of the values")
+    require(sorted.nonEmpty, "Sorted must be nonempty")
+    require(label >= labels.min, "Label must be within the range of the values")
     val tBin = (0 until sorted.length - 1).find(i => sorted.apply(i).value <= label
-      && label < sorted.apply(i + 1).value).getOrElse(sorted.length-1)
+      && label < sorted.apply(i + 1).value).getOrElse(sorted.length - 1)
     if (tBin != -1) {
       bins.seq.apply(tBin).count }
     else {

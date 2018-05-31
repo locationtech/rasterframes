@@ -73,9 +73,9 @@ class TileStatsSpec extends TestEnvironment with TestData {
     val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
 
     it("should compute accurate item counts") {
-      val checkedValues = Seq[Double](3, 6, 12, 25, 50)
+      val checkedValues = Seq[Double](0, 4, 7, 13, 26)
       val result = checkedValues.map(x => ds.select(tileHistogram($"tiles")).first().itemCount(x))
-      checkedValues.foreach(x => assert(result.contains(x)))
+      checkedValues.foreach(x => assert((x == 0 && result.head == 4) || result.contains(x - 1)))
     }
 
     it("Should compute quantiles"){
