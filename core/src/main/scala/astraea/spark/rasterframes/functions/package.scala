@@ -353,15 +353,6 @@ package object functions {
     }
   }
 
-  /**
-   * Clip tiles. First argument is tile extent, followed by the tile, and then the clip geometry
-   * (in the tile extent's CRS).
-   */
-  private[rasterframes] val clip: (Tile, Envelope, Geometry) ⇒ Tile = {
-      import geotrellis.vector.{Geometry ⇒ GTGeometry}
-    (dataTile, bounds, clipRegion) ⇒ dataTile.mask(Extent(bounds), GTGeometry(clipRegion))
-  }
-
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_mask", mask)
     sqlContext.udf.register("rf_inverseMask", inverseMask)
