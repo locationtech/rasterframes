@@ -24,12 +24,12 @@ import astraea.spark.rasterframes.expressions.ExplodeTileExpression
 import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMeanAggregateFunction}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions ⇒ F}
-import com.vividsolutions.jts.geom.Envelope
+import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions.{udf, lit}
+import org.apache.spark.sql.functions.{lit, udf}
 import org.apache.spark.sql.rf._
 
 import scala.reflect.runtime.universe._
@@ -306,6 +306,12 @@ trait RasterFunctions {
   def inverseMask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
     withAlias("inverseMask", sourceTile, maskTile)(
       udf(F.inverseMask).apply(sourceTile, maskTile)
+    ).as[Tile]
+
+  /** Convert */
+  def rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
+    withAlias("rasterize", geometry)(
+      udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)
     ).as[Tile]
 
   /** Render Tile as ASCII string for debugging purposes. */

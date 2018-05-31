@@ -16,10 +16,12 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster.{Tile, _}
 import geotrellis.raster.render.ascii.AsciiArtEncoder
-import org.apache.spark.sql.SQLContext
+import geotrellis.vector.Extent
+import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.sql.gt.types
 
 import scala.reflect.runtime.universe._
@@ -328,19 +330,37 @@ package object functions {
     * Generate a tile with the values from the data tile, but where cells in the
     * masking tile contain NODATA, replace the data value with NODATA.
     */
-  private[rasterframes] val mask: (Tile, Tile) => Tile =
-    (dataTile: Tile, maskingTile:Tile) => {
-      Mask(dataTile, Defined(maskingTile), 0, NODATA)
-    }
+  private[rasterframes] val mask: (Tile, Tile) ⇒ Tile =
+    (dataTile, maskingTile) ⇒ Mask(dataTile, Defined(maskingTile), 0, NODATA)
 
   /**
     * Generate a tile with the values from the data tile, but where cells in the
     * masking tile DO NOT contain NODATA, replace the data value with NODATA.
     */
-  private[rasterframes] val inverseMask: (Tile, Tile) => Tile =
-    (dataTile: Tile, maskingTile:Tile) => {
-      InverseMask(dataTile, Defined(maskingTile), 0, NODATA)
+  private[rasterframes] val inverseMask: (Tile, Tile) ⇒ Tile =
+    (dataTile, maskingTile) ⇒ InverseMask(dataTile, Defined(maskingTile), 0, NODATA)
+
+  /**
+   * Rasterize geometry into tiles.
+   */
+  private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
+    import geotrellis.vector.{Geometry ⇒ GTGeometry}
+    (geom, bounds, value, cols, rows) ⇒ {
+      // We have to do this because (as of spark 2.2.x) Encoder-only types
+      // can't be used as UDF inputs. Only Spark-native types and UDTs.
+      val extent = Extent(bounds.getEnvelopeInternal)
+      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value)
     }
+  }
+
+  /**
+   * Clip tiles. First argument is tile extent, followed by the tile, and then the clip geometry
+   * (in the tile extent's CRS).
+   */
+  private[rasterframes] val clip: (Tile, Envelope, Geometry) ⇒ Tile = {
+      import geotrellis.vector.{Geometry ⇒ GTGeometry}
+    (dataTile, bounds, clipRegion) ⇒ dataTile.mask(Extent(bounds), GTGeometry(clipRegion))
+  }
 
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_mask", mask)
@@ -381,5 +401,6 @@ package object functions {
     sqlContext.udf.register("rf_cellTypes", cellTypes)
     sqlContext.udf.register("rf_renderAscii", renderAscii)
     sqlContext.udf.register("rf_convertCellType", convertCellType)
+    sqlContext.udf.register("rf_rasterize", rasterize)
   }
 }
