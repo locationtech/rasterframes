@@ -67,8 +67,6 @@ trait TestData {
   val maskingTile: Tile = ByteArrayTile(Array[Byte](-4, -4, -4, byteNODATA, byteNODATA, byteNODATA, 15, 15, 15), 3, 3)
   val bitConstantTile = BitConstantTile(1, 2, 2)
   val byteConstantTile = ByteConstantTile(7, 3, 3)
-  val rand = new Random(1)
-  val randomIntTile: Tile = ArrayTile((0 to 65536).map(_ => rand.nextInt(5)).toArray, 255, 255)
 
   val multibandTile = MultibandTile(byteArrayTile, byteConstantTile)
 
@@ -171,6 +169,26 @@ object TestData extends TestData {
           s"Should not have any NoData cells for $cellType:\n${result.asciiDraw()}")
         result
     }
+  }
+
+  def binomialTile(cols: Int, rows: Int, p: Double): Tile = {
+    val num = (cols * rows) - 1
+    require(p > 0 && p < 1)
+    def binomial(n: Int, k: Int): Int = {
+      require(n >= 0 && k >= 0, "Greater than 0!")
+      if (k == 0) {
+        1
+      }
+      else if (k > n/2) {
+        binomial(n, n - k)
+      }
+      else {
+        n * binomial(n - 1, k - 1) / k
+      }
+    }
+
+    val binArr = (0 to num).map(k => binomial(num, k) * math.pow(p, k) * math.pow(1 - p, num - k)).toArray
+    ArrayTile(binArr, cols, rows)
   }
 
   /** Create a series of random tiles. */

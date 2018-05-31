@@ -20,6 +20,7 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.TestData.randomTile
+import astraea.spark.rasterframes.TestData.binomialTile
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
 import geotrellis.raster.histogram.StreamingHistogram
@@ -65,10 +66,12 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     // tiles defined for the next few tests
-    val tile1 = randomIntTile
+    val tile1 = randomTile(255, 255, IntCellType)
     val tile2 = ArrayTile(Array(-5, -4, -3, -2, -1, 0, 1, 2, 3), 3, 3)
     val tile3 = ArrayTile(Array(NODATA, NODATA, NODATA, NODATA, NODATA, NODATA, 1, 1, 1), 3, 3)
-    val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
+    // this breaks for values greater than 30
+    val tile4 = binomialTile(25, 1, .5)
+    val ds = Seq[Tile](tile1, tile2, tile3, tile4).toDF("tiles")
 
     it("should compute accurate item counts") {
       val checkedValues = Seq[Double](0, .23, 3, 1.8)
@@ -76,16 +79,18 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .map(x => ds.select(tileHistogram($"tiles")).first().bins.apply(math.floor(x).toInt).count)
       ds.select(tileHistogram($"tiles")).show(false)
       print(checkedValues)
-      // Why is the result of this op the same as checkedValues???
       val result = checkedValues.map(x => ds.select(tileHistogram($"tiles")).first().itemCount(x))
       assert(result == checkCount)
     }
 
     it("Should compute quantiles"){
-      val numBreaks = 3
+      val numBreaks = 1
+      ds.select(tileHistogram($"tiles")).show(false)
       val breaks = ds.select(tileHistogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
+      print(breaks.apply(3).deep.mkString)
       assert(breaks.apply(1).length === numBreaks)
       assert(breaks.apply(2).max == 1 && breaks.apply(2).min == 1)
+      assert(breaks.apply(3).max <= 1)
     }
 
     it("should support local min/max") {
