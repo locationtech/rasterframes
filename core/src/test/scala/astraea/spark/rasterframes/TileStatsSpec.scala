@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.TestData.randomTile
-import astraea.spark.rasterframes.TestData.binomialTile
+import astraea.spark.rasterframes.TestData.fracTile
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
 import geotrellis.raster.histogram.StreamingHistogram
@@ -66,31 +66,23 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     // tiles defined for the next few tests
-    val tile1 = randomTile(255, 255, IntCellType)
+    val tile1 = fracTile(10, 10, 5)
     val tile2 = ArrayTile(Array(-5, -4, -3, -2, -1, 0, 1, 2, 3), 3, 3)
-    val tile3 = ArrayTile(Array(NODATA, NODATA, NODATA, NODATA, NODATA, NODATA, 1, 1, 1), 3, 3)
+    val tile3 = randomTile(255, 255, IntCellType)
     // this breaks for values greater than 30
-    val tile4 = binomialTile(25, 1, .5)
-    val ds = Seq[Tile](tile1, tile2, tile3, tile4).toDF("tiles")
+    val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
 
     it("should compute accurate item counts") {
-      val checkedValues = Seq[Double](0, .23, 3, 1.8)
-      val checkCount = checkedValues
-        .map(x => ds.select(tileHistogram($"tiles")).first().bins.apply(math.floor(x).toInt).count)
-      ds.select(tileHistogram($"tiles")).show(false)
-      print(checkedValues)
+      val checkedValues = Seq[Double](3, 6, 12, 25, 50)
       val result = checkedValues.map(x => ds.select(tileHistogram($"tiles")).first().itemCount(x))
-      assert(result == checkCount)
+      checkedValues.foreach(x => assert(result.contains(x)))
     }
 
     it("Should compute quantiles"){
       val numBreaks = 1
-      ds.select(tileHistogram($"tiles")).show(false)
       val breaks = ds.select(tileHistogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
-      print(breaks.apply(3).deep.mkString)
       assert(breaks.apply(1).length === numBreaks)
-      assert(breaks.apply(2).max == 1 && breaks.apply(2).min == 1)
-      assert(breaks.apply(3).max <= 1)
+      assert(breaks.apply(2).max == 3 && breaks.apply(2).min == -5)
     }
 
     it("should support local min/max") {

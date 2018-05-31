@@ -171,24 +171,13 @@ object TestData extends TestData {
     }
   }
 
-  def binomialTile(cols: Int, rows: Int, p: Double): Tile = {
-    val num = (cols * rows) - 1
-    require(p > 0 && p < 1)
-    def binomial(n: Int, k: Int): Int = {
-      require(n >= 0 && k >= 0, "Greater than 0!")
-      if (k == 0) {
-        1
-      }
-      else if (k > n/2) {
-        binomial(n, n - k)
-      }
-      else {
-        n * binomial(n - 1, k - 1) / k
-      }
-    }
-
-    val binArr = (0 to num).map(k => binomial(num, k) * math.pow(p, k) * math.pow(1 - p, num - k)).toArray
-    ArrayTile(binArr, cols, rows)
+  // A tile with 1/2^n values set to 2^n, with the sum of 1/2^n converging to 1
+  def fracTile(cols: Int, rows: Int, binNum: Int, denom: Int = 2): Tile = {
+    val fracs = (1 to binNum).map(x => 1/math.pow(denom, x)).map(x => (cols * rows * x).toInt)
+    val fracSeq = fracs.flatMap(p => (1 to p).map(_ => p))
+    // fill in the rest with zeroes
+    val fullArr = (fracSeq ++ Seq.fill(rows * cols - fracSeq.length)(0)).toArray
+    ArrayTile(fullArr, rows, cols)
   }
 
   /** Create a series of random tiles. */
