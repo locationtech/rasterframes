@@ -23,13 +23,9 @@ import astraea.spark.rasterframes.TestData.randomTile
 import astraea.spark.rasterframes.TestData.fracTile
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
-import geotrellis.raster.histogram.StreamingHistogram
 import geotrellis.spark._
 import geotrellis.raster.mapalgebra.local.{Max, Min}
 import org.apache.spark.sql.functions._
-
-import scala.util.Random
-import scala.util.Random._
 
 /**
  * Test rig associated with computing statistics and other descriptive
@@ -69,7 +65,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     val tile1 = fracTile(10, 10, 5)
     val tile2 = ArrayTile(Array(-5, -4, -3, -2, -1, 0, 1, 2, 3), 3, 3)
     val tile3 = randomTile(255, 255, IntCellType)
-    // this breaks for values greater than 30
     val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
 
     it("should compute accurate item counts") {
@@ -79,10 +74,11 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("Should compute quantiles"){
-      val numBreaks = 1
+      val numBreaks = 5
       val breaks = ds.select(tileHistogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
       assert(breaks.apply(1).length === numBreaks)
-      assert(breaks.apply(2).max == 3 && breaks.apply(2).min == -5)
+      assert(breaks.apply(0).apply(2) == 25)
+      assert(breaks.apply(1).max <= 3 && breaks.apply(1).min >= -5)
     }
 
     it("should support local min/max") {
@@ -163,9 +159,10 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
       val rdd = spark.sparkContext.makeRDD(Seq((1, rndTile), (2, rndTile), (3, rndTile)))
       val h = rdd.histogram()
-      println(h.totalCount())
+
+      /* println(h.totalCount())
       println(h.binCounts().map(_._2).sum)
-      println(h.asInstanceOf[StreamingHistogram].buckets().map(_._2).sum)
+      println(h.asInstanceOf[StreamingHistogram].buckets().map(_._2).sum) */
     }
 
     it("should compute aggregate histogram") {
