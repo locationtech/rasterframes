@@ -29,7 +29,7 @@ import scala.collection.mutable.{ListBuffer => MutableListBuffer}
  */
 case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
 
-  val labels = bins.map(_.value)
+  def labels = bins.map(_.value)
   def mean = stats.mean
   def totalCount = stats.dataCells
   def asciiStats = stats.asciiStats
@@ -51,18 +51,18 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
 
     lines.mkString("\n")
   }
-
-  // find the count of the bin that the value fits into
+  /** find the count of the bin that the value fits into. If label DNE round down to nearest bin */
   def itemCount(label: Double): Long = {
     // look at each pair of consecutive bins, and when one bin is <= the value
     // and the other is > the value, return the smaller bin label
+    require(bins.nonEmpty, "Bins must be nonempty")
     val sorted = bins.sortBy(_.value)
-    require(sorted.nonEmpty, "Sorted must be nonempty")
     require(label >= labels.min, "Label must be within the range of the values")
-    val tBin = (0 until sorted.length - 1).find(i => sorted.apply(i).value <= label
-      && label < sorted.apply(i + 1).value).getOrElse(sorted.length - 1)
+    // check for when the label is sandwiched and return the bin with the smaller value
+    val tBin = (0 until sorted.length - 1).find(i => sorted(i).value <= label
+      && label < sorted(i + 1).value).getOrElse(sorted.length - 1)
     if (tBin != -1) {
-      bins.seq.apply(tBin).count }
+      bins.seq(tBin).count }
     else {
       Long.MaxValue
     }
@@ -84,7 +84,9 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
     }
   }
 
-  def percentileBreaks(qs: Seq[Double]): Seq[Double] = {
+  // derived from locationtech/geotrellis/.../StreamingHistogram.scala
+
+  private def percentileBreaks(qs: Seq[Double]): Seq[Double] = {
     if(bins.size == 1) {
       qs.map(z => bins.head.value)
     } else {
@@ -141,6 +143,7 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
 
   def quantileBreaks(breaks: Int): Array[Double] = {
     require(breaks > 0, "Breaks must be greater than 0")
+    require(bins.nonEmpty, "Bins cannot be empty")
     percentileBreaks((1 until breaks + 1).map(_ / (breaks + 1).toDouble)).toArray
   }
 }
