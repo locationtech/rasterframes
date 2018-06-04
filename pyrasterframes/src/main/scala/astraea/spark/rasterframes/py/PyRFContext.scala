@@ -21,6 +21,7 @@ package astraea.spark.rasterframes.py
 import org.apache.spark.sql._
 import astraea.spark.rasterframes._
 import com.vividsolutions.jts.geom.Geometry
+import geotrellis.proj4.CRS
 import geotrellis.raster.{ArrayTile, CellType, Tile}
 import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import geotrellis.spark.io._
@@ -90,4 +91,11 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def withBounds(df: DataFrame): RasterFrame = df.asRF.withBounds()
 
+  def withCenter(df: DataFrame): RasterFrame = df.asRF.withCenter()
+
+  def reprojectGeometry(geometryCol: Column, srcName: String, dstName: String): Column = {
+    val src = CRS.fromName(srcName)
+    val dst = CRS.fromName(dstName)
+    reprojectGeometry(geometryCol, src, dst)
+  }
 }

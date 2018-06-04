@@ -22,9 +22,7 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.util._
 import com.vividsolutions.jts.geom._
 import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
-import geotrellis.vector.testkit.GeometryMatcher
-import geotrellis.vector.{testkit, Point ⇒ gtPoint}
-import org.scalatest.matchers.{MatchResult, Matcher}
+import geotrellis.vector.{Point ⇒ GTPoint}
 
 /**
  * Test rig for operations providing interop with JTS types.
@@ -34,16 +32,14 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 class JTSSpec extends TestEnvironment with TestData with StandardColumns with IntelliJPresentationCompilerHack {
   import spark.implicits._
 
-
-
   describe("JTS interop") {
     val rf = l8Sample(1).projectedRaster.toRF(10, 10).withBounds()
     it("should allow joining and filtering of tiles based on points") {
       val crs = rf.tileLayerMetadata.widen.crs
       val coords = Seq(
-        "one" -> gtPoint(-78.6445222907, 38.3957546898).reproject(LatLng, crs).jtsGeom,
-        "two" -> gtPoint(-78.6601240367, 38.3976614324).reproject(LatLng, crs).jtsGeom,
-        "three" -> gtPoint( -78.6123381343, 38.4001666769).reproject(LatLng, crs).jtsGeom
+        "one" -> GTPoint(-78.6445222907, 38.3957546898).reproject(LatLng, crs).jtsGeom,
+        "two" -> GTPoint(-78.6601240367, 38.3976614324).reproject(LatLng, crs).jtsGeom,
+        "three" -> GTPoint( -78.6123381343, 38.4001666769).reproject(LatLng, crs).jtsGeom
       )
 
       val locs = coords.toDF("id", "point")
@@ -57,7 +53,7 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns with In
         assert(rf.filter(st_contains(BOUNDS_COLUMN, geomLit(point))).count === 1)
         assert(rf.filter(st_intersects(BOUNDS_COLUMN, geomLit(point))).count === 1)
         assert(rf.filter(BOUNDS_COLUMN intersects point).count === 1)
-        assert(rf.filter(BOUNDS_COLUMN intersects gtPoint(point)).count === 1)
+        assert(rf.filter(BOUNDS_COLUMN intersects GTPoint(point)).count === 1)
         assert(rf.filter(BOUNDS_COLUMN containsGeom point).count === 1)
       }
 

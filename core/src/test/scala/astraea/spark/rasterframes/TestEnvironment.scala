@@ -20,11 +20,9 @@ package astraea.spark.rasterframes
 import java.nio.file.{Files, Paths}
 
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
-import com.vividsolutions.jts.geom.{Geometry, LineString}
+import com.vividsolutions.jts.geom.Geometry
 import geotrellis.spark.testkit.{TestEnvironment ⇒ GeoTrellisTestEnvironment}
 import geotrellis.util.LazyLogging
-import geotrellis.vector.testkit
-import geotrellis.vector.testkit.GeometryMatcher
 import org.apache.spark.SparkContext
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col
