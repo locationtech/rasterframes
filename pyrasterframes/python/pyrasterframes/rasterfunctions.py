@@ -119,6 +119,12 @@ _rf_column_scalar_functions = {
     'localSubtractScalar': 'Subtract a scalar from a Tile',
     'localMultiplyScalar': 'Multiply a Tile by a scalar',
     'localDivideScalar': 'Divide a Tile by a scalar',
+    'localLessScalar': 'Return a Tile with values equal 1 if the cell is less than a scalar, otherwise 0',
+    'localLessEqualScalar': 'Return a Tile with values equal 1 if the cell is less than or equal to a scalar, otherwise 0',
+    'localGreaterScalar': 'Return a Tile with values equal 1 if the cell is greater than a scalar, otherwise 0',
+    'localGreaterEqualScalar': 'Return a Tile with values equal 1 if the cell is greater than or equal to a scalar, otherwise 0',
+    'localEqualScalar': 'Return a Tile with values equal 1 if the cell is equal to a scalar, otherwise 0',
+    'localUnequalScalar': 'Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0',
 }
 
 
@@ -157,6 +163,12 @@ _rf_column_functions = {
     'localAggNoDataCells': 'Compute the cellwise/local count of NoData cells for all Tiles in a column.',
     'mask': 'Where the mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA.',
     'inverseMask': 'Where the mask (second) tile DOES NOT contain NODATA, replace values in the source (first) tile with NODATA.',
+    'localLess': 'Cellwise less than comparison between two tiles',
+    'localLessEqual': 'Cellwise less than or equal to comparison between two tiles',
+    'localGreater': 'Cellwise greater than comparison between two tiles',
+    'localGreaterEqual': 'Cellwise greater than or equal to comparison between two tiles',
+    'localEqual': 'Cellwise equality comparison between two tiles',
+    'localUnequal': 'Cellwise inequality comparison between two tiles',
     # ------- JTS functions -------
     # spatial constructors
     'st_geomFromGeoHash': '',

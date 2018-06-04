@@ -321,4 +321,94 @@ trait RasterFunctions {
     udf[String, Tile](F.renderAscii).apply(col)
   ).as[String]
 
+  /** Cellwise less than value comparison between two tiles. */
+  def localLess(left: Column, right: Column): TypedColumn[Any, Tile] =
+    withAlias("localLess", left, right)(
+      udf(F.localLess).apply(left, right)
+    ).as[Tile]
+
+
+  /** Cellwise less than value comparison between a tile and a scalar. */
+  def localLessScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match{
+      case i: Int ⇒ F.localLessScalarInt(_: Tile, i)
+      case d: Double ⇒ F.localLessScalar(_: Tile, d)
+    }
+    udf(f).apply(tileCol).as(s"localLessScalar($tileCol, $value)").as[Tile]
+  }
+
+  /** Cellwise less than or equal to value comparison between a tile and a scalar. */
+  def localLessEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("localLessEqual", left, right)(
+      udf(F.localLess).apply(left, right)
+    ).as[Tile]
+
+  /** Cellwise less than or equal to value comparison between a tile and a scalar. */
+  def localLessEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match{
+      case i: Int ⇒ F.localLessEqualScalarInt(_: Tile, i)
+      case d: Double ⇒ F.localLessEqualScalar(_: Tile, d)
+    }
+    udf(f).apply(tileCol).as(s"localLessEqualScalar($tileCol, $value)").as[Tile]
+  }
+
+  /** Cellwise greater than value comparison between two tiles. */
+  def localGreater(left: Column, right: Column): TypedColumn[Any, Tile] =
+    withAlias("localGreater", left, right)(
+      udf(F.localGreater).apply(left, right)
+    ).as[Tile]
+
+
+  /** Cellwise greater than value comparison between a tile and a scalar. */
+  def localGreaterScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match{
+      case i: Int ⇒ F.localGreaterScalarInt(_: Tile, i)
+      case d: Double ⇒ F.localGreaterScalar(_: Tile, d)
+    }
+    udf(f).apply(tileCol).as(s"localGreaterScalar($tileCol, $value)").as[Tile]
+  }
+
+  /** Cellwise greater than or equal to value comparison between two tiles. */
+  def localGreaterEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("localGreaterEqual", left, right)(
+      udf(F.localGreaterEqual).apply(left, right)
+    ).as[Tile]
+
+  /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
+  def localGreaterEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match{
+      case i: Int ⇒ F.localGreaterEqualScalarInt(_: Tile, i)
+      case d: Double ⇒ F.localGreaterEqualScalar(_: Tile, d)
+    }
+    udf(f).apply(tileCol).as(s"localGreaterEqualScalar($tileCol, $value)").as[Tile]
+  }
+
+  /** Cellwise equal to value comparison between two tiles. */
+  def localEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("localEqual", left, right)(
+      udf(F.localEqual).apply(left, right)
+    ).as[Tile]
+
+  /** Cellwise equal to value comparison between a tile and a scalar. */
+  def localEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match{
+      case i: Int ⇒ F.localEqualScalarInt(_: Tile, i)
+      case d: Double ⇒ F.localEqualScalar(_: Tile, d)
+    }
+    udf(f).apply(tileCol).as(s"localEqualScalar($tileCol, $value)").as[Tile]
+  }
+  /** Cellwise inequality comparison between two tiles. */
+  def localUnequal(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("localUnequal", left, right)(
+      udf(F.localUnequal).apply(left, right)
+    ).as[Tile]
+
+  /** Cellwise inequality comparison between a tile and a scalar. */
+  def localUnequalScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+    val f = value match{
+      case i: Int ⇒ F.localUnequalScalarInt(_: Tile, i)
+      case d: Double ⇒ F.localUnequalScalar(_: Tile, d)
+    }
+    udf(f).apply(tileCol).as(s"localUnequalScalar($tileCol, $value)").as[Tile]
+  }
 }
