@@ -15,14 +15,15 @@
  */
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import com.vividsolutions.jts.geom.{Envelope, Geometry}
+import com.vividsolutions.jts.geom.Geometry
+import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local._
-import geotrellis.raster.{Tile, _}
 import geotrellis.raster.render.ascii.AsciiArtEncoder
+import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.{Row, SQLContext}
-import org.apache.spark.sql.gt.types
+import org.apache.spark.sql.SQLContext
 
 import scala.reflect.runtime.universe._
 
@@ -353,6 +354,12 @@ package object functions {
     }
   }
 
+  private[rasterframes] val reprojectGeometry: (Geometry, CRS, CRS) ⇒ Geometry =
+    (sourceGeom, src, dst) ⇒ {
+      val trans = new ReprojectionTransformer(src, dst)
+      trans.transform(sourceGeom)
+    }
+
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_mask", mask)
     sqlContext.udf.register("rf_inverseMask", inverseMask)
@@ -393,5 +400,6 @@ package object functions {
     sqlContext.udf.register("rf_renderAscii", renderAscii)
     sqlContext.udf.register("rf_convertCellType", convertCellType)
     sqlContext.udf.register("rf_rasterize", rasterize)
+    sqlContext.udf.register("rf_reprojectGeometry", reprojectGeometry)
   }
 }

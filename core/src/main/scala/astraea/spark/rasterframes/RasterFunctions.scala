@@ -25,6 +25,7 @@ import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMea
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions ⇒ F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
+import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
@@ -313,6 +314,12 @@ trait RasterFunctions {
     withAlias("rasterize", geometry)(
       udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)
     ).as[Tile]
+
+  /** Reproject a column of geometry from one CRS to another. */  
+  def reprojectGeometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
+    withAlias("reprojectGeometry", sourceGeom)(
+      udf(F.reprojectGeometry(_: Geometry, srcCRS, dstCRS)).apply(sourceGeom)
+    ).as[Geometry]
 
   /** Render Tile as ASCII string for debugging purposes. */
   @Experimental
