@@ -17,6 +17,7 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local._
@@ -360,6 +361,14 @@ package object functions {
       trans.transform(sourceGeom)
     }
 
+  private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
+    (sourceGeom, srcName, dstName) ⇒ {
+      val src = CRSParser(srcName)
+      val dst = CRSParser(dstName)
+      val trans = new ReprojectionTransformer(src, dst)
+      trans.transform(sourceGeom)
+    }
+
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_mask", mask)
     sqlContext.udf.register("rf_inverseMask", inverseMask)
@@ -400,6 +409,6 @@ package object functions {
     sqlContext.udf.register("rf_renderAscii", renderAscii)
     sqlContext.udf.register("rf_convertCellType", convertCellType)
     sqlContext.udf.register("rf_rasterize", rasterize)
-    sqlContext.udf.register("rf_reprojectGeometry", reprojectGeometry)
+    sqlContext.udf.register("rf_reprojectGeometry", reprojectGeometryCRSName)
   }
 }

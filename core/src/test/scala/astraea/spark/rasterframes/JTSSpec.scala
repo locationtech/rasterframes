@@ -118,6 +118,13 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns with In
       wm2 should matchGeom(webMercator, 0.00001)
       ll2 should matchGeom(latLng, 0.00001)
       wm3 should matchGeom(webMercator, 0.00001)
+
+
+      df.createOrReplaceTempView("geom")
+
+      val wm4 = sql("SELECT rf_reprojectGeometry(ll, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 'EPSG:3857') AS wm4 from geom")
+        .as[Geometry].first()
+      wm4 should matchGeom(webMercator, 0.00001)
     }
   }
 }
