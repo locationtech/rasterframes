@@ -20,6 +20,7 @@ package astraea.spark.rasterframes
 import java.nio.file.{Files, Paths}
 
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
+import com.vividsolutions.jts.geom.Geometry
 import geotrellis.spark.testkit.{TestEnvironment ⇒ GeoTrellisTestEnvironment}
 import geotrellis.util.LazyLogging
 import org.apache.spark.SparkContext
@@ -28,6 +29,7 @@ import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.StructType
 import org.scalactic.Tolerance
 import org.scalatest._
+import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   with Matchers with Inspectors with Tolerance with LazyLogging {
@@ -63,6 +65,19 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   def dfBlank(implicit spark: SparkSession): DataFrame = {
     spark.createDataFrame(spark.sparkContext.makeRDD(Seq(Row())), StructType(Seq.empty))
   }
+
+  /* Derived from GeoTrellis vector testkit */
+  class GeometryMatcher[T <: Geometry](right: T, tolerance: Double) extends Matcher[T] {
+    def doMatch(left: T): Boolean = left.equalsExact(right, tolerance)
+    def apply(left: T) =
+      MatchResult(
+        doMatch(left),
+        s"""$left did not match $right within tolerance $tolerance """,
+        s"""$left matched $right within tolerance $tolerance"""
+      )
+  }
+
+  def matchGeom(g: Geometry, tolerance: Double) = new GeometryMatcher(g, tolerance)
 }
 
 /** IntelliJ incorrectly indicates that `withFixture` needs to be implemented, resulting
