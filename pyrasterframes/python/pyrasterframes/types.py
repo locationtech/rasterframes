@@ -73,6 +73,14 @@ class RasterFrame(DataFrame):
         df = ctx._jrfctx.spatialJoin(self._jdf, other_df._jdf)
         return RasterFrame(df, ctx._spark_session)
 
+    def toIntRaster(self, colname, cols, rows):
+        resArr = self._jrfctx.toIntRaster(self._jdf, colname, cols, rows)
+        return resArr
+
+    def toDoubleRaster(self, colname, cols, rows):
+        resArr = self._jrfctx.toDoubleRaster(self._jdf, colname, cols, rows)
+        return resArr
+
 
 class TileUDT(UserDefinedType):
     """User-defined type (UDT).
@@ -141,3 +149,11 @@ class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
     def __init__(self):
         super(TileExploder, self).__init__()
         self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.TileExploder", self.uid)
+
+class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
+
+    def __init__(self):
+        super(NoDataFilter, self).__init__()
+        self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.NoDataFilter", self.uid)
+    def setInputCols(self):
+        return
