@@ -92,12 +92,6 @@ package object util extends LazyLogging {
         .getOrElse(CRS.fromWKT(value))
   }
 
-  implicit class WithWiden[A, B](thing: Either[A, B]) {
-    /** Returns the value as a LUB of the Left & Right items. */
-    def widen[Out](implicit ev: Lub[A, B, Out]): Out =
-      thing.fold(identity, identity).asInstanceOf[Out]
-  }
-
   implicit class WithCombine[T](left: Option[T]) {
     def combine[A, R >: A](a: A)(f: (T, A) ⇒ R): R = left.map(f(_, a)).getOrElse(a)
     def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l ⇒ right.map((l, _)))

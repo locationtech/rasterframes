@@ -41,7 +41,7 @@ trait RFSpatialColumnMethods extends MethodExtensions[RasterFrame] with Standard
   import org.locationtech.geomesa.spark.jts._
 
   /** Returns the key-space to map-space coordinate transform. */
-  def mapTransform: MapKeyTransform = self.tileLayerMetadata.widen.mapTransform
+  def mapTransform: MapKeyTransform = self.tileLayerMetadata.merge.mapTransform
 
   private def keyCol2Bounds: Row ⇒ Polygon = {
     val transform = self.sparkSession.sparkContext.broadcast(mapTransform)
@@ -50,7 +50,7 @@ trait RFSpatialColumnMethods extends MethodExtensions[RasterFrame] with Standard
 
   private def keyCol2LatLng: Row ⇒ (Double, Double) = {
     val transform = self.sparkSession.sparkContext.broadcast(mapTransform)
-    val crs = self.tileLayerMetadata.widen.crs
+    val crs = self.tileLayerMetadata.merge.crs
     (r: Row) ⇒ {
       val center = transform.value.keyToExtent(SpatialKey(r.getInt(0), r.getInt(1))).center.reproject(crs, LatLng)
       (center.x, center.y)
