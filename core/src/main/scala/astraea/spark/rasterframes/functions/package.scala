@@ -386,7 +386,7 @@ package object functions {
     sqlContext.udf.register("rf_tileHistogram", tileHistogram)
     sqlContext.udf.register("rf_tileStats", tileStats)
     sqlContext.udf.register("rf_dataCells", dataCells)
-    sqlContext.udf.register("rf_noDataCells", dataCells)
+    sqlContext.udf.register("rf_noDataCells", noDataCells)
     sqlContext.udf.register("rf_localAggStats", localAggStats)
     sqlContext.udf.register("rf_localAggMax", localAggMax)
     sqlContext.udf.register("rf_localAggMin", localAggMin)
