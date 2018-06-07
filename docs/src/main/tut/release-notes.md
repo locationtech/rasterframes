@@ -13,6 +13,8 @@
 * Added `spark.read.geotrellis.withTileSubdivisions(Int)` for evenly subdividing tiles before they become rows in a RasterFrame.
 * Added `experimental` package for sandboxing new feature ideas.
 * Added experimental GeoJSON DataSource with schema inferfence on feature properties.
+* Added Scala, SQL, and Python tile-scalar arithmetic operations: `localAddScalar`, `localSubtractScalar`, `localMultipyScalar`, `localDivideScalar`.
+* Added Scala, SQL, and Python tile functions for logical comparisons both tile-tile and tile-scalar variants: `localLess`, `localLessEqual`, `localGreater`, `localGreaterEqual`, `localEqual`, and `localUnequal`. 
 * Added [`SlippyExport`](https://github.com/locationtech/rasterframes/blob/develop/experimental/src/main/scala/astraea/spark/rasterframes/experimental/slippy/SlippyExport.scala) 
   experimental feature for exporting the contents of a RasterFrame as a [SlippyMap](https://wiki.openstreetmap.org/wiki/Slippy_Map)
   tile image directory structure and Leaflet/OpenMaps-enabled HTML file. 
