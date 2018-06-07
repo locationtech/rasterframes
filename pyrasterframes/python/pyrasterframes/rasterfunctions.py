@@ -101,6 +101,19 @@ def _create_rasterize():
     _.__module__ = THIS_MODULE
     return _
 
+def _create_reproject_geometry():
+    """ Create a function mapping to the Scala reprojectGeometry function. """
+    def _(geometryCol, srcCRSName, dstCRSName):
+        jfcn = getattr(_checked_context(), 'reprojectGeometry')
+        return Column(jfcn(_to_java_column(geometryCol), srcCRSName, dstCRSName))
+    _.__name__ = 'reprojectGeometry'
+    _.__doc__ = """Reproject a column of geometry given the CRS names of the source and destination.
+Currently supported registries are EPSG, ESRI, WORLD, NAD83, & NAD27.
+An example of a valid CRS name is EPSG:3005.
+"""
+    _.__module__ = THIS_MODULE
+    return _
+
 _rf_unique_functions = {
     'assembleTile': _create_assembleTile(),
     'arrayToTile': _create_arrayToTile(),
@@ -109,7 +122,8 @@ _rf_unique_functions = {
     'tileZeros': _create_tileZeros(),
     'tileOnes': _create_tileOnes(),
     'cellTypes': lambda: _context_call('cellTypes'),
-    'rasterize': _create_rasterize()
+    'rasterize': _create_rasterize(),
+    'reprojectGeometry': _create_reproject_geometry()
 }
 
 

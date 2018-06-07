@@ -6,8 +6,12 @@
 
 * Now an incubating project under Eclipse Foundation LocationTech! GitHub repo moved to [locationtech/rasterframes](https://github.com/locationtech/rasterframes).
 * PySpark support! See [`pyrasterframes/python/README.rst`](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/python/README.rst) to get started.
+* Exposed Spark JTS spatial operations in Python.
 * Added RasterFrames-enabled Jupyter Notebook Docker Container package. See [`deployment/README.md`](https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md) for details.
 * Updated to GeoMesa version 2.0.1.
+* Added `convertCellType`, `normalizedDifference` `mask` and `inverseMask` operations on tile columns.
+* Added tile column + scalar operations: `localAddScalar`, `localSubtractScalar`, `localMultiplyScalar`, `localDivideScalar`  
+* Added `rasterize` and `reprojectGeometry` operations on geometry columns.
 * Added for for writing GeoTIFFs from RasterFrames via `DataFrameWriter`.
 * Added `spark.read.geotrellis.withNumPartitions(Int)` for setting the initial number of partitions to use when reading a layer.
 * Added `spark.read.geotrellis.withTileSubdivisions(Int)` for evenly subdividing tiles before they become rows in a RasterFrame.

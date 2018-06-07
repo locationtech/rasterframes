@@ -76,11 +76,22 @@ class RasterFrame(DataFrame):
     def withBounds(self):
         """
         Add a column called "bounds" containing the extent of each row.
-        :return: RasterFrame with "bounds" collumn.
+        :return: RasterFrame with "bounds" column.
         """
         ctx = SparkContext._active_spark_context._rf_context
         df = ctx._jrfctx.withBounds(self._jdf)
         return RasterFrame(df, ctx._spark_session)
+
+    def withCenter(self):
+        """
+        Add a column called "center" containing the center of the extent of each row.
+        :return: RasterFrame with "center" column.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withCenter(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
+
+
 
 class TileUDT(UserDefinedType):
     """User-defined type (UDT).

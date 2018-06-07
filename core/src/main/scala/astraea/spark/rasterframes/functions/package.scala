@@ -15,14 +15,16 @@
  */
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import com.vividsolutions.jts.geom.{Envelope, Geometry}
+import astraea.spark.rasterframes.util.CRSParser
+import com.vividsolutions.jts.geom.Geometry
+import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local._
-import geotrellis.raster.{Tile, _}
 import geotrellis.raster.render.ascii.AsciiArtEncoder
+import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.{Row, SQLContext}
-import org.apache.spark.sql.gt.types
+import org.apache.spark.sql.SQLContext
 
 import scala.reflect.runtime.universe._
 
@@ -430,6 +432,20 @@ package object functions {
   private[rasterframes] val localUnequalScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
     floatingPointTile(t).localUnequal(scalar)
   })
+  
+  private[rasterframes] val reprojectGeometry: (Geometry, CRS, CRS) ⇒ Geometry =
+    (sourceGeom, src, dst) ⇒ {
+      val trans = new ReprojectionTransformer(src, dst)
+      trans.transform(sourceGeom)
+    }
+
+  private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
+    (sourceGeom, srcName, dstName) ⇒ {
+      val src = CRSParser(srcName)
+      val dst = CRSParser(dstName)
+      val trans = new ReprojectionTransformer(src, dst)
+      trans.transform(sourceGeom)
+    }
 
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_mask", mask)
@@ -448,7 +464,7 @@ package object functions {
     sqlContext.udf.register("rf_tileHistogram", tileHistogram)
     sqlContext.udf.register("rf_tileStats", tileStats)
     sqlContext.udf.register("rf_dataCells", dataCells)
-    sqlContext.udf.register("rf_noDataCells", dataCells)
+    sqlContext.udf.register("rf_noDataCells", noDataCells)
     sqlContext.udf.register("rf_localAggStats", localAggStats)
     sqlContext.udf.register("rf_localAggMax", localAggMax)
     sqlContext.udf.register("rf_localAggMin", localAggMin)
@@ -489,5 +505,6 @@ package object functions {
     sqlContext.udf.register("rf_unequal", localUnequal)
     sqlContext.udf.register("rf_unequalScalar", localUnequalScalar)
     sqlContext.udf.register("rf_unequalScalarInt", localUnequalScalarInt)
+    sqlContext.udf.register("rf_reprojectGeometry", reprojectGeometryCRSName)
   }
 }
