@@ -19,6 +19,7 @@
 
 package astraea.spark.rasterframes
 
+import geotrellis.proj4.CRS
 import geotrellis.raster.CellGrid
 import geotrellis.raster.crop.TileCropMethods
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -35,6 +36,8 @@ import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
 import shapeless.Lub
+
+import scala.util.control.NonFatal
 
 /**
  * Internal utilities.
@@ -83,6 +86,11 @@ package object util extends LazyLogging {
   def opName(op: LocalTileBinaryOp) =
     op.getClass.getSimpleName.replace("$", "").toLowerCase
 
+  object CRSParser {
+    def apply(value: String): CRS = scala.util.Try(CRS.fromName(value))
+        .recover { case NonFatal(_) ⇒ CRS.fromString(value)}
+        .getOrElse(CRS.fromWKT(value))
+  }
 
   implicit class WithWiden[A, B](thing: Either[A, B]) {
     /** Returns the value as a LUB of the Left & Right items. */
@@ -142,4 +150,7 @@ package object util extends LazyLogging {
     logger.error("Extended rule resolution not available in this version of Spark")
     analyzer(sqlContext).extendedResolutionRules
   }
+
+
+
 }

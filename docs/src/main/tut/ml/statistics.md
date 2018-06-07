@@ -84,7 +84,7 @@ A more involved example: extract bin counts from a computed `Histogram`.
 
 ```tut
 rf.select(aggHistogram($"tile")).
-  map(h => for(v <- h.values) yield(v, h.itemCount(v))).
+  map(h => for(v <- h.labels) yield(v, h.itemCount(v))).
   select(explode($"value") as "counts").
   select("counts._1", "counts._2").
   toDF("value", "count").

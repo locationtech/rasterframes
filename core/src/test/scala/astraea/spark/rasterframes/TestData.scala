@@ -169,6 +169,16 @@ object TestData extends TestData {
     }
   }
 
+  /** A tile created through a geometric sequence.
+    * 1/n of the tile's values will equal the tile size / n, assuming 1/n exists in the sequence */
+  def fracTile(cols: Int, rows: Int, binNum: Int, denom: Int = 2): Tile = {
+    val fracs = (1 to binNum).map(x => 1/math.pow(denom, x)).map(x => (cols * rows * x).toInt)
+    val fracSeq = fracs.flatMap(p => (1 to p).map(_ => p))
+    // fill in the rest with zeroes
+    val fullArr = (fracSeq ++ Seq.fill(rows * cols - fracSeq.length)(0)).toArray
+    ArrayTile(fullArr, rows, cols)
+  }
+
   /** Create a series of random tiles. */
   val makeTiles: (Int) ⇒ Array[Tile] = (count) ⇒
     Array.fill(count)(randomTile(4, 4, UByteCellType))
