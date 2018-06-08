@@ -33,6 +33,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 
 import spray.json._
+import astraea.spark.rasterframes.ml.NoDataFilter
 
 
 /**
