@@ -27,6 +27,7 @@ import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import geotrellis.spark.io._
 import org.locationtech.geomesa.spark.jts.util.WKBUtils
 import spray.json._
+import astraea.spark.rasterframes.ml.NoDataFilter
 
 
 /**
