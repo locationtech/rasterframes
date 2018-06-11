@@ -13,7 +13,7 @@ from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from pyrasterframes.context import _checked_context
 
-__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'GeometryUDT', 'TileExploder']
 
 class RFContext(object):
     """
@@ -146,5 +146,5 @@ class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
     def __init__(self):
         super(NoDataFilter, self).__init__()
         self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.NoDataFilter", self.uid)
-    def setInputCols(self, values):
-        self._java_obj.setInputCols(values)
+    def setInputCols(self):
+        return
