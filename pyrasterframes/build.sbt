@@ -61,8 +61,10 @@ val Python = config("Python")
 
 Python / target := target.value / "python-dist"
 
+lazy val pyZip = taskKey[File]("Build pyrasterframes zip.")
+
 // Alias
-lazy val pyZip = Python / packageBin
+pyZip := (Python / packageBin).value
 
 Python / packageBin / artifact := {
   val java = (Compile / packageBin / artifact).value
@@ -106,12 +108,19 @@ lazy val spJarFile = Def.taskDyn {
   }
 }
 
+def gatherFromDir(root: sbt.File, dirName: String) = {
+  val pyDir = root / dirName
+  IO.listFiles(pyDir, GlobFilter("*.py") | GlobFilter("*.rst"))
+    .map(f => (f, s"$dirName/${f.getName}"))
+}
+
 Python / packageBin := {
   val jar = (`package` in Compile).value
-  val license = pythonSource.value / "LICENSE.md"
-  val pyDir = pythonSource.value / "pyrasterframes"
-  val files = (IO.listFiles(pyDir, GlobFilter("*.py") | GlobFilter("*.rst")) ++ Seq(jar, license))
-    .map(f => (f, "pyrasterframes/" + f.getName))
+  val root = pythonSource.value
+  val license = root / "LICENSE.md"
+  val files = gatherFromDir(root, "pyrasterframes") ++
+    gatherFromDir(root, "geomesa_pyspark") ++
+    Seq(jar, license).map(f => (f, "pyrasterframes/" + f.getName))
   val zipFile = (Python / packageBin / artifactPath).value
   IO.zip(files, zipFile)
   zipFile

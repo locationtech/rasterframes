@@ -18,10 +18,12 @@
  */
 package astraea.spark.rasterframes.py
 
+import astraea.spark.rasterframes
 import org.apache.spark.sql._
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.util.withAlias
+import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Geometry
+import geotrellis.proj4.CRS
 import geotrellis.raster.{ArrayTile, CellType, Tile}
 import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import geotrellis.spark.io._
@@ -57,9 +59,11 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   }
 
   /**
-    * Convenience function for use in Python
+    * Convenience functions for use in Python
     */
   def cellType(name: String): CellType = CellType.fromName(name)
+
+  def cellTypes: Seq[String] = astraea.spark.rasterframes.functions.cellTypes()
 
   /** DESERIALIZATION **/
 
@@ -67,9 +71,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     ArrayTile.fromBytes(bytes, this.cellType(cellType), cols, rows)
   }
 
-  def generateGeometry(obj: Array[Byte]): Geometry = {
-    WKBUtils.read(obj)
-  }
+  def generateGeometry(obj: Array[Byte]): Geometry =  WKBUtils.read(obj)
 
   def tileColumns(df: DataFrame): Array[Column] =
     df.asRF.tileColumns.toArray
@@ -97,9 +99,15 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     // The `fold` is required because an `Either` is retured, depending on the key type.
     df.asRF.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
 
-  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = {
-    df.asRF.spatialJoin(right.asRF)
+  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = df.asRF.spatialJoin(right.asRF)
+
+  def withBounds(df: DataFrame): RasterFrame = df.asRF.withBounds()
+
+  def withCenter(df: DataFrame): RasterFrame = df.asRF.withCenter()
+
+  def reprojectGeometry(geometryCol: Column, srcName: String, dstName: String): Column = {
+    val src = CRSParser(srcName)
+    val dst = CRSParser(dstName)
+    reprojectGeometry(geometryCol, src, dst)
   }
-
-
 }

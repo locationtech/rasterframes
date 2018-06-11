@@ -13,7 +13,7 @@ from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from pyrasterframes.context import _checked_context
 
-__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'GeometryUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
 
 class RFContext(object):
     """
@@ -81,6 +81,24 @@ class RasterFrame(DataFrame):
         resArr = self._jrfctx.toDoubleRaster(self._jdf, colname, cols, rows)
         return resArr
 
+    def withBounds(self):
+        """
+        Add a column called "bounds" containing the extent of each row.
+        :return: RasterFrame with "bounds" column.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withBounds(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
+
+    def withCenter(self):
+        """
+        Add a column called "center" containing the center of the extent of each row.
+        :return: RasterFrame with "center" column.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withCenter(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
+
 
 class TileUDT(UserDefinedType):
     """User-defined type (UDT).
@@ -114,33 +132,6 @@ class TileUDT(UserDefinedType):
 
     def deserialize(self, datum):
         return _checked_context().generateTile(datum[0], datum[1], datum[2], datum[3])
-
-
-
-class GeometryUDT(UserDefinedType):
-    """User-defined type (UDT).
-
-    .. note:: WARN: Internal use only.
-    """
-
-    @classmethod
-    def sqlType(self):
-        return StructField("wkb", BinaryType(), False)
-
-    @classmethod
-    def module(cls):
-        return 'pyrasterframes'
-
-    @classmethod
-    def scalaUDT(cls):
-        return 'org.apache.spark.sql.jts.GeometryUDT'
-
-    def serialize(self, obj):
-        if (obj is None): return None
-        return Row(obj.toBytes)
-
-    def deserialize(self, datum):
-        return _checked_context().generateGeometry(datum[0])
 
 
 
