@@ -13,7 +13,7 @@ from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from pyrasterframes.context import _checked_context
 
-__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'GeometryUDT', 'TileExploder']
+__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder']
 
 class RFContext(object):
     """
@@ -74,10 +74,18 @@ class RasterFrame(DataFrame):
         return RasterFrame(df, ctx._spark_session)
 
     def toIntRaster(self, colname, cols, rows):
+        """
+        Convert a tile to an Int raster
+        :return: array containing values of the tile's cells
+        """
         resArr = self._jrfctx.toIntRaster(self._jdf, colname, cols, rows)
         return resArr
 
     def toDoubleRaster(self, colname, cols, rows):
+        """
+        Convert a tile to an Double raster
+        :return: array containing values of the tile's cells
+        """
         resArr = self._jrfctx.toDoubleRaster(self._jdf, colname, cols, rows)
         return resArr
 
@@ -140,11 +148,3 @@ class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
     def __init__(self):
         super(TileExploder, self).__init__()
         self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.TileExploder", self.uid)
-
-class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
-
-    def __init__(self):
-        super(NoDataFilter, self).__init__()
-        self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.NoDataFilter", self.uid)
-    def setInputCols(self):
-        return
