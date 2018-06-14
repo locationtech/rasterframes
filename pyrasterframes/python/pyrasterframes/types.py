@@ -107,6 +107,23 @@ class RasterFrame(DataFrame):
         df = ctx._jrfctx.withCenter(self._jdf)
         return RasterFrame(df, ctx._spark_session)
 
+    def withCenterLatLng(self):
+        """
+        Add a column called "center" containing the center of the extent of each row in Lat Long form.
+        :return: RasterFrame with "center" column.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withCenterLatLng(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
+
+    def withSpatialIndex(self):
+        """
+        Add a column containing the spatial index of each row.
+        :return: RasterFrame with "center" column.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withSpatialIndex(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
 
 class TileUDT(UserDefinedType):
     """User-defined type (UDT).

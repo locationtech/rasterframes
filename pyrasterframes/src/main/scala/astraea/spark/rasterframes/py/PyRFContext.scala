@@ -142,6 +142,10 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def withCenter(df: DataFrame): RasterFrame = df.asRF.withCenter()
 
+  def withCenterLatLng(df: DataFrame): RasterFrame = df.asRF.withCenterLatLng()
+
+  def withSpatialIndex(df: DataFrame): RasterFrame = df.asRF.withSpatialIndex()
+
   def reprojectGeometry(geometryCol: Column, srcName: String, dstName: String): Column = {
     val src = CRSParser(srcName)
     val dst = CRSParser(dstName)
