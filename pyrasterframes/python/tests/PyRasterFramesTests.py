@@ -15,8 +15,6 @@ else:
     import __builtin__ as builtins
 
 
-
-
 def _rounded_compare(val1, val2):
     print('Comparing {} and {} using round()'.format(val1, val2))
     return builtins.round(val1) == builtins.round(val2)
@@ -42,7 +40,9 @@ class RasterFunctionsTest(unittest.TestCase):
         cls.spark.withRasterFrames()
 
         # load something into a rasterframe
-        rf = cls.spark.read.geotiff(cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri())
+        rf = cls.spark.read.geotiff(cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()) \
+            .withBounds() \
+            .withCenter()
 
         # convert the tile cell type to provide for other operations
         cls.tileCol = 'tile'
@@ -92,11 +92,19 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('mean', tileMean(self.tileCol)) \
             .withColumn('sum', tileSum(self.tileCol)) \
             .withColumn('stats', tileStats(self.tileCol)) \
-            .withColumn('box2D', box2D('bounds')) \
+            .withColumn('envelope', envelope('bounds')) \
             .withColumn('ascii', renderAscii(self.tileCol))
 
         df.show()
 
+    def test_rasterize(self):
+        # NB: This test just makes sure rasterize runs, not that the results are correct.
+        withRaster = self.rf.withColumn('rasterize', rasterize('bounds', 'bounds', lit(42), 10, 10))
+        withRaster.show()
+
+    def test_reproject(self):
+        reprojected = self.rf.withColumn('reprojected', reprojectGeometry('center', 'EPSG:4326', 'EPSG:3857'))
+        reprojected.show()
 
     def test_aggregations(self):
         aggs = self.rf.agg(

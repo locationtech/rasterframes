@@ -11,11 +11,11 @@ import org.apache.spark.sql.types._
  *
  * @since 2/22/18
  */
-case class Box2DExpression(child: Expression) extends UnaryExpression
+case class EnvelopeExpression(child: Expression) extends UnaryExpression
   with CodegenFallback with GeomDeserializerSupport  {
 
-  override def toString: String = s"Box2D($child)"
-  override def nodeName: String = "Box2D"
+  override def toString: String = s"Envelope($child)"
+  override def nodeName: String = "Envelope"
 
   override protected def nullSafeEval(input: Any): Any = {
     val geom = extractGeometry(child, input)

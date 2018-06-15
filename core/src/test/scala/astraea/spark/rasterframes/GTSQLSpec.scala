@@ -144,6 +144,42 @@ class GTSQLSpec extends TestEnvironment with TestData  {
         val sqlSub = sql("select rf_localDivide(left, right) from tmp")
         assert(sqlSub.as[Tile].first() === expected)
       }
+
+      withClue("add scalar") {
+        val sub = ds.select(localAddScalar($"left", 8.0))
+        val expected = Add(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localAddScalar(left, 8.0) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
+
+      withClue("subtract scalar") {
+        val sub = ds.select(localSubtractScalar($"left", 8.0))
+        val expected = Subtract(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localSubtractScalar(left, 8.0) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
+
+      withClue("multiply scalar") {
+        val sub = ds.select(localMultiplyScalar($"left", 8.0))
+        val expected = Multiply(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localMultiplyScalar(left, 8.0) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
+
+      withClue("divide scalar") {
+        val sub = ds.select(localDivideScalar($"left", 8.0))
+        val expected = Divide(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localDivideScalar(left, 8.0) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
     }
 
     it("aggregate functions should handle null tiles") {
