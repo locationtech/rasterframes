@@ -13,7 +13,7 @@ from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from pyrasterframes.context import _checked_context
 
-__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'GeometryUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
 
 class RFContext(object):
     """
