@@ -38,9 +38,9 @@ class NoDataFilter (override val uid: String) extends Transformer
   with HasInputCols with DefaultParamsWritable {
 
   def this() = this(Identifiable.randomUID("nodata-filter"))
-  final def setInputCols(value: Array[String]) = set(inputCols, value)
-  final def setInputCols(value: ArrayList[String]) = {
-    val valueArr = value.iterator().toArray
+  final def setInputCols(value: Array[String]): NoDataFilter = set(inputCols, value)
+  final def setInputCols(values: ArrayList[String]): NoDataFilter = {
+    val valueArr = Array[String](values:_*)
     set(inputCols, valueArr)
   }
 

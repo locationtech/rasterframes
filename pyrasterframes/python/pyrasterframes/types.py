@@ -137,13 +137,17 @@ class GeometryUDT(UserDefinedType):
 
 
 class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
-
+    """
+    Python wrapper for TileExploder.scala
+    """
     def __init__(self):
         super(TileExploder, self).__init__()
         self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.TileExploder", self.uid)
 
 class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
-
+    """
+    Python wrapper for NoDataFilter.scala
+    """
     def __init__(self):
         super(NoDataFilter, self).__init__()
         self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.NoDataFilter", self.uid)
