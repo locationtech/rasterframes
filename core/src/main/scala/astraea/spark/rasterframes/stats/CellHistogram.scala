@@ -140,7 +140,8 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
       }
     }
   }
-
+  /** Sort values into buckets, such that each bucket has an equal number of values
+    * return the boundaries, or breaks, between these buckets */
   def quantileBreaks(breaks: Int): Array[Double] = {
     require(breaks > 0, "Breaks must be greater than 0")
     require(bins.nonEmpty, "Bins cannot be empty")
