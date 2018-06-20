@@ -55,7 +55,7 @@ trait SubdivideSupport {
 
   implicit class BoundsHasSubdivide[K: SpatialComponent](self: Bounds[K]) {
     def subdivide(divs: Int): Bounds[K] = {
-      self.map(kb ⇒ {
+      self.flatMap(kb ⇒ {
         val currGrid = kb.toGridBounds()
         // NB: As with GT regrid, we keep the spatial key origin (0, 0) at the same map coordinate
         val newGrid = currGrid.copy(

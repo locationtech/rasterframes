@@ -46,7 +46,7 @@ trait GeoTiffInfoSupport {
   }
 
   def extractGeoTiffLayout(reader: ByteReader): (GeoTiffReader.GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
-    val info = GeoTiffReader.readGeoTiffInfo(reader, false, true)
+    val info = GeoTiffReader.readGeoTiffInfo(reader, false, true, None)
     val tlm = {
       val layout = if(!info.segmentLayout.isTiled) {
         val width = info.segmentLayout.totalCols

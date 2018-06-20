@@ -84,7 +84,12 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   def addTemporalComponent(value: TemporalKey): RasterFrame = {
     require(self.temporalKeyColumn.isEmpty, "RasterFrame already has a temporal component")
     val tlm = tileLayerMetadata.left.get
-    val newTlm = tlm.map(k ⇒ SpaceTimeKey(k, value))
+    val newBounds: Bounds[SpaceTimeKey] =
+      tlm.bounds.flatMap[SpaceTimeKey] {
+        bounds =>
+          KeyBounds(SpaceTimeKey(bounds.minKey, value), SpaceTimeKey(bounds.maxKey, value))
+      }
+    val newTlm: TileLayerMetadata[SpaceTimeKey] = tlm.copy(bounds = newBounds)
 
     // I wish there was a better way than this....
     // can't do `lit(value)` because you get

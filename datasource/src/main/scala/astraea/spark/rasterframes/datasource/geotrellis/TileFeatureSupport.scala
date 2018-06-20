@@ -44,6 +44,9 @@ trait TileFeatureSupport {
     override def merge(other: TileFeature[V, D]): TileFeature[V, D] =
       TileFeature(self.tile.merge(other.tile), MergeableData[D].merge(self.data,other.data))
 
+    override def merge(other: TileFeature[V, D], col: Int, row: Int): TileFeature[V, D] =
+      TileFeature(self.tile.merge(other.tile, col, row), MergeableData[D].merge(self.data, other.data))
+
     override def merge(extent: Extent, otherExtent: Extent, other: TileFeature[V, D], method: ResampleMethod): TileFeature[V, D] =
       TileFeature(self.tile.merge(extent, otherExtent, other.tile, method), MergeableData[D].merge(self.data,other.data))
 
