@@ -85,6 +85,15 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def tileToDoubleArray(col: Column): Column = tileToArray[Double](col)
 
+  // return toRaster, get just the tile, and make an array out of it
+  def toIntRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Int] = {
+    df.asRF.toRaster(df.col(colname), cols, rows).toArray()
+  }
+
+  def toDoubleRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Double] = {
+    df.asRF.toRaster(df.col(colname), cols, rows).toArrayDouble()
+  }
+
   def tileLayerMetadata(df: DataFrame): String =
     // The `fold` is required because an `Either` is retured, depending on the key type.
     df.asRF.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
