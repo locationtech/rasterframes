@@ -1,4 +1,4 @@
-# Release&nbspNotes
+# Release&nbsp;Notes
 
 ## 0.7.x
 
