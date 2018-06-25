@@ -21,6 +21,7 @@ package astraea.spark.rasterframes.datasource.geotiff
 import java.nio.file.Paths
 
 import astraea.spark.rasterframes._
+import org.apache.spark.sql.functions._
 
 /**
  * @since 1/14/18
@@ -31,6 +32,7 @@ class GeoTiffDataSourceSpec
 
   val cogPath = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
   val nonCogPath = getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI
+  val l8samplePath = getClass.getResource("/L8-B1-Elkton-VA.tiff").toURI
 
   describe("GeoTiff reading") {
 
@@ -80,6 +82,17 @@ class GeoTiffDataSourceSpec
       assert(gb.rowMax > gb.rowMin)
       assert(gb.colMax > gb.colMin)
 
+    }
+
+    it("should read in correctly check-summed contents") {
+      // c.f. TileStatsSpec -> computing statistics over tiles -> should compute tile statistics -> sum
+      val rf = spark.read.geotiff.loadRF(l8samplePath)
+      val expected = 309149454 // computed with rasterio
+      val result = rf.agg(
+        sum(tileSum(rf("tile")))
+      ).collect().head.getDouble(0)
+
+      assert(result === expected)
     }
 
     it("should write GeoTIFF RF to parquet") {
