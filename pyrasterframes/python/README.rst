@@ -1,34 +1,38 @@
+==============
 PyRasterFrames
---------------
+==============
 
 PyRasterFrames provides a Python API for RasterFrames!
 
-Getting started
+------------
+SBT Commands
+------------
 
 Build the shaded JAR:
 
     $ sbt pyrasterframes/spPublishLocal
 
-Install the python package (for development / local use):
-
-    $ pip install -e python
-
-Get a Spark REPL:
-
-    $ pyspark --jars target/scala-2.11/pyrasterframes-assembly-$VERSION.jar --master local[2]
-
-You can then try some of the commands in `tests/PyRasterFramesTests.py`.
-
-Submit a script:
-
-    $ spark-submit --jars target/scala-2.11/pyrasterframes-assembly-$VERSION.jar --master local[2] \
-        python/examples/CreatingRasterFrames.py
-
 Run tests:
 
     $ sbt pyrasterframes/pyTest
 
-or, if no Scala code has changed:
+Run examples:
+
+    $ sbt pyrasterframes/pyExamples
+
+
+---------------
+Python Commands
+---------------
+
+Install the python package (for development / local use):
+
+    $ pip install -e python
+
+
+**$ cd python**, then:
+
+Run tests if no Scala code has changed:
 
     $ python setup.py test
     $ # To run verbosely:
@@ -38,12 +42,22 @@ or, if no Scala code has changed:
 
 Run examples:
 
-    $ sbt pyrasterframes/pyExamples
-
-    OR
-
     $ python setup.py examples [--e EXAMPLENAME,EXAMPLENAME]
 
+-----------
+Spark Usage
+-----------
+
+Get a Spark REPL (after running $ sbt pyrasterframes/spPublishLocal):
+
+    $  pyspark --packages io.astraea:pyrasterframes:$VERSION --master local[2]
+
+You can then try some of the commands in `python/tests/PyRasterFramesTests.py`.
+
+Submit a script (from the `python` directory):
+
+    $ spark-submit --packages io.astraea:pyrasterframes:$VERSION --master local[2] \
+        examples/CreatingRasterFrames.py
 
 To initialize PyRasterFrames:
 

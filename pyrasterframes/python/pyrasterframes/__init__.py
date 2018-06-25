@@ -12,8 +12,8 @@ from pyspark.sql.types import *
 from pyspark.sql.column import _to_java_column
 
 # Import RasterFrame types and functions
-from pyrasterframes.types import *
-from pyrasterframes import rasterfunctions
+from .types import *
+from . import rasterfunctions
 
 
 __all__ = ['RasterFrame', 'TileExploder']
