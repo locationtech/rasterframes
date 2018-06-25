@@ -19,8 +19,9 @@
 
 package astraea.spark.rasterframes
 
-import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.{FunctionIdentifier, InternalRow}
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.rf.VersionShims
 import org.apache.spark.sql.{SQLContext, rf}
 
 /**
@@ -38,9 +39,8 @@ package object expressions {
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
     val registry: FunctionRegistry = rf.registry(sqlContext)
-
-    registry.registerFunction("rf_explodeTiles", ExplodeTileExpression.apply(1.0, _))
-    registry.registerFunction("rf_cellType", ub(CellTypeExpression.apply))
-    registry.registerFunction("rf_tileDimensions", ub(DimensionsExpression.apply))
+    VersionShims.registerExpression(registry, "rf_explodeTiles", ExplodeTileExpression.apply(1.0, _))
+    VersionShims.registerExpression(registry, "rf_cellType", ub(CellTypeExpression.apply))
+    VersionShims.registerExpression(registry, "rf_tileDimensions", ub(DimensionsExpression.apply))
   }
 }
