@@ -19,7 +19,6 @@
 
 package astraea.spark.rasterframes
 
-import astraea.spark.rasterframes.util._
 import com.vividsolutions.jts.geom._
 import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
 import geotrellis.vector.{Point ⇒ GTPoint}
@@ -35,7 +34,7 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns with In
   describe("JTS interop") {
     val rf = l8Sample(1).projectedRaster.toRF(10, 10).withBounds()
     it("should allow joining and filtering of tiles based on points") {
-      val crs = rf.tileLayerMetadata.widen.crs
+      val crs = rf.tileLayerMetadata.merge.crs
       val coords = Seq(
         "one" -> GTPoint(-78.6445222907, 38.3957546898).reproject(LatLng, crs).jtsGeom,
         "two" -> GTPoint(-78.6601240367, 38.3976614324).reproject(LatLng, crs).jtsGeom,
