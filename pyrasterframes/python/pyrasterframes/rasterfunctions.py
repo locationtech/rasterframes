@@ -176,7 +176,6 @@ _rf_column_functions = {
     'localAggDataCells': 'Compute the cellwise/local count of non-NoData cells for all Tiles in a column.',
     'localAggNoDataCells': 'Compute the cellwise/local count of NoData cells for all Tiles in a column.',
     'mask': 'Where the mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA.',
-    'maskByValue': 'Where the mask (second) tile equals maskValue, replace values in the source (first) tile with NODATA',
     'inverseMask': 'Where the mask (second) tile DOES NOT contain NODATA, replace values in the source (first) tile with NODATA.',
     'localLess': 'Cellwise less than comparison between two tiles',
     'localLessEqual': 'Cellwise less than or equal to comparison between two tiles',
