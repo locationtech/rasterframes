@@ -20,12 +20,18 @@ package astraea.spark.rasterframes.py
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util.CRSParser
+
 import com.vividsolutions.jts.geom.Geometry
-import geotrellis.raster.{ArrayTile, CellType}
+
+import geotrellis.raster.{ArrayTile, CellType, Tile, MultibandTile}
+import geotrellis.spark.{SpatialKey, SpaceTimeKey, TileLayerMetadata, MultibandTileLayerRDD, ContextRDD}
 import geotrellis.spark.io._
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
-import org.apache.spark.sql._
+
 import org.locationtech.geomesa.spark.jts.util.WKBUtils
+
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql._
+
 import spray.json._
 
 
@@ -38,6 +44,40 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   with org.locationtech.geomesa.spark.jts.DataFrameFunctions.Library {
 
   sparkSession.withRasterFrames
+
+  def toSpatialMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpatialKey] =
+    rf.toMultibandTileLayerRDD match {
+      case Left(spatial) => spatial
+      case Right(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpatailKey] but got $other instead")
+    }
+
+  def toSpaceTimeMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpaceTimeKey] =
+    rf.toMultibandTileLayerRDD match {
+      case Right(temporal) => temporal
+      case Left(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpaceTimeKey] but got $other instead")
+    }
+
+  /**
+   * Converts a ContextRDD[Spatialkey, MultibandTile, TileLayerMedadata[Spatialkey]] to a RasterFrame
+   */
+  def asRF(
+    layer: ContextRDD[SpatialKey, MultibandTile, TileLayerMetadata[SpatialKey]],
+    bandCount: java.lang.Integer
+  ): RasterFrame = {
+    implicit val pr = PairRDDConverter.forSpatialMultiband(bandCount.toInt)
+    layer.toRF
+  }
+
+  /**
+   * Converts a ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMedadata[SpaceTimeKey]] to a RasterFrame
+   */
+  def asRF(
+    layer: ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMetadata[SpaceTimeKey]],
+    bandCount: java.lang.Integer
+  )(implicit d: DummyImplicit): RasterFrame = {
+    implicit val pr = PairRDDConverter.forSpaceTimeMultiband(bandCount.toInt)
+    layer.toRF
+  }
 
   /**
     * Base conversion to RasterFrame
