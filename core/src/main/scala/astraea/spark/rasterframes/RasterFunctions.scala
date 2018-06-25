@@ -303,6 +303,12 @@ trait RasterFunctions {
       udf(F.mask).apply(sourceTile, maskTile)
     ).as[Tile]
 
+  /** Where the mask tile equals the mask value, replace values in the source tile with NODATA */
+  def maskByValue(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
+    withAlias("maskByValue", sourceTile, maskTile, maskValue)(
+      udf(F.maskByValue).apply(sourceTile, maskTile, maskValue)
+    ).as[Tile]
+
   /** Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
   def inverseMask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
     withAlias("inverseMask", sourceTile, maskTile)(
