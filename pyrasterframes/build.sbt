@@ -140,7 +140,14 @@ pyTest := {
   val _ = spPublishLocal.value
   val s = streams.value
   val wd = pythonSource.value
-  Process("python setup.py test", wd) ! s.log
+  Process("python setup.py test", wd) ! s.log match  {
+    case 1 => throw new IllegalStateException("There are Python test failures.")
+    case 2 => throw new IllegalStateException("Python test execution was interrupted.")
+    case 3 => throw new IllegalStateException("Internal error during Python test execution.")
+    case 4 => throw new IllegalStateException("PyTest usage error.")
+    case 5 => throw new IllegalStateException("No Python tests found.")
+    case x => if (x != 0) throw new IllegalStateException("Unknown error while running Python tests.")
+  }
 }
 
 Test / test := (Test / test).dependsOn(pyTest).value
