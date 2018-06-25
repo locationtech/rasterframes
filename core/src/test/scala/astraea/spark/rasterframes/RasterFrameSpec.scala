@@ -196,7 +196,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
     it("should provide TileLayerMetadata[SpatialKey]") {
       val rf = sampleGeoTiff.projectedRaster.toRF(256, 256)
-      val tlm = rf.tileLayerMetadata.widen
+      val tlm = rf.tileLayerMetadata.merge
       val bounds = tlm.bounds.get
       assert(bounds === KeyBounds(SpatialKey(0, 0), SpatialKey(3, 1)))
     }
@@ -204,7 +204,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     it("should provide TileLayerMetadata[SpaceTimeKey]") {
       val now = ZonedDateTime.now()
       val rf = sampleGeoTiff.projectedRaster.toRF(256, 256, now)
-      val tlm = rf.tileLayerMetadata.widen
+      val tlm = rf.tileLayerMetadata.merge
       val bounds = tlm.bounds.get
       assert(bounds._1 === SpaceTimeKey(0, 0, now))
       assert(bounds._2 === SpaceTimeKey(3, 1, now))
@@ -242,14 +242,14 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     it("shouldn't clip already clipped extents") {
       val rf = TestData.randomSpatialTileLayerRDD(1024, 1024, 8, 8).toRF
 
-      val expected = rf.tileLayerMetadata.widen.extent
-      val computed = rf.clipLayerExtent.tileLayerMetadata.widen.extent
+      val expected = rf.tileLayerMetadata.merge.extent
+      val computed = rf.clipLayerExtent.tileLayerMetadata.merge.extent
       basicallySame(expected, computed)
 
       val pr = sampleGeoTiff.projectedRaster
       val rf2 = pr.toRF(256, 256)
-      val expected2 = rf2.tileLayerMetadata.widen.extent
-      val computed2 = rf2.clipLayerExtent.tileLayerMetadata.widen.extent
+      val expected2 = rf2.tileLayerMetadata.merge.extent
+      val computed2 = rf2.clipLayerExtent.tileLayerMetadata.merge.extent
       basicallySame(expected2, computed2)
     }
 

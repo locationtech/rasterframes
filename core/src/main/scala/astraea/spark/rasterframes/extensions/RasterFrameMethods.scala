@@ -130,8 +130,8 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   def spatialJoin(right: RasterFrame, joinType: String = "inner"): RasterFrame = {
     val left = self
 
-    val leftMetadata = left.tileLayerMetadata.widen
-    val rightMetadata = right.tileLayerMetadata.widen
+    val leftMetadata = left.tileLayerMetadata.merge
+    val rightMetadata = right.tileLayerMetadata.merge
 
     if (leftMetadata.layout != rightMetadata.layout) {
       logger.warn(
@@ -184,8 +184,8 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
    */
   def clipLayerExtent: RasterFrame = {
     val metadata = tileLayerMetadata
-    val extent = metadata.widen.extent
-    val layout = metadata.widen.layout
+    val extent = metadata.merge.extent
+    val layout = metadata.merge.layout
     val trans = layout.mapTransform
 
     def updateBounds[T: SpatialComponent: Boundable: JsonFormat: TypeTag](tlm: TileLayerMetadata[T],
@@ -310,7 +310,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 
     val clipped = clipLayerExtent
 
-    val md = clipped.tileLayerMetadata.widen
+    val md = clipped.tileLayerMetadata.merge
     val trans = md.mapTransform
     val newLayout = LayoutDefinition(md.extent, TileLayout(1, 1, rasterCols, rasterRows))
 
@@ -346,7 +346,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 
     val clipped = clipLayerExtent
 
-    val md = clipped.tileLayerMetadata.widen
+    val md = clipped.tileLayerMetadata.merge
     val trans = md.mapTransform
     val newLayout = LayoutDefinition(md.extent, TileLayout(1, 1, rasterCols, rasterRows))
 

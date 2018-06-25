@@ -59,7 +59,7 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
     val spark = self.sparkSession
     implicit val sc = spark.sparkContext
 
-    val tlm = self.tileLayerMetadata.widen
+    val tlm = self.tileLayerMetadata.merge
     val crs = tlm.crs
     val mapTransform = tlm.mapTransform
 

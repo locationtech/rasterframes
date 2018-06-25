@@ -27,6 +27,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.jts._
+import org.apache.spark.sql.rf.VersionShims
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
 
@@ -106,9 +107,8 @@ object SpatialExpression {
   )
 
   def fromUDF(udf: ScalaUDF) = {
-    val ScalaUDF(function, _, children, _, _) = udf
-    Try(function.asInstanceOf[RelationPredicate]).toOption
+    Try(udf.function.asInstanceOf[RelationPredicate]).toOption
       .flatMap(predicateMap.get)
-      .map(_.apply(children.head, children.last))
+      .map(_.apply(udf.children.head, udf.children.last))
   }
 }
