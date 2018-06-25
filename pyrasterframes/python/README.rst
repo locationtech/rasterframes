@@ -60,8 +60,8 @@ You can then try some of the commands in ``python/tests/PyRasterFramesTests.py``
 
 Submit a script (from the ``python`` directory):
 
-    ``$ spark-submit --packages io.astraea:pyrasterframes:$VERSION --master local[2] \
-        examples/CreatingRasterFrames.py``
+    ``$ spark-submit --packages io.astraea:pyrasterframes:$VERSION --master local[2] \``
+        ``examples/CreatingRasterFrames.py``
 
 To initialize PyRasterFrames:
 
