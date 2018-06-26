@@ -94,6 +94,20 @@ class GTSQLSpec extends TestEnvironment with TestData  {
         assertEqual(result.first(), expected)
       }
 
+      withClue("mask by value") {
+        val ds = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("left", "right")
+        val result = ds.select(maskByValue($"left", $"right", lit(8)))
+        val resultSql = {
+          ds.createOrReplaceTempView("maskByValue")
+          spark.sql("SELECT rf_maskByValue(left, right, 8) as x FROM maskByValue")
+        }
+
+        val expected = ByteArrayTile(Array[Byte](1, 2, 3, 4, 5, 6, 7, byteNODATA, 9), 3, 3)
+
+        assertEqual(result.first(), expected)
+        assertEqual(resultSql.first().getAs[Tile](0), expected)
+      }
+
       withClue("inverse mask") {
         val ds = Seq[(Tile, Tile)]((byteArrayTile, maskingTile)).toDF("left", "right")
         val result = ds.select(inverseMask($"left", $"right"))

@@ -337,6 +337,14 @@ package object functions {
 
   /**
     * Generate a tile with the values from the data tile, but where cells in the
+    * masking tile contain the masking value, replace the data value with NODATA.
+    */
+  private[rasterframes] val maskByValue: (Tile, Tile, Int) ⇒ Tile =
+    (dataTile, maskingTile, maskingValue) ⇒
+      Mask(dataTile, maskingTile, maskingValue, NODATA)
+
+  /**
+    * Generate a tile with the values from the data tile, but where cells in the
     * masking tile DO NOT contain NODATA, replace the data value with NODATA.
     */
   private[rasterframes] val inverseMask: (Tile, Tile) ⇒ Tile =
@@ -449,6 +457,7 @@ package object functions {
 
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_mask", mask)
+    sqlContext.udf.register("rf_maskByValue", maskByValue)
     sqlContext.udf.register("rf_inverseMask", inverseMask)
     sqlContext.udf.register("rf_makeConstantTile", makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", tileZeros)
