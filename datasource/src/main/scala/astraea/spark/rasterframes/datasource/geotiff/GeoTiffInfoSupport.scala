@@ -40,7 +40,7 @@ trait GeoTiffInfoSupport {
       val tileDivs = math.ceil(cells / layoutDivs)
       (layoutDivs.toInt, tileDivs.toInt)
     }
-    val (layoutCols, tileCols) = divs(rows)
+    val (layoutCols, tileCols) = divs(cols)
     val (layoutRows, tileRows) = divs(rows)
     TileLayout(layoutCols, layoutRows, tileCols, tileRows)
   }
