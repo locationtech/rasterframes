@@ -96,7 +96,7 @@ abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithProto
     val kb = KeyBounds(SpatialKey(0, 0), SpatialKey(layout.layoutCols - 1, layout.layoutRows - 1))
     val tlm = TileLayerMetadata(self.tile.cellType, layout, self.extent, self.crs, kb)
 
-    val rdd = spark.sparkContext.makeRDD(Seq((self.projectedExtent, self.tile)))
+    val rdd = spark.sparkContext.makeRDD(Seq((self.projectedExtent, Shims.toArrayTile(self.tile))))
 
     implicit val tct = typeTag[T].asClassTag
 

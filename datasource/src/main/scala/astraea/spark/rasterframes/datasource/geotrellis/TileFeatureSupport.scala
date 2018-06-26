@@ -19,6 +19,7 @@
 
 package astraea.spark.rasterframes.datasource.geotrellis
 
+import astraea.spark.rasterframes.util._
 import geotrellis.raster.crop.{Crop, TileCropMethods}
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
@@ -28,7 +29,6 @@ import geotrellis.raster.resample.ResampleMethod
 import geotrellis.raster.{CellGrid, CellType, GridBounds, TileFeature}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.{Extent, Geometry}
-import astraea.spark.rasterframes.util._
 
 import scala.reflect.ClassTag
 
@@ -44,8 +44,8 @@ trait TileFeatureSupport {
     override def merge(other: TileFeature[V, D]): TileFeature[V, D] =
       TileFeature(self.tile.merge(other.tile), MergeableData[D].merge(self.data,other.data))
 
-    override def merge(other: TileFeature[V, D], col: Int, row: Int): TileFeature[V, D] =
-      TileFeature(self.tile.merge(other.tile, col, row), MergeableData[D].merge(self.data, other.data))
+    def merge(other: TileFeature[V, D], col: Int, row: Int): TileFeature[V, D] =
+      TileFeature(Shims.merge(self.tile, other.tile, col, row), MergeableData[D].merge(self.data, other.data))
 
     override def merge(extent: Extent, otherExtent: Extent, other: TileFeature[V, D], method: ResampleMethod): TileFeature[V, D] =
       TileFeature(self.tile.merge(extent, otherExtent, other.tile, method), MergeableData[D].merge(self.data,other.data))
