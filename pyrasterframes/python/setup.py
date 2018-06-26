@@ -107,15 +107,14 @@ with open('README.rst') as f:
 #pyspark_ver = 'pyspark>=2.1.0,<2.2'
 pyspark_ver = 'pyspark>=2.3.0'
 
-
 setup_args = dict(
     name='pyrasterframes',
     description='Python bindings for RasterFrames',
     long_description=readme,
     version='0.0.1',
     url='http://rasterframes.io',
-    author='Simeon H.K. Fitch',
-    author_email='fitch@astraea.io',
+    author='D. Benjamin Guseman',
+    author_email='guseman@astraea.io',
     license='Apache 2',
     setup_requires=['pytest-runner', pyspark_ver, 'pathlib'],
     install_requires=[

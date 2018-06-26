@@ -3,6 +3,18 @@ import sbt.Keys.`package`
 
 enablePlugins(SparkPackagePlugin, AssemblyPlugin)
 
+lazy val assemblyHasGeoTrellis = settingKey[Boolean]("If false, GeoTrellis libraries are excluded from assembly.")
+assemblyHasGeoTrellis := true
+
+assembly / assemblyExcludedJars ++= {
+  val cp = (fullClasspath in assembly).value
+  val gt = assemblyHasGeoTrellis.value
+  if(gt) Seq.empty
+  else cp.filter(_.data.getName.contains("geotrellis"))
+}
+
+assembly / test := {}
+
 //--------------------------------------------------------------------
 // Spark Packages Plugin
 //--------------------------------------------------------------------
@@ -35,8 +47,6 @@ spDescription := """
                    |for geospatial operations within and between RasterFrames to occur, while
                    |still maintaining necessary geo-referencing constructs.
                  """.stripMargin
-
-test in assembly := {}
 
 spPublishLocal := {
   // This unfortunate override is necessary because
@@ -77,18 +87,6 @@ Python / packageBin / artifactPath := {
   val ver = version.value
   dir / s"${art.name}-python-$ver.zip"
 }
-
-//Python / packageBin / crossVersion := CrossVersion.disabled
-
-//artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
-//  // Couldn't figure out how to config scope this, so having to handle for whole module
-//  artifact.classifier match {
-//    case Some("python") ⇒
-//      val ver = version.value
-//      s"${artifact.name}-python-${ver}.${artifact.extension}"
-//    case _ ⇒ artifactName.value(sv, module, artifact)
-//  }
-//}
 
 addArtifact(Python / packageBin / artifact, Python / packageBin)
 
