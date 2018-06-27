@@ -123,7 +123,9 @@ setup_args = dict(
     ],
     tests_require=[
         pyspark_ver,
-        'pytest==3.4.2'
+        'pytest==3.4.2',
+        'pypandoc',
+        'numpy>=1.7'
     ],
     test_suite="pytest-runner",
     packages=find_packages(exclude=['tests', 'examples']),
