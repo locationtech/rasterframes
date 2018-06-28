@@ -92,13 +92,6 @@ class ExtensionMethodSpec extends TestEnvironment with TestData {
       val divided = tlm.subdivide(2)
 
       assert(divided.tileLayout.tileDimensions === (tileSize/2, tileSize/2))
-
-      println(tlm)
-
-      println(tlm.subdivide(2))
-      println(tlm.tileLayout.tileDimensions)
-      println(tlm.subdivide(2).tileLayout.tileDimensions)
     }
-
   }
 }

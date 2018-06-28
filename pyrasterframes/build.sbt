@@ -184,9 +184,8 @@ Test / executeTests := {
           canceledCount = 0,
           pendingCount = 0
         )
-
       }
-      standard.copy(summaries = summaries, events = standard.events + ("PyRasterFramesTests" -> result))
+      standard.copy(overall = result.result, summaries = summaries, events = standard.events + ("PyRasterFramesTests" -> result))
     case _ ⇒
       val pySummary = Summary("pyrasterframes", "tests skipped due to scalatest failures")
       standard.copy(summaries = standard.summaries ++ Iterable(pySummary))

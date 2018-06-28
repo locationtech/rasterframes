@@ -121,8 +121,9 @@ class RasterFunctionsTest(unittest.TestCase):
         aggs.show()
         row = aggs.first()
 
-        self.assertTrue(_rounded_compare(row['agg_mean(tile)'], 10158))
-        self.assertTrue(row['agg_data_cells(tile)'] == 250000)
+        self.assertTrue(_rounded_compare(row['agg_mean(tile)'], 10161))
+        print(row['agg_data_cells(tile)'])
+        self.assertTrue(row['agg_data_cells(tile)'] == 388000)
         self.assertTrue(row['agg_nodata_cells(tile)'] == 0)
         self.assertTrue(row['aggStats(tile)'].dataCells == row['agg_data_cells(tile)'])
 
