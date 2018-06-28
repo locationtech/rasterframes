@@ -28,13 +28,15 @@ class RasterFunctionsTest(unittest.TestCase):
 
         # gather Scala requirements
         jarpath = list(Path('../target/scala-2.11').resolve().glob('pyrasterframes-assembly*.jar'))[0]
-        os.environ["SPARK_CLASSPATH"] = jarpath.as_uri()
 
         # hard-coded relative path for resources
         cls.resource_dir = Path('./static').resolve()
 
         # spark session with RF
-        cls.spark = SparkSession.builder.getOrCreate()
+        cls.spark = (SparkSession.builder
+            .config('spark.driver.extraClassPath', jarpath)
+            .config('spark.executor.extraClassPath', jarpath)
+            .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
         print(cls.spark.version)
         cls.spark.withRasterFrames()

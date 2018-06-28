@@ -1,6 +1,6 @@
 
 #examples_setup
-from examples import resource_dir
+from . import resource_dir, example_session
 #examples_setup
 
 #py_crf_imports
@@ -9,12 +9,7 @@ from pyspark.sql import *
 #py_crf_imports
 
 #py_crf_create_session
-spark = SparkSession.builder. \
-    master("local[*]"). \
-    appName("RasterFrames"). \
-    config("spark.ui.enabled", "false"). \
-    getOrCreate(). \
-    withRasterFrames()
+spark = example_session().withRasterFrames()
 #py_crf_create_session
 
 #py_crf_more_imports

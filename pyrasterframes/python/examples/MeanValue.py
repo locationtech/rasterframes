@@ -1,6 +1,6 @@
 
 #examples_setup
-from examples import resource_dir
+from . import resource_dir, example_session
 #examples_setup
 
 
@@ -11,12 +11,7 @@ from pyspark.sql import *
 #py_mv_imports
 
 #py_mv_create_session
-spark = SparkSession.builder. \
-    master("local[*]"). \
-    appName("RasterFrames"). \
-    config("spark.ui.enabled", "false"). \
-    getOrCreate(). \
-    withRasterFrames()
+spark = example_session().withRasterFrames()
 #py_mv_create_session
 
 #py_mv_create_rasterframe

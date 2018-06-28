@@ -1,7 +1,7 @@
 
 
 #examples_setup
-from examples import resource_dir
+from . import resource_dir, example_session
 #examples_setup
 
 #py_nvdi_imports
@@ -12,12 +12,7 @@ from pyspark.sql.functions import udf
 #py_nvdi_imports
 
 #py_nvdi_create_session
-spark = SparkSession.builder. \
-    master("local[*]"). \
-    appName("RasterFrames"). \
-    config("spark.ui.enabled", "false"). \
-    getOrCreate(). \
-    withRasterFrames()
+spark = example_session().withRasterFrames()
 #py_nvdi_create_session
 
 #py_ndvi_create_rasterframe
