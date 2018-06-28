@@ -27,14 +27,16 @@ class RasterFunctionsTest(unittest.TestCase):
     def setUpClass(cls):
 
         # gather Scala requirements
-        jarpath = list(Path('../target').resolve().glob('pyrasterframes*.jar'))[0]
-        os.environ["SPARK_CLASSPATH"] = jarpath.as_uri()
+        jarpath = list(Path('../target').resolve().glob('pyrasterframes*.jar'))[0].as_uri()
 
         # hard-coded relative path for resources
         cls.resource_dir = Path('./static').resolve()
 
         # spark session with RF
-        cls.spark = SparkSession.builder.getOrCreate()
+        cls.spark = (SparkSession.builder
+            .config('spark.driver.extraClassPath', jarpath)
+            .config('spark.executor.extraClassPath', jarpath)
+            .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
         print(cls.spark.version)
         cls.spark.withRasterFrames()
