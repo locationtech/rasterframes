@@ -18,15 +18,13 @@
  */
 package astraea.spark.rasterframes.py
 
-import astraea.spark.rasterframes
-import org.apache.spark.sql._
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Geometry
-import geotrellis.proj4.CRS
-import geotrellis.raster.{ArrayTile, CellType, Tile}
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
+import geotrellis.raster.{ArrayTile, CellType}
 import geotrellis.spark.io._
+import geotrellis.spark.{SpatialKey, TileLayerMetadata}
+import org.apache.spark.sql._
 import org.locationtech.geomesa.spark.jts.util.WKBUtils
 import spray.json._
 
@@ -34,7 +32,6 @@ import spray.json._
 /**
  * py4j access wrapper to RasterFrame entry points.
  *
- * @author sfitch 
  * @since 11/6/17
  */
 class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions

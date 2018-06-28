@@ -104,7 +104,8 @@ class ZipCommand(distutils.cmd.Command):
 with open('README.rst') as f:
     readme = f.read()
 
-pyspark_ver = 'pyspark>=2.1.0,<2.2'
+#pyspark_ver = 'pyspark>=2.1.0,<2.2'
+pyspark_ver = 'pyspark>=2.3.0'
 
 setup_args = dict(
     name='pyrasterframes',
@@ -112,8 +113,8 @@ setup_args = dict(
     long_description=readme,
     version='0.0.1',
     url='http://rasterframes.io',
-    author='Simeon H.K. Fitch',
-    author_email='fitch@astraea.io',
+    author='D. Benjamin Guseman',
+    author_email='guseman@astraea.io',
     license='Apache 2',
     setup_requires=['pytest-runner', pyspark_ver, 'pathlib'],
     install_requires=[
@@ -122,7 +123,9 @@ setup_args = dict(
     ],
     tests_require=[
         pyspark_ver,
-        'pytest==3.4.2'
+        'pytest==3.4.2',
+        'pypandoc',
+        'numpy>=1.7'
     ],
     test_suite="pytest-runner",
     packages=find_packages(exclude=['tests', 'examples']),

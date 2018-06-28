@@ -76,7 +76,10 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
     val tlrdd: MultibandTileLayerRDD[SpatialKey] = self.toMultibandTileLayerRDD(self.tileColumns: _*) match {
       case Left(spatial) ⇒ spatial
       case Right(origRDD) ⇒
-        val newMD = origRDD.metadata.map(_.spatialKey)
+        val newBounds = origRDD.metadata.bounds.flatMap[SpatialKey] {
+          bounds => KeyBounds(bounds.minKey.spatialKey, bounds.maxKey.spatialKey)
+        }
+        val newMD = origRDD.metadata.copy(bounds = newBounds)
         val rdd = origRDD.map { case (k, v) ⇒ (k.spatialKey, v)}
         ContextRDD(rdd, newMD)
     }
@@ -101,7 +104,10 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
     val inputRDD: MultibandTileLayerRDD[SpatialKey] = self.toMultibandTileLayerRDD(self.tileColumns: _*) match {
       case Left(spatial) ⇒ spatial
       case Right(origRDD) ⇒
-        val newMD = origRDD.metadata.map(_.spatialKey)
+        val newBounds = origRDD.metadata.bounds.flatMap[SpatialKey] {
+          bounds => KeyBounds(bounds.minKey.spatialKey, bounds.maxKey.spatialKey)
+        }
+        val newMD = origRDD.metadata.copy(bounds = newBounds)
         val rdd = origRDD.map { case (k, v) ⇒ (k.spatialKey, v)}
         ContextRDD(rdd, newMD)
     }
