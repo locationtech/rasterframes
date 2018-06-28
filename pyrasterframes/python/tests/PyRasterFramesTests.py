@@ -27,7 +27,7 @@ class RasterFunctionsTest(unittest.TestCase):
     def setUpClass(cls):
 
         # gather Scala requirements
-        jarpath = list(Path('../target').resolve().glob('pyrasterframes*.jar'))[0]
+        jarpath = list(Path('../target/scala-2.11').resolve().glob('pyrasterframes-assembly*.jar'))[0]
         os.environ["SPARK_CLASSPATH"] = jarpath.as_uri()
 
         # hard-coded relative path for resources

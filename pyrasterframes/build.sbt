@@ -1,5 +1,6 @@
 import scala.sys.process.Process
 import sbt.Keys.`package`
+import sbt.Tests.Summary
 
 enablePlugins(SparkPackagePlugin, AssemblyPlugin)
 
@@ -92,7 +93,7 @@ addArtifact(Python / packageBin / artifact, Python / packageBin)
 
 val pysparkCmd = taskKey[Unit]("Builds pyspark package and emits command string for running pyspark with package")
 
-lazy val pyTest = taskKey[Unit]("Run pyrasterframes tests.")
+lazy val pyTest = taskKey[Int]("Run pyrasterframes tests. Return result code.")
 
 lazy val pyExamples = taskKey[Unit]("Run pyrasterframes examples.")
 
@@ -135,20 +136,62 @@ pysparkCmd := {
 ivyPaths in pysparkCmd := ivyPaths.value.withIvyHome(target.value / "ivy")
 
 pyTest := {
-  val _ = spPublishLocal.value
+  val _ = assembly.value
   val s = streams.value
   val wd = pythonSource.value
-  Process("python setup.py test", wd) ! s.log match  {
-    case 1 => throw new IllegalStateException("There are Python test failures.")
-    case 2 => throw new IllegalStateException("Python test execution was interrupted.")
-    case 3 => throw new IllegalStateException("Internal error during Python test execution.")
-    case 4 => throw new IllegalStateException("PyTest usage error.")
-    case 5 => throw new IllegalStateException("No Python tests found.")
-    case x => if (x != 0) throw new IllegalStateException("Unknown error while running Python tests.")
-  }
+  Process("python setup.py test", wd) ! s.log
 }
 
-Test / test := (Test / test).dependsOn(pyTest).value
+// Test / test := (Test / test).dependsOn(pyTest).value
+
+Test / executeTests := {
+  val standard = (Test / executeTests).value
+  standard.overall match {
+    case TestResult.Passed ⇒
+      val resultCode = pyTest.value
+      val msg = resultCode match {
+        case 1 ⇒ "There are Python test failures."
+        case 2 ⇒ "Python test execution was interrupted."
+        case 3 ⇒ "Internal error during Python test execution."
+        case 4 ⇒ "PyTest usage error."
+        case 5 ⇒ "No Python tests found."
+        case x if (x != 0) ⇒ "Unknown error while running Python tests."
+        case _ ⇒ "PyRasterFrames tests successfully completed."
+      }
+      val pySummary = Summary("pyrasterframes", msg)
+      val summaries = standard.summaries ++ Iterable(pySummary)
+      // Would be cool to derive this from the python output...
+      val result = if(resultCode == 0) {
+        new SuiteResult(
+          TestResult.Passed,
+          passedCount = 1,
+          failureCount = 0,
+          errorCount = 0,
+          skippedCount = 0,
+          ignoredCount = 0,
+          canceledCount = 0,
+          pendingCount = 0
+        )
+      }
+      else {
+        new SuiteResult(
+          TestResult.Failed,
+          passedCount = 0,
+          failureCount = 1,
+          errorCount = 0,
+          skippedCount = 0,
+          ignoredCount = 0,
+          canceledCount = 0,
+          pendingCount = 0
+        )
+
+      }
+      standard.copy(summaries = summaries, events = standard.events + ("PyRasterFramesTests" -> result))
+    case _ ⇒
+      val pySummary = Summary("pyrasterframes", "tests skipped due to scalatest failures")
+      standard.copy(summaries = standard.summaries ++ Iterable(pySummary))
+  }
+}
 
 pyEgg := {
   val s = streams.value
