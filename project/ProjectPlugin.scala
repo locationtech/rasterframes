@@ -35,8 +35,10 @@ object ProjectPlugin extends AutoPlugin {
       "boundless-releases" at "https://repo.boundlessgeo.com/main/"
     ),
 
-    rfSparkVersion in ThisBuild := "2.3.1" ,
-    rfGeoTrellisVersion in ThisBuild := "2.0.0-RC1",
+//    rfSparkVersion in ThisBuild := "2.3.1" ,
+//    rfGeoTrellisVersion in ThisBuild := "2.0.0-RC1",
+    rfSparkVersion in ThisBuild := "2.2.1" ,
+    rfGeoTrellisVersion in ThisBuild := "1.2.1",
     rfGeoMesaVersion in ThisBuild := "2.0.1",
 
     publishTo := sonatypePublishTo.value,
