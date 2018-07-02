@@ -68,6 +68,21 @@ spPublishLocal := {
 lazy val pythonSource = settingKey[File]("Default Python source directory.")
 pythonSource := baseDirectory.value / "python"
 
+def sparkFiles(dir: File):Seq[File] = Seq("metastore_db",
+                                          "spark-warehouse",
+                                          "derby.log").map(f => dir / f)
+
+cleanFiles ++=
+  sparkFiles(baseDirectory.value) ++
+  sparkFiles(pythonSource.value) ++
+  Seq(
+    ".eggs",
+    ".pytest_cache",
+    "build",
+    "dist",
+    "pyrasterframes.egg-info"
+  ).map(f => pythonSource.value / f)
+
 val Python = config("Python")
 
 Python / target := target.value / "python-dist"
@@ -97,7 +112,7 @@ lazy val pyTest = taskKey[Int]("Run pyrasterframes tests. Return result code.")
 
 lazy val pyExamples = taskKey[Unit]("Run pyrasterframes examples.")
 
-lazy val pyEgg = taskKey[Unit]("Creates a Python .egg file")
+lazy val pyWheel = taskKey[Unit]("Creates a Python .whl file")
 
 lazy val spJarFile = Def.taskDyn {
   if (spShade.value) {
@@ -141,8 +156,6 @@ pyTest := {
   val wd = pythonSource.value
   Process("python setup.py test", wd) ! s.log
 }
-
-// Test / test := (Test / test).dependsOn(pyTest).value
 
 Test / executeTests := {
   val standard = (Test / executeTests).value
@@ -193,10 +206,12 @@ Test / executeTests := {
   }
 }
 
-pyEgg := {
+pyWheel := {
   val s = streams.value
   val wd = pythonSource.value
-  Process("python setup.py bdist_egg", wd) ! s.log
+  Process("python setup.py bdist_wheel", wd) ! s.log
+  val whl = IO.listFiles(pythonSource.value / "dist", GlobFilter("*.whl"))(0)
+  IO.move(whl, (Python / target).value / whl.getName)
 }
 
 pyExamples := {
