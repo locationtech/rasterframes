@@ -36,6 +36,7 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
     StructType(
       Seq(
         StructField("dataCells", LongType),
+        StructField("noDataCells", LongType),
         StructField("min", DoubleType),
         StructField("max", DoubleType),
         StructField("mean", DoubleType),
@@ -47,6 +48,7 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
     StructType(
       Seq(
         StructField("dataCells", LongType),
+        StructField("noDataCells", LongType),
         StructField("min", DoubleType),
         StructField("max", DoubleType),
         StructField("sum", DoubleType),
@@ -58,6 +60,7 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
 
   override def initialize(buffer: MutableAggregationBuffer): Unit = {
     buffer(C.COUNT) = 0L
+    buffer(C.NODATA) = 0L
     buffer(C.MIN) = Double.MaxValue
     buffer(C.MAX) = Double.MinValue
     buffer(C.SUM) = 0.0
@@ -68,6 +71,7 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
     if(!input.isNullAt(0)) {
       val tile = input.getAs[Tile](0)
       var count = buffer.getLong(C.COUNT)
+      var nodata = buffer.getLong(C.NODATA)
       var min = buffer.getDouble(C.MIN)
       var max = buffer.getDouble(C.MAX)
       var sum = buffer.getDouble(C.SUM)
@@ -79,9 +83,12 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
         max = math.max(max, c)
         sum = sum + c
         sumSqr = sumSqr + c * c
-      })
+      }
+      else nodata += 1
+      )
 
       buffer(C.COUNT) = count
+      buffer(C.NODATA) = nodata
       buffer(C.MIN) = min
       buffer(C.MAX) = max
       buffer(C.SUM) = sum
@@ -91,6 +98,7 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
 
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     buffer1(C.COUNT) = buffer1.getLong(C.COUNT) + buffer2.getLong(C.COUNT)
+    buffer1(C.NODATA) = buffer1.getLong(C.NODATA) + buffer2.getLong(C.NODATA)
     buffer1(C.MIN) = math.min(buffer1.getDouble(C.MIN), buffer2.getDouble(C.MIN))
     buffer1(C.MAX) = math.max(buffer1.getDouble(C.MAX), buffer2.getDouble(C.MAX))
     buffer1(C.SUM) = buffer1.getDouble(C.SUM) + buffer2.getDouble(C.SUM)
@@ -103,17 +111,18 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
     val sumSqr = buffer.getDouble(C.SUM_SQRS)
     val mean = sum / count
     val variance = sumSqr / count - mean * mean
-    Row(count, buffer(C.MIN), buffer(C.MAX), mean, variance)
+    Row(count, buffer(C.NODATA), buffer(C.MIN), buffer(C.MAX), mean, variance)
   }
 }
 
 object CellStatsAggregateFunction {
   /**  Column index values. */
   private object C {
-    val COUNT = 0
-    val MIN = 1
-    val MAX = 2
-    val SUM = 3
-    val SUM_SQRS = 4
+    final val COUNT = 0
+    final val NODATA = 1
+    final val MIN = 2
+    final val MAX = 3
+    final val SUM = 4
+    final val SUM_SQRS = 5
   }
 }

@@ -23,7 +23,6 @@ import astraea.spark.rasterframes.TestData.randomTile
 import astraea.spark.rasterframes.TestData.fracTile
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
-import geotrellis.raster.histogram.StreamingHistogram
 import geotrellis.spark._
 import geotrellis.raster.mapalgebra.local.{Max, Min}
 import org.apache.spark.sql.functions._
@@ -125,6 +124,10 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .agg(sum("cells")).as[Long]
         .first()
       assert(resultTileStats === expectedData)
+
+      val (aggDC, aggNDC) = ds.select(aggStats($"tile")).select("dataCells", "noDataCells").as[(Long, Long)].first()
+      assert(aggDC === expectedData)
+      assert(aggNDC === expectedNoData)
     }
 
     it("should compute tile statistics") {

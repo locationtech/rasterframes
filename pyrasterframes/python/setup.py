@@ -104,7 +104,7 @@ class ZipCommand(distutils.cmd.Command):
 with open('README.rst') as f:
     readme = f.read()
 
-pyspark_ver = 'pyspark>=2.2.1'
+pyspark_ver = 'pyspark>=2.1.0,<2.2'
 #pyspark_ver = 'pyspark>=2.3.0'
 
 setup_args = dict(
