@@ -143,11 +143,11 @@ class GeoTrellisDataSourceSpec
 
       withClue("literate API") {
         val df = wc.where(CENTER_COLUMN intersects bbox)
-        assert(df.count() === boundKeys.toGridBounds.sizeLong)
+        assert(df.count() === boundKeys.toGridBounds.size)
       }
       withClue("functional API") {
         val df = wc.where(st_intersects(CENTER_COLUMN, geomLit(bbox)))
-        assert(df.count() === boundKeys.toGridBounds.sizeLong)
+        assert(df.count() === boundKeys.toGridBounds.size)
       }
     }
 
@@ -264,7 +264,7 @@ class GeoTrellisDataSourceSpec
     def extractRelation(df: DataFrame): Option[GeoTrellisRelation] = {
       val plan = df.queryExecution.optimizedPlan
       plan.collectFirst {
-        case LogicalRelation(gt: GeoTrellisRelation, _, _) ⇒ gt
+        case LogicalRelationWithGTR(gt: GeoTrellisRelation) ⇒ gt
       }
     }
     def numFilters(df: DataFrame) = {

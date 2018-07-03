@@ -1,6 +1,6 @@
 
 #examples_setup
-from examples import resource_dir
+from . import example_session, resource_dir
 #examples_setup
 
 #py_cl_imports
@@ -13,12 +13,7 @@ from pyspark.ml import Pipeline
 #py_cl_imports
 
 #py_cl_create_session
-spark = SparkSession.builder. \
-    master("local[*]"). \
-    appName("RasterFrames"). \
-    config("spark.ui.enabled", "false"). \
-    getOrCreate(). \
-    withRasterFrames()
+spark = example_session().withRasterFrames()
 #py_cl_create_session
 
 # The first step is to load multiple bands of imagery and construct

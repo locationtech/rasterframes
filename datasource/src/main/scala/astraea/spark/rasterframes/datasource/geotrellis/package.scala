@@ -24,6 +24,7 @@ import _root_.geotrellis.spark.LayerId
 import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
 import astraea.spark.rasterframes.{RasterFrame, _}
 import org.apache.spark.sql._
+import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.functions.col
 import shapeless.tag
 import shapeless.tag.@@
@@ -34,6 +35,13 @@ import shapeless.tag.@@
  * @since 1/12/18
  */
 package object geotrellis {
+  object LogicalRelationWithGTR {
+    def unapply(lr: LogicalRelation): Option[GeoTrellisRelation] = lr.relation match {
+      case gt: GeoTrellisRelation ⇒ Some(gt)
+      case _ ⇒ None
+    }
+  }
+
   implicit val layerEncoder = Layer.layerEncoder
 
   /** Convenience column selector for a GeoTrellis layer. */

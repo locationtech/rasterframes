@@ -27,14 +27,16 @@ class RasterFunctionsTest(unittest.TestCase):
     def setUpClass(cls):
 
         # gather Scala requirements
-        jarpath = list(Path('../target').resolve().glob('pyrasterframes*.jar'))[0]
-        os.environ["SPARK_CLASSPATH"] = jarpath.as_uri()
+        jarpath = list(Path('../target/scala-2.11').resolve().glob('pyrasterframes-assembly*.jar'))[0]
 
         # hard-coded relative path for resources
         cls.resource_dir = Path('./static').resolve()
 
         # spark session with RF
-        cls.spark = SparkSession.builder.getOrCreate()
+        cls.spark = (SparkSession.builder
+            .config('spark.driver.extraClassPath', jarpath)
+            .config('spark.executor.extraClassPath', jarpath)
+            .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
         print(cls.spark.version)
         cls.spark.withRasterFrames()
@@ -119,8 +121,9 @@ class RasterFunctionsTest(unittest.TestCase):
         aggs.show()
         row = aggs.first()
 
-        self.assertTrue(_rounded_compare(row['agg_mean(tile)'], 10158))
-        self.assertTrue(row['agg_data_cells(tile)'] == 250000)
+        self.assertTrue(_rounded_compare(row['agg_mean(tile)'], 10161))
+        print(row['agg_data_cells(tile)'])
+        self.assertTrue(row['agg_data_cells(tile)'] == 388000)
         self.assertTrue(row['agg_nodata_cells(tile)'] == 0)
         self.assertTrue(row['aggStats(tile)'].dataCells == row['agg_data_cells(tile)'])
 

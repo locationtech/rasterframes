@@ -11,7 +11,7 @@ from pyspark.sql import SparkSession, DataFrame, Column, Row
 from pyspark.sql.types import *
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
-from pyrasterframes.context import _checked_context
+from .context import _checked_context
 
 __all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
 
@@ -73,6 +73,22 @@ class RasterFrame(DataFrame):
         df = ctx._jrfctx.spatialJoin(self._jdf, other_df._jdf)
         return RasterFrame(df, ctx._spark_session)
 
+    def toIntRaster(self, colname, cols, rows):
+        """
+        Convert a tile to an Int raster
+        :return: array containing values of the tile's cells
+        """
+        resArr = self._jrfctx.toIntRaster(self._jdf, colname, cols, rows)
+        return resArr
+
+    def toDoubleRaster(self, colname, cols, rows):
+        """
+        Convert a tile to an Double raster
+        :return: array containing values of the tile's cells
+        """
+        resArr = self._jrfctx.toDoubleRaster(self._jdf, colname, cols, rows)
+        return resArr
+
     def withBounds(self):
         """
         Add a column called "bounds" containing the extent of each row.
@@ -90,7 +106,6 @@ class RasterFrame(DataFrame):
         ctx = SparkContext._active_spark_context._rf_context
         df = ctx._jrfctx.withCenter(self._jdf)
         return RasterFrame(df, ctx._spark_session)
-
 
 
 class TileUDT(UserDefinedType):
