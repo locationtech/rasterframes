@@ -39,7 +39,7 @@ class NoDataFilter (override val uid: String) extends Transformer
 
   def this() = this(Identifiable.randomUID("nodata-filter"))
   final def setInputCols(value: Array[String]): NoDataFilter = set(inputCols, value)
-  final def setInputCols(values: ArrayList[String]): NoDataFilter = {
+  final def setInputCols(values: ArrayList[String]): this.type = {
     val valueArr = Array[String](values:_*)
     set(inputCols, valueArr)
   }
