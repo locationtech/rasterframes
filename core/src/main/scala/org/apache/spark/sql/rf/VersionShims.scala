@@ -1,10 +1,11 @@
 package org.apache.spark.sql.rf
 
-import java.lang.reflect.Constructor
+import java.lang.reflect.{Constructor, Method}
 
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
 import org.apache.spark.sql.{DataFrame, Dataset, SQLContext}
-import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression}
+import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.expressions.objects.{Invoke, InvokeLike}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.execution.datasources.LogicalRelation
@@ -99,5 +100,26 @@ object VersionShims {
       case _ ⇒
         throw new NotImplementedError("Invoke constructor has unexpected shape")
     }
+  }
+
+  def registerExpression(registry: FunctionRegistry, name: String, builder: FunctionRegistry.FunctionBuilder): Unit = {
+    // Spark 2.3 introduced a new way of specifying Functions
+    val spark23FI = "org.apache.spark.sql.catalyst.FunctionIdentifier"
+    registry.getClass.getDeclaredMethods
+      .filter(m ⇒ m.getName == "registerFunction" && m.getParameterCount == 2)
+      .foreach { m ⇒
+        val firstParam = m.getParameterTypes()(0)
+        if(firstParam == classOf[String])
+          m.invoke(registry, name, builder)
+        else if(firstParam.getName == spark23FI) {
+          val fic = Class.forName(spark23FI)
+          val ctor = fic.getConstructor(classOf[String], classOf[Option[_]])
+          val fi = ctor.newInstance(name, None).asInstanceOf[Object]
+          m.invoke(registry, fi, builder)
+        }
+        else {
+          throw new NotImplementedError("Unexpected FunctionRegistry API: " + m.toGenericString)
+        }
+      }
   }
 }

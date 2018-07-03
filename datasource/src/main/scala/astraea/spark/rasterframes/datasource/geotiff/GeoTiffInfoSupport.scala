@@ -20,8 +20,10 @@
 
 package astraea.spark.rasterframes.datasource.geotiff
 
+import astraea.spark.rasterframes.util.Shims
 import geotrellis.raster.TileLayout
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
+import geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.ByteReader
@@ -40,13 +42,13 @@ trait GeoTiffInfoSupport {
       val tileDivs = math.ceil(cells / layoutDivs)
       (layoutDivs.toInt, tileDivs.toInt)
     }
-    val (layoutCols, tileCols) = divs(rows)
+    val (layoutCols, tileCols) = divs(cols)
     val (layoutRows, tileRows) = divs(rows)
     TileLayout(layoutCols, layoutRows, tileCols, tileRows)
   }
 
   def extractGeoTiffLayout(reader: ByteReader): (GeoTiffReader.GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
-    val info = GeoTiffReader.readGeoTiffInfo(reader, false, true)
+    val info: GeoTiffInfo = Shims.readGeoTiffInfo(reader, false, true)
     val tlm = {
       val layout = if(!info.segmentLayout.isTiled) {
         val width = info.segmentLayout.totalCols

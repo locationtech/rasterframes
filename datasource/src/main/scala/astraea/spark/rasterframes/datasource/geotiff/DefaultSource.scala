@@ -54,7 +54,7 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
     require(data.isRF, "GeoTIFF can only be constructed from a RasterFrame")
     val rf = data.certify
 
-    val tl = rf.tileLayerMetadata.widen.layout.tileLayout
+    val tl = rf.tileLayerMetadata.merge.layout.tileLayout
 
     val cols = numParam(DefaultSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(tl.totalCols)
     val rows = numParam(DefaultSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(tl.totalRows)

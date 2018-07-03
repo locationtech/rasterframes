@@ -23,7 +23,7 @@ import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util._
-import geotrellis.raster.TileLayout
+import geotrellis.raster.{MultibandTile, Tile, TileLayout}
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.spark._
 import geotrellis.spark.io._
@@ -104,7 +104,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     else {
       logger.warn("GeoTIFF is not already tiled. In-memory read required: " + uri)
       val geotiff = HadoopGeoTiffReader.readMultiband(new Path(uri))
-      val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, geotiff.tile)))
+      val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, Shims.toArrayTile(geotiff.tile))))
 
       rdd.tileToLayout(tlm)
         .map { case (sk, tiles) ⇒

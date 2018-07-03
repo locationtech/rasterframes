@@ -18,16 +18,20 @@
  */
 package astraea.spark.rasterframes.py
 
-import astraea.spark.rasterframes
-import org.apache.spark.sql._
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util.CRSParser
+
 import com.vividsolutions.jts.geom.Geometry
-import geotrellis.proj4.CRS
-import geotrellis.raster.{ArrayTile, CellType, Tile}
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
+
+import geotrellis.raster.{ArrayTile, CellType, Tile, MultibandTile}
+import geotrellis.spark.{SpatialKey, SpaceTimeKey, TileLayerMetadata, MultibandTileLayerRDD, ContextRDD}
 import geotrellis.spark.io._
+
 import org.locationtech.geomesa.spark.jts.util.WKBUtils
+
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql._
+
 import spray.json._
 import astraea.spark.rasterframes.ml.NoDataFilter
 
@@ -35,13 +39,46 @@ import astraea.spark.rasterframes.ml.NoDataFilter
 /**
  * py4j access wrapper to RasterFrame entry points.
  *
- * @author sfitch 
  * @since 11/6/17
  */
 class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   with org.locationtech.geomesa.spark.jts.DataFrameFunctions.Library {
 
   sparkSession.withRasterFrames
+
+  def toSpatialMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpatialKey] =
+    rf.toMultibandTileLayerRDD match {
+      case Left(spatial) => spatial
+      case Right(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpatailKey] but got $other instead")
+    }
+
+  def toSpaceTimeMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpaceTimeKey] =
+    rf.toMultibandTileLayerRDD match {
+      case Right(temporal) => temporal
+      case Left(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpaceTimeKey] but got $other instead")
+    }
+
+  /**
+   * Converts a ContextRDD[Spatialkey, MultibandTile, TileLayerMedadata[Spatialkey]] to a RasterFrame
+   */
+  def asRF(
+    layer: ContextRDD[SpatialKey, MultibandTile, TileLayerMetadata[SpatialKey]],
+    bandCount: java.lang.Integer
+  ): RasterFrame = {
+    implicit val pr = PairRDDConverter.forSpatialMultiband(bandCount.toInt)
+    layer.toRF
+  }
+
+  /**
+   * Converts a ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMedadata[SpaceTimeKey]] to a RasterFrame
+   */
+  def asRF(
+    layer: ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMetadata[SpaceTimeKey]],
+    bandCount: java.lang.Integer
+  )(implicit d: DummyImplicit): RasterFrame = {
+    implicit val pr = PairRDDConverter.forSpaceTimeMultiband(bandCount.toInt)
+    layer.toRF
+  }
 
   /**
     * Base conversion to RasterFrame
@@ -85,6 +122,15 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def tileToIntArray(col: Column): Column = tileToArray[Int](col)
 
   def tileToDoubleArray(col: Column): Column = tileToArray[Double](col)
+
+  // return toRaster, get just the tile, and make an array out of it
+  def toIntRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Int] = {
+    df.asRF.toRaster(df.col(colname), cols, rows).toArray()
+  }
+
+  def toDoubleRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Double] = {
+    df.asRF.toRaster(df.col(colname), cols, rows).toArrayDouble()
+  }
 
   def tileLayerMetadata(df: DataFrame): String =
     // The `fold` is required because an `Either` is retured, depending on the key type.

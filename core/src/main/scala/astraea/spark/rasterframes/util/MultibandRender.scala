@@ -57,11 +57,11 @@ object MultibandRender {
 
   trait Profile {
     /** Value from -255 to 255 */
-    val brightness: Int = 0
+    def brightness: Int = 0
     /** Value from  -255 to 255 */
-    val contrast: Int = 0
+    def contrast: Int = 0
     /**  0.01 to 7.99 */
-    val gamma: Double = 1.0
+    def gamma: Double = 1.0
 
     /** Get the red band. */
     def red(mb: MultibandTile): Tile = mb.band(0)

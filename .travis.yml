@@ -13,6 +13,10 @@ scala:
 jdk:
   - oraclejdk8
 
+addons:
+  apt_packages:
+    - pandoc
+
 sbt_args: -no-colors
 
 script:

@@ -22,20 +22,20 @@ package astraea.spark.rasterframes
 import geotrellis.proj4.CRS
 import geotrellis.raster.CellGrid
 import geotrellis.raster.crop.TileCropMethods
+import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
-import geotrellis.util.{GetComponent, LazyLogging}
+import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
 import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
 import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
-import shapeless.Lub
 
 import scala.util.control.NonFatal
 
@@ -92,12 +92,6 @@ package object util extends LazyLogging {
         .getOrElse(CRS.fromWKT(value))
   }
 
-  implicit class WithWiden[A, B](thing: Either[A, B]) {
-    /** Returns the value as a LUB of the Left & Right items. */
-    def widen[Out](implicit ev: Lub[A, B, Out]): Out =
-      thing.fold(identity, identity).asInstanceOf[Out]
-  }
-
   implicit class WithCombine[T](left: Option[T]) {
     def combine[A, R >: A](a: A)(f: (T, A) ⇒ R): R = left.map(f(_, a)).getOrElse(a)
     def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l ⇒ right.map((l, _)))
@@ -151,6 +145,37 @@ package object util extends LazyLogging {
     analyzer(sqlContext).extendedResolutionRules
   }
 
+  object Shims {
+    // GT 1.2.1 to 2.0.0
+    def toArrayTile[T <: CellGrid](tile: T): T =
+      tile.getClass.getMethods
+        .find(_.getName == "toArrayTile")
+        .map(_.invoke(tile).asInstanceOf[T])
+        .getOrElse(tile)
 
+    // GT 1.2.1 to 2.0.0
+    def merge[V <: CellGrid: ClassTag: WithMergeMethods](left: V, right: V, col: Int, row: Int): V = {
+      val merger = implicitly[WithMergeMethods[V]].apply(left)
+      merger.getClass.getDeclaredMethods
+        .find(m ⇒ m.getName == "merge" && m.getParameterCount == 3)
+        .map(_.invoke(merger, right, Int.box(col), Int.box(row)).asInstanceOf[V])
+        .getOrElse(merger.merge(right))
+    }
+
+    // GT 1.2.1 to 2.0.0
+    def readGeoTiffInfo(byteReader: ByteReader, decompress: Boolean, streaming: Boolean): GeoTiffReader.GeoTiffInfo = {
+      val reader = GeoTiffReader.getClass.getDeclaredMethods
+        .find(_.getName == "readGeoTiffInfo")
+        .getOrElse(throw new RuntimeException("Could not find method GeoTiffReader.readGeoTiffInfo"))
+
+      val result = reader.getParameterCount match {
+        case 3 ⇒ reader.invoke(GeoTiffReader, byteReader,
+          Boolean.box(decompress), Boolean.box(streaming))
+        case 4 ⇒ reader.invoke(GeoTiffReader, byteReader,
+          Boolean.box(decompress), Boolean.box(streaming), None)
+      }
+      result.asInstanceOf[GeoTiffReader.GeoTiffInfo]
+    }
+  }
 
 }
