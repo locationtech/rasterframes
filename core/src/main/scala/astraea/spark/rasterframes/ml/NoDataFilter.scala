@@ -25,6 +25,8 @@ import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.util.{DefaultParamsReadable, DefaultParamsWritable, Identifiable}
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.types.StructType
+import java.util.ArrayList
+import scala.collection.JavaConversions._
 
 /**
  * Transformer filtering out rows containing NoData/NA values in
@@ -36,7 +38,12 @@ class NoDataFilter (override val uid: String) extends Transformer
   with HasInputCols with DefaultParamsWritable {
 
   def this() = this(Identifiable.randomUID("nodata-filter"))
-  final def setInputCols(value: Array[String]) = set(inputCols, value)
+  final def setInputCols(value: Array[String]): NoDataFilter = set(inputCols, value)
+  final def setInputCols(values: ArrayList[String]): this.type = {
+    val valueArr = values.toArray[String]
+    set(inputCols, valueArr)
+  }
+
   setInputCols(Array("tile"))
 
   override def copy(extra: ParamMap): NoDataFilter = defaultCopy(extra)

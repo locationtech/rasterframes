@@ -33,6 +33,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 
 import spray.json._
+import astraea.spark.rasterframes.ml.NoDataFilter
 
 
 /**
@@ -140,6 +141,10 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def withBounds(df: DataFrame): RasterFrame = df.asRF.withBounds()
 
   def withCenter(df: DataFrame): RasterFrame = df.asRF.withCenter()
+
+  def withCenterLatLng(df: DataFrame): RasterFrame = df.asRF.withCenterLatLng()
+
+  def withSpatialIndex(df: DataFrame): RasterFrame = df.asRF.withSpatialIndex()
 
   def reprojectGeometry(geometryCol: Column, srcName: String, dstName: String): Column = {
     val src = CRSParser(srcName)

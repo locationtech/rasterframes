@@ -13,7 +13,7 @@ from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from .context import _checked_context
 
-__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder']
+__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
 
 class RFContext(object):
     """
@@ -107,6 +107,23 @@ class RasterFrame(DataFrame):
         df = ctx._jrfctx.withCenter(self._jdf)
         return RasterFrame(df, ctx._spark_session)
 
+    def withCenterLatLng(self):
+        """
+        Add a column called "center" containing the center of the extent of each row in Lat Long form.
+        :return: RasterFrame with "center" column.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withCenterLatLng(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
+
+    def withSpatialIndex(self):
+        """
+        Add a column containing the spatial index of each row.
+        :return: RasterFrame with "center" column.
+        """
+        ctx = SparkContext._active_spark_context._rf_context
+        df = ctx._jrfctx.withSpatialIndex(self._jdf)
+        return RasterFrame(df, ctx._spark_session)
 
 class TileUDT(UserDefinedType):
     """User-defined type (UDT).
@@ -144,7 +161,19 @@ class TileUDT(UserDefinedType):
 
 
 class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
-
+    """
+    Python wrapper for TileExploder.scala
+    """
     def __init__(self):
         super(TileExploder, self).__init__()
         self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.TileExploder", self.uid)
+
+class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
+    """
+    Python wrapper for NoDataFilter.scala
+    """
+    def __init__(self):
+        super(NoDataFilter, self).__init__()
+        self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.NoDataFilter", self.uid)
+    def setInputCols(self, values):
+        self._java_obj.setInputCols(values)
