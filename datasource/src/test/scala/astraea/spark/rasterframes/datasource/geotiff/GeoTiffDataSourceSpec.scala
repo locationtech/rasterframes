@@ -108,11 +108,28 @@ class GeoTiffDataSourceSpec
         .geotiff
         .loadRF(cogPath)
 
+      logger.info(s"Read extent: ${rf.tileLayerMetadata.merge.extent}")
+
+      val cellsize = rf.groupBy(
+        tileDimensions(col("tile_1"))("rows") as "tileRows",
+        tileDimensions(col("tile_1"))("cols") as "tileCols"
+      ).count()
+
+      cellsize.show(false)
+
+      rf.withBounds().select(
+      tileDimensions(col("tile_1"))("rows") as "tileRows",
+      tileDimensions(col("tile_1"))("cols") as "tileCols",
+        BOUNDS_COLUMN)
+        .show(false)
+
       val out = Paths.get(outputLocalPath, "example-geotiff.tiff")
+      logger.info(s"Writing to $out")
       //val out = Paths.get("target", "example-geotiff.tiff")
       noException shouldBe thrownBy {
         rf.write.geotiff.save(out.toString)
       }
+      logger.info("Done!")
     }
   }
 }
