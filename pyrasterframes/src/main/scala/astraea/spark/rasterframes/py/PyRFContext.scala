@@ -119,6 +119,12 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def temporalKeyColumn(df: DataFrame): Column =
     df.asRF.temporalKeyColumn.orNull
 
+  def tileToIntArray(col: Column): Column = tileToArray[Int](col)
+
+  def tileToDoubleArray(col: Column): Column = tileToArray[Double](col)
+
+  // All the scalar tile arithmetic functions
+
   def localAddScalar(col: Column, scalar: Double): Column = localAddScalar[Double](col, scalar)
 
   def localAddScalarInt(col: Column, scalar: Int): Column = localAddScalar[Int](col, scalar)
@@ -134,10 +140,6 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def localMultiplyScalar(col: Column, scalar: Double): Column = localMultiplyScalar[Double](col, scalar)
 
   def localMultiplyScalarInt(col: Column, scalar: Int): Column = localMultiplyScalar[Int](col, scalar)
-
-  def tileToIntArray(col: Column): Column = tileToArray[Int](col)
-
-  def tileToDoubleArray(col: Column): Column = tileToArray[Double](col)
 
   def localLessScalar(col: Column, scalar: Double): Column = localLessScalar[Double](col, scalar)
 
