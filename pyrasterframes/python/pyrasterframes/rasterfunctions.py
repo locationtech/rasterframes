@@ -130,15 +130,25 @@ _rf_unique_functions = {
 _rf_column_scalar_functions = {
     'withNoData': 'Assign a `NoData` value to the Tiles in the given Column.',
     'localAddScalar': 'Add a scalar to a Tile',
+    'localAddScalarInt': 'Add a scalar to a Tile',
     'localSubtractScalar': 'Subtract a scalar from a Tile',
+    'localSubtractScalarInt': 'Subtract a scalar from a Tile',
     'localMultiplyScalar': 'Multiply a Tile by a scalar',
+    'localMultiplyScalarInt': 'Multiply a Tile by a scalar',
     'localDivideScalar': 'Divide a Tile by a scalar',
+    'localDivideScalarInt': 'Divide a Tile by a scalar',
     'localLessScalar': 'Return a Tile with values equal 1 if the cell is less than a scalar, otherwise 0',
+    'localLessScalarInt': 'Return a Tile with values equal 1 if the cell is less than a scalar, otherwise 0',
     'localLessEqualScalar': 'Return a Tile with values equal 1 if the cell is less than or equal to a scalar, otherwise 0',
+    'localLessEqualScalarInt': 'Return a Tile with values equal 1 if the cell is less than or equal to a scalar, otherwise 0',
     'localGreaterScalar': 'Return a Tile with values equal 1 if the cell is greater than a scalar, otherwise 0',
+    'localGreaterScalarInt': 'Return a Tile with values equal 1 if the cell is greater than a scalar, otherwise 0',
     'localGreaterEqualScalar': 'Return a Tile with values equal 1 if the cell is greater than or equal to a scalar, otherwise 0',
+    'localGreaterEqualScalarInt': 'Return a Tile with values equal 1 if the cell is greater than or equal to a scalar, otherwise 0',
     'localEqualScalar': 'Return a Tile with values equal 1 if the cell is equal to a scalar, otherwise 0',
+    'localEqualScalarInt': 'Return a Tile with values equal 1 if the cell is equal to a scalar, otherwise 0',
     'localUnequalScalar': 'Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0',
+    'localUnequalScalarInt': 'Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0',
 }
 
 
