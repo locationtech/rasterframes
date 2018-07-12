@@ -21,7 +21,10 @@ package astraea.spark.rasterframes.datasource.geotiff
 import java.nio.file.Paths
 
 import astraea.spark.rasterframes._
+import geotrellis.proj4.LatLng
 import org.apache.spark.sql.functions._
+import geotrellis.vector._
+import geotrellis.vector.io.json.JsonFeatureCollection
 
 /**
  * @since 1/14/18
@@ -103,33 +106,17 @@ class GeoTiffDataSourceSpec
     }
 
     it("should write GeoTIFF") {
-
       val rf = spark.read
         .geotiff
         .loadRF(cogPath)
 
       logger.info(s"Read extent: ${rf.tileLayerMetadata.merge.extent}")
 
-      val cellsize = rf.groupBy(
-        tileDimensions(col("tile_1"))("rows") as "tileRows",
-        tileDimensions(col("tile_1"))("cols") as "tileCols"
-      ).count()
-
-      cellsize.show(false)
-
-      rf.withBounds().select(
-      tileDimensions(col("tile_1"))("rows") as "tileRows",
-      tileDimensions(col("tile_1"))("cols") as "tileCols",
-        BOUNDS_COLUMN)
-        .show(false)
-
-      val out = Paths.get(outputLocalPath, "example-geotiff.tiff")
+      val out = Paths.get("target", "example-geotiff.tiff")
       logger.info(s"Writing to $out")
-      //val out = Paths.get("target", "example-geotiff.tiff")
       noException shouldBe thrownBy {
         rf.write.geotiff.save(out.toString)
       }
-      logger.info("Done!")
     }
   }
 }

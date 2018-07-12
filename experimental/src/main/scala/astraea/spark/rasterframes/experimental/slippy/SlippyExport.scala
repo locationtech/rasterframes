@@ -20,15 +20,16 @@
 
 package astraea.spark.rasterframes.experimental.slippy
 
+import java.io.PrintStream
 import java.net.URI
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.util.MultibandRender.ColorRampProfile
 import astraea.spark.rasterframes.util._
 import geotrellis.proj4.{LatLng, WebMercator}
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff._
 import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
-import geotrellis.raster.render.{ColorMap, ColorRamps}
 import geotrellis.raster.resample.Bilinear
 import geotrellis.spark._
 import geotrellis.spark.io.slippy.HadoopSlippyTileWriter
@@ -41,7 +42,6 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.annotation.Experimental
 
 import scala.io.Source
-import scala.util.Try
 
 /**
  * Experimental support for exporting a RasterFrame into Slippy map format.
@@ -94,7 +94,7 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
    * @param colorMap Optional color map to use for rendering tiles in non-RGB RasterFrames.
    */
   @Experimental
-  def exportSlippyMap(dest: URI, colorMap: Option[ColorMap] = None): Unit = {
+  def exportSlippyMap(dest: URI, renderer: MultibandRender.Profile = MultibandRender.Default): Unit = {
     val spark = self.sparkSession
     implicit val sc = spark.sparkContext
 
@@ -116,15 +116,9 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
 
     val (zoom, reprojected) = inputRDD.reproject(WebMercator, layoutScheme, Bilinear)
     val writer = new HadoopSlippyTileWriter[MultibandTile](dest.toASCIIString + "/" + tileDirName, "png")({ (_, tile) =>
-      val png = if(colorMap.isEmpty && tile.bands.lengthCompare(3) == 0) {
-        // `Try` below is due to https://github.com/locationtech/geotrellis/issues/2621
-        tile.mapBands((_, t) ⇒ Try(t.rescale(0, 255)).getOrElse(t)).renderPng()
-      }
-      else {
-        // Are there other ways to use the other bands?
-        val selected = tile.bands.head
-        colorMap.map(m ⇒ selected.renderPng(m)).getOrElse(selected.renderPng(ColorRamps.greyscale(256)))
-      }
+      require(tile.bandCount >= 3 || renderer.isInstanceOf[ColorRampProfile],
+        "Single-band and dual-band RasterFrames require a ColorRampProfile for rendering")
+      val png = renderer.render(tile)
       png.bytes
     })
 
@@ -153,10 +147,10 @@ object SlippyExport {
     val subst = new StrSubstitutor(subs.asJava)
 
     val fs = FileSystem.get(dest, conf)
-    withResource(fs.create(new Path(new Path(dest), "index.html"), true)) { out ⇒
+    withResource(fs.create(new Path(new Path(dest), "index.html"), true)) { hout ⇒
+      val out = new PrintStream(hout, true ,"UTF-8")
       for(line ← rawLines) {
-        out.writeBytes(subst.replace(line))
-        out.writeChar('\n')
+        out.println(subst.replace(line))
       }
     }
   }

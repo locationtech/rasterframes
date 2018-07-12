@@ -59,7 +59,6 @@ trait GeoTiffInfoSupport {
     // * `info.rasterExtent.{cellwidth|cellheight}` is the per-pixel spatial resolution
     // * `info.extent` and `info.rasterExtent.extent` are the same thing
 
-
     val tlm = {
       val tileLayout = if(info.segmentLayout.isTiled) {
         info.segmentLayout.tileLayout
@@ -77,17 +76,9 @@ trait GeoTiffInfoSupport {
         SpatialKey(tileLayout.layoutCols - 1, tileLayout.layoutRows - 1)
       )
 
-      val layoutExtentWidth = tileLayout.totalCols * info.rasterExtent.cellwidth
-      val layoutExtentHeight = tileLayout.totalRows * info.rasterExtent.cellheight
-
-      val layoutExtent = Extent(
-        extent.xmin,
-        extent.ymin,
-        extent.xmin + layoutExtentWidth,
-        extent.ymin + layoutExtentHeight
-      )
-
-      TileLayerMetadata(cellType, LayoutDefinition(layoutExtent, tileLayout), extent, crs, bounds)
+      TileLayerMetadata(cellType,
+        LayoutDefinition(info.rasterExtent, tileLayout.tileCols, tileLayout.tileRows),
+        extent, crs, bounds)
     }
 
     (info, tlm)

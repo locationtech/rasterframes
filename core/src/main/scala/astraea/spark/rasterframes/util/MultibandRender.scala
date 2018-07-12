@@ -21,7 +21,9 @@
 package astraea.spark.rasterframes.util
 
 import geotrellis.raster._
-import geotrellis.raster.render.Png
+import geotrellis.raster.render.{ColorRamp, Png}
+
+import scala.util.Try
 
 /**
  * Rework of process courtesy of @lossyrob for creating natural color RGB images in GeoTrellis.
@@ -55,6 +57,11 @@ object MultibandRender {
   }
   import CellTransforms._
 
+  /** Create an RGB composite PNG file from the given MultibandTile and color profile. */
+  @deprecated("Use Profile.render instead", "0.7.0")
+  def rgbComposite(tile: MultibandTile, profile: Profile): Png = profile.render(tile)
+
+  /** Base type for Rendering profiles. */
   trait Profile {
     /** Value from -255 to 255 */
     def brightness: Int = 0
@@ -73,8 +80,10 @@ object MultibandRender {
     /** Convert the tile to an Int-based cell type. */
     def normalizeCellType(tile: Tile): Tile = tile.convert(IntCellType)
 
-    /** Convert tile such that cells values fall between 0 and 255. */
-    def compressRange(tile: Tile): Tile = tile
+    /** Convert tile such that cells values fall between 0 and 255, if desired. */
+    def compressRange(tile: Tile): Tile =
+      // `Try` below is due to https://github.com/locationtech/geotrellis/issues/2621
+      Try(tile.rescale(0, 255)).getOrElse(tile)
 
     /** Apply color correction so it "looks nice". */
     def colorAdjust(tile: Tile): Tile = {
@@ -89,7 +98,15 @@ object MultibandRender {
       normalizeCellType(tile).map(pipeline)
     }
 
-    val applyAdjustment = compressRange _ andThen colorAdjust
+    val applyAdjustment: Tile ⇒ Tile =
+      compressRange _ andThen colorAdjust
+
+    def render(tile: MultibandTile) = {
+      val r = applyAdjustment(red(tile))
+      val g = applyAdjustment(green(tile))
+      val b = applyAdjustment(blue(tile))
+      ArrayMultibandTile(r, g, b).renderPng
+    }
   }
   case object Default extends Profile
 
@@ -108,13 +125,11 @@ object MultibandRender {
 
   case object NAIPNaturalColor extends Profile {
     override val gamma = 1.4
-    override def compressRange(tile: Tile): Tile = tile.rescale(0, 255)
   }
 
-  def rgbComposite(tile: MultibandTile, profile: Profile): Png = {
-    val red = profile.applyAdjustment(profile.red(tile))
-    val green = profile.applyAdjustment(profile.green(tile))
-    val blue = profile.applyAdjustment(profile.blue(tile))
-    ArrayMultibandTile(red, green, blue).renderPng
+  case class ColorRampProfile(ramp: ColorRamp) extends Profile {
+    // Are there other ways to use the other bands?
+    override def render(tile: MultibandTile): Png =
+      colorAdjust(tile.band(0)).renderPng(ramp)
   }
 }

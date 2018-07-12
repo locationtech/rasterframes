@@ -23,12 +23,9 @@ import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util._
-import geotrellis.raster.{MultibandTile, Tile, TileLayout}
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.io.hadoop._
-import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util._
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD

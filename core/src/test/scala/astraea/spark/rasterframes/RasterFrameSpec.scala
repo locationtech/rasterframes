@@ -301,7 +301,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
         noException shouldBe thrownBy {
           val raster = joined.toMultibandRaster(Seq($"red", $"green", $"blue"), 128, 128)
-          val png = MultibandRender.rgbComposite(raster.tile, MultibandRender.Landsat8NaturalColor)
+          val png = MultibandRender.Landsat8NaturalColor.render(raster.tile)
           //png.write(s"target/${getClass.getSimpleName}.png")
         }
       }
@@ -313,7 +313,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
         noException shouldBe thrownBy {
           val raster = joined.toMultibandRaster(Seq($"red", $"green", $"blue"), 256, 256)
-          val png = MultibandRender.rgbComposite(raster.tile, MultibandRender.NAIPNaturalColor)
+          val png = MultibandRender.NAIPNaturalColor.render(raster.tile)
           png.write(s"target/${getClass.getSimpleName}.png")
         }
       }

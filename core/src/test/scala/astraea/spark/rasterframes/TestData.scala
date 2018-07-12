@@ -25,7 +25,7 @@ import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
 import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.SinglebandGeoTiff
+import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.spark._
 import geotrellis.spark.testkit.TileLayerRDDBuilders
 import geotrellis.spark.tiling.LayoutDefinition
@@ -89,6 +89,7 @@ trait TestData {
   }
 
   def readSingleband(name: String) = SinglebandGeoTiff(IOUtils.toByteArray(getClass.getResourceAsStream("/" + name)))
+  def readMultiband(name: String) = MultibandGeoTiff(IOUtils.toByteArray(getClass.getResourceAsStream("/" + name)))
 
   /** 774 x 500 GeoTiff */
   def sampleGeoTiff = readSingleband("L8-B8-Robinson-IL.tiff")
@@ -105,6 +106,8 @@ trait TestData {
     require((1 to 4).contains(band), "Invalid band number")
     readSingleband(s"NAIP-VA-b$band.tiff")
   }
+
+  def rgbCogSample = readMultiband("LC08_RGB_Norfolk_COG.tiff")
 
   def sampleTileLayerRDD(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
     val rf = sampleGeoTiff.projectedRaster.toRF(128, 128)

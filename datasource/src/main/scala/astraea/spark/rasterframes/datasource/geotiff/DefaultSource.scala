@@ -19,7 +19,6 @@
 
 package astraea.spark.rasterframes.datasource.geotiff
 
-import _root_.geotrellis.raster.io.geotiff.GeoTiff
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource._
 import astraea.spark.rasterframes.util._
@@ -27,6 +26,9 @@ import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.LongType
 import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode, functions ⇒ F}
+import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
+import _root_.geotrellis.raster.io.geotiff.compression._
+import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
 
 /**
  * Spark SQL data source over GeoTIFF files.
@@ -88,10 +90,25 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
     if(cols.toDouble * rows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
       logger.warn(s"You've asked for the construction of a very large image ($cols x $rows), destined for ${pathO.get}. Out of memory error likely.")
 
-    logger.debug(s"Writing DataFrame to GeoTIFF ($cols by $rows) at ${pathO.get}")
-    val raster = rf.toMultibandRaster(rf.tileColumns, cols.toInt, rows.toInt)
+    val tcols = rf.tileColumns
+    val raster = rf.toMultibandRaster(tcols, cols.toInt, rows.toInt)
 
-    GeoTiff(raster).write(pathO.get.getPath)
+    // We make some assumptions here.... eventually have column metadata encode this.
+    val colorSpace = tcols.size match {
+      case 3 | 4 ⇒  ColorSpace.RGB
+      case _ ⇒ ColorSpace.BlackIsZero
+    }
+
+    val compress = parameters.get(DefaultSource.COMPRESS).map(_.toBoolean).getOrElse(false)
+    val options = GeoTiffOptions(Tiled, if (compress) DeflateCompression else NoCompression, colorSpace)
+    val tags = Tags(
+      RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
+      tcols.map(c ⇒ Map("RF_COL" -> c.columnName)).toList
+    )
+    val geotiff = new MultibandGeoTiff(raster.tile, raster.extent, raster.crs, tags, options)
+
+    logger.debug(s"Writing DataFrame to GeoTIFF ($cols x $rows) at ${pathO.get}")
+    geotiff.write(pathO.get.getPath)
     GeoTiffRelation(sqlContext, pathO.get)
   }
 }
@@ -101,4 +118,5 @@ object DefaultSource {
   final val PATH_PARAM = "path"
   final val IMAGE_WIDTH_PARAM = "imageWidth"
   final val IMAGE_HEIGHT_PARAM = "imageWidth"
+  final val COMPRESS = "compress"
 }
