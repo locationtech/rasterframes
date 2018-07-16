@@ -59,8 +59,6 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
 
     sqlContext.withRasterFrames
 
-    registerOptimization(sqlContext, SpatialFilterPushdownRules)
-
     val uri: URI = URI.create(parameters("path"))
     val layerId: LayerId = LayerId(parameters(LAYER_PARAM), parameters(ZOOM_PARAM).toInt)
     val numPartitions = parameters.get(NUM_PARTITIONS_PARAM).map(_.toInt)

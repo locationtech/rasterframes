@@ -25,8 +25,11 @@ import java.sql.Timestamp
 import java.time.{ZoneOffset, ZonedDateTime}
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.jts.SpatialFilters.{BetweenTimes, Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
 import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.TileFeatureData
+import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
+import astraea.spark.rasterframes.jts.SpatialFilters.{BetweenTimes, Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
+import astraea.spark.rasterframes.rules.SpatialRelationReceiver
+import astraea.spark.rasterframes.util.SubdivideSupport._
 import astraea.spark.rasterframes.util._
 import com.vividsolutions.jts.geom
 import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileFeature}
@@ -34,9 +37,8 @@ import geotrellis.spark.io._
 import geotrellis.spark.io.avro.AvroRecordCodec
 import geotrellis.spark.util.KryoWrapper
 import geotrellis.spark.{LayerId, Metadata, SpatialKey, TileLayerMetadata, _}
-import geotrellis.util.LazyLogging
+import geotrellis.util.{LazyLogging, _}
 import geotrellis.vector._
-import geotrellis.util._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.rdd.RDD
@@ -45,11 +47,6 @@ import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
-import spray.json.DefaultJsonProtocol._
-import spray.json.JsValue
-import TileFeatureSupport._
-import geotrellis.spark.tiling.{CutTiles, TilerKeyMethods}
-import SubdivideSupport._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -64,13 +61,16 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   failOnUnrecognizedFilter: Boolean = false,
   tileSubdivisions: Option[Int] = None,
   filters: Seq[Filter] = Seq.empty)
-  extends BaseRelation with PrunedScan with LazyLogging {
+  extends BaseRelation with PrunedScan with SpatialRelationReceiver[GeoTrellisRelation] with LazyLogging {
 
   implicit val sc = sqlContext.sparkContext
 
-  /** Convenience to create new relation with the give filter added. */
+  /** Create new relation with the give filter added. */
   def withFilter(value: Filter): GeoTrellisRelation =
     copy(filters = filters :+ value)
+  /** Check to see if relation already exists in this. */
+  def hasFilter(filter: Filter): Boolean = filters.contains(filter)
+
 
   /** Separate And conditions into separate filters. */
   def splitFilters = {
@@ -342,6 +342,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   override def sizeInBytes = {
     super.sizeInBytes
   }
+
 }
 
 object GeoTrellisRelation {

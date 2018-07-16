@@ -23,6 +23,7 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 import java.net.URI
 import java.time.{Duration, Instant}
 
+import astraea.spark.rasterframes.experimental.datasource.DownloadSupport
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.FilenameUtils

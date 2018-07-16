@@ -23,6 +23,7 @@ import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
+import astraea.spark.rasterframes.rules.SpatialRelationReceiver
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.util.debug._
 import geotrellis.proj4.LatLng
@@ -264,7 +265,7 @@ class GeoTrellisDataSourceSpec
     def extractRelation(df: DataFrame): Option[GeoTrellisRelation] = {
       val plan = df.queryExecution.optimizedPlan
       plan.collectFirst {
-        case LogicalRelationWithGTR(gt: GeoTrellisRelation) ⇒ gt
+        case SpatialRelationReceiver(gt: GeoTrellisRelation) ⇒ gt
       }
     }
     def numFilters(df: DataFrame) = {

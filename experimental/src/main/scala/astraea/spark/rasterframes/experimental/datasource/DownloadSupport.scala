@@ -18,13 +18,14 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource.awspds
+package astraea.spark.rasterframes.experimental.datasource
+
+import java.io._
 
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.httpclient._
 import org.apache.commons.httpclient.methods._
 import org.apache.commons.httpclient.params.HttpMethodParams
-import java.io._
 
 
 /**

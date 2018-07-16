@@ -17,5 +17,6 @@ package object rules {
 
   def register(sqlContext: SQLContext): Unit = {
     registerOptimization(sqlContext, SpatialUDFSubstitutionRules)
+    registerOptimization(sqlContext, SpatialFilterPushdownRules)
   }
 }

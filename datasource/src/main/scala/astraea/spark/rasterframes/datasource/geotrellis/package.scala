@@ -35,13 +35,6 @@ import shapeless.tag.@@
  * @since 1/12/18
  */
 package object geotrellis {
-  object LogicalRelationWithGTR {
-    def unapply(lr: LogicalRelation): Option[GeoTrellisRelation] = lr.relation match {
-      case gt: GeoTrellisRelation ⇒ Some(gt)
-      case _ ⇒ None
-    }
-  }
-
   implicit val layerEncoder = Layer.layerEncoder
 
   /** Convenience column selector for a GeoTrellis layer. */

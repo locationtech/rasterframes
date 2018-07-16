@@ -18,7 +18,7 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource.awspds
+package astraea.spark.rasterframes.experimental.datasource
 
 import java.nio.ByteBuffer
 

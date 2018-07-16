@@ -18,7 +18,7 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource.awspds
+package astraea.spark.rasterframes.experimental.datasource
 
 import astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
