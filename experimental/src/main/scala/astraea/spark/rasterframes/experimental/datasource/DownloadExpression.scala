@@ -20,6 +20,8 @@
 
 package astraea.spark.rasterframes.experimental.datasource
 
+import java.net.URI
+
 import astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.catalyst.InternalRow
@@ -51,7 +53,7 @@ case class DownloadExpression(override val child: Expression, colPrefix: String)
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     val urlString = child.eval(input).asInstanceOf[UTF8String]
-    val bytes = downloadBytes(urlString.toString)
+    val bytes = getBytes(URI.create(urlString.toString))
     Traversable(new GenericInternalRow(Array[Any](bytes)))
   }
 }

@@ -39,7 +39,7 @@ trait SpatialRelationReceiver[+T <: SpatialRelationReceiver[T]] { self: BaseRela
 
 object SpatialRelationReceiver {
   def unapply[T <: SpatialRelationReceiver[T]](lr: LogicalRelation): Option[SpatialRelationReceiver[T]] = lr.relation match {
-    case t if t.isInstanceOf[SpatialRelationReceiver[_]] ⇒ Some(t.asInstanceOf[T])
+    case t: SpatialRelationReceiver[T] @unchecked ⇒ Some(t)
     case _ ⇒ None
   }
 }

@@ -17,17 +17,17 @@
 
 package org.apache.spark.sql.rf
 
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 
 import astraea.spark.rasterframes.expressions.SpatialExpression.{Contains, Intersects}
-import astraea.spark.rasterframes.jts.SpatialFilters
+import astraea.spark.rasterframes.rules._
 import org.apache.spark.sql.catalyst.CatalystTypeConverters.{convertToScala, createToScalaConverter}
 import org.apache.spark.sql.catalyst.expressions
 import org.apache.spark.sql.catalyst.expressions.{Attribute, EmptyRow, Expression, Literal}
 import org.apache.spark.sql.jts.AbstractGeometryUDT
 import org.apache.spark.sql.sources
 import org.apache.spark.sql.sources.Filter
-import org.apache.spark.sql.types.{StringType, TimestampType}
+import org.apache.spark.sql.types.{DateType, StringType, TimestampType}
 import org.apache.spark.unsafe.types.UTF8String
 
 /**
@@ -55,7 +55,14 @@ object FilterTranslator {
         expressions.LessThanOrEqual(b: Attribute, Literal(end, TimestampType))
       ) if a.name == b.name ⇒
         val toScala = createToScalaConverter(TimestampType)(_: Any).asInstanceOf[Timestamp]
-        Some(SpatialFilters.BetweenTimes(a.name, toScala(start), toScala(end)))
+        Some(TemporalFilters.BetweenTimes(a.name, toScala(start), toScala(end)))
+
+      case expressions.And(
+        expressions.GreaterThanOrEqual(a: Attribute, Literal(start, DateType)),
+        expressions.LessThanOrEqual(b: Attribute, Literal(end, DateType))
+      ) if a.name == b.name ⇒
+        val toScala = createToScalaConverter(DateType)(_: Any).asInstanceOf[Date]
+        Some(TemporalFilters.BetweenDates(a.name, toScala(start), toScala(end)))
 
       // TODO: Need to figure out how to generalize over capturing right-hand pairs
       case expressions.And(expressions.And(left,
@@ -66,8 +73,21 @@ object FilterTranslator {
 
         for {
           leftFilter ← translateFilter(left)
-          rightFilter = SpatialFilters.BetweenTimes(a.name, toScala(start), toScala(end))
+          rightFilter = TemporalFilters.BetweenTimes(a.name, toScala(start), toScala(end))
         } yield sources.And(leftFilter, rightFilter)
+
+
+      // TODO: Ditto as above
+      case expressions.And(expressions.And(left,
+        expressions.GreaterThanOrEqual(a: Attribute, Literal(start, DateType))),
+        expressions.LessThanOrEqual(b: Attribute, Literal(end, DateType))
+      ) if a.name == b.name ⇒
+        val toScala = createToScalaConverter(DateType)(_: Any).asInstanceOf[Date]
+        for {
+          leftFilter ← translateFilter(left)
+          rightFilter = TemporalFilters.BetweenDates(a.name, toScala(start), toScala(end))
+        } yield sources.And(leftFilter, rightFilter)
+
 
       case expressions.EqualTo(a: Attribute, Literal(v, t)) =>
         Some(sources.EqualTo(a.name, convertToScala(v, t)))

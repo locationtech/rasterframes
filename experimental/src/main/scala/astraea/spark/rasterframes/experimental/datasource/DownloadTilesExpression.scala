@@ -20,6 +20,7 @@
 
 package astraea.spark.rasterframes.experimental.datasource
 
+import java.net.URI
 import java.nio.ByteBuffer
 
 import astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport
@@ -68,7 +69,7 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
       val urlString = child.eval(input).asInstanceOf[UTF8String]
-      val bytes = ByteBuffer.wrap(downloadBytes(urlString.toString))
+      val bytes = ByteBuffer.wrap(getBytes(URI.create(urlString.toString)))
       val (info, layerMetadata) = extractGeoTiffLayout(bytes)
       //See if GeoTiff is CoG compliant
       if(info.segmentLayout.isTiled) {

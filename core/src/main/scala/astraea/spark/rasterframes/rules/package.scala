@@ -5,7 +5,7 @@ import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 
 /**
- * Module utilties.
+ * Rule registration support.
  *
  * @since 2/19/18
  */

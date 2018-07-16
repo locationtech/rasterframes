@@ -81,7 +81,7 @@ trait ResourceCacheSupport extends DownloadSupport { self: LazyLogging  ⇒
     val dest = cacheName(Left(uri))
     dest.when(f ⇒ !expired(f)).orElse {
       try {
-        val bytes = downloadBytes(uri.toASCIIString)
+        val bytes = getBytes(uri)
         withResource(fs.create(dest))(_.write(bytes))
         Some(dest)
       }

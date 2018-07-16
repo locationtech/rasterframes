@@ -20,12 +20,14 @@
 
 package astraea.spark.rasterframes.experimental.datasource.stac
 
+import java.net.URI
+
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources._
 import astraea.spark.rasterframes._
 
 /**
- *
+ * DataSource for reading from a STAC API endpoint.
  *
  * @since 7/16/18
  */
@@ -33,9 +35,9 @@ class DefaultSource extends DataSourceRegister with RelationProvider {
   override def shortName(): String = DefaultSource.SHORT_NAME
 
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val path = parameters.getOrElse(DefaultSource.PATH_PARAM, "https://sat-api.developmentseed.org")
+    val path = parameters.getOrElse(DefaultSource.PATH_PARAM, "https://sat-api.developmentseed.org/search/stac")
     sqlContext.withRasterFrames
-    STACRelation(sqlContext, path)
+    STACRelation(sqlContext, URI.create(path))
   }
 }
 

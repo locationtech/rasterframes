@@ -21,14 +21,15 @@ package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.io.UnsupportedEncodingException
 import java.net.URI
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 import java.time.{ZoneOffset, ZonedDateTime}
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.TileFeatureData
 import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
-import astraea.spark.rasterframes.jts.SpatialFilters.{BetweenTimes, Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
+import astraea.spark.rasterframes.rules.SpatialFilters.{Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
 import astraea.spark.rasterframes.rules.SpatialRelationReceiver
+import astraea.spark.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
 import astraea.spark.rasterframes.util.SubdivideSupport._
 import astraea.spark.rasterframes.util._
 import com.vividsolutions.jts.geom
@@ -223,11 +224,15 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
 
   def applyFilterTemporal[K: Boundable: SpatialComponent: TemporalComponent, T](q: BLQ[K, T], predicate: Filter): BLQ[K, T] = {
     def toZDT(ts: Timestamp) = ZonedDateTime.ofInstant(ts.toInstant, ZoneOffset.UTC)
+    def toZDT2(date: Date) = ZonedDateTime.ofInstant(date.toInstant, ZoneOffset.UTC)
+
     predicate match {
       case sources.EqualTo(Cols.TS, ts: Timestamp) ⇒
         q.where(At(toZDT(ts)))
       case BetweenTimes(Cols.TS, start: Timestamp, end: Timestamp) ⇒
         q.where(Between(toZDT(start), toZDT(end)))
+      case BetweenDates(Cols.TS, start: Date, end: Date) ⇒
+        q.where(Between(toZDT2(start), toZDT2(end)))
       case _ ⇒ applyFilter(q, predicate)
     }
   }
