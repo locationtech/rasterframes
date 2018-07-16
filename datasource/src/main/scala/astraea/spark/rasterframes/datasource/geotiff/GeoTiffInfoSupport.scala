@@ -27,9 +27,10 @@ import geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.ByteReader
+import geotrellis.vector.Extent
 
 /**
- * Utility mix in for generating a tlm from GeoTiff headers.
+ * Utility mix-in for generating a tlm from GeoTiff headers.
  *
  * @since 5/4/18
  */
@@ -49,23 +50,35 @@ trait GeoTiffInfoSupport {
 
   def extractGeoTiffLayout(reader: ByteReader): (GeoTiffReader.GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
     val info: GeoTiffInfo = Shims.readGeoTiffInfo(reader, false, true)
+    // Some notes on GeoTiffInfo properties:
+    // * `info.extent` is the actual geotiff extent
+    // * `info.segmentLayout.tileLayout` contains the internal, regularized gridding of a tiled GeoTIFF
+    // * `info.segmentLayout.tileLayout.{totalCols|totalRows}` is the largest number of possible cells in the internal gridding
+    // * `info.segmentLayout.{totalCols|totalRows}` are the real dimensions of the GeoTIFF. This is likely smaller than
+    //     the total size of `info.segmentLayout.tileLayout.{totalCols|totalRows}`
+    // * `info.rasterExtent.{cellwidth|cellheight}` is the per-pixel spatial resolution
+    // * `info.extent` and `info.rasterExtent.extent` are the same thing
+
     val tlm = {
-      val layout = if(!info.segmentLayout.isTiled) {
+      val tileLayout = if(info.segmentLayout.isTiled) {
+        info.segmentLayout.tileLayout
+      }
+      else {
         val width = info.segmentLayout.totalCols
         val height = info.segmentLayout.totalRows
         defaultLayout(width, height)
-      }
-      else {
-        info.segmentLayout.tileLayout
       }
       val extent = info.extent
       val crs = info.crs
       val cellType = info.cellType
       val bounds = KeyBounds(
         SpatialKey(0, 0),
-        SpatialKey(layout.layoutCols - 1, layout.layoutRows - 1)
+        SpatialKey(tileLayout.layoutCols - 1, tileLayout.layoutRows - 1)
       )
-      TileLayerMetadata(cellType, LayoutDefinition(extent, layout), extent, crs, bounds)
+
+      TileLayerMetadata(cellType,
+        LayoutDefinition(info.rasterExtent, tileLayout.tileCols, tileLayout.tileRows),
+        extent, crs, bounds)
     }
 
     (info, tlm)
