@@ -19,9 +19,11 @@
  */
 
 package astraea.spark.rasterframes.experimental.datasource.stac
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 
 import astraea.spark.rasterframes.TestEnvironment
+import astraea.spark.rasterframes._
+import geotrellis.vector.Point
 
 /**
  *
@@ -31,11 +33,13 @@ import astraea.spark.rasterframes.TestEnvironment
 class STACDataSourceTest extends TestEnvironment {
   describe("Representing MODIS scenes as a Spark data source") {
     import spark.implicits._
-    val catalog = spark.read.format(DefaultSource.SHORT_NAME).load()
+    val catalog = spark.read.format("stac").load()
 
     it("should provide a non-empty catalog") {
-      val scenes = catalog.where($"datetime".between(Timestamp.valueOf("2017-08-01 00:00:00"), Timestamp.valueOf("2017-12-01 00:00:00")))
-
+      val scenes = catalog
+        .select($"id", TIMESTAMP_COLUMN, $"properties", $"assets")
+        .where(TIMESTAMP_COLUMN betweenDates (Date.valueOf("2017-08-01"), Date.valueOf("2017-12-01")))
+        //.where(BOUNDS_COLUMN intersects Point(-78.6445222907, 38.3957546898))
 
       scenes.printSchema()
       println(scenes.count())

@@ -48,9 +48,9 @@ import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
-
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+import GeoTrellisRelation.C
 
 /**
  * A Spark SQL `Relation` over a standard GeoTrellis layer.
@@ -127,14 +127,6 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     }
   }
 
-  private object Cols {
-    lazy val SK = SPATIAL_KEY_COLUMN.columnName
-    lazy val TK = TEMPORAL_KEY_COLUMN.columnName
-    lazy val TS = TIMESTAMP_COLUMN.columnName
-    lazy val TL = TILE_COLUMN.columnName
-    lazy val TF = TILE_FEATURE_DATA_COLUMN.columnName
-    lazy val EX = BOUNDS_COLUMN.columnName
-  }
 
   /** This unfortunate routine is here because the number bands in a multiband layer isn't written
    * in the metadata anywhere. This is potentially an expensive hack, which needs further quantifying of impact.
@@ -167,32 +159,32 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
         val tkSchema = ExpressionEncoder[TemporalKey]().schema
         val tkMetadata = Metadata.empty.append.tagTemporalKey.build
         List(
-          StructField(Cols.SK, skSchema, nullable = false, skMetadata),
-          StructField(Cols.TK, tkSchema, nullable = false, tkMetadata),
-          StructField(Cols.TS, TimestampType, nullable = false)
+          StructField(C.SK, skSchema, nullable = false, skMetadata),
+          StructField(C.TK, tkSchema, nullable = false, tkMetadata),
+          StructField(C.TS, TimestampType, nullable = false)
         )
       case t if t =:= typeOf[SpatialKey] ⇒
         List(
-          StructField(Cols.SK, skSchema, nullable = false, skMetadata)
+          StructField(C.SK, skSchema, nullable = false, skMetadata)
         )
     }
 
     val tileFields = tileClass match {
       case t if t =:= typeOf[Tile]  ⇒
         List(
-          StructField(Cols.TL, new TileUDT, nullable = true)
+          StructField(C.TL, new TileUDT, nullable = true)
         )
       case t if t =:= typeOf[MultibandTile] ⇒
         for(b ← 1 to peekBandCount) yield
-          StructField(Cols.TL + "_" + b, new TileUDT, nullable = true)
+          StructField(C.TL + "_" + b, new TileUDT, nullable = true)
       case t if t =:= typeOf[TileFeature[Tile, _]] ⇒
         List(
-          StructField(Cols.TL, new TileUDT, nullable = true),
-          StructField(Cols.TF, DataTypes.StringType, nullable = true)
+          StructField(C.TL, new TileUDT, nullable = true),
+          StructField(C.TF, DataTypes.StringType, nullable = true)
         )
     }
 
-    val extentField = StructField(Cols.EX, org.apache.spark.sql.jts.JTSTypes.PolygonTypeInstance, true)
+    val extentField = StructField(C.EX, org.apache.spark.sql.jts.JTSTypes.PolygonTypeInstance, true)
     StructType((keyFields :+ extentField) ++ tileFields)
   }
 
@@ -201,16 +193,16 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   def applyFilter[K: Boundable: SpatialComponent, T](query: BLQ[K, T], predicate: Filter): BLQ[K, T] = {
     predicate match {
       // GT limits disjunctions to a single type
-      case sources.Or(sfIntersects(Cols.EX, left), sfIntersects(Cols.EX, right)) ⇒
+      case sources.Or(sfIntersects(C.EX, left), sfIntersects(C.EX, right)) ⇒
         query.where(LayerFilter.Or(
           Intersects(Extent(left.getEnvelopeInternal)),
           Intersects(Extent(right.getEnvelopeInternal))
         ))
-      case sfIntersects(Cols.EX, rhs: geom.Point) ⇒
+      case sfIntersects(C.EX, rhs: geom.Point) ⇒
         query.where(Contains(Point(rhs)))
-      case sfContains(Cols.EX, rhs: geom.Point) ⇒
+      case sfContains(C.EX, rhs: geom.Point) ⇒
         query.where(Contains(Point(rhs)))
-      case sfIntersects(Cols.EX, rhs) ⇒
+      case sfIntersects(C.EX, rhs) ⇒
         query.where(Intersects(Extent(rhs.getEnvelopeInternal)))
       case _ ⇒
         val msg = "Unable to convert filter into GeoTrellis query: " + predicate
@@ -227,11 +219,11 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     def toZDT2(date: Date) = ZonedDateTime.ofInstant(date.toInstant, ZoneOffset.UTC)
 
     predicate match {
-      case sources.EqualTo(Cols.TS, ts: Timestamp) ⇒
+      case sources.EqualTo(C.TS, ts: Timestamp) ⇒
         q.where(At(toZDT(ts)))
-      case BetweenTimes(Cols.TS, start: Timestamp, end: Timestamp) ⇒
+      case BetweenTimes(C.TS, start: Timestamp, end: Timestamp) ⇒
         q.where(Between(toZDT(start), toZDT(end)))
-      case BetweenDates(Cols.TS, start: Date, end: Date) ⇒
+      case BetweenDates(C.TS, start: Date, end: Date) ⇒
         q.where(Between(toZDT2(start), toZDT2(end)))
       case _ ⇒ applyFilter(q, predicate)
     }
@@ -359,5 +351,14 @@ object GeoTrellisRelation {
     def schema: Schema = dataSchema.value
     def encode(thing: TileFeatureData, rec: GenericRecord): Unit = ()
     def decode(rec: GenericRecord): TileFeatureData = rec.toString
+  }
+
+  object C {
+    lazy val SK = SPATIAL_KEY_COLUMN.columnName
+    lazy val TK = TEMPORAL_KEY_COLUMN.columnName
+    lazy val TS = TIMESTAMP_COLUMN.columnName
+    lazy val TL = TILE_COLUMN.columnName
+    lazy val TF = TILE_FEATURE_DATA_COLUMN.columnName
+    lazy val EX = BOUNDS_COLUMN.columnName
   }
 }

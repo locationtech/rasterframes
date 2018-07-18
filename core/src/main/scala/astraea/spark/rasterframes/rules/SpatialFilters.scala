@@ -36,5 +36,4 @@ object SpatialFilters {
   case class Contains(attribute: String, value: Geometry) extends Filter {
     def references: Array[String] = Array(attribute)
   }
-
 }
