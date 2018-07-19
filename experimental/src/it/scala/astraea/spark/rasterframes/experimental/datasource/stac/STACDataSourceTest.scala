@@ -39,7 +39,7 @@ class STACDataSourceTest extends TestEnvironment {
       val scenes = catalog
         .select($"id", TIMESTAMP_COLUMN, $"properties", $"assets")
         .where(TIMESTAMP_COLUMN betweenDates (Date.valueOf("2017-08-01"), Date.valueOf("2017-12-01")))
-        //.where(BOUNDS_COLUMN intersects Point(-78.6445222907, 38.3957546898))
+        .where(BOUNDS_COLUMN intersects Point(-78.6445222907, 38.3957546898))
 
       scenes.printSchema()
       println(scenes.count())

@@ -24,18 +24,23 @@ import java.net.URI
 import java.sql.{Date, Timestamp}
 import java.time.ZonedDateTime
 
+import astraea.spark.rasterframes
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.datasource.splitFilters
 import astraea.spark.rasterframes.experimental.datasource.DownloadSupport
 import astraea.spark.rasterframes.experimental.datasource.geojson.DOM
 import astraea.spark.rasterframes.experimental.datasource.stac.STACRelation._
+import astraea.spark.rasterframes.rules.SpatialFilters.Intersects
 import astraea.spark.rasterframes.rules.SpatialRelationReceiver
 import astraea.spark.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
+import com.vividsolutions.jts.geom.Point
 import org.apache.http.client.utils.URIBuilder
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources._
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext}
 import spray.json.DefaultJsonProtocol._
@@ -50,19 +55,18 @@ import scala.util.control.NonFatal
  * @since 7/16/18
  */
 @Experimental
-case class STACRelation(sqlContext: SQLContext, base: URI, filters: Seq[Filter] = Seq.empty) extends BaseRelation
+case class STACRelation(sqlContext: SQLContext, base: URI, numPartitions: Option[Int], filters: Seq[Filter] = Seq.empty) extends BaseRelation
   with PrunedFilteredScan with SpatialRelationReceiver[STACRelation] with DownloadSupport with LazyLogging {
 
-  // TODO: Make configurable
-  val numPartitions = sqlContext.getConf("spark.default.parallelism").toInt
+  private val assetSchema = DataTypes.createMapType(StringType, StringType, true)
+  private val geomSchema = org.apache.spark.sql.jts.JTSTypes.GeometryTypeInstance
 
-  val assetSchema = DataTypes.createMapType(StringType, StringType, true)
   override def schema: StructType = StructType(Seq(
     StructField(C.ID, StringType, false),
     StructField(C.TIMESTAMP, TimestampType, false),
     StructField(C.PROPERTIES, DataTypes.createMapType(StringType, StringType, false)),
-    StructField(C.BOUNDS, envelopeEncoder.schema, true),
-    StructField(C.GEOMETRY, org.apache.spark.sql.jts.JTSTypes.GeometryTypeInstance, false),
+    StructField(C.BOUNDS, geomSchema, true),
+    StructField(C.GEOMETRY, geomSchema, false),
     StructField(C.ASSETS, assetSchema, false)
   ))
 
@@ -80,13 +84,16 @@ case class STACRelation(sqlContext: SQLContext, base: URI, filters: Seq[Filter] 
 
       val result = getJson(query)
 
+      val parts = numPartitions.getOrElse(
+        sqlContext.getConf("spark.default.parallelism").toInt
+      )
+
       val featureRDD = result.asJsObject.fields("features") match {
-        case JsArray(features) ⇒ sqlContext.sparkContext.makeRDD(features).repartition(numPartitions)
+        case JsArray(features) ⇒ sqlContext.sparkContext.makeRDD(features).repartition(parts)
         case _ ⇒ throw new IllegalArgumentException("Unexpected JSON response recevied:\n" + result)
       }
 
       featureRDD.map(_.convertTo[DOM.GeoJsonFeature]).map { feature ⇒
-
         val entries = requiredColumns.map {
           case C.ID ⇒ feature.properties(C.ID).convertTo[String]
           case C.TIMESTAMP ⇒ feature.properties("datetime").convertTo[Timestamp]
@@ -116,6 +123,7 @@ object STACRelation {
 
   def toQueryParam(f: Filter): Option[(String, String)] = {
     val DT_PARAM = "datetime"
+    val INTR_PARAM = "intersects"
     f match {
       case BetweenTimes(C.TIMESTAMP, start, end) ⇒
         // TODO: is it ok to drop the time component?
@@ -137,12 +145,18 @@ object STACRelation {
       }
       case LessThan(C.TIMESTAMP, _) | LessThanOrEqual(C.TIMESTAMP, _) ⇒
         throw new UnsupportedOperationException("STAC API doesn't support 'less than' searches. Use conjunction of '<=' and '>='.")
-      case _ ⇒ None
+      case Intersects(C.BOUNDS, geom) ⇒ geom match {
+        case p: Point ⇒ Some(INTR_PARAM,
+      }
+
+      case x ⇒
+        println(x)
+        None
     }
   }
 
   def toUrl(base: URI, filters: Seq[Filter]): URI = {
-    val builder = filters
+    val builder = splitFilters(filters)
       .flatMap(toQueryParam)
       .foldLeft(new URIBuilder(base))((b, p)⇒ b.addParameter(p._1, p._2))
     builder.build()

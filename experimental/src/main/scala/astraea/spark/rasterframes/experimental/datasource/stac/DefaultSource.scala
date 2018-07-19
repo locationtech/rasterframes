@@ -25,23 +25,25 @@ import java.net.URI
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources._
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.datasource.DataSourceOptions
 
 /**
  * DataSource for reading from a STAC API endpoint.
  *
  * @since 7/16/18
  */
-class DefaultSource extends DataSourceRegister with RelationProvider {
+class DefaultSource extends DataSourceRegister with RelationProvider with DataSourceOptions {
   override def shortName(): String = DefaultSource.SHORT_NAME
 
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val path = parameters.getOrElse(DefaultSource.PATH_PARAM, "https://sat-api.developmentseed.org/search/stac")
+    val path = parameters.getOrElse(PATH_PARAM, "https://sat-api.developmentseed.org/search/stac")
+    val numPartitions = parameters.get(NUM_PARTITIONS_PARAM).map(_.toInt)
+
     sqlContext.withRasterFrames
-    STACRelation(sqlContext, URI.create(path))
+    STACRelation(sqlContext, URI.create(path), numPartitions)
   }
 }
 
 object DefaultSource {
   final val SHORT_NAME = "stac"
-  final val PATH_PARAM = "path"
 }

@@ -25,8 +25,9 @@ import java.sql.{Date, Timestamp}
 import java.time.{ZoneOffset, ZonedDateTime}
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.TileFeatureData
+import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
 import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
+import astraea.spark.rasterframes.datasource.splitFilters
 import astraea.spark.rasterframes.rules.SpatialFilters.{Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
 import astraea.spark.rasterframes.rules.SpatialRelationReceiver
 import astraea.spark.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
@@ -48,9 +49,9 @@ import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
+
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
-import GeoTrellisRelation.C
 
 /**
  * A Spark SQL `Relation` over a standard GeoTrellis layer.
@@ -71,18 +72,6 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     copy(filters = filters :+ value)
   /** Check to see if relation already exists in this. */
   def hasFilter(filter: Filter): Boolean = filters.contains(filter)
-
-
-  /** Separate And conditions into separate filters. */
-  def splitFilters = {
-    def splitConjunctives(f: Filter): Seq[Filter] =
-    f match {
-      case And(cond1, cond2) =>
-        splitConjunctives(cond1) ++ splitConjunctives(cond2)
-      case other => other :: Nil
-    }
-    filters.flatMap(splitConjunctives)
-  }
 
   @transient
   private implicit val spark = sqlContext.sparkSession
@@ -268,7 +257,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
 
         val parts = numPartitions.getOrElse(reader.defaultNumPartitions)
 
-        val query = splitFilters.foldLeft(
+        val query = splitFilters(filters).foldLeft(
           reader.query[SpatialKey, T, TileLayerMetadata[SpatialKey]](layerId, parts)
         )(applyFilter(_, _))
 
@@ -302,7 +291,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
 
         val parts = numPartitions.getOrElse(reader.defaultNumPartitions)
 
-        val query = splitFilters.foldLeft(
+        val query = splitFilters(filters).foldLeft(
           reader.query[SpaceTimeKey, T, TileLayerMetadata[SpaceTimeKey]](layerId, parts)
         )(applyFilterTemporal(_, _))
 

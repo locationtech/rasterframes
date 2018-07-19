@@ -21,7 +21,6 @@ package astraea.spark.rasterframes.datasource.geotiff
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource._
-import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.LongType
@@ -34,11 +33,13 @@ import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
  * Spark SQL data source over GeoTIFF files.
  * @since 1/14/18
  */
-class DefaultSource extends DataSourceRegister with RelationProvider with CreatableRelationProvider with LazyLogging {
+class DefaultSource extends DataSourceRegister
+  with RelationProvider with CreatableRelationProvider
+  with DataSourceOptions with LazyLogging {
   def shortName() = DefaultSource.SHORT_NAME
 
   def path(parameters: Map[String, String]) =
-    uriParam(DefaultSource.PATH_PARAM, parameters)
+    uriParam(PATH_PARAM, parameters)
 
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
     val pathO = path(parameters)
