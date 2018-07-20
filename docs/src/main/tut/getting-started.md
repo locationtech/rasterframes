@@ -17,23 +17,23 @@ Additional instructions can be found [here](https://github.com/locationtech/rast
 To use RasterFrames, add the following library dependencies:
 
 @@dependency[sbt,Maven,Gradle] {
-  group="io.astraea"
+  group="org.locationtech.rasterframes"
   artifact="rasterframes_2.11"
-  version="x.y.z"
+  version="$version$"
 }
 
 @@dependency[sbt,Maven,Gradle] {
-  group="io.astraea"
+  group="org.locationtech.rasterframes"
   artifact="rasterframes-datasource_2.11"
-  version="x.y.z"
+  version="$version$"
 }
 
 Optional:
 
 @@dependency[sbt,Maven,Gradle] {
-  group="io.astraea"
+  group="org.locationtech.rasterframes"
   artifact="rasterframes-experimental_2.11"
-  version="x.y.z"
+  version="$version$"
 }
 
 It assumes that SparkSQL 2.2.x is available in the runtime classpath. Here's how to add it explicitly:
