@@ -45,10 +45,9 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0-RC1
+0.7.0
 </div>
 </div>
-<select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
   <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
@@ -68,7 +67,7 @@ gtag('config', 'UA-106630615-1');
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
 
@@ -101,10 +100,9 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0-RC1
+0.7.0
 </div>
 </div>
-<select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
   <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
@@ -124,7 +122,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
 
@@ -165,7 +163,7 @@ import org.apache.spark.sql._
 </code></pre>
 <p>Now we are ready to create a RasterFrame.</p>
 <h2><a href="#reading-a-geotiff" name="reading-a-geotiff" class="anchor"><span class="anchor-link"></span></a>Reading a GeoTIFF</h2>
-<p>The most straightforward way to create a <code>RasterFrame</code> is to read a <a href="https://en.wikipedia.org/wiki/GeoTIFF">GeoTIFF</a> file using a RasterFrame <a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources"><code>DataSource</code></a> designed for this purpose.</p>
+<p>The most straightforward way to create a <code>RasterFrame</code> is to read a <a href="https://en.wikipedia.org/wiki/GeoTIFF">GeoTIFF</a> file using a RasterFrame <a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources"><code>DataSource</code></a> designed for this purpose. <a href="http://www.cogeo.org/">Cloud Optimized GeoTIFF</a> files are preferred, as they don&rsquo;t require re-tiling and can be read in a more memory-efficient way.</p>
 <p>First add the following import:</p>
 <pre class="prettyprint"><code class="language-scala">import astraea.spark.rasterframes.datasource.geotiff._
 import java.io.File
@@ -261,13 +259,13 @@ scala&gt; cat.show()
 +-----+--------------------+------+--------------------+--------+--------------------+-------------+--------+--------------------+--------------------+--------------------+
 |index|               layer|format|            keyClass|    path|          valueClass|       bounds|cellType|                 crs|              extent|    layoutDefinition|
 +-----+--------------------+------+--------------------+--------+--------------------+-------------+--------+--------------------+--------------------+--------------------+
-|    0|[[file:///var/fol...|  file|geotrellis.spark....|sample/0|geotrellis.raster...|[[4,3],[0,0]]|  uint16|+proj=utm +zone=1...|[395295.0,364455....|[[395295.0,364455...|
+|    0|[[file:///var/fol...|  file|geotrellis.spark....|sample/0|geotrellis.raster...|[[4,3],[0,0]]|  uint16|+proj=utm +zone=1...|[395295.0,364455....|[[402855.0,364455...|
 +-----+--------------------+------+--------------------+--------+--------------------+-------------+--------+--------------------+--------------------+--------------------+
 
 </code></pre>
 <p>As you can see, there&rsquo;s a lot of information stored in each row of the catalog. Most of this is associated with how the layer is discretized. However, there may be other application specific metadata serialized with a layer that can be use to filter the catalog entries or select a specific one. But for now, we&rsquo;re just going to load a RasterFrame in from the catalog using a convenience function.</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val firstLayer = cat.select(geotrellis_layer).first
-firstLayer: astraea.spark.rasterframes.datasource.geotrellis.Layer = Layer(file:///var/folders/lr/7lb0jzbj1x951n71lpcc2cy40000gn/T/rf-7660367504365009783/,Layer(name = &quot;sample&quot;, zoom = 0))
+firstLayer: astraea.spark.rasterframes.datasource.geotrellis.Layer = Layer(file:///var/folders/lr/7lb0jzbj1x951n71lpcc2cy40000gn/T/rf-3802239814832170648/,Layer(name = &quot;sample&quot;, zoom = 0))
 
 scala&gt; val rfAgain = spark.read.geotrellis.loadRF(firstLayer)
 rfAgain: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, bounds: polygon ... 3 more fields]
@@ -276,26 +274,26 @@ scala&gt; rfAgain.show()
 +-----------+--------------------+--------------------+--------------------+--------------------+
 |spatial_key|              bounds|              tile_1|              tile_2|              tile_3|
 +-----------+--------------------+--------------------+--------------------+--------------------+
-|      [4,3]|POLYGON ((389127 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [4,1]|POLYGON ((389127 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [4,2]|POLYGON ((389127 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,0]|POLYGON ((370623 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,0]|POLYGON ((376791 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,1]|POLYGON ((370623 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [4,3]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [4,1]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [4,2]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
 |      [0,1]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
 |      [0,0]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,0]|POLYGON ((382959 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,1]|POLYGON ((376791 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,1]|POLYGON ((382959 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [0,3]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,2]|POLYGON ((370623 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [1,1]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [3,1]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [1,0]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [2,1]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [2,0]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [3,0]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
 |      [0,2]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,3]|POLYGON ((370623 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [4,0]|POLYGON ((389127 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,2]|POLYGON ((376791 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,3]|POLYGON ((382959 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,3]|POLYGON ((376791 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,2]|POLYGON ((382959 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [1,2]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [0,3]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [1,3]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [4,0]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [3,3]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [2,2]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [2,3]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|      [3,2]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
 +-----------+--------------------+--------------------+--------------------+--------------------+
 
 </code></pre>
@@ -304,7 +302,7 @@ scala&gt; rfAgain.show()
 anotherRF: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, bounds: polygon ... 3 more fields]
 </code></pre>
 <h2><a href="#writing-a-geotrellis-layer" name="writing-a-geotrellis-layer" class="anchor"><span class="anchor-link"></span></a>Writing a GeoTrellis Layer</h2>
-<p><strong>TODO</strong></p>
+<p>See <a href="creating-rasterframes.html#exporting-to-a-geotrellis-layer">Exporting to a GeoTrellis Layer</a>.</p>
 <h2><a href="#using-geotrellis-apis" name="using-geotrellis-apis" class="anchor"><span class="anchor-link"></span></a>Using GeoTrellis APIs</h2>
 <p>If you are used to working directly with the GeoTrellis APIs, there are a number of additional ways to create a <code>RasterFrame</code>, as enumerated in the sections below.</p>
 <p>First, some more <code>import</code>s:</p>
@@ -314,7 +312,7 @@ import geotrellis.spark.io._
 <h3><a href="#from-projectedextent" name="from-projectedextent" class="anchor"><span class="anchor-link"></span></a>From <code>ProjectedExtent</code></h3>
 <p>The simplest mechanism for getting a RasterFrame is to use the <code>toRF(tileCols, tileRows)</code> extension method on <code>ProjectedRaster</code>.</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val scene = SinglebandGeoTiff(&quot;../core/src/test/resources/L8-B8-Robinson-IL.tiff&quot;)
-scene: geotrellis.raster.io.geotiff.SinglebandGeoTiff = SinglebandGeoTiff(geotrellis.raster.UShortConstantNoDataArrayTile@7c9eb178,Extent(431902.5, 4313647.5, 443512.5, 4321147.5),EPSG:32616,Tags(Map(AREA_OR_POINT -&gt; POINT),List(Map())),GeoTiffOptions(geotrellis.raster.io.geotiff.Striped@40724ccd,geotrellis.raster.io.geotiff.compression.DeflateCompression$@49ee30ca,1,None))
+scene: geotrellis.raster.io.geotiff.SinglebandGeoTiff = SinglebandGeoTiff(geotrellis.raster.UShortConstantNoDataArrayTile@624029ce,Extent(431902.5, 4313647.5, 443512.5, 4321147.5),EPSG:32616,Tags(Map(AREA_OR_POINT -&gt; POINT),List(Map())),GeoTiffOptions(geotrellis.raster.io.geotiff.Striped@400ccb09,geotrellis.raster.io.geotiff.compression.DeflateCompression$@2361949f,1,None))
 
 scala&gt; val rf = scene.projectedRaster.toRF(128, 128)
 rf: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tile: rf_tile]
@@ -323,11 +321,11 @@ scala&gt; rf.show(5, false)
 +-----------+--------------------------------------------------------+
 |spatial_key|tile                                                    |
 +-----------+--------------------------------------------------------+
-|[0,0]      |geotrellis.raster.UShortConstantNoDataArrayTile@1a93175f|
-|[1,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@46e5fb01|
-|[6,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@587e4cce|
-|[3,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@27cae2dc|
-|[4,2]      |geotrellis.raster.UShortConstantNoDataArrayTile@25e13095|
+|[0,0]      |geotrellis.raster.UShortConstantNoDataArrayTile@484b0c43|
+|[1,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@366529fd|
+|[6,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@9e1674a |
+|[3,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@6a68ccf3|
+|[4,2]      |geotrellis.raster.UShortConstantNoDataArrayTile@7ad1ece9|
 +-----------+--------------------------------------------------------+
 only showing top 5 rows
 

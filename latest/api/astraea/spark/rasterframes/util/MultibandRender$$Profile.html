@@ -49,12 +49,12 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Base type for Rendering profiles.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
             <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="MultibandRender$$Default$.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Default">Default</a>, <a href="MultibandRender$$Landsat8NaturalColor$.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Landsat8NaturalColor">Landsat8NaturalColor</a>, <a href="MultibandRender$$NAIPNaturalColor$.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.NAIPNaturalColor">NAIPNaturalColor</a></div>
+            <div class="subClasses hiddenContent"><a href="MultibandRender$$ColorRampProfile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.ColorRampProfile">ColorRampProfile</a>, <a href="MultibandRender$$Default$.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Default">Default</a>, <a href="MultibandRender$$Landsat8NaturalColor$.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Landsat8NaturalColor">Landsat8NaturalColor</a>, <a href="MultibandRender$$NAIPNaturalColor$.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.NAIPNaturalColor">NAIPNaturalColor</a></div>
           </div></div>
         
 
@@ -205,7 +205,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">brightness</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
@@ -272,14 +272,14 @@
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Convert tile such that cells values fall between 0 and 255.</p>
+      <p class="shortcomment cmt">Convert tile such that cells values fall between 0 and 255, if desired.</p>
     </li><li name="astraea.spark.rasterframes.util.MultibandRender.Profile#contrast" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="contrast:Int"></a>
       <a id="contrast:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">contrast</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
@@ -353,7 +353,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">gamma</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>
@@ -517,6 +517,23 @@
       </a>
     </span>
       <p class="shortcomment cmt">Get the red band.</p>
+    </li><li name="astraea.spark.rasterframes.util.MultibandRender.Profile#render" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="render(tile:geotrellis.raster.MultibandTile):geotrellis.raster.render.Png"></a>
+      <a id="render(MultibandTile):Png"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">render</span><span class="params">(<span name="tile">tile: <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.render.Png">Png</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.MultibandRender$$Profile@render(tile:geotrellis.raster.MultibandTile):geotrellis.raster.render.Png" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>

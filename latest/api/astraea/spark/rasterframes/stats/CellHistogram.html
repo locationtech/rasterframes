@@ -333,6 +333,40 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.stats.CellHistogram#itemCount" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="itemCount(label:Double):Long"></a>
+      <a id="itemCount(Double):Long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">itemCount</span><span class="params">(<span name="label">label: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.stats.CellHistogram@itemCount(label:Double):Long" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">find the count of the bin that the value fits into.</p><div class="fullcomment"><div class="comment cmt"><p>find the count of the bin that the value fits into. If label DNE round down to nearest bin</p></div></div>
+    </li><li name="astraea.spark.rasterframes.stats.CellHistogram#labels" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="labels:Seq[Double]"></a>
+      <a id="labels:Seq[Double]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">labels</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.collection.Seq" class="extype" target="_top">Seq</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.stats.CellHistogram@labels:Seq[Double]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="astraea.spark.rasterframes.stats.CellHistogram#mean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="mean:Double"></a>
       <a id="mean:Double"></a>
@@ -401,6 +435,24 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.stats.CellHistogram#quantileBreaks" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="quantileBreaks(breaks:Int):Array[Double]"></a>
+      <a id="quantileBreaks(Int):Array[Double]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">quantileBreaks</span><span class="params">(<span name="breaks">breaks: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.stats.CellHistogram@quantileBreaks(breaks:Int):Array[Double]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Sort values into buckets, such that each bucket has an equal number of values
+return the boundaries, or breaks, between these buckets</p>
     </li><li name="astraea.spark.rasterframes.stats.CellHistogram#stats" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="stats:astraea.spark.rasterframes.stats.CellStatistics"></a>
       <a id="stats:CellStatistics"></a>

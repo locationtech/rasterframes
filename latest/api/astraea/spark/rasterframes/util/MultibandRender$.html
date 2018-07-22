@@ -91,7 +91,24 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="astraea.spark.rasterframes.util.MultibandRender.Profile" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="astraea.spark.rasterframes.util.MultibandRender.ColorRampProfile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ColorRampProfileextendsMultibandRender.ProfilewithProductwithSerializable"></a>
+      <a id="ColorRampProfile:ColorRampProfile"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="MultibandRender$$ColorRampProfile.html"><span class="name">ColorRampProfile</span></a><span class="params">(<span name="ramp">ramp: <span class="extype" name="geotrellis.raster.render.ColorRamp">ColorRamp</span></span>)</span><span class="result"> extends <a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.MultibandRender$@ColorRampProfileextendsMultibandRender.ProfilewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.util.MultibandRender.Profile" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ProfileextendsAnyRef"></a>
       <a id="Profile:Profile"></a>
       <h4 class="signature">
@@ -107,7 +124,7 @@
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Base type for Rendering profiles.</p>
     </li></ol>
             </div>
 
@@ -433,23 +450,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.util.MultibandRender#rgbComposite" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rgbComposite(tile:geotrellis.raster.MultibandTile,profile:astraea.spark.rasterframes.util.MultibandRender.Profile):geotrellis.raster.render.Png"></a>
-      <a id="rgbComposite(MultibandTile,Profile):Png"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">rgbComposite</span><span class="params">(<span name="tile">tile: <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span></span>, <span name="profile">profile: <a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.render.Png">Png</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.util.MultibandRender$@rgbComposite(tile:geotrellis.raster.MultibandTile,profile:astraea.spark.rasterframes.util.MultibandRender.Profile):geotrellis.raster.render.Png" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -558,7 +558,30 @@
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="astraea.spark.rasterframes.util.MultibandRender#rgbComposite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rgbComposite(tile:geotrellis.raster.MultibandTile,profile:astraea.spark.rasterframes.util.MultibandRender.Profile):geotrellis.raster.render.Png"></a>
+      <a id="rgbComposite(MultibandTile,Profile):Png"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) Use Profile.render instead">rgbComposite</span><span class="params">(<span name="tile">tile: <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span></span>, <span name="profile">profile: <a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.render.Png">Png</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.MultibandRender$@rgbComposite(tile:geotrellis.raster.MultibandTile,profile:astraea.spark.rasterframes.util.MultibandRender.Profile):geotrellis.raster.render.Png" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Create an RGB composite PNG file from the given MultibandTile and color profile.</p><div class="fullcomment"><div class="comment cmt"><p>Create an RGB composite PNG file from the given MultibandTile and color profile.</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Use Profile.render instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

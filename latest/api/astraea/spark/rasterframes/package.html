@@ -881,23 +881,6 @@
     </span>
       <p class="shortcomment cmt">Module utils.</p><div class="fullcomment"><div class="comment cmt"><p>Module utils.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>10/4/17</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.RasterFunctions#box2D" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="box2D(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Envelope]"></a>
-      <a id="box2D(Column):TypedColumn[Any,Envelope]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">box2D</span><span class="params">(<span name="col">col: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="com.vividsolutions.jts.geom.Envelope">Envelope</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#astraea.spark.rasterframes.package@box2D(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Envelope]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Extracts the bounding box of a geometry as a JTS envelope.</p><div class="fullcomment"><div class="comment cmt"><p>Extracts the bounding box of a geometry as a JTS envelope.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#cellType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="cellType(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,String]"></a>
       <a id="cellType(Column):TypedColumn[Any,String]"></a>
@@ -932,6 +915,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#convertCellType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="convertCellType(col:org.apache.spark.sql.Column,cellTypeName:String):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="convertCellType(Column,String):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">convertCellType</span><span class="params">(<span name="col">col: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="cellTypeName">cellTypeName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@convertCellType(col:org.apache.spark.sql.Column,cellTypeName:String):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Change the Tile's cell type</p><div class="fullcomment"><div class="comment cmt"><p>Change the Tile's cell type</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#convertCellType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="convertCellType(col:org.apache.spark.sql.Column,cellType:geotrellis.raster.CellType):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
       <a id="convertCellType(Column,CellType):TypedColumn[Any,Tile]"></a>
@@ -1021,6 +1021,23 @@
       <p class="shortcomment cmt">Module utilities
 </p><div class="fullcomment"><div class="comment cmt"><p>Module utilities
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/25/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#envelope" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="envelope(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Envelope]"></a>
+      <a id="envelope(Column):TypedColumn[Any,Envelope]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">envelope</span><span class="params">(<span name="col">col: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="com.vividsolutions.jts.geom.Envelope">Envelope</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@envelope(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Envelope]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extracts the bounding box of a geometry as a JTS envelope.</p><div class="fullcomment"><div class="comment cmt"><p>Extracts the bounding box of a geometry as a JTS envelope.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders#envelopeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="envelopeEncoder:org.apache.spark.sql.catalyst.encoders.ExpressionEncoder[com.vividsolutions.jts.geom.Envelope]"></a>
       <a id="envelopeEncoder:ExpressionEncoder[Envelope]"></a>
@@ -1229,6 +1246,23 @@
       <p class="shortcomment cmt">Initialization injection point.</p><div class="fullcomment"><div class="comment cmt"><p>Initialization injection point. Must be called before any RasterFrame
 types are used.
 </p></div></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#inverseMask" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="inverseMask(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="inverseMask(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inverseMask</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@inverseMask(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA</p><div class="fullcomment"><div class="comment cmt"><p>Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.jts" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="jts"></a>
       <a id="jts:jts"></a>
@@ -1434,18 +1468,18 @@ types are used.
     </span>
       <p class="shortcomment cmt">Cellwise addition between two Tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise addition between two Tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#localAddScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="localAddScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
-      <a id="localAddScalar(Column,Double):TypedColumn[Any,Tile]"></a>
+      <a id="localAddScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$3:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localAddScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">localAddScalar</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">localAddScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localAddScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localAddScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#astraea.spark.rasterframes.package@localAddScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localAddScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$3:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1587,22 +1621,192 @@ types are used.
     </span>
       <p class="shortcomment cmt">Cellwise division between two Tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise division between two Tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#localDivideScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="localDivideScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
-      <a id="localDivideScalar(Column,Double):TypedColumn[Any,Tile]"></a>
+      <a id="localDivideScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$6:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localDivideScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">localDivideScalar</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">localDivideScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localDivideScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localDivideScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#astraea.spark.rasterframes.package@localDivideScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localDivideScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$6:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Cellwise division of a tile by a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise division of a tile by a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localEqual(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localEqual(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localEqual</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localEqual(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise equal to value comparison between two tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise equal to value comparison between two tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localEqualScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localEqualScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$11:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localEqualScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localEqualScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localEqualScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localEqualScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localEqualScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$11:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise equal to value comparison between a tile and a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise equal to value comparison between a tile and a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localGreater" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localGreater(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localGreater(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localGreater</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localGreater(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise greater than value comparison between two tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise greater than value comparison between two tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localGreaterEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localGreaterEqual(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localGreaterEqual(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localGreaterEqual</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localGreaterEqual(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise greater than or equal to value comparison between two tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise greater than or equal to value comparison between two tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localGreaterEqualScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localGreaterEqualScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$10:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localGreaterEqualScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localGreaterEqualScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localGreaterEqualScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localGreaterEqualScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localGreaterEqualScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$10:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise greater than or equal to value comparison between a tile and a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise greater than or equal to value comparison between a tile and a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localGreaterScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localGreaterScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$9:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localGreaterScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localGreaterScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localGreaterScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localGreaterScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localGreaterScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$9:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise greater than value comparison between a tile and a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise greater than value comparison between a tile and a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localLess" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localLess(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localLess(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localLess</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localLess(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise less than value comparison between two tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise less than value comparison between two tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localLessEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localLessEqual(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localLessEqual(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localLessEqual</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localLessEqual(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise less than or equal to value comparison between a tile and a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise less than or equal to value comparison between a tile and a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localLessEqualScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localLessEqualScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$8:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localLessEqualScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localLessEqualScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localLessEqualScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localLessEqualScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localLessEqualScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$8:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise less than or equal to value comparison between a tile and a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise less than or equal to value comparison between a tile and a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localLessScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localLessScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$7:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localLessScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localLessScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localLessScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localLessScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localLessScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$7:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise less than value comparison between a tile and a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise less than value comparison between a tile and a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#localMultiply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="localMultiply(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
       <a id="localMultiply(Column,Column):TypedColumn[Any,Tile]"></a>
@@ -1621,18 +1825,18 @@ types are used.
     </span>
       <p class="shortcomment cmt">Cellwise multiplication between two Tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise multiplication between two Tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#localMultiplyScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="localMultiplyScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
-      <a id="localMultiplyScalar(Column,Double):TypedColumn[Any,Tile]"></a>
+      <a id="localMultiplyScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$5:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localMultiplyScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">localMultiplyScalar</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">localMultiplyScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localMultiplyScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localMultiplyScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#astraea.spark.rasterframes.package@localMultiplyScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localMultiplyScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$5:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1655,22 +1859,56 @@ types are used.
     </span>
       <p class="shortcomment cmt">Cellwise subtraction between two Tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise subtraction between two Tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#localSubtractScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="localSubtractScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
-      <a id="localSubtractScalar(Column,Double):TypedColumn[Any,Tile]"></a>
+      <a id="localSubtractScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$4:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localSubtractScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">localSubtractScalar</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">localSubtractScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localSubtractScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localSubtractScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#astraea.spark.rasterframes.package@localSubtractScalar(tileCol:org.apache.spark.sql.Column,value:Double):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localSubtractScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$4:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Cellwise subtraction of a scalar from a tile.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise subtraction of a scalar from a tile.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localUnequal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localUnequal(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localUnequal(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localUnequal</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localUnequal(left:org.apache.spark.sql.Column,right:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise inequality comparison between two tiles.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise inequality comparison between two tiles.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#localUnequalScalar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="localUnequalScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$12:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="localUnequalScalar[T](Column,T)(Numeric[T]):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">localUnequalScalar</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localUnequalScalar.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="astraea.spark.rasterframes.RasterFunctions.localUnequalScalar.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@localUnequalScalar[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$12:Numeric[T]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Cellwise inequality comparison between a tile and a scalar.</p><div class="fullcomment"><div class="comment cmt"><p>Cellwise inequality comparison between a tile and a scalar.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.geomesa.spark.jts.DataFrameFunctions.SpatialConstructors#mLineLit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="mLineLit(g:&lt;?&gt;):org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.MultiLineString]"></a>
       <a id="mLineLit(MultiLineString):TypedColumn[Any,MultiLineString]"></a>
@@ -1739,6 +1977,40 @@ types are used.
       </a>
     </span>
       <p class="shortcomment cmt">Constructor for constant tile column</p><div class="fullcomment"><div class="comment cmt"><p>Constructor for constant tile column</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#mask" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mask(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="mask(Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mask</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@mask(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Where the mask tile contains NODATA, replace values in the source tile with NODATA</p><div class="fullcomment"><div class="comment cmt"><p>Where the mask tile contains NODATA, replace values in the source tile with NODATA</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#maskByValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maskByValue(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="maskByValue(Column,Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maskByValue</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValue">maskValue: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@maskByValue(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Where the mask tile equals the mask value, replace values in the source tile with NODATA</p><div class="fullcomment"><div class="comment cmt"><p>Where the mask tile equals the mask value, replace values in the source tile with NODATA</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.ml" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ml"></a>
       <a id="ml:ml"></a>
@@ -1858,6 +2130,23 @@ types are used.
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#rasterize" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rasterize(geometry:org.apache.spark.sql.Column,bounds:org.apache.spark.sql.Column,value:org.apache.spark.sql.Column,cols:Int,rows:Int):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rasterize(Column,Column,Column,Int,Int):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rasterize</span><span class="params">(<span name="geometry">geometry: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="bounds">bounds: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="value">value: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="cols">cols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rows">rows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@rasterize(geometry:org.apache.spark.sql.Column,bounds:org.apache.spark.sql.Column,value:org.apache.spark.sql.Column,cols:Int,rows:Int):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value.</p><div class="fullcomment"><div class="comment cmt"><p>Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.RasterFunctions#renderAscii" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="renderAscii(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,String]"></a>
       <a id="renderAscii(Column):TypedColumn[Any,String]"></a>
@@ -1878,6 +2167,23 @@ types are used.
                 <span class="name">@Experimental</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.RasterFunctions#reprojectGeometry" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="reprojectGeometry(sourceGeom:org.apache.spark.sql.Column,srcCRS:geotrellis.proj4.CRS,dstCRS:geotrellis.proj4.CRS):org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Geometry]"></a>
+      <a id="reprojectGeometry(Column,CRS,CRS):TypedColumn[Any,Geometry]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reprojectGeometry</span><span class="params">(<span name="sourceGeom">sourceGeom: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="srcCRS">srcCRS: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="dstCRS">dstCRS: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="com.vividsolutions.jts.geom.Geometry">Geometry</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#astraea.spark.rasterframes.package@reprojectGeometry(sourceGeom:org.apache.spark.sql.Column,srcCRS:geotrellis.proj4.CRS,dstCRS:geotrellis.proj4.CRS):org.apache.spark.sql.TypedColumn[Any,com.vividsolutions.jts.geom.Geometry]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Reproject a column of geometry from one CRS to another.</p><div class="fullcomment"><div class="comment cmt"><p>Reproject a column of geometry from one CRS to another.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RasterFunctions.html" class="extype" name="astraea.spark.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.rules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rules"></a>
       <a id="rules:rules"></a>

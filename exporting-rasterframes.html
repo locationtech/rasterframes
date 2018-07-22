@@ -45,10 +45,9 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0-RC1
+0.7.0
 </div>
 </div>
-<select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
   <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
@@ -68,7 +67,7 @@ gtag('config', 'UA-106630615-1');
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="active page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
 
@@ -101,10 +100,9 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0-RC1
+0.7.0
 </div>
 </div>
-<select class="supergroup" name="Language"><option class="group" value="group-scala">Scala</option><option class="group" value="group-python">Python</option></select>
 <div class="nav-toc">
 <ul>
   <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
@@ -124,7 +122,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="active page">Exporting&nbsp;RasterFrames</a></li>
   <li><a href="reference.html" class="page">Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&amp;nbspNotes</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
 
@@ -176,11 +174,11 @@ scala&gt; tileBack.drop(&quot;tileData&quot;).show(5, 40)
 +-----------+--------------------------------------+
 |spatial_key|                             tileAgain|
 +-----------+--------------------------------------+
-|      [6,3]|ShortRawArrayTile([S@14922268,128,128)|
-|      [4,0]| ShortRawArrayTile([S@663b31a,128,128)|
-|      [0,0]| ShortRawArrayTile([S@69b96cd,128,128)|
-|      [4,2]|ShortRawArrayTile([S@5e4b9f22,128,128)|
-|      [0,2]|ShortRawArrayTile([S@5b4f77e1,128,128)|
+|      [6,3]|ShortRawArrayTile([S@23096e4d,128,128)|
+|      [4,0]|ShortRawArrayTile([S@620bb4ea,128,128)|
+|      [0,0]|ShortRawArrayTile([S@16c5974d,128,128)|
+|      [4,2]|ShortRawArrayTile([S@7c3013ea,128,128)|
+|      [0,2]|ShortRawArrayTile([S@14a37127,128,128)|
 +-----------+--------------------------------------+
 only showing top 5 rows
 
@@ -193,11 +191,11 @@ scala&gt; tileBackAgain.drop(&quot;tileData&quot;).show(5, 50)
 +-----------+--------------------------------------------------+
 |spatial_key|                                         tileAgain|
 +-----------+--------------------------------------------------+
-|      [6,3]|ShortUserDefinedNoDataArrayTile([S@43aa4e0d,128...|
-|      [4,0]|ShortUserDefinedNoDataArrayTile([S@54a30614,128...|
-|      [0,0]|ShortUserDefinedNoDataArrayTile([S@166913c2,128...|
-|      [4,2]|ShortUserDefinedNoDataArrayTile([S@301b21f,128,...|
-|      [0,2]|ShortUserDefinedNoDataArrayTile([S@124a5e54,128...|
+|      [6,3]|ShortUserDefinedNoDataArrayTile([S@406a54a2,128...|
+|      [4,0]|ShortUserDefinedNoDataArrayTile([S@49a777ee,128...|
+|      [0,0]|ShortUserDefinedNoDataArrayTile([S@6c5ebad,128,...|
+|      [4,2]|ShortUserDefinedNoDataArrayTile([S@2901e61e,128...|
+|      [0,2]|ShortUserDefinedNoDataArrayTile([S@3bdc78d8,128...|
 +-----------+--------------------------------------------------+
 only showing top 5 rows
 
@@ -219,19 +217,19 @@ root
 
 
 scala&gt; equalized.select(aggStats($&quot;tile&quot;)).show(false)
-+---------+------+-------+-----------------+------------------+
-|dataCells|min   |max    |mean             |variance          |
-+---------+------+-------+-----------------+------------------+
-|387000   |7209.0|39217.0|10160.48549870801|3315238.5311127007|
-+---------+------+-------+-----------------+------------------+
++---------+-----------+------+-------+-----------------+------------------+
+|dataCells|noDataCells|min   |max    |mean             |variance          |
++---------+-----------+------+-------+-----------------+------------------+
+|387000   |71752      |7209.0|39217.0|10160.48549870801|3315238.5311127007|
++---------+-----------+------+-------+-----------------+------------------+
 
 
 scala&gt; equalized.select(aggStats($&quot;equalized&quot;)).show(false)
-+---------+---+-------+------------------+-------------------+
-|dataCells|min|max    |mean              |variance           |
-+---------+---+-------+------------------+-------------------+
-|458724   |4.0|65535.0|32763.474431248418|3.025128587936561E8|
-+---------+---+-------+------------------+-------------------+
++---------+-----------+---+-------+------------------+-------------------+
+|dataCells|noDataCells|min|max    |mean              |variance           |
++---------+-----------+---+-------+------------------+-------------------+
+|458724   |28         |4.0|65535.0|32763.474431248418|3.025128587936561E8|
++---------+-----------+---+-------+------------------+-------------------+
 
 </code></pre>
 <p>We write it out just like any other DataFrame, including the ability to specify partitioning:</p>
@@ -260,19 +258,19 @@ root
 
 
 scala&gt; equalized.select(aggStats($&quot;tile&quot;)).show(false)
-+---------+------+-------+-----------------+------------------+
-|dataCells|min   |max    |mean             |variance          |
-+---------+------+-------+-----------------+------------------+
-|387000   |7209.0|39217.0|10160.48549870801|3315238.5311127007|
-+---------+------+-------+-----------------+------------------+
++---------+-----------+------+-------+-----------------+------------------+
+|dataCells|noDataCells|min   |max    |mean             |variance          |
++---------+-----------+------+-------+-----------------+------------------+
+|387000   |71752      |7209.0|39217.0|10160.48549870801|3315238.5311127007|
++---------+-----------+------+-------+-----------------+------------------+
 
 
 scala&gt; equalized.select(aggStats($&quot;equalized&quot;)).show(false)
-+---------+---+-------+------------------+-------------------+
-|dataCells|min|max    |mean              |variance           |
-+---------+---+-------+------------------+-------------------+
-|458724   |4.0|65535.0|32763.474431248418|3.025128587936561E8|
-+---------+---+-------+------------------+-------------------+
++---------+-----------+---+-------+------------------+-------------------+
+|dataCells|noDataCells|min|max    |mean              |variance           |
++---------+-----------+---+-------+------------------+-------------------+
+|458724   |28         |4.0|65535.0|32763.474431248418|3.025128587936561E8|
++---------+-----------+---+-------+------------------+-------------------+
 
 </code></pre>
 <h2><a href="#exporting-a-raster" name="exporting-a-raster" class="anchor"><span class="anchor-link"></span></a>Exporting a Raster</h2>

@@ -202,7 +202,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">brightness</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
@@ -253,7 +253,7 @@
       </a>
     </span>
       <p class="shortcomment cmt">Apply color correction so it &quot;looks nice&quot;.</p><div class="fullcomment"><div class="comment cmt"><p>Apply color correction so it &quot;looks nice&quot;.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.util.MultibandRender.NAIPNaturalColor#compressRange" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="astraea.spark.rasterframes.util.MultibandRender.Profile#compressRange" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compressRange(tile:geotrellis.raster.Tile):geotrellis.raster.Tile"></a>
       <a id="compressRange(Tile):Tile"></a>
       <h4 class="signature">
@@ -269,14 +269,14 @@
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Convert tile such that cells values fall between 0 and 255.</p><div class="fullcomment"><div class="comment cmt"><p>Convert tile such that cells values fall between 0 and 255.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.NAIPNaturalColor">NAIPNaturalColor</a> → <a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a></dd></dl></div>
+      <p class="shortcomment cmt">Convert tile such that cells values fall between 0 and 255, if desired.</p><div class="fullcomment"><div class="comment cmt"><p>Convert tile such that cells values fall between 0 and 255, if desired.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.util.MultibandRender.Profile#contrast" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="contrast:Int"></a>
       <a id="contrast:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">contrast</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
@@ -497,6 +497,23 @@
       </a>
     </span>
       <p class="shortcomment cmt">Get the red band.</p><div class="fullcomment"><div class="comment cmt"><p>Get the red band.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.util.MultibandRender.Profile#render" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="render(tile:geotrellis.raster.MultibandTile):geotrellis.raster.render.Png"></a>
+      <a id="render(MultibandTile):Png"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">render</span><span class="params">(<span name="tile">tile: <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.render.Png">Png</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.util.MultibandRender$$NAIPNaturalColor$@render(tile:geotrellis.raster.MultibandTile):geotrellis.raster.render.Png" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MultibandRender$$Profile.html" class="extype" name="astraea.spark.rasterframes.util.MultibandRender.Profile">Profile</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
