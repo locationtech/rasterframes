@@ -25,14 +25,25 @@ package astraea.spark.rasterframes.stats
  *
  * @since 4/3/18
  */
-case class CellStatistics(dataCells: Long, min: Double, max: Double, mean: Double, variance: Double) {
+case class CellStatistics(dataCells: Long, noDataCells: Long, min: Double, max: Double, mean: Double, variance: Double) {
   def stddev: Double = math.sqrt(variance)
+  def asciiStats = Seq(
+    "dataCells: " + dataCells,
+    "noDataCells: " + noDataCells,
+    "min: " + min,
+    "max: " + max,
+    "mean: " + mean,
+    "variance: " + variance,
+    "stddev: " + math.sqrt(variance)
+  ).mkString("\n")
 }
 object CellStatistics {
   // Convert GeoTrellis stats object into our simplified one.
   def apply(stats: geotrellis.raster.summary.Statistics[Double]) =
-    new CellStatistics(stats.dataCells, stats.zmin, stats.zmax, stats.mean, stats.stddev * stats.stddev)
+    new CellStatistics(stats.dataCells, -1, stats.zmin, stats.zmax, stats.mean, stats.stddev * stats.stddev)
 
   def apply(stats: geotrellis.raster.summary.Statistics[Int])(implicit d: DummyImplicit) =
-    new CellStatistics(stats.dataCells, stats.zmin.toDouble, stats.zmax.toDouble, stats.mean, stats.stddev * stats.stddev)
+    new CellStatistics(stats.dataCells, -1, stats.zmin.toDouble, stats.zmax.toDouble, stats.mean, stats.stddev * stats.stddev)
+
+  def empty = new CellStatistics(0, 0, Double.NaN, Double.NaN, Double.NaN, Double.NaN)
 }

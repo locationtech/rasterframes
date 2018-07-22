@@ -18,26 +18,67 @@
  */
 package astraea.spark.rasterframes.py
 
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import org.apache.spark.sql._
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.util.withAlias
+import astraea.spark.rasterframes.util.CRSParser
+
 import com.vividsolutions.jts.geom.Geometry
-import geotrellis.raster.{ArrayTile, CellType, Tile}
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
+
+import geotrellis.raster.{ArrayTile, CellType, Tile, MultibandTile}
+import geotrellis.spark.{SpatialKey, SpaceTimeKey, TileLayerMetadata, MultibandTileLayerRDD, ContextRDD}
 import geotrellis.spark.io._
+
 import org.locationtech.geomesa.spark.jts.util.WKBUtils
+
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql._
+
 import spray.json._
+import astraea.spark.rasterframes.ml.NoDataFilter
 
 
 /**
  * py4j access wrapper to RasterFrame entry points.
  *
- * @author sfitch 
  * @since 11/6/17
  */
-class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions {
+class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
+  with org.locationtech.geomesa.spark.jts.DataFrameFunctions.Library {
+
   sparkSession.withRasterFrames
+
+  def toSpatialMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpatialKey] =
+    rf.toMultibandTileLayerRDD match {
+      case Left(spatial) => spatial
+      case Right(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpatailKey] but got $other instead")
+    }
+
+  def toSpaceTimeMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpaceTimeKey] =
+    rf.toMultibandTileLayerRDD match {
+      case Right(temporal) => temporal
+      case Left(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpaceTimeKey] but got $other instead")
+    }
+
+  /**
+   * Converts a ContextRDD[Spatialkey, MultibandTile, TileLayerMedadata[Spatialkey]] to a RasterFrame
+   */
+  def asRF(
+    layer: ContextRDD[SpatialKey, MultibandTile, TileLayerMetadata[SpatialKey]],
+    bandCount: java.lang.Integer
+  ): RasterFrame = {
+    implicit val pr = PairRDDConverter.forSpatialMultiband(bandCount.toInt)
+    layer.toRF
+  }
+
+  /**
+   * Converts a ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMedadata[SpaceTimeKey]] to a RasterFrame
+   */
+  def asRF(
+    layer: ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMetadata[SpaceTimeKey]],
+    bandCount: java.lang.Integer
+  )(implicit d: DummyImplicit): RasterFrame = {
+    implicit val pr = PairRDDConverter.forSpaceTimeMultiband(bandCount.toInt)
+    layer.toRF
+  }
 
   /**
     * Base conversion to RasterFrame
@@ -55,9 +96,11 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions {
   }
 
   /**
-    * Convenience function for use in Python
+    * Convenience functions for use in Python
     */
   def cellType(name: String): CellType = CellType.fromName(name)
+
+  def cellTypes: Seq[String] = astraea.spark.rasterframes.functions.cellTypes()
 
   /** DESERIALIZATION **/
 
@@ -65,9 +108,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions {
     ArrayTile.fromBytes(bytes, this.cellType(cellType), cols, rows)
   }
 
-  def generateGeometry(obj: Array[Byte]): Geometry = {
-    WKBUtils.read(obj)
-  }
+  def generateGeometry(obj: Array[Byte]): Geometry =  WKBUtils.read(obj)
 
   def tileColumns(df: DataFrame): Array[Column] =
     df.asRF.tileColumns.toArray
@@ -82,19 +123,74 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions {
 
   def tileToDoubleArray(col: Column): Column = tileToArray[Double](col)
 
+  // All the scalar tile arithmetic functions
+
+  def localAddScalar(col: Column, scalar: Double): Column = localAddScalar[Double](col, scalar)
+
+  def localAddScalarInt(col: Column, scalar: Int): Column = localAddScalar[Int](col, scalar)
+
+  def localSubtractScalar(col: Column, scalar: Double): Column = localSubtractScalar[Double](col, scalar)
+
+  def localSubtractScalarInt(col: Column, scalar: Int): Column = localSubtractScalar[Int](col, scalar)
+
+  def localDivideScalar(col: Column, scalar: Double): Column = localDivideScalar[Double](col, scalar)
+
+  def localDivideScalarInt(col: Column, scalar: Int): Column = localDivideScalar[Int](col, scalar)
+
+  def localMultiplyScalar(col: Column, scalar: Double): Column = localMultiplyScalar[Double](col, scalar)
+
+  def localMultiplyScalarInt(col: Column, scalar: Int): Column = localMultiplyScalar[Int](col, scalar)
+
+  def localLessScalar(col: Column, scalar: Double): Column = localLessScalar[Double](col, scalar)
+
+  def localLessScalarInt(col: Column, scalar: Int): Column = localLessScalar[Int](col, scalar)
+
+  def localLessEqualScalar(col: Column, scalar: Double): Column = localLessEqualScalar[Double](col, scalar)
+
+  def localLessEqualScalarInt(col: Column, scalar: Int): Column = localLessEqualScalar[Int](col, scalar)
+
+  def localGreaterScalar(col: Column, scalar: Double): Column = localGreaterScalar[Double](col, scalar)
+
+  def localGreaterScalarInt(col: Column, scalar: Int): Column = localGreaterScalar[Int](col, scalar)
+
+  def localGreaterEqualScalar(col: Column, scalar: Double): Column = localGreaterEqualScalar[Double](col, scalar)
+
+  def localGreaterEqualScalarInt(col: Column, scalar: Int): Column = localGreaterEqualScalar[Int](col, scalar)
+
+  def localEqualScalar(col: Column, scalar: Double): Column = localEqualScalar[Double](col, scalar)
+
+  def localEqualScalarInt(col: Column, scalar: Int): Column = localEqualScalar[Int](col, scalar)
+
+  def localUnequalScalar(col: Column, scalar: Double): Column = localUnequalScalar[Double](col, scalar)
+
+  def localUnequalScalarInt(col: Column, scalar: Int): Column = localUnequalScalar[Int](col, scalar)
+
+  // return toRaster, get just the tile, and make an array out of it
+  def toIntRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Int] = {
+    df.asRF.toRaster(df.col(colname), cols, rows).toArray()
+  }
+
+  def toDoubleRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Double] = {
+    df.asRF.toRaster(df.col(colname), cols, rows).toArrayDouble()
+  }
+
   def tileLayerMetadata(df: DataFrame): String =
     // The `fold` is required because an `Either` is retured, depending on the key type.
     df.asRF.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
 
-  def normalizedDifference(left: Column, right: Column): Column = {
-    withAlias("norm_diff", left, right)(
-      localDivide(localSubtract(left, right), localAdd(left, right))
-    ).as[Tile]
+  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = df.asRF.spatialJoin(right.asRF)
+
+  def withBounds(df: DataFrame): RasterFrame = df.asRF.withBounds()
+
+  def withCenter(df: DataFrame): RasterFrame = df.asRF.withCenter()
+
+  def withCenterLatLng(df: DataFrame): RasterFrame = df.asRF.withCenterLatLng()
+
+  def withSpatialIndex(df: DataFrame): RasterFrame = df.asRF.withSpatialIndex()
+
+  def reprojectGeometry(geometryCol: Column, srcName: String, dstName: String): Column = {
+    val src = CRSParser(srcName)
+    val dst = CRSParser(dstName)
+    reprojectGeometry(geometryCol, src, dst)
   }
-
-  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = {
-    df.asRF.spatialJoin(right.asRF)
-  }
-
-
 }

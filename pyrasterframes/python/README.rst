@@ -1,45 +1,67 @@
+==============
 PyRasterFrames
---------------
+==============
 
 PyRasterFrames provides a Python API for RasterFrames!
 
-Getting started
+------------
+SBT Commands
+------------
 
-Build the shaded JAR.
+Build the shaded JAR:
 
-    $ sbt assembly
+    ``$ sbt pyrasterframes/spPublishLocal``
 
-Install the python package (for development / local use)
+Run tests:
 
-    $ pip install -e python
+    ``$ sbt pyrasterframes/pyTest``
 
-Get a Spark REPL
+Run examples:
 
-    $ pyspark --jars target/scala-2.11/pyrasterframes-assembly-$VERSION.jar --master local[2]
+    ``$ sbt pyrasterframes/pyExamples``
 
-You can then try some of the commands in `tests/PyRasterFramesTests.py`.
 
-Submit a script
+---------------
+Python Commands
+---------------
 
-    $ spark-submit --jars target/scala-2.11/pyrasterframes-assembly-$VERSION.jar --master local[2] \
-        python/examples/CreatingRasterFrames.py
+Install the python package (for development / local use):
 
-Run tests
+    ``$ pip install -e python``
 
-    $ sbt pyTest
 
-    OR
+To run tests and examples, ``$ cd python``, then:
 
-    $ python setup.py test
+Run tests (if no Scala code has changed):
 
-Run examples
+    ``$ python setup.py test``
 
-    $ sbt pyExamples
+    To run verbosely:
+    ``$ python setup.py test --addopts -s``
 
-    OR
+    To run a specific test:
+    ``$ python setup.py test --addopts "-k my_test_name"``
 
-    $ python setup.py examples [--e EXAMPLENAME,EXAMPLENAME]
 
+Run examples:
+
+    ``$ python setup.py examples [--e EXAMPLENAME,EXAMPLENAME]``
+
+
+-----------
+Spark Usage
+-----------
+
+Get a Spark REPL (after running ``$ sbt pyrasterframes/spPublishLocal``):
+
+    ``$  pyspark --packages io.astraea:pyrasterframes:$VERSION --master local[2]``
+
+You can then try some of the commands in ``python/tests/PyRasterFramesTests.py``.
+
+Submit a script (from the ``python`` directory):
+
+    ``$ spark-submit --packages io.astraea:pyrasterframes:$VERSION --master local[2] \``
+        ``examples/CreatingRasterFrames.py``
 
 To initialize PyRasterFrames:
 

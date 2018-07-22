@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  rasterframes-notebooks:
+    build: .
+    image: s22s/rasterframes-notebooks
+    ports:
+      # jupyter notebook port
+      - "8888:8888"
+      # spark UI ports
+      - "4040:4040"
+      - "4041:4041"
+      - "4042:4042"
+      - "4043:4043"
+      - "4044:4044"
+# To save locally at './work' from the container:
+#    volumes:
+#      - ./work:/home/jovyan/work

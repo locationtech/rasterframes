@@ -23,12 +23,9 @@ import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util._
-import geotrellis.raster.TileLayout
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.io.hadoop._
-import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util._
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
@@ -43,46 +40,12 @@ import org.apache.spark.sql.{Row, SQLContext}
  *
  * @since 1/14/18
  */
-case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation with PrunedScan with LazyLogging  {
+case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation
+  with PrunedScan with GeoTiffInfoSupport with LazyLogging  {
 
-  lazy val info: GeoTiffReader.GeoTiffInfo = {
-    GeoTiffReader.readGeoTiffInfo(
-      HdfsRangeReader(new Path(uri), sqlContext.sparkContext.hadoopConfiguration),
-      false, true
-    )
-  }
-
-  val MAX_SIZE = 256
-  def defaultLayout(cols: Int, rows: Int): TileLayout = {
-    def divs(cells: Int) = {
-      val layoutDivs = math.ceil(cells / MAX_SIZE.toFloat)
-      val tileDivs = math.ceil(cells / layoutDivs)
-      (layoutDivs.toInt, tileDivs.toInt)
-    }
-    val (layoutCols, tileCols) = divs(rows)
-    val (layoutRows, tileRows) = divs(rows)
-    TileLayout(layoutCols, layoutRows, tileCols, tileRows)
-  }
-
-  lazy val tileLayerMetadata: TileLayerMetadata[SpatialKey] = {
-    val layout = if(!info.segmentLayout.isTiled) {
-      val width = info.segmentLayout.totalCols
-      val height = info.segmentLayout.totalRows
-      defaultLayout(width, height)
-    }
-    else {
-      info.segmentLayout.tileLayout
-    }
-    val extent = info.extent
-    val crs = info.crs
-    val cellType = info.cellType
-    val bounds = KeyBounds(
-      SpatialKey(0, 0),
-      SpatialKey(layout.layoutCols - 1, layout.layoutRows - 1)
-    )
-    TileLayerMetadata(cellType, LayoutDefinition(extent, layout), extent, crs, bounds)
-
-  }
+  lazy val (info, tileLayerMetadata) = extractGeoTiffLayout(
+    HdfsRangeReader(new Path(uri), sqlContext.sparkContext.hadoopConfiguration)
+  )
 
   def schema: StructType = {
     val skSchema = ExpressionEncoder[SpatialKey]().schema
@@ -138,7 +101,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     else {
       logger.warn("GeoTIFF is not already tiled. In-memory read required: " + uri)
       val geotiff = HadoopGeoTiffReader.readMultiband(new Path(uri))
-      val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, geotiff.tile)))
+      val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, Shims.toArrayTile(geotiff.tile))))
 
       rdd.tileToLayout(tlm)
         .map { case (sk, tiles) ⇒

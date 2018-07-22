@@ -27,6 +27,7 @@ import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import org.apache.spark.sql.SparkSession
 import SlippyExport._
+import astraea.spark.rasterframes.util.MultibandRender
 
 object SlippyExportDriver {
   def main(args: Array[String]): Unit = {
@@ -38,21 +39,34 @@ object SlippyExportDriver {
       .getOrCreate()
       .withRasterFrames
 
-    val bands: Seq[SinglebandGeoTiff] = for (i ← 1 to 3) yield {
-      TestData.readSingleband(s"NAIP-VA-b$i.tiff")
-      //s"L8-B$i-Elkton-VA.tiff")
+    def mergeBands = {
+      val bands: Seq[SinglebandGeoTiff] = for (i ← 1 to 3) yield {
+        TestData.l8Sample(i)
+      }
+
+      val mtile = MultibandTile(bands.map(_.tile))
+
+      val pr = ProjectedRaster(mtile, bands.head.extent, bands.head.crs)
+
+      implicit val bandCount = PairRDDConverter.forSpatialMultiband(bands.length)
+
+      val rf = pr.toRF(64, 64)
+
+      //rf.exportGeoTiffTiles(new File("target/slippy-tiff").toURI)
+
+      rf.exportSlippyMap(new File("target/slippy-1/").toURI)
     }
 
-    val mtile = MultibandTile(bands.map(_.tile))
+   def multiband = {
+     implicit val bandCount = PairRDDConverter.forSpatialMultiband(3)
+     val rf = TestData.rgbCogSample.projectedRaster.toRF(256, 256)
+     import astraea.spark.rasterframes.datasource.geotiff._
+     //val rf = spark.read.geotiff.loadRF(getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI)
+     println(rf.tileLayerMetadata.merge.toString)
+     rf.exportSlippyMap(new File("target/slippy-2/").toURI, MultibandRender.Landsat8NaturalColor)
+    }
 
-    val pr = ProjectedRaster(mtile, bands.head.extent, bands.head.crs)
-
-    implicit val bandCount = PairRDDConverter.forSpatialMultiband(bands.length)
-
-    val rf = pr.toRF(64, 64)
-
-    //rf.exportGeoTiffTiles(new File("target/slippy-tiff").toURI)
-
-    rf.exportSlippyMap(new File("target/slippy-png/").toURI)
+    multiband
+    //mergeBands
   }
 }

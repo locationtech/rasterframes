@@ -84,6 +84,39 @@ class GTSQLSpec extends TestEnvironment with TestData  {
       }
     }
 
+    it("should support masking") {
+
+      withClue("mask") {
+        val ds = Seq[(Tile, Tile)]((byteArrayTile, maskingTile)).toDF("left", "right")
+        val result = ds.select(mask($"left", $"right"))
+        val expected = ByteArrayTile(Array[Byte](1, 2, 3, byteNODATA, byteNODATA, byteNODATA, 7, 8, 9), 3, 3)
+
+        assertEqual(result.first(), expected)
+      }
+
+      withClue("mask by value") {
+        val ds = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("left", "right")
+        val result = ds.select(maskByValue($"left", $"right", lit(8)))
+        val resultSql = {
+          ds.createOrReplaceTempView("maskByValue")
+          spark.sql("SELECT rf_maskByValue(left, right, 8) as x FROM maskByValue")
+        }
+
+        val expected = ByteArrayTile(Array[Byte](1, 2, 3, 4, 5, 6, 7, byteNODATA, 9), 3, 3)
+
+        assertEqual(result.first(), expected)
+        assertEqual(resultSql.first().getAs[Tile](0), expected)
+      }
+
+      withClue("inverse mask") {
+        val ds = Seq[(Tile, Tile)]((byteArrayTile, maskingTile)).toDF("left", "right")
+        val result = ds.select(inverseMask($"left", $"right"))
+        val expected = ByteArrayTile(Array[Byte](byteNODATA, byteNODATA, byteNODATA, 4, 5, 6, byteNODATA, byteNODATA, byteNODATA), 3, 3)
+
+        assertEqual(result.first(), expected)
+      }
+    }
+
     it("should support local algebra") {
       val ds = Seq[(Tile, Tile)]((byteArrayTile, byteConstantTile)).toDF("left", "right")
       ds.createOrReplaceTempView("tmp")
@@ -123,6 +156,42 @@ class GTSQLSpec extends TestEnvironment with TestData  {
         assert(sub.as[Tile].first() === expected)
 
         val sqlSub = sql("select rf_localDivide(left, right) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
+
+      withClue("add scalar") {
+        val sub = ds.select(localAddScalar($"left", 8.0))
+        val expected = Add(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localAddScalar(left, 8.0) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
+
+      withClue("subtract scalar") {
+        val sub = ds.select(localSubtractScalar($"left", 8.0))
+        val expected = Subtract(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localSubtractScalar(left, 8.0) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
+
+      withClue("multiply scalar") {
+        val sub = ds.select(localMultiplyScalar($"left", 8.0))
+        val expected = Multiply(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localMultiplyScalar(left, 8.0) from tmp")
+        assert(sqlSub.as[Tile].first() === expected)
+      }
+
+      withClue("divide scalar") {
+        val sub = ds.select(localDivideScalar($"left", 8.0))
+        val expected = Divide(byteArrayTile, 8.0)
+        assert(sub.as[Tile].first() === expected)
+
+        val sqlSub = sql("select rf_localDivideScalar(left, 8.0) from tmp")
         assert(sqlSub.as[Tile].first() === expected)
       }
     }

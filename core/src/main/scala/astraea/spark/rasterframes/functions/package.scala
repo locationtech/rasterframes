@@ -15,12 +15,16 @@
  */
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import astraea.spark.rasterframes.util.CRSParser
+import com.vividsolutions.jts.geom.Geometry
+import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local._
-import geotrellis.raster._
 import geotrellis.raster.render.ascii.AsciiArtEncoder
+import geotrellis.raster.{Tile, _}
+import geotrellis.vector.Extent
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.gt.types
 
 import scala.reflect.runtime.universe._
 
@@ -146,6 +150,13 @@ package object functions {
   /** Change the tile's cell type. */
   private[rasterframes] def convertCellType(cellType: CellType) = safeEval[Tile, Tile](_.convert(cellType))
 
+  /** Change the tile's cell type. */
+  private[rasterframes] def convertCellType(cellTypeName: String) =
+    safeEval[Tile, Tile](_.convert(CellType.fromName(cellTypeName)))
+
+  /** Convert the cell type of Tile */
+  private[rasterframes] val convertCellType: (Tile, String) ⇒ Tile = (t: Tile, s: String) ⇒ t.convert(CellType.fromName(s))
+
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
@@ -211,17 +222,65 @@ package object functions {
   /** Compute the cell-wise count of non-NA across tiles. */
   private[rasterframes] val localAggNodataCount = new LocalCountAggregateFunction(false)
 
+  /** Convert the tile to a floating point type as needed for scalar operations. */
+  private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
+
   /** Cell-wise addition between tiles. */
   private[rasterframes] val localAdd: (Tile, Tile) ⇒ Tile = safeEval(Add.apply)
+
+  /** Cell-wise addition of a scalar to a tile. */
+  private[rasterframes] val localAddScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
+    t.localAdd(scalar)
+  })
+
+  /** Cell-wise addition of a scalar to a tile. */
+  private[rasterframes] val localAddScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localAdd(scalar)
+  })
 
   /** Cell-wise subtraction between tiles. */
   private[rasterframes] val localSubtract: (Tile, Tile) ⇒ Tile = safeEval(Subtract.apply)
 
+  /** Cell-wise subtraction of a scalar from a tile. */
+  private[rasterframes] val localSubtractScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
+    t.localSubtract(scalar)
+  })
+
+  /** Cell-wise subtraction of a scalar from a tile. */
+  private[rasterframes] val localSubtractScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localSubtract(scalar)
+  })
+
   /** Cell-wise multiplication between tiles. */
   private[rasterframes] val localMultiply: (Tile, Tile) ⇒ Tile = safeEval(Multiply.apply)
 
+  /** Cell-wise multiplication of a tile by a scalar. */
+  private[rasterframes] val localMultiplyScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
+    t.localMultiply(scalar)
+  })
+
+  /** Cell-wise multiplication of a tile by a scalar. */
+  private[rasterframes] val localMultiplyScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localMultiply(scalar)
+  })
+
   /** Cell-wise division between tiles. */
   private[rasterframes] val localDivide: (Tile, Tile) ⇒ Tile = safeEval(Divide.apply)
+
+  /** Cell-wise division of a tile by a scalar. */
+  private[rasterframes] val localDivideScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
+    t.localDivide(scalar)
+  })
+
+  /** Cell-wise division of a tile by a scalar. */
+  private[rasterframes] val localDivideScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
+    floatingPointTile(t).localDivide(scalar)
+  })
+
+  /** Cell-wise normalized difference of tiles. */
+  private[rasterframes] val normalizedDifference:  (Tile, Tile) ⇒ Tile = safeEval((t1: Tile, t2:Tile) => {
+    Divide(Subtract(t1, t2), Add(t1, t2))
+  })
 
   /** Render tile as ASCII string. */
   private[rasterframes] val renderAscii: (Tile) ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
@@ -240,6 +299,15 @@ package object functions {
       case ct: DoubleCells ⇒ DoubleConstantTile(value.doubleValue(), cols, rows, ct)
     }
   }
+
+  /** Alias for constant tiles of zero */
+  private[rasterframes] val tileZeros: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+    makeConstantTile(0, cols, rows, cellTypeName)
+
+  /** Alias for constant tiles of one */
+  private[rasterframes] val tileOnes: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+    makeConstantTile(1, cols, rows, cellTypeName)
+
 
   private[rasterframes] val cellTypes: () ⇒ Seq[String] = () ⇒
     Seq(
@@ -260,30 +328,192 @@ package object functions {
       DoubleConstantNoDataCellType
     ).map(_.toString).distinct
 
+  /**
+    * Generate a tile with the values from the data tile, but where cells in the
+    * masking tile contain NODATA, replace the data value with NODATA.
+    */
+  private[rasterframes] val mask: (Tile, Tile) ⇒ Tile =
+    (dataTile, maskingTile) ⇒ Mask(dataTile, Defined(maskingTile), 0, NODATA)
+
+  /**
+    * Generate a tile with the values from the data tile, but where cells in the
+    * masking tile contain the masking value, replace the data value with NODATA.
+    */
+  private[rasterframes] val maskByValue: (Tile, Tile, Int) ⇒ Tile =
+    (dataTile, maskingTile, maskingValue) ⇒
+      Mask(dataTile, maskingTile, maskingValue, NODATA)
+
+  /**
+    * Generate a tile with the values from the data tile, but where cells in the
+    * masking tile DO NOT contain NODATA, replace the data value with NODATA.
+    */
+  private[rasterframes] val inverseMask: (Tile, Tile) ⇒ Tile =
+    (dataTile, maskingTile) ⇒ InverseMask(dataTile, Defined(maskingTile), 0, NODATA)
+
+  /**
+   * Rasterize geometry into tiles.
+   */
+  private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
+    import geotrellis.vector.{Geometry ⇒ GTGeometry}
+    (geom, bounds, value, cols, rows) ⇒ {
+      // We have to do this because (as of spark 2.2.x) Encoder-only types
+      // can't be used as UDF inputs. Only Spark-native types and UDTs.
+      val extent = Extent(bounds.getEnvelopeInternal)
+      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value)
+    }
+  }
+
+  /** Cellwise less than value comparison between two tiles. */
+  private[rasterframes] val localLess: (Tile, Tile) ⇒ Tile = safeEval(Less.apply)
+
+  /** Cellwise less than value comparison between a tile and a scalar. */
+  private[rasterframes] val localLessScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar: Int) ⇒ {
+    t.localLess(scalar)
+  })
+
+  /** Cellwise less than value comparison between a tile and a scalar. */
+  private[rasterframes] val localLessScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
+    floatingPointTile(t).localLess(scalar)
+  })
+
+  /** Cellwise less than or equal to value comparison between two tiles. */
+  private[rasterframes] val localLessEqual: (Tile, Tile) ⇒ Tile = safeEval(LessOrEqual.apply)
+
+  /** Cellwise less than or equal to value comparison between a tile and a scalar. */
+  private[rasterframes] val localLessEqualScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar: Int) ⇒ {
+    t.localLessOrEqual(scalar)
+  })
+
+  /** Cellwise less than or equal to value comparison between a tile and a scalar. */
+  private[rasterframes] val localLessEqualScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
+    floatingPointTile(t).localLessOrEqual(scalar)
+  })
+
+  /** Cellwise greater than value comparison between two tiles. */
+  private[rasterframes] val localGreater: (Tile, Tile) ⇒ Tile = safeEval(Less.apply)
+
+  /** Cellwise greater than value comparison between a tile and a scalar. */
+  private[rasterframes] val localGreaterScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar: Int) ⇒ {
+    t.localGreater(scalar)
+  })
+
+  /** Cellwise greater than value comparison between a tile and a scalar. */
+  private[rasterframes] val localGreaterScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
+    floatingPointTile(t).localGreater(scalar)
+  })
+
+  /** Cellwise greater than or equal to value comparison between two tiles. */
+  private[rasterframes] val localGreaterEqual: (Tile, Tile) ⇒ Tile = safeEval(LessOrEqual.apply)
+
+  /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
+  private[rasterframes] val localGreaterEqualScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar: Int) ⇒ {
+    t.localGreaterOrEqual(scalar)
+  })
+
+  /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
+  private[rasterframes] val localGreaterEqualScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
+    floatingPointTile(t).localGreaterOrEqual(scalar)
+  })
+
+  /** Cellwise equal to value comparison between two tiles. */
+  private[rasterframes] val localEqual: (Tile, Tile) ⇒ Tile = safeEval(Equal.apply)
+
+  /** Cellwise equal to value comparison between a tile and a scalar. */
+  private[rasterframes] val localEqualScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar: Int) ⇒ {
+    t.localEqual(scalar)
+  })
+
+  /** Cellwise equal to value comparison between a tile and a scalar. */
+  private[rasterframes] val localEqualScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
+    floatingPointTile(t).localEqual(scalar)
+  })
+
+  /** Cellwise inequality value comparison between two tiles. */
+  private[rasterframes] val localUnequal: (Tile, Tile) ⇒ Tile = safeEval(Unequal.apply)
+
+  /** Cellwise inequality value comparison between a tile and a scalar. */
+  private[rasterframes] val localUnequalScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar: Int) ⇒ {
+    t.localUnequal(scalar)
+  })
+
+  /** Cellwise inequality value comparison between a tile and a scalar. */
+  private[rasterframes] val localUnequalScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
+    floatingPointTile(t).localUnequal(scalar)
+  })
+  
+  private[rasterframes] val reprojectGeometry: (Geometry, CRS, CRS) ⇒ Geometry =
+    (sourceGeom, src, dst) ⇒ {
+      val trans = new ReprojectionTransformer(src, dst)
+      trans.transform(sourceGeom)
+    }
+
+  private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
+    (sourceGeom, srcName, dstName) ⇒ {
+      val src = CRSParser(srcName)
+      val dst = CRSParser(dstName)
+      val trans = new ReprojectionTransformer(src, dst)
+      trans.transform(sourceGeom)
+    }
+
   def register(sqlContext: SQLContext): Unit = {
+    sqlContext.udf.register("rf_mask", mask)
+    sqlContext.udf.register("rf_maskByValue", maskByValue)
+    sqlContext.udf.register("rf_inverseMask", inverseMask)
     sqlContext.udf.register("rf_makeConstantTile", makeConstantTile)
+    sqlContext.udf.register("rf_tileZeros", tileZeros)
+    sqlContext.udf.register("rf_tileOnes", tileOnes)
     sqlContext.udf.register("rf_tileToArrayInt", tileToArray[Int])
     sqlContext.udf.register("rf_tileToArrayDouble", tileToArray[Double])
     sqlContext.udf.register("rf_aggHistogram", aggHistogram)
     sqlContext.udf.register("rf_aggStats", aggStats)
-    sqlContext.udf.register("rf_tileMin", tileMean)
-    sqlContext.udf.register("rf_tileMax", tileMean)
+    sqlContext.udf.register("rf_tileMin", tileMin)
+    sqlContext.udf.register("rf_tileMax", tileMax)
     sqlContext.udf.register("rf_tileMean", tileMean)
     sqlContext.udf.register("rf_tileSum", tileSum)
     sqlContext.udf.register("rf_tileHistogram", tileHistogram)
     sqlContext.udf.register("rf_tileStats", tileStats)
     sqlContext.udf.register("rf_dataCells", dataCells)
-    sqlContext.udf.register("rf_nodataCells", dataCells)
+    sqlContext.udf.register("rf_noDataCells", noDataCells)
     sqlContext.udf.register("rf_localAggStats", localAggStats)
     sqlContext.udf.register("rf_localAggMax", localAggMax)
     sqlContext.udf.register("rf_localAggMin", localAggMin)
     sqlContext.udf.register("rf_localAggMean", localAggMean)
     sqlContext.udf.register("rf_localAggCount", localAggCount)
     sqlContext.udf.register("rf_localAdd", localAdd)
+    sqlContext.udf.register("rf_localAddScalar", localAddScalar)
+    sqlContext.udf.register("rf_localAddScalarInt", localAddScalarInt)
     sqlContext.udf.register("rf_localSubtract", localSubtract)
+    sqlContext.udf.register("rf_localSubtractScalar", localSubtractScalar)
+    sqlContext.udf.register("rf_localSubtractScalarInt", localSubtractScalarInt)
     sqlContext.udf.register("rf_localMultiply", localMultiply)
+    sqlContext.udf.register("rf_localMultiplyScalar", localMultiplyScalar)
+    sqlContext.udf.register("rf_localMultiplyScalarInt", localMultiplyScalarInt)
     sqlContext.udf.register("rf_localDivide", localDivide)
+    sqlContext.udf.register("rf_localDivideScalar", localDivideScalar)
+    sqlContext.udf.register("rf_localDivideScalarInt", localDivideScalarInt)
+    sqlContext.udf.register("rf_normalizedDifference", normalizedDifference)
     sqlContext.udf.register("rf_cellTypes", cellTypes)
     sqlContext.udf.register("rf_renderAscii", renderAscii)
+    sqlContext.udf.register("rf_convertCellType", convertCellType)
+    sqlContext.udf.register("rf_rasterize", rasterize)
+    sqlContext.udf.register("rf_less", localLess)
+    sqlContext.udf.register("rf_lessScalar", localLessScalar)
+    sqlContext.udf.register("rf_lessScalarInt", localLessScalarInt)
+    sqlContext.udf.register("rf_lessEqual", localLessEqual)
+    sqlContext.udf.register("rf_lessEqualScalar", localLessEqualScalar)
+    sqlContext.udf.register("rf_lessEqualScalarInt", localLessEqualScalarInt)
+    sqlContext.udf.register("rf_greater", localGreater)
+    sqlContext.udf.register("rf_greaterScalar", localGreaterScalar)
+    sqlContext.udf.register("rf_greaterScalarInt", localGreaterScalarInt)
+    sqlContext.udf.register("rf_greaterEqual", localGreaterEqual)
+    sqlContext.udf.register("rf_greaterEqualScalar", localGreaterEqualScalar)
+    sqlContext.udf.register("rf_greaterEqualScalarInt", localGreaterEqualScalarInt)
+    sqlContext.udf.register("rf_equal", localEqual)
+    sqlContext.udf.register("rf_equalScalar", localEqualScalar)
+    sqlContext.udf.register("rf_equalScalarInt", localEqualScalarInt)
+    sqlContext.udf.register("rf_unequal", localUnequal)
+    sqlContext.udf.register("rf_unequalScalar", localUnequalScalar)
+    sqlContext.udf.register("rf_unequalScalarInt", localUnequalScalarInt)
+    sqlContext.udf.register("rf_reprojectGeometry", reprojectGeometryCRSName)
   }
 }

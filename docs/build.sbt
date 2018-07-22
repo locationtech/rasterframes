@@ -19,13 +19,14 @@ ScalaUnidoc / siteSubdirName := "latest/api"
 addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
 
 Paradox / paradoxProperties ++= Map(
-  "github.base_url" -> "https://github.com/locationtech/rasterframes"
-  //"scaladoc.org.apache.spark.sql.gt" -> "http://rasterframes.io/latest",
+  "github.base_url" -> "https://github.com/locationtech/rasterframes",
+  "version" -> version.value,
+  "scaladoc.org.apache.spark.sql.gt" -> "http://rasterframes.io/latest"
   //"scaladoc.geotrellis.base_url" -> "https://geotrellis.github.io/scaladocs/latest",
   // "snip.pyexamples.base_dir" -> (baseDirectory.value + "/../pyrasterframes/python/test/examples")
 )
 Paradox / paradoxTheme := Some(builtinParadoxTheme("generic"))
-Paradox / paradoxGroups := Map("Language" -> Seq("Scala", "Python"))
+// Paradox / paradoxGroups := Map("Language" -> Seq("Scala", "Python"))
 Paradox / paradoxTheme / sourceDirectory := sourceDirectory.value / "main" / "paradox" / "_template"
 
 Compile / doc / scalacOptions++= Seq( "-J-Xmx6G", "-no-link-warnings")

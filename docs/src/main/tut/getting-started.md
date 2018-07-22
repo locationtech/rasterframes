@@ -1,47 +1,39 @@
-# Getting Started
+# Getting&nbsp;Started
 
 ## Quick Start
 
-### macOS
+RasterFrames is available in in a Jupyter Notebook Docker container for quick experimentation.
 
-1. If not already, install [Homebrew](https://brew.sh/)
-2. Run `brew install sbt`
-3. Run `sbt new s22s/raster-frames.g8`
+1. Install [Docker](https://www.docker.com/get-docker) for your OS flavor.
+2. Run  
+   `docker run -it --rm -p 8888:8888 -p 4040-4044:4040-4044 s22s/rasterframes-notebooks`
 
-### Linux
-
-1. Install [sbt](http://www.scala-sbt.org/release/docs/Installing-sbt-on-Linux.html)
-2. Run `sbt new s22s/raster-frames.g8`
-
-### Windows
-
-1. Install [sbt](http://www.scala-sbt.org/release/docs/Installing-sbt-on-Windows.html)
-2. Run `sbt new s22s/raster-frames.g8`
+Additional instructions can be found [here](https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md).
 
 ## General Setup
 
-*RasterFrames* is published via [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Craster-frames).
+*RasterFrames* is published via [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Crasterframes) (click link to see latest versions).
 
 To use RasterFrames, add the following library dependencies:
 
 @@dependency[sbt,Maven,Gradle] {
-  group="io.astraea"
+  group="org.locationtech.rasterframes"
   artifact="rasterframes_2.11"
-  version="x.y.z"
+  version="$version$"
 }
 
 @@dependency[sbt,Maven,Gradle] {
-  group="io.astraea"
+  group="org.locationtech.rasterframes"
   artifact="rasterframes-datasource_2.11"
-  version="x.y.z"
+  version="$version$"
 }
 
 Optional:
 
 @@dependency[sbt,Maven,Gradle] {
-  group="io.astraea"
+  group="org.locationtech.rasterframes"
   artifact="rasterframes-experimental_2.11"
-  version="x.y.z"
+  version="$version$"
 }
 
 It assumes that SparkSQL 2.2.x is available in the runtime classpath. Here's how to add it explicitly:
@@ -49,7 +41,7 @@ It assumes that SparkSQL 2.2.x is available in the runtime classpath. Here's how
 @@dependency[sbt,Maven,Gradle] {
   group="org.apache.spark"
   artifact="spark-sql"
-  version="2.2.0"
+  version="2.2.1"
 }
 
 @@@ note

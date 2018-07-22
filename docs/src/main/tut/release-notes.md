@@ -1,21 +1,35 @@
-# Release Notes
+# Release&nbsp;Notes
 
-## 0.6.x
+## 0.7.x
 
-### 0.6.2
+### 0.7.0
 
-* Updated to GeoMesa version 2.0.0-rc.1.
-* Added for for writing GeoTIFFs from RasterFrames via with DataFrameWriter.
+* Now an incubating project under Eclipse Foundation LocationTech! GitHub repo moved to [locationtech/rasterframes](https://github.com/locationtech/rasterframes).
+* PySpark support! See [`pyrasterframes/python/README.rst`](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/python/README.rst) to get started.
+* Exposed Spark JTS spatial operations in Python.
+* Added RasterFrames-enabled Jupyter Notebook Docker Container package. See [`deployment/README.md`](https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md) for details.
+* Updated to GeoMesa version 2.0.1.
+* Added `convertCellType`, `normalizedDifference` `mask` and `inverseMask` operations on tile columns.
+* Added tile column + scalar operations: `localAddScalar`, `localSubtractScalar`, `localMultiplyScalar`, `localDivideScalar`  
+* Added `rasterize` and `reprojectGeometry` operations on geometry columns.
+* Added for for writing GeoTIFFs from RasterFrames via `DataFrameWriter`.
 * Added `spark.read.geotrellis.withNumPartitions(Int)` for setting the initial number of partitions to use when reading a layer.
 * Added `spark.read.geotrellis.withTileSubdivisions(Int)` for evenly subdividing tiles before they become rows in a RasterFrame.
 * Added `experimental` package for sandboxing new feature ideas.
-* Added `SlippyExport` experimental feature for exporting the contents of a RasterFrame as a [SlippyMap](https://wiki.openstreetmap.org/wiki/Slippy_Map)
-  tile image directory structure and Leaflet-enabled HTML file. 
+* Added experimental GeoJSON DataSource with schema inferfence on feature properties.
+* Added Scala, SQL, and Python tile-scalar arithmetic operations: `localAddScalar`, `localSubtractScalar`, `localMultipyScalar`, `localDivideScalar`.
+* Added Scala, SQL, and Python tile functions for logical comparisons both tile-tile and tile-scalar variants: `localLess`, `localLessEqual`, `localGreater`, `localGreaterEqual`, `localEqual`, and `localUnequal`. 
+* Added [`SlippyExport`](https://github.com/locationtech/rasterframes/blob/develop/experimental/src/main/scala/astraea/spark/rasterframes/experimental/slippy/SlippyExport.scala) 
+  experimental feature for exporting the contents of a RasterFrame as a [SlippyMap](https://wiki.openstreetmap.org/wiki/Slippy_Map)
+  tile image directory structure and Leaflet/OpenMaps-enabled HTML file. 
+* Added [experimental DataSource implementations](https://github.com/locationtech/rasterframes/tree/develop/experimental/src/main/scala/astraea/spark/rasterframes/experimental/datasource/awspds) for [MODIS](https://registry.opendata.aws/modis/) and [Landsat 8](https://registry.opendata.aws/landsat-8/) catalogs on AWS PDS.   
 * _Change_: Default interpoation for `toRaster` and `toMultibandRaster` has been changed from `Bilinear` to `NearestNeighbor`.
 * _Breaking_: Renamed/moved `astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics` to
 `astraea.spark.rasterframes.stats.CellStatistics`.
-* _Breaking_: `HistogramAggregateFunction` now generates a `astraea.spark.rasterframes.stats.CellHistogram`.
+* _Breaking_: `HistogramAggregateFunction` now generates the new type `astraea.spark.rasterframes.stats.CellHistogram`.
+* _Breaking_: `box2D` renamed `envelope`.
 
+## 0.6.x
   
 ### 0.6.1
 

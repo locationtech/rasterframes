@@ -1,7 +1,20 @@
 import scala.sys.process.Process
 import sbt.Keys.`package`
+import sbt.Tests.Summary
 
 enablePlugins(SparkPackagePlugin, AssemblyPlugin)
+
+lazy val assemblyHasGeoTrellis = settingKey[Boolean]("If false, GeoTrellis libraries are excluded from assembly.")
+assemblyHasGeoTrellis := true
+
+assembly / assemblyExcludedJars ++= {
+  val cp = (fullClasspath in assembly).value
+  val gt = assemblyHasGeoTrellis.value
+  if(gt) Seq.empty
+  else cp.filter(_.data.getName.contains("geotrellis"))
+}
+
+assembly / test := {}
 
 //--------------------------------------------------------------------
 // Spark Packages Plugin
@@ -36,8 +49,6 @@ spDescription := """
                    |still maintaining necessary geo-referencing constructs.
                  """.stripMargin
 
-test in assembly := {}
-
 spPublishLocal := {
   // This unfortunate override is necessary because
   // the ivy resolver in pyspark defaults to the cache more
@@ -57,12 +68,29 @@ spPublishLocal := {
 lazy val pythonSource = settingKey[File]("Default Python source directory.")
 pythonSource := baseDirectory.value / "python"
 
+def sparkFiles(dir: File):Seq[File] = Seq("metastore_db",
+                                          "spark-warehouse",
+                                          "derby.log").map(f => dir / f)
+
+cleanFiles ++=
+  sparkFiles(baseDirectory.value) ++
+  sparkFiles(pythonSource.value) ++
+  Seq(
+    ".eggs",
+    ".pytest_cache",
+    "build",
+    "dist",
+    "pyrasterframes.egg-info"
+  ).map(f => pythonSource.value / f)
+
 val Python = config("Python")
 
 Python / target := target.value / "python-dist"
 
+lazy val pyZip = taskKey[File]("Build pyrasterframes zip.")
+
 // Alias
-lazy val pyZip = Python / packageBin
+pyZip := (Python / packageBin).value
 
 Python / packageBin / artifact := {
   val java = (Compile / packageBin / artifact).value
@@ -76,27 +104,15 @@ Python / packageBin / artifactPath := {
   dir / s"${art.name}-python-$ver.zip"
 }
 
-//Python / packageBin / crossVersion := CrossVersion.disabled
-
-//artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
-//  // Couldn't figure out how to config scope this, so having to handle for whole module
-//  artifact.classifier match {
-//    case Some("python") ⇒
-//      val ver = version.value
-//      s"${artifact.name}-python-${ver}.${artifact.extension}"
-//    case _ ⇒ artifactName.value(sv, module, artifact)
-//  }
-//}
-
 addArtifact(Python / packageBin / artifact, Python / packageBin)
 
 val pysparkCmd = taskKey[Unit]("Builds pyspark package and emits command string for running pyspark with package")
 
-lazy val pyTest = taskKey[Unit]("Run pyrasterframes tests.")
+lazy val pyTest = taskKey[Int]("Run pyrasterframes tests. Return result code.")
 
 lazy val pyExamples = taskKey[Unit]("Run pyrasterframes examples.")
 
-lazy val pyEgg = taskKey[Unit]("Creates a Python .egg file")
+lazy val pyWheel = taskKey[Unit]("Creates a Python .whl file")
 
 lazy val spJarFile = Def.taskDyn {
   if (spShade.value) {
@@ -106,12 +122,19 @@ lazy val spJarFile = Def.taskDyn {
   }
 }
 
+def gatherFromDir(root: sbt.File, dirName: String) = {
+  val pyDir = root / dirName
+  IO.listFiles(pyDir, GlobFilter("*.py") | GlobFilter("*.rst"))
+    .map(f => (f, s"$dirName/${f.getName}"))
+}
+
 Python / packageBin := {
   val jar = (`package` in Compile).value
-  val license = pythonSource.value / "LICENSE.md"
-  val pyDir = pythonSource.value / "pyrasterframes"
-  val files = (IO.listFiles(pyDir, GlobFilter("*.py") | GlobFilter("*.rst")) ++ Seq(jar, license))
-    .map(f => (f, "pyrasterframes/" + f.getName))
+  val root = pythonSource.value
+  val license = root / "LICENSE.md"
+  val files = gatherFromDir(root, "pyrasterframes") ++
+    gatherFromDir(root, "geomesa_pyspark") ++
+    Seq(jar, license).map(f => (f, "pyrasterframes/" + f.getName))
   val zipFile = (Python / packageBin / artifactPath).value
   IO.zip(files, zipFile)
   zipFile
@@ -128,18 +151,66 @@ pysparkCmd := {
 ivyPaths in pysparkCmd := ivyPaths.value.withIvyHome(target.value / "ivy")
 
 pyTest := {
-  val _ = spPublishLocal.value
+  val _ = assembly.value
   val s = streams.value
   val wd = pythonSource.value
   Process("python setup.py test", wd) ! s.log
 }
 
-Test / test := (Test / test).dependsOn(pyTest).value
+Test / executeTests := {
+  val standard = (Test / executeTests).value
+  standard.overall match {
+    case TestResult.Passed ⇒
+      val resultCode = pyTest.value
+      val msg = resultCode match {
+        case 1 ⇒ "There are Python test failures."
+        case 2 ⇒ "Python test execution was interrupted."
+        case 3 ⇒ "Internal error during Python test execution."
+        case 4 ⇒ "PyTest usage error."
+        case 5 ⇒ "No Python tests found."
+        case x if (x != 0) ⇒ "Unknown error while running Python tests."
+        case _ ⇒ "PyRasterFrames tests successfully completed."
+      }
+      val pySummary = Summary("pyrasterframes", msg)
+      val summaries = standard.summaries ++ Iterable(pySummary)
+      // Would be cool to derive this from the python output...
+      val result = if(resultCode == 0) {
+        new SuiteResult(
+          TestResult.Passed,
+          passedCount = 1,
+          failureCount = 0,
+          errorCount = 0,
+          skippedCount = 0,
+          ignoredCount = 0,
+          canceledCount = 0,
+          pendingCount = 0
+        )
+      }
+      else {
+        new SuiteResult(
+          TestResult.Failed,
+          passedCount = 0,
+          failureCount = 1,
+          errorCount = 0,
+          skippedCount = 0,
+          ignoredCount = 0,
+          canceledCount = 0,
+          pendingCount = 0
+        )
+      }
+      standard.copy(overall = result.result, summaries = summaries, events = standard.events + ("PyRasterFramesTests" -> result))
+    case _ ⇒
+      val pySummary = Summary("pyrasterframes", "tests skipped due to scalatest failures")
+      standard.copy(summaries = standard.summaries ++ Iterable(pySummary))
+  }
+}
 
-pyEgg := {
+pyWheel := {
   val s = streams.value
   val wd = pythonSource.value
-  Process("python setup.py bdist_egg", wd) ! s.log
+  Process("python setup.py bdist_wheel", wd) ! s.log
+  val whl = IO.listFiles(pythonSource.value / "dist", GlobFilter("*.whl"))(0)
+  IO.move(whl, (Python / target).value / whl.getName)
 }
 
 pyExamples := {

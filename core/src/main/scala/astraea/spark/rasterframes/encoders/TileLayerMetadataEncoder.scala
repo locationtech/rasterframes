@@ -20,8 +20,8 @@
 package astraea.spark.rasterframes.encoders
 
 import geotrellis.spark.{KeyBounds, TileLayerMetadata}
-import org.apache.spark.sql.Encoder
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+
 import scala.reflect.runtime.universe._
 
 /**
@@ -40,7 +40,7 @@ object TileLayerMetadataEncoder {
     "crs" -> crsEncoder
   )
 
-  def apply[K: TypeTag](): Encoder[TileLayerMetadata[K]] = {
+  def apply[K: TypeTag](): ExpressionEncoder[TileLayerMetadata[K]] = {
     val boundsEncoder = ExpressionEncoder[KeyBounds[K]]()
     val fEncoders = fieldEncoders :+ ("bounds" -> boundsEncoder)
     DelegatingSubfieldEncoder(fEncoders: _*)

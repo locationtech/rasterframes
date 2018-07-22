@@ -1,4 +1,4 @@
-# Creating RasterFrames
+# Creating&nbsp;RasterFrames
 
 ## Initialization
 
@@ -39,7 +39,7 @@ Now we are ready to create a RasterFrame.
 
 The most straightforward way to create a `RasterFrame` is to read a [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF)
 file using a RasterFrame [`DataSource`](https://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources)
-designed for this purpose.
+designed for this purpose. [Cloud Optimized GeoTIFF](http://www.cogeo.org/) files are preferred, as they don't require re-tiling and can be read in a more memory-efficient way.
 
 First add the following import:
 
@@ -129,7 +129,7 @@ val anotherRF = spark.read.geotrellis.loadRF(layer)
 
 ## Writing a GeoTrellis Layer
 
-**TODO**
+See @ref:[Exporting to a GeoTrellis Layer](creating-rasterframes.md#exporting-to-a-geotrellis-layer).
 
 ## Using GeoTrellis APIs
 

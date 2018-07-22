@@ -18,7 +18,6 @@
 
 package astraea.spark.rasterframes
 
-import java.nio.file.Path
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes.{functions ⇒ F}
@@ -26,17 +25,16 @@ import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
 import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.{GeoTiff, SinglebandGeoTiff}
-import geotrellis.spark.testkit.TileLayerRDDBuilders
-import geotrellis.spark.tiling.{CRSWorldExtent, LayoutDefinition}
+import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.spark._
+import geotrellis.spark.testkit.TileLayerRDDBuilders
+import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.commons.io.IOUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 
 import scala.reflect.ClassTag
-import scala.util.Random
 
 /**
  * Pre-configured data constructs for testing.
@@ -64,6 +62,7 @@ trait TestData {
   def squareIncrementingTile(size: Int): Tile = ByteArrayTile((1 to (size * size)).map(_.toByte).toArray, size, size)
 
   val byteArrayTile: Tile = squareIncrementingTile(3)
+  val maskingTile: Tile = ByteArrayTile(Array[Byte](-4, -4, -4, byteNODATA, byteNODATA, byteNODATA, 15, 15, 15), 3, 3)
   val bitConstantTile = BitConstantTile(1, 2, 2)
   val byteConstantTile = ByteConstantTile(7, 3, 3)
 
@@ -90,6 +89,7 @@ trait TestData {
   }
 
   def readSingleband(name: String) = SinglebandGeoTiff(IOUtils.toByteArray(getClass.getResourceAsStream("/" + name)))
+  def readMultiband(name: String) = MultibandGeoTiff(IOUtils.toByteArray(getClass.getResourceAsStream("/" + name)))
 
   /** 774 x 500 GeoTiff */
   def sampleGeoTiff = readSingleband("L8-B8-Robinson-IL.tiff")
@@ -106,6 +106,8 @@ trait TestData {
     require((1 to 4).contains(band), "Invalid band number")
     readSingleband(s"NAIP-VA-b$band.tiff")
   }
+
+  def rgbCogSample = readMultiband("LC08_RGB_Norfolk_COG.tiff")
 
   def sampleTileLayerRDD(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
     val rf = sampleGeoTiff.projectedRaster.toRF(128, 128)
@@ -139,7 +141,7 @@ object TestData extends TestData {
         val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
         ArrayTile(data, cols, rows)
       case _: DoubleCells ⇒
-        val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
+        val data = Array.fill(cols * rows)(rnd.nextGaussian())
         ArrayTile(data, cols, rows)
       case _ ⇒
         val words = cellType.bits / 8
@@ -168,6 +170,16 @@ object TestData extends TestData {
           s"Should not have any NoData cells for $cellType:\n${result.asciiDraw()}")
         result
     }
+  }
+
+  /** A tile created through a geometric sequence.
+    * 1/n of the tile's values will equal the tile size / n, assuming 1/n exists in the sequence */
+  def fracTile(cols: Int, rows: Int, binNum: Int, denom: Int = 2): Tile = {
+    val fracs = (1 to binNum).map(x => 1/math.pow(denom, x)).map(x => (cols * rows * x).toInt)
+    val fracSeq = fracs.flatMap(p => (1 to p).map(_ => p))
+    // fill in the rest with zeroes
+    val fullArr = (fracSeq ++ Seq.fill(rows * cols - fracSeq.length)(0)).toArray
+    ArrayTile(fullArr, rows, cols)
   }
 
   /** Create a series of random tiles. */
