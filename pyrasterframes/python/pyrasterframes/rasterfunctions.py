@@ -8,14 +8,14 @@ signatures are handled here as well.
 from __future__ import absolute_import
 from pyspark.sql.types import *
 from pyspark.sql.column import Column, _to_java_column
-from .context import _checked_context
+from .context import RFContext
 
 
 THIS_MODULE = 'pyrasterframes'
 
 
 def _context_call(name, *args):
-    f = getattr(_checked_context(), name)
+    f = RFContext.active().lookup(name)
     return f(*args)
 
 
@@ -27,8 +27,7 @@ def _celltype(cellTypeStr):
 def _create_assembleTile():
     """ Create a function mapping to the Scala implementation."""
     def _(colIndex, rowIndex, cellData, numCols, numRows, cellType):
-        ctx = _checked_context()
-        jfcn = getattr(ctx, 'assembleTile')
+        jfcn = RFContext.active().lookup('assembleTile')
         return Column(jfcn(_to_java_column(colIndex), _to_java_column(rowIndex), _to_java_column(cellData), numCols, numRows, _celltype(cellType)))
     _.__name__ = 'assembleTile'
     _.__doc__ = "Create a Tile from  a column of cell data with location indices"
@@ -39,7 +38,7 @@ def _create_assembleTile():
 def _create_arrayToTile():
     """ Create a function mapping to the Scala implementation."""
     def _(arrayCol, numCols, numRows):
-        jfcn = getattr(_checked_context(), 'arrayToTile')
+        jfcn = RFContext.active().lookup('arrayToTile')
         return Column(jfcn(_to_java_column(arrayCol), numCols, numRows))
     _.__name__ = 'arrayToTile'
     _.__doc__ = "Convert array in `arrayCol` into a Tile of dimensions `numCols` and `numRows'"
@@ -50,7 +49,7 @@ def _create_arrayToTile():
 def _create_convertCellType():
     """ Create a function mapping to the Scala implementation."""
     def _(tileCol, cellType):
-        jfcn = getattr(_checked_context(), 'convertCellType')
+        jfcn = RFContext.active().lookup('convertCellType')
         return Column(jfcn(_to_java_column(tileCol), _celltype(cellType)))
     _.__name__ = 'convertCellType'
     _.__doc__ = "Convert the numeric type of the Tiles in `tileCol`"
@@ -61,7 +60,7 @@ def _create_convertCellType():
 def _create_makeConstantTile():
     """ Create a function mapping to the Scala implementation."""
     def _(value, cols, rows, cellType):
-        jfcn = getattr(_checked_context(), 'makeConstantTile')
+        jfcn = RFContext.active().lookup('makeConstantTile')
         return Column(jfcn(value, cols, rows, cellType))
     _.__name__ = 'makeConstantTile'
     _.__doc__ = "Constructor for constant tile column"
@@ -72,7 +71,7 @@ def _create_makeConstantTile():
 def _create_tileZeros():
     """ Create a function mapping to the Scala implementation."""
     def _(cols, rows, cellType = 'float64'):
-        jfcn = getattr(_checked_context(), 'tileZeros')
+        jfcn = RFContext.active().lookup('tileZeros')
         return Column(jfcn(cols, rows, cellType))
     _.__name__ = 'tileZeros'
     _.__doc__ = "Create column of constant tiles of zero"
@@ -83,7 +82,7 @@ def _create_tileZeros():
 def _create_tileOnes():
     """ Create a function mapping to the Scala implementation."""
     def _(cols, rows, cellType = 'float64'):
-        jfcn = getattr(_checked_context(), 'tileOnes')
+        jfcn = RFContext.active().lookup('tileOnes')
         return Column(jfcn(cols, rows, cellType))
     _.__name__ = 'tileOnes'
     _.__doc__ = "Create column of constant tiles of one"
@@ -94,7 +93,7 @@ def _create_tileOnes():
 def _create_rasterize():
     """ Create a function mapping to the Scala rasterize function. """
     def _(geometryCol, boundsCol, valueCol, numCols, numRows):
-        jfcn = getattr(_checked_context(), 'rasterize')
+        jfcn = RFContext.active().lookup('rasterize')
         return Column(jfcn(_to_java_column(geometryCol), _to_java_column(boundsCol), _to_java_column(valueCol), numCols, numRows))
     _.__name__ = 'rasterize'
     _.__doc__ = 'Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value.'
@@ -104,13 +103,24 @@ def _create_rasterize():
 def _create_reproject_geometry():
     """ Create a function mapping to the Scala reprojectGeometry function. """
     def _(geometryCol, srcCRSName, dstCRSName):
-        jfcn = getattr(_checked_context(), 'reprojectGeometry')
+        jfcn = RFContext.active().lookup('reprojectGeometry')
         return Column(jfcn(_to_java_column(geometryCol), srcCRSName, dstCRSName))
     _.__name__ = 'reprojectGeometry'
     _.__doc__ = """Reproject a column of geometry given the CRS names of the source and destination.
 Currently supported registries are EPSG, ESRI, WORLD, NAD83, & NAD27.
 An example of a valid CRS name is EPSG:3005.
 """
+    _.__module__ = THIS_MODULE
+    return _
+
+def _create_explode_tiles():
+    """ Create a function mapping to Scala explodeTiles function """
+    def _(*args):
+        jfcn = RFContext.active().lookup('explodeTiles')
+        jcols = [_to_java_column(arg) for arg in args]
+        return Column(jfcn(RFContext.active().list_to_seq(jcols)))
+    _.__name__ = 'explodeTiles'
+    _.__doc__ = 'Create a row for each cell in Tile.'
     _.__module__ = THIS_MODULE
     return _
 
@@ -123,7 +133,8 @@ _rf_unique_functions = {
     'tileOnes': _create_tileOnes(),
     'cellTypes': lambda: _context_call('cellTypes'),
     'rasterize': _create_rasterize(),
-    'reprojectGeometry': _create_reproject_geometry()
+    'reprojectGeometry': _create_reproject_geometry(),
+    'explodeTiles': _create_explode_tiles()
 }
 
 
@@ -154,7 +165,6 @@ _rf_column_scalar_functions = {
 
 _rf_column_functions = {
     # ------- RasterFrames functions -------
-    'explodeTiles': 'Create a row for each cell in Tile.',
     'tileDimensions': 'Query the number of (cols, rows) in a Tile.',
     'envelope': 'Extracts the bounding box (envelope) of the geometry.',
     'tileToIntArray': 'Flattens Tile into an array of integers.',
@@ -280,7 +290,7 @@ __all__ = list(_rf_column_functions.keys()) + \
 def _create_column_function(name, doc=""):
     """ Create a mapping to Scala UDF for a column function by name"""
     def _(*args):
-        jfcn = getattr(_checked_context(), name)
+        jfcn = RFContext.active().lookup(name)
         jcols = [_to_java_column(arg) for arg in args]
         return Column(jfcn(*jcols))
     _.__name__ = name
@@ -292,7 +302,7 @@ def _create_column_function(name, doc=""):
 def _create_columnScalarFunction(name, doc=""):
     """ Create a mapping to Scala UDF for a (column, scalar) -> column function by name"""
     def _(col, scalar):
-        jfcn = getattr(_checked_context(), name)
+        jfcn = RFContext.active().lookup(name)
         return Column(jfcn(_to_java_column(col), scalar))
     _.__name__ = name
     _.__doc__ = doc

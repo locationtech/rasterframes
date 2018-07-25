@@ -153,6 +153,7 @@ ivyPaths in pysparkCmd := ivyPaths.value.withIvyHome(target.value / "ivy")
 pyTest := {
   val _ = assembly.value
   val s = streams.value
+  s.log.info("Running python tests...")
   val wd = pythonSource.value
   Process("python setup.py test", wd) ! s.log
 }

@@ -158,12 +158,19 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(_rounded_compare(statsRow.base, statsRow.double / 2))
         self.assertTrue(_rounded_compare(statsRow.base, statsRow.half * 2))
 
+    def test_explode(self):
+        self.rf.select('spatial_key', explodeTiles(self.tileCol)).show()
+
 
 def suite():
     functionTests = unittest.TestSuite()
     functionTests.addTest(RasterFunctionsTest('test_identify_columns'))
+    functionTests.addTest(RasterFunctionsTest('test_tile_operations'))
     functionTests.addTest(RasterFunctionsTest('test_general'))
+    functionTests.addTest(RasterFunctionsTest('test_rasterize'))
+    functionTests.addTest(RasterFunctionsTest('test_reproject'))
     functionTests.addTest(RasterFunctionsTest('test_aggregations'))
+    functionTests.addTest(RasterFunctionsTest('test_explode'))
     functionTests.addTest(RasterFunctionsTest('test_sql'))
     return functionTests
 

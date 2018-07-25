@@ -11,20 +11,9 @@ from pyspark.sql import SparkSession, DataFrame, Column, Row
 from pyspark.sql.types import *
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
-from .context import _checked_context
+from .context import RFContext
 
-__all__ = ['RFContext', 'RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
-
-class RFContext(object):
-    """
-    Entrypoint to RasterFrames services
-    """
-    def __init__(self, spark_session):
-        self._spark_session = spark_session
-        self._gateway = spark_session.sparkContext._gateway
-        self._jvm = self._gateway.jvm
-        jsess = self._spark_session._jsparkSession
-        self._jrfctx = self._jvm.astraea.spark.rasterframes.py.PyRFContext(jsess)
+__all__ = ['RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
 
 
 class RasterFrame(DataFrame):
@@ -156,7 +145,7 @@ class TileUDT(UserDefinedType):
                   obj.toBytes)
 
     def deserialize(self, datum):
-        return _checked_context().generateTile(datum[0], datum[1], datum[2], datum[3])
+        return RFContext._jvm_mirror().generateTile(datum[0], datum[1], datum[2], datum[3])
 
 
 
