@@ -130,6 +130,6 @@ object MultibandRender {
   case class ColorRampProfile(ramp: ColorRamp) extends Profile {
     // Are there other ways to use the other bands?
     override def render(tile: MultibandTile): Png =
-      colorAdjust(tile.band(0)).renderPng(ramp)
+      applyAdjustment(tile.band(0)).renderPng(ramp)
   }
 }
