@@ -53,7 +53,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
   def buildScan(): RDD[Row] = {
     import sqlContext.implicits._
 
-    logger.info("Scene file is: " + sceneList)
+    logger.debug("Scene file is: " + sceneList)
     val catalog = sqlContext.read
       .option("header", "true")
       .option("mode", "DROPMALFORMED") // <--- mainly for the fact that we have internal headers from the concat

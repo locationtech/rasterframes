@@ -7,7 +7,6 @@
 * Fixed ColorRamp pipeline in MultibandRender
 * Fixed Python wrapper for `explodeTiles`
 
-
 ### 0.7.0
 
 * Now an incubating project under Eclipse Foundation LocationTech! GitHub repo moved to [locationtech/rasterframes](https://github.com/locationtech/rasterframes).
