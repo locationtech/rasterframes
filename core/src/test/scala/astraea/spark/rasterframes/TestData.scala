@@ -18,6 +18,7 @@
 
 package astraea.spark.rasterframes
 
+import java.nio.file.Paths
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes.{functions ⇒ F}
@@ -86,6 +87,10 @@ trait TestData {
       UShortArrayTile(rangeArray(size, _.toShort), rows, cols)
     )
 
+  }
+
+  def geotiffDir = {
+    Paths.get(getClass.getResource("/L8-B8-Robinson-IL.tiff").getFile).getParent
   }
 
   def readSingleband(name: String) = SinglebandGeoTiff(IOUtils.toByteArray(getClass.getResourceAsStream("/" + name)))
