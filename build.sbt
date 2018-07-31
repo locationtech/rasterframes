@@ -24,8 +24,10 @@ lazy val datasource = project
   .disablePlugins(SparkPackagePlugin)
 
 lazy val experimental = project
-  .dependsOn(core % "test->test;compile->compile")
-  .dependsOn(datasource % "test->test;compile->compile")
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings)
+  .dependsOn(core % "test->test;it->test;compile->compile")
+  .dependsOn(datasource % "test->test;it->test;compile->compile")
   .disablePlugins(SparkPackagePlugin)
 
 lazy val docs = project

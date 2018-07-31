@@ -6,3 +6,7 @@ libraryDependencies ++= Seq(
   spark("mllib").value % Provided,
   spark("sql").value % Provided
 )
+
+fork in IntegrationTest := true
+javaOptions in IntegrationTest := Seq("-Xmx2G")
+parallelExecution in IntegrationTest := false

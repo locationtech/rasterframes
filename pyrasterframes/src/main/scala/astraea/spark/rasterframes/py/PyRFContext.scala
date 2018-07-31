@@ -20,21 +20,15 @@ package astraea.spark.rasterframes.py
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util.CRSParser
-
 import com.vividsolutions.jts.geom.Geometry
-
-import geotrellis.raster.{ArrayTile, CellType, Tile, MultibandTile}
-import geotrellis.spark.{SpatialKey, SpaceTimeKey, TileLayerMetadata, MultibandTileLayerRDD, ContextRDD}
+import geotrellis.raster.{ArrayTile, CellType, MultibandTile}
 import geotrellis.spark.io._
-
-import org.locationtech.geomesa.spark.jts.util.WKBUtils
-
-import org.apache.spark.rdd.RDD
+import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql._
-
+import org.locationtech.geomesa.spark.jts.util.WKBUtils
 import spray.json._
-import astraea.spark.rasterframes.ml.NoDataFilter
 
+import scala.collection.JavaConverters._
 
 /**
  * py4j access wrapper to RasterFrame entry points.
@@ -193,4 +187,6 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     val dst = CRSParser(dstName)
     reprojectGeometry(geometryCol, src, dst)
   }
+
+  def listToSeq(cols: java.util.ArrayList[AnyRef]): Seq[AnyRef] = cols.asScala
 }

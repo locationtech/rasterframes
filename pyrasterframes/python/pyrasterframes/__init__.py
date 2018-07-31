@@ -3,18 +3,15 @@ Module initialization for PyRasterFrames. This is where much of the cool stuff i
 appended to PySpark classes.
 """
 
-
 from __future__ import absolute_import
-from pyspark.sql.types import UserDefinedType
 from pyspark import SparkContext
 from pyspark.sql import SparkSession, DataFrame, DataFrameReader
-from pyspark.sql.types import *
 from pyspark.sql.column import _to_java_column
 
 # Import RasterFrame types and functions
 from .types import *
 from . import rasterfunctions
-
+from .context import RFContext
 
 __all__ = ['RasterFrame', 'TileExploder']
 

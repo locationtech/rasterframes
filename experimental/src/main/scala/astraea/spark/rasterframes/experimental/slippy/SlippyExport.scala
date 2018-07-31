@@ -24,7 +24,6 @@ import java.io.PrintStream
 import java.net.URI
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.util.MultibandRender.ColorRampProfile
 import astraea.spark.rasterframes.util._
 import geotrellis.proj4.{LatLng, WebMercator}
 import geotrellis.raster._
@@ -116,13 +115,13 @@ trait SlippyExport extends MethodExtensions[RasterFrame]{
 
     val (zoom, reprojected) = inputRDD.reproject(WebMercator, layoutScheme, Bilinear)
     val writer = new HadoopSlippyTileWriter[MultibandTile](dest.toASCIIString + "/" + tileDirName, "png")({ (_, tile) =>
-      require(tile.bandCount >= 3 || renderer.isInstanceOf[ColorRampProfile],
-        "Single-band and dual-band RasterFrames require a ColorRampProfile for rendering")
+      //require(tile.bandCount >= 3 || renderer.isInstanceOf[ColorRampProfile],
+      //  "Single-band and dual-band RasterFrames require a ColorRampProfile for rendering")
       val png = renderer.render(tile)
       png.bytes
     })
 
-    val center = reprojected.metadata.extent.center.reproject(WebMercator, LatLng)
+    val center = reprojected.metadata.extent.center
 
     SlippyExport.writeHtml(dest, sc.hadoopConfiguration, Map(
       "maxZoom" -> zoom.toString,

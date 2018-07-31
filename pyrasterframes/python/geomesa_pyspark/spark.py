@@ -12,11 +12,10 @@
 from pyspark.sql.types import UserDefinedType
 from pyspark.sql import Row
 from pyspark.sql.types import *
-from pyrasterframes.context import _checked_context
+from pyrasterframes.context import RFContext
 
 
 __all__ = ['GeometryUDT']
-
 
 class GeometryUDT(UserDefinedType):
     """User-defined type (UDT).
@@ -41,4 +40,4 @@ class GeometryUDT(UserDefinedType):
         return Row(obj.toBytes)
 
     def deserialize(self, datum):
-        return _checked_context().generateGeometry(datum[0])
+        return RFContext._jvm_mirror().generateGeometry(datum[0])

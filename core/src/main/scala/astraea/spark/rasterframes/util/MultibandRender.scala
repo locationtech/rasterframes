@@ -63,6 +63,9 @@ object MultibandRender {
 
   /** Base type for Rendering profiles. */
   trait Profile {
+    /** Expected number of bands. */
+    def expectedBands: Int = 3
+
     /** Value from -255 to 255 */
     def brightness: Int = 0
     /** Value from  -255 to 255 */
@@ -102,6 +105,8 @@ object MultibandRender {
       compressRange _ andThen colorAdjust
 
     def render(tile: MultibandTile) = {
+      require(expectedBands <= tile.bandCount, s"Need at least $expectedBands bands (${tile.bandCount} provided).")
+
       val r = applyAdjustment(red(tile))
       val g = applyAdjustment(green(tile))
       val b = applyAdjustment(blue(tile))
@@ -128,8 +133,11 @@ object MultibandRender {
   }
 
   case class ColorRampProfile(ramp: ColorRamp) extends Profile {
+    override def expectedBands: Int = 1
     // Are there other ways to use the other bands?
-    override def render(tile: MultibandTile): Png =
-      colorAdjust(tile.band(0)).renderPng(ramp)
+    override def render(tile: MultibandTile): Png = {
+      require(tile.bandCount >= 1, s"Need at least 1 band")
+      applyAdjustment(tile.band(0)).renderPng(ramp)
+    }
   }
 }
