@@ -19,6 +19,8 @@ RUN echo "spark.driver.extraClassPath $RF_JAR" >> /usr/local/spark/conf/spark-de
 RUN mkdir $PY_RF_DATA
 COPY ./samples/* $PY_RF_DATA
 RUN chown -R $NB_UID:$NB_GID $HOME
+RUN conda install sphinx nbsphinx --yes
+RUN git clone git@github.com:s22s/rasterframes-book.git
 
 USER $NB_UID
 
