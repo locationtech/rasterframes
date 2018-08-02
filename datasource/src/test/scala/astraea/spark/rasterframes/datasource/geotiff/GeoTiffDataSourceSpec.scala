@@ -21,10 +21,7 @@ package astraea.spark.rasterframes.datasource.geotiff
 import java.nio.file.Paths
 
 import astraea.spark.rasterframes._
-import geotrellis.proj4.LatLng
 import org.apache.spark.sql.functions._
-import geotrellis.vector._
-import geotrellis.vector.io.json.JsonFeatureCollection
 
 /**
  * @since 1/14/18
@@ -69,7 +66,6 @@ class GeoTiffDataSourceSpec
 
       assert(rf.count() > 1)
 
-      import spark.implicits._
       import org.apache.spark.sql.functions._
       logger.info(
         rf.agg(

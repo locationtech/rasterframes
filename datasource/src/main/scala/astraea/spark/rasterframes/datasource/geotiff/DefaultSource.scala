@@ -44,7 +44,14 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
     val pathO = path(parameters)
     require(pathO.isDefined, "Valid URI 'path' parameter required.")
     sqlContext.withRasterFrames
-    GeoTiffRelation(sqlContext, pathO.get)
+
+    val p = pathO.get
+
+    if(p.getPath.contains("*")) {
+      val bandCount = parameters.get(DefaultSource.BAND_COUNT_PARAM).map(_.toInt).getOrElse(1)
+      GeoTiffCollectionRelation(sqlContext, p, bandCount)
+    }
+    else GeoTiffRelation(sqlContext, p)
   }
 
   override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = {
@@ -99,7 +106,7 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
       case _ ⇒ ColorSpace.BlackIsZero
     }
 
-    val compress = parameters.get(DefaultSource.COMPRESS).map(_.toBoolean).getOrElse(false)
+    val compress = parameters.get(DefaultSource.COMPRESS_PARAM).map(_.toBoolean).getOrElse(false)
     val options = GeoTiffOptions(Tiled, if (compress) DeflateCompression else NoCompression, colorSpace)
     val tags = Tags(
       RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
@@ -118,5 +125,6 @@ object DefaultSource {
   final val PATH_PARAM = "path"
   final val IMAGE_WIDTH_PARAM = "imageWidth"
   final val IMAGE_HEIGHT_PARAM = "imageWidth"
-  final val COMPRESS = "compress"
+  final val COMPRESS_PARAM = "compress"
+  final val BAND_COUNT_PARAM = "bandCount"
 }
