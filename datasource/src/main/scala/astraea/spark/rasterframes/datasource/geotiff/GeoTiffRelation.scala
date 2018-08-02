@@ -31,6 +31,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext}
@@ -63,7 +64,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
 
     StructType(Seq(
       StructField(SPATIAL_KEY_COLUMN.columnName, skSchema, nullable = false, skMetadata),
-      StructField(BOUNDS_COLUMN.columnName, org.apache.spark.sql.jts.JTSTypes.PolygonTypeInstance, nullable = true),
+      StructField(BOUNDS_COLUMN.columnName, JTSTypes.PolygonTypeInstance, nullable = true),
       StructField(METADATA_COLUMN.columnName,
         DataTypes.createMapType(StringType, StringType, false)
       )
