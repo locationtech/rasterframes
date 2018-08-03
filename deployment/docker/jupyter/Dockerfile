@@ -18,9 +18,8 @@ RUN echo "spark.driver.extraClassPath $RF_JAR" >> /usr/local/spark/conf/spark-de
 
 RUN mkdir $PY_RF_DATA
 COPY ./samples/* $PY_RF_DATA
+RUN git clone http://github.com/s22s/rasterframes-book
 RUN chown -R $NB_UID:$NB_GID $HOME
-RUN conda install sphinx nbsphinx --yes
-RUN git clone git@github.com:s22s/rasterframes-book.git
 
 USER $NB_UID
 
@@ -55,5 +54,10 @@ RUN conda install --quiet --yes 'spylon-kernel=0.4*' && \
     conda clean -tipsy && \
     python -m spylon_kernel install --sys-prefix && \
     rm -rf /home/$NB_USER/.local && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
+
+# Sphinx (for Notebook->html)
+RUN conda install --quiet --yes sphinx nbsphinx && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
