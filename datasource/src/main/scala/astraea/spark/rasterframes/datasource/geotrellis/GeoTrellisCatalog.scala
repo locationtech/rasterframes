@@ -21,13 +21,16 @@ package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.net.URI
 
+import astraea.spark.rasterframes
 import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisCatalog.GeoTrellisCatalogRelation
+import astraea.spark.rasterframes.util.time
 import geotrellis.spark.io.AttributeStore
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.rf.VersionShims
 import org.apache.spark.sql.sources._
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.StructType
 import spray.json.DefaultJsonProtocol._
 import spray.json._
@@ -70,27 +73,31 @@ object GeoTrellisCatalog {
         Encoders.scalaInt, layerEncoder
       )
 
-      val layerSpecs = attributes.layerIds.zipWithIndex.map {
+      val layerIds = attributes.layerIds
+
+      val layerSpecs = layerIds.zipWithIndex.map {
         case (id, index) ⇒ (index: Int, Layer(uri, id))
       }
 
-      val indexedLayers = layerSpecs.toDF("index", "layer")
-      val headers = VersionShims.readJson(sqlContext,
-        layerSpecs
-          .map{case (index, layer) ⇒ (index, attributes.readHeader[JsObject](layer.id))}
-          .map(mergeId.tupled)
-          .map(_.compactPrint)
-          .toDS
-      )
-      val metadata = VersionShims.readJson(sqlContext,
-        layerSpecs
-          .map{case (index, layer) ⇒ (index, attributes.readMetadata[JsObject](layer.id))}
-          .map(mergeId.tupled)
-          .map(_.compactPrint)
-          .toDS
-      )
+      val indexedLayers = layerSpecs
+        .toDF("index", "layer")
 
-      indexedLayers.join(headers, Seq("index")).join(metadata, Seq("index"))
+      val headerRows =  layerSpecs
+        .map{case (index, layer) ⇒(index, attributes.readHeader[JsObject](layer.id))}
+        .map(mergeId.tupled)
+        .map(_.compactPrint)
+        .toDS
+
+      val metadataRows = layerSpecs
+        .map{case (index, layer) ⇒ (index, attributes.readMetadata[JsObject](layer.id))}
+        .map(mergeId.tupled)
+        .map(_.compactPrint)
+        .toDS
+
+      val headers = VersionShims.readJson(sqlContext, broadcast(headerRows))
+      val metadata = VersionShims.readJson(sqlContext, broadcast(metadataRows))
+
+      broadcast(indexedLayers).join(broadcast(headers), Seq("index")).join(broadcast(metadata), Seq("index"))
     }
 
     def schema: StructType = layers.schema
