@@ -5,38 +5,40 @@ import scala.sys.process.Process
 moduleName := "rasterframes-deployment"
 
 lazy val rfNotebookContainer = taskKey[Unit]("Build a Docker container that supports RasterFrames notebooks.")
+rfNotebookContainer := (Docker / packageBin).value
 
-def rfFiles = Def.task {
-  val logger = streams.value.log
-  val wd = baseDirectory.value / "docker"/ "jupyter"
+val Docker = config("docker")
+val Python = config("python")
 
-  val assemblyFile = (assembly in LocalProject("pyrasterframes")).value
-  val PyZipFile = (packageBin in (LocalProject("pyrasterframes"), config("Python"))).value
+Docker / resourceDirectory := baseDirectory.value / "docker"/ "jupyter"
 
-  val copiedFiles = Seq(assemblyFile, PyZipFile)
-    .map(f => {
-      val dest = wd / f.getName
-      logger.info(s"Copying ${f.getName} to: " + dest)
-      IO.copyFile(f, dest)
-      dest
-  })
-  copiedFiles
+Docker / target := target.value / "docker"
+
+Docker / mappings := {
+  val rezDir = (Docker / resourceDirectory).value
+  val files = (rezDir ** "*") pair Path.relativeTo(rezDir)
+
+  val jar = (assembly in LocalProject("pyrasterframes")).value
+  val py = (packageBin in (LocalProject("pyrasterframes"), Python)).value
+
+  files ++ Seq(jar -> jar.getName, py -> py.getName)
 }
 
-rfNotebookContainer := {
-  val copiedFiles = rfFiles.value
+def rfFiles = Def.task {
+  val destDir = (Docker / target).value
+  val filePairs = (Docker / mappings).value
+  IO.copy(filePairs.map { case (src, dst) ⇒ (src, destDir / dst) })
+}
+
+Docker / packageBin := {
+  val _ = rfFiles.value
   val logger = streams.value.log
-  val wd = baseDirectory.value / "docker"/ "jupyter"
+  val staging = (Docker / target).value
   val ver = (version in LocalRootProject).value
 
-  logger.info(s"Running docker build in $wd")
+  logger.info(s"Running docker build in $staging")
   val imageName = "s22s/rasterframes-notebooks"
-  //val targetFile = wd / s"$imageName.tar"
-  Process("docker-compose build", wd).!
-  Process(s"docker tag $imageName:latest $imageName:$ver", wd).! 
-  //Process(s"docker save -o $targetFile $imageName:$ver") ! logger
-
-  IO.delete(copiedFiles)
-  logger.info("Removed copied artifacts")
-  //targetFile
+  Process("docker-compose build", staging).!
+  Process(s"docker tag $imageName:latest $imageName:$ver", staging).!
+  staging
 }
