@@ -5,7 +5,6 @@ MAINTAINER Astraea, Inc.
 ENV RF_LIB_LOC /usr/lib
 ENV RF_JAR $RF_LIB_LOC/rasterframes.jar
 ENV PY_RF_ZIP $RF_LIB_LOC/pyrasterframes.zip
-ENV PY_RF_DATA $HOME/samples/
 
 USER root
 
@@ -53,9 +52,7 @@ RUN rm -rf /home/$NB_USER/.local && \
     fix-permissions /home/$NB_USER
 
 # Do these after the standard environment setup
-# since these change regularly
-RUN mkdir $PY_RF_DATA
-COPY ./samples/* $PY_RF_DATA
+# since these change more regularly.
 COPY *.zip $PY_RF_ZIP
 COPY *.jar $RF_JAR
 COPY *.ipynb $HOME/
@@ -67,8 +64,7 @@ USER $NB_UID
 # RUN pip install guzzle_sphinx_theme
 
 # TODO: This repo can change regularly without docker knowing that the
-# Layer this command is written in has become stale. Need to either
-# clone a specific revision that we manually update, or keep this
-# last, assuming the prior commends will be detected as stale.
-RUN git clone http://github.com/s22s/rasterframes-book
-
+# TODO: Layer this command is written in has become stale. Need to either
+# TODO: clone a specific revision that we manually update, or keep this
+# TODO: last, assuming the prior commends will be detected as stale.
+RUN git clone http://github.com/s22s/rasterframes-book && ln -s rasterframes-book/Python/samples
