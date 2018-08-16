@@ -24,7 +24,6 @@ import _root_.geotrellis.spark.LayerId
 import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
 import astraea.spark.rasterframes.{RasterFrame, _}
 import org.apache.spark.sql._
-import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.functions.col
 import shapeless.tag
 import shapeless.tag.@@
@@ -34,14 +33,7 @@ import shapeless.tag.@@
  *
  * @since 1/12/18
  */
-package object geotrellis {
-  object LogicalRelationWithGTR {
-    def unapply(lr: LogicalRelation): Option[GeoTrellisRelation] = lr.relation match {
-      case gt: GeoTrellisRelation ⇒ Some(gt)
-      case _ ⇒ None
-    }
-  }
-
+package object geotrellis extends DataSourceOptions {
   implicit val layerEncoder = Layer.layerEncoder
 
   /** Convenience column selector for a GeoTrellis layer. */
@@ -87,12 +79,12 @@ package object geotrellis {
   implicit class GeoTrellisReaderWithRF(val reader: GeoTrellisRasterFrameReader) {
     def withTileSubdivisions(divs: Int): GeoTrellisRasterFrameReader =
       tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](
-        reader.option(DefaultSource.TILE_SUBDIVISIONS_PARAM, divs)
+        reader.option(TILE_SUBDIVISIONS_PARAM, divs)
       )
 
     def withNumPartitions(partitions: Int): GeoTrellisRasterFrameReader =
       tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](
-        reader.option(DefaultSource.NUM_PARTITIONS_PARAM, partitions)
+        reader.option(NUM_PARTITIONS_PARAM, partitions)
       )
 
     def loadRF(uri: URI, id: LayerId): RasterFrame =

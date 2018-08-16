@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2018 Astraea. Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,36 +15,33 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ *
  */
 
-package astraea.spark.rasterframes.datasource.geotrellis
+package astraea.spark.rasterframes.rules
 
 import org.apache.spark.sql.catalyst.plans.logical.{Filter, LogicalPlan}
 import org.apache.spark.sql.catalyst.rules.Rule
-import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.rf.{FilterTranslator, VersionShims}
 
 /**
  * Logical plan manipulations to handle spatial queries on tile components.
- * Starting points for understanding the Catalyst optimizer:
- * - [[org.apache.spark.sql.catalyst.trees.TreeNode]]
- * - [[org.apache.spark.sql.catalyst.expressions.Expression]]
- * - [[org.apache.spark.sql.catalyst.plans.logical.LogicalPlan]]
- * - [[org.apache.spark.sql.catalyst.analysis.Analyzer]]
- * - [[org.apache.spark.sql.catalyst.optimizer.Optimizer]]
  *
  * @since 12/21/17
  */
 object SpatialFilterPushdownRules extends Rule[LogicalPlan] {
   def apply(plan: LogicalPlan): LogicalPlan = {
     plan.transformUp {
-      case f @ Filter(condition, lr @ LogicalRelationWithGTR(gt: GeoTrellisRelation)) ⇒
+      case f @ Filter(condition, lr @ SpatialRelationReceiver(sr: SpatialRelationReceiver[_] @unchecked)) ⇒
 
         val preds = FilterTranslator.translateFilter(condition)
 
-        preds.filterNot(gt.filters.contains).map(p ⇒ {
-          val newGt = preds.foldLeft(gt)((r, f) ⇒ r.withFilter(f))
-          Filter(condition, VersionShims.updateRelation(lr, newGt))
+        def foldIt[T <: SpatialRelationReceiver[T]](rel: T): T =
+          preds.foldLeft(rel)((r, f) ⇒ r.withFilter(f))
+
+        preds.filterNot(sr.hasFilter).map(p ⇒ {
+          val newRec = foldIt(sr)
+          Filter(condition, VersionShims.updateRelation(lr, newRec.asBaseRelation))
         }).getOrElse(f)
     }
   }

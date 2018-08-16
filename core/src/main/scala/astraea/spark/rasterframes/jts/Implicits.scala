@@ -65,11 +65,16 @@ trait Implicits extends SpatialConstructors {
     import scala.language.implicitConversions
     private implicit def zdt2ts(time: ZonedDateTime): Timestamp =
       new Timestamp(time.toInstant.toEpochMilli)
+    private implicit def d2ts(date: Date): Timestamp =
+      Timestamp.valueOf(date.toLocalDate.atTime(0, 0, 0))
 
     def betweenTimes(start: Timestamp, end: Timestamp): TypedColumn[Any, Boolean] =
       self.between(lit(start), lit(end)).as[Boolean]
 
     def betweenTimes(start: ZonedDateTime, end: ZonedDateTime): TypedColumn[Any, Boolean] =
+      betweenTimes(start: Timestamp, end: Timestamp)
+
+    def betweenDates(start: Date, end: Date): TypedColumn[Any, Boolean] =
       betweenTimes(start: Timestamp, end: Timestamp)
 
     def at(time: Timestamp): TypedColumn[Any, Boolean] = (self === lit(time)).as[Boolean]
@@ -83,11 +88,11 @@ trait Implicits extends SpatialConstructors {
 
     private implicit def ld2ts(date: LocalDate): Date = Date.valueOf(date)
 
-    def betweenTimes(start: Date, end: Date): TypedColumn[Any, Boolean] =
+    def betweenDates(start: Date, end: Date): TypedColumn[Any, Boolean] =
       self.between(lit(start), lit(end)).as[Boolean]
 
-    def betweenTimes(start: LocalDate, end: LocalDate): TypedColumn[Any, Boolean] =
-      betweenTimes(start: Date, end: Date)
+    def betweenDates(start: LocalDate, end: LocalDate): TypedColumn[Any, Boolean] =
+      betweenDates(start: Date, end: Date)
 
     def at(date: Date): TypedColumn[Any, Boolean] = (self === lit(date)).as[Boolean]
     def at(date: LocalDate): TypedColumn[Any, Boolean] = at(date: Date)

@@ -21,6 +21,8 @@ package astraea.spark.rasterframes
 
 import java.net.URI
 
+import org.apache.spark.sql.sources.{And, Filter}
+
 import scala.util.Try
 
 /**
@@ -37,4 +39,16 @@ package object datasource {
   private[rasterframes]
   def uriParam(key: String, parameters: Map[String, String]) =
     parameters.get(key).flatMap(p ⇒ Try(URI.create(p)).toOption)
+
+
+  /** Separate And conditions into separate filters. */
+  def splitFilters(f: Seq[Filter]) = {
+    def splitConjunctives(f: Filter): Seq[Filter] =
+    f match {
+      case And(cond1, cond2) =>
+        splitConjunctives(cond1) ++ splitConjunctives(cond2)
+      case other => other :: Nil
+    }
+    f.flatMap(splitConjunctives)
+  }
 }

@@ -19,16 +19,16 @@
 package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.io.File
+import java.sql.{Date, Timestamp}
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
+import astraea.spark.rasterframes.datasource.{DataSourceOptions, splitFilters}
+import astraea.spark.rasterframes.rules.SpatialRelationReceiver
 import astraea.spark.rasterframes.util._
-import astraea.spark.rasterframes.util.debug._
 import geotrellis.proj4.LatLng
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.GeoTiff
-import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
+import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.spark._
 import geotrellis.spark.io._
@@ -37,20 +37,19 @@ import geotrellis.spark.io.avro.codecs.Implicits._
 import geotrellis.spark.io.index.ZCurveKeyIndexMethod
 import geotrellis.spark.tiling.ZoomedLayoutScheme
 import geotrellis.vector._
+import org.apache.avro.generic._
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.apache.hadoop.fs.FileUtil
-import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.functions.{udf ⇒ sparkUdf, _}
 import org.apache.spark.sql.{DataFrame, Row}
-import org.scalatest.{BeforeAndAfterAll, Inspectors}
-import org.apache.avro.generic._
 import org.apache.spark.storage.StorageLevel
+import org.scalatest.{BeforeAndAfterAll, Inspectors}
 
 import scala.math.{max, min}
 
 class GeoTrellisDataSourceSpec
     extends TestEnvironment with TestData with BeforeAndAfterAll with Inspectors
-    with RasterMatchers with IntelliJPresentationCompilerHack {
+    with RasterMatchers with DataSourceOptions {
 
   val tileSize = 12
   lazy val layer = Layer(new File(outputLocalPath).toURI, LayerId("test-layer", 4))
@@ -264,14 +263,14 @@ class GeoTrellisDataSourceSpec
     def extractRelation(df: DataFrame): Option[GeoTrellisRelation] = {
       val plan = df.queryExecution.optimizedPlan
       plan.collectFirst {
-        case LogicalRelationWithGTR(gt: GeoTrellisRelation) ⇒ gt
+        case SpatialRelationReceiver(gt: GeoTrellisRelation) ⇒ gt
       }
     }
     def numFilters(df: DataFrame) = {
       extractRelation(df).map(_.filters.length).getOrElse(0)
     }
     def numSplitFilters(df: DataFrame) = {
-      extractRelation(df).map(_.splitFilters.length).getOrElse(0)
+      extractRelation(df).map(r ⇒ splitFilters(r.filters).length).getOrElse(0)
     }
 
     val pt1 = Point(-88, 60)
@@ -386,12 +385,34 @@ class GeoTrellisDataSourceSpec
     }
 
     it("should support intersects with between times") {
-      val df = layerReader
-        .loadRF(layer)
-        .where(BOUNDS_COLUMN intersects pt1)
-        .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
+      withClue("intersects first") {
+        val df = layerReader
+          .loadRF(layer)
+          .where(BOUNDS_COLUMN intersects pt1)
+          .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
 
-      assert(numFilters(df) == 1)
+        assert(numFilters(df) == 1)
+      }
+      withClue("intersects last") {
+        val df = layerReader
+          .loadRF(layer)
+          .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
+          .where(BOUNDS_COLUMN intersects pt1)
+
+        assert(numFilters(df) == 1)
+      }
+
+      withClue("untyped columns") {
+        import spark.implicits._
+        val df = layerReader
+          .loadRF(layer)
+          .where($"timestamp" >= Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
+          .where($"timestamp" <= Timestamp.valueOf(now.plusDays(1).toLocalDateTime))
+          .where(st_intersects($"bounds", geomLit(pt1.jtsGeom)))
+
+        assert(numFilters(df) == 1)
+      }
+
     }
 
     it("should handle renamed spatial filter columns") {
@@ -400,7 +421,7 @@ class GeoTrellisDataSourceSpec
         .where(BOUNDS_COLUMN intersects region.jtsGeom)
         .withColumnRenamed(BOUNDS_COLUMN.columnName, "foobar")
 
-      assert(numFilters(df) === 1, df.explain(true))
+      assert(numFilters(df) === 1)
       assert(df.count > 0, df.printSchema)
     }
 
@@ -410,7 +431,7 @@ class GeoTrellisDataSourceSpec
         .where(BOUNDS_COLUMN intersects region.jtsGeom)
         .drop(BOUNDS_COLUMN)
 
-      assert(numFilters(df) === 1, df.explain(true))
+      assert(numFilters(df) === 1)
     }
   }
 

@@ -23,6 +23,7 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 import java.net.URI
 import java.time.{Duration, Instant}
 
+import astraea.spark.rasterframes.experimental.datasource.DownloadSupport
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.FilenameUtils
@@ -80,7 +81,7 @@ trait ResourceCacheSupport extends DownloadSupport { self: LazyLogging  ⇒
     val dest = cacheName(Left(uri))
     dest.when(f ⇒ !expired(f)).orElse {
       try {
-        val bytes = downloadBytes(uri.toASCIIString)
+        val bytes = getBytes(uri)
         withResource(fs.create(dest))(_.write(bytes))
         Some(dest)
       }

@@ -21,12 +21,17 @@ package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.io.UnsupportedEncodingException
 import java.net.URI
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 import java.time.{ZoneOffset, ZonedDateTime}
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.jts.SpatialFilters.{BetweenTimes, Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
-import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.TileFeatureData
+import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
+import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
+import astraea.spark.rasterframes.datasource.splitFilters
+import astraea.spark.rasterframes.rules.SpatialFilters.{Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
+import astraea.spark.rasterframes.rules.SpatialRelationReceiver
+import astraea.spark.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
+import astraea.spark.rasterframes.util.SubdivideSupport._
 import astraea.spark.rasterframes.util._
 import com.vividsolutions.jts.geom
 import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileFeature}
@@ -34,9 +39,8 @@ import geotrellis.spark.io._
 import geotrellis.spark.io.avro.AvroRecordCodec
 import geotrellis.spark.util.KryoWrapper
 import geotrellis.spark.{LayerId, Metadata, SpatialKey, TileLayerMetadata, _}
-import geotrellis.util.LazyLogging
+import geotrellis.util.{LazyLogging, _}
 import geotrellis.vector._
-import geotrellis.util._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.rdd.RDD
@@ -45,11 +49,6 @@ import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
-import spray.json.DefaultJsonProtocol._
-import spray.json.JsValue
-import TileFeatureSupport._
-import geotrellis.spark.tiling.{CutTiles, TilerKeyMethods}
-import SubdivideSupport._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -64,24 +63,15 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   failOnUnrecognizedFilter: Boolean = false,
   tileSubdivisions: Option[Int] = None,
   filters: Seq[Filter] = Seq.empty)
-  extends BaseRelation with PrunedScan with LazyLogging {
+  extends BaseRelation with PrunedScan with SpatialRelationReceiver[GeoTrellisRelation] with LazyLogging {
 
   implicit val sc = sqlContext.sparkContext
 
-  /** Convenience to create new relation with the give filter added. */
+  /** Create new relation with the give filter added. */
   def withFilter(value: Filter): GeoTrellisRelation =
     copy(filters = filters :+ value)
-
-  /** Separate And conditions into separate filters. */
-  def splitFilters = {
-    def splitConjunctives(f: Filter): Seq[Filter] =
-    f match {
-      case And(cond1, cond2) =>
-        splitConjunctives(cond1) ++ splitConjunctives(cond2)
-      case other => other :: Nil
-    }
-    filters.flatMap(splitConjunctives)
-  }
+  /** Check to see if relation already exists in this. */
+  def hasFilter(filter: Filter): Boolean = filters.contains(filter)
 
   @transient
   private implicit val spark = sqlContext.sparkSession
@@ -126,14 +116,6 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     }
   }
 
-  private object Cols {
-    lazy val SK = SPATIAL_KEY_COLUMN.columnName
-    lazy val TK = TEMPORAL_KEY_COLUMN.columnName
-    lazy val TS = TIMESTAMP_COLUMN.columnName
-    lazy val TL = TILE_COLUMN.columnName
-    lazy val TF = TILE_FEATURE_DATA_COLUMN.columnName
-    lazy val EX = BOUNDS_COLUMN.columnName
-  }
 
   /** This unfortunate routine is here because the number bands in a multiband layer isn't written
    * in the metadata anywhere. This is potentially an expensive hack, which needs further quantifying of impact.
@@ -166,32 +148,32 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
         val tkSchema = ExpressionEncoder[TemporalKey]().schema
         val tkMetadata = Metadata.empty.append.tagTemporalKey.build
         List(
-          StructField(Cols.SK, skSchema, nullable = false, skMetadata),
-          StructField(Cols.TK, tkSchema, nullable = false, tkMetadata),
-          StructField(Cols.TS, TimestampType, nullable = false)
+          StructField(C.SK, skSchema, nullable = false, skMetadata),
+          StructField(C.TK, tkSchema, nullable = false, tkMetadata),
+          StructField(C.TS, TimestampType, nullable = false)
         )
       case t if t =:= typeOf[SpatialKey] ⇒
         List(
-          StructField(Cols.SK, skSchema, nullable = false, skMetadata)
+          StructField(C.SK, skSchema, nullable = false, skMetadata)
         )
     }
 
     val tileFields = tileClass match {
       case t if t =:= typeOf[Tile]  ⇒
         List(
-          StructField(Cols.TL, new TileUDT, nullable = true)
+          StructField(C.TL, new TileUDT, nullable = true)
         )
       case t if t =:= typeOf[MultibandTile] ⇒
         for(b ← 1 to peekBandCount) yield
-          StructField(Cols.TL + "_" + b, new TileUDT, nullable = true)
+          StructField(C.TL + "_" + b, new TileUDT, nullable = true)
       case t if t =:= typeOf[TileFeature[Tile, _]] ⇒
         List(
-          StructField(Cols.TL, new TileUDT, nullable = true),
-          StructField(Cols.TF, DataTypes.StringType, nullable = true)
+          StructField(C.TL, new TileUDT, nullable = true),
+          StructField(C.TF, DataTypes.StringType, nullable = true)
         )
     }
 
-    val extentField = StructField(Cols.EX, org.apache.spark.sql.jts.JTSTypes.PolygonTypeInstance, true)
+    val extentField = StructField(C.EX, org.apache.spark.sql.jts.JTSTypes.PolygonTypeInstance, true)
     StructType((keyFields :+ extentField) ++ tileFields)
   }
 
@@ -200,16 +182,16 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   def applyFilter[K: Boundable: SpatialComponent, T](query: BLQ[K, T], predicate: Filter): BLQ[K, T] = {
     predicate match {
       // GT limits disjunctions to a single type
-      case sources.Or(sfIntersects(Cols.EX, left), sfIntersects(Cols.EX, right)) ⇒
+      case sources.Or(sfIntersects(C.EX, left), sfIntersects(C.EX, right)) ⇒
         query.where(LayerFilter.Or(
           Intersects(Extent(left.getEnvelopeInternal)),
           Intersects(Extent(right.getEnvelopeInternal))
         ))
-      case sfIntersects(Cols.EX, rhs: geom.Point) ⇒
+      case sfIntersects(C.EX, rhs: geom.Point) ⇒
         query.where(Contains(Point(rhs)))
-      case sfContains(Cols.EX, rhs: geom.Point) ⇒
+      case sfContains(C.EX, rhs: geom.Point) ⇒
         query.where(Contains(Point(rhs)))
-      case sfIntersects(Cols.EX, rhs) ⇒
+      case sfIntersects(C.EX, rhs) ⇒
         query.where(Intersects(Extent(rhs.getEnvelopeInternal)))
       case _ ⇒
         val msg = "Unable to convert filter into GeoTrellis query: " + predicate
@@ -223,11 +205,15 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
 
   def applyFilterTemporal[K: Boundable: SpatialComponent: TemporalComponent, T](q: BLQ[K, T], predicate: Filter): BLQ[K, T] = {
     def toZDT(ts: Timestamp) = ZonedDateTime.ofInstant(ts.toInstant, ZoneOffset.UTC)
+    def toZDT2(date: Date) = ZonedDateTime.ofInstant(date.toInstant, ZoneOffset.UTC)
+
     predicate match {
-      case sources.EqualTo(Cols.TS, ts: Timestamp) ⇒
+      case sources.EqualTo(C.TS, ts: Timestamp) ⇒
         q.where(At(toZDT(ts)))
-      case BetweenTimes(Cols.TS, start: Timestamp, end: Timestamp) ⇒
+      case BetweenTimes(C.TS, start: Timestamp, end: Timestamp) ⇒
         q.where(Between(toZDT(start), toZDT(end)))
+      case BetweenDates(C.TS, start: Date, end: Date) ⇒
+        q.where(Between(toZDT2(start), toZDT2(end)))
       case _ ⇒ applyFilter(q, predicate)
     }
   }
@@ -271,7 +257,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
 
         val parts = numPartitions.getOrElse(reader.defaultNumPartitions)
 
-        val query = splitFilters.foldLeft(
+        val query = splitFilters(filters).foldLeft(
           reader.query[SpatialKey, T, TileLayerMetadata[SpatialKey]](layerId, parts)
         )(applyFilter(_, _))
 
@@ -305,7 +291,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
 
         val parts = numPartitions.getOrElse(reader.defaultNumPartitions)
 
-        val query = splitFilters.foldLeft(
+        val query = splitFilters(filters).foldLeft(
           reader.query[SpaceTimeKey, T, TileLayerMetadata[SpaceTimeKey]](layerId, parts)
         )(applyFilterTemporal(_, _))
 
@@ -342,6 +328,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   override def sizeInBytes = {
     super.sizeInBytes
   }
+
 }
 
 object GeoTrellisRelation {
@@ -353,5 +340,14 @@ object GeoTrellisRelation {
     def schema: Schema = dataSchema.value
     def encode(thing: TileFeatureData, rec: GenericRecord): Unit = ()
     def decode(rec: GenericRecord): TileFeatureData = rec.toString
+  }
+
+  object C {
+    lazy val SK = SPATIAL_KEY_COLUMN.columnName
+    lazy val TK = TEMPORAL_KEY_COLUMN.columnName
+    lazy val TS = TIMESTAMP_COLUMN.columnName
+    lazy val TL = TILE_COLUMN.columnName
+    lazy val TF = TILE_FEATURE_DATA_COLUMN.columnName
+    lazy val EX = BOUNDS_COLUMN.columnName
   }
 }
