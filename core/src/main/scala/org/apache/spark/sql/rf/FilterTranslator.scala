@@ -29,6 +29,7 @@ import org.apache.spark.sql.sources
 import org.apache.spark.sql.sources.Filter
 import org.apache.spark.sql.types.{DateType, StringType, TimestampType}
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.geomesa.spark.jts.rules.GeometryLiteral
 
 /**
  * This is a copy of [[org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter]], modified to add our spatial predicates.
@@ -49,6 +50,12 @@ object FilterTranslator {
 
       case Contains(a: Attribute, Literal(geom, udt: AbstractGeometryUDT[_])) ⇒
         Some(SpatialFilters.Contains(a.name, udt.deserialize(geom)))
+
+      case Intersects(a: Attribute, GeometryLiteral(_, geom)) ⇒
+        Some(SpatialFilters.Intersects(a.name, geom))
+
+      case Contains(a: Attribute, GeometryLiteral(_, geom)) ⇒
+        Some(SpatialFilters.Contains(a.name, geom))
 
       case expressions.And(
         expressions.GreaterThanOrEqual(a: Attribute, Literal(start, TimestampType)),

@@ -4,11 +4,23 @@ import scala.sys.process.Process
 
 moduleName := "rasterframes-deployment"
 
-lazy val rfNotebookContainer = taskKey[Unit]("Build a Docker container that supports RasterFrames notebooks.")
-rfNotebookContainer := (Docker / packageBin).value
-
 val Docker = config("docker")
 val Python = config("python")
+
+
+lazy val rfDockerImageName = settingKey[String]("Name to tag Docker image with.")
+rfDockerImageName := "s22s/rasterframes-notebooks"
+
+lazy val rfNotebookContainer = taskKey[Unit]("Build Jupyter Notebook Docker image with RasterFrames support.")
+rfNotebookContainer := (Docker / packageBin).value
+
+lazy val runRFNotebook = taskKey[String]("Run RasterFrames Jupyter Notebook image")
+runRFNotebook := {
+  val imageName = rfDockerImageName.value
+  val _ = rfNotebookContainer.value
+  Process(s"docker run -p 8888:8888 -p 4040:4040 $imageName").run()
+  imageName
+}
 
 Docker / resourceDirectory := baseDirectory.value / "docker"/ "jupyter"
 
@@ -37,7 +49,7 @@ Docker / packageBin := {
   val ver = (version in LocalRootProject).value
 
   logger.info(s"Running docker build in $staging")
-  val imageName = "s22s/rasterframes-notebooks"
+  val imageName = rfDockerImageName.value
   Process("docker-compose build", staging).!
   Process(s"docker tag $imageName:latest $imageName:$ver", staging).!
   staging

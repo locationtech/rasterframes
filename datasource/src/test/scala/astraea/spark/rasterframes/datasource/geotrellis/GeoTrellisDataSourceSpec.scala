@@ -19,6 +19,7 @@
 package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.io.File
+import java.sql.{Date, Timestamp}
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes._
@@ -39,7 +40,7 @@ import geotrellis.vector._
 import org.apache.avro.generic._
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.apache.hadoop.fs.FileUtil
-import org.apache.spark.sql.functions.{udf ⇒ sparkUdf}
+import org.apache.spark.sql.functions.{udf ⇒ sparkUdf, _}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 import org.scalatest.{BeforeAndAfterAll, Inspectors}
@@ -384,12 +385,34 @@ class GeoTrellisDataSourceSpec
     }
 
     it("should support intersects with between times") {
-      val df = layerReader
-        .loadRF(layer)
-        .where(BOUNDS_COLUMN intersects pt1)
-        .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
+      withClue("intersects first") {
+        val df = layerReader
+          .loadRF(layer)
+          .where(BOUNDS_COLUMN intersects pt1)
+          .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
 
-      assert(numFilters(df) == 1)
+        assert(numFilters(df) == 1)
+      }
+      withClue("intersects last") {
+        val df = layerReader
+          .loadRF(layer)
+          .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
+          .where(BOUNDS_COLUMN intersects pt1)
+
+        assert(numFilters(df) == 1)
+      }
+
+      withClue("untyped columns") {
+        import spark.implicits._
+        val df = layerReader
+          .loadRF(layer)
+          .where($"timestamp" >= Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
+          .where($"timestamp" <= Timestamp.valueOf(now.plusDays(1).toLocalDateTime))
+          .where(st_intersects($"bounds", geomLit(pt1.jtsGeom)))
+
+        assert(numFilters(df) == 1)
+      }
+
     }
 
     it("should handle renamed spatial filter columns") {
@@ -398,7 +421,7 @@ class GeoTrellisDataSourceSpec
         .where(BOUNDS_COLUMN intersects region.jtsGeom)
         .withColumnRenamed(BOUNDS_COLUMN.columnName, "foobar")
 
-      assert(numFilters(df) === 1, df.explain(true))
+      assert(numFilters(df) === 1)
       assert(df.count > 0, df.printSchema)
     }
 
@@ -408,7 +431,7 @@ class GeoTrellisDataSourceSpec
         .where(BOUNDS_COLUMN intersects region.jtsGeom)
         .drop(BOUNDS_COLUMN)
 
-      assert(numFilters(df) === 1, df.explain(true))
+      assert(numFilters(df) === 1)
     }
   }
 

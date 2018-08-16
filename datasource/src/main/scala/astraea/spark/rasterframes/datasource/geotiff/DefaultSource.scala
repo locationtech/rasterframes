@@ -20,6 +20,7 @@
 package astraea.spark.rasterframes.datasource.geotiff
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.datasource._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
