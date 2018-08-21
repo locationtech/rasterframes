@@ -41,7 +41,7 @@ import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationP
  * @since 5/4/18
  */
 class MODISCatalogDataSource extends DataSourceRegister with RelationProvider with LazyLogging  {
-  override def shortName(): String = MODISCatalogDataSource.NAME
+  override def shortName(): String = MODISCatalogDataSource.SHORT_NAME
   /**
      * Create a MODIS catalog data source.
      * @param sqlContext spark stuff
@@ -64,8 +64,8 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider wi
 }
 
 object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
-  val NAME = "modis-catalog"
-  val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
+  final val SHORT_NAME = "modis-catalog"
+  final val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
   override def maxCacheFileAgeHours: Int = Int.MaxValue
 
   // List of missing days
@@ -84,7 +84,7 @@ object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
 
   private def sceneListFile(start: LocalDate, end: LocalDate, useBlacklist: Boolean)(implicit fs: FileSystem): HadoopPath = {
     logger.info(s"Using '$cacheDir' for scene file cache")
-    val basename = new HadoopPath(s"$NAME-$start-to-$end.csv")
+    val basename = new HadoopPath(s"$SHORT_NAME-$start-to-$end.csv")
     cachedFile(basename).getOrElse {
       val retval = cacheName(Right(basename))
       val inputs = sceneFiles(start, end, useBlacklist).par

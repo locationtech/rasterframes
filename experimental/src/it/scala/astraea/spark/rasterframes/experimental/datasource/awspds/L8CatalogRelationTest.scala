@@ -19,33 +19,31 @@
  */
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
+
 import java.net.URL
-import java.sql.Date
-import java.time.LocalDate
 
-import astraea.spark.rasterframes.{TestEnvironment, _}
-
+import astraea.spark.rasterframes.TestEnvironment
+import org.apache.spark.sql.functions._
 
 /**
- * Test rig for MODIS catalog stuff.
+ * Test rig for L8 catalog stuff.
  *
  * @since 5/4/18
  */
-class MODISCatalogRelationTest extends TestEnvironment {
-  describe("Representing MODIS scenes as a Spark data source") {
+class L8CatalogRelationTest extends TestEnvironment {
+  describe("Representing L8 scenes as a Spark data source") {
     import spark.implicits._
-    val catalog = spark.read.format(MODISCatalogDataSource.SHORT_NAME).load()
-    catalog.printSchema
+    val catalog = spark.read.format(L8CatalogDataSource.SHORT_NAME).load()
     val scenes = catalog
-      .where($"acquisition_date".as[Date] at LocalDate.of(2018, 1, 1))
-      .where($"granule_id".contains("h24v03"))
+      .where($"acquisition_date" === to_date(lit("2018-06-26")))
+      .where($"path" === 11 && $"row" === 12)
 
     it("should provide a non-empty catalog") {
       assert(scenes.count() === 1)
     }
 
     it("should construct band specific download URLs") {
-      val b01 = scenes.select(modis_band_url("B01"))
+      val b01 = scenes.select(l8_band_url("B1"))
       b01.show(false)
       noException shouldBe thrownBy {
         new URL(b01.first())
@@ -55,7 +53,7 @@ class MODISCatalogRelationTest extends TestEnvironment {
     it("should download geotiff as blob") {
       import org.apache.spark.sql.functions.{length ⇒ alength}
       val b01 = scenes.limit(1)
-        .select(download(modis_band_url("B01")) as "data")
+        .select(download(l8_band_url("B1")) as "data")
 
       val len = b01.select(alength($"data").as[Long])
       assert(len.first() >= 4000000)
@@ -63,13 +61,8 @@ class MODISCatalogRelationTest extends TestEnvironment {
 
     it("should download geotiff as tiles") {
       val b01 = scenes
-        .select($"*", download_tiles(modis_band_url("B01"))).cache()
-      assert(b01.count() === 25)
-
-//      val kv = b01.select($"B01_extent", $"B01_tile").as[(Extent, Tile)]
-//      kv.collect.zipWithIndex.foreach { case ((extent, tile), idx) ⇒
-//        GeoTiff(tile, extent, Sinusoidal).write(s"target/b01-tile-$idx.tiff")
-//      }
+        .select($"*", download_tiles(l8_band_url("B1")))
+      assert(b01.count() === 289)
     }
   }
 }

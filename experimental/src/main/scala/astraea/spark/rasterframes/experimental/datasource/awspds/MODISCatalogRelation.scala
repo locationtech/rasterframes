@@ -34,7 +34,7 @@ import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
  * @since 5/4/18
  */
 case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
-  extends BaseRelation with TableScan with LazyLogging {
+  extends BaseRelation with TableScan with PDSFields with LazyLogging {
 
   private val inputSchema = StructType(Seq(
     StructField("date", DateType, false),
@@ -43,11 +43,11 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
   ))
 
   def schema = StructType(Seq(
-    StructField("productId", StringType, false),
-    StructField("acquisitionDate", DateType, false),
-    StructField("granuleId", StringType, false),
-    StructField("download_url", StringType, false),
-    StructField("gid", StringType, false)
+    PRODUCT_ID,
+    ACQUISITION_DATE,
+    GRANULE_ID,
+    DOWNLOAD_URL,
+    GID
   ))
 
   def buildScan(): RDD[Row] = {
@@ -62,17 +62,15 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
       .csv(sceneList.toString)
 
     val result = catalog
-      .withColumn("split_gid", split($"gid", "\\."))
+      .withColumn("__split_gid", split($"gid", "\\."))
       .select(
-        $"split_gid"(0) as "productId",
-        $"date" as "acquisitionDate",
-        $"split_gid"(2) as "granuleId",
-        regexp_replace($"download_url", "index.html", "") as "download_url",
-        $"gid"
+        $"__split_gid"(0) as PRODUCT_ID.name,
+        $"date" as ACQUISITION_DATE.name,
+        $"__split_gid"(2) as GRANULE_ID.name,
+        regexp_replace($"download_url", "index.html", "") as DOWNLOAD_URL.name,
+        $"${GID.name}"
       )
-      .drop($"split_gid")
+      .drop($"__split_gid")
     result.rdd
   }
 }
-
-
