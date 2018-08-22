@@ -37,17 +37,15 @@ class TileUDT extends UserDefinedType[Tile] {
 
   def sqlType = InternalRowTile.schema
 
-  override def serialize(obj: Tile): InternalRow = {
+  override def serialize(obj: Tile): InternalRow =
     Option(obj)
-      .map { case InternalRowTile(row) ⇒ row }
+      .map(InternalRowTile.apply)
       .orNull
-  }
 
-  override def deserialize(datum: Any): Tile = {
+  override def deserialize(datum: Any): Tile =
     Option(datum)
       .collect { case row: InternalRow ⇒ InternalRowTile(row).toArrayTile }
       .orNull
-  }
 
   def userClass: Class[Tile] = classOf[Tile]
 

@@ -35,7 +35,7 @@ import org.apache.spark.sql.functions._
  *
  * @since 9/18/17
  */
-class EncodingSpec extends TestEnvironment with TestData with IntelliJPresentationCompilerHack {
+class EncodingSpec extends TestEnvironment with TestData {
 
   import sqlContext.implicits._
 

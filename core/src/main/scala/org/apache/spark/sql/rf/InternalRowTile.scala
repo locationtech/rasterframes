@@ -142,7 +142,7 @@ object InternalRowTile {
 
   /**
    * Constructor.
-   * @param row Catalyst internal format conforming to `shema`
+   * @param row Catalyst internal format conforming to `schema`
    * @return row wrapper
    */
   def apply(row: InternalRow): InternalRowTile = new InternalRowTile(row)
@@ -153,13 +153,13 @@ object InternalRowTile {
    * @param tile tile to convert
    * @return Catalyst internal representation.
    */
-  def unapply(tile: Tile): Option[InternalRow] = Some(
+  def apply(tile: Tile): InternalRow =
     InternalRow(
       UTF8String.fromString(tile.cellType.name),
       tile.cols.toShort,
       tile.rows.toShort,
-      tile.toBytes)
-  )
+      tile.toBytes
+    )
 
   sealed trait CellReader {
     def apply(index: Int): Int
