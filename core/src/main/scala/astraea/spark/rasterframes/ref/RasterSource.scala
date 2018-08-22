@@ -20,21 +20,17 @@
 
 package astraea.spark.rasterframes.ref
 
-import java.net.{HttpURLConnection, URI}
+import java.net.URI
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset, ZonedDateTime}
 
-import astraea.spark.rasterframes
-import astraea.spark.rasterframes.util.withResource
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
-import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo
-import geotrellis.raster.io.geotiff.tags.TiffTags
-import geotrellis.spark.io.http.util.HttpRangeReader
+import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
+import geotrellis.raster.{CellType, MultibandTile, Raster, Tile}
 import geotrellis.vector.Extent
-import org.locationtech.geomesa.curve.BinnedTime
+import scalaj.http.HttpResponse
 
 import scala.util.Try
 
@@ -47,38 +43,80 @@ trait RasterSource {
   def crs: CRS
   def extent: Extent
   def timestamp: ZonedDateTime
-}
-trait GeoTiffSource { _: RasterSource ⇒
-  def tiffTags: TiffTags
+  def size: Long
+  def dimensions: (Int, Int)
+  def cellType: CellType
+  def bandCount: Int
+  def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
 }
 
 object RasterSource extends LazyLogging {
   // According to https://goo.gl/2z8xx9 the header format date is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
-  case class HttpGeoTiffRasterSource(source: URI) extends RasterSource with GeoTiffSource {
-    private lazy val info: GeoTiffInfo = {
-      val rr = HttpRangeReader(source)
-      GeoTiffReader.readGeoTiffInfo(rr, streaming = true, withOverviews = true)
-    }
-    def crs: CRS = info.crs
-    def extent: Extent = info.extent
-    lazy val tiffTags: TiffTags = {
-      val rr = HttpRangeReader(source)
-      TiffTags(rr)
-    }
-    override def timestamp: ZonedDateTime = {
-      // TODO: Determine if this is the correct way to handle time.
-      tiffTags.tags.headTags
+  case class HttpGeoTiffRasterSource(source: URI) extends RasterSource {
+    @transient
+    private val rangeReader = HttpRangeReader(source)
+
+    @transient
+    private lazy val tiffInfo =
+      GeoTiffReader.readGeoTiffInfo(rangeReader, streaming = true, withOverviews = false)
+
+    // TODO: Determine if this is the correct way to handle time.
+    private def resolveDate(tags: Map[String, String], httpResponse: ⇒ HttpResponse[_]) = {
+     tags
         .get(Tags.TIFFTAG_DATETIME)
         .flatMap(ds ⇒ Try({
-          logger.debug("Parsing header date: " + ds);
+          logger.debug("Parsing header date: " + ds)
           ZonedDateTime.parse(ds, dateFormat)
         }).toOption)
-        .getOrElse {
-          val conn = source.toURL.openConnection()
-          ZonedDateTime.ofInstant(Instant.ofEpochMilli(conn.getLastModified), ZoneOffset.UTC)
-        }
+        .orElse(
+          httpResponse.headers.get("Date")
+            .flatMap(_.headOption)
+            .map(ZonedDateTime.parse(_, DateTimeFormatter.RFC_1123_DATE_TIME))
+        )
+        .getOrElse(
+          ZonedDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC)
+        )
+    }
+
+    // Batched lazy evaluation
+    lazy val (crs, extent, timestamp, size, cellType, bandCount, dimensions) = (
+      tiffInfo.crs,
+      tiffInfo.extent,
+      resolveDate(tiffInfo.tags.headTags, rangeReader.response),
+      rangeReader.totalLength,
+      tiffInfo.cellType,
+      tiffInfo.bandCount,
+      tiffInfo.rasterExtent.dimensions
+    )
+
+    def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
+      val info = tiffInfo
+      if(bandCount == 1) {
+        val geoTiffTile = GeoTiffReader.geoTiffSinglebandTile(info)
+        val gt = new SinglebandGeoTiff(
+          geoTiffTile,
+          info.extent,
+          info.crs,
+          info.tags,
+          info.options,
+          List.empty
+        )
+        Left(gt.crop(extent).raster)
+      }
+      else {
+        val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
+        val gt = new MultibandGeoTiff(
+          geoTiffTile,
+          info.extent,
+          info.crs,
+          info.tags,
+          info.options,
+          List.empty
+        )
+        Right(gt.crop(extent).raster)
+      }
     }
 
     override def toString: String = {
@@ -87,14 +125,16 @@ object RasterSource extends LazyLogging {
       buf.append("(")
       buf.append("source=")
       buf.append(source.toASCIIString)
+      buf.append(", size=")
+      buf.append(size)
+      buf.append(", dimensions=")
+      buf.append(dimensions)
       buf.append(", crs=")
-      buf.append(crs.toString())
+      buf.append(crs)
       buf.append(", extent=")
-      buf.append(extent.toString)
+      buf.append(extent)
       buf.append(", timestamp=")
-      buf.append(timestamp.toString)
-      buf.append(", headTags=")
-      buf.append(tiffTags.tags.headTags)
+      buf.append(timestamp)
       buf.append(")")
       buf.toString
     }
