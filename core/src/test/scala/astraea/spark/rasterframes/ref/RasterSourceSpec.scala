@@ -71,11 +71,15 @@ class RasterSourceSpec extends TestEnvironment {
     it("should serialize") {
       import java.io._
       val src = HttpGeoTiffRasterSource(example1)
-      println(src.toString)
-      val out = new ObjectOutputStream(new OutputStream {
-        override def write(b: Int): Unit = ()
-      })
+      val buf = new java.io.ByteArrayOutputStream()
+      val out = new ObjectOutputStream(buf)
       out.writeObject(src)
+      out.close()
+
+      val data = buf.toByteArray
+      val in = new ObjectInputStream(new ByteArrayInputStream(data))
+      val recovered = in.readObject().asInstanceOf[HttpGeoTiffRasterSource]
+      assert(src.toString === recovered.toString)
     }
   }
 }

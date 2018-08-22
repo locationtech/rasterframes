@@ -56,7 +56,7 @@ object RasterSource extends LazyLogging {
 
   case class HttpGeoTiffRasterSource(source: URI) extends RasterSource {
     @transient
-    private val rangeReader = HttpRangeReader(source)
+    private lazy val rangeReader = HttpRangeReader(source)
 
     @transient
     private lazy val tiffInfo =
