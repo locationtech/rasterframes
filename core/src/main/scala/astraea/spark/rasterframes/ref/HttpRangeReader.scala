@@ -39,14 +39,14 @@ class HttpRangeReader(url: URL, useHeadRequest: Boolean) extends RangeReader wit
 
   val request = Http(url.toString)
 
-  val response: HttpResponse[String] = if(useHeadRequest) {
+  lazy val response: HttpResponse[String] = if(useHeadRequest) {
     request.method("HEAD").asString
   }
   else {
     request.method("GET").execute { is => "" }
   }
 
-  val totalLength: Long = {
+  lazy val totalLength: Long = {
     /**
      * "The Accept-Ranges response HTTP header is a marker used by the server
      *  to advertise its support of partial requests. The value of this field

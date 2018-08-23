@@ -21,9 +21,11 @@
 
 package astraea.spark.rasterframes.tiles
 
-import astraea.spark.rasterframes.ref.RasterSource
-import astraea.spark.rasterframes.{TestData, TestEnvironment}
-import geotrellis.raster.Tile
+import java.net.URI
+
+import astraea.spark.rasterframes.ref.RasterSource.HttpGeoTiffRasterSource
+import astraea.spark.rasterframes._
+import geotrellis.raster.{MultibandTile, Raster, Tile}
 import geotrellis.vector.Extent
 
 /**
@@ -41,20 +43,25 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
   }
 
   trait Fixture {
-    val src = RasterSource(remoteCOGSingleband)
+    val src = new DelayedReadTileSpec.MonitoringRasterSource(remoteCOGSingleband)
     val ext = sub(src.extent)
     val tile = new DelayedReadTile(ext, src)
   }
 
   describe("RasterRef") {
-    it("should be realizable") {
-      // NB: Had to test manually as to whether network traffic was
-      // occurring or not.
+    it("should delay reading") {
       new Fixture {
         assert(tile.cellType === src.cellType)
         assert(tile.cols.toDouble === src.cols * 0.01 +- 2.0)
         assert(tile.rows.toDouble === src.rows * 0.01 +- 2.0)
+        assert(!src.tileRead)
+      }
+    }
+    it("should be realizable") {
+      new Fixture {
+        assert(!src.tileRead)
         assert(tile.statistics.map(_.dataCells) === Some(tile.cols * tile.rows))
+        assert(src.tileRead)
       }
     }
     it("should be Dataset compatible") {
@@ -62,7 +69,10 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
       import spark.implicits._
       new Fixture {
         val ds = Seq(tile: Tile).toDS()
-        ds.show(false)
+        assert(ds.first().isInstanceOf[DelayedReadTile])
+        val mean = ds.select(tileMean($"value")).first()
+        val doubleMean = ds.select(tileMean(localAdd($"value", $"value"))).first()
+        assert(2 * mean ===  doubleMean +- 0.0001)
       }
     }
     it("should serialize") {
@@ -78,6 +88,18 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
         val recovered = in.readObject()
         assert(tile === recovered)
       }
+    }
+  }
+}
+
+object DelayedReadTileSpec {
+  class MonitoringRasterSource(source: URI) extends HttpGeoTiffRasterSource(source) {
+    var tileReads: Int = 0
+    def tileRead = tileReads > 0
+    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
+      val retval = super.read(extent)
+      tileReads += 1
+      retval
     }
   }
 }

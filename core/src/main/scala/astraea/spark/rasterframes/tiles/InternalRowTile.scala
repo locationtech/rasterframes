@@ -183,7 +183,7 @@ object InternalRowTile {
             "Currently only URIRasterSource implementations are supported.")
           val urs = dr.source.asInstanceOf[URIRasterSource]
           InternalRow(
-            extentEncoder.toRow(dr.source.extent),
+            extentEncoder.toRow(dr.extent),
             UTF8String.fromString(urs.source.toASCIIString)
           )
         case _ ⇒ null

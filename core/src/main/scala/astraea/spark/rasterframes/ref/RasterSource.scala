@@ -133,7 +133,7 @@ object RasterSource extends LazyLogging {
       }
     }
 
-    override def toString: String = {
+    def toDebugString: String = {
       val buf = new StringBuilder()
       buf.append(productPrefix)
       buf.append("(")

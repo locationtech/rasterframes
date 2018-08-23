@@ -24,7 +24,7 @@ package astraea.spark.rasterframes.tiles
 import geotrellis.raster._
 
 /**
- * A tile that wraps another tile. Originally intended for delayed reading.
+ * A tile that wraps another tile. Originally intended for delayed reading, but useful in other special use cases.
  *
  * @since 8/22/18
  */
@@ -79,14 +79,20 @@ trait DelegatingTile extends Tile {
   def map(f: Int ⇒ Int): Tile =
     delegate.map(f)
 
-  def combine(r2: Tile)(f: (Int, Int) ⇒ Int): Tile =
-    delegate.combine(r2)(f)
+  def combine(r2: Tile)(f: (Int, Int) ⇒ Int): Tile = (delegate, r2) match {
+    // Hack until https://github.com/locationtech/geotrellis/issues/2792
+    case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combine(r2.toArrayTile())(f)
+    case _ ⇒ delegate.combine(r2)(f)
+  }
+
+  def combineDouble(r2: Tile)(f: (Double, Double) ⇒ Double): Tile = (delegate, r2) match {
+    // Hack until https://github.com/locationtech/geotrellis/issues/2792
+    case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combineDouble(r2.toArrayTile())(f)
+    case _ ⇒ delegate.combineDouble(r2)(f)
+  }
 
   def mapDouble(f: Double ⇒ Double): Tile =
     delegate.mapDouble(f)
-
-  def combineDouble(r2: Tile)(f: (Double, Double) ⇒ Double): Tile =
-    delegate.combineDouble(r2)(f)
 
   def foreachIntVisitor(visitor: IntTileVisitor): Unit =
     delegate.foreachIntVisitor(visitor)
