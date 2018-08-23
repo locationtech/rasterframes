@@ -133,11 +133,11 @@ class TileStatsSpec extends TestEnvironment with TestData {
     it("should compute tile statistics") {
       withClue("mean") {
 
-        val ds = (Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)) :+ null).toDS()
-        val means1 = ds.select(tileStats($"value")).map(s ⇒ Option(s).map(_.mean).getOrElse(0.0)).collect
-        val means2 = ds.select(tileMean($"value")).collect.map(m ⇒ if (m.isNaN) 0.0 else m)
+        val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)).toDS()
+        val means1 = ds.select(tileStats($"value")).map(_.mean).collect
+        val means2 = ds.select(tileMean($"value")).collect
         // Compute the mean manually, knowing we're not dealing with no-data values.
-        val means = ds.select(tileToArray[Float]($"value")).map(a ⇒ if (a == null) 0.0 else a.sum / a.length).collect
+        val means = ds.select(tileToArray[Float]($"value")).map(a ⇒ a.sum.toDouble / a.length).collect
 
         forAll(means.zip(means1)) { case (l, r) ⇒ assert(l === r +- 1e-6) }
         forAll(means.zip(means2)) { case (l, r) ⇒ assert(l === r +- 1e-6) }
