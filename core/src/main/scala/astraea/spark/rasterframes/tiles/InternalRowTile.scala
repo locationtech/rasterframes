@@ -21,12 +21,10 @@
 
 package astraea.spark.rasterframes.tiles
 
-import java.net.URI
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
-import astraea.spark.rasterframes.ref.{RasterSource, URIRasterSource}
 import geotrellis.raster._
+import geotrellis.spark.util.KryoSerializer
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
@@ -131,17 +129,12 @@ object InternalRowTile {
     val REF = 4
   }
 
-  val tileRefSchema = StructType(Seq(
-    StructField("extent", extentEncoder.schema, false),
-    StructField("uri", StringType, false)
-  ))
-
   val schema = StructType(Seq(
     StructField("cellType", StringType, false),
     StructField("cols", ShortType, false),
     StructField("rows", ShortType, false),
     StructField("data", BinaryType, true),
-    StructField("tileRef", tileRefSchema, true)
+    StructField("tileRef", BinaryType, true)
   ))
 
   /**
@@ -153,11 +146,7 @@ object InternalRowTile {
     (row.isNullAt(C.DATA), row.isNullAt(C.REF)) match {
       case (false, _) ⇒ new InternalRowTile(row)
       case (true, false) ⇒
-        val enc = extentEncoder.resolveAndBind()
-        val ref = row.getStruct(C.REF, tileRefSchema.size)
-        val extent = enc.fromRow(ref.getStruct(0, enc.schema.size))
-        val uri = URI.create(ref.getString(1))
-        new DelayedReadTile(extent, RasterSource(uri))
+        KryoSerializer.deserialize[DelayedReadTile](row.getBinary(C.REF))
       case (true, true) ⇒ throw new IllegalArgumentException()
     }
   }
@@ -178,14 +167,7 @@ object InternalRowTile {
         case _ ⇒ tile.toBytes
       },
       tile match {
-        case dr: DelayedReadTile ⇒
-          require(dr.source.isInstanceOf[URIRasterSource],
-            "Currently only URIRasterSource implementations are supported.")
-          val urs = dr.source.asInstanceOf[URIRasterSource]
-          InternalRow(
-            extentEncoder.toRow(dr.extent),
-            UTF8String.fromString(urs.source.toASCIIString)
-          )
+        case dr: DelayedReadTile ⇒ KryoSerializer.serialize(dr)
         case _ ⇒ null
       }
     )
