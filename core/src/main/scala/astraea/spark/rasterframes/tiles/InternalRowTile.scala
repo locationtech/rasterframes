@@ -149,7 +149,7 @@ object InternalRowTile {
    * @param row Catalyst internal format conforming to `schema`
    * @return row wrapper
    */
-  def apply(row: InternalRow): Tile = {
+  def decode(row: InternalRow): Tile = {
     (row.isNullAt(C.DATA), row.isNullAt(C.REF)) match {
       case (false, _) ⇒ new InternalRowTile(row)
       case (true, false) ⇒
@@ -184,7 +184,7 @@ object InternalRowTile {
           val urs = dr.source.asInstanceOf[URIRasterSource]
           InternalRow(
             extentEncoder.toRow(dr.source.extent),
-            urs.source.toASCIIString
+            UTF8String.fromString(urs.source.toASCIIString)
           )
         case _ ⇒ null
       }

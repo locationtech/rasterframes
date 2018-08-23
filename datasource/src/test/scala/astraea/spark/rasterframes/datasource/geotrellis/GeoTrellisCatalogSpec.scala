@@ -32,8 +32,7 @@ import org.scalatest.BeforeAndAfter
  * @author echeipesh
  */
 class GeoTrellisCatalogSpec
-    extends TestEnvironment with TestData with BeforeAndAfter
-    with IntelliJPresentationCompilerHack {
+    extends TestEnvironment with TestData with BeforeAndAfter {
 
   lazy val testRdd = TestData.randomSpatioTemporalTileLayerRDD(10, 12, 5, 6)
 

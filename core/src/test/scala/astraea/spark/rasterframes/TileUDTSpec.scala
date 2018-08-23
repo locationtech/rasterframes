@@ -33,7 +33,7 @@ import astraea.spark.rasterframes.tiles.InternalRowTile
  *
  * @since 7/10/17
  */
-class TileUDTSpec extends TestEnvironment with TestData with Inspectors with IntelliJPresentationCompilerHack {
+class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
   import TestData.randomTile
 
   spark.version

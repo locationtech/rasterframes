@@ -31,6 +31,8 @@ import org.apache.spark.sql.types.{DataType, StringType}
 case class CellTypeExpression(child: Expression) extends UnaryExpression with RequiresTile {
   override def toString: String = s"cellType($child)"
 
+  override def nodeName: String = "cellType"
+
   def dataType: DataType = StringType
 
   override protected def nullSafeEval(input: Any): Any =

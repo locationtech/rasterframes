@@ -23,7 +23,7 @@ import scala.util.control.NonFatal
  * @since 7/10/17
  */
 class RasterFrameSpec extends TestEnvironment with MetadataKeys
-  with TestData with IntelliJPresentationCompilerHack {
+  with TestData  {
   import TestData.randomTile
   import spark.implicits._
 

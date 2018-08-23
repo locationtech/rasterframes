@@ -21,10 +21,7 @@
 
 package astraea.spark.rasterframes.ref
 
-import java.net.URI
-
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
-import astraea.spark.rasterframes.ref.RasterSource
 import geotrellis.vector.Extent
 
 /**

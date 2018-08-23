@@ -14,8 +14,8 @@ import org.apache.spark.sql.types._
 case class EnvelopeExpression(child: Expression) extends UnaryExpression
   with CodegenFallback with GeomDeserializerSupport  {
 
-  override def toString: String = s"Envelope($child)"
-  override def nodeName: String = "Envelope"
+  override def toString: String = s"envelope($child)"
+  override def nodeName: String = "envelope"
 
   override protected def nullSafeEval(input: Any): Any = {
     val geom = extractGeometry(child, input)

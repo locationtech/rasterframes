@@ -38,6 +38,10 @@ private[rasterframes] case class ExplodeTileExpression(
   sampleFraction: Double = 1.0, override val children: Seq[Expression])
     extends Expression with Generator with CodegenFallback {
 
+  override def toString: String = s"envelope(${children.mkString(", ")})"
+
+  override def nodeName: String = "explodeTiles"
+
   override def elementSchema: StructType = {
     val names =
       if (children.size == 1) Seq("cell")
@@ -57,7 +61,7 @@ private[rasterframes] case class ExplodeTileExpression(
     val tiles = Array.ofDim[Tile](children.length)
     cfor(0)(_ < tiles.length, _ + 1) { index =>
       val row = children(index).eval(input).asInstanceOf[InternalRow]
-      tiles(index) = if(row != null) InternalRowTile(row) else null
+      tiles(index) = if(row != null) InternalRowTile.decode(row) else null
     }
     val dims = tiles.filter(_ != null).map(_.dimensions)
     if(dims.isEmpty) Seq.empty[InternalRow]

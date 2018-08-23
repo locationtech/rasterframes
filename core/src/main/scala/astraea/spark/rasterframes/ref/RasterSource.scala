@@ -28,7 +28,7 @@ import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellType, MultibandTile, Raster, Tile}
+import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile}
 import geotrellis.vector.Extent
 import scalaj.http.HttpResponse
 
@@ -48,6 +48,11 @@ trait RasterSource extends Serializable {
   def cellType: CellType
   def bandCount: Int
   def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
+  def cols: Int = dimensions._1
+  def rows: Int = dimensions._2
+  def rasterExtent = RasterExtent(extent, cols, rows)
+  def cellSize = CellSize(extent, cols, rows)
+  def gridExtent = GridExtent(extent, cellSize)
 }
 
 trait URIRasterSource extends RasterSource {
@@ -63,7 +68,7 @@ object RasterSource extends LazyLogging {
     case _ ⇒ ???
   }
 
-  // According to https://goo.gl/2z8xx9 the header format date is 'YYYY:MM:DD HH:MM:SS'
+  // According to https://goo.gl/2z8xx9 the GeoTIFF date format is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
   case class HttpGeoTiffRasterSource(source: URI) extends URIRasterSource {

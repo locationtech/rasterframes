@@ -28,7 +28,7 @@ import geotrellis.vector.{Point ⇒ GTPoint}
  *
  * @since 12/16/17
  */
-class JTSSpec extends TestEnvironment with TestData with StandardColumns with IntelliJPresentationCompilerHack {
+class JTSSpec extends TestEnvironment with TestData with StandardColumns {
   import spark.implicits._
 
   describe("JTS interop") {

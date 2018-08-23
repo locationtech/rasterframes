@@ -30,13 +30,29 @@ import geotrellis.vector.Extent
  *
  * @since 8/21/18
  */
-case class DelayedReadTile(extent: Extent, source: RasterSource) extends DelegatingTile {
+class DelayedReadTile(val extent: Extent, val source: RasterSource) extends DelegatingTile  {
   require(source.bandCount == 1, "Expected singleband tile")
-  private lazy val realized: Tile = source.read(extent).left.get.tile
-  override def cellType: CellType = source.cellType
-  override def cols: Int = source.dimensions._1
-  override def rows: Int = source.dimensions._2
+  private lazy val realized: Tile = {
+    logger.debug(s"Fetching $extent from $source")
+    source.read(extent).left.get.tile
+  }
+  private val subgrid = source.rasterExtent.gridBoundsFor(extent)
   protected override def delegate: Tile = realized
+
+  override def cellType: CellType = source.cellType
+
+  override def cols: Int = subgrid.width
+  override def rows: Int = subgrid.height
+
+  override def equals(obj: scala.Any): Boolean = {
+    obj match {
+      case that: DelayedReadTile ⇒
+        extent == that.extent && source == that.source
+      case _ ⇒ false
+    }
+  }
+
+  override def hashCode(): Int = extent.hashCode() * 41 + source.hashCode()
 }
 
 object DelayedReadTile {

@@ -44,7 +44,7 @@ class TileUDT extends UserDefinedType[Tile] {
 
   override def deserialize(datum: Any): Tile =
     Option(datum)
-      .collect { case row: InternalRow ⇒ InternalRowTile(row).toArrayTile() }
+      .map { case row: InternalRow ⇒ InternalRowTile.decode(row) }
       .orNull
 
   def userClass: Class[Tile] = classOf[Tile]
