@@ -36,6 +36,8 @@ import scala.reflect.classTag
  */
 object CellTypeEncoder {
   def apply(): ExpressionEncoder[CellType] = {
+    // We can't use StringBackedEncoder due to `CellType` being a type alias,
+    // and Spark doesn't like that.
     import org.apache.spark.sql.catalyst.expressions._
     import org.apache.spark.sql.catalyst.expressions.objects._
     val ctType = ScalaReflection.dataTypeFor[DataType]

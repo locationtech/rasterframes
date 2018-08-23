@@ -20,9 +20,9 @@
 package org.apache.spark.sql.gt.types
 
 
+import astraea.spark.rasterframes.tiles.{DelayedReadTile, InternalRowTile}
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.rf.InternalRowTile
 import org.apache.spark.sql.types.{DataType, _}
 
 /**
@@ -35,16 +35,16 @@ class TileUDT extends UserDefinedType[Tile] {
 
   override def pyUDT: String = "pyrasterframes.TileUDT"
 
-  def sqlType = InternalRowTile.schema
+  def sqlType: StructType = InternalRowTile.schema
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
-      .map(InternalRowTile.apply)
+      .map(InternalRowTile.encode)
       .orNull
 
   override def deserialize(datum: Any): Tile =
     Option(datum)
-      .collect { case row: InternalRow ⇒ InternalRowTile(row).toArrayTile }
+      .collect { case row: InternalRow ⇒ InternalRowTile(row).toArrayTile() }
       .orNull
 
   def userClass: Class[Tile] = classOf[Tile]

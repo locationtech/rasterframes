@@ -39,10 +39,10 @@ import scala.util.Try
  *
  * @since 8/21/18
  */
-trait RasterSource {
+trait RasterSource extends Serializable {
   def crs: CRS
   def extent: Extent
-  def timestamp: ZonedDateTime
+  def timestamp: Option[ZonedDateTime]
   def size: Long
   def dimensions: (Int, Int)
   def cellType: CellType
@@ -50,11 +50,23 @@ trait RasterSource {
   def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
 }
 
+trait URIRasterSource extends RasterSource {
+  def source: URI
+}
+
 object RasterSource extends LazyLogging {
+
+  def apply(source: URI): URIRasterSource = source.getScheme match {
+    case "http" | "https" ⇒ HttpGeoTiffRasterSource(source)
+    case "hdfs" ⇒ ???
+    case "s3" ⇒ ???
+    case _ ⇒ ???
+  }
+
   // According to https://goo.gl/2z8xx9 the header format date is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
-  case class HttpGeoTiffRasterSource(source: URI) extends RasterSource {
+  case class HttpGeoTiffRasterSource(source: URI) extends URIRasterSource {
     @transient
     private lazy val rangeReader = HttpRangeReader(source)
 
@@ -64,19 +76,16 @@ object RasterSource extends LazyLogging {
 
     // TODO: Determine if this is the correct way to handle time.
     private def resolveDate(tags: Map[String, String], httpResponse: ⇒ HttpResponse[_]) = {
-     tags
+      tags
         .get(Tags.TIFFTAG_DATETIME)
         .flatMap(ds ⇒ Try({
           logger.debug("Parsing header date: " + ds)
           ZonedDateTime.parse(ds, dateFormat)
         }).toOption)
         .orElse(
-          httpResponse.headers.get("Date")
+          httpResponse.headers.get("Last-Modified")
             .flatMap(_.headOption)
-            .map(ZonedDateTime.parse(_, DateTimeFormatter.RFC_1123_DATE_TIME))
-        )
-        .getOrElse(
-          ZonedDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC)
+            .flatMap(s ⇒ Try(ZonedDateTime.parse(s, DateTimeFormatter.RFC_1123_DATE_TIME)).toOption)
         )
     }
 
@@ -93,7 +102,7 @@ object RasterSource extends LazyLogging {
 
     def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
       val info = tiffInfo
-      if(bandCount == 1) {
+      if (bandCount == 1) {
         val geoTiffTile = GeoTiffReader.geoTiffSinglebandTile(info)
         val gt = new SinglebandGeoTiff(
           geoTiffTile,
@@ -139,4 +148,5 @@ object RasterSource extends LazyLogging {
       buf.toString
     }
   }
+
 }

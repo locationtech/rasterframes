@@ -54,7 +54,7 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
     logger.debug(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
     sanitized.write.mode(SaveMode.Overwrite).parquet(dest.toString)
     val rows = df.sparkSession.read.parquet(dest.toString).count()
-    logger.debug(s" it has $rows row(s)")
+    logger.debug(s" read back $rows row(s)")
     rows == inRows
   }
 

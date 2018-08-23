@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2017 Astraea, Inc.
+ * Copyright 2018 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,12 +15,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
-package org.apache.spark.sql.rf
+package astraea.spark.rasterframes.tiles
 
+import java.net.URI
 import java.nio.ByteBuffer
 
+import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
+import astraea.spark.rasterframes.ref.{RasterSource, URIRasterSource}
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types._
@@ -36,21 +41,36 @@ import org.apache.spark.unsafe.types.UTF8String
  *
  * @since 11/29/17
  */
-class InternalRowTile(mem: InternalRow) extends ArrayTile {
-  import InternalRowTile._
+class InternalRowTile(mem: InternalRow) extends DelegatingTile {
   import InternalRowTile.C._
+  import InternalRowTile._
+  /** @group COPIES */
+  override def toArrayTile(): ArrayTile = {
+    val data = toBytes
+    if(data.length < cols * rows && cellType.name != "bool") {
+      val ctile = ConstantTile.fromBytes(data, cellType, cols, rows)
+      val atile = ctile.toArrayTile()
+      atile
+    }
+    else
+      ArrayTile.fromBytes(data, cellType, cols, rows)
+  }
+
+  /** @group COPIES */
+  protected override def delegate: Tile = toArrayTile()
 
   /** Retrieve the cell type from the internal encoding. */
-  val cellType: CellType = CellType.fromName(mem.getString(CELL_TYPE))
+  override lazy val cellType: CellType =
+    CellType.fromName(mem.getString(CELL_TYPE))
 
   /** Retrieve the number of columns from the internal encoding. */
-  val cols: Int = mem.getShort(COLS)
+  override val cols: Int = mem.getShort(COLS)
 
   /** Retrieve the number of rows from the internal encoding. */
-  val rows: Int = mem.getShort(ROWS)
+  override val rows: Int = mem.getShort(ROWS)
 
   /** Get the internally encoded tile data cells. */
-  lazy val toBytes: Array[Byte] = mem.getBinary(DATA)
+  override lazy val toBytes: Array[Byte] = mem.getBinary(DATA)
 
   private lazy val toByteBuffer: ByteBuffer = {
     val data = toBytes
@@ -61,7 +81,7 @@ class InternalRowTile(mem: InternalRow) extends ArrayTile {
       // used much in production to warrant handling them specially.
       // If a more efficient handling is necessary, consider a flag in
       // the UDT struct.
-      ByteBuffer.wrap(toArrayTile.toBytes())
+      ByteBuffer.wrap(toArrayTile().toBytes())
     } else ByteBuffer.wrap(data)
   }
 
@@ -70,29 +90,6 @@ class InternalRowTile(mem: InternalRow) extends ArrayTile {
 
   /** Reads the cell value at the given index as a Double. */
   def applyDouble(i: Int): Double = cellReader.applyDouble(i)
-
-  /** @group COPIES */
-  override def toArrayTile: ArrayTile = {
-    val data = toBytes
-    if(data.length < cols * rows && cellType.name != "bool") {
-      val ctile = InternalRowTile.constantTileFromBytes(data, cellType, cols, rows)
-      val atile = ctile.toArrayTile()
-      atile
-    }
-    else
-      ArrayTile.fromBytes(data, cellType, cols, rows)
-  }
-
-  /** @group COPIES */
-  def mutable: MutableArrayTile = toArrayTile().mutable
-
-  /** @group COPIES */
-  def interpretAs(newCellType: CellType): Tile =
-    toArrayTile().interpretAs(newCellType)
-
-  /** @group COPIES */
-  def withNoData(noDataValue: Option[Double]): Tile =
-    toArrayTile().withNoData(noDataValue)
 
   /** @group COPIES */
   def copy = new InternalRowTile(mem.copy)
@@ -131,13 +128,20 @@ object InternalRowTile {
     val COLS = 1
     val ROWS = 2
     val DATA = 3
+    val REF = 4
   }
+
+  val tileRefSchema = StructType(Seq(
+    StructField("extent", extentEncoder.schema, false),
+    StructField("uri", StringType, false)
+  ))
 
   val schema = StructType(Seq(
     StructField("cellType", StringType, false),
     StructField("cols", ShortType, false),
     StructField("rows", ShortType, false),
-    StructField("data", BinaryType, false)
+    StructField("data", BinaryType, true),
+    StructField("tileRef", tileRefSchema, true)
   ))
 
   /**
@@ -145,7 +149,18 @@ object InternalRowTile {
    * @param row Catalyst internal format conforming to `schema`
    * @return row wrapper
    */
-  def apply(row: InternalRow): InternalRowTile = new InternalRowTile(row)
+  def apply(row: InternalRow): Tile = {
+    (row.isNullAt(C.DATA), row.isNullAt(C.REF)) match {
+      case (false, _) ⇒ new InternalRowTile(row)
+      case (true, false) ⇒
+        val enc = extentEncoder.resolveAndBind()
+        val ref = row.getStruct(C.REF, tileRefSchema.size)
+        val extent = enc.fromRow(ref.getStruct(0, enc.schema.size))
+        val uri = URI.create(ref.getString(1))
+        new DelayedReadTile(extent, RasterSource(uri))
+      case (true, true) ⇒ throw new IllegalArgumentException()
+    }
+  }
 
   /**
    * Convenience extractor for converting a `Tile` to an `InternalRow`.
@@ -153,12 +168,26 @@ object InternalRowTile {
    * @param tile tile to convert
    * @return Catalyst internal representation.
    */
-  def apply(tile: Tile): InternalRow =
+  def encode(tile: Tile): InternalRow =
     InternalRow(
       UTF8String.fromString(tile.cellType.name),
       tile.cols.toShort,
       tile.rows.toShort,
-      tile.toBytes
+      tile match {
+        case _: DelayedReadTile ⇒ null
+        case _ ⇒ tile.toBytes
+      },
+      tile match {
+        case dr: DelayedReadTile ⇒
+          require(dr.source.isInstanceOf[URIRasterSource],
+            "Currently only URIRasterSource implementations are supported.")
+          val urs = dr.source.asInstanceOf[URIRasterSource]
+          InternalRow(
+            extentEncoder.toRow(dr.source.extent),
+            urs.source.toASCIIString
+          )
+        case _ ⇒ null
+      }
     )
 
   sealed trait CellReader {
@@ -248,26 +277,4 @@ object InternalRowTile {
     def apply(i: Int): Int = udd2i(t.toByteBuffer.asDoubleBuffer().get(i))
     def applyDouble(i: Int): Double = udd2d(t.toByteBuffer.asDoubleBuffer().get(i))
   }
-
-  // Temporary, until GeoTrellis 1.2
-  // See https://github.com/locationtech/geotrellis/pull/2401
-  private[sql] def constantTileFromBytes(bytes: Array[Byte], t: CellType, cols: Int, rows: Int): ConstantTile =
-    t match {
-      case _: BitCells =>
-        BitConstantTile(BitArrayTile.fromBytes(bytes, 1, 1).array(0), cols, rows)
-      case ct: ByteCells =>
-        ByteConstantTile(ByteArrayTile.fromBytes(bytes, 1, 1, ct).array(0), cols, rows, ct)
-      case ct: UByteCells =>
-        UByteConstantTile(UByteArrayTile.fromBytes(bytes, 1, 1, ct).array(0), cols, rows, ct)
-      case ct: ShortCells =>
-        ShortConstantTile(ShortArrayTile.fromBytes(bytes, 1, 1, ct).array(0), cols, rows, ct)
-      case ct: UShortCells =>
-        UShortConstantTile(UShortArrayTile.fromBytes(bytes, 1, 1, ct).array(0), cols, rows, ct)
-      case ct: IntCells =>
-        IntConstantTile(IntArrayTile.fromBytes(bytes, 1, 1, ct).array(0), cols, rows, ct)
-      case ct: FloatCells =>
-        FloatConstantTile(FloatArrayTile.fromBytes(bytes, 1, 1, ct).array(0), cols, rows, ct)
-      case ct: DoubleCells =>
-        DoubleConstantTile(DoubleArrayTile.fromBytes(bytes, 1, 1, ct).array(0), cols, rows, ct)
-    }
 }

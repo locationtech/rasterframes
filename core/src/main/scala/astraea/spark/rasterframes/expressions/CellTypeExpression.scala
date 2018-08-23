@@ -21,7 +21,7 @@ package astraea.spark.rasterframes.expressions
 
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, ExprCode}
-import org.apache.spark.sql.rf.InternalRowTile.C.CELL_TYPE
+import astraea.spark.rasterframes.tiles.InternalRowTile.C.CELL_TYPE
 import org.apache.spark.sql.types.{DataType, StringType}
 
 /**

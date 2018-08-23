@@ -23,8 +23,8 @@ package astraea.spark.rasterframes.ref
 
 import java.net.URI
 
-import astraea.spark.rasterframes.TestEnvironment
-import astraea.spark.rasterframes.ref.RasterSource.HttpGeoTiffRasterSource
+import astraea.spark.rasterframes.{TestData, TestEnvironment}
+import astraea.spark.rasterframes.ref.RasterSource
 import geotrellis.vector.Extent
 
 /**
@@ -32,22 +32,19 @@ import geotrellis.vector.Extent
  *
  * @since 8/22/18
  */
-class RasterSourceSpec extends TestEnvironment {
-  private val example1 = URI.create("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_B4.TIF")
-
-  private val example2 =  URI.create("https://s3-us-west-2.amazonaws.com/radiant-nasa-iserv/2014/02/14/IP0201402141023382027S03100E/IP0201402141023382027S03100E-COG.tif")
+class RasterSourceSpec extends TestEnvironment with TestData {
 
   describe("RasterSource") {
-     it("should support metadata querying over HTTP") {
-       withClue("example1") {
-         val src = HttpGeoTiffRasterSource(example1)
-         assert(!src.extent.isEmpty)
-       }
-       withClue("example2") {
-         val src = HttpGeoTiffRasterSource(example2)
-         assert(!src.extent.isEmpty)
-       }
-     }
+    it("should support metadata querying over HTTP") {
+      withClue("remoteCOGSingleband") {
+        val src = RasterSource(remoteCOGSingleband)
+        assert(!src.extent.isEmpty)
+      }
+      withClue("remoteCOGMultiband") {
+        val src = RasterSource(remoteCOGMultiband)
+        assert(!src.extent.isEmpty)
+      }
+    }
     it("should read sub-tile") {
       def sub(e: Extent) = {
         val c = e.center
@@ -55,13 +52,14 @@ class RasterSourceSpec extends TestEnvironment {
         val h = e.height
         Extent(c.x, c.y, c.x + w * 0.1, c.y + h * 0.1)
       }
-      withClue("example1") {
-        val src = HttpGeoTiffRasterSource(example1)
+
+      withClue("remoteCOGSingleband") {
+        val src = RasterSource(remoteCOGSingleband)
         val Left(raster) = src.read(sub(src.extent))
         assert(raster.size > 0 && raster.size < src.size)
       }
-      withClue("example2") {
-        val src = HttpGeoTiffRasterSource(example2)
+      withClue("remoteCOGMultiband") {
+        val src = RasterSource(remoteCOGMultiband)
         //println("CoG size", src.size, src.dimensions)
         val Right(raster) = src.read(sub(src.extent))
         //println("Subtile size", raster.size, raster.dimensions)
@@ -70,7 +68,7 @@ class RasterSourceSpec extends TestEnvironment {
     }
     it("should serialize") {
       import java.io._
-      val src = HttpGeoTiffRasterSource(example1)
+      val src = RasterSource(remoteCOGSingleband)
       val buf = new java.io.ByteArrayOutputStream()
       val out = new ObjectOutputStream(buf)
       out.writeObject(src)
@@ -78,7 +76,7 @@ class RasterSourceSpec extends TestEnvironment {
 
       val data = buf.toByteArray
       val in = new ObjectInputStream(new ByteArrayInputStream(data))
-      val recovered = in.readObject().asInstanceOf[HttpGeoTiffRasterSource]
+      val recovered = in.readObject().asInstanceOf[RasterSource]
       assert(src.toString === recovered.toString)
     }
   }

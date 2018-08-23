@@ -22,6 +22,8 @@ package astraea.spark.rasterframes
 import java.io.File
 import java.net.URI
 
+import astraea.spark.rasterframes.encoders.RasterSourceEncoder
+import astraea.spark.rasterframes.ref.RasterSource
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
@@ -125,6 +127,15 @@ class EncodingSpec extends TestEnvironment with TestData {
       val ds = Seq[Envelope](env).toDS()
       write(ds)
       assert(ds.first === env)
+    }
+
+    it("should code RDD[RasterSource]") {
+      implicit val rse = RasterSourceEncoder()
+      val rs = RasterSource(remoteCOGSingleband)
+      val ds = Seq[RasterSource](rs).toDS()
+      val rs2 = ds.first()
+      assert(rs === rs2)
+      write(ds)
     }
   }
 }
