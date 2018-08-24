@@ -20,6 +20,7 @@
 
 package astraea.spark.rasterframes.ref
 
+import java.io.File
 import java.net.URI
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset, ZonedDateTime}
@@ -29,7 +30,11 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
 import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile}
+import geotrellis.spark.io.hadoop.{HdfsRangeReader, SerializableConfiguration}
+import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.Path
 import scalaj.http.HttpResponse
 
 import scala.util.Try
@@ -55,15 +60,17 @@ trait RasterSource extends Serializable {
   def gridExtent = GridExtent(extent, cellSize)
 }
 
-trait URIRasterSource extends RasterSource {
-  def source: URI
-}
+
 
 object RasterSource extends LazyLogging {
 
-  def apply(source: URI): URIRasterSource = source.getScheme match {
+  def apply(source: URI): RasterSource = source.getScheme match {
     case "http" | "https" ⇒ HttpGeoTiffRasterSource(source)
-    case "hdfs" ⇒ ???
+    case "file" ⇒ FileGeoTiffRasterSource(source)
+    case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" ⇒
+      // TODO: How can we get the active hadoop configuration without having to pass it through?
+      val config = SerializableConfiguration(new Configuration())
+      HadoopGeoTiffRasterSource(source, config)
     case "s3" ⇒ ???
     case _ ⇒ ???
   }
@@ -71,34 +78,32 @@ object RasterSource extends LazyLogging {
   // According to https://goo.gl/2z8xx9 the GeoTIFF date format is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
-  case class HttpGeoTiffRasterSource(source: URI) extends URIRasterSource {
-    @transient
-    private lazy val rangeReader = HttpRangeReader(source)
+  trait URIRasterSource { _: RasterSource ⇒
+    def source: URI
+  }
+
+  trait RangeReaderRasterSource extends RasterSource {
+    protected def rangeReader: RangeReader
 
     @transient
     private lazy val tiffInfo =
       GeoTiffReader.readGeoTiffInfo(rangeReader, streaming = true, withOverviews = false)
 
     // TODO: Determine if this is the correct way to handle time.
-    private def resolveDate(tags: Map[String, String], httpResponse: ⇒ HttpResponse[_]) = {
-      tags
+    protected def resolveDate: Option[ZonedDateTime] = {
+      tiffInfo.tags.headTags
         .get(Tags.TIFFTAG_DATETIME)
         .flatMap(ds ⇒ Try({
           logger.debug("Parsing header date: " + ds)
           ZonedDateTime.parse(ds, dateFormat)
         }).toOption)
-        .orElse(
-          httpResponse.headers.get("Last-Modified")
-            .flatMap(_.headOption)
-            .flatMap(s ⇒ Try(ZonedDateTime.parse(s, DateTimeFormatter.RFC_1123_DATE_TIME)).toOption)
-        )
     }
 
     // Batched lazy evaluation
     lazy val (crs, extent, timestamp, size, cellType, bandCount, dimensions) = (
       tiffInfo.crs,
       tiffInfo.extent,
-      resolveDate(tiffInfo.tags.headTags, rangeReader.response),
+      resolveDate,
       rangeReader.totalLength,
       tiffInfo.cellType,
       tiffInfo.bandCount,
@@ -132,7 +137,36 @@ object RasterSource extends LazyLogging {
         Right(gt.crop(extent).raster)
       }
     }
+  }
 
+  case class FileGeoTiffRasterSource(source: URI) extends RangeReaderRasterSource
+    with URIRasterSource with URIRasterSourceDebugString {
+    @transient
+    protected lazy val rangeReader = FileRangeReader(source.getPath)
+  }
+
+  case class HadoopGeoTiffRasterSource(source: URI, config: SerializableConfiguration) extends RangeReaderRasterSource
+    with URIRasterSource with URIRasterSourceDebugString {
+    @transient
+    protected lazy val rangeReader = HdfsRangeReader(new Path(source.getPath), config.value)
+  }
+
+  case class HttpGeoTiffRasterSource(source: URI) extends RangeReaderRasterSource
+    with URIRasterSource with URIRasterSourceDebugString {
+    @transient
+    protected lazy val rangeReader = HttpRangeReader(source)
+
+    override protected def resolveDate: Option[ZonedDateTime] = {
+      super.resolveDate
+        .orElse(
+          rangeReader.response.headers.get("Last-Modified")
+            .flatMap(_.headOption)
+            .flatMap(s ⇒ Try(ZonedDateTime.parse(s, DateTimeFormatter.RFC_1123_DATE_TIME)).toOption)
+        )
+    }
+  }
+
+  trait URIRasterSourceDebugString { _: RangeReaderRasterSource with URIRasterSource with Product ⇒
     def toDebugString: String = {
       val buf = new StringBuilder()
       buf.append(productPrefix)
@@ -153,5 +187,4 @@ object RasterSource extends LazyLogging {
       buf.toString
     }
   }
-
 }

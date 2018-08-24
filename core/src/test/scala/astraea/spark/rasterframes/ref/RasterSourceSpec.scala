@@ -30,8 +30,14 @@ import geotrellis.vector.Extent
  * @since 8/22/18
  */
 class RasterSourceSpec extends TestEnvironment with TestData {
+  def sub(e: Extent) = {
+    val c = e.center
+    val w = e.width
+    val h = e.height
+    Extent(c.x, c.y, c.x + w * 0.1, c.y + h * 0.1)
+  }
 
-  describe("RasterSource") {
+  describe("HTTP RasterSource") {
     it("should support metadata querying over HTTP") {
       withClue("remoteCOGSingleband") {
         val src = RasterSource(remoteCOGSingleband)
@@ -43,13 +49,6 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       }
     }
     it("should read sub-tile") {
-      def sub(e: Extent) = {
-        val c = e.center
-        val w = e.width
-        val h = e.height
-        Extent(c.x, c.y, c.x + w * 0.1, c.y + h * 0.1)
-      }
-
       withClue("remoteCOGSingleband") {
         val src = RasterSource(remoteCOGSingleband)
         val Left(raster) = src.read(sub(src.extent))
@@ -75,6 +74,14 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val in = new ObjectInputStream(new ByteArrayInputStream(data))
       val recovered = in.readObject().asInstanceOf[RasterSource]
       assert(src.toString === recovered.toString)
+    }
+  }
+  describe("File RasterSource") {
+    it("should support metadata querying of file") {
+      val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toUri
+      val src = RasterSource(localSrc)
+      println(src)
+      assert(!src.extent.isEmpty)
     }
   }
 }

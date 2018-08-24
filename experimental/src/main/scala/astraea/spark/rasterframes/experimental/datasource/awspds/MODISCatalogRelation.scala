@@ -21,12 +21,11 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.rdd.RDD
+import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
-import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
 
 /**
  * Constructs a dataframe from the available scenes
@@ -34,7 +33,9 @@ import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
  * @since 5/4/18
  */
 case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
-  extends BaseRelation with TableScan with PDSFields with LazyLogging {
+  extends BaseRelation with TableScan with PDSFields with CachedDatasetRelation with LazyLogging {
+
+  protected def cacheFile: HadoopPath = sceneList.suffix(".paquet")
 
   private val inputSchema = StructType(Seq(
     StructField("date", DateType, false),
@@ -50,10 +51,10 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
     GID
   ))
 
-  def buildScan(): RDD[Row] = {
+  protected def constructDataset: Dataset[Row] = {
     import sqlContext.implicits._
 
-    logger.debug("Scene file is: " + sceneList)
+    logger.debug("Parsing " + sceneList)
     val catalog = sqlContext.read
       .option("header", "true")
       .option("mode", "DROPMALFORMED") // <--- mainly for the fact that we have internal headers from the concat
@@ -61,7 +62,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
       .schema(inputSchema)
       .csv(sceneList.toString)
 
-    val result = catalog
+    catalog
       .withColumn("__split_gid", split($"gid", "\\."))
       .select(
         $"__split_gid"(0) as PRODUCT_ID.name,
@@ -71,6 +72,6 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
         $"${GID.name}"
       )
       .drop($"__split_gid")
-    result.rdd
   }
+
 }

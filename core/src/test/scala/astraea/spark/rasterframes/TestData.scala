@@ -185,7 +185,9 @@ object TestData extends TestData {
   /** A tile created through a geometric sequence.
     * 1/n of the tile's values will equal the tile size / n, assuming 1/n exists in the sequence */
   def fracTile(cols: Int, rows: Int, binNum: Int, denom: Int = 2): Tile = {
-    val fracs = (1 to binNum).map(x => 1/math.pow(denom, x)).map(x => (cols * rows * x).toInt)
+    val fracs = (1 to binNum)
+      .map(x => 1/math.pow(denom, x))
+      .map(x => (cols * rows * x).toInt)
     val fracSeq = fracs.flatMap(p => (1 to p).map(_ => p))
     // fill in the rest with zeroes
     val fullArr = (fracSeq ++ Seq.fill(rows * cols - fracSeq.length)(0)).toArray
@@ -193,8 +195,8 @@ object TestData extends TestData {
   }
 
   /** Create a series of random tiles. */
-  val makeTiles: (Int) ⇒ Array[Tile] = (count) ⇒
-    Array.fill(count)(randomTile(4, 4, UByteCellType))
+  val makeTiles: Int ⇒ Array[Tile] =
+    count ⇒ Array.fill(count)(randomTile(4, 4, UByteCellType))
 
   def randomSpatialTileLayerRDD(
     rasterCols: Int, rasterRows: Int,
@@ -217,14 +219,10 @@ object TestData extends TestData {
     def filter(c: Int, r: Int) = targeted.contains(r * t.cols + c)
 
     if(t.cellType.isFloatingPoint) {
-      t.mapDouble((c, r, v) ⇒ {
-        if(filter(c,r)) raster.doubleNODATA else v
-      })
+      t.mapDouble((c, r, v) ⇒ (if(filter(c,r)) raster.doubleNODATA else v): Double)
     }
     else {
-      t.map((c, r, v) ⇒ {
-        if(filter(c, r)) raster.NODATA else v
-      })
+      t.map((c, r, v) ⇒ if(filter(c, r)) raster.NODATA else v)
     }
   }
 }
