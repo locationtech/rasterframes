@@ -42,5 +42,6 @@ package object expressions {
     VersionShims.registerExpression(registry, "rf_explodeTiles", ExplodeTileExpression.apply(1.0, _))
     VersionShims.registerExpression(registry, "rf_cellType", ub(CellTypeExpression.apply))
     VersionShims.registerExpression(registry, "rf_tileDimensions", ub(DimensionsExpression.apply))
+    VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(BoundsToGeometryExpression.apply))
   }
 }

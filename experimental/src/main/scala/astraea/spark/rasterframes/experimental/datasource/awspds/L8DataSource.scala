@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2018 Astraea. Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,29 +15,24 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ *
  */
 
-package astraea.spark.rasterframes
+package astraea.spark.rasterframes.experimental.datasource.awspds
 
-import java.net.URI
-
-import org.apache.spark.sql.sources.{And, Filter}
-
-import scala.util.Try
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 
 /**
- * Module utilities
+ * Experiment in providing RasterFrames over whole PDS catalog.
  *
- * @since 1/13/18
+ * @since 8/21/18
  */
-package object datasource {
+class L8DataSource extends DataSourceRegister with RelationProvider {
+  override def shortName(): String = L8DataSource.SHORT_NAME
+  override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = L8Relation(sqlContext)
+}
 
-  private[rasterframes]
-  def numParam(key: String, parameters: Map[String, String]): Option[Long] =
-    parameters.get(key).map(_.toLong)
-
-  private[rasterframes]
-  def uriParam(key: String, parameters: Map[String, String]) =
-    parameters.get(key).flatMap(p ⇒ Try(URI.create(p)).toOption)
-
+object L8DataSource {
+  final val SHORT_NAME = "awsl8"
 }

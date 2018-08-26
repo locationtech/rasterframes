@@ -20,10 +20,9 @@
 
 package astraea.spark.rasterframes.ref
 
-import java.io.File
 import java.net.URI
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, ZoneOffset, ZonedDateTime}
 
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
@@ -35,7 +34,6 @@ import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-import scalaj.http.HttpResponse
 
 import scala.util.Try
 
@@ -59,8 +57,6 @@ trait RasterSource extends Serializable {
   def cellSize = CellSize(extent, cols, rows)
   def gridExtent = GridExtent(extent, cellSize)
 }
-
-
 
 object RasterSource extends LazyLogging {
 

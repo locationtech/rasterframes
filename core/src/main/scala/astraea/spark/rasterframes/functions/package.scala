@@ -15,6 +15,7 @@
  */
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.expressions.BoundsToGeometryExpression
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.util.CRSParser
@@ -440,13 +441,15 @@ package object functions {
   private[rasterframes] val localUnequalScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
     floatingPointTile(t).localUnequal(scalar)
   })
-  
+
+  /** Reporjects a geometry column from one CRS to another. */
   private[rasterframes] val reprojectGeometry: (Geometry, CRS, CRS) ⇒ Geometry =
     (sourceGeom, src, dst) ⇒ {
       val trans = new ReprojectionTransformer(src, dst)
       trans.transform(sourceGeom)
     }
 
+  /** Reporjects a geometry column from one CRS to another, where CRS are defined in Proj4 format. */
   private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
     (sourceGeom, srcName, dstName) ⇒ {
       val src = CRSParser(srcName)

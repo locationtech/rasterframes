@@ -27,7 +27,7 @@ import java.time.{ZoneOffset, ZonedDateTime}
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
 import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
-import astraea.spark.rasterframes.datasource.splitFilters
+import astraea.spark.rasterframes.rules.splitFilters
 import astraea.spark.rasterframes.rules.SpatialFilters.{Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
 import astraea.spark.rasterframes.rules.SpatialRelationReceiver
 import astraea.spark.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}

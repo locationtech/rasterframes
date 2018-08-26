@@ -34,11 +34,40 @@ import org.apache.spark.sql.{Dataset, Row, SQLContext}
  * @since 9/28/17
  */
 case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
-  extends BaseRelation with TableScan with PDSFields with CachedDatasetRelation with LazyLogging {
+  extends BaseRelation with TableScan with CachedDatasetRelation with LazyLogging {
+  import L8CatalogRelation._
+
+  override def schema: StructType = L8CatalogRelation.schema
 
   protected def cacheFile: HadoopPath = sceneListPath.suffix(".parquet")
 
-  def inputSchema = StructType(Seq(
+  protected def constructDataset: Dataset[Row] = {
+    import astraea.spark.rasterframes.encoders.StandardEncoders.envelopeEncoder
+    import sqlContext.implicits._
+    logger.debug("Parsing " + sceneListPath)
+    sqlContext.read
+      .schema(inputSchema)
+      .option("header", "true")
+      .csv(sceneListPath.toString)
+      .withColumn("__url",  regexp_replace($"download_url", "index.html", ""))
+      .where(not($"${PRODUCT_ID.name}".endsWith("RT")))
+      .drop("download_url")
+      .withColumn(BOUNDS_WGS84.name, struct(
+        $"min_lon" as "minX",
+        $"max_lon" as "maxX",
+        $"min_lat" as "minY",
+        $"max_lat" as "maxY"
+      ).as[Envelope])
+      .withColumnRenamed("__url", DOWNLOAD_URL.name)
+      .select(schema.map(f ⇒ col(f.name)): _*)
+      .orderBy(ACQUISITION_DATE.name, PATH.name, ROW.name)
+      .distinct() // The scene file contains duplicates.
+  }
+}
+
+object L8CatalogRelation extends PDSFields {
+
+  private def inputSchema = StructType(Seq(
     PRODUCT_ID,
     ENTITY_ID,
     ACQUISITION_DATE,
@@ -64,29 +93,6 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
     BOUNDS_WGS84,
     DOWNLOAD_URL
   ))
-
-  protected def constructDataset: Dataset[Row] = {
-    import astraea.spark.rasterframes.encoders.StandardEncoders.envelopeEncoder
-    import sqlContext.implicits._
-    logger.debug("Parsing " + sceneListPath)
-    sqlContext.read
-      .schema(inputSchema)
-      .option("header", "true")
-      .csv(sceneListPath.toString)
-      .withColumn("__url",  regexp_replace($"download_url", "index.html", ""))
-      .where(not($"${PRODUCT_ID.name}".endsWith("RT")))
-      .drop("download_url")
-      .withColumn(BOUNDS_WGS84.name, struct(
-        $"min_lon" as "minX",
-        $"max_lon" as "maxX",
-        $"min_lat" as "minY",
-        $"max_lat" as "maxY"
-      ).as[Envelope])
-      .withColumnRenamed("__url", DOWNLOAD_URL.name)
-      .select(schema.map(f ⇒ col(f.name)): _*)
-      .orderBy(ACQUISITION_DATE.name, PATH.name, ROW.name)
-      .distinct() // The scene file contains duplicates.
-  }
 }
 
 

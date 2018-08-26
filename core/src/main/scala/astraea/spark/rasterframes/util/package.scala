@@ -62,10 +62,10 @@ package object util extends LazyLogging {
   }
 
   // Type lambda aliases
-  type WithMergeMethods[V] = (V ⇒ TileMergeMethods[V])
-  type WithPrototypeMethods[V <: CellGrid] = (V ⇒ TilePrototypeMethods[V])
-  type WithCropMethods[V <: CellGrid] = (V ⇒ TileCropMethods[V])
-  type WithMaskMethods[V] = (V ⇒ TileMaskMethods[V])
+  type WithMergeMethods[V] = V ⇒ TileMergeMethods[V]
+  type WithPrototypeMethods[V <: CellGrid] = V ⇒ TilePrototypeMethods[V]
+  type WithCropMethods[V <: CellGrid] = V ⇒ TileCropMethods[V]
+  type WithMaskMethods[V] = V ⇒ TileMaskMethods[V]
 
   type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
 

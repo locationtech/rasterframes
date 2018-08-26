@@ -23,8 +23,8 @@ import java.sql.{Date, Timestamp}
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.datasource.{DataSourceOptions, splitFilters}
-import astraea.spark.rasterframes.rules.SpatialRelationReceiver
+import astraea.spark.rasterframes.datasource.DataSourceOptions
+import astraea.spark.rasterframes.rules._
 import astraea.spark.rasterframes.util._
 import geotrellis.proj4.LatLng
 import geotrellis.raster._

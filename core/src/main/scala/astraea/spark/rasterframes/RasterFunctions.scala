@@ -424,4 +424,10 @@ trait RasterFunctions {
     }
     udf(f).apply(tileCol).as(s"localUnequalScalar($tileCol, $value)").as[Tile]
   }
+
+  /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
+  def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] =
+    withAlias("boundsGeometry", bounds)(
+      expressions.BoundsToGeometryExpression(bounds.expr).asColumn
+    ).as[Geometry]
 }
