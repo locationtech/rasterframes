@@ -55,7 +55,6 @@ RUN rm -rf /home/$NB_USER/.local && \
 # since these change more regularly.
 COPY *.zip $PY_RF_ZIP
 COPY *.jar $RF_JAR
-COPY *.ipynb $HOME/
 
 RUN chown -R $NB_UID:$NB_GID $HOME
 

@@ -155,7 +155,7 @@ pyTest := {
   val s = streams.value
   s.log.info("Running python tests...")
   val wd = pythonSource.value
-  Process("python setup.py test", wd) ! s.log
+  Process("python setup.py test", wd).!
 }
 
 Test / executeTests := {
