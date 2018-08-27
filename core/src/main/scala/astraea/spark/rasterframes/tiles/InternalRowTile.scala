@@ -24,10 +24,8 @@ package astraea.spark.rasterframes.tiles
 import java.nio.ByteBuffer
 
 import geotrellis.raster._
-import geotrellis.spark.util.KryoSerializer
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types._
-import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * Wrapper around a `Tile` encoded in a Catalyst `InternalRow`, for the purpose
@@ -126,51 +124,13 @@ object InternalRowTile {
     val COLS = 1
     val ROWS = 2
     val DATA = 3
-    val REF = 4
   }
-
   val schema = StructType(Seq(
     StructField("cellType", StringType, false),
     StructField("cols", ShortType, false),
     StructField("rows", ShortType, false),
-    StructField("data", BinaryType, true),
-    StructField("tileRef", BinaryType, true)
+    StructField("data", BinaryType, false)
   ))
-
-  /**
-   * Constructor.
-   * @param row Catalyst internal format conforming to `schema`
-   * @return row wrapper
-   */
-  def decode(row: InternalRow): Tile = {
-    (row.isNullAt(C.DATA), row.isNullAt(C.REF)) match {
-      case (false, _) ⇒ new InternalRowTile(row)
-      case (true, false) ⇒
-        KryoSerializer.deserialize[DelayedReadTile](row.getBinary(C.REF))
-      case (true, true) ⇒ throw new IllegalArgumentException()
-    }
-  }
-
-  /**
-   * Convenience extractor for converting a `Tile` to an `InternalRow`.
-   *
-   * @param tile tile to convert
-   * @return Catalyst internal representation.
-   */
-  def encode(tile: Tile): InternalRow =
-    InternalRow(
-      UTF8String.fromString(tile.cellType.name),
-      tile.cols.toShort,
-      tile.rows.toShort,
-      tile match {
-        case _: DelayedReadTile ⇒ null
-        case _ ⇒ tile.toBytes
-      },
-      tile match {
-        case dr: DelayedReadTile ⇒ KryoSerializer.serialize(dr)
-        case _ ⇒ null
-      }
-    )
 
   sealed trait CellReader {
     def apply(index: Int): Int

@@ -20,15 +20,19 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
-import astraea.spark.rasterframes.StandardColumns
+import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
+import astraea.spark.rasterframes.rules.SpatialFilters.Intersects
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.rules._
 import com.typesafe.scalalogging.LazyLogging
+import com.vividsolutions.jts.geom._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.gt.types.TileUDT
-import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.sql.{Column, Row, SQLContext}
 import org.apache.spark.sql.sources._
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions._
 
 /**
  * Spark relation over AWS PDS Landsat 8 collection.
@@ -56,12 +60,35 @@ case class L8Relation(sqlContext: SQLContext, filters: Seq[Filter] = Seq.empty)
     }
   }
 
+  // TODO: Is there a more clean, direct way of delegating filtering other
+  // TODO: having to reconstitute the predicates like this?
+  private def colExpr(filter: Filter): Column = filter match {
+    case GreaterThan(name, value) ⇒ col(name) > value
+    case GreaterThanOrEqual(name, value) ⇒ col(name) >= value
+    case LessThan(name, value) ⇒ col(name) < value
+    case LessThanOrEqual(name, value) ⇒ col(name) <= value
+    case EqualTo(name, value) ⇒ col(name) === value
+    case Intersects(name, value) ⇒
+      st_intersects(col(name), geomLit(value))
+  }
+
   override def buildScan(requiredColumns: Array[String], sparkFilters: Array[Filter]): RDD[Row] = {
     logger.debug(s"Required columns: ${requiredColumns.mkString(", ")}")
-    val aggFilters = sparkFilters.toSet.union(splitFilters(filters).toSet)
+    val aggFilters = (sparkFilters ++ splitFilters(filters)).distinct
     logger.debug(s"Filters: $aggFilters")
 
-    sqlContext.emptyDataFrame.rdd
+    val catalog = sqlContext.read
+      .format(L8CatalogDataSource.SHORT_NAME)
+      .load()
+      .withColumnRenamed(PDSFields.ACQUISITION_DATE.name, PDSFields.TIMESTAMP.name)
+      .withColumn(PDSFields.BOUNDS.name, boundsGeometry(col(PDSFields.BOUNDS_WGS84.name)))
+      .drop(PDSFields.BOUNDS_WGS84.name)
+
+    val filtered = aggFilters.foldLeft(catalog)((cat, filter) ⇒ cat.where(colExpr(filter)))
+
+    val (bands, other) = requiredColumns.partition(Bands.names.contains)
+
+    filtered.select(other.map(col) :+ raster_ref(bands.map(b ⇒ l8_band_url(b))): _*).rdd
   }
 }
 
@@ -69,6 +96,7 @@ object L8Relation extends PDSFields {
   object Bands extends Enumeration {
     type Bands = Value
     val B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, BQA = Value
+    val names = values.toSeq.map(_.toString)
   }
 
   lazy val schema: StructType = {

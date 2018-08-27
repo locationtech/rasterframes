@@ -82,8 +82,22 @@ object RasterSource extends LazyLogging {
     protected def rangeReader: RangeReader
 
     @transient
-    private lazy val tiffInfo =
+    private lazy val tiffInfo: GeoTiffReader.GeoTiffInfo =
       GeoTiffReader.readGeoTiffInfo(rangeReader, streaming = true, withOverviews = false)
+
+    override def crs: CRS = tiffInfo.crs
+
+    override def extent: Extent = tiffInfo.extent
+
+    override def timestamp: Option[ZonedDateTime] = resolveDate
+
+    override def size: Long = rangeReader.totalLength
+
+    override def dimensions: (Int, Int) = tiffInfo.rasterExtent.dimensions
+
+    override def cellType: CellType = tiffInfo.cellType
+
+    override def bandCount: Int = tiffInfo.bandCount
 
     // TODO: Determine if this is the correct way to handle time.
     protected def resolveDate: Option[ZonedDateTime] = {
@@ -94,17 +108,6 @@ object RasterSource extends LazyLogging {
           ZonedDateTime.parse(ds, dateFormat)
         }).toOption)
     }
-
-    // Batched lazy evaluation
-    lazy val (crs, extent, timestamp, size, cellType, bandCount, dimensions) = (
-      tiffInfo.crs,
-      tiffInfo.extent,
-      resolveDate,
-      rangeReader.totalLength,
-      tiffInfo.cellType,
-      tiffInfo.bandCount,
-      tiffInfo.rasterExtent.dimensions
-    )
 
     def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
       val info = tiffInfo

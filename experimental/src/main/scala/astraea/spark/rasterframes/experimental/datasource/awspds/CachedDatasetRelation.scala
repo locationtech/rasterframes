@@ -36,6 +36,7 @@ import astraea.spark.rasterframes.util._
 trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation with LazyLogging ⇒
   protected def cacheFile: HadoopPath
   protected def constructDataset: Dataset[Row]
+  protected def cachedPartitions: Int = 8
 
   def buildScan(): RDD[Row] = {
     val conf = sqlContext.sparkContext.hadoopConfiguration
@@ -44,7 +45,7 @@ trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation wi
       .map(p ⇒ {logger.debug("Reading " + p); p})
       .map(p ⇒ sqlContext.read.parquet(p.toString))
       .getOrElse {
-        val scenes = constructDataset
+        val scenes = constructDataset.repartition(cachedPartitions)
         scenes.write.parquet(cacheFile.toString)
         scenes
       }

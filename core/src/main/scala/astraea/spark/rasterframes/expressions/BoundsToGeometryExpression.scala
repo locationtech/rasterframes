@@ -24,11 +24,12 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.encoders.StandardEncoders
 import com.vividsolutions.jts.geom.{Geometry, Polygon}
 import geotrellis.vector.Extent
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
+import org.apache.spark.sql.catalyst.expressions.{Expression, GenericInternalRow, UnaryExpression}
 import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.types.DataType
 
@@ -40,7 +41,6 @@ import org.apache.spark.sql.types.DataType
 case class BoundsToGeometryExpression(child: Expression) extends UnaryExpression with CodegenFallback {
   private val envEnc = StandardEncoders.envelopeEncoder.resolveAndBind()
   private val extEnc = StandardEncoders.extentEncoder.resolveAndBind()
-  private val geomEnc = ExpressionEncoder[Geometry]()
 
   override def nodeName: String = "boundsGeometry"
 
@@ -66,7 +66,7 @@ case class BoundsToGeometryExpression(child: Expression) extends UnaryExpression
     else {
       extEnc.fromRow(r)
     }
-
-    geomEnc.toRow(extent.jtsGeom)
+    val geom = extent.jtsGeom
+    JTSTypes.GeometryTypeInstance.serialize(geom)
   }
 }

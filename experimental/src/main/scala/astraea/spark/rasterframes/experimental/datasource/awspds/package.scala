@@ -54,7 +54,9 @@ package object awspds {
     DownloadExpression(urlColumn.expr, urlColumn.columnName).asColumn
   }.as[Array[Byte]]
 
-  def download_tiles(urlColumn: Column): Column = {
+  def download_tiles(urlColumn: Column): Column =
     DownloadTilesExpression(urlColumn.expr, urlColumn.columnName).asColumn
-  }
+
+  def raster_ref(rasterURIs: Seq[Column]): Column =
+    RasterRefExpression(rasterURIs.map(_.expr)).asColumn
 }

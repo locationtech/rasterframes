@@ -35,7 +35,7 @@ import org.apache.spark.sql.types._
 case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
   extends BaseRelation with TableScan with PDSFields with CachedDatasetRelation with LazyLogging {
 
-  protected def cacheFile: HadoopPath = sceneList.suffix(".paquet")
+  protected def cacheFile: HadoopPath = sceneList.suffix(".parquet")
 
   private val inputSchema = StructType(Seq(
     StructField("date", DateType, false),

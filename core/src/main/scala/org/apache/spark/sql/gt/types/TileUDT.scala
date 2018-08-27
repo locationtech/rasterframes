@@ -22,8 +22,10 @@ package org.apache.spark.sql.gt.types
 
 import astraea.spark.rasterframes.tiles.{DelayedReadTile, InternalRowTile}
 import geotrellis.raster._
+import geotrellis.spark.util.KryoSerializer
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
+import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * UDT for singleband tiles.
@@ -35,17 +37,17 @@ class TileUDT extends UserDefinedType[Tile] {
 
   override def pyUDT: String = "pyrasterframes.TileUDT"
 
-  def sqlType: StructType = InternalRowTile.schema
+  def sqlType: StructType = TileUDT.schema
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
-      .map(InternalRowTile.encode)
+      .map(TileUDT.encode)
       .orNull
 
   override def deserialize(datum: Any): Tile =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒ InternalRowTile.decode(ir)
+        case ir: InternalRow ⇒ TileUDT.decode(ir)
       }
       .map {
         case realIRT: InternalRowTile ⇒ realIRT.toArrayTile()
@@ -63,4 +65,42 @@ class TileUDT extends UserDefinedType[Tile] {
 
 case object TileUDT extends TileUDT {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
+
+  val schema = StructType(Seq(
+    StructField("tile", InternalRowTile.schema, true),
+    StructField("tileRef", BinaryType, true)
+  ))
+
+  /**
+   * Read a Tele from an InternalRow
+   * @param row Catalyst internal format conforming to `schema`
+   * @return row wrapper
+   */
+  def decode(row: InternalRow): Tile = {
+    (row.isNullAt(0), row.isNullAt(1)) match {
+      case (false, _) ⇒ new InternalRowTile(row.getStruct(0, 4))
+      case (true, false) ⇒ KryoSerializer.deserialize[DelayedReadTile](row.getBinary(1))
+      case (true, true) ⇒ throw new IllegalArgumentException()
+    }
+  }
+
+  /**
+   * Convenience extractor for converting a `Tile` to an `InternalRow`.
+   *
+   * @param tile tile to convert
+   * @return Catalyst internal representation.
+   */
+  def encode(tile: Tile): InternalRow = tile match {
+    case dr: DelayedReadTile ⇒
+      InternalRow(null, KryoSerializer.serialize(dr))
+    case _: Tile ⇒
+      InternalRow(
+        InternalRow(
+          UTF8String.fromString(tile.cellType.name),
+          tile.cols.toShort,
+          tile.rows.toShort,
+          tile.toBytes
+        ), null)
+  }
+
 }

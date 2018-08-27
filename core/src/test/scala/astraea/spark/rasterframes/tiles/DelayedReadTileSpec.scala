@@ -45,7 +45,7 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
   trait Fixture {
     val src = new DelayedReadTileSpec.MonitoringRasterSource(remoteCOGSingleband)
     val ext = sub(src.extent)
-    val tile = new DelayedReadTile(ext, src)
+    val tile = new DelayedReadTile(Some(ext), src)
   }
 
   describe("RasterRef") {

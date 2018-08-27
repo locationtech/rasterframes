@@ -72,7 +72,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     it("should extract properties") {
       forEveryConfig { tile ⇒
         val row = TileUDT.serialize(tile)
-        val wrapper = new InternalRowTile(row)
+        val wrapper = TileUDT.decode(row)
         assert(wrapper.cols === tile.cols)
         assert(wrapper.rows === tile.rows)
         assert(wrapper.cellType === tile.cellType)
@@ -82,7 +82,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     it("should directly extract cells") {
       forEveryConfig { tile ⇒
         val row = TileUDT.serialize(tile)
-        val wrapper = new InternalRowTile(row)
+        val wrapper = TileUDT.decode(row)
         val (cols,rows) = wrapper.dimensions
         val indexes = Seq((0, 0), (cols - 1, rows - 1), (cols/2, rows/2), (1, 1))
         forAll(indexes) { case (c, r) ⇒
