@@ -22,7 +22,7 @@ package astraea.spark.rasterframes.functions
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.gt.types.TileUDT
-import org.apache.spark.sql.types.{DoubleType, LongType}
+import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.functions._
@@ -37,8 +37,11 @@ case class CellMeanAggregateFunction(child: Expression) extends DeclarativeAggre
 
   override def prettyName: String = "agg_mean"
 
-  private lazy val sum = AttributeReference("sum", DoubleType)()
-  private lazy val count = AttributeReference("count", LongType)()
+  private lazy val sum =
+    AttributeReference("sum", DoubleType, false, Metadata.empty)()
+  private lazy val count =
+    AttributeReference("count", LongType, false, Metadata.empty)()
+
   override lazy val aggBufferAttributes = Seq(sum, count)
 
   val initialValues = Seq(

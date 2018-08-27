@@ -25,7 +25,7 @@ import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.gt.types.TileUDT
-import org.apache.spark.sql.types.LongType
+import org.apache.spark.sql.types.{LongType, Metadata}
 
 /**
  * Cell count (data or NoData) aggregate function.
@@ -39,7 +39,8 @@ case class CellCountAggregateFunction(isData: Boolean, child: Expression) extend
     if (isData) "agg_data_cells"
     else "agg_nodata_cells"
 
-  private lazy val count = AttributeReference("count", LongType)()
+  private lazy val count =
+    AttributeReference("count", LongType, false, Metadata.empty)()
 
   override lazy val aggBufferAttributes = count :: Nil
 

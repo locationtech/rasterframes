@@ -359,7 +359,7 @@ package object functions {
       // We have to do this because (as of spark 2.2.x) Encoder-only types
       // can't be used as UDF inputs. Only Spark-native types and UDTs.
       val extent = Extent(bounds.getEnvelopeInternal)
-      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value)
+      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value).tile
     }
   }
 
