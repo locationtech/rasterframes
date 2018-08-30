@@ -124,17 +124,31 @@ def _create_explode_tiles():
     _.__module__ = THIS_MODULE
     return _
 
+def _create_explode_tiles_sample():
+    """ Create a function mapping to Scala explodeTilesSample function"""
+    def _(sample_frac, *tile_cols):
+        jfcn = RFContext.active().lookup('explodeTilesSample')
+        jcols = [_to_java_column(arg) for arg in tile_cols]
+        return Column(jfcn(sample_frac, RFContext.active().list_to_seq(jcols)))
+
+    _.__name__ = 'explodeTilesSample'
+    _.__doc__ = 'Create a row for a sample of cells in Tile columns.'
+    _.__module__ = THIS_MODULE
+    return _
+
+
 _rf_unique_functions = {
     'assembleTile': _create_assembleTile(),
     'arrayToTile': _create_arrayToTile(),
-    'convertCellType': _create_convertCellType(),
-    'makeConstantTile': _create_makeConstantTile(),
-    'tileZeros': _create_tileZeros(),
-    'tileOnes': _create_tileOnes(),
     'cellTypes': lambda: _context_call('cellTypes'),
+    'convertCellType': _create_convertCellType(),
+    'explodeTiles': _create_explode_tiles(),
+    'explodeTilesSample': _create_explode_tiles_sample(),
+    'makeConstantTile': _create_makeConstantTile(),
     'rasterize': _create_rasterize(),
     'reprojectGeometry': _create_reproject_geometry(),
-    'explodeTiles': _create_explode_tiles()
+    'tileOnes': _create_tileOnes(),
+    'tileZeros': _create_tileZeros(),
 }
 
 

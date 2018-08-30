@@ -159,7 +159,26 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(_rounded_compare(statsRow.base, statsRow.half * 2))
 
     def test_explode(self):
+        import pyspark.sql.functions as F
         self.rf.select('spatial_key', explodeTiles(self.tileCol)).show()
+        # +-----------+------------+---------+-------+
+        # |spatial_key|column_index|row_index|tile   |
+        # +-----------+------------+---------+-------+
+        # |[2,1]      |4           |0        |10150.0|
+        cell = self.rf.select(self.rf.spatialKeyColumn(), explodeTiles(self.rf.tile)) \
+            .where(F.col("spatial_key.col")==2) \
+            .where(F.col("spatial_key.row")==1) \
+            .where(F.col("column_index")==4) \
+            .where(F.col("row_index")==0) \
+            .select(F.col("tile")) \
+            .collect()[0][0]
+        self.assertEqual(cell, 10150.0)
+
+        frac = 0.01
+        sample_count = self.rf.select(explodeTilesSample(frac, self.tileCol)).count()
+        print('Sample count is {}'.format(sample_count))
+        self.assertTrue(sample_count > 0)
+        self.assertTrue(sample_count < (frac * 1.1) * 387000)  # give some wiggle room
 
 
 def suite():

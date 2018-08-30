@@ -46,16 +46,20 @@ trait RasterFunctions {
 
   // format: off
   /** Create a row for each cell in Tile. */
-  def explodeTiles(cols: Column*): Column = explodeTileSample(1.0, cols: _*)
+  def explodeTiles(cols: Column*): Column = explodeTilesSample(1.0, cols: _*)
 
   /** Create a row for each cell in Tile with random sampling. */
-  def explodeTileSample(sampleFraction: Double, cols: Column*): Column = {
+  def explodeTilesSample(sampleFraction: Double, cols: Column*): Column = {
     val exploder = ExplodeTileExpression(sampleFraction, cols.map(_.expr))
     // Hack to grab the first two non-cell columns, containing the column and row indexes
     val metaNames = exploder.elementSchema.fieldNames.take(2)
     val colNames = cols.map(_.columnName)
     new Column(exploder).as(metaNames ++ colNames)
   }
+
+  /** Create a row for each cell in Tile with random sampling */
+  @Deprecated
+  def explodeTileSample(sampleFraction: Double, cols: Column*): Column = explodeTilesSample(sampleFraction, cols:_*)
 
   /** Query the number of (cols, rows) in a Tile. */
   def tileDimensions(col: Column): Column = expressions.DimensionsExpression(col.expr).asColumn
