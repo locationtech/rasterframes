@@ -162,6 +162,24 @@ class RasterFunctionsTest(unittest.TestCase):
         self.rf.select('spatial_key', explodeTiles(self.tileCol)).show()
 
 
+    def test_maskByValue(self):
+        from pyspark.sql.functions import lit
+
+        # create an artificial mask for values > 25000; masking value will be 4
+        mask_value = 4
+
+        rf1 = self.rf.select(self.rf.tile,
+                             localMultiplyScalarInt(
+                                 convertCellType(
+                                     localGreaterScalarInt(self.rf.tile, 25000),
+                                     "uint8"),
+                                  mask_value).alias('mask'))
+        rf2 = rf1.select(rf1.tile, maskByValue(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
+        result = rf2.agg(aggNoDataCells(rf2.tile) < aggNoDataCells(rf2.masked)) \
+            .collect()[0][0]
+        self.assertTrue(result)
+
+
 def suite():
     functionTests = unittest.TestSuite()
     functionTests.addTest(RasterFunctionsTest('test_identify_columns'))
@@ -172,10 +190,8 @@ def suite():
     functionTests.addTest(RasterFunctionsTest('test_aggregations'))
     functionTests.addTest(RasterFunctionsTest('test_explode'))
     functionTests.addTest(RasterFunctionsTest('test_sql'))
+    functionTests.addTest(RasterFunctionsTest('test_maskByValue'))
     return functionTests
 
 
 unittest.TextTestRunner().run(suite())
-
-
-

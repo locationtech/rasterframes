@@ -124,6 +124,17 @@ def _create_explode_tiles():
     _.__module__ = THIS_MODULE
     return _
 
+
+def _create_maskByValue():
+    """ Create a function mapping to Scala maskByValue function """
+    def _(data_tile, mask_tile, mask_value):
+        jfcn = RFContext.active().lookup('maskByValue')
+        return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
+    _.__name__ = 'maskByValue'
+    _.__doc__ = 'Generate a tile with the values from the data tile, but where cells in the masking tile contain the masking value, replace the data value with NODATA.'
+    _.__module__ = THIS_MODULE
+    return _
+
 _rf_unique_functions = {
     'assembleTile': _create_assembleTile(),
     'arrayToTile': _create_arrayToTile(),
@@ -134,7 +145,8 @@ _rf_unique_functions = {
     'cellTypes': lambda: _context_call('cellTypes'),
     'rasterize': _create_rasterize(),
     'reprojectGeometry': _create_reproject_geometry(),
-    'explodeTiles': _create_explode_tiles()
+    'explodeTiles': _create_explode_tiles(),
+    'maskByValue': _create_maskByValue(),
 }
 
 
