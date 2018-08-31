@@ -28,22 +28,21 @@ import astraea.spark.rasterframes.TestEnvironment;
 class L8RelationTest extends TestEnvironment {
   describe("Read L8 on PDS as a DataSource") {
     val l8 = spark.read.format(L8DataSource.SHORT_NAME).load()
-    import org.apache.spark.sql.execution.debug._
 
     it("should count scenes") {
       l8.createOrReplaceTempView("l8")
       val scenes = sql(
         """
-          |SELECT bounds, B1, B2
+          |SELECT bounds, timestamp, B1, B2
           |FROM l8
           |WHERE
           |  st_intersects(bounds, st_geomFromText('POINT(-76.333 36.985)')) AND
           |  timestamp > to_timestamp('2017-03-12') AND
           |  timestamp <= to_timestamp('2018-01-09')
         """.stripMargin)
-      assert(scenes.schema.size === 3)
+      assert(scenes.schema.size === 4)
+      scenes.show()
       assert(scenes.count() === 53)
-      scenes.show(false)
     }
   }
 }

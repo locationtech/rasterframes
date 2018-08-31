@@ -39,8 +39,8 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
 
   private val inputSchema = StructType(Seq(
     StructField("date", DateType, false),
-    StructField("download_url", StringType, false),
-    StructField("gid", StringType, false)
+    DOWNLOAD_URL,
+    GID
   ))
 
   def schema = StructType(Seq(
@@ -72,6 +72,8 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
         $"${GID.name}"
       )
       .drop($"__split_gid")
-  }
+      .orderBy(ACQUISITION_DATE.name, GID.name)
+      .repartition(8)
 
+  }
 }

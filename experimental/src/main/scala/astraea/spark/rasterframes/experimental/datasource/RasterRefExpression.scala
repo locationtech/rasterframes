@@ -39,7 +39,7 @@ import scala.util.control.NonFatal
  *
  * @since 5/4/18
  */
-case class RasterRefExpression(override val children: Seq[Expression]) extends Expression
+case class RasterRefExpression(override val children: Seq[Expression], useTiling: Boolean) extends Expression
   with Generator with CodegenFallback with LazyLogging {
 
   private val udt = new TileUDT

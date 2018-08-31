@@ -23,23 +23,22 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
 import astraea.spark.rasterframes.rules.SpatialFilters.Intersects
-import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.rules._
+import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
-import com.vividsolutions.jts.geom._
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.gt.types.TileUDT
-import org.apache.spark.sql.{Column, Row, SQLContext}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{Column, Row, SQLContext}
 
 /**
  * Spark relation over AWS PDS Landsat 8 collection.
  *
  * @since 8/21/18
  */
-case class L8Relation(sqlContext: SQLContext, filters: Seq[Filter] = Seq.empty)
+case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[Filter] = Seq.empty)
   extends BaseRelation with PrunedFilteredScan with SpatialRelationReceiver[L8Relation]  with LazyLogging {
   override def schema: StructType = L8Relation.schema
 
@@ -88,7 +87,7 @@ case class L8Relation(sqlContext: SQLContext, filters: Seq[Filter] = Seq.empty)
 
     val (bands, other) = requiredColumns.partition(Bands.names.contains)
 
-    filtered.select(other.map(col) :+ raster_ref(bands.map(b ⇒ l8_band_url(b))): _*).rdd
+    filtered.select(other.map(col) :+ raster_ref(bands.map(b ⇒ l8_band_url(b)), useTiling): _*).rdd
   }
 }
 
