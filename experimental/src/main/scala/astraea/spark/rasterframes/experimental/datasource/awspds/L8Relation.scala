@@ -39,7 +39,7 @@ import org.apache.spark.sql.{Column, Row, SQLContext}
  *
  * @since 8/21/18
  */
-case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[Filter] = Seq.empty)
+case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: Option[ReadAccumulator], filters: Seq[Filter] = Seq.empty)
   extends BaseRelation with PrunedFilteredScan with SpatialRelationReceiver[L8Relation]  with LazyLogging {
   override def schema: StructType = L8Relation.schema
 
@@ -93,7 +93,7 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[F
 
     val (bands, other) = requiredColumns.partition(Bands.names.contains)
 
-    filtered.select(other.map(col) :+ raster_ref(bands.map(b ⇒ l8_band_url(b)), useTiling): _*).rdd
+    filtered.select(other.map(col) :+ raster_ref(bands.map(b ⇒ l8_band_url(b)), useTiling, accumulator): _*).rdd
   }
 }
 
@@ -101,7 +101,7 @@ object L8Relation extends PDSFields {
   object Bands extends Enumeration {
     type Bands = Value
     val B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, BQA = Value
-    val names = values.toSeq.map(_.toString)
+    val names: Seq[String] = values.toSeq.map(_.toString)
   }
 
   lazy val schema: StructType = {

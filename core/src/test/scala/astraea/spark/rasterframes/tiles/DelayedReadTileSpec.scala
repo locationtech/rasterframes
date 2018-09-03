@@ -21,14 +21,12 @@
 
 package astraea.spark.rasterframes.tiles
 
-import java.net.URI
-
-import astraea.spark.rasterframes.ref.RasterSource.{HttpGeoTiffRasterSource, ReadCallback}
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.tiles.DelayedReadTileSpec.ReadMonitor
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.{MultibandTile, Raster, Tile}
+import geotrellis.raster.Tile
 import geotrellis.vector.Extent
 
 /**

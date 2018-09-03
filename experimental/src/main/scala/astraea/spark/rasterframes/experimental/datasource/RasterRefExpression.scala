@@ -35,16 +35,15 @@ import org.apache.spark.unsafe.types.UTF8String
 import scala.util.control.NonFatal
 
 /**
- * Catalyst generator to convert a geotiff download URL into a series of rows containing references to the internal tiles and associated extents.
+ * Catalyst generator to convert a geotiff download URL into a series of rows
+ * containing references to the internal tiles and associated extents.
  *
  * @since 5/4/18
  */
-case class RasterRefExpression(override val children: Seq[Expression], useTiling: Boolean) extends Expression
+case class RasterRefExpression(override val children: Seq[Expression], useTiling: Boolean, accumulator: Option[ReadAccumulator]) extends Expression
   with Generator with CodegenFallback with LazyLogging {
 
   private val udt = new TileUDT
-
-  override def toString: String = s"rasterRef(${children.mkString(", ")})"
 
   override def nodeName: String = "rasterRef"
 
@@ -57,7 +56,7 @@ case class RasterRefExpression(override val children: Seq[Expression], useTiling
       val refs = children.map { child ⇒
         val uriString = child.eval(input).asInstanceOf[UTF8String].toString
         val uri = URI.create(uriString)
-        udt.serialize(DelayedReadTile(RasterSource(uri)))
+        udt.serialize(DelayedReadTile(RasterSource(uri, accumulator)))
       }
       Seq(InternalRow(refs: _*))
     }

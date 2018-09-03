@@ -25,12 +25,12 @@ import astraea.spark.rasterframes.experimental.datasource._
 import geotrellis.raster.Tile
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.functions._
-import org.scalatest.BeforeAndAfterAll
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
 /**
  * @since 8/21/18
  */
-class L8RelationTest extends TestEnvironment with BeforeAndAfterAll {
+class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeAndAfter {
 
   private var scenes: DataFrame = _
 
@@ -46,9 +46,14 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll {
   override protected def beforeAll(): Unit = {
     val l8 = spark.read
       .format(L8DataSource.SHORT_NAME)
+      .option(L8DataSource.ACCUMULATORS, true)
       .load()
     l8.createOrReplaceTempView("l8")
     scenes = sql(query).cache()
+  }
+
+  after {
+    ReadAccumulator.log()
   }
 
   describe("Read L8 on PDS as a DataSource") {

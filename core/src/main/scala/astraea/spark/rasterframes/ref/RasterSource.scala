@@ -34,6 +34,7 @@ import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
+import org.apache.spark.util.LongAccumulator
 
 import scala.util.Try
 

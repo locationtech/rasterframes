@@ -40,8 +40,8 @@ package object datasource {
   def download_tiles(urlColumn: Column): Column =
     DownloadTilesExpression(urlColumn.expr, urlColumn.columnName).asColumn
 
-  def raster_ref(rasterURIs: Seq[Column], useTiling: Boolean): Column =
-    RasterRefExpression(rasterURIs.map(_.expr), useTiling).asColumn
+  def raster_ref(rasterURIs: Seq[Column], useTiling: Boolean, accumulator: Option[ReadAccumulator]): Column =
+    RasterRefExpression(rasterURIs.map(_.expr), useTiling, accumulator).asColumn
 
   def cog_layout(rasterRefCol: Column): Column =
     COGLayoutExpression(rasterRefCol.expr).asColumn
