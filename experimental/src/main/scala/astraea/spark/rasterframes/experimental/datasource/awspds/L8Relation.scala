@@ -75,7 +75,12 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[F
   override def buildScan(requiredColumns: Array[String], sparkFilters: Array[Filter]): RDD[Row] = {
     logger.debug(s"Required columns: ${requiredColumns.mkString(", ")}")
     val aggFilters = (sparkFilters ++ splitFilters(filters)).distinct
-    logger.debug(s"Filters: $aggFilters")
+    if(aggFilters.isEmpty) {
+      logger.warn("No filters provided. Full catalog scan invoked.")
+    }
+    else {
+      logger.debug(s"Filters: $aggFilters")
+    }
 
     val catalog = sqlContext.read
       .format(L8CatalogDataSource.SHORT_NAME)

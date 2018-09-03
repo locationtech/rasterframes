@@ -23,40 +23,61 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.experimental.datasource._
 import geotrellis.raster.Tile
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.functions._
+import org.scalatest.BeforeAndAfterAll
 
 /**
  * @since 8/21/18
  */
-class L8RelationTest extends TestEnvironment {
+class L8RelationTest extends TestEnvironment with BeforeAndAfterAll {
+
+  private var scenes: DataFrame = _
+
   val query =  """
             |SELECT bounds, timestamp, B1, B2
             |FROM l8
             |WHERE
-            |  st_intersects(bounds, st_geomFromText('POINT(-76.333 36.985)')) AND
-            |  timestamp > to_timestamp('2017-11-12') AND
-            |  timestamp <= to_timestamp('2018-01-09')
+            |  st_intersects(bounds, st_geomFromText('LINESTRING (-39.551 -7.1881, -72.2461 -45.7062)')) AND
+            |  timestamp > to_timestamp('2017-11-01') AND
+            |  timestamp <= to_timestamp('2017-11-03')
           """.stripMargin
 
+  override protected def beforeAll(): Unit = {
+    val l8 = spark.read
+      .format(L8DataSource.SHORT_NAME)
+      .load()
+    l8.createOrReplaceTempView("l8")
+    scenes = sql(query).cache()
+  }
+
   describe("Read L8 on PDS as a DataSource") {
+    import spark.implicits._
 
     it("should count scenes") {
-      val l8 = spark.read.format(L8DataSource.SHORT_NAME).load()
-      l8.createOrReplaceTempView("l8")
-      val scenes = sql(query)
       assert(scenes.schema.size === 4)
-      scenes.show()
-      assert(scenes.count() === 9)
+      assert(scenes.count() === 7)
     }
+
+    it("should provide COG details") {
+
+      val layouts = scenes.withColumn("layout", cog_layout($"B1"))
+
+      assert(scenes.count() === layouts.count())
+
+      val dims = layouts
+        .select($"layout"("tileCols"), $"layout"("tileRows"))
+        .distinct()
+      assert(dims.count() === 1)
+      assert(dims.first() === Row(512, 512))
+
+      val grd = layouts
+        .select($"layout"("layoutCols"), $"layout"("layoutRows"))
+        .distinct
+      assert(grd.count() === 2)
+    }
+
     it("should count tiles") {
-      import spark.implicits._
-      val l8 = spark.read
-        .format(L8DataSource.SHORT_NAME)
-        //.option(L8DataSource.USE_TILING, true)
-        .load()
-
-      l8.select(cog_layout($"B1".as[Tile])).show(false)
-
 
     }
   }

@@ -20,11 +20,10 @@
  */
 
 package astraea.spark.rasterframes.experimental
+import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
 import astraea.spark.rasterframes.util._
 import org.apache.spark.sql._
 import org.apache.spark.sql.rf.CanBeColumn
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
-import geotrellis.raster.Tile
 
 
 /**
@@ -44,6 +43,6 @@ package object datasource {
   def raster_ref(rasterURIs: Seq[Column], useTiling: Boolean): Column =
     RasterRefExpression(rasterURIs.map(_.expr), useTiling).asColumn
 
-  def cog_layout(rasterRefCol: TypedColumn[Any, Tile]): Column =
+  def cog_layout(rasterRefCol: Column): Column =
     COGLayoutExpression(rasterRefCol.expr).asColumn
 }

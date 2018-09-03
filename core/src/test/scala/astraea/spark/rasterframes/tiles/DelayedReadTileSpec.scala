@@ -23,8 +23,11 @@ package astraea.spark.rasterframes.tiles
 
 import java.net.URI
 
-import astraea.spark.rasterframes.ref.RasterSource.HttpGeoTiffRasterSource
+import astraea.spark.rasterframes.ref.RasterSource.{HttpGeoTiffRasterSource, ReadCallback}
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.tiles.DelayedReadTileSpec.ReadMonitor
+import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.{MultibandTile, Raster, Tile}
 import geotrellis.vector.Extent
 
@@ -43,7 +46,8 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
   }
 
   trait Fixture {
-    val src = new DelayedReadTileSpec.MonitoringRasterSource(remoteCOGSingleband)
+    val counter = new ReadMonitor
+    val src = RasterSource(remoteCOGSingleband, Some(counter))
     val ext = sub(src.extent)
     val tile = new DelayedReadTile(Some(ext), src)
   }
@@ -54,14 +58,14 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
         assert(tile.cellType === src.cellType)
         assert(tile.cols.toDouble === src.cols * 0.01 +- 2.0)
         assert(tile.rows.toDouble === src.rows * 0.01 +- 2.0)
-        assert(!src.tileRead)
+        assert(counter.reads === 0)
       }
     }
     it("should be realizable") {
       new Fixture {
-        assert(!src.tileRead)
+        assert(counter.reads === 0)
         assert(tile.statistics.map(_.dataCells) === Some(tile.cols * tile.rows))
-        assert(src.tileRead)
+        assert(counter.reads > 0)
       }
     }
     it("should be Dataset compatible") {
@@ -93,13 +97,12 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
 }
 
 object DelayedReadTileSpec {
-  class MonitoringRasterSource(source: URI) extends HttpGeoTiffRasterSource(source) {
-    var tileReads: Int = 0
-    def tileRead = tileReads > 0
-    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
-      val retval = super.read(extent)
-      tileReads += 1
-      retval
+  case class ReadMonitor() extends ReadCallback with LazyLogging {
+    var reads: Int = 0
+    override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
+      logger.debug(s"Reading $length at $start from $source")
+      if(start > 0)
+      reads += 1
     }
   }
 }

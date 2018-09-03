@@ -60,16 +60,33 @@ trait RasterSource extends Serializable {
 
 object RasterSource extends LazyLogging {
 
-  def apply(source: URI): RasterSource = source.getScheme match {
-    case "http" | "https" ⇒ HttpGeoTiffRasterSource(source)
-    case "file" ⇒ FileGeoTiffRasterSource(source)
-    case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" ⇒
-      // TODO: How can we get the active hadoop configuration without having to pass it through?
-      val config = SerializableConfiguration(new Configuration())
-      HadoopGeoTiffRasterSource(source, config)
-    case "s3" ⇒ ???
-    case _ ⇒ ???
+  /** Trait for registering a callback for logging or monitoring range reads.
+   * NB: the callback will be invoked from within a Spark task, and therefore
+   * is serialized along with its closure to executors. */
+  trait ReadCallback extends Serializable {
+    def readRange(source: RasterSource, start: Long, length: Int): Unit
   }
+
+  private case class ReportingRangeReader(delegate: RangeReader, callback: ReadCallback, parent: RasterSource) extends RangeReader {
+    override def totalLength: Long = delegate.totalLength
+    override protected def readClippedRange(start: Long, length: Int): Array[Byte] = {
+      callback.readRange(parent, start, length)
+      delegate.readRange(start, length)
+    }
+  }
+
+  def apply(source: URI, callback: Option[ReadCallback] = None): RasterSource =
+    source.getScheme match {
+      case "http" | "https" ⇒ HttpGeoTiffRasterSource(source, callback)
+      case "file" ⇒ FileGeoTiffRasterSource(source, callback)
+      case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" ⇒
+        // TODO: How can we get the active hadoop configuration
+        // TODO: without having to pass it through?
+        val config = SerializableConfiguration(new Configuration())
+        HadoopGeoTiffRasterSource(source, config, callback)
+      case "s3" ⇒ ???
+      case s ⇒ throw new UnsupportedOperationException(s"Scheme '$s' not supported")
+    }
 
   // According to https://goo.gl/2z8xx9 the GeoTIFF date format is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
@@ -150,27 +167,38 @@ object RasterSource extends LazyLogging {
     }
   }
 
-  case class FileGeoTiffRasterSource(source: URI) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString {
+  case class FileGeoTiffRasterSource(source: URI, callback: Option[ReadCallback]) extends RangeReaderRasterSource
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
     @transient
-    protected lazy val rangeReader = FileRangeReader(source.getPath)
+    protected lazy val rangeReader = {
+      val base = FileRangeReader(source.getPath)
+      callback.map(cb ⇒ ReportingRangeReader(base, cb, self)).getOrElse(base)
+    }
   }
 
-  case class HadoopGeoTiffRasterSource(source: URI, config: SerializableConfiguration) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString {
+  case class HadoopGeoTiffRasterSource(source: URI, config: SerializableConfiguration, callback: Option[ReadCallback]) extends RangeReaderRasterSource
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
     @transient
-    protected lazy val rangeReader = HdfsRangeReader(new Path(source.getPath), config.value)
+    protected lazy val rangeReader = {
+      val base = HdfsRangeReader(new Path(source.getPath), config.value)
+      callback.map(cb ⇒ ReportingRangeReader(base, cb, self)).getOrElse(base)
+    }
   }
 
-  case class HttpGeoTiffRasterSource(source: URI) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString {
+  case class HttpGeoTiffRasterSource(source: URI, callback: Option[ReadCallback]) extends RangeReaderRasterSource
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
     @transient
-    protected lazy val rangeReader = HttpRangeReader(source)
+    private lazy val baseReader = HttpRangeReader(source)
+
+    @transient
+    protected lazy val rangeReader = {
+      callback.map(cb ⇒ ReportingRangeReader(baseReader, cb, self)).getOrElse(baseReader)
+    }
 
     override protected def resolveDate: Option[ZonedDateTime] = {
       super.resolveDate
         .orElse(
-          rangeReader.response.headers.get("Last-Modified")
+          baseReader.response.headers.get("Last-Modified")
             .flatMap(_.headOption)
             .flatMap(s ⇒ Try(ZonedDateTime.parse(s, DateTimeFormatter.RFC_1123_DATE_TIME)).toOption)
         )
