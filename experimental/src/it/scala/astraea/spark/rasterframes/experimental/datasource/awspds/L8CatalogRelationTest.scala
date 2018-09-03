@@ -24,6 +24,7 @@ import java.net.URL
 
 import astraea.spark.rasterframes.TestEnvironment
 import org.apache.spark.sql.functions._
+import astraea.spark.rasterframes.experimental.datasource._
 
 /**
  * Test rig for L8 catalog stuff.

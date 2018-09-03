@@ -24,7 +24,7 @@ import java.sql.Date
 import java.time.LocalDate
 
 import astraea.spark.rasterframes.{TestEnvironment, _}
-
+import astraea.spark.rasterframes.experimental.datasource._
 
 /**
  * Test rig for MODIS catalog stuff.

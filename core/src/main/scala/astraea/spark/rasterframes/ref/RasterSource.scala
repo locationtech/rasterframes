@@ -28,7 +28,7 @@ import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile}
+import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.{HdfsRangeReader, SerializableConfiguration}
 import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
@@ -78,26 +78,38 @@ object RasterSource extends LazyLogging {
     def source: URI
   }
 
-  trait RangeReaderRasterSource extends RasterSource {
+  trait COGRasterSource { _: RasterSource ⇒
+    def layout: Option[TileLayout]
+  }
+
+  trait RangeReaderRasterSource extends RasterSource with COGRasterSource {
     protected def rangeReader: RangeReader
 
     @transient
     private lazy val tiffInfo: GeoTiffReader.GeoTiffInfo =
       GeoTiffReader.readGeoTiffInfo(rangeReader, streaming = true, withOverviews = false)
 
-    override def crs: CRS = tiffInfo.crs
+    def crs: CRS = tiffInfo.crs
 
-    override def extent: Extent = tiffInfo.extent
+    def extent: Extent = tiffInfo.extent
 
-    override def timestamp: Option[ZonedDateTime] = resolveDate
+    def timestamp: Option[ZonedDateTime] = resolveDate
 
-    override def size: Long = rangeReader.totalLength
+    def size: Long = rangeReader.totalLength
 
-    override def dimensions: (Int, Int) = tiffInfo.rasterExtent.dimensions
+    def dimensions: (Int, Int) = tiffInfo.rasterExtent.dimensions
 
-    override def cellType: CellType = tiffInfo.cellType
+    def cellType: CellType = tiffInfo.cellType
 
-    override def bandCount: Int = tiffInfo.bandCount
+    def bandCount: Int = tiffInfo.bandCount
+
+    def layout: Option[TileLayout] = {
+      val segLayout = tiffInfo.segmentLayout
+      segLayout.isTiled match {
+        case true ⇒ Option(segLayout.tileLayout)
+        case false ⇒ None
+      }
+    }
 
     // TODO: Determine if this is the correct way to handle time.
     protected def resolveDate: Option[ZonedDateTime] = {

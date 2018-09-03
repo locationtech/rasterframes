@@ -66,10 +66,20 @@ class TileUDT extends UserDefinedType[Tile] {
 case object TileUDT extends TileUDT {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
 
+
+  /** Union encoding of Tiles and RasterRefs */
   val schema = StructType(Seq(
     StructField("tile", InternalRowTile.schema, true),
     StructField("tileRef", BinaryType, true)
   ))
+
+  /** Determine if the row encodes a RasterRef. */
+  def isRef(row: InternalRow): Boolean =
+    row.isNullAt(0) && !row.isNullAt(1)
+
+  /** Determine if the row encodes a Tile. */
+  def isTile(row: InternalRow): Boolean =
+    !row.isNullAt(0) && row.isNullAt(1)
 
   /**
    * Read a Tele from an InternalRow
@@ -77,10 +87,10 @@ case object TileUDT extends TileUDT {
    * @return row wrapper
    */
   def decode(row: InternalRow): Tile = {
-    (row.isNullAt(0), row.isNullAt(1)) match {
-      case (false, _) ⇒ new InternalRowTile(row.getStruct(0, 4))
-      case (true, false) ⇒ KryoSerializer.deserialize[DelayedReadTile](row.getBinary(1))
-      case (true, true) ⇒ throw new IllegalArgumentException()
+    (isTile(row), isRef(row)) match {
+      case (true, false) ⇒ new InternalRowTile(row.getStruct(0, 4))
+      case (false, true) ⇒ KryoSerializer.deserialize[DelayedReadTile](row.getBinary(1))
+      case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
     }
   }
 

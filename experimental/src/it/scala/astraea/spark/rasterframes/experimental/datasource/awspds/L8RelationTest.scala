@@ -18,31 +18,47 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource.awspds;
+package astraea.spark.rasterframes.experimental.datasource.awspds
 
-import astraea.spark.rasterframes.TestEnvironment;
+import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.experimental.datasource._
+import geotrellis.raster.Tile
+import org.apache.spark.sql.functions._
 
 /**
  * @since 8/21/18
  */
 class L8RelationTest extends TestEnvironment {
+  val query =  """
+            |SELECT bounds, timestamp, B1, B2
+            |FROM l8
+            |WHERE
+            |  st_intersects(bounds, st_geomFromText('POINT(-76.333 36.985)')) AND
+            |  timestamp > to_timestamp('2017-11-12') AND
+            |  timestamp <= to_timestamp('2018-01-09')
+          """.stripMargin
+
   describe("Read L8 on PDS as a DataSource") {
-    val l8 = spark.read.format(L8DataSource.SHORT_NAME).load()
 
     it("should count scenes") {
+      val l8 = spark.read.format(L8DataSource.SHORT_NAME).load()
       l8.createOrReplaceTempView("l8")
-      val scenes = sql(
-        """
-          |SELECT bounds, timestamp, B1, B2
-          |FROM l8
-          |WHERE
-          |  st_intersects(bounds, st_geomFromText('POINT(-76.333 36.985)')) AND
-          |  timestamp > to_timestamp('2017-03-12') AND
-          |  timestamp <= to_timestamp('2018-01-09')
-        """.stripMargin)
+      val scenes = sql(query)
       assert(scenes.schema.size === 4)
       scenes.show()
-      assert(scenes.count() === 53)
+      assert(scenes.count() === 9)
+    }
+    it("should count tiles") {
+      import spark.implicits._
+      val l8 = spark.read
+        .format(L8DataSource.SHORT_NAME)
+        //.option(L8DataSource.USE_TILING, true)
+        .load()
+
+      l8.select(cog_layout($"B1".as[Tile])).show(false)
+
+
     }
   }
+
 }
