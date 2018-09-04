@@ -28,13 +28,13 @@ import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile}
 import geotrellis.spark.io.hadoop.{HdfsRangeReader, SerializableConfiguration}
+import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-import org.apache.spark.util.LongAccumulator
 
 import scala.util.Try
 
@@ -57,6 +57,7 @@ trait RasterSource extends Serializable {
   def rasterExtent = RasterExtent(extent, cols, rows)
   def cellSize = CellSize(extent, cols, rows)
   def gridExtent = GridExtent(extent, cellSize)
+  def nativeTiling: Seq[Extent]
 }
 
 object RasterSource extends LazyLogging {
@@ -96,11 +97,7 @@ object RasterSource extends LazyLogging {
     def source: URI
   }
 
-  trait COGRasterSource { _: RasterSource ⇒
-    def layout: Option[TileLayout]
-  }
-
-  trait RangeReaderRasterSource extends RasterSource with COGRasterSource {
+  trait RangeReaderRasterSource extends RasterSource {
     protected def rangeReader: RangeReader
 
     @transient
@@ -121,11 +118,20 @@ object RasterSource extends LazyLogging {
 
     def bandCount: Int = tiffInfo.bandCount
 
-    def layout: Option[TileLayout] = {
+    def nativeTiling: Seq[Extent] = {
       val segLayout = tiffInfo.segmentLayout
-      segLayout.isTiled match {
-        case true ⇒ Option(segLayout.tileLayout)
-        case false ⇒ None
+      val tileLayout = segLayout.tileLayout
+      val layout = LayoutDefinition(extent, tileLayout)
+      val transform = layout.mapTransform
+
+      if(segLayout.isTiled) {
+        for(i ← 0 until segLayout.bandSegmentCount) yield {
+          val (layoutCol, layoutRow) = segLayout.getSegmentCoordinate(i)
+          transform(layoutCol, layoutRow)
+        }
+      }
+      else {
+        Seq(extent)
       }
     }
 
@@ -173,6 +179,7 @@ object RasterSource extends LazyLogging {
     @transient
     protected lazy val rangeReader = {
       val base = FileRangeReader(source.getPath)
+      // TODO: DRY
       callback.map(cb ⇒ ReportingRangeReader(base, cb, self)).getOrElse(base)
     }
   }

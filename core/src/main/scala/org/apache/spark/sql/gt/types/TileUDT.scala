@@ -20,6 +20,8 @@
 package org.apache.spark.sql.gt.types
 
 
+import java.nio.ByteBuffer
+
 import astraea.spark.rasterframes.tiles.{DelayedReadTile, InternalRowTile}
 import geotrellis.raster._
 import geotrellis.spark.util.KryoSerializer
@@ -81,6 +83,9 @@ case object TileUDT extends TileUDT {
   def isTile(row: InternalRow): Boolean =
     !row.isNullAt(0) && row.isNullAt(1)
 
+  @transient
+  private lazy val ser = geotrellis.spark.util.KryoSerializer.ser.newInstance()
+
   /**
    * Read a Tele from an InternalRow
    * @param row Catalyst internal format conforming to `schema`
@@ -89,7 +94,7 @@ case object TileUDT extends TileUDT {
   def decode(row: InternalRow): Tile = {
     (isTile(row), isRef(row)) match {
       case (true, false) ⇒ new InternalRowTile(row.getStruct(0, 4))
-      case (false, true) ⇒ KryoSerializer.deserialize[DelayedReadTile](row.getBinary(1))
+      case (false, true) ⇒ ser.deserialize[DelayedReadTile](ByteBuffer.wrap(row.getBinary(1)))
       case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
     }
   }
@@ -102,7 +107,7 @@ case object TileUDT extends TileUDT {
    */
   def encode(tile: Tile): InternalRow = tile match {
     case dr: DelayedReadTile ⇒
-      InternalRow(null, KryoSerializer.serialize(dr))
+      InternalRow(null, ser.serialize(dr).array())
     case _: Tile ⇒
       InternalRow(
         InternalRow(

@@ -45,6 +45,15 @@ case class DelayedReadTile(extent: Option[Extent], source: RasterSource) extends
   override def cols: Int = subgrid.width
   override def rows: Int = subgrid.height
 
+  /** Splits this tile into smaller tiles based on the reported
+   * internal structure of the backing format. May return a single item.*/
+  def tileToNative: Seq[DelayedReadTile] = {
+    val hereExtent = extent.getOrElse(source.extent)
+    source.nativeTiling
+      .filter(_ intersects hereExtent)
+      .map(e ⇒ DelayedReadTile(Some(e), source))
+  }
+
   override def toString: String = {
     s"${getClass.getSimpleName}($extent,$source)"
   }

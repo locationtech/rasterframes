@@ -22,9 +22,7 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.experimental.datasource._
-import geotrellis.raster.Tile
-import org.apache.spark.sql.{DataFrame, Row}
-import org.apache.spark.sql.functions._
+import org.apache.spark.sql.DataFrame
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
 /**
@@ -57,34 +55,24 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
   }
 
   describe("Read L8 on PDS as a DataSource") {
-    import spark.implicits._
 
     it("should count scenes") {
       assert(scenes.schema.size === 4)
       assert(scenes.count() === 7)
     }
 
-    it("should provide COG details") {
-
-      val layouts = scenes.withColumn("layout", cog_layout($"B1"))
-
-      assert(scenes.count() === layouts.count())
-
-      val dims = layouts
-        .select($"layout"("tileCols"), $"layout"("tileRows"))
-        .distinct()
-      assert(dims.count() === 1)
-      assert(dims.first() === Row(512, 512))
-
-      val grd = layouts
-        .select($"layout"("layoutCols"), $"layout"("layoutRows"))
-        .distinct
-      assert(grd.count() === 2)
-    }
-
     it("should count tiles") {
-
+      import spark.implicits._
+      val scenesCount = scenes.count()
+      val l8 = spark.read
+        .format(L8DataSource.SHORT_NAME)
+        .option(L8DataSource.ACCUMULATORS, true)
+        .option(L8DataSource.USE_TILING, true)
+        .load()
+      l8.createOrReplaceTempView("l82")
+      val scenes2 = sql(query.replaceAll("l8", "l82")).cache()
+      val scenes2Count = scenes2.count()
+      println(scenesCount, scenes2Count)
     }
   }
-
 }

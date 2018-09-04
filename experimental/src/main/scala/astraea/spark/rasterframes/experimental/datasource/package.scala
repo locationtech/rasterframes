@@ -27,12 +27,11 @@ import org.apache.spark.sql.rf.CanBeColumn
 
 
 /**
- *
+ * Module utilitities
  *
  * @since 9/3/18
  */
 package object datasource {
-
   def download(urlColumn: Column): TypedColumn[Any, Array[Byte]] = {
     DownloadExpression(urlColumn.expr, urlColumn.columnName).asColumn
   }.as[Array[Byte]]
@@ -42,7 +41,4 @@ package object datasource {
 
   def raster_ref(rasterURIs: Seq[Column], useTiling: Boolean, accumulator: Option[ReadAccumulator]): Column =
     RasterRefExpression(rasterURIs.map(_.expr), useTiling, accumulator).asColumn
-
-  def cog_layout(rasterRefCol: Column): Column =
-    COGLayoutExpression(rasterRefCol.expr).asColumn
 }

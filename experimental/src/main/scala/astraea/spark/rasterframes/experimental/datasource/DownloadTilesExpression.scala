@@ -50,6 +50,8 @@ import scala.util.control.NonFatal
 case class DownloadTilesExpression(override val child: Expression, colPrefix: String) extends UnaryExpression
   with Generator with CodegenFallback with GeoTiffInfoSupport with StandardEncoders with DownloadSupport with LazyLogging {
 
+  override def nodeName: String = "download_tiles"
+
   override def checkInputDataTypes(): TypeCheckResult = {
     if(child.dataType == StringType) TypeCheckSuccess
     else TypeCheckFailure(

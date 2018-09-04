@@ -45,7 +45,7 @@ case class RasterRefExpression(override val children: Seq[Expression], useTiling
 
   private val udt = new TileUDT
 
-  override def nodeName: String = "rasterRef"
+  override def nodeName: String = "raster_ref"
 
   override def elementSchema: StructType = StructType(
     children.map(e ⇒ StructField(e.nodeName, udt, true))
@@ -56,12 +56,23 @@ case class RasterRefExpression(override val children: Seq[Expression], useTiling
       val refs = children.map { child ⇒
         val uriString = child.eval(input).asInstanceOf[UTF8String].toString
         val uri = URI.create(uriString)
-        udt.serialize(DelayedReadTile(RasterSource(uri, accumulator)))
+        DelayedReadTile(RasterSource(uri, accumulator))
       }
-      Seq(InternalRow(refs: _*))
+
+      // If refs.isEmpty, we still want to return an empty row.
+      // This logic results in that.
+      if(!useTiling || refs.isEmpty) {
+        Seq(InternalRow(refs.map(udt.serialize): _*))
+      }
+      else {
+        val tiled = refs.map(_.tileToNative)
+        val newrows = tiled.transpose.map(ts ⇒ InternalRow(ts.map(udt.serialize): _*))
+        newrows
+      }
     }
     catch {
-      case NonFatal(ex) ⇒ logger.error("Error fetching data for " + input, ex)
+      case NonFatal(ex) ⇒
+        logger.error("Error fetching data for " + input, ex)
         Traversable.empty
     }
   }

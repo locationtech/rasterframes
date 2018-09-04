@@ -40,6 +40,8 @@ import org.apache.spark.unsafe.types.UTF8String
 case class DownloadExpression(override val child: Expression, colPrefix: String) extends UnaryExpression
   with Generator with CodegenFallback with GeoTiffInfoSupport with DownloadSupport with LazyLogging {
 
+  override def nodeName: String = "download"
+
   override def checkInputDataTypes(): TypeCheckResult = {
     if(child.dataType == StringType) TypeCheckSuccess
     else TypeCheckFailure(

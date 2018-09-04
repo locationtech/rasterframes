@@ -93,7 +93,14 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
 
     val (bands, other) = requiredColumns.partition(Bands.names.contains)
 
-    filtered.select(other.map(col) :+ raster_ref(bands.map(b ⇒ l8_band_url(b)), useTiling, accumulator): _*).rdd
+    // This isn't technically necessary, but it simplifies the query plan.
+    val df = if(bands.isEmpty)
+      filtered.select(other.map(col): _*)
+    else
+      filtered.select(other.map(col) :+
+        raster_ref(bands.map(b ⇒ l8_band_url(b)), useTiling, accumulator): _*)
+
+    df.rdd
   }
 }
 
