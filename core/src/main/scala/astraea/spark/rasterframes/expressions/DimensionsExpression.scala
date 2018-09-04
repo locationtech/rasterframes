@@ -20,19 +20,19 @@
 package astraea.spark.rasterframes.expressions
 
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
-import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, ExprCode}
-import astraea.spark.rasterframes.tiles.InternalRowTile.C.{COLS, ROWS}
+import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 
 /**
  * Extract a Tile's dimensions
  * @since 12/21/17
  */
-case class DimensionsExpression(child: Expression) extends UnaryExpression with RequiresTile {
-  override def toString: String = s"dimension($child)"
+case class DimensionsExpression(child: Expression) extends UnaryExpression
+  with RequiresTile with CodegenFallback {
 
-  override def nodeName: String = "dimension"
+  override def nodeName: String = "dimensions"
 
   def dataType = StructType(Seq(
     StructField("cols", ShortType),
@@ -40,21 +40,9 @@ case class DimensionsExpression(child: Expression) extends UnaryExpression with 
   ))
 
   override protected def nullSafeEval(input: Any): Any = {
-    val r = row(input)
-    val cols = r.getShort(COLS)
-    val rows = r.getShort(ROWS)
-    InternalRow(cols, rows)
-  }
-
-  protected def doGenCode(ctx: CodegenContext, ev: ExprCode): ExprCode = {
-    val cols = ctx.freshName("cols")
-    val rows = ctx.freshName("rows")
-    nullSafeCodeGen(ctx, ev, eval ⇒
-      s"""
-           final short $cols = $eval.getShort($COLS);
-           final short $rows = $eval.getShort($ROWS);
-           ${ev.value} = new GenericInternalRow(new Object[] { $cols, $rows });
-         """
-    )
+    // The assumption here is that the decoded tile takes the
+    // most efficient path to accessing the dimensions.
+    val t = TileUDT.decode(row(input))
+    InternalRow(t.cols.toShort, t.rows.toShort)
   }
 }

@@ -48,7 +48,7 @@ object ReadAccumulator extends LazyLogging {
   private val bytes: mutable.Map[String, LongAccumulator] = mutable.Map.empty
 
   def apply(sc: SparkContext, prefix: String): ReadAccumulator = this.synchronized {
-    // TODO: Not sure how to do this properly... this is not it.
+    // TODO: Not sure how inititalize these in the proper scope... this is not it.
     reads.getOrElseUpdate(prefix, sc.longAccumulator(prefix + ".reads"))//.reset()
     bytes.getOrElseUpdate(prefix, sc.longAccumulator(prefix + ".bytes"))//.reset()
     new ReadAccumulator(() ⇒ reads(prefix), () ⇒ bytes(prefix))

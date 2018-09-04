@@ -37,7 +37,7 @@ import org.apache.spark.sql.types._
  *
  * @since 11/29/17
  */
-class InternalRowTile(mem: InternalRow) extends DelegatingTile {
+class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   import InternalRowTile.C._
   import InternalRowTile._
   /** @group COPIES */
