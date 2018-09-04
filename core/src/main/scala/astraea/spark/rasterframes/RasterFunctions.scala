@@ -49,13 +49,19 @@ trait RasterFunctions {
   def explodeTiles(cols: Column*): Column = explodeTilesSample(1.0, cols: _*)
 
   /** Create a row for each cell in Tile with random sampling. */
-  def explodeTilesSample(sampleFraction: Double, cols: Column*): Column = {
-    val exploder = ExplodeTileExpression(sampleFraction, cols.map(_.expr))
+  def explodeTilesSample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column = {
+    val exploder = ExplodeTileExpression(sampleFraction, seed, cols.map(_.expr))
     // Hack to grab the first two non-cell columns, containing the column and row indexes
     val metaNames = exploder.elementSchema.fieldNames.take(2)
     val colNames = cols.map(_.columnName)
     new Column(exploder).as(metaNames ++ colNames)
   }
+
+  def explodeTilesSample(sampleFraction: Double, seed: Long, cols: Column*): Column =
+    explodeTilesSample(sampleFraction, Some(seed), cols: _*)
+
+  def explodeTilesSample(sampleFraction: Double, cols: Column*): Column =
+    explodeTilesSample(sampleFraction, None, cols: _*)
 
   /** Create a row for each cell in Tile with random sampling */
   @Deprecated

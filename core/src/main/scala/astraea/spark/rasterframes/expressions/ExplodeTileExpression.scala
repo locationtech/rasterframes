@@ -35,7 +35,7 @@ import astraea.spark.rasterframes.util._
  * @since 4/12/17
  */
 private[rasterframes] case class ExplodeTileExpression(
-  sampleFraction: Double = 1.0, override val children: Seq[Expression])
+  sampleFraction: Double = 1.0, seed: Option[Long] = None, override val children: Seq[Expression])
     extends Expression with Generator with CodegenFallback {
 
   override def elementSchema: StructType = {
@@ -50,8 +50,12 @@ private[rasterframes] case class ExplodeTileExpression(
         .map(n ⇒ StructField(n, DoubleType, false)))
   }
 
-  private def sample[T](things: Seq[T]) = scala.util.Random.shuffle(things)
-    .take(math.ceil(things.length * sampleFraction).toInt)
+  private def sample[T](things: Seq[T]) = {
+    // Apply random seed if provided
+    seed.map(s ⇒ scala.util.Random.setSeed(s))
+    scala.util.Random.shuffle(things)
+      .take(math.ceil(things.length * sampleFraction).toInt)
+  }
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     val tiles = Array.ofDim[Tile](children.length)
@@ -84,7 +88,7 @@ private[rasterframes] case class ExplodeTileExpression(
           retval(rowIndex) = new GenericInternalRow(outCols)
         }
       }
-      if(sampleFraction < 1.0) sample(retval)
+      if(sampleFraction > 0.0 && sampleFraction < 1.0) sample(retval)
       else retval
     }
   }

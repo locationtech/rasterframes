@@ -100,6 +100,7 @@ def _create_rasterize():
     _.__module__ = THIS_MODULE
     return _
 
+
 def _create_reproject_geometry():
     """ Create a function mapping to the Scala reprojectGeometry function. """
     def _(geometryCol, srcCRSName, dstCRSName):
@@ -113,6 +114,7 @@ An example of a valid CRS name is EPSG:3005.
     _.__module__ = THIS_MODULE
     return _
 
+
 def _create_explode_tiles():
     """ Create a function mapping to Scala explodeTiles function """
     def _(*args):
@@ -124,12 +126,13 @@ def _create_explode_tiles():
     _.__module__ = THIS_MODULE
     return _
 
+
 def _create_explode_tiles_sample():
     """ Create a function mapping to Scala explodeTilesSample function"""
-    def _(sample_frac, *tile_cols):
+    def _(sample_frac, seed, *tile_cols):
         jfcn = RFContext.active().lookup('explodeTilesSample')
         jcols = [_to_java_column(arg) for arg in tile_cols]
-        return Column(jfcn(sample_frac, RFContext.active().list_to_seq(jcols)))
+        return Column(jfcn(sample_frac, seed, RFContext.active().list_to_seq(jcols)))
 
     _.__name__ = 'explodeTilesSample'
     _.__doc__ = 'Create a row for a sample of cells in Tile columns.'
@@ -137,14 +140,26 @@ def _create_explode_tiles_sample():
     return _
 
 
+def _create_maskByValue():
+    """ Create a function mapping to Scala maskByValue function """
+    def _(data_tile, mask_tile, mask_value):
+        jfcn = RFContext.active().lookup('maskByValue')
+        return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
+    _.__name__ = 'maskByValue'
+    _.__doc__ = 'Generate a tile with the values from the data tile, but where cells in the masking tile contain the masking value, replace the data value with NODATA.'
+    _.__module__ = THIS_MODULE
+    return _
+
+
 _rf_unique_functions = {
-    'assembleTile': _create_assembleTile(),
     'arrayToTile': _create_arrayToTile(),
+    'assembleTile': _create_assembleTile(),
     'cellTypes': lambda: _context_call('cellTypes'),
     'convertCellType': _create_convertCellType(),
     'explodeTiles': _create_explode_tiles(),
     'explodeTilesSample': _create_explode_tiles_sample(),
     'makeConstantTile': _create_makeConstantTile(),
+    'maskByValue': _create_maskByValue(),
     'rasterize': _create_rasterize(),
     'reprojectGeometry': _create_reproject_geometry(),
     'tileOnes': _create_tileOnes(),

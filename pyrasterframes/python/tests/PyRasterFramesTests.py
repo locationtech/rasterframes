@@ -174,11 +174,30 @@ class RasterFunctionsTest(unittest.TestCase):
             .collect()[0][0]
         self.assertEqual(cell, 10150.0)
 
+        # Test the sample version
         frac = 0.01
-        sample_count = self.rf.select(explodeTilesSample(frac, self.tileCol)).count()
+        sample_count = self.rf.select(explodeTilesSample(frac, 1872, self.tileCol)).count()
         print('Sample count is {}'.format(sample_count))
         self.assertTrue(sample_count > 0)
         self.assertTrue(sample_count < (frac * 1.1) * 387000)  # give some wiggle room
+
+
+    def test_maskByValue(self):
+        from pyspark.sql.functions import lit
+
+        # create an artificial mask for values > 25000; masking value will be 4
+        mask_value = 4
+
+        rf1 = self.rf.select(self.rf.tile,
+                             localMultiplyScalarInt(
+                                 convertCellType(
+                                     localGreaterScalarInt(self.rf.tile, 25000),
+                                     "uint8"),
+                                  mask_value).alias('mask'))
+        rf2 = rf1.select(rf1.tile, maskByValue(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
+        result = rf2.agg(aggNoDataCells(rf2.tile) < aggNoDataCells(rf2.masked)) \
+            .collect()[0][0]
+        self.assertTrue(result)
 
 
 def suite():
@@ -191,10 +210,8 @@ def suite():
     functionTests.addTest(RasterFunctionsTest('test_aggregations'))
     functionTests.addTest(RasterFunctionsTest('test_explode'))
     functionTests.addTest(RasterFunctionsTest('test_sql'))
+    functionTests.addTest(RasterFunctionsTest('test_maskByValue'))
     return functionTests
 
 
 unittest.TextTestRunner().run(suite())
-
-
-
