@@ -38,8 +38,6 @@ private[rasterframes] case class ExplodeTileExpression(
   sampleFraction: Double = 1.0, override val children: Seq[Expression])
     extends Expression with Generator with CodegenFallback {
 
-  override def toString: String = s"envelope(${children.mkString(", ")})"
-
   override def nodeName: String = "explodeTiles"
 
   override def elementSchema: StructType = {

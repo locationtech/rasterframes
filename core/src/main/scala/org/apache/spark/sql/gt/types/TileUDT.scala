@@ -25,7 +25,9 @@ import java.nio.ByteBuffer
 import astraea.spark.rasterframes.tiles.{DelayedReadTile, InternalRowTile}
 import geotrellis.raster._
 import geotrellis.spark.util.KryoSerializer
+import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{DataType, _}
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -68,11 +70,12 @@ class TileUDT extends UserDefinedType[Tile] {
 case object TileUDT extends TileUDT {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
 
+  private val drtEncoder = Encoders.kryo(classOf[DelayedReadTile]).asInstanceOf[ExpressionEncoder[DelayedReadTile]].resolveAndBind()
 
   /** Union encoding of Tiles and RasterRefs */
   val schema = StructType(Seq(
     StructField("tile", InternalRowTile.schema, true),
-    StructField("tileRef", BinaryType, true)
+    StructField("tileRef", drtEncoder.schema, true)
   ))
 
   /** Determine if the row encodes a RasterRef. */
@@ -83,9 +86,6 @@ case object TileUDT extends TileUDT {
   def isTile(row: InternalRow): Boolean =
     !row.isNullAt(0) && row.isNullAt(1)
 
-  @transient
-  private lazy val ser = geotrellis.spark.util.KryoSerializer.ser.newInstance()
-
   /**
    * Read a Tele from an InternalRow
    * @param row Catalyst internal format conforming to `schema`
@@ -94,7 +94,7 @@ case object TileUDT extends TileUDT {
   def decode(row: InternalRow): Tile = {
     (isTile(row), isRef(row)) match {
       case (true, false) ⇒ new InternalRowTile(row.getStruct(0, 4))
-      case (false, true) ⇒ ser.deserialize[DelayedReadTile](ByteBuffer.wrap(row.getBinary(1)))
+      case (false, true) ⇒ drtEncoder.fromRow(row.getStruct(1, drtEncoder.schema.size))
       case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
     }
   }
@@ -107,7 +107,7 @@ case object TileUDT extends TileUDT {
    */
   def encode(tile: Tile): InternalRow = tile match {
     case dr: DelayedReadTile ⇒
-      InternalRow(null, ser.serialize(dr).array())
+      InternalRow(null, drtEncoder.toRow(dr))
     case _: Tile ⇒
       InternalRow(
         InternalRow(

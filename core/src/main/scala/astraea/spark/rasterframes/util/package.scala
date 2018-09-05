@@ -31,7 +31,7 @@ import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
 import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
-import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference}
+import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
@@ -97,13 +97,17 @@ package object util extends LazyLogging {
     def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l ⇒ right.map((l, _)))
   }
 
-  implicit class NamedColumn(col: Column) {
-    def columnName: String = col.expr match {
+  implicit class NamedExpression(val expr: Expression) extends AnyVal {
+    def name: String = expr match {
       case ua: UnresolvedAttribute ⇒ ua.name
       case ar: AttributeReference ⇒ ar.name
       case as: Alias ⇒ as.name
       case o ⇒ o.prettyName
     }
+  }
+
+  implicit class NamedColumn(val col: Column) extends AnyVal {
+    def columnName: String = col.expr.name
   }
 
   private[rasterframes]

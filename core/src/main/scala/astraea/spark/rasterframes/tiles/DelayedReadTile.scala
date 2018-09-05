@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.tiles
 
 import astraea.spark.rasterframes.ref.RasterSource
-import geotrellis.raster.{CellType, Tile}
+import geotrellis.raster.{CellType, ProjectedRaster, Raster, Tile}
 import geotrellis.vector.Extent
 
 /**
@@ -30,7 +30,8 @@ import geotrellis.vector.Extent
  *
  * @since 8/21/18
  */
-case class DelayedReadTile(extent: Option[Extent], source: RasterSource) extends DelegatingTile  {
+case class DelayedReadTile(source: RasterSource, extent: Option[Extent]) extends DelegatingTile
+  with MaybeProjected {
   private lazy val realized: Tile = {
     require(source.bandCount == 1, "Expected singleband tile")
     logger.debug(s"Fetching $extent from $source")
@@ -51,16 +52,20 @@ case class DelayedReadTile(extent: Option[Extent], source: RasterSource) extends
     val hereExtent = extent.getOrElse(source.extent)
     source.nativeTiling
       .filter(_ intersects hereExtent)
-      .map(e ⇒ DelayedReadTile(Some(e), source))
+      .map(e ⇒ DelayedReadTile(source, Some(e)))
   }
 
   override def toString: String = {
     s"${getClass.getSimpleName}($extent,$source)"
   }
+
+  override def projected: Option[ProjectedRaster[Tile]] = Some(
+    ProjectedRaster(Raster(this, extent.getOrElse(source.extent)), source.crs)
+  )
 }
 
 object DelayedReadTile {
   /** Constructor for when data extent cover whole raster. */
   def apply(source: RasterSource): DelayedReadTile =
-    new DelayedReadTile(None, source)
+    new DelayedReadTile(source, None)
 }

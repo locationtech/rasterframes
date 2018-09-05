@@ -62,7 +62,6 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
     }
 
     it("should count tiles") {
-      import spark.implicits._
       val scenesCount = scenes.count()
       val l8 = spark.read
         .format(L8DataSource.SHORT_NAME)
@@ -73,6 +72,7 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
       val scenes2 = sql(query.replaceAll("l8", "l82")).cache()
       val scenes2Count = scenes2.count()
       println(scenesCount, scenes2Count)
+      assert(scenesCount < scenes2Count)
     }
   }
 }

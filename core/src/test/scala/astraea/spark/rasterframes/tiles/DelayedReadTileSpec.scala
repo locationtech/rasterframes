@@ -47,7 +47,7 @@ class DelayedReadTileSpec extends TestEnvironment with TestData {
     val counter = new ReadMonitor
     val src = RasterSource(remoteCOGSingleband, Some(counter))
     val ext = sub(src.extent)
-    val tile = new DelayedReadTile(Some(ext), src)
+    val tile = new DelayedReadTile(src, Some(ext))
   }
 
   describe("RasterRef") {

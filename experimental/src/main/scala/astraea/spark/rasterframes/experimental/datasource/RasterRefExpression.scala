@@ -24,6 +24,7 @@ import java.net.URI
 
 import astraea.spark.rasterframes.ref.RasterSource
 import astraea.spark.rasterframes.tiles.DelayedReadTile
+import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -48,7 +49,7 @@ case class RasterRefExpression(override val children: Seq[Expression], useTiling
   override def nodeName: String = "raster_ref"
 
   override def elementSchema: StructType = StructType(
-    children.map(e ⇒ StructField(e.nodeName, udt, true))
+    children.map(e ⇒ StructField(e.name, udt, true))
   )
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
@@ -66,8 +67,7 @@ case class RasterRefExpression(override val children: Seq[Expression], useTiling
       }
       else {
         val tiled = refs.map(_.tileToNative)
-        val newrows = tiled.transpose.map(ts ⇒ InternalRow(ts.map(udt.serialize): _*))
-        newrows
+        tiled.transpose.map(ts ⇒ InternalRow(ts.map(udt.serialize): _*))
       }
     }
     catch {

@@ -89,18 +89,19 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
       .withColumn(PDSFields.BOUNDS.name, boundsGeometry(col(PDSFields.BOUNDS_WGS84.name)))
       .drop(PDSFields.BOUNDS_WGS84.name)
 
-    val filtered = aggFilters.foldLeft(catalog)((cat, filter) ⇒ cat.where(colExpr(filter)))
-
     val (bands, other) = requiredColumns.partition(Bands.names.contains)
 
-    // This isn't technically necessary, but it simplifies the query plan.
-    val df = if(bands.isEmpty)
-      filtered.select(other.map(col): _*)
-    else
-      filtered.select(other.map(col) :+
+    val df = catalog.select(other.map(col) :+
         raster_ref(bands.map(b ⇒ l8_band_url(b)), useTiling, accumulator): _*)
 
-    df.rdd
+    val filtered = aggFilters.foldLeft(df)((d, filter) ⇒ d.where(colExpr(filter)))
+
+    // Make sure shape of resulting rows conforms to what was requested
+    val selected = requiredColumns.headOption
+      .map(head ⇒ filtered.select(head, requiredColumns.tail: _*))
+      .getOrElse(filtered)
+
+    selected.rdd
   }
 }
 

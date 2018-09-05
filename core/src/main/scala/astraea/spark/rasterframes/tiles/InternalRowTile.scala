@@ -38,7 +38,6 @@ import org.apache.spark.sql.types._
  * @since 11/29/17
  */
 class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
-  import InternalRowTile.C._
   import InternalRowTile._
   /** @group COPIES */
   override def toArrayTile(): ArrayTile = {
@@ -57,16 +56,16 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
 
   /** Retrieve the cell type from the internal encoding. */
   override lazy val cellType: CellType =
-    CellType.fromName(mem.getString(CELL_TYPE))
+    CellType.fromName(mem.getString(C.CELL_TYPE))
 
   /** Retrieve the number of columns from the internal encoding. */
-  override val cols: Int = mem.getShort(COLS)
+  override val cols: Int = mem.getShort(C.COLS)
 
   /** Retrieve the number of rows from the internal encoding. */
-  override val rows: Int = mem.getShort(ROWS)
+  override val rows: Int = mem.getShort(C.ROWS)
 
   /** Get the internally encoded tile data cells. */
-  override lazy val toBytes: Array[Byte] = mem.getBinary(DATA)
+  override lazy val toBytes: Array[Byte] = mem.getBinary(C.DATA)
 
   private lazy val toByteBuffer: ByteBuffer = {
     val data = toBytes
