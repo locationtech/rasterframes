@@ -23,7 +23,8 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.experimental.datasource._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
-import astraea.spark.rasterframes.rules.SpatialFilters.Intersects
+import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.rules.SpatialFilters.{Contains, Intersects}
 import astraea.spark.rasterframes.rules._
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
@@ -49,6 +50,7 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
   /** Check to see if relation already exists in this. */
   override def hasFilter(filter: Filter): Boolean = filters.contains(filter)
 
+  // Most implementations don't bother with this... the hassle vs. benefit may be questionable.
   override def unhandledFilters(filters: Array[Filter]): Array[Filter] = {
     val TS = PDSFields.TIMESTAMP.name
     super.unhandledFilters(filters).filterNot {
@@ -68,8 +70,8 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
     case LessThan(name, value) ⇒ col(name) < value
     case LessThanOrEqual(name, value) ⇒ col(name) <= value
     case EqualTo(name, value) ⇒ col(name) === value
-    case Intersects(name, value) ⇒
-      st_intersects(col(name), geomLit(value))
+    case Intersects(name, value) ⇒ st_intersects(col(name), geomLit(value))
+    case Contains(name, value) ⇒ st_contains(col(name), geomLit(value))
   }
 
   override def buildScan(requiredColumns: Array[String], sparkFilters: Array[Filter]): RDD[Row] = {
@@ -89,17 +91,32 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
       .withColumn(PDSFields.BOUNDS.name, boundsGeometry(col(PDSFields.BOUNDS_WGS84.name)))
       .drop(PDSFields.BOUNDS_WGS84.name)
 
+    val filtered = aggFilters.foldLeft(catalog)((d, filter) ⇒ d.where(colExpr(filter)))
+
     val (bands, other) = requiredColumns.partition(Bands.names.contains)
 
-    val df = catalog.select(other.map(col) :+
-        raster_ref(bands.map(b ⇒ l8_band_url(b)), useTiling, accumulator): _*)
+    val nonTile = other.map(col)
 
-    val filtered = aggFilters.foldLeft(df)((d, filter) ⇒ d.where(colExpr(filter)))
+    val df = if(useTiling) {
+      // We assume that `nativeTiling` preserves the band names.
+      val expanded = nativeTiling(bands.map(b ⇒ rasterRef(l8_band_url(b), accumulator).as(b).as[RasterRef]): _*)
+      val tiled = bands.map(b ⇒ rasterRefAsTile(col(b).as[RasterRef]).as(b))
+
+      // First apply the native tiling generator
+      // Then convert RasterRef into Tile
+      filtered
+        .select(nonTile :+ expanded: _*)
+        .select(nonTile ++ tiled: _*)
+    }
+    else {
+      val tiled = bands.map(b ⇒ rasterRefAsTile(rasterRef(l8_band_url(b), accumulator)).as(b))
+      filtered.select(nonTile ++ tiled: _*)
+    }
 
     // Make sure shape of resulting rows conforms to what was requested
     val selected = requiredColumns.headOption
-      .map(head ⇒ filtered.select(head, requiredColumns.tail: _*))
-      .getOrElse(filtered)
+      .map(head ⇒ df.select(head, requiredColumns.tail: _*))
+      .getOrElse(df)
 
     selected.rdd
   }

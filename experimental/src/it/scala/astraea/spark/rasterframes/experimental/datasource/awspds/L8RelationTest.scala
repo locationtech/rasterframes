@@ -55,14 +55,12 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
   }
 
   describe("Read L8 on PDS as a DataSource") {
-
     it("should count scenes") {
       assert(scenes.schema.size === 4)
       assert(scenes.count() === 7)
     }
 
     it("should count tiles") {
-      val scenesCount = scenes.count()
       val l8 = spark.read
         .format(L8DataSource.SHORT_NAME)
         .option(L8DataSource.ACCUMULATORS, true)
@@ -70,9 +68,12 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
         .load()
       l8.createOrReplaceTempView("l82")
       val scenes2 = sql(query.replaceAll("l8", "l82")).cache()
+      val scenesCount = scenes.count()
       val scenes2Count = scenes2.count()
       println(scenesCount, scenes2Count)
-      assert(scenesCount < scenes2Count)
+      // Most L8 geotiffs are 16x16 tiles, but some are smaller.
+      // Test against the lower bound.
+      assert(scenes2Count > scenesCount * 15 * 15)
     }
   }
 }

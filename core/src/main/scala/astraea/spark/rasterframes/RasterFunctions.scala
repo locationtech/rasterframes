@@ -20,8 +20,9 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.ExplodeTileExpression
+import astraea.spark.rasterframes.{expressions ⇒ E}
 import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMeanAggregateFunction}
+import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions ⇒ F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
@@ -30,7 +31,7 @@ import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions.{lit, udf}
+import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.rf._
 
 import scala.reflect.runtime.universe._
@@ -41,8 +42,8 @@ import scala.reflect.runtime.universe._
  * @since 4/3/17
  */
 trait RasterFunctions {
-  import util._
   import SparkDefaultEncoders._
+  import util._
 
   // format: off
   /** Create a row for each cell in Tile. */
@@ -50,7 +51,7 @@ trait RasterFunctions {
 
   /** Create a row for each cell in Tile with random sampling. */
   def explodeTileSample(sampleFraction: Double, cols: Column*): Column = {
-    val exploder = ExplodeTileExpression(sampleFraction, cols.map(_.expr))
+    val exploder = E.ExplodeTileExpression(sampleFraction, cols.map(_.expr))
     // Hack to grab the first two non-cell columns, containing the column and row indexes
     val metaNames = exploder.elementSchema.fieldNames.take(2)
     val colNames = cols.map(_.columnName)
@@ -59,11 +60,11 @@ trait RasterFunctions {
 
   /** Query the number of (cols, rows) in a Tile. */
   def tileDimensions(col: Column): Column =
-    expressions.DimensionsExpression(col.expr).asColumn
+    E.DimensionsExpression(col.expr).asColumn
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
   def envelope(col: Column): TypedColumn[Any, Envelope] =
-    expressions.EnvelopeExpression(col.expr).asColumn.as[Envelope]
+    E.EnvelopeExpression(col.expr).asColumn.as[Envelope]
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
@@ -83,12 +84,10 @@ trait RasterFunctions {
     F.assembleTile(cols, rows, ct)(columnIndex, rowIndex, cellData)
   }.as(cellData.columnName).as[Tile]
 
-  def resolveRasterRef(rasterRef: Column): TypedColumn[Any, Tile] =
-    expressions.ResolveRasterRefTileExpression(rasterRef.expr).asColumn.as[Tile]
 
   /** Extract the Tile's cell type */
   def cellType(col: Column): TypedColumn[Any, String] =
-    expressions.CellTypeExpression(col.expr).asColumn.as[String]
+    E.CellTypeExpression(col.expr).asColumn.as[String]
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
@@ -433,6 +432,22 @@ trait RasterFunctions {
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
   def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] =
     withAlias("boundsGeometry", bounds)(
-      expressions.BoundsToGeometryExpression(bounds.expr).asColumn
+      E.BoundsToGeometryExpression(bounds.expr).asColumn
     ).as[Geometry]
+
+
+  //-------------------------------------------------------------------------------------
+
+  private[rasterframes]
+  def rasterRefAsTile(rasterRef: TypedColumn[Any, RasterRef]): TypedColumn[Any, Tile] =
+    E.ResolveRasterRefTileExpression(rasterRef.expr).asColumn.as[Tile]
+
+  private[rasterframes]
+  def rasterRef(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
+    E.RasterRefExpression(rasterURI.expr, accumulator).asColumn.as[RasterRef]
+
+  private[rasterframes]
+  def nativeTiling(rrs: TypedColumn[Any, RasterRef]*): Column =
+    E.ExpandNativeTilingExpression(rrs.map(_.expr)).asColumn
+
 }

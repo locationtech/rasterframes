@@ -21,7 +21,7 @@
 
 package astraea.spark.rasterframes.ref
 
-import astraea.spark.rasterframes.tiles.DelayedOpTile.DelayedReadTile
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
@@ -40,10 +40,11 @@ trait RasterRef {
   def cols: Int = grid.width
   def rows: Int = grid.height
   def cellType: CellType = source.cellType
-  def tile: ProjectedRasterTile = DelayedReadTile(() ⇒ realizedTile, extent, crs)
+  def tile: ProjectedRasterTile = RasterRefTile(this)
 
   protected def grid: GridBounds = source.rasterExtent.gridBoundsFor(extent)
   protected def srcExtent: Extent = extent
+  @transient
   protected lazy val realizedTile: Tile = {
     require(source.bandCount == 1, "Expected singleband tile")
     RasterRef.log.debug(s"Fetching $srcExtent from $source")
@@ -73,5 +74,11 @@ object RasterRef extends LazyLogging {
 
   case class SubRasterRef(source: RasterSource, subextent: Extent) extends RasterRef {
     val extent: Extent = subextent
+  }
+
+  case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
+    override def extent: Extent = rr.extent
+    override def crs: CRS = rr.crs
+    override protected def delegate: Tile = rr.realizedTile
   }
 }

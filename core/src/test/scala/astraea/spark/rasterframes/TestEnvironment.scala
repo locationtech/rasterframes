@@ -51,10 +51,10 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
     val sanitized = df.select(df.columns.map(c ⇒ col(c).as(toParquetFriendlyColumnName(c))): _*)
     val inRows = sanitized.count()
     val dest = Files.createTempFile(Paths.get(outputLocalPath), "rf", ".parquet")
-    logger.debug(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
+    logger.trace(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
     sanitized.write.mode(SaveMode.Overwrite).parquet(dest.toString)
     val rows = df.sparkSession.read.parquet(dest.toString).count()
-    logger.debug(s" read back $rows row(s)")
+    logger.trace(s" read back $rows row(s)")
     rows == inRows
   }
 

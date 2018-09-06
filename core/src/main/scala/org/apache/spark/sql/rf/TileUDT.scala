@@ -21,10 +21,14 @@
 
 package org.apache.spark.sql.rf
 
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.InternalRowTile
 import geotrellis.raster._
+import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{DataType, _}
+import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * UDT for singleband tiles.
@@ -37,19 +41,22 @@ class TileUDT extends UserDefinedType[Tile] {
 
   override def pyUDT: String = "pyrasterframes.TileUDT"
 
-  def sqlType: StructType = InternalRowTile.schema
+  def sqlType: StructType = TileUDT.schema
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
-      .map(InternalRowTile.encode)
+      .map(TileUDT.encode)
       .orNull
 
   override def deserialize(datum: Any): Tile =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒ InternalRowTile.decode(ir)
+        case ir: InternalRow ⇒ TileUDT.decode(ir)
       }
-      .map(_.toArrayTile)
+      .map {
+        case realIRT: InternalRowTile ⇒ realIRT.toArrayTile()
+        case other ⇒ other // Currently the DelayedReadTile
+      }
       .orNull
 
   def userClass: Class[Tile] = classOf[Tile]
@@ -62,7 +69,58 @@ class TileUDT extends UserDefinedType[Tile] {
 
 case object TileUDT extends TileUDT {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
-  def schema = InternalRowTile.schema
-  def encode(tile: Tile): InternalRow = InternalRowTile.encode(tile)
-  def decode(row: InternalRow): Tile = InternalRowTile.decode(row)
+
+  private val drtEncoder = Encoders
+    .kryo(classOf[RasterRefTile])
+    .asInstanceOf[ExpressionEncoder[RasterRefTile]]
+    .resolveAndBind()
+
+  /** Union encoding of Tiles and RasterRefs */
+  val schema = StructType(Seq(
+    StructField("tile", InternalRowTile.schema, true),
+    StructField("tileRef", drtEncoder.schema, true)
+  ))
+
+
+  /** Determine if the row encodes a Tile. */
+  def isTile(row: InternalRow): Boolean =
+    !row.isNullAt(0) && row.isNullAt(1)
+
+  /** Determine if the row encodes a RasterRef. */
+  def isRef(row: InternalRow): Boolean =
+    row.isNullAt(0) && !row.isNullAt(1)
+
+  /**
+   * Read a Tele from an InternalRow
+   * @param row Catalyst internal format conforming to `schema`
+   * @return row wrapper
+   */
+  def decode(row: InternalRow): Tile = {
+    (!row.isNullAt(0), !row.isNullAt(1)) match {
+      case (true, false) ⇒ new InternalRowTile(row.getStruct(0, InternalRowTile.schema.size))
+      case (false, true) ⇒ drtEncoder.fromRow(row.getStruct(1, drtEncoder.schema.size))
+      case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
+    }
+  }
+
+  /**
+   * Convenience extractor for converting a `Tile` to an `InternalRow`.
+   *
+   * @param tile tile to convert
+   * @return Catalyst internal representation.
+   */
+  def encode(tile: Tile): InternalRow = tile match {
+    case dr: RasterRefTile ⇒
+      InternalRow(null, drtEncoder.toRow(dr))
+    case _: Tile ⇒
+      InternalRow(
+        InternalRow(
+          UTF8String.fromString(tile.cellType.name),
+          tile.cols.toShort,
+          tile.rows.toShort,
+          tile.toBytes
+        ), null)
+  }
+
+
 }

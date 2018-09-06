@@ -19,25 +19,31 @@
 
 package astraea.spark.rasterframes.expressions
 
-import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
-import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, ExprCode}
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
+import astraea.spark.rasterframes.tiles.InternalRowTile
 import astraea.spark.rasterframes.tiles.InternalRowTile.C.CELL_TYPE
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, StringType}
+import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * Extract a Tile's cell type
  * @since 12/21/17
  */
-case class CellTypeExpression(child: Expression) extends UnaryExpression with RequiresTile {
-  override def toString: String = s"cellType($child)"
+case class CellTypeExpression(child: Expression) extends UnaryExpression
+  with RequiresTile with CodegenFallback {
 
   override def nodeName: String = "cellType"
 
   def dataType: DataType = StringType
 
-  override protected def nullSafeEval(input: Any): Any =
-    row(input).getUTF8String(CELL_TYPE)
-
-  protected def doGenCode(ctx: CodegenContext, ev: ExprCode): ExprCode =
-    defineCodeGen(ctx, ev, c ⇒ s"$c.getUTF8String($CELL_TYPE);")
+  override protected def nullSafeEval(input: Any): Any = {
+    TileUDT.decode(row(input)) match {
+      case t: InternalRowTile ⇒ t.mem.getUTF8String(CELL_TYPE)
+      case t: RasterRefTile ⇒ UTF8String.fromString(t.cellType.name)
+      case o ⇒ throw new IllegalArgumentException("Unsupported type: " + o)
+    }
+  }
 }

@@ -35,8 +35,9 @@ class L8CatalogRelationTest extends TestEnvironment {
   describe("Representing L8 scenes as a Spark data source") {
     import spark.implicits._
     val catalog = spark.read.format(L8CatalogDataSource.SHORT_NAME).load()
+
     val scenes = catalog
-      .where($"acquisition_date" === to_date(lit("2018-06-26")))
+      .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
       .where($"path" === 11 && $"row" === 12)
 
     it("should provide a non-empty catalog") {
@@ -45,7 +46,6 @@ class L8CatalogRelationTest extends TestEnvironment {
 
     it("should construct band specific download URLs") {
       val b01 = scenes.select(l8_band_url("B1"))
-      b01.show(false)
       noException shouldBe thrownBy {
         new URL(b01.first())
       }

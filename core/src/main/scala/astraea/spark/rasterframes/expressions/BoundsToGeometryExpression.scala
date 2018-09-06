@@ -44,8 +44,6 @@ case class BoundsToGeometryExpression(child: Expression) extends UnaryExpression
 
   override def nodeName: String = "boundsGeometry"
 
-  override def toString(): String = s"boundsGeometry($child)"
-
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
 
   override def checkInputDataTypes(): TypeCheckResult = {

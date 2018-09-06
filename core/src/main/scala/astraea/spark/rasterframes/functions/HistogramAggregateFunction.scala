@@ -16,6 +16,8 @@
 
 package astraea.spark.rasterframes.functions
 
+import java.nio.ByteBuffer
+
 import astraea.spark.rasterframes.encoders.StandardEncoders
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster.Tile
@@ -42,13 +44,14 @@ case class HistogramAggregateFunction(numBuckets: Int) extends UserDefinedAggreg
 
   override def deterministic: Boolean = true
 
+
   @inline
   private def marshall(hist: Histogram[Double]): Array[Byte] =
-    KryoSerializer.serialize(hist)
+    HistogramAggregateFunction.ser.serialize(hist).array()
 
   @inline
   private def unmarshall(blob: Array[Byte]): Histogram[Double] =
-    KryoSerializer.deserialize(blob)
+    HistogramAggregateFunction.ser.deserialize(ByteBuffer.wrap(blob))
 
   override def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = marshall(StreamingHistogram(numBuckets))
@@ -78,4 +81,6 @@ case class HistogramAggregateFunction(numBuckets: Int) extends UserDefinedAggreg
 
 object HistogramAggregateFunction {
   def apply() = new HistogramAggregateFunction(StreamingHistogram.DEFAULT_NUM_BUCKETS)
+  @transient
+  private lazy val ser = KryoSerializer.ser.newInstance()
 }

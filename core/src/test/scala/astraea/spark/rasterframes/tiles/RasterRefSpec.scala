@@ -27,7 +27,7 @@ import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef, RasterSource}
 import astraea.spark.rasterframes.tiles.RasterRefSpec.ReadMonitor
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.LatLng
-import geotrellis.raster.{ByteConstantNoDataCellType, ShortConstantNoDataCellType, TileLayout}
+import geotrellis.raster.{ByteConstantNoDataCellType, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.Extent
 
@@ -65,7 +65,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
         assert(subRaster.cols.toDouble === src.cols * 0.01 +- 2.0)
         assert(subRaster.rows.toDouble === src.rows * 0.01 +- 2.0)
         assert(counter.reads === 0)
-        subRaster.tile.rescale(0, 255).renderPng().write("target/foo1.png")
+        //subRaster.tile.rescale(0, 255).renderPng().write("target/foo1.png")
       }
     }
     it("should be realizable") {
@@ -73,38 +73,40 @@ class RasterRefSpec extends TestEnvironment with TestData {
         assert(counter.reads === 0)
         assert(subRaster.tile.statistics.map(_.dataCells) === Some(subRaster.cols * subRaster.rows))
         assert(counter.reads > 0)
+        println(counter)
       }
     }
-    it("should be reprojectable") {
-      new Fixture {
-        val reprojected = subRaster.tile.reproject(LatLng)
-        assert(counter.reads === 0)
-        reprojected.rescale(0, 255).renderPng().write("target/foo2.png")
-        assert(counter.reads > 0)
-      }
-    }
+//    it("should be reprojectable") {
+//      new Fixture {
+//        val reprojected = subRaster.tile.reproject(LatLng)
+//        assert(counter.reads === 0)
+//        assert(reprojected.dimensions === (subRaster.cols, subRaster.rows))
+//        assert(counter.reads > 0)
+//      }
+//    }
 
     it("should be Dataset compatible") {
       import spark.implicits._
       new Fixture {
         val ds = Seq(subRaster).toDS()
         assert(ds.first().isInstanceOf[RasterRef])
-        val ds2 = ds.withColumn("tile", resolveRasterRef($"value"))
+        val ds2 = ds.withColumn("tile", rasterRefAsTile($"value".as[RasterRef]))
         val mean = ds2.select(tileMean($"tile")).first()
         val doubleMean = ds2.select(tileMean(localAdd($"tile", $"tile"))).first()
         assert(2 * mean ===  doubleMean +- 0.0001)
+        println(counter)
       }
     }
     it("should allow application of a layer space") {
+      import spark.implicits._
       new Fixture {
         val targetCRS = LatLng
         val targetExtent = fullRaster.extent.reproject(fullRaster.crs, targetCRS)
         val targetCellType = ByteConstantNoDataCellType
         val targetLayout = LayoutDefinition(targetExtent, TileLayout(10, 10, 100, 100))
-
         val space = LayerSpace(targetCRS, targetCellType, targetLayout)
-        val subs = space.project(fullRaster)
-        assert(subs.size === 100)
+        val ds = Seq(subRaster).toDF("source")
+        ds.asRF(space)
       }
     }
     it("should serialize") {
@@ -127,12 +129,14 @@ class RasterRefSpec extends TestEnvironment with TestData {
 object RasterRefSpec {
   case class ReadMonitor() extends ReadCallback with LazyLogging {
     var reads: Int = 0
+    var total: Long = 0
     override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
       logger.trace(s"Reading $length at $start from $source")
       // Ignore header reads
       if(start > 0) reads += 1
+      total += length
     }
 
-    override def toString: String = s"$productPrefix(reads=$reads)"
+    override def toString: String = s"$productPrefix(reads=$reads, total=$total)"
   }
 }

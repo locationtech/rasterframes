@@ -21,10 +21,8 @@
 
 package astraea.spark.rasterframes.expressions
 
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
+import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf.{RasterRefUDT, TileUDT}
 import org.apache.spark.sql.types.DataType
 
@@ -34,21 +32,16 @@ import org.apache.spark.sql.types.DataType
  * @since 9/5/18
  */
 case class ResolveRasterRefTileExpression(child: Expression) extends UnaryExpression
-  with CodegenFallback {
+  with CodegenFallback with ExpectsInputTypes {
 
   override def dataType: DataType = TileUDT
 
-  override def nodeName: String = "resolve_tile"
-
-  override def checkInputDataTypes(): TypeCheckResult = {
-    if(child.dataType.isInstanceOf[RasterRefUDT]) TypeCheckSuccess
-    else TypeCheckFailure(
-      s"Expected '${RasterRefUDT.typeName}' but received '${child.dataType.simpleString}'"
-    )
-  }
+  override def nodeName: String = "rasterRefToTile"
 
   override protected def nullSafeEval(input: Any): Any = {
     val ref = RasterRefUDT.deserialize(input)
     TileUDT.serialize(ref.tile)
   }
+
+  override def inputTypes = Seq(new RasterRefUDT)
 }

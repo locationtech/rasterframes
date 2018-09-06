@@ -26,14 +26,11 @@ import java.net.URI
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, Generator}
+import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf.RasterRefUDT
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.{DataType, StringType, StructType}
 import org.apache.spark.unsafe.types.UTF8String
-
-import scala.util.control.NonFatal
 
 
 /**
@@ -42,37 +39,19 @@ import scala.util.control.NonFatal
  *
  * @since 5/4/18
  */
-case class RasterRefExpression(override val children: Seq[Expression], useTiling: Boolean, accumulator: Option[ReadAccumulator]) extends Expression
-  with Generator with CodegenFallback with LazyLogging {
+case class RasterRefExpression(override val child: Expression, accumulator: Option[ReadAccumulator])
+  extends UnaryExpression with ExpectsInputTypes with CodegenFallback with LazyLogging {
 
-  override def nodeName: String = "raster_ref"
+  override def nodeName: String = "rasterRef"
 
-  override def elementSchema: StructType = StructType(
-    children.map(e ⇒ StructField(e.name, RasterRefUDT.schema, true))
-  )
+  override def dataType: DataType = new RasterRefUDT()
 
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
-    try {
-      val refs = children.map { child ⇒
-        val uriString = child.eval(input).asInstanceOf[UTF8String].toString
-        val uri = URI.create(uriString)
-        RasterRef(RasterSource(uri, accumulator))
-      }
+  override def inputTypes = Seq(StringType)
 
-      // If refs.isEmpty, we still want to return an empty row.
-      // This logic results in that.
-      if(!useTiling || refs.isEmpty) {
-        Seq(InternalRow(refs.map(RasterRefUDT.encode): _*))
-      }
-      else {
-        val tiled = refs.map(RasterRef.tileToNative)
-        tiled.transpose.map(ts ⇒ InternalRow(ts.map(RasterRefUDT.encode): _*))
-      }
-    }
-    catch {
-      case NonFatal(ex) ⇒
-        logger.error("Error fetching data for " + input, ex)
-        Traversable.empty
-    }
+  override protected def nullSafeEval(input: Any): Any =  {
+    val uriString = input.asInstanceOf[UTF8String].toString
+    val uri = URI.create(uriString)
+    val ref = RasterRef(RasterSource(uri, accumulator))
+    RasterRefUDT.encode(ref)
   }
 }
