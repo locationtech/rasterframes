@@ -36,7 +36,11 @@ package object rf {
   }
 
   def register(sqlContext: SQLContext): Unit = {
-    gt.register()
+    // Referencing the companion objects here is intended to have it's constructor called,
+    // which is where the registration actually happens.
+    TileUDT
+    ProjectedRasterUDT
+    RasterRefUDT
   }
 
   def registry(sqlContext: SQLContext): FunctionRegistry = {

@@ -19,7 +19,7 @@ package astraea.spark.rasterframes.functions
 import geotrellis.raster.{Tile, _}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, _}
 
 /**

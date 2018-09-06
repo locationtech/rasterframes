@@ -23,8 +23,7 @@ import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf._
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.{TileUDT, _}
 import org.apache.spark.sql.types.{LongType, Metadata}
 
 /**

@@ -58,10 +58,12 @@ trait RasterFunctions {
   }
 
   /** Query the number of (cols, rows) in a Tile. */
-  def tileDimensions(col: Column): Column = expressions.DimensionsExpression(col.expr).asColumn
+  def tileDimensions(col: Column): Column =
+    expressions.DimensionsExpression(col.expr).asColumn
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
-  def envelope(col: Column): TypedColumn[Any, Envelope] = expressions.EnvelopeExpression(col.expr).asColumn.as[Envelope]
+  def envelope(col: Column): TypedColumn[Any, Envelope] =
+    expressions.EnvelopeExpression(col.expr).asColumn.as[Envelope]
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
@@ -80,6 +82,9 @@ trait RasterFunctions {
   def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType): TypedColumn[Any, Tile] = {
     F.assembleTile(cols, rows, ct)(columnIndex, rowIndex, cellData)
   }.as(cellData.columnName).as[Tile]
+
+  def resolveRasterRef(rasterRef: Column): TypedColumn[Any, Tile] =
+    expressions.ResolveRasterRefTileExpression(rasterRef.expr).asColumn.as[Tile]
 
   /** Extract the Tile's cell type */
   def cellType(col: Column): TypedColumn[Any, String] =

@@ -21,13 +21,27 @@
 
 package astraea.spark.rasterframes.tiles
 
+import astraea.spark.rasterframes.tiles.DelayedOpTile.DelayedReprojectionTile
+import geotrellis.proj4.CRS
 import geotrellis.raster.{ProjectedRaster, Tile}
+import geotrellis.vector.{Extent, ProjectedExtent}
 
 /**
- * Mixin for declaring possible support for declaring providing a ProjectedRaster[Tile].
+ * A Tile that's also like a ProjectedRaster
  *
- * @since 9/4/18
+ * @since 9/5/18
  */
-trait MaybeProjected {
-  def projected: Option[ProjectedRaster[Tile]]
+trait ProjectedRasterTile extends DelegatingTile {
+  val extent: Extent
+  val crs: CRS
+  val projectedExtent = ProjectedExtent(extent, crs)
+  def reproject(dest: CRS): ProjectedRasterTile = DelayedReprojectionTile(this, dest)
+}
+
+object ProjectedRasterTile {
+  def apply(pr: ProjectedRaster[Tile]) = new ProjectedRasterTile {
+    protected def delegate: Tile = pr.tile
+    override val extent: Extent = pr.extent
+    override val crs: CRS = pr.crs
+  }
 }

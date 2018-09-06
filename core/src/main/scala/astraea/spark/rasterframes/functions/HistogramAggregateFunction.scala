@@ -23,7 +23,7 @@ import geotrellis.raster.histogram.{Histogram, StreamingHistogram}
 import geotrellis.spark.util.KryoSerializer
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 
 /**

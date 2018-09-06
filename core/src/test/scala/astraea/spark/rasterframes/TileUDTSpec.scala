@@ -23,10 +23,10 @@ package astraea.spark.rasterframes
 
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.gt.types.TileUDT
 import org.scalatest.Inspectors
 import astraea.spark.rasterframes.functions.cellTypes
 import astraea.spark.rasterframes.tiles.InternalRowTile
+import org.apache.spark.sql.rf.TileUDT
 
 /**
  * RasterFrame test rig.

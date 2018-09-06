@@ -22,7 +22,7 @@ package astraea.spark.rasterframes.expressions
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 
 /**
  * Mixin for indicating an expression requires a Tile for input.

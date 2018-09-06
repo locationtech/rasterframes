@@ -19,7 +19,7 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource
+package astraea.spark.rasterframes.util
 
 import astraea.spark.rasterframes.ref.RasterSource
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback

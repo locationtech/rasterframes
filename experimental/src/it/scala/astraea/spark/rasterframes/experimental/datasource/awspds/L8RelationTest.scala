@@ -21,7 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.experimental.datasource._
+import astraea.spark.rasterframes.util.ReadAccumulator
 import org.apache.spark.sql.DataFrame
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 

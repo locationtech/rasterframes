@@ -28,7 +28,7 @@ import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile}
+import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.{HdfsRangeReader, SerializableConfiguration}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.{FileRangeReader, RangeReader}
@@ -52,12 +52,24 @@ trait RasterSource extends Serializable {
   def cellType: CellType
   def bandCount: Int
   def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
+  def nativeLayout: Option[TileLayout]
   def cols: Int = dimensions._1
   def rows: Int = dimensions._2
   def rasterExtent = RasterExtent(extent, cols, rows)
   def cellSize = CellSize(extent, cols, rows)
   def gridExtent = GridExtent(extent, cellSize)
-  def nativeTiling: Seq[Extent]
+
+  def nativeTiling: Seq[Extent] = {
+    nativeLayout.map { tileLayout  ⇒
+      val layout = LayoutDefinition(extent, tileLayout)
+      val transform = layout.mapTransform
+      for {
+        col ← 0 until tileLayout.layoutCols
+        row ← 0 until tileLayout.layoutRows
+      } yield transform(col, row)
+    }
+      .getOrElse(Seq(extent))
+  }
 }
 
 object RasterSource extends LazyLogging {
@@ -95,6 +107,10 @@ object RasterSource extends LazyLogging {
 
   trait URIRasterSource { _: RasterSource ⇒
     def source: URI
+
+    abstract override def toString: String = {
+      s"${getClass.getSimpleName}(${source})"
+    }
   }
 
   trait RangeReaderRasterSource extends RasterSource {
@@ -118,21 +134,10 @@ object RasterSource extends LazyLogging {
 
     def bandCount: Int = tiffInfo.bandCount
 
-    def nativeTiling: Seq[Extent] = {
-      val segLayout = tiffInfo.segmentLayout
-      val tileLayout = segLayout.tileLayout
-      val layout = LayoutDefinition(extent, tileLayout)
-      val transform = layout.mapTransform
-
-      if(segLayout.isTiled) {
-        for(i ← 0 until segLayout.bandSegmentCount) yield {
-          val (layoutCol, layoutRow) = segLayout.getSegmentCoordinate(i)
-          transform(layoutCol, layoutRow)
-        }
-      }
-      else {
-        Seq(extent)
-      }
+    def nativeLayout: Option[TileLayout] = {
+      if(tiffInfo.segmentLayout.isTiled)
+        Some(tiffInfo.segmentLayout.tileLayout)
+      else None
     }
 
     // TODO: Determine if this is the correct way to handle time.

@@ -17,6 +17,7 @@
 package astraea.spark.rasterframes.extensions
 
 import astraea.spark.rasterframes.StandardColumns._
+import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.{MetadataKeys, RasterFrame}
 import geotrellis.raster.Tile
@@ -25,7 +26,7 @@ import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey
 import geotrellis.util.MethodExtensions
 import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.{RasterRefUDT, TileUDT}
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
 import spray.json.JsonFormat
@@ -183,6 +184,20 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     setSpatialColumnRole(spatialKey, tlm)
       .setTemporalColumnRole(temporalKey)
       .asRF
+
+  @throws[IllegalArgumentException]
+  def asRF(space: LayerSpace): RasterFrame = {
+    // We have two use cases to consider: This is already a rasterframe and we need to
+    // reproject it. If we have RasterRefs then we reproject those
+    val refs = self.schema.fields
+      .filter(_.dataType.typeName.equalsIgnoreCase(RasterRefUDT.typeName))
+      .map(f ⇒ col(f.name).as[RasterRef])
+
+    require(tileColumns.nonEmpty, "This method doesn't yet support existing tile columns")
+
+    ???
+
+  }
 
   /**
    * Converts [[DataFrame]] to a RasterFrame if the following constraints are fulfilled:

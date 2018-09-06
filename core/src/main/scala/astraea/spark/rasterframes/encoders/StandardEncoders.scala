@@ -19,11 +19,16 @@
 
 package astraea.spark.rasterframes.encoders
 
+import java.net.URI
+
+import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import geotrellis.raster.Tile
+import com.vividsolutions.jts.geom.Envelope
+import geotrellis.proj4.CRS
+import geotrellis.raster.{CellType, ProjectedRaster, Tile}
 import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TileLayerMetadata}
-import geotrellis.vector.Extent
+import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TemporalProjectedExtent, TileLayerMetadata}
+import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 import scala.reflect.runtime.universe._
@@ -32,23 +37,25 @@ import scala.reflect.runtime.universe._
  * Implicit encoder definitions for RasterFrame types.
  */
 trait StandardEncoders {
-  implicit def spatialKeyEncoder = ExpressionEncoder[SpatialKey]
-  implicit def temporalKeyEncoder = ExpressionEncoder[TemporalKey]
-  implicit def spaceTimeKeyEncoder = ExpressionEncoder[SpaceTimeKey]
-  implicit def statsEncoder = ExpressionEncoder[CellStatistics]
-  implicit def histEncoder = ExpressionEncoder[CellHistogram]
-  implicit def layoutDefinitionEncoder = ExpressionEncoder[LayoutDefinition]
-  implicit def stkBoundsEncoder = ExpressionEncoder[KeyBounds[SpaceTimeKey]]
-  implicit def extentEncoder = ExpressionEncoder[Extent]
+  implicit def spatialKeyEncoder: ExpressionEncoder[SpatialKey] = ExpressionEncoder()
+  implicit def temporalKeyEncoder: ExpressionEncoder[TemporalKey] = ExpressionEncoder()
+  implicit def spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = ExpressionEncoder()
+  implicit def statsEncoder: ExpressionEncoder[CellStatistics] = ExpressionEncoder()
+  implicit def histEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
+  implicit def layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = ExpressionEncoder()
+  implicit def stkBoundsEncoder: ExpressionEncoder[KeyBounds[SpaceTimeKey]] = ExpressionEncoder()
+  implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder()
 
-  implicit def singlebandTileEncoder = ExpressionEncoder[Tile]()
-  implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder[K]()
-  implicit def crsEncoder = CRSEncoder()
-  implicit def projectedExtentEncoder = ProjectedExtentEncoder()
-  implicit def temporalProjectedExtentEncoder = TemporalProjectedExtentEncoder()
-  implicit def cellTypeEncoder = CellTypeEncoder()
-  implicit def uriEncoder = URIEncoder()
-  implicit def envelopeEncoder = EnvelopeEncoder()
+  implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
+  implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
+  implicit def crsEncoder: ExpressionEncoder[CRS] = CRSEncoder()
+  implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ProjectedExtentEncoder()
+  implicit def temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = TemporalProjectedExtentEncoder()
+  implicit def cellTypeEncoder: ExpressionEncoder[CellType] = CellTypeEncoder()
+  implicit def uriEncoder: ExpressionEncoder[URI] = URIEncoder()
+  implicit def envelopeEncoder: ExpressionEncoder[Envelope] = EnvelopeEncoder()
+  implicit def rrEncoder: ExpressionEncoder[RasterRef] = ExpressionEncoder()
+  implicit def prEncoder: ExpressionEncoder[ProjectedRaster[Tile]] = ExpressionEncoder()
 }
 
 object StandardEncoders extends StandardEncoders

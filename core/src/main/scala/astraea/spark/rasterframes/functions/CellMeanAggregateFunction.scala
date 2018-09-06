@@ -21,12 +21,11 @@ package astraea.spark.rasterframes.functions
 
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
-import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf._
+import org.apache.spark.sql.rf.{TileUDT, _}
 
 /**
  * Cell mean aggregate function

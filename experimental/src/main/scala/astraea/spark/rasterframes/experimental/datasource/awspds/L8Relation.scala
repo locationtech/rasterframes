@@ -29,7 +29,7 @@ import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, SQLContext}

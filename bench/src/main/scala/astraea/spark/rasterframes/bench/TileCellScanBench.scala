@@ -25,7 +25,7 @@ import astraea.spark.rasterframes.tiles.InternalRowTile
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.openjdk.jmh.annotations._
 
 @BenchmarkMode(Array(Mode.AverageTime))

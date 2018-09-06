@@ -20,9 +20,9 @@ import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster.{DoubleConstantNoDataCellType, IntConstantNoDataCellType, IntUserDefinedNoDataCellType, Tile, isNoData}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.gt.types.TileUDT
 import org.apache.spark.sql.types._
 import DataBiasedOp._
+import org.apache.spark.sql.rf.TileUDT
 
 
 /**

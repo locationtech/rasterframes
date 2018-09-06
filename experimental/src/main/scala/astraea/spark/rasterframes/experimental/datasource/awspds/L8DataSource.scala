@@ -20,7 +20,7 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
-import astraea.spark.rasterframes.experimental.datasource.ReadAccumulator
+import astraea.spark.rasterframes.util.ReadAccumulator
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 

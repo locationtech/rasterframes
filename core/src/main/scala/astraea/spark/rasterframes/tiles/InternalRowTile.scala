@@ -26,6 +26,7 @@ import java.nio.ByteBuffer
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types._
+import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * Wrapper around a `Tile` encoded in a Catalyst `InternalRow`, for the purpose
@@ -130,6 +131,26 @@ object InternalRowTile {
     StructField("rows", ShortType, false),
     StructField("data", BinaryType, false)
   ))
+
+  /**
+   * Convenience extractor for converting a `Tile` to an `InternalRow`.
+   *
+   * @param tile tile to convert
+   * @return Catalyst internal representation.
+   */
+  def encode(tile: Tile): InternalRow = InternalRow(
+      UTF8String.fromString(tile.cellType.name),
+      tile.cols.toShort,
+      tile.rows.toShort,
+      tile.toBytes
+    )
+
+  /**
+   * Read a Tile from an InternalRow
+   * @param row Catalyst internal format conforming to `schema`
+   * @return row wrapper
+   */
+  def decode(row: InternalRow): Tile = new InternalRowTile(row)
 
   sealed trait CellReader {
     def apply(index: Int): Int

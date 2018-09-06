@@ -25,7 +25,7 @@ import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow}
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import spire.syntax.cfor.cfor
 

@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.experimental
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+import astraea.spark.rasterframes.expressions.RasterRefExpression
 import astraea.spark.rasterframes.util._
 import org.apache.spark.sql._
 import org.apache.spark.sql.rf.CanBeColumn

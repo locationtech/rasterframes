@@ -45,7 +45,7 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}

@@ -135,7 +135,7 @@ class TileUDT(UserDefinedType):
 
     @classmethod
     def scalaUDT(cls):
-        return 'org.apache.spark.sql.gt.types.TileUDT'
+        return 'org.apache.spark.sql.rf.TileUDT'
 
     def serialize(self, obj):
         if (obj is None): return None
