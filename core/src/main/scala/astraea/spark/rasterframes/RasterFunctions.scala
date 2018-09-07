@@ -22,7 +22,7 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
 import astraea.spark.rasterframes.{expressions ⇒ E}
 import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMeanAggregateFunction}
-import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions ⇒ F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
@@ -449,5 +449,9 @@ trait RasterFunctions {
   private[rasterframes]
   def nativeTiling(rrs: TypedColumn[Any, RasterRef]*): Column =
     E.ExpandNativeTilingExpression(rrs.map(_.expr)).asColumn
+
+  private[rasterframes]
+  def projectIntoLayer(rrs: Seq[TypedColumn[Any, RasterRef]], space: LayerSpace): Column =
+    E.ProjectIntoLayerExpression(rrs.map(_.expr), space).asColumn
 
 }

@@ -24,10 +24,11 @@ package astraea.spark.rasterframes.tiles
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef, RasterSource}
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
 import astraea.spark.rasterframes.tiles.RasterRefSpec.ReadMonitor
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.LatLng
-import geotrellis.raster.{ByteConstantNoDataCellType, TileLayout}
+import geotrellis.raster.{ByteConstantNoDataCellType, Tile, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.Extent
 
@@ -97,7 +98,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
         println(counter)
       }
     }
-    it("should allow application of a layer space") {
+    it("should allow lazy application of a layer space") {
       import spark.implicits._
       new Fixture {
         val targetCRS = LatLng
@@ -105,8 +106,28 @@ class RasterRefSpec extends TestEnvironment with TestData {
         val targetCellType = ByteConstantNoDataCellType
         val targetLayout = LayoutDefinition(targetExtent, TileLayout(10, 10, 100, 100))
         val space = LayerSpace(targetCRS, targetCellType, targetLayout)
-        val ds = Seq(subRaster).toDF("source")
-        ds.asRF(space)
+        val ds = Seq((subRaster, subRaster)).toDF("src1", "src2")
+        val projected = ds.asRF(space)
+        val tile = projected.select($"src1".as[Tile]).first()
+        assert(tile.isInstanceOf[ProjectedRasterTile])
+        assert(tile.asInstanceOf[ProjectedRasterTile].sourceKind === SourceKind.Reference)
+      }
+    }
+    it("should allow lazy projection into layer space") {
+      import spark.implicits._
+      new Fixture {
+        val targetCRS = LatLng
+        val targetExtent = subRaster.extent.reproject(subRaster.crs, targetCRS)
+        val targetCellType = ByteConstantNoDataCellType
+        val targetLayout = LayoutDefinition(targetExtent, TileLayout(4, 4, 10, 10))
+        val space = LayerSpace(targetCRS, targetCellType, targetLayout)
+        val ds = Seq(subRaster).toDF("src")
+        val projected = ds.asRF(space)
+        projected.show(false)
+        val tile = projected.select($"src".as[Tile]).first()
+        assert(tile.isInstanceOf[ProjectedRasterTile])
+        assert(tile.asInstanceOf[ProjectedRasterTile].sourceKind === SourceKind.Reference)
+        tile.renderAscii()
       }
     }
     it("should serialize") {

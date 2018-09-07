@@ -40,15 +40,13 @@ case class LayerSpace(
   layout: LayoutDefinition,
   resampleMethod: ResampleMethod = ResampleMethod.DEFAULT
 ) {
-  def project(raster: RasterRef): Seq[RasterRef] = {
-    val inExtent = raster.extent.reproject(raster.crs, crs)
-    val bounds: TileBounds = layout.mapTransform(inExtent)
-    bounds.coordsIter.map { case (col, row) ⇒
-      val outKey = SpatialKey(col, row)
-      val outExtent = layout.mapTransform.keyToExtent(outKey)
-      //RasterRef(raster.source, ProjectedExtent(outExtent, crs))
-      ???
-    }.toSeq
+
+  def asTileLayerMetadata: TileLayerMetadata[SpatialKey] = {
+    val bounds = KeyBounds(
+      SpatialKey(0, 0),
+      SpatialKey(layout.layoutCols - 1, layout.layoutRows - 1)
+    )
+    TileLayerMetadata(cellType, layout, layout.extent, crs, bounds)
   }
 }
 

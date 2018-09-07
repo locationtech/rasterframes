@@ -22,7 +22,8 @@
 package org.apache.spark.sql.rf
 
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import astraea.spark.rasterframes.tiles.InternalRowTile
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
+import astraea.spark.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
 import geotrellis.raster._
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.InternalRow
@@ -70,15 +71,15 @@ class TileUDT extends UserDefinedType[Tile] {
 case object TileUDT extends TileUDT {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
 
-  private val drtEncoder = Encoders
-    .kryo(classOf[RasterRefTile])
-    .asInstanceOf[ExpressionEncoder[RasterRefTile]]
+  private val prtEncoder = Encoders
+    .kryo(classOf[ProjectedRasterTile])
+    .asInstanceOf[ExpressionEncoder[ProjectedRasterTile]]
     .resolveAndBind()
 
   /** Union encoding of Tiles and RasterRefs */
   val schema = StructType(Seq(
     StructField("tile", InternalRowTile.schema, true),
-    StructField("tileRef", drtEncoder.schema, true)
+    StructField("tileRef", prtEncoder.schema, true)
   ))
 
 
@@ -98,7 +99,7 @@ case object TileUDT extends TileUDT {
   def decode(row: InternalRow): Tile = {
     (!row.isNullAt(0), !row.isNullAt(1)) match {
       case (true, false) ⇒ new InternalRowTile(row.getStruct(0, InternalRowTile.schema.size))
-      case (false, true) ⇒ drtEncoder.fromRow(row.getStruct(1, drtEncoder.schema.size))
+      case (false, true) ⇒ prtEncoder.fromRow(row.getStruct(1, prtEncoder.schema.size))
       case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
     }
   }
@@ -110,8 +111,8 @@ case object TileUDT extends TileUDT {
    * @return Catalyst internal representation.
    */
   def encode(tile: Tile): InternalRow = tile match {
-    case dr: RasterRefTile ⇒
-      InternalRow(null, drtEncoder.toRow(dr))
+    case pt: ProjectedRasterTile if pt.sourceKind == SourceKind.Reference ⇒
+      InternalRow(null, prtEncoder.toRow(pt))
     case _: Tile ⇒
       InternalRow(
         InternalRow(
@@ -121,6 +122,4 @@ case object TileUDT extends TileUDT {
           tile.toBytes
         ), null)
   }
-
-
 }

@@ -91,7 +91,9 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
       .withColumn(PDSFields.BOUNDS.name, boundsGeometry(col(PDSFields.BOUNDS_WGS84.name)))
       .drop(PDSFields.BOUNDS_WGS84.name)
 
-    val filtered = aggFilters.foldLeft(catalog)((d, filter) ⇒ d.where(colExpr(filter)))
+    val filtered = aggFilters
+      .foldLeft(catalog)((d, filter) ⇒ d.where(colExpr(filter)))
+      .drop(PDSFields.BOUNDS.name)
 
     val (bands, other) = requiredColumns.partition(Bands.names.contains)
 

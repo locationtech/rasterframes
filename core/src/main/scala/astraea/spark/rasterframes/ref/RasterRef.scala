@@ -23,10 +23,12 @@ package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind.SourceKind
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, GridBounds, Tile}
-import geotrellis.vector.Extent
+import geotrellis.vector.{Extent, ProjectedExtent}
 
 /**
  * A delayed-read projected raster implementation.
@@ -37,6 +39,7 @@ trait RasterRef {
   def source: RasterSource
   def crs: CRS = source.crs
   def extent: Extent
+  def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
   def cols: Int = grid.width
   def rows: Int = grid.height
   def cellType: CellType = source.cellType
@@ -77,8 +80,10 @@ object RasterRef extends LazyLogging {
   }
 
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
-    override def extent: Extent = rr.extent
-    override def crs: CRS = rr.crs
-    override protected def delegate: Tile = rr.realizedTile
+    def extent: Extent = rr.extent
+    def crs: CRS = rr.crs
+    protected def delegate: Tile = rr.realizedTile
+
+    def sourceKind: SourceKind = SourceKind.Reference
   }
 }

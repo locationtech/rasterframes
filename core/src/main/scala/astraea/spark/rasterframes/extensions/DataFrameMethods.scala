@@ -16,6 +16,7 @@
 
 package astraea.spark.rasterframes.extensions
 
+import astraea.spark.rasterframes
 import astraea.spark.rasterframes.StandardColumns._
 import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.util._
@@ -187,16 +188,19 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
 
   @throws[IllegalArgumentException]
   def asRF(space: LayerSpace): RasterFrame = {
+    require(tileColumns.isEmpty, "This method doesn't yet support existing tile columns")
     // We have two use cases to consider: This is already a rasterframe and we need to
     // reproject it. If we have RasterRefs then we reproject those
-    val refs = self.schema.fields
-      .filter(_.dataType.typeName.equalsIgnoreCase(RasterRefUDT.typeName))
-      .map(f ⇒ col(f.name).as[RasterRef])
+    val (refFields, otherFields) = self.schema.fields
+        .partition(_.dataType.typeName.equalsIgnoreCase(RasterRefUDT.typeName))
 
-    require(tileColumns.nonEmpty, "This method doesn't yet support existing tile columns")
+    val refCols = refFields.map(f ⇒ self(f.name).as[RasterRef])
+    val otherCols = otherFields.map(f ⇒ self(f.name))
 
-    ???
+    val layer = self.select(otherCols :+ rasterframes.projectIntoLayer(refCols, space): _*)
 
+    val tlm = space.asTileLayerMetadata
+    layer.setSpatialColumnRole(SPATIAL_KEY_COLUMN, tlm).asRF
   }
 
   /**
