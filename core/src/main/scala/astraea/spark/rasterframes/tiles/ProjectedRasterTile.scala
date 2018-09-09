@@ -38,9 +38,8 @@ trait ProjectedRasterTile extends DelegatingTile {
   def sourceKind: SourceKind
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
   def reproject(dest: CRS): ProjectedRasterTile = DelayedReprojectionTile(this, dest)
-  override def convert(cellType: CellType): ProjectedRasterTile =
-    if(this.cellType != cellType)
-      DelayedConversionTile(this, cellType)
+  override def convert(ct: CellType): ProjectedRasterTile =
+    if(this.cellType != ct) DelayedConversionTile(this, ct)
     else this
 }
 
@@ -72,7 +71,10 @@ object ProjectedRasterTile {
 
   case class DelayedConversionTile(base: ProjectedRasterTile, override val cellType: CellType)
     extends DelayedTransformationTile(base) {
-    override lazy val realized = base.convert(cellType)
+    override lazy val realized = base match {
+      case dt: DelayedTransformationTile ⇒ dt.realized.convert(cellType)
+      case t ⇒ t.convert(cellType)
+    }
   }
 
 }

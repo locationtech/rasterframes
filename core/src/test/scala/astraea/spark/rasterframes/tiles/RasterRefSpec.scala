@@ -127,7 +127,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
         val tile = projected.select($"src".as[Tile]).first()
         assert(tile.isInstanceOf[ProjectedRasterTile])
         assert(tile.asInstanceOf[ProjectedRasterTile].sourceKind === SourceKind.Reference)
-        tile.renderAscii()
+        println(tile.renderAscii())
       }
     }
     it("should serialize") {
