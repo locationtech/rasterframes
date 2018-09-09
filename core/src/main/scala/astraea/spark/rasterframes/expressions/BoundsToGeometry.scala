@@ -38,7 +38,7 @@ import org.apache.spark.sql.types.DataType
  *
  * @since 8/24/18
  */
-case class BoundsToGeometryExpression(child: Expression) extends UnaryExpression with CodegenFallback {
+case class BoundsToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
   private val envEnc = StandardEncoders.envelopeEncoder.resolveAndBind()
   private val extEnc = StandardEncoders.extentEncoder.resolveAndBind()
 

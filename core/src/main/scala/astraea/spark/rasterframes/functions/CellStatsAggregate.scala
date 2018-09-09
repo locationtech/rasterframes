@@ -27,8 +27,8 @@ import org.apache.spark.sql.types.{DataType, _}
  *
  * @since 4/17/17
  */
-case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
-  import CellStatsAggregateFunction.C
+case class CellStatsAggregate() extends UserDefinedAggregateFunction {
+  import CellStatsAggregate.C
 
   override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
 
@@ -115,7 +115,7 @@ case class CellStatsAggregateFunction() extends UserDefinedAggregateFunction {
   }
 }
 
-object CellStatsAggregateFunction {
+object CellStatsAggregate {
   /**  Column index values. */
   private object C {
     final val COUNT = 0

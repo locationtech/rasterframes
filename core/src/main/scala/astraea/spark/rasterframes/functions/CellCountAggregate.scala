@@ -19,58 +19,55 @@
 
 package astraea.spark.rasterframes.functions
 
-import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression}
-import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
-import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
 import org.apache.spark.sql.catalyst.dsl.expressions._
-import org.apache.spark.sql.catalyst.expressions._
+import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
+import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf.{TileUDT, _}
+import org.apache.spark.sql.types.{LongType, Metadata}
 
 /**
- * Cell mean aggregate function
- * 
+ * Cell count (data or NoData) aggregate function.
+ *
  * @since 10/5/17
+ * @param isData true if count should be of non-NoData cells, false if count should be of NoData cells.
  */
-case class CellMeanAggregateFunction(child: Expression) extends DeclarativeAggregate {
+case class CellCountAggregate(isData: Boolean, child: Expression) extends DeclarativeAggregate {
 
-  override def prettyName: String = "agg_mean"
+  override def prettyName: String =
+    if (isData) "agg_data_cells"
+    else "agg_nodata_cells"
 
-  private lazy val sum =
-    AttributeReference("sum", DoubleType, false, Metadata.empty)()
   private lazy val count =
     AttributeReference("count", LongType, false, Metadata.empty)()
 
-  override lazy val aggBufferAttributes = Seq(sum, count)
+  override lazy val aggBufferAttributes = count :: Nil
 
   val initialValues = Seq(
-    Literal(0.0),
     Literal(0L)
   )
 
-  private val dataCellCounts = udf(dataCells)
-  private val sumCells = udf(tileSum)
+  private val cellTest =
+    if (isData) udf(dataCells)
+    else udf(noDataCells)
 
   val updateExpressions = Seq(
-    If(IsNull(child), sum , Add(sum, sumCells(child.asColumn).expr)),
-    If(IsNull(child), count, Add(count, dataCellCounts(child.asColumn).expr))
+    If(IsNull(child), count, Add(count, cellTest(child.asColumn).expr))
   )
 
   val mergeExpressions = Seq(
-    sum.left + sum.right,
     count.left + count.right
   )
 
-  val evaluateExpression = sum / new Cast(count, DoubleType)
+  val evaluateExpression = count
 
   def inputTypes = Seq(TileUDT)
 
   def nullable = true
 
-  def dataType = DoubleType
+  def dataType = LongType
 
   def children = Seq(child)
-
 }
 
 

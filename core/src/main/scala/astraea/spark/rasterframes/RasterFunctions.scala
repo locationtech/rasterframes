@@ -21,7 +21,7 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
 import astraea.spark.rasterframes.{expressions ⇒ E}
-import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMeanAggregateFunction}
+import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions ⇒ F}
@@ -51,7 +51,7 @@ trait RasterFunctions {
 
   /** Create a row for each cell in Tile with random sampling. */
   def explodeTileSample(sampleFraction: Double, cols: Column*): Column = {
-    val exploder = E.ExplodeTileExpression(sampleFraction, cols.map(_.expr))
+    val exploder = E.ExplodeTile(sampleFraction, cols.map(_.expr))
     // Hack to grab the first two non-cell columns, containing the column and row indexes
     val metaNames = exploder.elementSchema.fieldNames.take(2)
     val colNames = cols.map(_.columnName)
@@ -60,11 +60,11 @@ trait RasterFunctions {
 
   /** Query the number of (cols, rows) in a Tile. */
   def tileDimensions(col: Column): Column =
-    E.DimensionsExpression(col.expr).asColumn
+    E.TileDimensions(col.expr).asColumn
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
   def envelope(col: Column): TypedColumn[Any, Envelope] =
-    E.EnvelopeExpression(col.expr).asColumn.as[Envelope]
+    E.Envelope(col.expr).asColumn.as[Envelope]
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
@@ -87,7 +87,7 @@ trait RasterFunctions {
 
   /** Extract the Tile's cell type */
   def cellType(col: Column): TypedColumn[Any, String] =
-    E.CellTypeExpression(col.expr).asColumn.as[String]
+    E.CellType(col.expr).asColumn.as[String]
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
@@ -114,17 +114,17 @@ trait RasterFunctions {
   ).as[CellStatistics]
 
   /** Computes the column aggregate mean. */
-  def aggMean(col: Column) = CellMeanAggregateFunction(col.expr)
+  def aggMean(col: Column) = CellMeanAggregate(col.expr)
     .toAggregateExpression().asColumn
     .as[Double]
 
   /** Computes the number of non-NoData cells in a column. */
-  def aggDataCells(col: Column) = CellCountAggregateFunction(true, col.expr)
+  def aggDataCells(col: Column) = CellCountAggregate(true, col.expr)
     .toAggregateExpression().asColumn
     .as[Long]
 
   /** Computes the number of NoData cells in a column. */
-  def aggNoDataCells(col: Column) = CellCountAggregateFunction(false, col.expr)
+  def aggNoDataCells(col: Column) = CellCountAggregate(false, col.expr)
     .toAggregateExpression().asColumn
     .as[Long]
 
@@ -431,27 +431,24 @@ trait RasterFunctions {
 
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
   def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] =
-    withAlias("boundsGeometry", bounds)(
-      E.BoundsToGeometryExpression(bounds.expr).asColumn
-    ).as[Geometry]
-
+    E.BoundsToGeometry(bounds.expr).asColumn.as[Geometry]
 
   //-------------------------------------------------------------------------------------
 
   private[rasterframes]
   def rasterRefAsTile(rasterRef: TypedColumn[Any, RasterRef]): TypedColumn[Any, Tile] =
-    E.ResolveRasterRefTileExpression(rasterRef.expr).asColumn.as[Tile]
+    E.ResolveRasterRefTile(rasterRef.expr).asColumn.as[Tile]
 
   private[rasterframes]
   def rasterRef(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
-    E.RasterRefExpression(rasterURI.expr, accumulator).asColumn.as[RasterRef]
+    E.URIToRasterRef(rasterURI.expr, accumulator).asColumn.as[RasterRef]
 
   private[rasterframes]
   def nativeTiling(rrs: TypedColumn[Any, RasterRef]*): Column =
-    E.ExpandNativeTilingExpression(rrs.map(_.expr)).asColumn
+    E.ExpandNativeTiling(rrs.map(_.expr)).asColumn
 
   private[rasterframes]
   def projectIntoLayer(rrs: Seq[TypedColumn[Any, RasterRef]], space: LayerSpace): Column =
-    E.ProjectIntoLayerExpression(rrs.map(_.expr), space).asColumn
+    E.ProjectIntoLayer(rrs.map(_.expr), space).asColumn
 
 }

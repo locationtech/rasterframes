@@ -38,7 +38,7 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class ExpandNativeTilingExpression(children: Seq[Expression]) extends Expression
+case class ExpandNativeTiling(children: Seq[Expression]) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
   private val rrType = new RasterRefUDT()

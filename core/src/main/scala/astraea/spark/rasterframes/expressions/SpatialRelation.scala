@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.encoders.StandardEncoders._
-import astraea.spark.rasterframes.expressions.SpatialExpression.RelationPredicate
+import astraea.spark.rasterframes.expressions.SpatialRelation.RelationPredicate
 import com.vividsolutions.jts.geom._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
@@ -40,7 +40,7 @@ import scala.util.Try
  *
  * @since 12/28/17
  */
-abstract class SpatialExpression extends BinaryExpression
+abstract class SpatialRelation extends BinaryExpression
   with CodegenFallback with GeomDeserializerSupport  {
   lazy val jtsPointEncoder = ExpressionEncoder[Point]()
 
@@ -59,38 +59,38 @@ abstract class SpatialExpression extends BinaryExpression
   val relation: RelationPredicate
 }
 
-object SpatialExpression {
+object SpatialRelation {
   type RelationPredicate = (Geometry, Geometry) ⇒ java.lang.Boolean
 
-  case class Intersects(left: Expression, right: Expression) extends SpatialExpression {
+  case class Intersects(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "intersects"
     val relation = ST_Intersects
   }
-  case class Contains(left: Expression, right: Expression) extends SpatialExpression {
+  case class Contains(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "contains"
     val relation = ST_Contains
   }
-  case class Covers(left: Expression, right: Expression) extends SpatialExpression {
+  case class Covers(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "covers"
     val relation = ST_Covers
   }
-  case class Crosses(left: Expression, right: Expression) extends SpatialExpression {
+  case class Crosses(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "crosses"
     val relation = ST_Crosses
   }
-  case class Disjoint(left: Expression, right: Expression) extends SpatialExpression {
+  case class Disjoint(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "disjoint"
     val relation = ST_Disjoint
   }
-  case class Overlaps(left: Expression, right: Expression) extends SpatialExpression {
+  case class Overlaps(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "overlaps"
     val relation = ST_Overlaps
   }
-  case class Touches(left: Expression, right: Expression) extends SpatialExpression {
+  case class Touches(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "touches"
     val relation = ST_Touches
   }
-  case class Within(left: Expression, right: Expression) extends SpatialExpression {
+  case class Within(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "within"
     val relation = ST_Within
   }

@@ -30,8 +30,8 @@ import org.apache.spark.sql.rf.TileUDT
  *
  * @since 4/17/17
  */
-class LocalStatsAggregateFunction() extends UserDefinedAggregateFunction {
-  import LocalStatsAggregateFunction.C
+class LocalStatsAggregate() extends UserDefinedAggregateFunction {
+  import LocalStatsAggregate.C
   private val reafiableUDT = new TileUDT()
 
   override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
@@ -131,7 +131,7 @@ class LocalStatsAggregateFunction() extends UserDefinedAggregateFunction {
   }
 }
 
-object LocalStatsAggregateFunction {
+object LocalStatsAggregate {
   /**  Column index values. */
   private object C {
     val COUNT = 0

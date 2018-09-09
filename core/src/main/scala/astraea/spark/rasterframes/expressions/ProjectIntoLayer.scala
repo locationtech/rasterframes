@@ -35,7 +35,7 @@ import org.apache.spark.sql.types.{DataType, StructField, StructType}
  *
  * @since 9/7/18
  */
-case class ProjectIntoLayerExpression(children: Seq[Expression], space: LayerSpace) extends Expression
+case class ProjectIntoLayer(children: Seq[Expression], space: LayerSpace) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
   import astraea.spark.rasterframes.util._
 
@@ -87,8 +87,6 @@ case class ProjectIntoLayerExpression(children: Seq[Expression], space: LayerSpa
   }
 }
 
-object ProjectIntoLayerExpression {
-  case class DeserializeRasterRef(child: Expression) extends UnaryExpression with CodegenFallback {
-    override def dataType: DataType = ???
-  }
+object ProjectIntoLayer {
+
 }

@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2017 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,33 +15,32 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * SPDX-License-Identifier: Apache-2.0
- *
  */
 
 package astraea.spark.rasterframes.expressions
 
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
-import org.apache.spark.sql.rf.{RasterRefUDT, TileUDT}
-import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
+import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 
 /**
- * Extracts tile represented by a RasterRef.
- *
- * @since 9/5/18
+ * Extract a Tile's dimensions
+ * @since 12/21/17
  */
-case class ResolveRasterRefTileExpression(child: Expression) extends UnaryExpression
-  with CodegenFallback with ExpectsInputTypes {
+case class TileDimensions(child: Expression) extends UnaryExpression
+  with RequiresTile with CodegenFallback {
+  override def nodeName: String = "dimensions"
 
-  override def dataType: DataType = TileUDT
-
-  override def nodeName: String = "rasterRefToTile"
+  def dataType = StructType(Seq(
+    StructField("cols", ShortType),
+    StructField("rows", ShortType)
+  ))
 
   override protected def nullSafeEval(input: Any): Any = {
-    val ref = RasterRefUDT.deserialize(input)
-    TileUDT.serialize(ref.tile)
+    val r = TileUDT.decode(row(input))
+    InternalRow(r.cols.toShort, r.rows.toShort)
   }
 
-  override def inputTypes = Seq(new RasterRefUDT)
 }

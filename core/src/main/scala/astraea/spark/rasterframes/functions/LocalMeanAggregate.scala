@@ -6,12 +6,12 @@ import org.apache.spark.sql.types.DataType
 
 /**
  * Aggregation function that only returns the average. Depends on
- * [[LocalStatsAggregateFunction]] for computation and just
+ * [[LocalStatsAggregate]] for computation and just
  * selects the mean result tile.
  *
  * @since 8/11/17
  */
-class LocalMeanAggregateFunction extends LocalStatsAggregateFunction {
+class LocalMeanAggregate extends LocalStatsAggregate {
   override def dataType: DataType = new TileUDT()
   override def evaluate(buffer: Row): Any = {
     val superRow = super.evaluate(buffer).asInstanceOf[Row]

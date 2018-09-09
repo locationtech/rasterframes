@@ -32,7 +32,7 @@ import org.apache.spark.unsafe.types.UTF8String
  * Extract a Tile's cell type
  * @since 12/21/17
  */
-case class CellTypeExpression(child: Expression) extends UnaryExpression
+case class CellType(child: Expression) extends UnaryExpression
   with RequiresTile with CodegenFallback {
 
   override def nodeName: String = "cellType"

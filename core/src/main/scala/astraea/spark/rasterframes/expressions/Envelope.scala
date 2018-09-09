@@ -11,7 +11,7 @@ import org.apache.spark.sql.types._
  *
  * @since 2/22/18
  */
-case class EnvelopeExpression(child: Expression) extends UnaryExpression
+case class Envelope(child: Expression) extends UnaryExpression
   with CodegenFallback with GeomDeserializerSupport  {
 
   override def nodeName: String = "envelope"

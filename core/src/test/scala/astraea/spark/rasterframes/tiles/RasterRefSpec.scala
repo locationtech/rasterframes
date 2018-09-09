@@ -95,7 +95,6 @@ class RasterRefSpec extends TestEnvironment with TestData {
         val mean = ds2.select(tileMean($"tile")).first()
         val doubleMean = ds2.select(tileMean(localAdd($"tile", $"tile"))).first()
         assert(2 * mean ===  doubleMean +- 0.0001)
-        println(counter)
       }
     }
     it("should allow lazy application of a layer space") {
@@ -123,11 +122,10 @@ class RasterRefSpec extends TestEnvironment with TestData {
         val space = LayerSpace(targetCRS, targetCellType, targetLayout)
         val ds = Seq(subRaster).toDF("src")
         val projected = ds.asRF(space)
-        projected.show(false)
         val tile = projected.select($"src".as[Tile]).first()
         assert(tile.isInstanceOf[ProjectedRasterTile])
         assert(tile.asInstanceOf[ProjectedRasterTile].sourceKind === SourceKind.Reference)
-        println(tile.renderAscii())
+        pprint.pprintln(tile.statistics)
       }
     }
     it("should serialize") {

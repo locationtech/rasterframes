@@ -39,7 +39,7 @@ import org.apache.spark.unsafe.types.UTF8String
  *
  * @since 5/4/18
  */
-case class RasterRefExpression(override val child: Expression, accumulator: Option[ReadAccumulator])
+case class URIToRasterRef(override val child: Expression, accumulator: Option[ReadAccumulator])
   extends UnaryExpression with ExpectsInputTypes with CodegenFallback with LazyLogging {
 
   override def nodeName: String = "rasterRef"

@@ -15,7 +15,7 @@
  */
 package astraea.spark.rasterframes
 
-import astraea.spark.rasterframes.expressions.BoundsToGeometryExpression
+import astraea.spark.rasterframes.expressions.BoundsToGeometry
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.util.CRSParser
@@ -140,13 +140,13 @@ package object functions {
     }
   }
 
-  private[rasterframes] def assembleTile(cols: Int, rows: Int, ct: CellType) = TileAssemblerFunction(cols, rows, ct)
+  private[rasterframes] def assembleTile(cols: Int, rows: Int, ct: CellType) = TileAssembler(cols, rows, ct)
 
   /** Computes the column aggregate histogram */
-  private[rasterframes] val aggHistogram = HistogramAggregateFunction()
+  private[rasterframes] val aggHistogram = HistogramAggregate()
 
   /** Computes the column aggregate statistics */
-  private[rasterframes] val aggStats = CellStatsAggregateFunction()
+  private[rasterframes] val aggStats = CellStatsAggregate()
 
   /** Change the tile's cell type. */
   private[rasterframes] def convertCellType(cellType: CellType) = safeEval[Tile, Tile](_.convert(cellType))
@@ -206,22 +206,22 @@ package object functions {
   })
 
   /** Compute summary cell-wise statistics across tiles. */
-  private[rasterframes] val localAggStats = new LocalStatsAggregateFunction()
+  private[rasterframes] val localAggStats = new LocalStatsAggregate()
 
   /** Compute the cell-wise max across tiles. */
-  private[rasterframes] val localAggMax = new LocalTileOpAggregateFunction(Max)
+  private[rasterframes] val localAggMax = new LocalTileOpAggregate(Max)
 
   /** Compute the cell-wise min across tiles. */
-  private[rasterframes] val localAggMin = new LocalTileOpAggregateFunction(Min)
+  private[rasterframes] val localAggMin = new LocalTileOpAggregate(Min)
 
   /** Compute the cell-wise main across tiles. */
-  private[rasterframes] val localAggMean = new LocalMeanAggregateFunction()
+  private[rasterframes] val localAggMean = new LocalMeanAggregate()
 
   /** Compute the cell-wise count of non-NA across tiles. */
-  private[rasterframes] val localAggCount = new LocalCountAggregateFunction(true)
+  private[rasterframes] val localAggCount = new LocalCountAggregate(true)
 
   /** Compute the cell-wise count of non-NA across tiles. */
-  private[rasterframes] val localAggNodataCount = new LocalCountAggregateFunction(false)
+  private[rasterframes] val localAggNodataCount = new LocalCountAggregate(false)
 
   /** Convert the tile to a floating point type as needed for scalar operations. */
   private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)

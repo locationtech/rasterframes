@@ -28,7 +28,7 @@ import org.apache.spark.sql.types._
  *
  * @since 4/17/17
  */
-class LocalTileOpAggregateFunction(op: LocalTileBinaryOp) extends UserDefinedAggregateFunction {
+class LocalTileOpAggregate(op: LocalTileBinaryOp) extends UserDefinedAggregateFunction {
 
   private val safeOp = safeBinaryOp(op.apply(_: Tile, _: Tile))
 

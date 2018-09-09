@@ -32,7 +32,7 @@ import scala.collection.mutable
  *
  * @since 9/24/17
  */
-case class TileAssemblerFunction(cols: Int, rows: Int, ct: CellType) extends UserDefinedAggregateFunction {
+case class TileAssembler(cols: Int, rows: Int, ct: CellType) extends UserDefinedAggregateFunction {
   def inputSchema: StructType = StructType(Seq(
     StructField("columnIndex", IntegerType, false),
     StructField("rowIndex", IntegerType, false),

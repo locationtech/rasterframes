@@ -34,7 +34,7 @@ import spire.syntax.cfor.cfor
  *
  * @since 4/12/17
  */
-private[rasterframes] case class ExplodeTileExpression(
+private[rasterframes] case class ExplodeTile(
   sampleFraction: Double = 1.0, override val children: Seq[Expression])
     extends Expression with Generator with CodegenFallback {
 

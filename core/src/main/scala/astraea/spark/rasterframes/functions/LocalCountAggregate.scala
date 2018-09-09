@@ -13,7 +13,7 @@ import org.apache.spark.sql.types.{DataType, StructField, StructType}
  * @param isData true if count should be of non-NoData values, false for NoData values.
  * @since 8/11/17
  */
-class LocalCountAggregateFunction(isData: Boolean) extends UserDefinedAggregateFunction {
+class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction {
   override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
 
   private val incCount =

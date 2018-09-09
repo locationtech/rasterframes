@@ -33,7 +33,7 @@ import org.apache.spark.sql.types._
  *
  * @since 4/24/17
  */
-case class HistogramAggregateFunction(numBuckets: Int) extends UserDefinedAggregateFunction {
+case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunction {
   def this() = this(StreamingHistogram.DEFAULT_NUM_BUCKETS)
 
   override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
@@ -47,11 +47,11 @@ case class HistogramAggregateFunction(numBuckets: Int) extends UserDefinedAggreg
 
   @inline
   private def marshall(hist: Histogram[Double]): Array[Byte] =
-    HistogramAggregateFunction.ser.serialize(hist).array()
+    HistogramAggregate.ser.serialize(hist).array()
 
   @inline
   private def unmarshall(blob: Array[Byte]): Histogram[Double] =
-    HistogramAggregateFunction.ser.deserialize(ByteBuffer.wrap(blob))
+    HistogramAggregate.ser.deserialize(ByteBuffer.wrap(blob))
 
   override def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = marshall(StreamingHistogram(numBuckets))
@@ -79,8 +79,8 @@ case class HistogramAggregateFunction(numBuckets: Int) extends UserDefinedAggreg
   }
 }
 
-object HistogramAggregateFunction {
-  def apply() = new HistogramAggregateFunction(StreamingHistogram.DEFAULT_NUM_BUCKETS)
+object HistogramAggregate {
+  def apply() = new HistogramAggregate(StreamingHistogram.DEFAULT_NUM_BUCKETS)
   @transient
   private lazy val ser = KryoSerializer.ser.newInstance()
 }
