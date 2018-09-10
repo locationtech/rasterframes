@@ -26,9 +26,10 @@ import java.net.URI
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
-import org.apache.spark.sql.rf.RasterRefUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{DataType, StringType, StructType}
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -54,4 +55,9 @@ case class URIToRasterRef(override val child: Expression, accumulator: Option[Re
     val ref = RasterRef(RasterSource(uri, accumulator))
     RasterRefUDT.encode(ref)
   }
+}
+
+object URIToRasterRef {
+  def apply(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
+    new URIToRasterRef(rasterURI.expr, accumulator).asColumn.as[RasterRef]
 }

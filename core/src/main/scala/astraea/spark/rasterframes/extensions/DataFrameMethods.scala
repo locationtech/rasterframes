@@ -18,6 +18,7 @@ package astraea.spark.rasterframes.extensions
 
 import astraea.spark.rasterframes
 import astraea.spark.rasterframes.StandardColumns._
+import astraea.spark.rasterframes.expressions.ProjectIntoLayer
 import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.{MetadataKeys, RasterFrame}
@@ -197,7 +198,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     val refCols = refFields.map(f ⇒ self(f.name).as[RasterRef])
     val otherCols = otherFields.map(f ⇒ self(f.name))
 
-    val layer = self.select(otherCols :+ rasterframes.projectIntoLayer(refCols, space): _*)
+    val layer = self.select(otherCols :+ ProjectIntoLayer(refCols, space): _*)
 
     val tlm = space.asTileLayerMetadata
     layer.setSpatialColumnRole(SPATIAL_KEY_COLUMN, tlm).asRF

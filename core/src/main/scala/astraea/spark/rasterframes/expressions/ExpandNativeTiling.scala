@@ -24,10 +24,11 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.util.NamedExpression
 import com.typesafe.scalalogging.LazyLogging
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf.RasterRefUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{StructField, StructType}
 
 import scala.util.control.NonFatal
@@ -63,4 +64,9 @@ case class ExpandNativeTiling(children: Seq[Expression]) extends Expression
         Traversable.empty
     }
   }
+}
+
+object ExpandNativeTiling {
+  def apply(rrs: Column*): Column =
+    new ExpandNativeTiling(rrs.map(_.expr)).asColumn
 }

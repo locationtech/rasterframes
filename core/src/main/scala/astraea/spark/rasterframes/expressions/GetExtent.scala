@@ -21,35 +21,40 @@
 
 package astraea.spark.rasterframes.expressions
 
-import geotrellis.raster.Tile
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
+import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.types._
+import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
+import geotrellis.vector.Extent
 import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
- * Extracts tile represented by a RasterRef.
+ * Expression to extract the Extent out of a RasterRef or ProjectedRasterTile column.
  *
- * @since 9/5/18
+ * @since 9/10/18
  */
-case class ResolveRasterRefTile(child: Expression) extends UnaryExpression
-  with CodegenFallback with ExpectsInputTypes {
-
-  override def dataType: DataType = TileUDT
-
-  override def nodeName: String = "resolveRasterRefTile"
+case class GetExtent(child: Expression) extends UnaryExpression with CodegenFallback {
+  override def dataType: DataType = extentEncoder.schema
 
   override protected def nullSafeEval(input: Any): Any = {
-    val ref = RasterRefUDT.deserialize(input)
-    TileUDT.serialize(ref.tile)
+    child.dataType match {
+      case rr: RasterRefUDT ⇒
+        val ref = rr.deserialize(input)
+        extentEncoder.toRow(ref.extent)
+      case t: TileUDT ⇒
+        val tile = t.deserialize(input)
+        tile match {
+          case pr: ProjectedRasterTile ⇒
+            extentEncoder.toRow(pr.extent)
+          case _ ⇒ null
+        }
+    }
   }
-
-  override def inputTypes = Seq(new RasterRefUDT)
 }
 
-object ResolveRasterRefTile {
-  import astraea.spark.rasterframes.encoders.StandardEncoders._
-  def apply(rasterRef: Column): TypedColumn[Any, Tile] =
-    new ResolveRasterRefTile(rasterRef.expr).asColumn.as[Tile]
+object GetExtent {
+  def apply(col: Column): TypedColumn[Any, Extent] =
+    new GetExtent(col.expr).asColumn.as[Extent]
 }

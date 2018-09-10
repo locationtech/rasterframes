@@ -21,14 +21,15 @@
 
 package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
+import astraea.spark.rasterframes.ref.LayerSpace
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.spark.{SpatialKey, TileBounds}
+import geotrellis.spark.SpatialKey
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf.{RasterRefUDT, TileUDT}
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.rf._
+import org.apache.spark.sql.types.{StructField, StructType}
 
 /**
  * Projects/tiles incoming RasterRefs into tiles of a consistent layer.
@@ -88,5 +89,6 @@ case class ProjectIntoLayer(children: Seq[Expression], space: LayerSpace) extend
 }
 
 object ProjectIntoLayer {
-
+  def apply(rrs: Seq[Column], space: LayerSpace): Column =
+    new ProjectIntoLayer(rrs.map(_.expr), space).asColumn
 }

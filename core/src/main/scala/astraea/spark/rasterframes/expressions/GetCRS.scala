@@ -21,35 +21,40 @@
 
 package astraea.spark.rasterframes.expressions
 
-import geotrellis.raster.Tile
+import astraea.spark.rasterframes.encoders.StandardEncoders.crsEncoder
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
+import geotrellis.proj4.CRS
+import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
- * Extracts tile represented by a RasterRef.
+ * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
  *
- * @since 9/5/18
+ * @since 9/9/18
  */
-case class ResolveRasterRefTile(child: Expression) extends UnaryExpression
-  with CodegenFallback with ExpectsInputTypes {
-
-  override def dataType: DataType = TileUDT
-
-  override def nodeName: String = "resolveRasterRefTile"
+case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallback {
+  override def dataType: DataType = crsEncoder.schema
 
   override protected def nullSafeEval(input: Any): Any = {
-    val ref = RasterRefUDT.deserialize(input)
-    TileUDT.serialize(ref.tile)
+    child.dataType match {
+      case rr: RasterRefUDT ⇒
+        val ref = rr.deserialize(input)
+        crsEncoder.toRow(ref.crs)
+      case t: TileUDT ⇒
+        val tile = t.deserialize(input)
+        tile match {
+          case pr: ProjectedRasterTile ⇒
+            crsEncoder.toRow(pr.crs)
+          case _ ⇒ null
+        }
+    }
   }
-
-  override def inputTypes = Seq(new RasterRefUDT)
 }
 
-object ResolveRasterRefTile {
-  import astraea.spark.rasterframes.encoders.StandardEncoders._
-  def apply(rasterRef: Column): TypedColumn[Any, Tile] =
-    new ResolveRasterRefTile(rasterRef.expr).asColumn.as[Tile]
+object GetCRS {
+  def apply(ref: Column): TypedColumn[Any, CRS] =
+    new GetCRS(ref.expr).asColumn.as[CRS]
 }

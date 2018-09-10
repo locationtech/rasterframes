@@ -30,13 +30,14 @@ import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 
 import scala.reflect.runtime.universe._
 
 /**
  * Implicit encoder definitions for RasterFrame types.
  */
-trait StandardEncoders {
+trait StandardEncoders extends SpatialEncoders{
   implicit def spatialKeyEncoder: ExpressionEncoder[SpatialKey] = ExpressionEncoder()
   implicit def temporalKeyEncoder: ExpressionEncoder[TemporalKey] = ExpressionEncoder()
   implicit def spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = ExpressionEncoder()

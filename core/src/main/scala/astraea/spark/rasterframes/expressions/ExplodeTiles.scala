@@ -22,10 +22,11 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util._
 import geotrellis.raster._
+import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow}
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import spire.syntax.cfor.cfor
 
@@ -34,9 +35,9 @@ import spire.syntax.cfor.cfor
  *
  * @since 4/12/17
  */
-private[rasterframes] case class ExplodeTile(
-  sampleFraction: Double = 1.0, override val children: Seq[Expression])
-    extends Expression with Generator with CodegenFallback {
+private[rasterframes]
+case class ExplodeTiles(sampleFraction: Double = 1.0, override val children: Seq[Expression])
+  extends Expression with Generator with CodegenFallback {
 
   override def nodeName: String = "explodeTiles"
 
@@ -89,5 +90,15 @@ private[rasterframes] case class ExplodeTile(
       if(sampleFraction < 1.0) sample(retval)
       else retval
     }
+  }
+}
+
+object ExplodeTiles {
+  def apply(sampleFraction: Double, cols: Seq[Column]): Column = {
+    val exploder = new ExplodeTiles(sampleFraction, cols.map(_.expr))
+    // Hack to grab the first two non-cell columns, containing the column and row indexes
+    val metaNames = exploder.elementSchema.fieldNames.take(2)
+    val colNames = cols.map(_.columnName)
+    exploder.asColumn.as(metaNames ++ colNames)
   }
 }

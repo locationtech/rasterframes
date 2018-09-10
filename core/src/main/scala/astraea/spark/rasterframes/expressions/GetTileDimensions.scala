@@ -19,17 +19,18 @@
 
 package astraea.spark.rasterframes.expressions
 
+import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 
 /**
  * Extract a Tile's dimensions
  * @since 12/21/17
  */
-case class TileDimensions(child: Expression) extends UnaryExpression
+case class GetTileDimensions(child: Expression) extends UnaryExpression
   with RequiresTile with CodegenFallback {
   override def nodeName: String = "dimensions"
 
@@ -43,4 +44,8 @@ case class TileDimensions(child: Expression) extends UnaryExpression
     InternalRow(r.cols.toShort, r.rows.toShort)
   }
 
+}
+
+object GetTileDimensions {
+  def apply(col: Column): Column = new GetTileDimensions(col.expr).asColumn
 }

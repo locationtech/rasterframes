@@ -20,11 +20,9 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.{expressions ⇒ E}
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
-import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{functions ⇒ F}
+import astraea.spark.rasterframes.{expressions ⇒ E, functions ⇒ F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -50,21 +48,14 @@ trait RasterFunctions {
   def explodeTiles(cols: Column*): Column = explodeTileSample(1.0, cols: _*)
 
   /** Create a row for each cell in Tile with random sampling. */
-  def explodeTileSample(sampleFraction: Double, cols: Column*): Column = {
-    val exploder = E.ExplodeTile(sampleFraction, cols.map(_.expr))
-    // Hack to grab the first two non-cell columns, containing the column and row indexes
-    val metaNames = exploder.elementSchema.fieldNames.take(2)
-    val colNames = cols.map(_.columnName)
-    new Column(exploder).as(metaNames ++ colNames)
-  }
+  def explodeTileSample(sampleFraction: Double, cols: Column*): Column =
+    E.ExplodeTiles(sampleFraction, cols)
 
   /** Query the number of (cols, rows) in a Tile. */
-  def tileDimensions(col: Column): Column =
-    E.TileDimensions(col.expr).asColumn
+  def tileDimensions(col: Column): Column = E.GetTileDimensions(col)
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
-  def envelope(col: Column): TypedColumn[Any, Envelope] =
-    E.Envelope(col.expr).asColumn.as[Envelope]
+  def envelope(col: Column): TypedColumn[Any, Envelope] = E.GetEnvelope(col)
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
@@ -86,8 +77,7 @@ trait RasterFunctions {
 
 
   /** Extract the Tile's cell type */
-  def cellType(col: Column): TypedColumn[Any, String] =
-    E.CellType(col.expr).asColumn.as[String]
+  def cellType(col: Column): TypedColumn[Any, String] = E.GetCellType(col)
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
@@ -96,6 +86,10 @@ trait RasterFunctions {
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
     udf[Tile, Tile](F.convertCellType(cellTypeName)).apply(col).as[Tile]
+
+
+  /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
+  def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] = E.BoundsToGeometry(bounds)
 
   /** Assign a `NoData` value to the Tiles. */
   def withNoData(col: Column, nodata: Double) = withAlias("withNoData", col)(
@@ -428,27 +422,4 @@ trait RasterFunctions {
     }
     udf(f).apply(tileCol).as(s"localUnequalScalar($tileCol, $value)").as[Tile]
   }
-
-  /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
-  def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] =
-    E.BoundsToGeometry(bounds.expr).asColumn.as[Geometry]
-
-  //-------------------------------------------------------------------------------------
-
-  private[rasterframes]
-  def rasterRefAsTile(rasterRef: TypedColumn[Any, RasterRef]): TypedColumn[Any, Tile] =
-    E.ResolveRasterRefTile(rasterRef.expr).asColumn.as[Tile]
-
-  private[rasterframes]
-  def rasterRef(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
-    E.URIToRasterRef(rasterURI.expr, accumulator).asColumn.as[RasterRef]
-
-  private[rasterframes]
-  def nativeTiling(rrs: TypedColumn[Any, RasterRef]*): Column =
-    E.ExpandNativeTiling(rrs.map(_.expr)).asColumn
-
-  private[rasterframes]
-  def projectIntoLayer(rrs: Seq[TypedColumn[Any, RasterRef]], space: LayerSpace): Column =
-    E.ProjectIntoLayer(rrs.map(_.expr), space).asColumn
-
 }

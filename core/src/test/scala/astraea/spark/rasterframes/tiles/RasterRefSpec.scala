@@ -21,13 +21,14 @@
 
 package astraea.spark.rasterframes.tiles
 
-import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.{expressions, _}
+import astraea.spark.rasterframes.expressions.{GetCRS, GetExtent, ResolveRasterRefTile}
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef, RasterSource}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
 import astraea.spark.rasterframes.tiles.RasterRefSpec.ReadMonitor
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.proj4.LatLng
+import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster.{ByteConstantNoDataCellType, Tile, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.Extent
@@ -54,8 +55,50 @@ class RasterRefSpec extends TestEnvironment with TestData {
     val subRaster = RasterRef(src, subExtent)
   }
 
+  describe("GetCRS Expression") {
+    it("should read from RasterRef") {
+      import spark.implicits._
+      new Fixture {
+        val ds = Seq(fullRaster).toDF("ref")
+        val crs = ds.select(GetCRS($"ref"))
+        assert(crs.count() === 1)
+        assert(crs.first() !== null)
+      }
+    }
+    it("should read from resolved RasterRef") {
+      import spark.implicits._
+      new Fixture {
+        val ds = Seq(subRaster).toDF("ref")
+        val crs = ds.select(GetCRS(ResolveRasterRefTile($"ref")))
+        assert(crs.count() === 1)
+        assert(crs.first() !== null)
+      }
+    }
+  }
+
+  describe("GetExtent Expression") {
+    it("should read from RasterRef") {
+      import spark.implicits._
+      new Fixture {
+        val ds = Seq(fullRaster).toDF("ref")
+        val crs = ds.select(GetExtent($"ref"))
+        assert(crs.count() === 1)
+        assert(crs.first() !== null)
+      }
+    }
+    it("should read from resolved RasterRef") {
+      import spark.implicits._
+      new Fixture {
+        val ds = Seq(subRaster).toDF("ref")
+        val crs = ds.select(GetExtent(ResolveRasterRefTile($"ref")))
+        assert(crs.count() === 1)
+        assert(crs.first() !== null)
+      }
+    }
+  }
+
   describe("RasterRef") {
-      it("should delay reading") {
+    it("should delay reading") {
       new Fixture {
         assert(subRaster.cellType === src.cellType)
         assert(counter.reads === 0)
@@ -91,7 +134,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         val ds = Seq(subRaster).toDS()
         assert(ds.first().isInstanceOf[RasterRef])
-        val ds2 = ds.withColumn("tile", rasterRefAsTile($"value".as[RasterRef]))
+        val ds2 = ds.withColumn("tile", ResolveRasterRefTile($"value"))
         val mean = ds2.select(tileMean($"tile")).first()
         val doubleMean = ds2.select(tileMean(localAdd($"tile", $"tile"))).first()
         assert(2 * mean ===  doubleMean +- 0.0001)

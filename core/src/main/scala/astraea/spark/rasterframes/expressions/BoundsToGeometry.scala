@@ -22,16 +22,17 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
-import com.vividsolutions.jts.geom.{Geometry, Polygon}
+import com.vividsolutions.jts.geom.Geometry
 import geotrellis.vector.Extent
-import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, GenericInternalRow, UnaryExpression}
+import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.rf._
+import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 
 /**
  * Catalyst Expression for converting a bounding box structure into a JTS Geometry type.
@@ -67,4 +68,9 @@ case class BoundsToGeometry(child: Expression) extends UnaryExpression with Code
     val geom = extent.jtsGeom
     JTSTypes.GeometryTypeInstance.serialize(geom)
   }
+}
+
+object BoundsToGeometry extends SpatialEncoders {
+  def apply(bounds: Column): TypedColumn[Any, Geometry] =
+    new BoundsToGeometry(bounds.expr).asColumn.as[Geometry]
 }

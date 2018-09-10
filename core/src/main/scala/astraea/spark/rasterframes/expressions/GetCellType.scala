@@ -22,9 +22,10 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.InternalRowTile
 import astraea.spark.rasterframes.tiles.InternalRowTile.C.CELL_TYPE
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -32,7 +33,7 @@ import org.apache.spark.unsafe.types.UTF8String
  * Extract a Tile's cell type
  * @since 12/21/17
  */
-case class CellType(child: Expression) extends UnaryExpression
+case class GetCellType(child: Expression) extends UnaryExpression
   with RequiresTile with CodegenFallback {
 
   override def nodeName: String = "cellType"
@@ -46,4 +47,10 @@ case class CellType(child: Expression) extends UnaryExpression
       case o ⇒ throw new IllegalArgumentException("Unsupported type: " + o)
     }
   }
+}
+
+object GetCellType {
+  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  def apply(col: Column): TypedColumn[Any, String] =
+    new GetCellType(col.expr).asColumn.as[String]
 }
