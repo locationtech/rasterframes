@@ -27,7 +27,8 @@ import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind.SourceKind
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, GridBounds, Tile}
+import geotrellis.raster.{CellType, GridBounds, Tile, TileLayout}
+import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.{Extent, ProjectedExtent}
 
 /**
@@ -71,6 +72,12 @@ object RasterRef extends LazyLogging {
       .map(e ⇒ SubRasterRef(ref.source, e))
   }
 
+  private[rasterframes]
+  def defaultLayout(rr: RasterRef): LayoutDefinition =
+    LayoutDefinition(rr.extent, rr.source.nativeLayout
+      .getOrElse(TileLayout(1, 1, rr.cols, rr.rows))
+    )
+
   case class FullRasterRef(source: RasterSource) extends RasterRef {
     val extent: Extent = source.extent
   }
@@ -83,7 +90,9 @@ object RasterRef extends LazyLogging {
     def extent: Extent = rr.extent
     def crs: CRS = rr.crs
     protected def delegate: Tile = rr.realizedTile
-
     def sourceKind: SourceKind = SourceKind.Reference
+    // NB: This saves us from stack overflow exception
+    override def convert(ct: CellType): ProjectedRasterTile =
+      ProjectedRasterTile(rr.realizedTile.convert(ct), extent, crs)
   }
 }

@@ -22,9 +22,10 @@ import java.net.URI
 import java.nio.file.Paths
 import java.time.ZonedDateTime
 
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.{functions ⇒ F}
 import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
-import geotrellis.proj4.LatLng
+import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
@@ -197,6 +198,20 @@ object TestData extends TestData {
   /** Create a series of random tiles. */
   val makeTiles: Int ⇒ Array[Tile] =
     count ⇒ Array.fill(count)(randomTile(4, 4, UByteCellType))
+
+  def projectedRasterTile[N: Numeric](
+    cols: Int, rows: Int,
+    cellValue: N,
+    extent: Extent, crs: CRS = LatLng,
+    cellType: CellType = ByteConstantNoDataCellType): ProjectedRasterTile = {
+    val num = implicitly[Numeric[N]]
+
+    val base = if(cellType.isFloatingPoint)
+      ArrayTile(Array.fill(cols * rows)(num.toDouble(cellValue)), cols, rows)
+    else
+      ArrayTile(Array.fill(cols * rows)(num.toInt(cellValue)), cols, rows)
+    ProjectedRasterTile(base.convert(cellType), extent, crs)
+  }
 
   def randomSpatialTileLayerRDD(
     rasterCols: Int, rasterRows: Int,

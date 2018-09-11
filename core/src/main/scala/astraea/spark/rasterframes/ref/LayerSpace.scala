@@ -21,12 +21,12 @@
 
 package astraea.spark.rasterframes.ref
 
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.raster.resample.ResampleMethod
-import geotrellis.spark.{SpatialKey, _}
 import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.vector._
+import geotrellis.spark.{SpatialKey, _}
 
 
 /**
@@ -41,6 +41,13 @@ case class LayerSpace(
   resampleMethod: ResampleMethod = ResampleMethod.DEFAULT
 ) {
 
+  def reproject(dest: CRS): LayerSpace = {
+    copy(
+      crs = dest,
+      layout = layout.copy(extent = layout.extent.reproject(crs, dest))
+    )
+  }
+
   def asTileLayerMetadata: TileLayerMetadata[SpatialKey] = {
     val bounds = KeyBounds(
       SpatialKey(0, 0),
@@ -51,9 +58,19 @@ case class LayerSpace(
 }
 
 object LayerSpace {
-  def from(rr: RasterRef): LayerSpace = new LayerSpace(rr.crs, rr.cellType,
-    LayoutDefinition(rr.extent, rr.source.nativeLayout
-      .getOrElse(TileLayout(1, 1, rr.cols, rr.rows))
+
+  def from(rs: RasterSource): LayerSpace = new LayerSpace(
+    rs.crs, rs.cellType, LayoutDefinition(rs.extent, rs.nativeLayout
+      .getOrElse(TileLayout(1, 1, rs.cols, rs.rows))
     )
   )
+
+  def from(rr: RasterRef): LayerSpace = new LayerSpace(
+    rr.crs, rr.cellType, RasterRef.defaultLayout(rr)
+  )
+
+  def from(prt: ProjectedRasterTile): LayerSpace = new LayerSpace(
+    prt.crs, prt.cellType, ProjectedRasterTile.defaultLayout(prt)
+  )
+
 }

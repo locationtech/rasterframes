@@ -19,17 +19,17 @@
  *
  */
 
-package astraea.spark.rasterframes.tiles
+package astraea.spark.rasterframes.ref
 
-import astraea.spark.rasterframes.{expressions, _}
+import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.{GetCRS, GetExtent, ResolveRasterRefTile}
+import astraea.spark.rasterframes.ref.RasterRefSpec.ReadMonitor
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
-import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef, RasterSource}
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
-import astraea.spark.rasterframes.tiles.RasterRefSpec.ReadMonitor
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.proj4.{CRS, LatLng}
-import geotrellis.raster.{ByteConstantNoDataCellType, Tile, TileLayout}
+import geotrellis.proj4.LatLng
+import geotrellis.raster.{ByteConstantNoDataCellType, Tile, TileLayout, UByteConstantNoDataCellType}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.Extent
 
@@ -160,7 +160,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         val targetCRS = LatLng
         val targetExtent = subRaster.extent.reproject(subRaster.crs, targetCRS)
-        val targetCellType = ByteConstantNoDataCellType
+        val targetCellType = UByteConstantNoDataCellType
         val targetLayout = LayoutDefinition(targetExtent, TileLayout(4, 4, 10, 10))
         val space = LayerSpace(targetCRS, targetCellType, targetLayout)
         val ds = Seq(subRaster).toDF("src")
@@ -168,7 +168,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
         val tile = projected.select($"src".as[Tile]).first()
         assert(tile.isInstanceOf[ProjectedRasterTile])
         assert(tile.asInstanceOf[ProjectedRasterTile].sourceKind === SourceKind.Reference)
-        pprint.pprintln(tile.statistics)
+        //println(tile.statistics.map(CellStatistics.apply).map(_.asciiStats))
       }
     }
     it("should serialize") {

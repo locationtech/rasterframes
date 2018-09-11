@@ -81,12 +81,11 @@ trait RasterFunctions {
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    udf[Tile, Tile](F.convertCellType(cellType)).apply(col).as[Tile]
+    E.SetCellType(col, cellType)
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
-    udf[Tile, Tile](F.convertCellType(cellTypeName)).apply(col).as[Tile]
-
+    E.SetCellType(col, cellTypeName)
 
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
   def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] = E.BoundsToGeometry(bounds)

@@ -16,11 +16,11 @@
 
 package astraea.spark.rasterframes.extensions
 
-import astraea.spark.rasterframes
 import astraea.spark.rasterframes.StandardColumns._
 import astraea.spark.rasterframes.expressions.ProjectIntoLayer
 import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.util._
+import astraea.spark.rasterframes.convertCellType
 import astraea.spark.rasterframes.{MetadataKeys, RasterFrame}
 import geotrellis.raster.Tile
 import geotrellis.spark.io._
@@ -198,7 +198,13 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     val refCols = refFields.map(f ⇒ self(f.name).as[RasterRef])
     val otherCols = otherFields.map(f ⇒ self(f.name))
 
-    val layer = self.select(otherCols :+ ProjectIntoLayer(refCols, space): _*)
+    // Reproject tile into layer space
+    val projected = self.select(otherCols :+ ProjectIntoLayer(refCols, space): _*)
+
+
+    // Lastly, convert cell type as desired
+    val convertedCols = refFields.map(f ⇒ convertCellType(col(f.name), space.cellType))
+    val layer = projected.select(otherCols ++ convertedCols: _*)
 
     val tlm = space.asTileLayerMetadata
     layer.setSpatialColumnRole(SPATIAL_KEY_COLUMN, tlm).asRF

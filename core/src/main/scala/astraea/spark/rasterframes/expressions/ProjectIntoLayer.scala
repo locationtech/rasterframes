@@ -22,6 +22,7 @@
 package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.ref.LayerSpace
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.spark.SpatialKey
 import org.apache.spark.sql.Column
@@ -53,38 +54,46 @@ case class ProjectIntoLayer(children: Seq[Expression], space: LayerSpace) extend
   override def nodeName: String = "projectIntoLayer"
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
-    val mapTransform = space.layout.mapTransform
-    val tiles = for {
+    // Fetch serialized RasterRefs
+    val refs = for {
       child ← children
       element = child.eval(input)
       ref = rrType.deserialize(row(element))
-      inExtent = ref.extent.reproject(ref.crs, space.crs)
+    } yield ref
+
+    val mapTransform = space.layout.mapTransform
+    val tiles: Seq[(Int, SpatialKey, ProjectedRasterTile)] = for {
+      (ref, i) ← refs.zipWithIndex
+      needsReproj = ref.crs != space.crs
+      inExtent = if(needsReproj) ref.extent.reproject(ref.crs, space.crs) else ref.extent
       bounds = mapTransform(inExtent)
       (col, row) ← bounds.coordsIter
+      _ = require(col >= 0 && row >= 0, "invalid reprojection")
       outKey = SpatialKey(col, row)
-      tile = ref.tile.reproject(space.crs).convert(space.cellType)
-    } yield (child, outKey, tile)
+      tile = if(needsReproj) ref.tile.reproject(space.crs) else ref.tile
+    } yield (i, outKey, tile)
 
-    //InternalRow(spatialKeyEncoder.toRow(outKey), tType.serialize(tile))
-    val grouped = tiles
-      .groupBy(t ⇒ t._2)          // Group all tiles that have the same spatial key
+    val grouped: Seq[(SpatialKey, Map[Int, ProjectedRasterTile])] = tiles
+      .groupBy(t ⇒ t._2)         // Group all tiles that have the same spatial key
       .mapValues(_.groupBy(_._1)) // Values as map on expression for later lookup
       .mapValues(_.mapValues(_.head._3)) // Drop the fields we no longer need
-      .toSeq                      // ^^ This is where the merge method goes.
+      .toSeq                      // ^^ This is where the (local) merge method goes.
       .sortBy(_._1)               // Order on spatial key
 
-    for {
+    val results = for {
       (key, map) ← grouped
       outExtent = mapTransform.keyToExtent(key)
       spCol = spatialKeyEncoder.toRow(key)
       extCol = extentEncoder.toRow(outExtent)
     } yield {
       val tiles = for {
-        child ← children
-        tile = map(child)
+        i ← children.indices
+        tile = map(i)
       } yield tType.serialize(tile)
       InternalRow(Seq(spCol, extCol) ++ tiles: _*)
     }
+
+    results
   }
 }
 

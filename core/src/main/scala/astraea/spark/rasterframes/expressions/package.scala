@@ -19,7 +19,7 @@
 
 package astraea.spark.rasterframes
 
-import org.apache.spark.sql.catalyst.{FunctionIdentifier, InternalRow}
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.rf.VersionShims
 import org.apache.spark.sql.{SQLContext, rf}
@@ -34,6 +34,8 @@ package object expressions {
 
   /** Unary expression builder builder. */
   private def ub[A, B](f: A ⇒ B)(a: Seq[A]) = f(a.head)
+  /** Binary expression builder builder. */
+  private def bb[A, B](f: (A, A) ⇒ B)(a: Seq[A]) = f(a.head, a.last)
 
   def register(sqlContext: SQLContext): Unit = {
     // Expression-oriented functions have a different registration scheme
@@ -41,6 +43,7 @@ package object expressions {
     val registry: FunctionRegistry = rf.registry(sqlContext)
     VersionShims.registerExpression(registry, "rf_explodeTiles", ExplodeTiles.apply(1.0, _))
     VersionShims.registerExpression(registry, "rf_cellType", ub(GetCellType.apply))
+    VersionShims.registerExpression(registry, "rf_convertCellType", bb(SetCellType.apply))
     VersionShims.registerExpression(registry, "rf_tileDimensions", ub(GetTileDimensions.apply))
     VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(BoundsToGeometry.apply))
   }

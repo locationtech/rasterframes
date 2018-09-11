@@ -22,6 +22,7 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.InternalRowTile
 import astraea.spark.rasterframes.tiles.InternalRowTile.C.CELL_TYPE
+import geotrellis.raster.Tile
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
@@ -43,7 +44,7 @@ case class GetCellType(child: Expression) extends UnaryExpression
   override protected def nullSafeEval(input: Any): Any = {
     TileUDT.decode(row(input)) match {
       case t: InternalRowTile ⇒ t.mem.getUTF8String(CELL_TYPE)
-      case t: RasterRefTile ⇒ UTF8String.fromString(t.cellType.name)
+      case t: Tile ⇒ UTF8String.fromString(t.cellType.name)
       case o ⇒ throw new IllegalArgumentException("Unsupported type: " + o)
     }
   }

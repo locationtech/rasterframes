@@ -24,11 +24,12 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, ProjectedRaster, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.{HdfsRangeReader, SerializableConfiguration}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.{FileRangeReader, RangeReader}
@@ -74,19 +75,17 @@ trait RasterSource extends Serializable {
 
 object RasterSource extends LazyLogging {
 
-  /** Trait for registering a callback for logging or monitoring range reads.
-   * NB: the callback will be invoked from within a Spark task, and therefore
-   * is serialized along with its closure to executors. */
-  trait ReadCallback extends Serializable {
-    def readRange(source: RasterSource, start: Long, length: Int): Unit
-  }
-
-  private case class ReportingRangeReader(delegate: RangeReader, callback: ReadCallback, parent: RasterSource) extends RangeReader {
-    override def totalLength: Long = delegate.totalLength
-    override protected def readClippedRange(start: Long, length: Int): Array[Byte] = {
-      callback.readRange(parent, start, length)
-      delegate.readRange(start, length)
-    }
+  case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
+    def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
+    override def timestamp: Option[ZonedDateTime] = None
+    override def size: Long = tile.size
+    override def dimensions: (Int, Int) = tile.dimensions
+    override def cellType: CellType = tile.cellType
+    override def bandCount: Int = 1
+    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = Left(
+      Raster(tile.crop(rasterExtent.gridBoundsFor(extent, false)), extent)
+    )
+    override def nativeLayout: Option[TileLayout] = Some(TileLayout(1, 1, cols, rows))
   }
 
   def apply(source: URI, callback: Option[ReadCallback] = None): RasterSource =
@@ -215,6 +214,21 @@ object RasterSource extends LazyLogging {
             .flatMap(_.headOption)
             .flatMap(s ⇒ Try(ZonedDateTime.parse(s, DateTimeFormatter.RFC_1123_DATE_TIME)).toOption)
         )
+    }
+  }
+
+  /** Trait for registering a callback for logging or monitoring range reads.
+   * NB: the callback will be invoked from within a Spark task, and therefore
+   * is serialized along with its closure to executors. */
+  trait ReadCallback extends Serializable {
+    def readRange(source: RasterSource, start: Long, length: Int): Unit
+  }
+
+  private case class ReportingRangeReader(delegate: RangeReader, callback: ReadCallback, parent: RasterSource) extends RangeReader {
+    override def totalLength: Long = delegate.totalLength
+    override protected def readClippedRange(start: Long, length: Int): Array[Byte] = {
+      callback.readRange(parent, start, length)
+      delegate.readRange(start, length)
     }
   }
 

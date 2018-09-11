@@ -148,16 +148,6 @@ package object functions {
   /** Computes the column aggregate statistics */
   private[rasterframes] val aggStats = CellStatsAggregate()
 
-  /** Change the tile's cell type. */
-  private[rasterframes] def convertCellType(cellType: CellType) = safeEval[Tile, Tile](_.convert(cellType))
-
-  /** Change the tile's cell type. */
-  private[rasterframes] def convertCellType(cellTypeName: String) =
-    safeEval[Tile, Tile](_.convert(CellType.fromName(cellTypeName)))
-
-  /** Convert the cell type of Tile */
-  private[rasterframes] val convertCellType: (Tile, String) ⇒ Tile = (t: Tile, s: String) ⇒ t.convert(CellType.fromName(s))
-
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
@@ -497,7 +487,6 @@ package object functions {
     sqlContext.udf.register("rf_normalizedDifference", normalizedDifference)
     sqlContext.udf.register("rf_cellTypes", cellTypes)
     sqlContext.udf.register("rf_renderAscii", renderAscii)
-    sqlContext.udf.register("rf_convertCellType", convertCellType)
     sqlContext.udf.register("rf_rasterize", rasterize)
     sqlContext.udf.register("rf_less", localLess)
     sqlContext.udf.register("rf_lessScalar", localLessScalar)

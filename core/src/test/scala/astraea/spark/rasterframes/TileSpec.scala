@@ -33,7 +33,7 @@ import astraea.spark.rasterframes.util._
  *
  * @since 3/30/17
  */
-class GTSQLSpec extends TestEnvironment with TestData  {
+class TileSpec extends TestEnvironment with TestData  {
   import TestData.{makeTiles, randomTile}
   import sqlContext.implicits._
 
@@ -74,6 +74,22 @@ class GTSQLSpec extends TestEnvironment with TestData  {
         val notTiles = Seq("one", "two", "three").toDF("not_tiles")
         notTiles.select(cellType($"not_tiles")).collect
       }
+    }
+
+    it("should set cell type") {
+      withClue("using CellType") {
+        val df = (allTileTypes :+ null).toDF("tile")
+        val converted = df.select(convertCellType($"tile", UByteConstantNoDataCellType) as "tile").na.drop()
+        val types = converted.select(cellType($"tile")).distinct().collect()
+        assert(types === Array("uint8"))
+      }
+      withClue("using name") {
+        val df = (allTileTypes :+ null).toDF("tile")
+        val converted = df.select(convertCellType($"tile", "uint16") as "tile").na.drop()
+        val types = converted.select(cellType($"tile")).distinct().collect()
+        assert(types === Array("uint16"))
+      }
+
     }
 
     it("should list supported cell types") {
