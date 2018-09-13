@@ -279,7 +279,9 @@ package object functions {
 
   /** Cell-wise normalized difference of tiles. */
   private[rasterframes] val normalizedDifference:  (Tile, Tile) ⇒ Tile = safeEval((t1: Tile, t2:Tile) => {
-    Divide(Subtract(t1, t2), Add(t1, t2))
+    val fpt1 = floatingPointTile(t1)
+    val fpt2 = floatingPointTile(t2)
+    Divide(Subtract(fpt1, fpt2), Add(fpt1, fpt2))
   })
 
   /** Render tile as ASCII string. */
