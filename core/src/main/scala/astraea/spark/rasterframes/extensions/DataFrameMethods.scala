@@ -84,11 +84,17 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def getColumnRole(column: Column): Option[String] =
     fetchMetadataValue(column, _.metadata.getString(SPATIAL_ROLE_KEY))
 
-  /** Get the names of the columns that are of type `Tile` */
+  /** Get the columns that are of type `Tile` */
   def tileColumns: Seq[TypedColumn[Any, Tile]] =
     self.schema.fields
       .filter(_.dataType.typeName.equalsIgnoreCase(TileUDT.typeName))
       .map(f ⇒ col(f.name).as[Tile])
+
+  /** Get the columns that are not of type `Tile` */
+  def notTileColumns: Seq[Column] =
+    self.schema.fields
+      .filterNot(_.dataType.typeName.equalsIgnoreCase(TileUDT.typeName))
+      .map(f ⇒ col(f.name))
 
   /** Get the spatial column. */
   def spatialKeyColumn: Option[TypedColumn[Any, SpatialKey]] = {
@@ -201,10 +207,11 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     // Reproject tile into layer space
     val projected = self.select(otherCols :+ ProjectIntoLayer(refCols, space): _*)
 
-
     // Lastly, convert cell type as desired
-    val convertedCols = refFields.map(f ⇒ convertCellType(col(f.name), space.cellType))
-    val layer = projected.select(otherCols ++ convertedCols: _*)
+    val tileCols = projected.tileColumns.map(c ⇒ convertCellType(c, space.cellType).as(c.columnName))
+    val remCols = projected.notTileColumns
+
+    val layer = projected.select(remCols ++ tileCols: _*)
 
     val tlm = space.asTileLayerMetadata
     layer.setSpatialColumnRole(SPATIAL_KEY_COLUMN, tlm).asRF

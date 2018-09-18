@@ -89,6 +89,10 @@ object RasterRef extends LazyLogging {
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
     def extent: Extent = rr.extent
     def crs: CRS = rr.crs
+
+    override def cols: Int = rr.cols
+    override def rows: Int = rr.rows
+
     protected def delegate: Tile = rr.realizedTile
     def sourceKind: SourceKind = SourceKind.Reference
     // NB: This saves us from stack overflow exception

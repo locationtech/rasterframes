@@ -24,6 +24,8 @@ import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.ref.LayerSpace
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
+import geotrellis.raster.RasterExtent
+import geotrellis.raster.reproject.ReprojectRasterExtent
 import geotrellis.spark.SpatialKey
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
@@ -61,14 +63,18 @@ case class ProjectIntoLayer(children: Seq[Expression], space: LayerSpace) extend
       ref = rrType.deserialize(row(element))
     } yield ref
 
+
     val mapTransform = space.layout.mapTransform
     val tiles: Seq[(Int, SpatialKey, ProjectedRasterTile)] = for {
       (ref, i) ← refs.zipWithIndex
       needsReproj = ref.crs != space.crs
-      inExtent = if(needsReproj) ref.extent.reproject(ref.crs, space.crs) else ref.extent
+      inExtent = if(needsReproj) {
+        val re = ReprojectRasterExtent(RasterExtent(ref.extent, ref.cols, ref.rows), ref.crs, space.crs)
+        re.extent
+      } else ref.extent
       bounds = mapTransform(inExtent)
       (col, row) ← bounds.coordsIter
-      _ = require(col >= 0 && row >= 0, "invalid reprojection")
+      _ = require(col >= 0 && row >= 0, "reprojection generated spatial key " + (col, row))
       outKey = SpatialKey(col, row)
       tile = if(needsReproj) ref.tile.reproject(space.crs) else ref.tile
     } yield (i, outKey, tile)

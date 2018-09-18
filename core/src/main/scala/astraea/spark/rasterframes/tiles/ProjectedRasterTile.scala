@@ -38,6 +38,7 @@ trait ProjectedRasterTile extends DelegatingTile {
   def crs: CRS
   def sourceKind: SourceKind
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
+  def projectedRaster = ProjectedRaster[Tile](this, extent, crs)
   def reproject(dest: CRS): ProjectedRasterTile =
     if(this.crs != dest) DelayedReprojectionTile(this, dest)
     else this

@@ -78,11 +78,9 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
 }
 
 object SetCellType {
-  private def ctLit(cellType: CellType): Expression =
-    Literal.create(cellTypeEncoder.toRow(cellType), cellTypeEncoder.schema)
 
   def apply(tile: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    new SetCellType(tile.expr, ctLit(cellType)).asColumn.as[Tile]
+    new SetCellType(tile.expr, lit(cellType.name).expr).asColumn.as[Tile]
   def apply(tile: Column, cellType: String): TypedColumn[Any, Tile] =
     new SetCellType(tile.expr, lit(cellType).expr).asColumn.as[Tile]
 
