@@ -25,9 +25,10 @@ import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.ref.RasterSource.InMemoryRasterSource
 import astraea.spark.rasterframes.stats.CellStatistics
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.proj4.{CRS, LatLng, Sinusoidal}
-import geotrellis.raster.{Tile, TileLayout}
+import geotrellis.proj4.{CRS, LatLng, Sinusoidal, Transform}
+import geotrellis.raster.{GridExtent, Tile, TileLayout}
 import geotrellis.raster.render.ascii.AsciiArtEncoder.Palette
+import geotrellis.raster.reproject.ReprojectRasterExtent
 import geotrellis.raster.resample.ResampleMethod
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.Extent
@@ -79,23 +80,27 @@ class LayerSpaceSpec extends TestEnvironment {
     }
 
     it("should merge") {
-      // WGS 84 / UTM zone 32N
-      // WGS84 Bounds: 6.0000, 0.0000, 12.0000, 84.0000
+      // UTM zone 32N
       val utm32n = CRS.fromEpsgCode(32632)
-      val llext32n = Extent(6.0000, 0.0000, 12.0000, 84.0000)
-      val ext32n = llext32n.reproject(LatLng, utm32n)
+      // Full extent in native coords
+      val ext32n = Extent(166021.4431, 0.0000, 833978.5569, 9329005.1825)
+      // Reproject densified extent to LatLng - note the GridExtent parameters are arbitrary - forced PIXEL_STEP to 50
+      val llext32n = ReprojectRasterExtent.reprojectExtent(GridExtent(ext32n, 1.0, 1.0), Transform(utm32n, LatLng))
       val t32n = TestData.projectedRasterTile(100, 100, 32, ext32n, utm32n)
       println(t32n)
 
       // WGS 84 / UTM zone 33N
-      //WGS84 Bounds: 12.0000, 0.0000, 18.0000, 84.0000
       val utm33n = CRS.fromEpsgCode(32633)
-      val llext33n = Extent(12.0000, 0.0000, 18.0000, 84.0000)
-      val ext33n = llext33n.reproject(LatLng, utm33n)
+      // Full extent in native coords
+      val ext33n = Extent(166021.4431, 0.0000, 833978.5569, 9329005.1825)
+      // Reproject densified extent to LatLng - note the GridExtent parameters are arbitrary - forces PIXEL_STEP to 50
+      val llext33n = ReprojectRasterExtent.reprojectExtent(GridExtent(ext33n, 1.0, 1.0), Transform(utm33n, LatLng))
+
       val t33n = TestData.projectedRasterTile(100, 100, 33, ext33n, utm33n)
       println(t33n)
+
       val space = LayerSpace(LatLng, t33n.cellType, LayoutDefinition(
-        llext32n.combine(llext33n).buffer(-0.5),
+        llext32n.combine(llext33n),
         TileLayout(5, 10, 10, 10)
       ), geotrellis.raster.resample.Average)
       println(space)
