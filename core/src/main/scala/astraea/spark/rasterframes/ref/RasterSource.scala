@@ -31,6 +31,8 @@ import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
 import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, ProjectedRaster, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.{HdfsRangeReader, SerializableConfiguration}
+import geotrellis.spark.io.s3.S3Client
+import geotrellis.spark.io.s3.util.S3RangeReader
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
@@ -95,9 +97,11 @@ object RasterSource extends LazyLogging {
       case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" ⇒
         // TODO: How can we get the active hadoop configuration
         // TODO: without having to pass it through?
-        val config = SerializableConfiguration(new Configuration())
+        val config = () ⇒ new Configuration()
         HadoopGeoTiffRasterSource(source, config, callback)
-      case "s3" ⇒ ???
+      case "s3" ⇒
+        val client = () ⇒ S3Client.DEFAULT
+        S3GeoTiffRasterSource(source, client, callback)
       case s ⇒ throw new UnsupportedOperationException(s"Scheme '$s' not supported")
     }
 
@@ -188,11 +192,20 @@ object RasterSource extends LazyLogging {
     }
   }
 
-  case class HadoopGeoTiffRasterSource(source: URI, config: SerializableConfiguration, callback: Option[ReadCallback]) extends RangeReaderRasterSource
+  case class HadoopGeoTiffRasterSource(source: URI, config: () ⇒ Configuration, callback: Option[ReadCallback]) extends RangeReaderRasterSource
     with URIRasterSource with URIRasterSourceDebugString { self ⇒
     @transient
     protected lazy val rangeReader = {
-      val base = HdfsRangeReader(new Path(source.getPath), config.value)
+      val base = HdfsRangeReader(new Path(source.getPath), config())
+      callback.map(cb ⇒ ReportingRangeReader(base, cb, self)).getOrElse(base)
+    }
+  }
+
+  case class S3GeoTiffRasterSource(source: URI, client: () ⇒ S3Client, callback: Option[ReadCallback]) extends RangeReaderRasterSource
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
+    @transient
+    protected lazy val rangeReader = {
+      val base = S3RangeReader(source, client())
       callback.map(cb ⇒ ReportingRangeReader(base, cb, self)).getOrElse(base)
     }
   }

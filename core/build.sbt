@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
   spark("sql").value % Provided,
   geotrellis("spark").value,
   geotrellis("raster").value,
+  geotrellis("s3").value,
   geotrellis("spark-testkit").value % Test excludeAll (
     ExclusionRule(organization = "org.scalastic"),
     ExclusionRule(organization = "org.scalatest")
