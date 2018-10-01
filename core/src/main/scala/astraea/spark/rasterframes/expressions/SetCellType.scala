@@ -41,10 +41,10 @@ import org.apache.spark.unsafe.types.UTF8String
 case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExpression with CodegenFallback {
   def left = tile
   def right = cellType
-  override def nodeName: String = "setCellType"
+  override def nodeName: String = "set_cell_type"
   override def dataType: DataType = new TileUDT()
 
-  private val ctEnc = cellTypeEncoder.resolveAndBind()
+  private val ctEnc = cellTypeEncoder
 
   override def checkInputDataTypes(): TypeCheckResult = {
     RequiresTile.check(tile) match {
@@ -66,7 +66,7 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
       case st: StructType if st == cellTypeEncoder.schema ⇒
-        ctEnc.fromRow(row(datum))
+        ctEnc.decode(row(datum))
     }
   }
 

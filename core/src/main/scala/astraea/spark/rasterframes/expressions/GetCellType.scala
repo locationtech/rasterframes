@@ -37,7 +37,7 @@ import org.apache.spark.unsafe.types.UTF8String
 case class GetCellType(child: Expression) extends UnaryExpression
   with RequiresTile with CodegenFallback {
 
-  override def nodeName: String = "cellType"
+  override def nodeName: String = "cell_type"
 
   def dataType: DataType = StringType
 

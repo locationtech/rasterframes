@@ -67,9 +67,8 @@ object RasterRefUDT extends RasterRefUDT {
   private val rrEncoder = Encoders
     .kryo(classOf[RasterRef])
     .asInstanceOf[ExpressionEncoder[RasterRef]]
-    .resolveAndBind()
 
   def schema = rrEncoder.schema
-  def encode(rr: RasterRef): InternalRow = rrEncoder.toRow(rr)
-  def decode(row: InternalRow): RasterRef = rrEncoder.fromRow(row)
+  def encode(rr: RasterRef): InternalRow = rrEncoder.encode(rr)
+  def decode(row: InternalRow): RasterRef = rrEncoder.decode(row)
 }

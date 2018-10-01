@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.ref.RasterRef
-import astraea.spark.rasterframes.util.NamedExpression
+import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
@@ -45,7 +45,7 @@ case class ExpandNativeTiling(children: Seq[Expression]) extends Expression
   private val rrType = new RasterRefUDT()
 
   override def inputTypes = Seq.fill(children.size)(rrType)
-  override def nodeName: String = "expandNativeTiling"
+  override def nodeName: String = "expand_native_tiling"
   override def elementSchema: StructType = StructType(
     children.map(e ⇒ StructField(e.name, rrType, true))
   )

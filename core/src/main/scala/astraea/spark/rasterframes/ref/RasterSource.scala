@@ -143,7 +143,7 @@ object RasterSource extends LazyLogging {
       else None
     }
 
-    // TODO: Determine if this is the correct way to handle time.
+    // TODO: Determine if this is the correct way to  handle time.
     protected def resolveDate: Option[ZonedDateTime] = {
       tiffInfo.tags.headTags
         .get(Tags.TIFFTAG_DATETIME)

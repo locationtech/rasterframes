@@ -25,8 +25,7 @@ import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.scalatest.Inspectors
 import astraea.spark.rasterframes.functions.cellTypes
-import astraea.spark.rasterframes.tiles.InternalRowTile
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.rf._
 
 /**
  * RasterFrame test rig.
@@ -43,7 +42,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     val tileSizes = Seq(2, 64, 128, 222, 511)
     val ct = cellTypes().filter(_ != "bool")
 
-    def forEveryConfig(test: (Tile) ⇒ Unit): Unit = {
+    def forEveryConfig(test: Tile ⇒ Unit): Unit = {
       forEvery(tileSizes.combinations(2).toSeq) { case Seq(cols, rows) ⇒
         forEvery(ct) { c ⇒
           val tile = randomTile(cols, rows, CellType.fromName(c))
@@ -62,7 +61,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
     it("should (en/de)code tile") {
       forEveryConfig { tile ⇒
-        val row = tileEncoder.toRow(tile)
+        val row = tileEncoder.encode(tile)
         assert(!row.isNullAt(0))
         val tileAgain = TileUDT.deserialize(row.getStruct(0, TileUDT.sqlType.size))
         assert(tileAgain === tile)

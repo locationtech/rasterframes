@@ -60,11 +60,12 @@ package object rf {
   def projectStructExpression(dataType: StructType, input: Expression) =
     MultiAlias(Inline(CreateArray(Seq(input))), dataType.fields.map(_.name))
 
-  implicit class WithDecoder[T](enc: ExpressionEncoder[T]) {
+  implicit class WithCodec[T](enc: ExpressionEncoder[T]) {
     def decode(row: InternalRow): T =
       enc.resolveAndBind(enc.schema.toAttributes).fromRow(row)
     def decode(row: InternalRow, ordinal: Int): T =
       decode(row.getStruct(ordinal, enc.schema.length))
+    def encode(t: T): InternalRow = enc.resolveAndBind().toRow(t)
 
     def pprint(): Unit = {
       println(enc.getClass.getSimpleName + "{")

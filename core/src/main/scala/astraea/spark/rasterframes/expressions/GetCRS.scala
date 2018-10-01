@@ -38,16 +38,18 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallback {
   override def dataType: DataType = crsEncoder.schema
 
+  override def nodeName: String = "crs"
+
   override protected def nullSafeEval(input: Any): Any = {
     child.dataType match {
       case rr: RasterRefUDT ⇒
         val ref = rr.deserialize(input)
-        crsEncoder.toRow(ref.crs)
+        crsEncoder.encode(ref.crs)
       case t: TileUDT ⇒
         val tile = t.deserialize(input)
         tile match {
           case pr: ProjectedRasterTile ⇒
-            crsEncoder.toRow(pr.crs)
+            crsEncoder.encode(pr.crs)
           case _ ⇒ null
         }
     }

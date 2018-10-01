@@ -33,12 +33,12 @@ import org.apache.spark.sql.{Column, TypedColumn}
  *
  * @since 9/5/18
  */
-case class ResolveRasterRefTile(child: Expression) extends UnaryExpression
+case class TileWrapRasterRef(child: Expression) extends UnaryExpression
   with CodegenFallback with ExpectsInputTypes {
 
   override def dataType: DataType = TileUDT
 
-  override def nodeName: String = "resolveRasterRefTile"
+  override def nodeName: String = "tile_wrap_raster_ref"
 
   override protected def nullSafeEval(input: Any): Any = {
     val ref = RasterRefUDT.deserialize(input)
@@ -48,8 +48,8 @@ case class ResolveRasterRefTile(child: Expression) extends UnaryExpression
   override def inputTypes = Seq(new RasterRefUDT)
 }
 
-object ResolveRasterRefTile {
+object TileWrapRasterRef {
   import astraea.spark.rasterframes.encoders.StandardEncoders._
   def apply(rasterRef: Column): TypedColumn[Any, Tile] =
-    new ResolveRasterRefTile(rasterRef.expr).asColumn.as[Tile]
+    new TileWrapRasterRef(rasterRef.expr).asColumn.as[Tile]
 }

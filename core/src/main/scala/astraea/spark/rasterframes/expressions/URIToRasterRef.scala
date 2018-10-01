@@ -43,7 +43,7 @@ import org.apache.spark.unsafe.types.UTF8String
 case class URIToRasterRef(override val child: Expression, accumulator: Option[ReadAccumulator])
   extends UnaryExpression with ExpectsInputTypes with CodegenFallback with LazyLogging {
 
-  override def nodeName: String = "rasterRef"
+  override def nodeName: String = "uri_to_raster_ref"
 
   override def dataType: DataType = new RasterRefUDT()
 
@@ -58,6 +58,10 @@ case class URIToRasterRef(override val child: Expression, accumulator: Option[Re
 }
 
 object URIToRasterRef {
+  def apply(rasterURI: Column): TypedColumn[Any, RasterRef] =
+    new URIToRasterRef(rasterURI.expr, None).asColumn.as[RasterRef]
+  def apply(rasterURI: Column, accumulator: ReadAccumulator): TypedColumn[Any, RasterRef] =
+    new URIToRasterRef(rasterURI.expr, Option(accumulator)).asColumn.as[RasterRef]
   def apply(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
     new URIToRasterRef(rasterURI.expr, accumulator).asColumn.as[RasterRef]
 }

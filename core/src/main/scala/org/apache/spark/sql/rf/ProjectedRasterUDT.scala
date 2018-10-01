@@ -61,8 +61,8 @@ class ProjectedRasterUDT extends UserDefinedType[ProjectedRaster[Tile]] {
 
 object ProjectedRasterUDT extends ProjectedRasterUDT {
   UDTRegistration.register(classOf[ProjectedRaster[Tile]].getName, classOf[ProjectedRasterUDT].getName)
-  private val crsEncoder = StandardEncoders.crsEncoder.resolveAndBind()
-  private val extentEncoder = StandardEncoders.extentEncoder.resolveAndBind()
+  private val crsEncoder = StandardEncoders.crsEncoder
+  private val extentEncoder = StandardEncoders.extentEncoder
   private val tileUDT = new TileUDT()
 
   val schema = StructType(Seq(
@@ -72,13 +72,13 @@ object ProjectedRasterUDT extends ProjectedRasterUDT {
   ))
 
   def encode(pr: ProjectedRaster[Tile]): InternalRow = InternalRow(
-    crsEncoder.toRow(pr.crs),
-    extentEncoder.toRow(pr.extent),
+    crsEncoder.encode(pr.crs),
+    extentEncoder.encode(pr.extent),
     tileUDT.serialize(pr.tile)
   )
   def decode(row: InternalRow): ProjectedRaster[Tile] = ProjectedRaster(
     tileUDT.deserialize(row.getStruct(2, tileUDT.sqlType.size)),
-    extentEncoder.fromRow(row.getStruct(1, extentEncoder.schema.size)),
-    crsEncoder.fromRow(row.getStruct(0, crsEncoder.schema.size))
+    extentEncoder.decode(row, 1),
+    crsEncoder.decode(row, 0)
   )
 }

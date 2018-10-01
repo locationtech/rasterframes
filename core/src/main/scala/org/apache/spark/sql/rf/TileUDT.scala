@@ -74,7 +74,6 @@ case object TileUDT extends TileUDT {
   private val prtEncoder = Encoders
     .kryo(classOf[ProjectedRasterTile])
     .asInstanceOf[ExpressionEncoder[ProjectedRasterTile]]
-    .resolveAndBind()
 
   /** Union encoding of Tiles and RasterRefs */
   val schema = StructType(Seq(
@@ -99,7 +98,7 @@ case object TileUDT extends TileUDT {
   def decode(row: InternalRow): Tile = {
     (!row.isNullAt(0), !row.isNullAt(1)) match {
       case (true, false) ⇒ new InternalRowTile(row.getStruct(0, InternalRowTile.schema.size))
-      case (false, true) ⇒ prtEncoder.fromRow(row.getStruct(1, prtEncoder.schema.size))
+      case (false, true) ⇒ prtEncoder.decode(row, 1)
       case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
     }
   }
@@ -112,7 +111,7 @@ case object TileUDT extends TileUDT {
    */
   def encode(tile: Tile): InternalRow = tile match {
     case pt: ProjectedRasterTile if pt.sourceKind == SourceKind.Reference ⇒
-      InternalRow(null, prtEncoder.toRow(pt))
+      InternalRow(null, prtEncoder.encode(pt))
     case _: Tile ⇒
       InternalRow(
         InternalRow(

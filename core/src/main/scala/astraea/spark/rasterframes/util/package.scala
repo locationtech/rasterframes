@@ -31,10 +31,11 @@ import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
 import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
-import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference, Expression}
+import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference, Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
+import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
 
 import scala.util.control.NonFatal
@@ -97,12 +98,12 @@ package object util extends LazyLogging {
     def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l ⇒ right.map((l, _)))
   }
 
-  implicit class NamedExpression(val expr: Expression) extends AnyVal {
+  implicit class ExpressionWithName(val expr: Expression) extends AnyVal {
+    import org.apache.spark.sql.catalyst.expressions.Literal
     def name: String = expr match {
-      case ua: UnresolvedAttribute ⇒ ua.name
-      case ar: AttributeReference ⇒ ar.name
-      case as: Alias ⇒ as.name
-      case o ⇒ o.prettyName
+      case n: NamedExpression ⇒ n.name
+      case l: Literal if l.dataType == StringType ⇒ String.valueOf(l.value)
+      case o ⇒ o.toString
     }
   }
 

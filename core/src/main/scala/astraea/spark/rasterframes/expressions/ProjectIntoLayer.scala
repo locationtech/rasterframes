@@ -43,6 +43,8 @@ case class ProjectIntoLayer(children: Seq[Expression], space: LayerSpace) extend
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
   import astraea.spark.rasterframes.util._
 
+  override def nodeName: String = "project_into_layer"
+
   private val rrType = new RasterRefUDT()
   private val tType = new TileUDT()
 
@@ -53,7 +55,6 @@ case class ProjectIntoLayer(children: Seq[Expression], space: LayerSpace) extend
 
   override def inputTypes = Seq.fill(children.size)(rrType)
 
-  override def nodeName: String = "projectIntoLayer"
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     // Fetch serialized RasterRefs
@@ -89,8 +90,8 @@ case class ProjectIntoLayer(children: Seq[Expression], space: LayerSpace) extend
     val results = for {
       (key, map) ← grouped
       outExtent = mapTransform.keyToExtent(key)
-      spCol = spatialKeyEncoder.toRow(key)
-      extCol = extentEncoder.toRow(outExtent)
+      spCol = spatialKeyEncoder.encode(key)
+      extCol = extentEncoder.encode(outExtent)
     } yield {
       val tiles = for {
         i ← children.indices

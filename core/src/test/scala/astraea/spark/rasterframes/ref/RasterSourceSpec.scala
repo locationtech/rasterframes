@@ -40,7 +40,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
   describe("HTTP RasterSource") {
     it("should support metadata querying over HTTP") {
       withClue("remoteCOGSingleband") {
-        val src = RasterSource(remoteCOGSingleband)
+        val src = RasterSource(remoteCOGSingleband1)
         assert(!src.extent.isEmpty)
       }
       withClue("remoteCOGMultiband") {
@@ -50,7 +50,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
     it("should read sub-tile") {
       withClue("remoteCOGSingleband") {
-        val src = RasterSource(remoteCOGSingleband)
+        val src = RasterSource(remoteCOGSingleband1)
         val Left(raster) = src.read(sub(src.extent))
         assert(raster.size > 0 && raster.size < src.size)
       }
@@ -64,7 +64,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
     it("should serialize") {
       import java.io._
-      val src = RasterSource(remoteCOGSingleband)
+      val src = RasterSource(remoteCOGSingleband1)
       val buf = new java.io.ByteArrayOutputStream()
       val out = new ObjectOutputStream(buf)
       out.writeObject(src)

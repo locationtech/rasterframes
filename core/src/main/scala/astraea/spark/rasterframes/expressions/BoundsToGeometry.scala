@@ -40,10 +40,10 @@ import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
  * @since 8/24/18
  */
 case class BoundsToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
-  private val envEnc = StandardEncoders.envelopeEncoder.resolveAndBind()
-  private val extEnc = StandardEncoders.extentEncoder.resolveAndBind()
+  private val envEnc = StandardEncoders.envelopeEncoder
+  private val extEnc = StandardEncoders.extentEncoder
 
-  override def nodeName: String = "boundsGeometry"
+  override def nodeName: String = "bounds_geometry"
 
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
 
@@ -59,11 +59,11 @@ case class BoundsToGeometry(child: Expression) extends UnaryExpression with Code
   override protected def nullSafeEval(input: Any): Any = {
     val r = row(input)
     val extent = if(child.dataType == envEnc.schema) {
-      val env = envEnc.fromRow(r)
+      val env = envEnc.decode(r)
       Extent(env)
     }
     else {
-      extEnc.fromRow(r)
+      extEnc.decode(r)
     }
     val geom = extent.jtsGeom
     JTSTypes.GeometryTypeInstance.serialize(geom)

@@ -39,7 +39,7 @@ private[rasterframes]
 case class ExplodeTiles(sampleFraction: Double = 1.0, override val children: Seq[Expression])
   extends Expression with Generator with CodegenFallback {
 
-  override def nodeName: String = "explodeTiles"
+  override def nodeName: String = "explode_tiles"
 
   override def elementSchema: StructType = {
     val names =

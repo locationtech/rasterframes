@@ -35,7 +35,7 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, UnaryExpression}
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -85,9 +85,9 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
           val arraytile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
           val extent = layerMetadata.mapTransform(sk)
           val tile = TileUDT.serialize(arraytile)
-          val e = extentEncoder.toRow(extent)
-          val skEnc = spatialKeyEncoder.toRow(sk)
-          val tlm = tlmEncoder.toRow(layerMetadata)
+          val e = extentEncoder.encode(extent)
+          val skEnc = spatialKeyEncoder.encode(sk)
+          val tlm = tlmEncoder.encode(layerMetadata)
           rows(i) = InternalRow(tlm, skEnc, e, tile)
         }
         rows
@@ -95,9 +95,9 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
       else {
         val geotiff = GeoTiffReader.readSingleband(bytes)
         val tile = TileUDT.serialize(geotiff.tile)
-        val e = extentEncoder.toRow(geotiff.extent)
-        val sk = spatialKeyEncoder.toRow(SpatialKey(0, 0))
-        val tlm = tlmEncoder.toRow(layerMetadata)
+        val e = extentEncoder.encode(geotiff.extent)
+        val sk = spatialKeyEncoder.encode(SpatialKey(0, 0))
+        val tlm = tlmEncoder.encode(layerMetadata)
         Traversable(InternalRow(tlm, sk, e, tile))
       }
     }

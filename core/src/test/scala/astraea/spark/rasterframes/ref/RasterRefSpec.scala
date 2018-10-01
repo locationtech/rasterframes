@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.{GetCRS, GetExtent, ResolveRasterRefTile}
+import astraea.spark.rasterframes.expressions._
 import astraea.spark.rasterframes.ref.RasterRefSpec.ReadMonitor
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
@@ -49,7 +49,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   trait Fixture {
     val counter = new ReadMonitor
-    val src = RasterSource(remoteCOGSingleband, Some(counter))
+    val src = RasterSource(remoteCOGSingleband1, Some(counter))
     val fullRaster = RasterRef(src)
     val subExtent = sub(src.extent)
     val subRaster = RasterRef(src, subExtent)
@@ -69,7 +69,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       import spark.implicits._
       new Fixture {
         val ds = Seq(subRaster).toDF("ref")
-        val crs = ds.select(GetCRS(ResolveRasterRefTile($"ref")))
+        val crs = ds.select(GetCRS(TileWrapRasterRef($"ref")))
         assert(crs.count() === 1)
         assert(crs.first() !== null)
       }
@@ -90,7 +90,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       import spark.implicits._
       new Fixture {
         val ds = Seq(subRaster).toDF("ref")
-        val crs = ds.select(GetExtent(ResolveRasterRefTile($"ref")))
+        val crs = ds.select(GetExtent(TileWrapRasterRef($"ref")))
         assert(crs.count() === 1)
         assert(crs.first() !== null)
       }
@@ -134,12 +134,26 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         val ds = Seq(subRaster).toDS()
         assert(ds.first().isInstanceOf[RasterRef])
-        val ds2 = ds.withColumn("tile", ResolveRasterRefTile($"value"))
+        val ds2 = ds.withColumn("tile", TileWrapRasterRef($"value"))
         val mean = ds2.select(tileMean($"tile")).first()
         val doubleMean = ds2.select(tileMean(localAdd($"tile", $"tile"))).first()
         assert(2 * mean ===  doubleMean +- 0.0001)
       }
     }
+
+    it("should handle multiple columns of bands with correctness") {
+      import spark.implicits._
+
+      val df = Seq((remoteCOGSingleband1.toASCIIString, remoteCOGSingleband2.toASCIIString))
+        .toDF("col1", "col2")
+        .select(ExpandNativeTiling(URIToRasterRef($"col1"), URIToRasterRef($"col2")).as(Seq("t1", "t2")))
+        .cache()
+
+      assert(df.select(GetExtent($"t1") === GetExtent($"t2")).as[Boolean].distinct().collect() === Array(true))
+
+      assert(df.select(GetExtent($"t1")).distinct().count() === df.count())
+    }
+
     it("should allow lazy application of a layer space") {
       import spark.implicits._
       new Fixture {

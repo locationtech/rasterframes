@@ -38,16 +38,18 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class GetExtent(child: Expression) extends UnaryExpression with CodegenFallback {
   override def dataType: DataType = extentEncoder.schema
 
+  override def nodeName: String = "extent"
+
   override protected def nullSafeEval(input: Any): Any = {
     child.dataType match {
       case rr: RasterRefUDT ⇒
         val ref = rr.deserialize(input)
-        extentEncoder.toRow(ref.extent)
+        extentEncoder.encode(ref.extent)
       case t: TileUDT ⇒
         val tile = t.deserialize(input)
         tile match {
           case pr: ProjectedRasterTile ⇒
-            extentEncoder.toRow(pr.extent)
+            extentEncoder.encode(pr.extent)
           case _ ⇒ null
         }
     }
