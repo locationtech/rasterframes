@@ -42,7 +42,7 @@ import org.apache.spark.sql.{Column, Row, SQLContext}
  * @since 8/21/18
  */
 case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: Option[ReadAccumulator], filters: Seq[Filter] = Seq.empty)
-  extends BaseRelation with PrunedFilteredScan with SpatialRelationReceiver[L8Relation]  with LazyLogging {
+  extends BaseRelation with PrunedFilteredScan with SpatialRelationReceiver[L8Relation] with LazyLogging {
   override def schema: StructType = L8Relation.schema
 
   /** Create new relation with the give filter added. */

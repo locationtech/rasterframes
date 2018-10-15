@@ -33,9 +33,9 @@ package object expressions {
   private[expressions] def row(input: Any) = input.asInstanceOf[InternalRow]
 
   /** Unary expression builder builder. */
-  private def ub[A, B](f: A ⇒ B)(a: Seq[A]) = f(a.head)
+  private def ub[A, B](f: A ⇒ B)(a: Seq[A]): B = f(a.head)
   /** Binary expression builder builder. */
-  private def bb[A, B](f: (A, A) ⇒ B)(a: Seq[A]) = f(a.head, a.last)
+  private def bb[A, B](f: (A, A) ⇒ B)(a: Seq[A]): B = f(a.head, a.last)
 
   def register(sqlContext: SQLContext): Unit = {
     // Expression-oriented functions have a different registration scheme

@@ -51,7 +51,7 @@ trait RasterRef {
   @transient
   protected lazy val realizedTile: Tile = {
     require(source.bandCount == 1, "Expected singleband tile")
-    RasterRef.log.debug(s"Fetching $srcExtent from $source")
+    RasterRef.log.trace(s"Fetching $srcExtent from $source")
     source.read(srcExtent).left.get.tile
   }
 }
