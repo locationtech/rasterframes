@@ -42,10 +42,10 @@ class TileEncodeBench extends SparkEnv {
   val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
   val boundEncoder = tileEncoder.resolveAndBind()
 
-  @Param(Array("float64", "rasterRef"))
+  @Param(Array("uint8", "int32", "float32", "float64", "rasterRef"))
   var cellTypeName: String = _
 
-  @Param(Array("512"))
+  @Param(Array("64", "512"))
   var tileSize: Int = _
 
   @transient
