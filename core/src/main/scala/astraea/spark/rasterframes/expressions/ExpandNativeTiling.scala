@@ -22,8 +22,10 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
+import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
@@ -42,21 +44,24 @@ import scala.util.control.NonFatal
 case class ExpandNativeTiling(children: Seq[Expression]) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
-  private val rrType = new RasterRefUDT()
+  private val tileType = new TileUDT()
 
-  override def inputTypes = Seq.fill(children.size)(rrType)
+  override def inputTypes = Seq.fill(children.size)(tileType)
   override def nodeName: String = "expand_native_tiling"
   override def elementSchema: StructType = StructType(
-    children.map(e ⇒ StructField(e.name, rrType, true))
+    children.map(e ⇒ StructField(e.name, tileType, true))
   )
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
       val tiled = children.map { child ⇒
-        val ref = RasterRefUDT.decode(row(child.eval(input)))
-        RasterRef.tileToNative(ref)
+        val ref = TileUDT.decode(row(child.eval(input)))
+        ref match {
+          case rrt: RasterRefTile ⇒ RasterRef.tileToNative(rrt.rr).map(RasterRefTile)
+          case o ⇒ Seq(o) // <---- if this happens there's a good chance the transpose will fail
+        }
       }
-      tiled.transpose.map(ts ⇒ InternalRow(ts.map(RasterRefUDT.encode): _*))
+      tiled.transpose.map(ts ⇒ InternalRow(ts.map(TileUDT.encode): _*))
     }
     catch {
       case NonFatal(ex) ⇒

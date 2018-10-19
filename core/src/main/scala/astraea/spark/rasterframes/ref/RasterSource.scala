@@ -29,8 +29,8 @@ import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, ProjectedRaster, Raster, RasterExtent, Tile, TileLayout}
-import geotrellis.spark.io.hadoop.{HdfsRangeReader, SerializableConfiguration}
+import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
 import geotrellis.spark.tiling.LayoutDefinition
@@ -46,7 +46,7 @@ import scala.util.Try
  *
  * @since 8/21/18
  */
-trait RasterSource extends Serializable {
+sealed trait RasterSource extends Serializable {
   def crs: CRS
   def extent: Extent
   def timestamp: Option[ZonedDateTime]

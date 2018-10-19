@@ -21,13 +21,11 @@
 
 package org.apache.spark.sql.rf
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
-import astraea.spark.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
+import astraea.spark.rasterframes.tiles.InternalRowTile
 import geotrellis.raster._
-import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{DataType, _}
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -69,18 +67,15 @@ class TileUDT extends UserDefinedType[Tile] {
 }
 
 case object TileUDT extends TileUDT {
-  UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
+  import astraea.spark.rasterframes.encoders.CatalystSerializer._
 
-  private val prtEncoder = Encoders
-    .kryo(classOf[ProjectedRasterTile])
-    .asInstanceOf[ExpressionEncoder[ProjectedRasterTile]]
+  UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
 
   /** Union encoding of Tiles and RasterRefs */
   val schema = StructType(Seq(
     StructField("tile", InternalRowTile.schema, true),
-    StructField("tileRef", prtEncoder.schema, true)
+    StructField("tileRef", CatalystSerializer[RasterRefTile].schema, true)
   ))
-
 
   /** Determine if the row encodes a Tile. */
   def isTile(row: InternalRow): Boolean =
@@ -98,7 +93,7 @@ case object TileUDT extends TileUDT {
   def decode(row: InternalRow): Tile = {
     (!row.isNullAt(0), !row.isNullAt(1)) match {
       case (true, false) ⇒ new InternalRowTile(row.getStruct(0, InternalRowTile.schema.size))
-      case (false, true) ⇒ prtEncoder.decode(row, 1)
+      case (false, true) ⇒ row.to[RasterRefTile](1)
       case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
     }
   }
@@ -110,8 +105,8 @@ case object TileUDT extends TileUDT {
    * @return Catalyst internal representation.
    */
   def encode(tile: Tile): InternalRow = tile match {
-    case pt: ProjectedRasterTile if pt.sourceKind == SourceKind.Reference ⇒
-      InternalRow(null, prtEncoder.encode(pt))
+    case pt: RasterRefTile ⇒
+      InternalRow(null, pt.toRow)
     case _: Tile ⇒
       InternalRow(
         InternalRow(

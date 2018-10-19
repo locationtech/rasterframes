@@ -35,6 +35,7 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   with Matchers with Inspectors with Tolerance with LazyLogging {
 
   override implicit def sc: SparkContext = { _sc.setLogLevel("ERROR"); _sc }
+  //p.setProperty(“spark.driver.allowMultipleContexts”, “true”)
 
   lazy val sqlContext: SQLContext = {
     val session = SparkSession.builder.config(_sc.getConf).getOrCreate()

@@ -17,10 +17,7 @@
 package astraea.spark.rasterframes.extensions
 
 import astraea.spark.rasterframes.StandardColumns._
-import astraea.spark.rasterframes.expressions.ProjectIntoLayer
-import astraea.spark.rasterframes.ref.{LayerSpace, RasterRef}
 import astraea.spark.rasterframes.util._
-import astraea.spark.rasterframes.convertCellType
 import astraea.spark.rasterframes.{MetadataKeys, RasterFrame}
 import geotrellis.raster.Tile
 import geotrellis.spark.io._
@@ -28,7 +25,7 @@ import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey
 import geotrellis.util.MethodExtensions
 import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.{RasterRefUDT, TileUDT}
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
 import spray.json.JsonFormat
@@ -193,29 +190,29 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
       .setTemporalColumnRole(temporalKey)
       .asRF
 
-  @throws[IllegalArgumentException]
-  def asRF(space: LayerSpace): RasterFrame = {
-    require(tileColumns.isEmpty, "This method doesn't yet support existing tile columns")
-    // We have two use cases to consider: This is already a rasterframe and we need to
-    // reproject it. If we have RasterRefs then we reproject those
-    val (refFields, otherFields) = self.schema.fields
-        .partition(_.dataType.typeName.equalsIgnoreCase(RasterRefUDT.typeName))
-
-    val refCols = refFields.map(f ⇒ self(f.name).as[RasterRef])
-    val otherCols = otherFields.map(f ⇒ self(f.name))
-
-    // Reproject tile into layer space
-    val projected = self.select(otherCols :+ ProjectIntoLayer(refCols, space): _*)
-
-    // Lastly, convert cell type as desired
-    val tileCols = projected.tileColumns.map(c ⇒ convertCellType(c, space.cellType).as(c.columnName))
-    val remCols = projected.notTileColumns
-
-    val layer = projected.select(remCols ++ tileCols: _*)
-
-    val tlm = space.asTileLayerMetadata
-    layer.setSpatialColumnRole(SPATIAL_KEY_COLUMN, tlm).asRF
-  }
+//  @throws[IllegalArgumentException]
+//  def asRF(space: LayerSpace): RasterFrame = {
+//    require(tileColumns.isEmpty, "This method doesn't yet support existing tile columns")
+//    // We have two use cases to consider: This is already a rasterframe and we need to
+//    // reproject it. If we have RasterRefs then we reproject those
+//    val (refFields, otherFields) = self.schema.fields
+//        .partition(_.dataType.typeName.equalsIgnoreCase(RasterRefUDT.typeName))
+//
+//    val refCols = refFields.map(f ⇒ self(f.name).as[RasterRef])
+//    val otherCols = otherFields.map(f ⇒ self(f.name))
+//
+//    // Reproject tile into layer space
+//    val projected = self.select(otherCols :+ ProjectIntoLayer(refCols, space): _*)
+//
+//    // Lastly, convert cell type as desired
+//    val tileCols = projected.tileColumns.map(c ⇒ convertCellType(c, space.cellType).as(c.columnName))
+//    val remCols = projected.notTileColumns
+//
+//    val layer = projected.select(remCols ++ tileCols: _*)
+//
+//    val tlm = space.asTileLayerMetadata
+//    layer.setSpatialColumnRole(SPATIAL_KEY_COLUMN, tlm).asRF
+//  }
 
   /**
    * Converts [[DataFrame]] to a RasterFrame if the following constraints are fulfilled:

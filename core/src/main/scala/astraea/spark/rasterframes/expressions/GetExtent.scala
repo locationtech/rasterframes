@@ -21,13 +21,15 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
+import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
-import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
-import geotrellis.vector.Extent
 import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
@@ -36,20 +38,16 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 9/10/18
  */
 case class GetExtent(child: Expression) extends UnaryExpression with CodegenFallback {
-  override def dataType: DataType = extentEncoder.schema
+  override def dataType: DataType = CatalystSerializer[Extent].schema
 
   override def nodeName: String = "extent"
 
   override protected def nullSafeEval(input: Any): Any = {
     child.dataType match {
-      case rr: RasterRefUDT ⇒
-        val ref = rr.deserialize(input)
-        extentEncoder.encode(ref.extent)
       case t: TileUDT ⇒
         val tile = t.deserialize(input)
         tile match {
-          case pr: ProjectedRasterTile ⇒
-            extentEncoder.encode(pr.extent)
+          case pr: ProjectedRasterTile ⇒ pr.extent.toRow
           case _ ⇒ null
         }
     }

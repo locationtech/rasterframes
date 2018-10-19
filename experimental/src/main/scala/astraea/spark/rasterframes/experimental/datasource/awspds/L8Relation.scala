@@ -21,9 +21,8 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.experimental.datasource._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
-import astraea.spark.rasterframes.expressions.{ExpandNativeTiling, TileWrapRasterRef, URIToRasterRef}
+import astraea.spark.rasterframes.expressions.{ExpandNativeTiling, URIToRasterRef}
 import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.rules.SpatialFilters.{Contains, Intersects}
 import astraea.spark.rasterframes.rules._
@@ -103,16 +102,14 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
     val df = if(useTiling) {
       // We assume that `nativeTiling` preserves the band names.
       val expanded = ExpandNativeTiling(bands.map(b ⇒ URIToRasterRef(l8_band_url(b), accumulator).as(b).as[RasterRef]): _*)
-      val tiled = bands.map(b ⇒ TileWrapRasterRef(col(b).as[RasterRef]).as(b))
 
       // First apply the native tiling generator
       // Then convert RasterRef into Tile
       filtered
         .select(nonTile :+ expanded: _*)
-        .select(nonTile ++ tiled: _*)
     }
     else {
-      val tiled = bands.map(b ⇒ TileWrapRasterRef(URIToRasterRef(l8_band_url(b), accumulator)).as(b))
+      val tiled = bands.map(b ⇒ URIToRasterRef(l8_band_url(b), accumulator).as(b))
       filtered.select(nonTile ++ tiled: _*)
     }
 

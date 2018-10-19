@@ -18,12 +18,7 @@ import scala.reflect.classTag
  */
 object EnvelopeEncoder {
 
-  val schema = StructType(Seq(
-    StructField("minX", DoubleType, false),
-    StructField("maxX", DoubleType, false),
-    StructField("minY", DoubleType, false),
-    StructField("maxY", DoubleType, false)
-  ))
+  val schema = CatalystSerializer[Envelope].schema
 
   val dataType: DataType = ScalaReflection.dataTypeFor[Envelope]
 

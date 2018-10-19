@@ -21,7 +21,7 @@ package astraea.spark.rasterframes.encoders
 
 import java.net.URI
 
-import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
@@ -57,6 +57,7 @@ trait StandardEncoders extends SpatialEncoders{
   implicit def envelopeEncoder: ExpressionEncoder[Envelope] = EnvelopeEncoder()
   implicit def rrEncoder: ExpressionEncoder[RasterRef] = ExpressionEncoder()
   implicit def prEncoder: ExpressionEncoder[ProjectedRaster[Tile]] = ExpressionEncoder()
+  implicit def rsEncoder: ExpressionEncoder[RasterSource] = ExpressionEncoder()
 }
 
 object StandardEncoders extends StandardEncoders

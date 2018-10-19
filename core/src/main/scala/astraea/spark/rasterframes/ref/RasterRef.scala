@@ -36,15 +36,14 @@ import geotrellis.vector.{Extent, ProjectedExtent}
  *
  * @since 8/21/18
  */
-trait RasterRef {
-  def source: RasterSource
+case class RasterRef(source: RasterSource, subextent: Option[Extent]) {
   def crs: CRS = source.crs
-  def extent: Extent
+  def extent: Extent = subextent.getOrElse(source.extent)
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
   def cols: Int = grid.width
   def rows: Int = grid.height
   def cellType: CellType = source.cellType
-  def tile: ProjectedRasterTile = RasterRefTile(this)
+  def tile: Tile = RasterRefTile(this)
 
   protected def grid: GridBounds = source.rasterExtent.gridBoundsFor(extent)
   protected def srcExtent: Extent = extent
@@ -59,9 +58,7 @@ trait RasterRef {
 object RasterRef extends LazyLogging {
   private val log = logger
   /** Constructor for when data extent cover whole raster. */
-  def apply(source: RasterSource): RasterRef = FullRasterRef(source)
-  /** Constructor for when data extent covers a subpart of the raster */
-  def apply(source: RasterSource, subextent: Extent): RasterRef = SubRasterRef(source, subextent)
+  def apply(source: RasterSource): RasterRef = RasterRef(source, None)
 
   /** Splits this tile into smaller tiles based on the reported
    * internal structure of the backing format. May return a single item.*/
@@ -69,7 +66,7 @@ object RasterRef extends LazyLogging {
     val ex = ref.extent
     ref.source.nativeTiling
       .filter(_ intersects ex)
-      .map(e ⇒ SubRasterRef(ref.source, e))
+      .map(e ⇒ RasterRef(ref.source, Option(e)))
   }
 
   private[rasterframes]
@@ -77,14 +74,6 @@ object RasterRef extends LazyLogging {
     LayoutDefinition(rr.extent, rr.source.nativeLayout
       .getOrElse(TileLayout(1, 1, rr.cols, rr.rows))
     )
-
-  case class FullRasterRef(source: RasterSource) extends RasterRef {
-    val extent: Extent = source.extent
-  }
-
-  case class SubRasterRef(source: RasterSource, subextent: Extent) extends RasterRef {
-    val extent: Extent = subextent
-  }
 
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
     def extent: Extent = rr.extent

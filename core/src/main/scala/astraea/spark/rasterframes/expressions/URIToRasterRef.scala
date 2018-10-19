@@ -23,14 +23,15 @@ package astraea.spark.rasterframes.expressions
 
 import java.net.URI
 
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.{DataType, StringType, StructType}
+import org.apache.spark.sql.types.{DataType, StringType}
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
 
 
@@ -45,7 +46,7 @@ case class URIToRasterRef(override val child: Expression, accumulator: Option[Re
 
   override def nodeName: String = "uri_to_raster_ref"
 
-  override def dataType: DataType = new RasterRefUDT()
+  override def dataType: DataType = new TileUDT
 
   override def inputTypes = Seq(StringType)
 
@@ -53,7 +54,7 @@ case class URIToRasterRef(override val child: Expression, accumulator: Option[Re
     val uriString = input.asInstanceOf[UTF8String].toString
     val uri = URI.create(uriString)
     val ref = RasterRef(RasterSource(uri, accumulator))
-    RasterRefUDT.encode(ref)
+    TileUDT.encode(RasterRefTile(ref))
   }
 }
 

@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.StandardEncoders.crsEncoder
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.CRS
@@ -29,6 +30,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import CatalystSerializer._
 
 /**
  * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
@@ -36,20 +38,16 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 9/9/18
  */
 case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallback {
-  override def dataType: DataType = crsEncoder.schema
+  override def dataType: DataType = CatalystSerializer[CRS].schema
 
   override def nodeName: String = "crs"
 
   override protected def nullSafeEval(input: Any): Any = {
     child.dataType match {
-      case rr: RasterRefUDT ⇒
-        val ref = rr.deserialize(input)
-        crsEncoder.encode(ref.crs)
       case t: TileUDT ⇒
         val tile = t.deserialize(input)
         tile match {
-          case pr: ProjectedRasterTile ⇒
-            crsEncoder.encode(pr.crs)
+          case pr: ProjectedRasterTile ⇒ pr.crs.toRow
           case _ ⇒ null
         }
     }

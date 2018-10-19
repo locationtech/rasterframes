@@ -41,7 +41,7 @@ object CellTypeEncoder {
     import org.apache.spark.sql.catalyst.expressions._
     import org.apache.spark.sql.catalyst.expressions.objects._
     val ctType = ScalaReflection.dataTypeFor[DataType]
-    val schema = StructType(Seq(StructField("cellTypeName", StringType, false)))
+    val schema = CatalystSerializer[CellType].schema
     val inputObject = BoundReference(0, ctType, nullable = false)
 
     val intermediateType = ObjectType(classOf[String])

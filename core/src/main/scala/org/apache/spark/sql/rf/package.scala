@@ -16,7 +16,6 @@
 
 package org.apache.spark.sql
 
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.{Analyzer, FunctionRegistry, MultiAlias}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.{CreateArray, Expression, Inline}
@@ -36,10 +35,9 @@ package object rf {
 
   def register(sqlContext: SQLContext): Unit = {
     // Referencing the companion objects here is intended to have it's constructor called,
-    // which is where the registration actually happens.
+    // which is where the registration actually happens. The ordering matters!
+    RasterSourceUDT
     TileUDT
-    ProjectedRasterUDT
-    RasterRefUDT
   }
 
   def registry(sqlContext: SQLContext): FunctionRegistry = {
@@ -59,13 +57,7 @@ package object rf {
   def projectStructExpression(dataType: StructType, input: Expression) =
     MultiAlias(Inline(CreateArray(Seq(input))), dataType.fields.map(_.name))
 
-  implicit class WithCodec[T](enc: ExpressionEncoder[T]) {
-    def decode(row: InternalRow): T =
-      enc.resolveAndBind(enc.schema.toAttributes).fromRow(row)
-    def decode(row: InternalRow, ordinal: Int): T =
-      decode(row.getStruct(ordinal, enc.schema.length))
-    def encode(t: T): InternalRow = enc.resolveAndBind().toRow(t)
-
+  implicit class WithPPrint[T](enc: ExpressionEncoder[T]) {
     def pprint(): Unit = {
       println(enc.getClass.getSimpleName + "{")
       println("\tflat=" + enc.flat)
@@ -76,5 +68,4 @@ package object rf {
       println("}")
     }
   }
-
 }
