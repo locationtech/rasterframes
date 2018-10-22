@@ -34,6 +34,8 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   with Matchers with Inspectors with Tolerance with LazyLogging {
 
+  override def sparkMaster: String = "local[*]"
+
   override implicit def sc: SparkContext = { _sc.setLogLevel("ERROR"); _sc }
   //p.setProperty(“spark.driver.allowMultipleContexts”, “true”)
 

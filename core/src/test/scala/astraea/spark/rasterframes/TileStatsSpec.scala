@@ -36,11 +36,11 @@ import org.apache.spark.sql.functions._
 class TileStatsSpec extends TestEnvironment with TestData {
 
   import TestData.injectND
-  import sqlContext.implicits._
 
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._
     it("should report dimensions") {
+      import sqlContext.implicits._
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
 
       val dims = df.select(tileDimensions($"tile1") as "dims").select("dims.*")
@@ -65,15 +65,18 @@ class TileStatsSpec extends TestEnvironment with TestData {
     val tile1 = fracTile(10, 10, 5)
     val tile2 = ArrayTile(Array(-5, -4, -3, -2, -1, 0, 1, 2, 3), 3, 3)
     val tile3 = randomTile(255, 255, IntCellType)
-    val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
 
     it("should compute accurate item counts") {
+      import sqlContext.implicits._
+      val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val checkedValues = Seq[Double](0, 4, 7, 13, 26)
       val result = checkedValues.map(x => ds.select(tileHistogram($"tiles")).first().itemCount(x))
       forEvery(checkedValues) { x => assert((x == 0 && result.head == 4) || result.contains(x - 1)) }
     }
 
     it("Should compute quantiles"){
+      import sqlContext.implicits._
+      val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val numBreaks = 5
       val breaks = ds.select(tileHistogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
       assert(breaks(1).length === numBreaks)
@@ -82,6 +85,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should support local min/max") {
+      import sqlContext.implicits._
       val ds = Seq[Tile](byteArrayTile, byteConstantTile).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
@@ -108,6 +112,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should count data and no-data cells") {
+      import sqlContext.implicits._
       val ds = (Seq.fill[Tile](10)(injectND(10)(randomTile(10, 10, UByteConstantNoDataCellType))) :+ null).toDF("tile")
       val expectedNoData = 10 * 10
       val expectedData = 10 * 10 * 10 - expectedNoData
@@ -131,6 +136,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute tile statistics") {
+      import sqlContext.implicits._
       withClue("mean") {
 
         val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)).toDS()
@@ -152,6 +158,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute per-tile histogram") {
+      import sqlContext.implicits._
       val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatCellType)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
@@ -179,6 +186,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate histogram") {
+      import sqlContext.implicits._
       val tileSize = 5
       val rows = 10
       val ds = Seq.fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType)).toDF("tiles")
@@ -204,6 +212,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate mean") {
+      import sqlContext.implicits._
       val ds = (Seq.fill[Tile](10)(randomTile(5, 5, FloatCellType)) :+ null).toDF("tiles")
       val agg = ds.select(aggMean($"tiles"))
       val stats = ds.select(aggStats($"tiles") as "stats").select($"stats.mean".as[Double])
@@ -211,6 +220,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate statistics") {
+      import sqlContext.implicits._
       val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
 
       val exploded = ds.select(explodeTiles($"tiles"))
@@ -235,6 +245,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate local stats") {
+      import sqlContext.implicits._
       val ave = (nums: Array[Double]) ⇒ nums.sum / nums.length
 
       val ds = (Seq.fill[Tile](30)(randomTile(5, 5, FloatConstantNoDataCellType))
@@ -266,6 +277,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute accurate statistics") {
+      import sqlContext.implicits._
       val completeTile = squareIncrementingTile(4).convert(IntConstantNoDataCellType)
       val incompleteTile = injectND(2)(completeTile)
 
@@ -281,7 +293,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .toSeq.map(pr ⇒ pr._1 * 20 + pr._2)
       assert(countArray === expectedCount)
 
-      val countNodataArray = dsNd.select((localAggNoDataCells($"tiles"))).first().toArray
+      val countNodataArray = dsNd.select(localAggNoDataCells($"tiles")).first().toArray
       assert(countNodataArray === incompleteTile.localUndefined().toArray)
 
       // GeoTrellis docs do not say how NODATA is treated, but NODATA values are ignored
@@ -298,6 +310,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should count cells by no-data state") {
+      import sqlContext.implicits._
       val tsize = 5
       val count = 20
       val nds = 2
@@ -310,6 +323,4 @@ class TileStatsSpec extends TestEnvironment with TestData {
       forEvery(counts2)(c ⇒ assert(c === tsize * tsize - nds))
     }
   }
-
-  protected def withFixture(test: Any) = ???
 }

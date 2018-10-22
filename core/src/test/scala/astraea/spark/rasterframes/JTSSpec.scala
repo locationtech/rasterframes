@@ -29,11 +29,11 @@ import geotrellis.vector.{Point ⇒ GTPoint}
  * @since 12/16/17
  */
 class JTSSpec extends TestEnvironment with TestData with StandardColumns {
-  import spark.implicits._
-
   describe("JTS interop") {
     val rf = l8Sample(1).projectedRaster.toRF(10, 10).withBounds()
     it("should allow joining and filtering of tiles based on points") {
+      import spark.implicits._
+
       val crs = rf.tileLayerMetadata.merge.crs
       val coords = Seq(
         "one" -> GTPoint(-78.6445222907, 38.3957546898).reproject(LatLng, crs).jtsGeom,
@@ -79,12 +79,14 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
     }
 
     it("should provide a means of getting a bounding box") {
+      import spark.implicits._
       val boxed = rf.select(BOUNDS_COLUMN, envelope(BOUNDS_COLUMN))
       assert(boxed.select($"envelope(bounds)".as[Envelope]).first.getArea > 0)
       assert(boxed.toDF("bounds", "bbox").select("bbox.*").schema.length === 4)
     }
 
     it("should allow reprojection geometry") {
+      import spark.implicits._
       // Note: Test data copied from ReprojectSpec in GeoTrellis
       val fact = new GeometryFactory()
       val latLng: Geometry = fact.createLineString(Array(

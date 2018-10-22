@@ -9,8 +9,8 @@ import org.apache.spark.sql.functions.lit
  */
 class TileExploderSpec extends TestEnvironment with TestData {
   describe("Tile explode transformer") {
-    import spark.implicits._
     it("should explode tiles") {
+      import spark.implicits._
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2").withColumn("other", lit("stuff"))
 
       val exploder = new TileExploder()

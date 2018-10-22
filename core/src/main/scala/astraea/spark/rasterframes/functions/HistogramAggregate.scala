@@ -44,14 +44,14 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
 
   override def deterministic: Boolean = true
 
+  @transient
+  private lazy val ser = KryoSerializer.ser.newInstance()
 
   @inline
-  private def marshall(hist: Histogram[Double]): Array[Byte] =
-    HistogramAggregate.ser.serialize(hist).array()
+  private def marshall(hist: Histogram[Double]): Array[Byte] = ser.serialize(hist).array()
 
   @inline
-  private def unmarshall(blob: Array[Byte]): Histogram[Double] =
-    HistogramAggregate.ser.deserialize(ByteBuffer.wrap(blob))
+  private def unmarshall(blob: Array[Byte]): Histogram[Double] = ser.deserialize(ByteBuffer.wrap(blob))
 
   override def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = marshall(StreamingHistogram(numBuckets))
@@ -81,6 +81,4 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
 
 object HistogramAggregate {
   def apply() = new HistogramAggregate(StreamingHistogram.DEFAULT_NUM_BUCKETS)
-  @transient
-  private lazy val ser = KryoSerializer.ser.newInstance()
 }
