@@ -30,7 +30,9 @@ import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.CellType
 import geotrellis.vector.Extent
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.Literal
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -51,6 +53,13 @@ trait CatalystSerializer[T] {
 
 object CatalystSerializer {
   def apply[T: CatalystSerializer]: CatalystSerializer[T] = implicitly[CatalystSerializer[T]]
+
+
+  /** Constructs a Dataframe literal from anything with a serializer. */
+  def serialized_literal[T >: Null: CatalystSerializer](t: T): Column = {
+    val ser = CatalystSerializer[T]
+    new Column(Literal.create(ser.toRow(t), ser.schema))
+  }
 
   implicit object EnvelopeSerializer extends CatalystSerializer[Envelope] {
     override def schema: StructType = StructType(Seq(

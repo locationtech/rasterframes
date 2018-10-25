@@ -30,8 +30,7 @@ import geotrellis.raster.prototype.TilePrototypeMethods
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
-import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
-import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference, Expression, NamedExpression}
+import org.apache.spark.sql.catalyst.expressions.{Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
