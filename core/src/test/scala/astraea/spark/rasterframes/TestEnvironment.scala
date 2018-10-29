@@ -19,6 +19,8 @@ package astraea.spark.rasterframes
 
 import java.nio.file.{Files, Paths}
 
+import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.spark.testkit.{TestEnvironment ⇒ GeoTrellisTestEnvironment}
@@ -44,8 +46,8 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
     astraea.spark.rasterframes.WithSQLContextMethods(session.sqlContext).withRasterFrames
   }
 
-  lazy val sql: (String) ⇒ DataFrame = sqlContext.sql
-  implicit lazy val spark = sqlContext.sparkSession
+  lazy val sql: String ⇒ DataFrame = sqlContext.sql
+  implicit lazy val spark: SparkSession = sqlContext.sparkSession
 
   def isCI: Boolean = sys.env.get("CI").contains("true")
 
@@ -81,4 +83,19 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   }
 
   def matchGeom(g: Geometry, tolerance: Double) = new GeometryMatcher(g, tolerance)
+}
+
+object TestEnvironment {
+  case class ReadMonitor(ignoreHeader: Boolean = true) extends ReadCallback with LazyLogging {
+    var reads: Int = 0
+    var total: Long = 0
+    override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
+      logger.trace(s"Reading $length at $start from $source")
+      // Ignore header reads
+      if(!ignoreHeader || start > 0) reads += 1
+      total += length
+    }
+
+    override def toString: String = s"$productPrefix(reads=$reads, total=$total)"
+  }
 }

@@ -21,12 +21,9 @@
 
 package astraea.spark.rasterframes.ref
 
+import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions._
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import astraea.spark.rasterframes.ref.RasterRefSpec.ReadMonitor
-import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
-import com.typesafe.scalalogging.LazyLogging
 import geotrellis.vector.Extent
 
 /**
@@ -116,72 +113,8 @@ class RasterRefSpec extends TestEnvironment with TestData {
         println(counter)
       }
     }
-//    it("should be reprojectable") {
-//      new Fixture {
-//        val reprojected = subRaster.tile.reproject(LatLng)
-//        assert(counter.reads === 0)
-//        assert(reprojected.dimensions === (subRaster.cols, subRaster.rows))
-//        assert(counter.reads > 0)
-//      }
-//    }
-//
-//    it("should be Dataset compatible") {
-//      import spark.implicits._
-//      new Fixture {
-//        val ds = Seq(subRaster).toDS()
-//        assert(ds.first().isInstanceOf[RasterRef])
-//        val ds2 = ds.withColumn("tile", TileWrapRasterRef($"value"))
-//        val mean = ds2.select(tileMean($"tile")).first()
-//        val doubleMean = ds2.select(tileMean(localAdd($"tile", $"tile"))).first()
-//        assert(2 * mean ===  doubleMean +- 0.0001)
-//      }
-//    }
-//
-//    it("should handle multiple columns of bands with correctness") {
-//      import spark.implicits._
-//
-//      val df = Seq((remoteCOGSingleband1.toASCIIString, remoteCOGSingleband2.toASCIIString))
-//        .toDF("col1", "col2")
-//        .select(ExpandNativeTiling(URIToRasterRef($"col1"), URIToRasterRef($"col2")).as(Seq("t1", "t2")))
-//        .cache()
-//
-//      assert(df.select(GetExtent($"t1") === GetExtent($"t2")).as[Boolean].distinct().collect() === Array(true))
-//
-//      assert(df.select(GetExtent($"t1")).distinct().count() === df.count())
-//    }
 
-//    it("should allow lazy application of a layer space") {
-//      import spark.implicits._
-//      new Fixture {
-//        val targetCRS = LatLng
-//        val targetExtent = fullRaster.extent.reproject(fullRaster.crs, targetCRS)
-//        val targetCellType = ByteConstantNoDataCellType
-//        val targetLayout = LayoutDefinition(targetExtent, TileLayout(10, 10, 100, 100))
-//        val space = LayerSpace(targetCRS, targetCellType, targetLayout)
-//        val ds = Seq((subRaster, subRaster)).toDF("src1", "src2")
-//        val projected = ds.asRF(space)
-//        val tile = projected.select($"src1".as[Tile]).first()
-//        assert(tile.isInstanceOf[ProjectedRasterTile])
-//        assert(tile.asInstanceOf[ProjectedRasterTile].sourceKind === SourceKind.Reference)
-//      }
-//    }
-//    it("should allow lazy projection into layer space") {
-//      import spark.implicits._
-//      new Fixture {
-//        val targetCRS = LatLng
-//        val targetExtent = subRaster.extent.reproject(subRaster.crs, targetCRS)
-//        val targetCellType = UByteConstantNoDataCellType
-//        val targetLayout = LayoutDefinition(targetExtent, TileLayout(4, 4, 10, 10))
-//        val space = LayerSpace(targetCRS, targetCellType, targetLayout)
-//        val ds = Seq(subRaster).toDF("src")
-//        val projected = ds.asRF(space)
-//        val tile = projected.select($"src".as[Tile]).first()
-//        assert(tile.isInstanceOf[ProjectedRasterTile])
-//        assert(tile.asInstanceOf[ProjectedRasterTile].sourceKind === SourceKind.Reference)
-//        //println(tile.statistics.map(CellStatistics.apply).map(_.asciiStats))
-//      }
-//    }
-    it("should serialize") {
+    it("should Java serialize") {
       new Fixture {
         import java.io._
 
@@ -195,20 +128,5 @@ class RasterRefSpec extends TestEnvironment with TestData {
         assert(subRaster === recovered)
       }
     }
-  }
-}
-
-object RasterRefSpec {
-  case class ReadMonitor() extends ReadCallback with LazyLogging {
-    var reads: Int = 0
-    var total: Long = 0
-    override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
-      logger.trace(s"Reading $length at $start from $source")
-      // Ignore header reads
-      if(start > 0) reads += 1
-      total += length
-    }
-
-    override def toString: String = s"$productPrefix(reads=$reads, total=$total)"
   }
 }

@@ -21,6 +21,8 @@
 
 package astraea.spark.rasterframes.ref
 
+import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
+import astraea.spark.rasterframes.ref.RasterSource.FileGeoTiffRasterSource
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.vector.Extent
 
@@ -62,7 +64,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         assert(raster.size > 0 && raster.size < src.size)
       }
     }
-    it("should serialize") {
+    it("should Java serialize") {
       import java.io._
       val src = RasterSource(remoteCOGSingleband1)
       val buf = new java.io.ByteArrayOutputStream()
@@ -80,8 +82,51 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     it("should support metadata querying of file") {
       val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toUri
       val src = RasterSource(localSrc)
-      println(src)
       assert(!src.extent.isEmpty)
     }
+  }
+
+  describe("Caching") {
+    val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toUri
+
+    trait Fixture {
+      val counter = ReadMonitor(false)
+      val src = RasterSource(localSrc, Some(counter))
+    }
+
+    it("should cache headers")(new Fixture {
+      val e = src.extent
+      assert(counter.reads === 1)
+
+      val c = src.crs
+      val e2 = src.extent
+      val ct = src.cellType
+      assert(counter.reads === 1)
+
+    })
+
+    it("should Spark serialize caching")(new Fixture {
+      import spark.implicits._
+
+      assert(src.isInstanceOf[FileGeoTiffRasterSource])
+
+      val e = src.extent
+      assert(counter.reads === 1)
+
+      val df = Seq(src).toDS
+      val src2 = df.first()
+
+      val e2 = src2.extent
+      val ct = src2.cellType
+
+      src2 match {
+        case fs: FileGeoTiffRasterSource ⇒
+          fs.callback match {
+            case Some(cb: ReadMonitor) ⇒ assert(cb.reads === 1)
+            case o ⇒ fail(s"Expected '$o' to be a ReadMonitor")
+          }
+        case o ⇒ fail(s"Expected '$o' to be FileGeoTiffRasterSource")
+      }
+    })
   }
 }

@@ -25,7 +25,10 @@ import java.net.URI
 
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import astraea.spark.rasterframes.ref.RasterSource.{InMemoryRasterSource, RangeReaderRasterSource, URIRasterSource}
+import astraea.spark.rasterframes.ref.RasterSource._
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.{Input, Output}
+import com.esotericsoftware.kryo.util.Pool
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.CellType
@@ -33,7 +36,7 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Literal
-import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
+import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
 /**
@@ -113,18 +116,48 @@ object CatalystSerializer {
   }
 
   implicit object RasterSourceSerializer extends CatalystSerializer[RasterSource] {
-    override def schema: StructType = StructType(Seq(
-      StructField("uri", StringType, false)
-    ))
-
-    override def toRow(t: RasterSource): InternalRow = t match {
-      case urs: URIRasterSource ⇒ InternalRow(UTF8String.fromString(urs.source.toASCIIString), null)
-      case _: RangeReaderRasterSource ⇒ ???
-      case _: InMemoryRasterSource ⇒ ???
+    @transient
+    private val kryoPool = new Pool[Kryo](true, false, Runtime.getRuntime.availableProcessors()) {
+      override def create(): Kryo = {
+        val k = new Kryo()
+        k.register(classOf[Some[_]])
+        k.register(classOf[URI])
+        k.register(classOf[ReadCallback])
+        k.register(classOf[RasterSource])
+        k.register(classOf[FileGeoTiffRasterSource])
+        k.register(classOf[HadoopGeoTiffRasterSource])
+        k.register(classOf[S3GeoTiffRasterSource])
+        k.register(classOf[HttpGeoTiffRasterSource])
+        k.register(Class.forName("astraea.spark.rasterframes.TestEnvironment$ReadMonitor"))
+        k
+      }
     }
 
-    override def fromRow(row: InternalRow): RasterSource =
-      RasterSource(URI.create(row.getString(0)))
+    @transient
+    private val outputPool = new Pool[Output](true, false, Runtime.getRuntime.availableProcessors()) {
+      override def create(): Output = new Output(1024, -1)
+    }
+
+    override def schema: StructType = StructType(Seq(
+      StructField("kryo", BinaryType, false)
+    ))
+
+    override def toRow(t: RasterSource): InternalRow = {
+      val kryo = kryoPool.obtain()
+      val output = outputPool.obtain()
+      output.setPosition(0)
+      kryo.writeClassAndObject(output, t)
+      val retval = InternalRow(output.getBuffer)
+      outputPool.free(output)
+      kryoPool.free(kryo)
+      retval
+    }
+
+    override def fromRow(row: InternalRow): RasterSource = {
+      val kryo = kryoPool.obtain()
+      val input = new Input(row.getBinary(0))
+      kryo.readClassAndObject(input).asInstanceOf[RasterSource]
+    }
   }
 
   implicit object RasterRefSerializer extends CatalystSerializer[RasterRef] {
