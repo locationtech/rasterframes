@@ -21,14 +21,11 @@
 
 package astraea.spark.rasterframes.encoders
 
-import java.net.URI
+import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import astraea.spark.rasterframes.ref.RasterSource._
-import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.io.{Input, Output}
-import com.esotericsoftware.kryo.util.Pool
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
+import astraea.spark.rasterframes.util.KryoSupport
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.CellType
@@ -116,47 +113,18 @@ object CatalystSerializer {
   }
 
   implicit object RasterSourceSerializer extends CatalystSerializer[RasterSource] {
-    @transient
-    private val kryoPool = new Pool[Kryo](true, false, Runtime.getRuntime.availableProcessors()) {
-      override def create(): Kryo = {
-        val k = new Kryo()
-        k.register(classOf[Some[_]])
-        k.register(classOf[URI])
-        k.register(classOf[ReadCallback])
-        k.register(classOf[RasterSource])
-        k.register(classOf[FileGeoTiffRasterSource])
-        k.register(classOf[HadoopGeoTiffRasterSource])
-        k.register(classOf[S3GeoTiffRasterSource])
-        k.register(classOf[HttpGeoTiffRasterSource])
-        k.register(Class.forName("astraea.spark.rasterframes.TestEnvironment$ReadMonitor"))
-        k
-      }
-    }
-
-    @transient
-    private val outputPool = new Pool[Output](true, false, Runtime.getRuntime.availableProcessors()) {
-      override def create(): Output = new Output(1024, -1)
-    }
 
     override def schema: StructType = StructType(Seq(
       StructField("kryo", BinaryType, false)
     ))
 
     override def toRow(t: RasterSource): InternalRow = {
-      val kryo = kryoPool.obtain()
-      val output = outputPool.obtain()
-      output.setPosition(0)
-      kryo.writeClassAndObject(output, t)
-      val retval = InternalRow(output.getBuffer)
-      outputPool.free(output)
-      kryoPool.free(kryo)
-      retval
+      val buf = KryoSupport.serialize(t)
+      InternalRow(buf.array())
     }
 
     override def fromRow(row: InternalRow): RasterSource = {
-      val kryo = kryoPool.obtain()
-      val input = new Input(row.getBinary(0))
-      kryo.readClassAndObject(input).asInstanceOf[RasterSource]
+      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(row.getBinary(0)))
     }
   }
 

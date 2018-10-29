@@ -114,7 +114,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
 
-    it("should Java serialize") {
+    ignore("should Java serialize") {
       new Fixture {
         import java.io._
 

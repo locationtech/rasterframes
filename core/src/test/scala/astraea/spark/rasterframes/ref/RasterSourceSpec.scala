@@ -102,7 +102,6 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val e2 = src.extent
       val ct = src.cellType
       assert(counter.reads === 1)
-
     })
 
     it("should Spark serialize caching")(new Fixture {
@@ -113,8 +112,8 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val e = src.extent
       assert(counter.reads === 1)
 
-      val df = Seq(src).toDS
-      val src2 = df.first()
+      val df = Seq(src, src, src).toDS.repartition(3)
+      val src2 = df.collect()(1)
 
       val e2 = src2.extent
       val ct = src2.cellType

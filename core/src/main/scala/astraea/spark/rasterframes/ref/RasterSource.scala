@@ -119,7 +119,6 @@ object RasterSource extends LazyLogging {
   trait RangeReaderRasterSource extends RasterSource {
     protected def rangeReader: RangeReader
 
-    @transient
     private lazy val tiffInfo: GeoTiffReader.GeoTiffInfo =
       GeoTiffReader.readGeoTiffInfo(rangeReader, streaming = true, withOverviews = false)
 

@@ -7,8 +7,6 @@ libraryDependencies ++= Seq(
   "org.locationtech.geomesa" %% "geomesa-z3" % rfGeoMesaVersion.value,
   "org.locationtech.geomesa" %% "geomesa-spark-jts" % rfGeoMesaVersion.value exclude("jgridshift", "jgridshift"),
 
-  "com.esotericsoftware" % "kryo" % "5.0.0-RC1",
-
   spark("core").value % Provided,
   spark("mllib").value % Provided,
   spark("sql").value % Provided,
