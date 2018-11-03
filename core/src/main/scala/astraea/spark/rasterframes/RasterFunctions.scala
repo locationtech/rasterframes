@@ -52,7 +52,7 @@ trait RasterFunctions {
     E.ExplodeTiles(sampleFraction, cols)
 
   /** Query the number of (cols, rows) in a Tile. */
-  def tileDimensions(col: Column): Column = E.GetTileDimensions(col)
+  def tileDimensions(col: Column): Column = E.GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
   def envelope(col: Column): TypedColumn[Any, Envelope] = E.GetEnvelope(col)

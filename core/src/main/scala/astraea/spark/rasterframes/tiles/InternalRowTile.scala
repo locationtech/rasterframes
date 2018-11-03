@@ -39,6 +39,7 @@ import org.apache.spark.unsafe.types.UTF8String
  * @since 11/29/17
  */
 class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
+  import org.apache.spark.sql.rf.TileUDT.C
   import InternalRowTile._
   /** @group COPIES */
   override def toArrayTile(): ArrayTile = {
@@ -119,39 +120,6 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
 }
 
 object InternalRowTile {
-  object C {
-    val CELL_TYPE = 0
-    val COLS = 1
-    val ROWS = 2
-    val DATA = 3
-  }
-  val schema = StructType(Seq(
-    StructField("cellType", StringType, false),
-    StructField("cols", ShortType, false),
-    StructField("rows", ShortType, false),
-    StructField("data", BinaryType, false)
-  ))
-
-  /**
-   * Convenience extractor for converting a `Tile` to an `InternalRow`.
-   *
-   * @param tile tile to convert
-   * @return Catalyst internal representation.
-   */
-  def encode(tile: Tile): InternalRow = InternalRow(
-      UTF8String.fromString(tile.cellType.name),
-      tile.cols.toShort,
-      tile.rows.toShort,
-      tile.toBytes
-    )
-
-  /**
-   * Read a Tile from an InternalRow
-   * @param row Catalyst internal format conforming to `schema`
-   * @return row wrapper
-   */
-  def decode(row: InternalRow): Tile = new InternalRowTile(row)
-
   sealed trait CellReader {
     def apply(index: Int): Int
     def applyDouble(index: Int): Double

@@ -59,6 +59,10 @@ case class LayerSpace(
 
 object LayerSpace {
 
+  private[rasterframes]
+  def defaultLayout(prt: ProjectedRasterTile): LayoutDefinition =
+    LayoutDefinition(prt.extent, TileLayout(1, 1, prt.cols, prt.rows))
+
   def from(rs: RasterSource): LayerSpace = new LayerSpace(
     rs.crs, rs.cellType, LayoutDefinition(rs.extent, rs.nativeLayout
       .getOrElse(TileLayout(1, 1, rs.cols, rs.rows))
@@ -70,7 +74,7 @@ object LayerSpace {
   )
 
   def from(prt: ProjectedRasterTile): LayerSpace = new LayerSpace(
-    prt.crs, prt.cellType, ProjectedRasterTile.defaultLayout(prt)
+    prt.crs, prt.cellType, defaultLayout(prt)
   )
 
 }

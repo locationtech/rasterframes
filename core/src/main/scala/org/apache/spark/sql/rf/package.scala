@@ -19,7 +19,7 @@ package org.apache.spark.sql
 import org.apache.spark.sql.catalyst.analysis.{Analyzer, FunctionRegistry, MultiAlias}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.{CreateArray, Expression, Inline}
-import org.apache.spark.sql.types.{StructType, UDTRegistration, UserDefinedType}
+import org.apache.spark.sql.types.{DataType, StructType, UDTRegistration, UserDefinedType}
 
 import scala.reflect.runtime.universe._
 
@@ -30,7 +30,11 @@ import scala.reflect.runtime.universe._
  */
 package object rf {
   implicit class CanBeColumn(expression: Expression) {
-    def asColumn: Column = Column(expression)
+    def asColumn: Column = Column(expression) as expression.sql
+  }
+
+  implicit class WithTypeConformity(val left: DataType) extends AnyVal {
+    def conformsTo(right: DataType): Boolean = right.acceptsType(left)
   }
 
   def register(sqlContext: SQLContext): Unit = {

@@ -23,7 +23,7 @@ package astraea.spark.rasterframes.expressions
 
 import java.net.URI
 
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
@@ -41,28 +41,28 @@ import org.apache.spark.unsafe.types.UTF8String
  *
  * @since 5/4/18
  */
-case class URIToRasterRef(override val child: Expression, accumulator: Option[ReadAccumulator])
+case class URIToRasterSource(override val child: Expression, accumulator: Option[ReadAccumulator])
   extends UnaryExpression with ExpectsInputTypes with CodegenFallback with LazyLogging {
 
   override def nodeName: String = "uri_to_raster_ref"
 
-  override def dataType: DataType = new TileUDT
+  override def dataType: DataType = new RasterSourceUDT
 
   override def inputTypes = Seq(StringType)
 
   override protected def nullSafeEval(input: Any): Any =  {
     val uriString = input.asInstanceOf[UTF8String].toString
     val uri = URI.create(uriString)
-    val ref = RasterRef(RasterSource(uri, accumulator))
-    TileUDT.encode(RasterRefTile(ref))
+    val ref = RasterSource(uri, accumulator)
+    ref.toRow
   }
 }
 
-object URIToRasterRef {
+object URIToRasterSource {
   def apply(rasterURI: Column): TypedColumn[Any, RasterRef] =
-    new URIToRasterRef(rasterURI.expr, None).asColumn.as[RasterRef]
+    new URIToRasterSource(rasterURI.expr, None).asColumn.as[RasterRef]
   def apply(rasterURI: Column, accumulator: ReadAccumulator): TypedColumn[Any, RasterRef] =
-    new URIToRasterRef(rasterURI.expr, Option(accumulator)).asColumn.as[RasterRef]
+    new URIToRasterSource(rasterURI.expr, Option(accumulator)).asColumn.as[RasterRef]
   def apply(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
-    new URIToRasterRef(rasterURI.expr, accumulator).asColumn.as[RasterRef]
+    new URIToRasterSource(rasterURI.expr, accumulator).asColumn.as[RasterRef]
 }

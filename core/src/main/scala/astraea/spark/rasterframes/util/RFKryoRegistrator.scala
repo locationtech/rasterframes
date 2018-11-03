@@ -21,7 +21,8 @@
 
 package astraea.spark.rasterframes.util
 
-import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.ref.RasterSource._
 import com.esotericsoftware.kryo.Kryo
 
@@ -37,6 +38,8 @@ class RFKryoRegistrator extends geotrellis.spark.io.kryo.KryoRegistrator {
     super.registerClasses(kryo)
     kryo.register(classOf[ReadCallback])
     kryo.register(classOf[RasterSource])
+    kryo.register(classOf[RasterRef])
+    kryo.register(classOf[RasterRefTile])
     kryo.register(classOf[FileGeoTiffRasterSource])
     kryo.register(classOf[HadoopGeoTiffRasterSource])
     kryo.register(classOf[S3GeoTiffRasterSource])

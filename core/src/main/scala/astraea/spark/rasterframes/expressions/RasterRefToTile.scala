@@ -22,28 +22,26 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
-import astraea.spark.rasterframes.ref.ProjectedRasterLike
-import geotrellis.vector.Extent
-import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions._
+import astraea.spark.rasterframes.ref.RasterRef
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types._
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
+import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.types.DataType
 
 /**
- * Expression to extract the Extent out of a RasterRef or ProjectedRasterTile column.
+ * Realizes a RasterRef into a Tile.
  *
- * @since 9/10/18
+ * @since 11/2/18
  */
-case class GetExtent(child: Expression) extends OnProjectedRasterExpression with CodegenFallback {
-  override def dataType: DataType = classOf[Extent].schema
-  override def nodeName: String = "extent"
-  override def eval(prl: ProjectedRasterLike): InternalRow = prl.extent.toRow
-}
+case class RasterRefToTile(child: Expression) extends UnaryExpression
+  with CodegenFallback with ExpectsInputTypes {
 
-object GetExtent {
-  def apply(col: Column): TypedColumn[Any, Extent] =
-    new GetExtent(col.expr).asColumn.as[Extent]
+  override def inputTypes = Seq(classOf[RasterRef].schema)
+
+  override def dataType: DataType = new TileUDT
+
+  override protected def nullSafeEval(input: Any): Any = {
+    val ref = row(input).to[RasterRef]
+
+  }
 }

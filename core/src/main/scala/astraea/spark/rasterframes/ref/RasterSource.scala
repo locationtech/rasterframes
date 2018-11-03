@@ -28,7 +28,7 @@ import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff, Tags}
+import geotrellis.raster.io.geotiff.{ArraySegmentBytes, GeoTiffOptions, GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
 import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
@@ -46,7 +46,7 @@ import scala.util.Try
  *
  * @since 8/21/18
  */
-sealed trait RasterSource extends Serializable {
+sealed trait RasterSource extends ProjectedRasterLike with Serializable {
   def crs: CRS
   def extent: Extent
   def timestamp: Option[ZonedDateTime]
@@ -77,19 +77,6 @@ sealed trait RasterSource extends Serializable {
 
 object RasterSource extends LazyLogging {
 
-  case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
-    def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
-    override def timestamp: Option[ZonedDateTime] = None
-    override def size: Long = tile.size
-    override def dimensions: (Int, Int) = tile.dimensions
-    override def cellType: CellType = tile.cellType
-    override def bandCount: Int = 1
-    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = Left(
-      Raster(tile.crop(rasterExtent.gridBoundsFor(extent, false)), extent)
-    )
-    override def nativeLayout: Option[TileLayout] = Some(TileLayout(1, 1, cols, rows))
-  }
-
   def apply(source: URI, callback: Option[ReadCallback] = None): RasterSource =
     source.getScheme match {
       case "http" | "https" ⇒ HttpGeoTiffRasterSource(source, callback)
@@ -105,6 +92,23 @@ object RasterSource extends LazyLogging {
       case s ⇒ throw new UnsupportedOperationException(s"Scheme '$s' not supported")
     }
 
+
+  case class SimpleGeoTiffInfo(
+    cellType: CellType,
+    extent: Extent,
+    rasterExtent: RasterExtent,
+    crs: CRS,
+    tags: Tags,
+    segmentLayout: GeoTiffSegmentLayout,
+    bandCount: Int,
+    noDataValue: Option[Double]
+  )
+
+  object SimpleGeoTiffInfo {
+    def apply(info: GeoTiffReader.GeoTiffInfo): SimpleGeoTiffInfo =
+      SimpleGeoTiffInfo(info.cellType, info.extent, info.rasterExtent, info.crs, info.tags, info.segmentLayout, info.bandCount, info.noDataValue)
+  }
+
   // According to https://goo.gl/2z8xx9 the GeoTIFF date format is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
@@ -116,11 +120,27 @@ object RasterSource extends LazyLogging {
     }
   }
 
+
+  case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
+    def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
+    override def timestamp: Option[ZonedDateTime] = None
+    override def size: Long = tile.size
+    override def dimensions: (Int, Int) = tile.dimensions
+    override def cellType: CellType = tile.cellType
+    override def bandCount: Int = 1
+    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = Left(
+      Raster(tile.crop(rasterExtent.gridBoundsFor(extent, false)), extent)
+    )
+    override def nativeLayout: Option[TileLayout] = Some(TileLayout(1, 1, cols, rows))
+  }
+
   trait RangeReaderRasterSource extends RasterSource {
     protected def rangeReader: RangeReader
 
-    private lazy val tiffInfo: GeoTiffReader.GeoTiffInfo =
+    private def realInfo =
       GeoTiffReader.readGeoTiffInfo(rangeReader, streaming = true, withOverviews = false)
+
+    private lazy val tiffInfo = SimpleGeoTiffInfo(realInfo)
 
     def crs: CRS = tiffInfo.crs
 
@@ -131,6 +151,10 @@ object RasterSource extends LazyLogging {
     def size: Long = rangeReader.totalLength
 
     def dimensions: (Int, Int) = tiffInfo.rasterExtent.dimensions
+
+    override def cols: Int = tiffInfo.rasterExtent.cols
+
+    override def rows: Int = tiffInfo.rasterExtent.rows
 
     def cellType: CellType = tiffInfo.cellType
 
@@ -153,7 +177,7 @@ object RasterSource extends LazyLogging {
     }
 
     def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
-      val info = tiffInfo
+      val info = realInfo
       if (bandCount == 1) {
         val geoTiffTile = GeoTiffReader.geoTiffSinglebandTile(info)
         val gt = new SinglebandGeoTiff(

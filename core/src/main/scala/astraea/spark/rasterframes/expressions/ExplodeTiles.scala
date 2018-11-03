@@ -20,6 +20,8 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import org.apache.spark.sql.rf.TileUDT._
 import astraea.spark.rasterframes.util._
 import geotrellis.raster._
 import org.apache.spark.sql._
@@ -60,7 +62,7 @@ case class ExplodeTiles(sampleFraction: Double = 1.0, override val children: Seq
     val tiles = Array.ofDim[Tile](children.length)
     cfor(0)(_ < tiles.length, _ + 1) { index =>
       val row = children(index).eval(input).asInstanceOf[InternalRow]
-      tiles(index) = if(row != null) TileUDT.decode(row) else null
+      tiles(index) = if(row != null) row.to[Tile] else null
     }
     val dims = tiles.filter(_ != null).map(_.dimensions)
     if(dims.isEmpty) Seq.empty[InternalRow]

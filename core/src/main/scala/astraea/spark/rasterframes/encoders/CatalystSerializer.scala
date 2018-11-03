@@ -21,18 +21,15 @@
 
 package astraea.spark.rasterframes.encoders
 
-import java.nio.ByteBuffer
-
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
-import astraea.spark.rasterframes.util.KryoSupport
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
-import geotrellis.raster.CellType
+import geotrellis.raster.{CellType, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Literal
+import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -61,7 +58,7 @@ object CatalystSerializer {
     new Column(Literal.create(ser.toRow(t), ser.schema))
   }
 
-  implicit object EnvelopeSerializer extends CatalystSerializer[Envelope] {
+  implicit val envelopeSerializer: CatalystSerializer[Envelope] = new CatalystSerializer[Envelope] {
     override def schema: StructType = StructType(Seq(
       StructField("minX", DoubleType, false),
       StructField("maxX", DoubleType, false),
@@ -76,7 +73,7 @@ object CatalystSerializer {
     )
   }
 
-  implicit object ExtentSerializer extends CatalystSerializer[Extent] {
+  implicit val extentSerializer: CatalystSerializer[Extent] = new CatalystSerializer[Extent] {
     override def schema: StructType = StructType(Seq(
       StructField("xmin", DoubleType, false),
       StructField("ymin", DoubleType, false),
@@ -91,7 +88,7 @@ object CatalystSerializer {
     )
   }
 
-  implicit object CRSSerializer extends CatalystSerializer[CRS] {
+  implicit val crsSerializer: CatalystSerializer[CRS] = new CatalystSerializer[CRS] {
     override def schema: StructType = StructType(Seq(
       StructField("crsProj4", StringType, false)
     ))
@@ -102,7 +99,7 @@ object CatalystSerializer {
       CRS.fromString(row.getString(0))
   }
 
-  implicit object CellTypeSerializer extends CatalystSerializer[CellType] {
+  implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
     override def schema: StructType = StructType(Seq(
       StructField("cellTypeName", StringType, false)
     ))
@@ -112,54 +109,40 @@ object CatalystSerializer {
     override def fromRow(row: InternalRow): CellType = CellType.fromName(row.getString(0))
   }
 
-  implicit object RasterSourceSerializer extends CatalystSerializer[RasterSource] {
-
+  implicit val rasterRefSerializer: CatalystSerializer[RasterRef] = new CatalystSerializer[RasterRef] {
+    val rsType = new RasterSourceUDT()
     override def schema: StructType = StructType(Seq(
-      StructField("kryo", BinaryType, false)
-    ))
-
-    override def toRow(t: RasterSource): InternalRow = {
-      val buf = KryoSupport.serialize(t)
-      InternalRow(buf.array())
-    }
-
-    override def fromRow(row: InternalRow): RasterSource = {
-      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(row.getBinary(0)))
-    }
-  }
-
-  implicit object RasterRefSerializer extends CatalystSerializer[RasterRef] {
-    override def schema: StructType = StructType(Seq(
-      StructField("source", apply[RasterSource].schema, false),
+      StructField("source", rsType, false),
       StructField("subextent", apply[Extent].schema, true)
     ))
 
     override def toRow(t: RasterRef): InternalRow = InternalRow(
-      t.source.toRow,
+      rsType.serialize(t.source),
       t.subextent.map(_.toRow).orNull
     )
 
     override def fromRow(row: InternalRow): RasterRef = RasterRef(
-      row.to[RasterSource](0),
+      rsType.deserialize(row.get(0, rsType)),
       if (row.isNullAt(1)) None else Option(row.to[Extent](1))
     )
   }
 
-  implicit object RasterRefTileSerializer extends CatalystSerializer[RasterRefTile] {
-    override def schema: StructType = StructType(Seq(
-      StructField("ref", apply[RasterRef].schema)
-    ))
-    override def toRow(t: RasterRefTile): InternalRow = InternalRow(t.rr.toRow)
-    override def fromRow(row: InternalRow): RasterRefTile =
-      RasterRefTile(row.to[RasterRef](0))
+  private[rasterframes]
+  implicit def tileSerializer: CatalystSerializer[Tile] = TileUDT.tileSerializer
+  private[rasterframes]
+  implicit def rasterSourceSerializer: CatalystSerializer[RasterSource] = RasterSourceUDT.rasterSourceSerializer
+
+  implicit class WithSchema[T: CatalystSerializer](t: Class[T]) {
+    def schema: StructType = CatalystSerializer[T].schema
   }
 
   implicit class WithToRow[T: CatalystSerializer](t: T) {
     def toRow: InternalRow = CatalystSerializer[T].toRow(t)
   }
 
-  implicit class WithFromRow(val r: InternalRow) {
+  implicit class WithFromRow(val r: InternalRow) extends AnyVal {
     def to[T: CatalystSerializer]: T = CatalystSerializer[T].fromRow(r)
     def to[T: CatalystSerializer](ordinal: Int): T = CatalystSerializer[T].fromRow(r, ordinal)
   }
+
 }

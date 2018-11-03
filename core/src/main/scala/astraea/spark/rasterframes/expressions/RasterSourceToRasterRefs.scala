@@ -21,47 +21,46 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.ref.RasterRef
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
+import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.types.{DataType, StructField, StructType}
 
 import scala.util.control.NonFatal
 
 /**
  * Accepts RasterRef and generates one or more RasterRef instances representing the
- * native internal sub-tiling, if any.
+ * native internal sub-tiling, if any (and requested).
  *
  * @since 9/6/18
  */
-case class ExpandNativeTiling(children: Seq[Expression]) extends Expression
+case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Boolean) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
-  private val tileType = new TileUDT()
+  private val rasterSourceType = new RasterSourceUDT()
+  private val rasterRefSchema = classOf[RasterRef].schema
 
-  override def inputTypes = Seq.fill(children.size)(tileType)
-  override def nodeName: String = "expand_native_tiling"
+  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceType)
+  override def nodeName: String = "create_raster_refs"
+
   override def elementSchema: StructType = StructType(
-    children.map(e ⇒ StructField(e.name, tileType, true))
+    children.map(e ⇒ StructField(e.name, rasterRefSchema, true))
   )
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
-      val tiled = children.map { child ⇒
-        val ref = TileUDT.decode(row(child.eval(input)))
-        ref match {
-          case rrt: RasterRefTile ⇒ RasterRef.tileToNative(rrt.rr).map(RasterRefTile)
-          case o ⇒ Seq(o) // <---- if this happens there's a good chance the transpose will fail
-        }
+      val refs = children.map { child ⇒
+        val src = rasterSourceType.deserialize(child.eval(input))
+        if (applyTiling) src.nativeTiling.map(e ⇒ RasterRef(src, Some(e))) else Seq(RasterRef(src))
       }
-      tiled.transpose.map(ts ⇒ InternalRow(ts.map(TileUDT.encode): _*))
+      refs.transpose.map(ts ⇒ InternalRow(ts.map(_.toRow): _*))
     }
     catch {
       case NonFatal(ex) ⇒
@@ -71,7 +70,8 @@ case class ExpandNativeTiling(children: Seq[Expression]) extends Expression
   }
 }
 
-object ExpandNativeTiling {
-  def apply(rrs: Column*): Column =
-    new ExpandNativeTiling(rrs.map(_.expr)).asColumn
+object RasterSourceToRasterRefs {
+  def apply(rrs: Column*): Column = apply(true, rrs: _*)
+  def apply(applyTiling: Boolean, rrs: Column*): Column =
+    new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling).asColumn
 }

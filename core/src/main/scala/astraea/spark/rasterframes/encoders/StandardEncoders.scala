@@ -23,6 +23,7 @@ import java.net.URI
 
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, ProjectedRaster, Tile}
@@ -48,6 +49,7 @@ trait StandardEncoders extends SpatialEncoders{
   implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder()
 
   implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
+  implicit def projectedRasterTileEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder()
   implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
   implicit def crsEncoder: ExpressionEncoder[CRS] = CRSEncoder()
   implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ProjectedExtentEncoder()

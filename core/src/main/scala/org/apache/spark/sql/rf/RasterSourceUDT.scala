@@ -21,8 +21,12 @@
 
 package org.apache.spark.sql.rf
 
+import java.nio.ByteBuffer
+
 import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.util.KryoSupport
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _}
 
@@ -33,12 +37,14 @@ import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _
  */
 @SQLUserDefinedType(udt = classOf[RasterSourceUDT])
 class RasterSourceUDT extends UserDefinedType[RasterSource] {
-  import CatalystSerializer._
+  import RasterSourceUDT._
   override def typeName = "rf_rastersource"
 
   override def pyUDT: String = "pyrasterframes.RasterSourceUDT"
 
-  override def sqlType: DataType = CatalystSerializer[RasterSource].schema
+  def userClass: Class[RasterSource] = classOf[RasterSource]
+
+  override def sqlType: DataType = userClass.schema
 
   override def serialize(obj: RasterSource): InternalRow =
     Option(obj)
@@ -52,7 +58,6 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
       }
       .orNull
 
-  def userClass: Class[RasterSource] = classOf[RasterSource]
 
   private[sql] override def acceptsType(dataType: DataType) = dataType match {
     case _: RasterSourceUDT ⇒ true
@@ -62,4 +67,20 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
 
 object RasterSourceUDT extends RasterSourceUDT {
   UDTRegistration.register(classOf[RasterSource].getName, classOf[RasterSourceUDT].getName)
+
+  implicit val rasterSourceSerializer: CatalystSerializer[RasterSource] = new CatalystSerializer[RasterSource] {
+
+    override def schema: StructType = StructType(Seq(
+      StructField("raster_source_kryo", BinaryType, false)
+    ))
+
+    override def toRow(t: RasterSource): InternalRow = {
+      val buf = KryoSupport.serialize(t)
+      InternalRow(buf.array())
+    }
+
+    override def fromRow(row: InternalRow): RasterSource = {
+      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(row.getBinary(0)))
+    }
+  }
 }

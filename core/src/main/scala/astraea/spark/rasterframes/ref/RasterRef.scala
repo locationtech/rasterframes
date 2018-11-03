@@ -23,8 +23,6 @@ package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind.SourceKind
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, GridBounds, Tile, TileLayout}
@@ -36,22 +34,32 @@ import geotrellis.vector.{Extent, ProjectedExtent}
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RasterSource, subextent: Option[Extent]) {
+case class RasterRef(source: RasterSource, subextent: Option[Extent])
+  extends ProjectedRasterLike {
   def crs: CRS = source.crs
   def extent: Extent = subextent.getOrElse(source.extent)
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
   def cols: Int = grid.width
   def rows: Int = grid.height
   def cellType: CellType = source.cellType
-  def tile: Tile = RasterRefTile(this)
+  def tile: ProjectedRasterTile = ProjectedRasterTile(realizedTile, extent, crs)
 
-  protected def grid: GridBounds = source.rasterExtent.gridBoundsFor(extent)
+  protected lazy val grid: GridBounds = source.rasterExtent.gridBoundsFor(extent)
   protected def srcExtent: Extent = extent
-  @transient
+
   protected lazy val realizedTile: Tile = {
     require(source.bandCount == 1, "Expected singleband tile")
     RasterRef.log.trace(s"Fetching $srcExtent from $source")
     source.read(srcExtent).left.get.tile
+  }
+
+  /** Splits this tile into smaller tiles based on the reported
+   * internal structure of the backing format. May return a single item.*/
+  def tileToNative: Seq[RasterRef] = {
+    val ex = this.extent
+    this.source.nativeTiling
+      .filter(_ intersects ex)
+      .map(e ⇒ RasterRef(this.source, Option(e)))
   }
 }
 
@@ -60,15 +68,6 @@ object RasterRef extends LazyLogging {
   /** Constructor for when data extent cover whole raster. */
   def apply(source: RasterSource): RasterRef = RasterRef(source, None)
 
-  /** Splits this tile into smaller tiles based on the reported
-   * internal structure of the backing format. May return a single item.*/
-  private[rasterframes] def tileToNative(ref: RasterRef): Seq[RasterRef] = {
-    val ex = ref.extent
-    ref.source.nativeTiling
-      .filter(_ intersects ex)
-      .map(e ⇒ RasterRef(ref.source, Option(e)))
-  }
-
   private[rasterframes]
   def defaultLayout(rr: RasterRef): LayoutDefinition =
     LayoutDefinition(rr.extent, rr.source.nativeLayout
@@ -76,14 +75,13 @@ object RasterRef extends LazyLogging {
     )
 
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
-    def extent: Extent = rr.extent
-    def crs: CRS = rr.crs
+    val extent: Extent = rr.extent
+    val crs: CRS = rr.crs
 
-    override def cols: Int = rr.cols
-    override def rows: Int = rr.rows
+    override val cols: Int = rr.cols
+    override val rows: Int = rr.rows
 
     protected def delegate: Tile = rr.realizedTile
-    def sourceKind: SourceKind = SourceKind.Reference
     // NB: This saves us from stack overflow exception
     override def convert(ct: CellType): ProjectedRasterTile =
       ProjectedRasterTile(rr.realizedTile.convert(ct), extent, crs)

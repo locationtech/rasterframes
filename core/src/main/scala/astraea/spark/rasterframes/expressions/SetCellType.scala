@@ -22,18 +22,18 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.encoders.StandardEncoders._
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, Literal}
+import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression}
+import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Column, TypedColumn}
-import astraea.spark.rasterframes.encoders.StandardEncoders._
 import org.apache.spark.unsafe.types.UTF8String
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
 
 /**
  * Change the CellType of a Tile
@@ -67,15 +67,15 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
       case StringType ⇒
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st: StructType if st == cellTypeEncoder.schema ⇒
+      case st: StructType if st == ctSchema ⇒
         row(datum).to[CellType]
     }
   }
 
   override protected def nullSafeEval(left: Any, right: Any) = {
-    val t = TileUDT.decode(row(left))
+    val t = TileUDT.deserialize(row(left))
     val ct = toCellType(right)
-    TileUDT.encode(t.convert(ct))
+    TileUDT.serialize(t.convert(ct))
   }
 }
 

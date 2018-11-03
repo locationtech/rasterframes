@@ -19,10 +19,11 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.ref.ProjectedRasterLike
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 
@@ -30,8 +31,8 @@ import org.apache.spark.sql.types.{ShortType, StructField, StructType}
  * Extract a Tile's dimensions
  * @since 12/21/17
  */
-case class GetTileDimensions(child: Expression) extends UnaryExpression
-  with RequiresTile with CodegenFallback {
+case class GetDimensions(child: Expression) extends OnProjectedRasterExpression
+  with CodegenFallback {
   override def nodeName: String = "dimensions"
 
   def dataType = StructType(Seq(
@@ -39,13 +40,11 @@ case class GetTileDimensions(child: Expression) extends UnaryExpression
     StructField("rows", ShortType)
   ))
 
-  override protected def nullSafeEval(input: Any): Any = {
-    val r = TileUDT.decode(row(input))
-    InternalRow(r.cols.toShort, r.rows.toShort)
-  }
-
+  override def eval(prl: ProjectedRasterLike): Any =
+    InternalRow(prl.cols.toShort, prl.rows.toShort)
 }
 
-object GetTileDimensions {
-  def apply(col: Column): Column = new GetTileDimensions(col.expr).asColumn
+object GetDimensions {
+  def apply(col: Column): Column =
+    new GetDimensions(col.expr).asColumn
 }

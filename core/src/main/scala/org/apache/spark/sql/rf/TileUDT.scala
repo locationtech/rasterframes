@@ -22,8 +22,9 @@
 package org.apache.spark.sql.rf
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import astraea.spark.rasterframes.tiles.InternalRowTile
+import astraea.spark.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
@@ -36,84 +37,65 @@ import org.apache.spark.unsafe.types.UTF8String
  */
 @SQLUserDefinedType(udt = classOf[TileUDT])
 class TileUDT extends UserDefinedType[Tile] {
+  import TileUDT._
   override def typeName = "rf_tile"
 
   override def pyUDT: String = "pyrasterframes.TileUDT"
 
-  def sqlType: StructType = TileUDT.schema
+  def userClass: Class[Tile] = classOf[Tile]
+
+  def sqlType: StructType = userClass.schema
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
-      .map(TileUDT.encode)
+      .map(_.toRow)
       .orNull
 
   override def deserialize(datum: Any): Tile =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒ TileUDT.decode(ir)
+        case ir: InternalRow ⇒ ir.to[Tile]
       }
       .map {
         case realIRT: InternalRowTile ⇒ realIRT.toArrayTile()
-        case other ⇒ other // Currently the DelayedReadTile
+        case other ⇒ other
       }
       .orNull
 
-  def userClass: Class[Tile] = classOf[Tile]
-
-  private[sql] override def acceptsType(dataType: DataType) = dataType match {
+  override def acceptsType(dataType: DataType): Boolean = dataType match {
     case _: TileUDT ⇒ true
     case _ ⇒ super.acceptsType(dataType)
   }
 }
 
 case object TileUDT extends TileUDT {
-  import astraea.spark.rasterframes.encoders.CatalystSerializer._
-
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
+  UDTRegistration.register(classOf[ProjectedRasterTile].getName, classOf[TileUDT].getName)
 
-  /** Union encoding of Tiles and RasterRefs */
-  val schema = StructType(Seq(
-    StructField("tile", InternalRowTile.schema, true),
-    StructField("tileRef", CatalystSerializer[RasterRefTile].schema, true)
-  ))
-
-  /** Determine if the row encodes a Tile. */
-  def isTile(row: InternalRow): Boolean =
-    !row.isNullAt(0) && row.isNullAt(1)
-
-  /** Determine if the row encodes a RasterRef. */
-  def isRef(row: InternalRow): Boolean =
-    row.isNullAt(0) && !row.isNullAt(1)
-
-  /**
-   * Read a Tele from an InternalRow
-   * @param row Catalyst internal format conforming to `schema`
-   * @return row wrapper
-   */
-  def decode(row: InternalRow): Tile = {
-    (!row.isNullAt(0), !row.isNullAt(1)) match {
-      case (true, false) ⇒ new InternalRowTile(row.getStruct(0, InternalRowTile.schema.size))
-      case (false, true) ⇒ row.to[RasterRefTile](1)
-      case _ ⇒ throw new IllegalArgumentException("Unexpected row InternalRow shape")
-    }
+  // Column mapping which must match layout below
+  object C {
+    val CELL_TYPE = 0
+    val COLS = 1
+    val ROWS = 2
+    val DATA = 3
   }
 
-  /**
-   * Convenience extractor for converting a `Tile` to an `InternalRow`.
-   *
-   * @param tile tile to convert
-   * @return Catalyst internal representation.
-   */
-  def encode(tile: Tile): InternalRow = tile match {
-    case pt: RasterRefTile ⇒
-      InternalRow(null, pt.toRow)
-    case _: Tile ⇒
+  implicit val tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
+    override def schema: StructType = StructType(Seq(
+      StructField("cellType", StringType, false),
+      StructField("cols", ShortType, false),
+      StructField("rows", ShortType, false),
+      StructField("data", BinaryType, false)
+    ))
+
+    override def toRow(t: Tile): InternalRow = {
       InternalRow(
-        InternalRow(
-          UTF8String.fromString(tile.cellType.name),
-          tile.cols.toShort,
-          tile.rows.toShort,
-          tile.toBytes
-        ), null)
+        UTF8String.fromString(t.cellType.name),
+        t.cols.toShort,
+        t.rows.toShort,
+        t.toBytes
+      )
+    }
+    override def fromRow(row: InternalRow): Tile = new InternalRowTile(row)
   }
 }

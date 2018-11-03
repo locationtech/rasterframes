@@ -21,10 +21,9 @@
 
 package astraea.spark.rasterframes.tiles
 
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile.SourceKind.SourceKind
+import astraea.spark.rasterframes.ref.ProjectedRasterLike
 import geotrellis.proj4.CRS
-import geotrellis.raster.{ProjectedRaster, Tile, TileLayout}
-import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.raster.{ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 
 /**
@@ -32,58 +31,18 @@ import geotrellis.vector.{Extent, ProjectedExtent}
  *
  * @since 9/5/18
  */
-trait ProjectedRasterTile extends DelegatingTile {
+trait ProjectedRasterTile extends DelegatingTile with ProjectedRasterLike {
   def extent: Extent
   def crs: CRS
-  def sourceKind: SourceKind
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
-  def projectedRaster = ProjectedRaster[Tile](this, extent, crs)
-//  def reproject(dest: CRS): ProjectedRasterTile =
-//    if(this.crs != dest) DelayedReprojectionTile(this, dest)
-//    else this
-//  override def convert(ct: CellType): ProjectedRasterTile =
-//    if(this.cellType != ct) DelayedConversionTile(this, ct)
-//    else this
+  def projectedRaster: ProjectedRaster[Tile] = ProjectedRaster[Tile](this, extent, crs)
 }
 
 object ProjectedRasterTile {
-  object SourceKind extends Enumeration {
-    type SourceKind = Value
-    val Concrete, Reference = Value
-  }
-
   def apply(t: Tile, extent: Extent, crs: CRS): ProjectedRasterTile = ConcreteProjectedRasterTile(t, extent, crs)
-
   def apply(pr: ProjectedRaster[Tile]): ProjectedRasterTile = ConcreteProjectedRasterTile(pr.tile, pr.extent, pr.crs)
-
-  private[rasterframes]
-  def defaultLayout(prt: ProjectedRasterTile): LayoutDefinition =
-    LayoutDefinition(prt.extent, TileLayout(1, 1, prt.cols, prt.rows))
 
   case class ConcreteProjectedRasterTile(t: Tile, extent: Extent, crs: CRS) extends ProjectedRasterTile {
     def delegate: Tile = t
-    def sourceKind: SourceKind = SourceKind.Concrete
   }
-//
-//  abstract class DelayedTransformationTile(base: ProjectedRasterTile) extends ProjectedRasterTile {
-//    override def extent: Extent = base.extent
-//    override def crs: CRS = base.crs
-//    override def cellType: CellType = base.cellType
-//    override def sourceKind: SourceKind = base.sourceKind
-//  }
-//
-//  case class DelayedReprojectionTile(base: ProjectedRasterTile, override val crs: CRS)
-//    extends DelayedTransformationTile(base) {
-//    protected def delegate: Tile = realized
-//    override def extent: Extent = base.extent.reproject(base.crs, crs)
-//    lazy val realized: Tile = base.reproject(base.extent, base.crs, crs).tile
-//  }
-//
-//  case class DelayedConversionTile(base: ProjectedRasterTile, override val cellType: CellType)
-//    extends DelayedTransformationTile(base) {
-//    protected def delegate: Tile = realized
-//    override def cols: Int = base.cols
-//    override def rows: Int = base.rows
-//    lazy val realized: Tile = base.convert(cellType)
-//  }
 }

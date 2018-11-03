@@ -22,7 +22,6 @@ package astraea.spark.rasterframes.bench
 import java.util.concurrent.TimeUnit
 
 import astraea.spark.rasterframes._
-import geotrellis.raster.Tile
 import org.apache.spark.sql._
 import org.openjdk.jmh.annotations._
 

@@ -25,6 +25,7 @@ import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes.ref.RasterSource.FileGeoTiffRasterSource
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.vector.Extent
+import org.apache.spark.sql.rf.RasterSourceUDT
 
 /**
  *
@@ -37,6 +38,12 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     val w = e.width
     val h = e.height
     Extent(c.x, c.y, c.x + w * 0.1, c.y + h * 0.1)
+  }
+
+  describe("General RasterSource") {
+    it("should identify as UDT") {
+      assert(new RasterSourceUDT() === new RasterSourceUDT())
+    }
   }
 
   describe("HTTP RasterSource") {

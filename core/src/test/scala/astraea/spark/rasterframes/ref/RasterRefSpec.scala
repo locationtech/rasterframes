@@ -52,19 +52,40 @@ class RasterRefSpec extends TestEnvironment with TestData {
     it("should read from RasterRef") {
       import spark.implicits._
       new Fixture {
-        val ds = Seq(fullRaster.tile).toDF("ref")
+        val ds = Seq((1, fullRaster)).toDF("index", "ref")
         val crs = ds.select(GetCRS($"ref"))
         assert(crs.count() === 1)
         assert(crs.first() !== null)
       }
     }
-    it("should read from resolved RasterRef") {
+    it("should read from sub-RasterRef") {
       import spark.implicits._
       new Fixture {
-        val ds = Seq(subRaster.tile).toDF("ref")
+        val ds = Seq((1, subRaster)).toDF("index", "ref")
         val crs = ds.select(GetCRS($"ref"))
         assert(crs.count() === 1)
         assert(crs.first() !== null)
+      }
+    }
+  }
+
+  describe("GetDimensions Expression") {
+    it("should read from RasterRef") {
+      import spark.implicits._
+      new Fixture {
+        val ds = Seq((1, fullRaster)).toDF("index", "ref")
+        val dims = ds.select(GetDimensions($"ref"))
+        assert(dims.count() === 1)
+        assert(dims.first() !== null)
+      }
+    }
+    it("should read from sub-RasterRef") {
+      import spark.implicits._
+      new Fixture {
+        val ds = Seq((1, subRaster)).toDF("index", "ref")
+        val dims = ds.select(GetDimensions($"ref"))
+        assert(dims.count() === 1)
+        assert(dims.first() !== null)
       }
     }
   }
@@ -73,19 +94,19 @@ class RasterRefSpec extends TestEnvironment with TestData {
     it("should read from RasterRef") {
       import spark.implicits._
       new Fixture {
-        val ds = Seq(fullRaster.tile).toDF("ref")
-        val crs = ds.select(GetExtent($"ref"))
-        assert(crs.count() === 1)
-        assert(crs.first() !== null)
+        val ds = Seq((1, fullRaster)).toDF("index", "ref")
+        val extent = ds.select(GetExtent($"ref"))
+        assert(extent.count() === 1)
+        assert(extent.first() !== null)
       }
     }
-    it("should read from resolved RasterRef") {
+    it("should read from sub-RasterRef") {
       import spark.implicits._
       new Fixture {
-        val ds = Seq(subRaster.tile).toDF("ref")
-        val crs = ds.select(GetExtent($"ref"))
-        assert(crs.count() === 1)
-        assert(crs.first() !== null)
+        val ds = Seq((1, subRaster)).toDF("index", "ref")
+        val extent = ds.select(GetExtent($"ref"))
+        assert(extent.count() === 1)
+        assert(extent.first() !== null)
       }
     }
   }
@@ -114,7 +135,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
 
-    ignore("should Java serialize") {
+    it("should Java serialize") {
       new Fixture {
         import java.io._
 
@@ -128,5 +149,26 @@ class RasterRefSpec extends TestEnvironment with TestData {
         assert(subRaster === recovered)
       }
     }
+  }
+
+  describe("CreateRasterRefs") {
+    it("should convert and expand RasterSource") {
+      new Fixture {
+        import spark.implicits._
+        val df = Seq(src).toDF("src")
+        val refs = df.select(RasterSourceToRasterRefs($"src"))
+        assert(refs.count() > 1)
+      }
+    }
+
+    it("should work with tile realization") {
+      new Fixture {
+        import spark.implicits._
+        val df = Seq(src).toDF("src")
+        val refs = df.select(RasterSourceToRasterRefs($"src"))
+        refs.printSchema()
+      }
+    }
+
   }
 }

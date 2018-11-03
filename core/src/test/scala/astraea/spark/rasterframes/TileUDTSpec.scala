@@ -21,11 +21,12 @@
 
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.functions.cellTypes
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.scalatest.Inspectors
-import astraea.spark.rasterframes.functions.cellTypes
 import org.apache.spark.sql.rf._
+import org.scalatest.Inspectors
 
 /**
  * RasterFrame test rig.
@@ -71,7 +72,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     it("should extract properties") {
       forEveryConfig { tile ⇒
         val row = TileUDT.serialize(tile)
-        val wrapper = TileUDT.decode(row)
+        val wrapper = row.to[Tile]
         assert(wrapper.cols === tile.cols)
         assert(wrapper.rows === tile.rows)
         assert(wrapper.cellType === tile.cellType)
@@ -81,7 +82,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     it("should directly extract cells") {
       forEveryConfig { tile ⇒
         val row = TileUDT.serialize(tile)
-        val wrapper = TileUDT.decode(row)
+        val wrapper = row.to[Tile]
         val (cols,rows) = wrapper.dimensions
         val indexes = Seq((0, 0), (cols - 1, rows - 1), (cols/2, rows/2), (1, 1))
         forAll(indexes) { case (c, r) ⇒
