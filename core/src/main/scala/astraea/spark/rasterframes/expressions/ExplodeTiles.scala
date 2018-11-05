@@ -101,6 +101,6 @@ object ExplodeTiles {
     // Hack to grab the first two non-cell columns, containing the column and row indexes
     val metaNames = exploder.elementSchema.fieldNames.take(2)
     val colNames = cols.map(_.columnName)
-    exploder.asColumn.as(metaNames ++ colNames)
+    new Column(exploder).as(metaNames ++ colNames)
   }
 }

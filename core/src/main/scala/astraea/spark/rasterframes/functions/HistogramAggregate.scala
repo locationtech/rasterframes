@@ -36,7 +36,9 @@ import org.apache.spark.sql.types._
 case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunction {
   def this() = this(StreamingHistogram.DEFAULT_NUM_BUCKETS)
 
-  override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
+  private val TileType = new TileUDT()
+
+  override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
   override def bufferSchema: StructType = StructType(StructField("buffer", BinaryType) :: Nil)
 

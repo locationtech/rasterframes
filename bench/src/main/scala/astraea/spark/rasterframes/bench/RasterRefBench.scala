@@ -25,11 +25,13 @@ package astraea.spark.rasterframes.bench
 import java.util.concurrent.TimeUnit
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.RasterSourceToRasterRefs
+import astraea.spark.rasterframes.expressions.{RasterRefToTile, RasterSourceToRasterRefs}
+import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql._
 import org.openjdk.jmh.annotations._
-
+import org.apache.spark.sql.execution.debug._
 /**
  *
  *
@@ -38,7 +40,7 @@ import org.openjdk.jmh.annotations._
 @BenchmarkMode(Array(Mode.AverageTime))
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-class RasterRefBench  extends SparkEnv {
+class RasterRefBench  extends SparkEnv with LazyLogging {
   import spark.implicits._
 
   var expandedDF: DataFrame = _
@@ -46,15 +48,38 @@ class RasterRefBench  extends SparkEnv {
 
   @Setup(Level.Trial)
   def setupData(): Unit = {
-    val r1 = RasterSource(remoteCOGSingleband1)
-    val r2 = RasterSource(remoteCOGSingleband2)
-    singleDF = Seq((r1, r2)).toDF("B1", "B2").cache()
-    expandedDF = singleDF.select(RasterSourceToRasterRefs($"B1", $"B2"))
+    val watcher = new ReadCallback {
+      var sourceCount = Map.empty[RasterSource, Int]
+      override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
+        val count = sourceCount.getOrElse(source, 0)
+        sourceCount += (source -> (count + 1))
+        if (count > 0) {
+          logger.warn(s"Multiple read for: $source")
+        }
+      }
+    }
+
+    val r1 = RasterSource(remoteCOGSingleband1, Some(watcher))
+    val r2 = RasterSource(remoteCOGSingleband2, Some(watcher))
+    singleDF = Seq((r1, r2)).toDF("B1", "B2")
+      .select(RasterSourceToRasterRefs(false, $"B1", $"B2"))
+      .select(RasterRefToTile($"B1") as "B1", RasterRefToTile($"B2") as "B2")
+      .cache()
+
+    expandedDF = Seq((r1, r2)).toDF("B1", "B2")
+      .select(RasterSourceToRasterRefs($"B1", $"B2"))
+      .select(RasterRefToTile($"B1") as "B1", RasterRefToTile($"B2") as "B2")
+      .cache()
   }
 
   @Benchmark
   def computeDifferenceExpanded() = {
-    expandedDF.select(normalizedDifference($"B1", $"B2")).count()
+    // import org.apache.spark.sql.execution.debug._
+
+    val diff = expandedDF.select(normalizedDifference($"B1", $"B2"))
+    diff.explain()
+    //diff.debugCodegen()
+    diff.count()
   }
 
   @Benchmark
@@ -85,7 +110,14 @@ object RasterRefBench {
 //  import org.openjdk.jmh.runner.options.OptionsBuilder
 //
 //  @throws[RunnerException]
-//  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = {
+
+
+  val thing = new RasterRefBench()
+  thing.setupData()
+  thing.computeDifferenceExpanded()
+
+
 //    val opt = new OptionsBuilder()
 //      .include(classOf[RasterRefBench].getSimpleName)
 //      .threads(4)
@@ -93,5 +125,5 @@ object RasterRefBench {
 //      .build()
 //
 //    new Runner(opt).run()
-//  }
+  }
 }

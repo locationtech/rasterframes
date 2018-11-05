@@ -30,7 +30,9 @@ import org.apache.spark.sql.types.{DataType, _}
 case class CellStatsAggregate() extends UserDefinedAggregateFunction {
   import CellStatsAggregate.C
 
-  override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
+  private val TileType = new TileUDT()
+
+  override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
   override def dataType: DataType =
     StructType(

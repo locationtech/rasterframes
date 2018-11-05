@@ -32,29 +32,30 @@ import org.apache.spark.sql.rf.TileUDT
  */
 class LocalStatsAggregate() extends UserDefinedAggregateFunction {
   import LocalStatsAggregate.C
-  private val reafiableUDT = new TileUDT()
 
-  override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
+  private val TileType = new TileUDT()
+
+  override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
   override def dataType: DataType =
     StructType(
       Seq(
-        StructField("count", reafiableUDT),
-        StructField("min", reafiableUDT),
-        StructField("max", reafiableUDT),
-        StructField("mean", reafiableUDT),
-        StructField("variance", reafiableUDT)
+        StructField("count", TileType),
+        StructField("min", TileType),
+        StructField("max", TileType),
+        StructField("mean", TileType),
+        StructField("variance", TileType)
       )
     )
 
   override def bufferSchema: StructType =
     StructType(
       Seq(
-        StructField("count", TileUDT),
-        StructField("min", TileUDT),
-        StructField("max", TileUDT),
-        StructField("sum", TileUDT),
-        StructField("sumSqr", TileUDT)
+        StructField("count", TileType),
+        StructField("min", TileType),
+        StructField("max", TileType),
+        StructField("sum", TileType),
+        StructField("sumSqr", TileType)
       )
     )
 

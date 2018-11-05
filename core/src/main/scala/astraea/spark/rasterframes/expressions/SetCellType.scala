@@ -25,6 +25,7 @@ import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders._
 import geotrellis.raster.{CellType, Tile}
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -72,10 +73,10 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
     }
   }
 
-  override protected def nullSafeEval(left: Any, right: Any) = {
-    val t = TileUDT.deserialize(row(left))
+  override protected def nullSafeEval(left: Any, right: Any): InternalRow = {
+    val t = row(left).to[Tile]
     val ct = toCellType(right)
-    TileUDT.serialize(t.convert(ct))
+    t.convert(ct).toRow
   }
 }
 

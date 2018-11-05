@@ -22,9 +22,8 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.raster.Tile
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
+import geotrellis.raster.{Grid, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -33,22 +32,15 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 
 /**
- * Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and
- * RasterSource-shaped rows.
+ * Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and RasterRefs
+ * as Grid types.
  *
- * @since 11/3/18
+ * @since 11/4/18
  */
-trait OnProjectedRasterExpression extends UnaryExpression {
-
-  private val toPRL: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
+trait OnGridExpression extends UnaryExpression {
+  private val toGrid: PartialFunction[DataType, InternalRow ⇒ Grid] = {
     case _: TileUDT ⇒
-      (row: InternalRow) ⇒ {
-        val tile = row.to[Tile]
-        tile match {
-          case pr: ProjectedRasterTile ⇒ pr
-          case _ ⇒ null
-        }
-    }
+      (row: InternalRow) ⇒ row.to[Tile]
     case _: RasterSourceUDT ⇒
       (row: InternalRow) ⇒ row.to[RasterSource]
     case t if t.conformsTo(classOf[RasterRef].schema) ⇒
@@ -56,8 +48,8 @@ trait OnProjectedRasterExpression extends UnaryExpression {
   }
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!toPRL.isDefinedAt(child.dataType)) {
-      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `ProjectedRasterLike`.")
+    if (!toGrid.isDefinedAt(child.dataType)) {
+      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `Grid`.")
     }
     else TypeCheckSuccess
   }
@@ -65,14 +57,13 @@ trait OnProjectedRasterExpression extends UnaryExpression {
   final override protected def nullSafeEval(input: Any): Any = {
     input match {
       case row: InternalRow ⇒
-        val prl = toPRL(child.dataType)(row)
-        eval(prl)
+        val g = toGrid(child.dataType)(row)
+        eval(g)
       case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
     }
   }
 
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
-  def eval(prl: ProjectedRasterLike): Any
-
+  def eval(grid: Grid): Any
 
 }

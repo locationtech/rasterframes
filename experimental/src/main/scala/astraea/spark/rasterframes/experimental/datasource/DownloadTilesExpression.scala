@@ -26,7 +26,7 @@ import java.nio.ByteBuffer
 import astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport
 import astraea.spark.rasterframes.encoders.StandardEncoders
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.ArrayTile
+import geotrellis.raster.{ArrayTile, Tile}
 import geotrellis.raster.io.geotiff.GeoTiffSegment
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.spark.SpatialKey
@@ -39,6 +39,8 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import geotrellis.vector.Extent
+
 import scala.util.control.NonFatal
 
 /**
@@ -49,6 +51,8 @@ import scala.util.control.NonFatal
  */
 case class DownloadTilesExpression(override val child: Expression, colPrefix: String) extends UnaryExpression
   with Generator with CodegenFallback with GeoTiffInfoSupport with StandardEncoders with DownloadSupport with LazyLogging {
+
+  private val TileType = new TileUDT()
 
   override def nodeName: String = "download_tiles"
 
@@ -64,8 +68,8 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
   override def elementSchema: StructType = StructType(Seq(
     StructField(colPrefix + "_metadata", tlmEncoder.schema, false),
     StructField(colPrefix + "_spatial_key", spatialKeyEncoder.schema, false),
-    StructField(colPrefix + "_extent", extentEncoder.schema, false),
-    StructField(colPrefix + "_tile", new TileUDT, false)
+    StructField(colPrefix + "_extent", classOf[Extent].schema, false),
+    StructField(colPrefix + "_tile", TileType, false)
   ))
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
@@ -82,9 +86,9 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
           val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
           val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
           val sk = SpatialKey(layoutCol, layoutRow)
-          val arraytile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
+          val arraytile: Tile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
           val extent = layerMetadata.mapTransform(sk)
-          val tile = TileUDT.serialize(arraytile)
+          val tile = arraytile.toRow
           val e = extent.toRow
           val skEnc = spatialKeyEncoder.toRow(sk)
           val tlm = tlmEncoder.toRow(layerMetadata)
@@ -94,7 +98,7 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
       }
       else {
         val geotiff = GeoTiffReader.readSingleband(bytes)
-        val tile = TileUDT.serialize(geotiff.tile)
+        val tile = geotiff.tile.toRow
         val e = geotiff.extent.toRow
         val sk = spatialKeyEncoder.toRow(SpatialKey(0, 0))
         val tlm = tlmEncoder.toRow(layerMetadata)

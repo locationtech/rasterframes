@@ -23,9 +23,12 @@ package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterRef
+import com.typesafe.scalalogging.LazyLogging
+import geotrellis.raster.Tile
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 
 /**
@@ -34,7 +37,7 @@ import org.apache.spark.sql.types.DataType
  * @since 11/2/18
  */
 case class RasterRefToTile(child: Expression) extends UnaryExpression
-  with CodegenFallback with ExpectsInputTypes {
+  with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
   override def inputTypes = Seq(classOf[RasterRef].schema)
 
@@ -42,6 +45,12 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
 
   override protected def nullSafeEval(input: Any): Any = {
     val ref = row(input).to[RasterRef]
-
+    logger.debug("fetching " + ref)
+    (ref.tile: Tile).toRow
   }
+}
+
+object RasterRefToTile {
+  def apply(rr: Column): Column =
+    RasterRefToTile(rr.expr).asColumn
 }

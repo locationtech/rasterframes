@@ -38,6 +38,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
   spark.version
   val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
+  val TileType = new TileUDT()
 
   describe("TileUDT") {
     val tileSizes = Seq(2, 64, 128, 222, 511)
@@ -54,8 +55,8 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
     it("should (de)serialize tile") {
       forEveryConfig { tile ⇒
-        val row = TileUDT.serialize(tile)
-        val tileAgain = TileUDT.deserialize(row)
+        val row = TileType.serialize(tile)
+        val tileAgain = TileType.deserialize(row)
         assert(tileAgain === tile)
       }
     }
@@ -64,14 +65,14 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
       forEveryConfig { tile ⇒
         val row = tileEncoder.toRow(tile)
         assert(!row.isNullAt(0))
-        val tileAgain = TileUDT.deserialize(row.getStruct(0, TileUDT.sqlType.size))
+        val tileAgain = TileType.deserialize(row.getStruct(0, TileType.sqlType.size))
         assert(tileAgain === tile)
       }
     }
 
     it("should extract properties") {
       forEveryConfig { tile ⇒
-        val row = TileUDT.serialize(tile)
+        val row = TileType.serialize(tile)
         val wrapper = row.to[Tile]
         assert(wrapper.cols === tile.cols)
         assert(wrapper.rows === tile.rows)
@@ -81,7 +82,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
     it("should directly extract cells") {
       forEveryConfig { tile ⇒
-        val row = TileUDT.serialize(tile)
+        val row = TileType.serialize(tile)
         val wrapper = row.to[Tile]
         val (cols,rows) = wrapper.dimensions
         val indexes = Seq((0, 0), (cols - 1, rows - 1), (cols/2, rows/2), (1, 1))

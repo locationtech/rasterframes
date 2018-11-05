@@ -14,7 +14,6 @@ import org.apache.spark.sql.types.{DataType, StructField, StructType}
  * @since 8/11/17
  */
 class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction {
-  override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
 
   private val incCount =
     if (isData) safeBinaryOp((t1: Tile, t2: Tile) ⇒ Add(t1, Defined(t2)))
@@ -22,7 +21,11 @@ class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction 
 
   private val add = safeBinaryOp(Add.apply(_: Tile, _: Tile))
 
-  override def dataType: DataType = new TileUDT()
+  private val TileType = new TileUDT()
+
+  override def dataType: DataType = TileType
+
+  override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
   override def bufferSchema: StructType = inputSchema
 

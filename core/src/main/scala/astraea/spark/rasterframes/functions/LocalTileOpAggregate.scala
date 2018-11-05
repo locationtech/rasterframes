@@ -32,11 +32,13 @@ class LocalTileOpAggregate(op: LocalTileBinaryOp) extends UserDefinedAggregateFu
 
   private val safeOp = safeBinaryOp(op.apply(_: Tile, _: Tile))
 
-  override def inputSchema: StructType = StructType(StructField("value", TileUDT) :: Nil)
+  private val TileType = new TileUDT()
+
+  override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
   override def bufferSchema: StructType = inputSchema
 
-  override def dataType: DataType = new TileUDT()
+  override def dataType: DataType = TileType
 
   override def deterministic: Boolean = true
 

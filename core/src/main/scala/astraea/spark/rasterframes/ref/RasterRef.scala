@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.ref
 
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS

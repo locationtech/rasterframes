@@ -19,7 +19,7 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.ref.ProjectedRasterLike
+import geotrellis.raster.Grid
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
@@ -31,7 +31,7 @@ import org.apache.spark.sql.types.{ShortType, StructField, StructType}
  * Extract a Tile's dimensions
  * @since 12/21/17
  */
-case class GetDimensions(child: Expression) extends OnProjectedRasterExpression
+case class GetDimensions(child: Expression) extends OnGridExpression
   with CodegenFallback {
   override def nodeName: String = "dimensions"
 
@@ -40,8 +40,8 @@ case class GetDimensions(child: Expression) extends OnProjectedRasterExpression
     StructField("rows", ShortType)
   ))
 
-  override def eval(prl: ProjectedRasterLike): Any =
-    InternalRow(prl.cols.toShort, prl.rows.toShort)
+  override def eval(grid: Grid): Any =
+    InternalRow(grid.cols.toShort, grid.rows.toShort)
 }
 
 object GetDimensions {

@@ -34,9 +34,9 @@ trait RequiresTile { self: UnaryExpression ⇒
 }
 
 object RequiresTile {
-  def check(expr: Expression) =
+  def check(expr: Expression): TypeCheckResult =
     if(expr.dataType.isInstanceOf[TileUDT]) TypeCheckSuccess
      else TypeCheckFailure(
-       s"Expected '${TileUDT.typeName}' but received '${expr.dataType.simpleString}'"
+       s"Expected 'TileUDT' but received '${expr.dataType.simpleString}'"
      )
 }

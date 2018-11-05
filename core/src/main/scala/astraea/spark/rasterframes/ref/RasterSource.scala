@@ -28,7 +28,7 @@ import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.{ArraySegmentBytes, GeoTiffOptions, GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
+import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
 import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
@@ -50,14 +50,10 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
   def crs: CRS
   def extent: Extent
   def timestamp: Option[ZonedDateTime]
-  def size: Long
-  def dimensions: (Int, Int)
   def cellType: CellType
   def bandCount: Int
   def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
   def nativeLayout: Option[TileLayout]
-  def cols: Int = dimensions._1
-  def rows: Int = dimensions._2
   def rasterExtent = RasterExtent(extent, cols, rows)
   def cellSize = CellSize(extent, cols, rows)
   def gridExtent = GridExtent(extent, cellSize)
@@ -120,12 +116,11 @@ object RasterSource extends LazyLogging {
     }
   }
 
-
   case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
     def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
+    override def rows: Int = tile.rows
+    override def cols: Int = tile.cols
     override def timestamp: Option[ZonedDateTime] = None
-    override def size: Long = tile.size
-    override def dimensions: (Int, Int) = tile.dimensions
     override def cellType: CellType = tile.cellType
     override def bandCount: Int = 1
     override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = Left(
@@ -147,10 +142,6 @@ object RasterSource extends LazyLogging {
     def extent: Extent = tiffInfo.extent
 
     def timestamp: Option[ZonedDateTime] = resolveDate
-
-    def size: Long = rangeReader.totalLength
-
-    def dimensions: (Int, Int) = tiffInfo.rasterExtent.dimensions
 
     override def cols: Int = tiffInfo.rasterExtent.cols
 

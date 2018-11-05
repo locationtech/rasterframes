@@ -38,7 +38,7 @@ import org.apache.spark.unsafe.types.UTF8String
 @SQLUserDefinedType(udt = classOf[TileUDT])
 class TileUDT extends UserDefinedType[Tile] {
   import TileUDT._
-  override def typeName = "rf_tile"
+  override def typeName = TileUDT.typeName
 
   override def pyUDT: String = "pyrasterframes.TileUDT"
 
@@ -68,9 +68,11 @@ class TileUDT extends UserDefinedType[Tile] {
   }
 }
 
-case object TileUDT extends TileUDT {
+case object TileUDT  {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
   UDTRegistration.register(classOf[ProjectedRasterTile].getName, classOf[TileUDT].getName)
+
+  final val typeName: String = "rf_tile"
 
   // Column mapping which must match layout below
   object C {
@@ -80,7 +82,7 @@ case object TileUDT extends TileUDT {
     val DATA = 3
   }
 
-  implicit val tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
+  implicit def tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
     override def schema: StructType = StructType(Seq(
       StructField("cellType", StringType, false),
       StructField("cols", ShortType, false),

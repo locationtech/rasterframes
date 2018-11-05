@@ -22,6 +22,7 @@
 package astraea.spark.rasterframes.encoders
 
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, Tile}

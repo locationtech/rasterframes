@@ -48,7 +48,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
   private val rasterRefSchema = classOf[RasterRef].schema
 
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceType)
-  override def nodeName: String = "create_raster_refs"
+  override def nodeName: String = "raster_source_to_raster_ref"
 
   override def elementSchema: StructType = StructType(
     children.map(e ⇒ StructField(e.name, rasterRefSchema, true))
@@ -73,5 +73,5 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
 object RasterSourceToRasterRefs {
   def apply(rrs: Column*): Column = apply(true, rrs: _*)
   def apply(applyTiling: Boolean, rrs: Column*): Column =
-    new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling).asColumn
+    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling))
 }

@@ -22,6 +22,7 @@
 package astraea.spark.rasterframes.ref
 
 import geotrellis.proj4.CRS
+import geotrellis.raster.Grid
 import geotrellis.vector.Extent
 
 /**
@@ -29,7 +30,7 @@ import geotrellis.vector.Extent
  *
  * @since 11/3/18
  */
-trait ProjectedRasterLike {
+trait ProjectedRasterLike extends Grid {
   def crs: CRS
   def extent: Extent
   def rows: Int
