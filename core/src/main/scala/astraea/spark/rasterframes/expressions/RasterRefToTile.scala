@@ -45,7 +45,6 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
 
   override protected def nullSafeEval(input: Any): Any = {
     val ref = row(input).to[RasterRef]
-    logger.debug("fetching " + ref)
     (ref.tile: Tile).toRow
   }
 }

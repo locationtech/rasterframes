@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea. Inc.
+ * Copyright 2018 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,19 +15,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ * SPDX-License-Identifier: Apache-2.0
  *
  */
 
-package astraea.spark.rasterframes.datasource.geotiff
-
-import astraea.spark.rasterframes.util.Shims
+package astraea.spark.rasterframes.util
 import geotrellis.raster.TileLayout
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo
-import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.util.ByteReader
-import geotrellis.vector.Extent
 
 /**
  * Utility mix-in for generating a tlm from GeoTiff headers.
@@ -50,6 +48,10 @@ trait GeoTiffInfoSupport {
 
   def extractGeoTiffLayout(reader: ByteReader): (GeoTiffReader.GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
     val info: GeoTiffInfo = Shims.readGeoTiffInfo(reader, false, true)
+    (info, extractGeoTiffLayout(info))
+  }
+
+  def extractGeoTiffLayout(info: GeoTiffInfo): TileLayerMetadata[SpatialKey] = {
     // Some notes on GeoTiffInfo properties:
     // * `info.extent` is the actual geotiff extent
     // * `info.segmentLayout.tileLayout` contains the internal, regularized gridding of a tiled GeoTIFF
@@ -81,6 +83,6 @@ trait GeoTiffInfoSupport {
         extent, crs, bounds)
     }
 
-    (info, tlm)
+    tlm
   }
 }

@@ -25,11 +25,13 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
+import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.raster.io.geotiff.{GeoTiffSegment, GeoTiffSegmentLayout, GeoTiffTile, MultibandGeoTiff, SinglebandGeoTiff, Tags}
+import geotrellis.raster.{ArrayMultibandTile, ArrayTile, CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.spark.SpatialKey
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
@@ -48,18 +50,29 @@ import scala.util.Try
  */
 sealed trait RasterSource extends ProjectedRasterLike with Serializable {
   def crs: CRS
+
   def extent: Extent
+
   def timestamp: Option[ZonedDateTime]
+
   def cellType: CellType
+
   def bandCount: Int
+
   def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
+
+  def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]]
+
   def nativeLayout: Option[TileLayout]
+
   def rasterExtent = RasterExtent(extent, cols, rows)
+
   def cellSize = CellSize(extent, cols, rows)
+
   def gridExtent = GridExtent(extent, cellSize)
 
   def nativeTiling: Seq[Extent] = {
-    nativeLayout.map { tileLayout  ⇒
+    nativeLayout.map { tileLayout ⇒
       val layout = LayoutDefinition(extent, tileLayout)
       val transform = layout.mapTransform
       for {
@@ -108,7 +121,8 @@ object RasterSource extends LazyLogging {
   // According to https://goo.gl/2z8xx9 the GeoTIFF date format is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
-  trait URIRasterSource { _: RasterSource ⇒
+  trait URIRasterSource {
+    _: RasterSource ⇒
     def source: URI
 
     abstract override def toString: String = {
@@ -118,18 +132,28 @@ object RasterSource extends LazyLogging {
 
   case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
     def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
+
     override def rows: Int = tile.rows
+
     override def cols: Int = tile.cols
+
     override def timestamp: Option[ZonedDateTime] = None
+
     override def cellType: CellType = tile.cellType
+
     override def bandCount: Int = 1
+
     override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = Left(
       Raster(tile.crop(rasterExtent.gridBoundsFor(extent, false)), extent)
     )
+
     override def nativeLayout: Option[TileLayout] = Some(TileLayout(1, 1, cols, rows))
+
+    def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] =
+      Left(Seq(Raster(tile, extent)))
   }
 
-  trait RangeReaderRasterSource extends RasterSource {
+  trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport with LazyLogging {
     protected def rangeReader: RangeReader
 
     private def realInfo =
@@ -152,7 +176,7 @@ object RasterSource extends LazyLogging {
     def bandCount: Int = tiffInfo.bandCount
 
     def nativeLayout: Option[TileLayout] = {
-      if(tiffInfo.segmentLayout.isTiled)
+      if (tiffInfo.segmentLayout.isTiled)
         Some(tiffInfo.segmentLayout.tileLayout)
       else None
     }
@@ -194,10 +218,61 @@ object RasterSource extends LazyLogging {
         Right(gt.crop(extent).raster)
       }
     }
+
+    def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
+      val info = realInfo
+      val layerMetadata = extractGeoTiffLayout(info)
+      if (info.segmentLayout.isTiled) {
+        if (bandCount == 1) {
+          val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
+          val rows = Array.ofDim[Raster[Tile]](geotile.segmentCount)
+          for (i ← rows.indices) {
+            val seg: GeoTiffSegment = geotile.getSegment(i)
+            val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
+            val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
+            val sk = SpatialKey(layoutCol, layoutRow)
+            val arraytile: Tile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
+            val extent = layerMetadata.mapTransform(sk)
+            rows(i) = Raster(arraytile, extent)
+          }
+          Left(rows)
+        }
+        else {
+//          val geotile = GeoTiffReader.geoTiffMultibandTile(info)
+//          val rows = Array.ofDim[Raster[MultibandTile]](geotile.segmentCount)
+//          for (i ← rows.indices) {
+//            val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
+//            val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
+//            val sk = SpatialKey(layoutCol, layoutRow)
+//
+//            val seg: GeoTiffSegment = geotile.getSegment(i)
+//
+//            val arraytile: MultibandTile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
+//            val extent = layerMetadata.mapTransform(sk)
+//            Raster(arraytile, extent)
+//          }
+//          Right(rows)
+          logger.warn("Tiled multiband geotiff reading not yet implemented. Reverting to whole file reading.")
+          val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
+          Right(Seq(Raster(geoTiffTile.toArrayTile(), info.extent)))
+        }
+      }
+      else {
+        if (bandCount == 1) {
+          val geoTiffTile = GeoTiffReader.geoTiffSinglebandTile(info)
+          Left(Seq(Raster(geoTiffTile.toArrayTile(), info.extent)))
+        }
+        else {
+          val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
+          Right(Seq(Raster(geoTiffTile.toArrayTile(), info.extent)))
+        }
+      }
+    }
   }
 
   case class FileGeoTiffRasterSource(source: URI, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString { self ⇒
+    with URIRasterSource with URIRasterSourceDebugString {
+    self ⇒
     @transient
     protected lazy val rangeReader = {
       val base = FileRangeReader(source.getPath)
@@ -207,7 +282,8 @@ object RasterSource extends LazyLogging {
   }
 
   case class HadoopGeoTiffRasterSource(source: URI, config: () ⇒ Configuration, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString { self ⇒
+    with URIRasterSource with URIRasterSourceDebugString {
+    self ⇒
     @transient
     protected lazy val rangeReader = {
       val base = HdfsRangeReader(new Path(source.getPath), config())
@@ -216,7 +292,8 @@ object RasterSource extends LazyLogging {
   }
 
   case class S3GeoTiffRasterSource(source: URI, client: () ⇒ S3Client, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString { self ⇒
+    with URIRasterSource with URIRasterSourceDebugString {
+    self ⇒
     @transient
     protected lazy val rangeReader = {
       val base = S3RangeReader(source, client())
@@ -225,7 +302,8 @@ object RasterSource extends LazyLogging {
   }
 
   case class HttpGeoTiffRasterSource(source: URI, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString { self ⇒
+    with URIRasterSource with URIRasterSourceDebugString {
+    self ⇒
     @transient
     private lazy val baseReader = HttpRangeReader(source)
 
@@ -253,13 +331,15 @@ object RasterSource extends LazyLogging {
 
   private case class ReportingRangeReader(delegate: RangeReader, callback: ReadCallback, parent: RasterSource) extends RangeReader {
     override def totalLength: Long = delegate.totalLength
+
     override protected def readClippedRange(start: Long, length: Int): Array[Byte] = {
       callback.readRange(parent, start, length)
       delegate.readRange(start, length)
     }
   }
 
-  trait URIRasterSourceDebugString { _: RangeReaderRasterSource with URIRasterSource with Product ⇒
+  trait URIRasterSourceDebugString {
+    _: RangeReaderRasterSource with URIRasterSource with Product ⇒
     def toDebugString: String = {
       val buf = new StringBuilder()
       buf.append(productPrefix)
@@ -280,4 +360,5 @@ object RasterSource extends LazyLogging {
       buf.toString
     }
   }
+
 }

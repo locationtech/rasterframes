@@ -22,7 +22,7 @@ package astraea.spark.rasterframes.experimental.datasource
 
 import java.net.URI
 
-import astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport
+import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult

@@ -24,14 +24,14 @@ package astraea.spark.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
+import astraea.spark.rasterframes
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.{RasterRefToTile, RasterSourceToRasterRefs}
+import astraea.spark.rasterframes.expressions.RasterSourceToTiles
+import astraea.spark.rasterframes.ref.RasterSource
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
-import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql._
 import org.openjdk.jmh.annotations._
-import org.apache.spark.sql.execution.debug._
 /**
  *
  *
@@ -49,42 +49,38 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
   @Setup(Level.Trial)
   def setupData(): Unit = {
     val watcher = new ReadCallback {
-      var sourceCount = Map.empty[RasterSource, Int]
+      var count: Long = 0
+      var calls: Int = 0
       override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
-        val count = sourceCount.getOrElse(source, 0)
-        sourceCount += (source -> (count + 1))
-        if (count > 0) {
-          logger.warn(s"Multiple read for: $source")
-        }
+        calls += 1
+        count += length
+        logger.debug("%4d -- %,d bytes".format(calls, count))
       }
     }
 
     val r1 = RasterSource(remoteCOGSingleband1, Some(watcher))
     val r2 = RasterSource(remoteCOGSingleband2, Some(watcher))
     singleDF = Seq((r1, r2)).toDF("B1", "B2")
-      .select(RasterSourceToRasterRefs(false, $"B1", $"B2"))
-      .select(RasterRefToTile($"B1") as "B1", RasterRefToTile($"B2") as "B2")
-      .cache()
+      .select(RasterSourceToTiles(false, $"B1", $"B2"))
 
     expandedDF = Seq((r1, r2)).toDF("B1", "B2")
-      .select(RasterSourceToRasterRefs($"B1", $"B2"))
-      .select(RasterRefToTile($"B1") as "B1", RasterRefToTile($"B2") as "B2")
-      .cache()
+      .select(RasterSourceToTiles(true, $"B1", $"B2"))
   }
 
   @Benchmark
   def computeDifferenceExpanded() = {
-    // import org.apache.spark.sql.execution.debug._
-
-    val diff = expandedDF.select(normalizedDifference($"B1", $"B2"))
-    diff.explain()
-    //diff.debugCodegen()
-    diff.count()
+    expandedDF
+      .select(normalizedDifference($"B1", $"B2"))
+      .cache()
+      .count()
   }
 
   @Benchmark
   def computeDifferenceSingle() = {
-    singleDF.select(normalizedDifference($"B1", $"B2")).count()
+    singleDF
+      .select(normalizedDifference($"B1", $"B2"))
+      .cache()
+      .count()
   }
 
   @Benchmark
@@ -97,10 +93,10 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
     expandedDF.select(aggStats($"B1")).collect()
   }
 
-  //  @Benchmark
-//  def computeDifferenceStats() = {
-//    df.select(aggStats(normalizedDifference($"B1", $"B2"))).collect()
-//  }
+  @Benchmark
+  def computeDifferenceStats() = {
+    singleDF.select(aggStats(normalizedDifference($"B1", $"B2"))).collect()
+  }
 
 }
 
@@ -112,13 +108,17 @@ object RasterRefBench {
 //  @throws[RunnerException]
   def main(args: Array[String]): Unit = {
 
-
   val thing = new RasterRefBench()
   thing.setupData()
-  thing.computeDifferenceExpanded()
+  rasterframes.util.time("compute stats expanded") {
+    thing.computeStatsSingle()
+  }
 
+  rasterframes.util.time("compute stats single") {
+    thing.computeStatsExpanded()
+  }
 
-//    val opt = new OptionsBuilder()
+  //    val opt = new OptionsBuilder()
 //      .include(classOf[RasterRefBench].getSimpleName)
 //      .threads(4)
 //      .forks(5)

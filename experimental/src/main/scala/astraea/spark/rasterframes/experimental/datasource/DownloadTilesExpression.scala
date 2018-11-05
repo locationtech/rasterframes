@@ -23,7 +23,6 @@ package astraea.spark.rasterframes.experimental.datasource
 import java.net.URI
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport
 import astraea.spark.rasterframes.encoders.StandardEncoders
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.{ArrayTile, Tile}
@@ -39,6 +38,7 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import geotrellis.vector.Extent
 
 import scala.util.control.NonFatal
