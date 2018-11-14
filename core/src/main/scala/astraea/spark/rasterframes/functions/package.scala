@@ -214,6 +214,7 @@ package object functions {
   private[rasterframes] val localAggNodataCount = new LocalCountAggregate(false)
 
   /** Convert the tile to a floating point type as needed for scalar operations. */
+  @inline
   private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
   /** Cell-wise addition between tiles. */
@@ -270,7 +271,9 @@ package object functions {
 
   /** Cell-wise normalized difference of tiles. */
   private[rasterframes] val normalizedDifference:  (Tile, Tile) ⇒ Tile = safeEval((t1: Tile, t2:Tile) => {
-    Divide(Subtract(t1, t2), Add(t1, t2))
+    val diff = floatingPointTile(Subtract(t1, t2))
+    val sum = floatingPointTile(Add(t1, t2))
+    Divide(diff, sum)
   })
 
   /** Render tile as ASCII string. */

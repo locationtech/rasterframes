@@ -21,10 +21,8 @@ package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.net.URI
 
-import astraea.spark.rasterframes.rules.registerOptimization
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.DataSourceOptions
-import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.io.index.ZCurveKeyIndexMethod

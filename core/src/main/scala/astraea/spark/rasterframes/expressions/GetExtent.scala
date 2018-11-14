@@ -40,7 +40,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class GetExtent(child: Expression) extends OnProjectedRasterExpression with CodegenFallback {
   override def dataType: DataType = classOf[Extent].schema
   override def nodeName: String = "extent"
-  override def eval(prl: ProjectedRasterLike): InternalRow = prl.extent.toRow
+  override def eval(prl: ProjectedRasterLike): InternalRow = prl.extent.toInternalRow
 }
 
 object GetExtent {

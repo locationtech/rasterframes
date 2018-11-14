@@ -30,7 +30,7 @@ import scala.reflect.runtime.universe._
  */
 package object rf {
   implicit class CanBeColumn(expression: Expression) {
-    def asColumn: Column = Column(expression) as expression.sql
+    def asColumn: Column = Column(expression)
   }
 
   implicit class WithTypeConformity(val left: DataType) extends AnyVal {

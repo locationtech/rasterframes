@@ -48,7 +48,7 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
 
   override def serialize(obj: RasterSource): InternalRow =
     Option(obj)
-      .map(_.toRow)
+      .map(_.toInternalRow)
       .orNull
 
   override def deserialize(datum: Any): RasterSource =
@@ -74,13 +74,13 @@ object RasterSourceUDT extends RasterSourceUDT {
       StructField("raster_source_kryo", BinaryType, false)
     ))
 
-    override def toRow(t: RasterSource): InternalRow = {
+    override def to[R](t: RasterSource, io: CatalystIO[R]): R = {
       val buf = KryoSupport.serialize(t)
-      InternalRow(buf.array())
+      io.create(buf.array())
     }
 
-    override def fromRow(row: InternalRow): RasterSource = {
-      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(row.getBinary(0)))
+    override def from[R](row: R, io: CatalystIO[R]): RasterSource = {
+      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(io.getByteArray(row, 0)))
     }
   }
 }

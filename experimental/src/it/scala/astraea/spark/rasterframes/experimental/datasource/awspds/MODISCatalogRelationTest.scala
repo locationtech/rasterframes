@@ -20,11 +20,11 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 import java.net.URL
-import java.sql.Date
-import java.time.LocalDate
+import java.sql.Timestamp
 
-import astraea.spark.rasterframes.{TestEnvironment, _}
+import astraea.spark.rasterframes.TestEnvironment
 import astraea.spark.rasterframes.experimental.datasource._
+import org.apache.spark.sql.functions._
 
 /**
  * Test rig for MODIS catalog stuff.
@@ -35,9 +35,8 @@ class MODISCatalogRelationTest extends TestEnvironment {
   describe("Representing MODIS scenes as a Spark data source") {
     import spark.implicits._
     val catalog = spark.read.format(MODISCatalogDataSource.SHORT_NAME).load()
-    catalog.printSchema
     val scenes = catalog
-      .where($"acquisition_date".as[Date] at LocalDate.of(2018, 1, 1))
+      .where($"acquisition_date".as[Timestamp] === to_timestamp(lit("2018-1-1")))
       .where($"granule_id".contains("h24v03"))
 
     it("should provide a non-empty catalog") {

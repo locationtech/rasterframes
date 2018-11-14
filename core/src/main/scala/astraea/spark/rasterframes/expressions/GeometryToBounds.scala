@@ -56,7 +56,7 @@ case class GeometryToBounds(child: Expression) extends UnaryExpression with Code
   override protected def nullSafeEval(input: Any): Any = {
     val geom = JTSTypes.GeometryTypeInstance.deserialize(input)
     val extent = Extent(geom.getEnvelopeInternal)
-    CatalystSerializer[Extent].toRow(extent)
+    CatalystSerializer[Extent].toInternalRow(extent)
   }
 }
 

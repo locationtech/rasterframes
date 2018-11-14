@@ -44,7 +44,7 @@ import org.apache.spark.unsafe.types.UTF8String
 case class URIToRasterSource(override val child: Expression, accumulator: Option[ReadAccumulator])
   extends UnaryExpression with ExpectsInputTypes with CodegenFallback with LazyLogging {
 
-  override def nodeName: String = "uri_to_raster_ref"
+  override def nodeName: String = "uri_to_raster_source"
 
   override def dataType: DataType = new RasterSourceUDT
 
@@ -54,7 +54,7 @@ case class URIToRasterSource(override val child: Expression, accumulator: Option
     val uriString = input.asInstanceOf[UTF8String].toString
     val uri = URI.create(uriString)
     val ref = RasterSource(uri, accumulator)
-    ref.toRow
+    ref.toInternalRow
   }
 }
 

@@ -21,6 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
 import astraea.spark.rasterframes.expressions.{RasterSourceToRasterRefs, URIToRasterSource}
 import astraea.spark.rasterframes.ref.RasterRef
@@ -30,7 +31,6 @@ import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, SQLContext}
@@ -93,24 +93,15 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
 
     val filtered = aggFilters
       .foldLeft(catalog)((d, filter) ⇒ d.where(colExpr(filter)))
-      .drop(PDSFields.BOUNDS.name)
 
     val (bands, other) = requiredColumns.partition(Bands.names.contains)
 
     val nonTile = other.map(col)
 
-    val df = if(useTiling) {
-      // We assume that `nativeTiling` preserves the band names.
-      val expanded = RasterSourceToRasterRefs(bands.map(b ⇒ URIToRasterSource(l8_band_url(b), accumulator).as(b).as[RasterRef]): _*)
-
-      // First apply the native tiling generator
-      // Then convert RasterRef into Tile
-      filtered
-        .select(nonTile :+ expanded: _*)
-    }
-    else {
-      val tiled = bands.map(b ⇒ URIToRasterSource(l8_band_url(b), accumulator).as(b))
-      filtered.select(nonTile ++ tiled: _*)
+    val df = {
+      // NB: We assume that `nativeTiling` preserves the band names.
+      val expanded = RasterSourceToRasterRefs(useTiling, bands.map(b ⇒ URIToRasterSource(l8_band_url(b), accumulator).as(b)): _*)
+      filtered.select(nonTile :+ expanded: _*)
     }
 
     // Make sure shape of resulting rows conforms to what was requested
@@ -130,13 +121,12 @@ object L8Relation extends PDSFields {
   }
 
   lazy val schema: StructType = {
-    val tileType = new TileUDT()
     StructType(
       L8CatalogRelation.schema.collect {
         case ACQUISITION_DATE ⇒ ACQUISITION_DATE.copy(name = StandardColumns.TIMESTAMP_COLUMN.columnName)
         case s if s.name == BOUNDS_WGS84.name ⇒ BOUNDS
         case s if s != DOWNLOAD_URL ⇒ s
-      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, tileType, true))
+      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, classOf[RasterRef].schema, true))
     )
   }
 }

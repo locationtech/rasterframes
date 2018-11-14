@@ -39,13 +39,15 @@ import org.apache.spark.sql.types.DataType
 case class RasterRefToTile(child: Expression) extends UnaryExpression
   with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
+  override def nodeName: String = "raster_ref_to_tile"
+
   override def inputTypes = Seq(classOf[RasterRef].schema)
 
   override def dataType: DataType = new TileUDT
 
   override protected def nullSafeEval(input: Any): Any = {
     val ref = row(input).to[RasterRef]
-    (ref.tile: Tile).toRow
+    (ref.tile: Tile).toInternalRow
   }
 }
 

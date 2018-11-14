@@ -76,9 +76,6 @@ trait Implicits extends SpatialConstructors {
 
     def betweenDates(start: Date, end: Date): TypedColumn[Any, Boolean] =
       betweenTimes(start: Timestamp, end: Timestamp)
-
-    def at(time: Timestamp): TypedColumn[Any, Boolean] = (self === lit(time)).as[Boolean]
-    def at(time: ZonedDateTime): TypedColumn[Any, Boolean] = at(time: Timestamp)
   }
 
   implicit class DateColumnMethods(val self: TypedColumn[Any, Date])
@@ -93,9 +90,6 @@ trait Implicits extends SpatialConstructors {
 
     def betweenDates(start: LocalDate, end: LocalDate): TypedColumn[Any, Boolean] =
       betweenDates(start: Date, end: Date)
-
-    def at(date: Date): TypedColumn[Any, Boolean] = (self === lit(date)).as[Boolean]
-    def at(date: LocalDate): TypedColumn[Any, Boolean] = at(date: Date)
   }
 }
 

@@ -219,7 +219,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   }
 
   override def buildScan(requiredColumns: Array[String]): RDD[Row] = {
-    logger.debug(s"Reading: $layerId from $uri")
+    logger.trace(s"Reading: $layerId from $uri")
     logger.trace(s"Required columns: ${requiredColumns.mkString(", ")}")
     logger.trace(s"Filters: $filters")
 

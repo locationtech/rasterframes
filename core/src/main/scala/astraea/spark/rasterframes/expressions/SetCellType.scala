@@ -76,7 +76,7 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
   override protected def nullSafeEval(left: Any, right: Any): InternalRow = {
     val t = row(left).to[Tile]
     val ct = toCellType(right)
-    t.convert(ct).toRow
+    t.convert(ct).toInternalRow
   }
 }
 

@@ -88,8 +88,8 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
           val sk = SpatialKey(layoutCol, layoutRow)
           val arraytile: Tile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
           val extent = layerMetadata.mapTransform(sk)
-          val tile = arraytile.toRow
-          val e = extent.toRow
+          val tile = arraytile.toInternalRow
+          val e = extent.toInternalRow
           val skEnc = spatialKeyEncoder.toRow(sk)
           val tlm = tlmEncoder.toRow(layerMetadata)
           rows(i) = InternalRow(tlm, skEnc, e, tile)
@@ -98,8 +98,8 @@ case class DownloadTilesExpression(override val child: Expression, colPrefix: St
       }
       else {
         val geotiff = GeoTiffReader.readSingleband(bytes)
-        val tile = geotiff.tile.toRow
-        val e = geotiff.extent.toRow
+        val tile = geotiff.tile.toInternalRow
+        val e = geotiff.extent.toInternalRow
         val sk = spatialKeyEncoder.toRow(SpatialKey(0, 0))
         val tlm = tlmEncoder.toRow(layerMetadata)
         Traversable(InternalRow(tlm, sk, e, tile))

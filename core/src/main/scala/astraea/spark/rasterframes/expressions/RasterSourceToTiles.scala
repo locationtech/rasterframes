@@ -24,7 +24,6 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
@@ -65,7 +64,7 @@ case class RasterSourceToTiles(children: Seq[Expression], applyTiling: Boolean) 
 
         tiles.left.get
       }
-      refs.transpose.map(ts ⇒ InternalRow(ts.map(r ⇒ r.tile.toRow): _*))
+      refs.transpose.map(ts ⇒ InternalRow(ts.map(r ⇒ r.tile.toInternalRow): _*))
     }
     catch {
       case NonFatal(ex) ⇒
@@ -77,7 +76,7 @@ case class RasterSourceToTiles(children: Seq[Expression], applyTiling: Boolean) 
 
 
 object RasterSourceToTiles {
-  def apply(rrs: Column*): Column = apply(false, rrs: _*)
+  def apply(rrs: Column*): Column = apply(true, rrs: _*)
   def apply(applyTiling: Boolean, rrs: Column*): Column =
     new Column(new RasterSourceToTiles(rrs.map(_.expr), applyTiling))
 }

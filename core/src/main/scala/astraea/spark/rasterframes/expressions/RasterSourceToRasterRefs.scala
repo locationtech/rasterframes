@@ -21,9 +21,8 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
+import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.Column
@@ -60,7 +59,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
         val src = rasterSourceType.deserialize(child.eval(input))
         if (applyTiling) src.nativeTiling.map(e ⇒ RasterRef(src, Some(e))) else Seq(RasterRef(src))
       }
-      refs.transpose.map(ts ⇒ InternalRow(ts.map(_.toRow): _*))
+      refs.transpose.map(ts ⇒ InternalRow(ts.map(_.toInternalRow): _*))
     }
     catch {
       case NonFatal(ex) ⇒
@@ -73,5 +72,5 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
 object RasterSourceToRasterRefs {
   def apply(rrs: Column*): Column = apply(true, rrs: _*)
   def apply(applyTiling: Boolean, rrs: Column*): Column =
-    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling))
+    new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling).asColumn.as[RasterRef]
 }

@@ -38,7 +38,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
   protected def cacheFile: HadoopPath = sceneList.suffix(".parquet")
 
   private val inputSchema = StructType(Seq(
-    StructField("date", DateType, false),
+    StructField("date", TimestampType, false),
     DOWNLOAD_URL,
     GID
   ))

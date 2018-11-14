@@ -17,6 +17,7 @@ package object rules {
   }
 
   def register(sqlContext: SQLContext): Unit = {
+    //org.locationtech.geomesa.spark.jts.rules.registerOptimizations(sqlContext)
     registerOptimization(sqlContext, SpatialUDFSubstitutionRules)
     registerOptimization(sqlContext, SpatialFilterPushdownRules)
   }

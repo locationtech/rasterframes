@@ -19,7 +19,7 @@
 package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.io.File
-import java.sql.{Date, Timestamp}
+import java.sql.Timestamp
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes._
@@ -40,7 +40,7 @@ import geotrellis.vector._
 import org.apache.avro.generic._
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.apache.hadoop.fs.FileUtil
-import org.apache.spark.sql.functions.{udf ⇒ sparkUdf, _}
+import org.apache.spark.sql.functions.{udf ⇒ sparkUdf}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 import org.scalatest.{BeforeAndAfterAll, Inspectors}
@@ -321,7 +321,7 @@ class GeoTrellisDataSourceSpec
       withClue("at now") {
         val df = layerReader
           .loadRF(layer)
-          .where(TIMESTAMP_COLUMN at now)
+          .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
 
         assert(numFilters(df) == 1)
         assert(df.count() == testRdd.count())
@@ -330,7 +330,7 @@ class GeoTrellisDataSourceSpec
       withClue("at earlier") {
         val df = layerReader
           .loadRF(layer)
-          .where(TIMESTAMP_COLUMN at now.minusDays(1))
+          .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
 
         assert(numFilters(df) === 1)
         assert(df.count() == 0)
@@ -362,7 +362,7 @@ class GeoTrellisDataSourceSpec
           .where(
             ((BOUNDS_COLUMN intersects pt1) ||
               (BOUNDS_COLUMN intersects pt2)) &&
-              (TIMESTAMP_COLUMN at now)
+              (TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
           )
 
         assert(numFilters(df) === 1)
@@ -375,7 +375,7 @@ class GeoTrellisDataSourceSpec
         val df = layerReader
           .loadRF(layer)
           .where((BOUNDS_COLUMN intersects pt1) || (BOUNDS_COLUMN intersects pt2))
-          .where(TIMESTAMP_COLUMN at now)
+          .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
 
         assert(numFilters(df) === 1)
         assert(numSplitFilters(df) === 2, extractRelation(df).toString)

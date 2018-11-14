@@ -23,12 +23,11 @@ package org.apache.spark.sql.rf
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
 import geotrellis.raster._
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
-import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * UDT for singleband tiles.
@@ -48,7 +47,7 @@ class TileUDT extends UserDefinedType[Tile] {
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
-      .map(_.toRow)
+      .map(_.toInternalRow)
       .orNull
 
   override def deserialize(datum: Any): Tile =
@@ -90,14 +89,24 @@ case object TileUDT  {
       StructField("data", BinaryType, false)
     ))
 
-    override def toRow(t: Tile): InternalRow = {
-      InternalRow(
-        UTF8String.fromString(t.cellType.name),
+    override def to[R](t: Tile, io: CatalystIO[R]): R = {
+      io.create(
+        io.encode(t.cellType.name),
         t.cols.toShort,
         t.rows.toShort,
         t.toBytes
       )
     }
-    override def fromRow(row: InternalRow): Tile = new InternalRowTile(row)
+    override def from[R](row: R, io: CatalystIO[R]): Tile = {
+      row match {
+        case ir: InternalRow ⇒ new InternalRowTile(ir)
+        case _: Row ⇒
+          val ct = CellType.fromName(io.getString(row, 0))
+          val cols = io.getShort(row, 1)
+          val rows = io.getShort(row, 2)
+          val data = io.getByteArray(row, 3)
+          ArrayTile.fromBytes(data, ct, cols, rows)
+      }
+    }
   }
 }
