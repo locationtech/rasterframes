@@ -19,19 +19,13 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.encoders.StandardEncoders._
 import astraea.spark.rasterframes.expressions.SpatialRelation.RelationPredicate
 import com.vividsolutions.jts.geom._
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.jts._
-import org.apache.spark.sql.rf.VersionShims
+import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
-
-import scala.util.Try
 
 
 
@@ -107,8 +101,10 @@ object SpatialRelation {
   )
 
   def fromUDF(udf: ScalaUDF) = {
-    Try(udf.function.asInstanceOf[RelationPredicate]).toOption
-      .flatMap(predicateMap.get)
-      .map(_.apply(udf.children.head, udf.children.last))
+    udf.function match {
+      case rp: RelationPredicate @unchecked ⇒
+        predicateMap.get(rp).map(_.apply(udf.children.head, udf.children.last))
+      case _ ⇒ None
+    }
   }
 }

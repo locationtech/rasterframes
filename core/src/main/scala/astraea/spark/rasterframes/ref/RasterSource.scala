@@ -29,9 +29,8 @@ import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.{GeoTiffSegment, GeoTiffSegmentLayout, GeoTiffTile, MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{ArrayMultibandTile, ArrayTile, CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
-import geotrellis.spark.SpatialKey
+import geotrellis.raster.io.geotiff.{GeoTiffSegment, GeoTiffSegmentLayout, GeoTiffSegmentLayoutTransform, MultibandGeoTiff, SinglebandGeoTiff, Tags}
+import geotrellis.raster.{ArrayTile, CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
@@ -40,6 +39,7 @@ import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
+import spire.syntax.cfor._
 
 import scala.util.Try
 
@@ -219,21 +219,47 @@ object RasterSource extends LazyLogging {
       }
     }
 
+
     def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
       val info = realInfo
-      val layerMetadata = extractGeoTiffLayout(info)
+      //val layerMetadata = extractGeoTiffLayout(info)
       if (info.segmentLayout.isTiled) {
         if (bandCount == 1) {
           val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
+          val layout = LayoutDefinition(extent, info.segmentLayout.tileLayout)
           val rows = Array.ofDim[Raster[Tile]](geotile.segmentCount)
-          for (i ← rows.indices) {
-            val seg: GeoTiffSegment = geotile.getSegment(i)
-            val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
-            val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
-            val sk = SpatialKey(layoutCol, layoutRow)
-            val arraytile: Tile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
-            val extent = layerMetadata.mapTransform(sk)
-            rows(i) = Raster(arraytile, extent)
+          // We use the same transform with the index set to zero, which results in the index
+          // values not being offset within the larger scene.
+          val transform = TiledSegmentTransform(0, info.segmentLayout, GeoTiffSegmentLayoutTransform(info.segmentLayout, 1))
+          for (si ← rows.indices) {
+
+            val seg: GeoTiffSegment = geotile.getSegment(si)
+
+            val (tileCols, tileRows) = transform.segmentLayoutTransform.getSegmentDimensions(si)
+            val tile = ArrayTile.empty(info.cellType, tileCols, tileRows)
+
+            if (cellType.isFloatingPoint)
+              cfor(0)(_ < seg.size, _ + 1) { i =>
+                val col = transform.indexToCol(i)
+                val row = transform.indexToRow(i)
+                if(col < tileCols && row < tileRows) {
+                  val v = seg.getDouble(i)
+                  tile.setDouble(col, row, v)
+                }
+              }
+            else
+              cfor(0)(_ < seg.size, _ + 1) { i =>
+                val col = transform.indexToCol(i)
+                val row = transform.indexToRow(i)
+                if(col < tileCols && row < tileRows) {
+                  val v = seg.getInt(i)
+                  tile.set(col, row, v)
+                }
+              }
+
+            val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(si)
+            val extent = layout.mapTransform(layoutCol, layoutRow)
+            rows(si) = Raster(tile, extent)
           }
           Left(rows)
         }

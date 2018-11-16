@@ -127,6 +127,8 @@ trait TestData {
 
   lazy val remoteCOGMultiband =  URI.create("https://s3-us-west-2.amazonaws.com/radiant-nasa-iserv/2014/02/14/IP0201402141023382027S03100E/IP0201402141023382027S03100E-COG.tif")
 
+  lazy val remoteMODIS = URI.create("https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF")
+
   object JTS {
     val fact = new GeometryFactory()
     val c1 = new Coordinate(1, 2)
