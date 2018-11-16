@@ -24,8 +24,6 @@ package astraea.spark.rasterframes.ref
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes.ref.RasterSource.FileGeoTiffRasterSource
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
-import geotrellis.raster.io
-import geotrellis.raster.io.geotiff
 import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
@@ -145,6 +143,17 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val src = RasterSource(remoteMODIS)
 
       val subrasters = src.readAll().left.get
+
+      val collected = subrasters.map(_.extent).reduceLeft(_.combine(_))
+
+      assert(src.extent.xmin === collected.xmin +- 0.01)
+      assert(src.extent.ymin === collected.ymin +- 0.01)
+      assert(src.extent.xmax === collected.xmax +- 0.01)
+      assert(src.extent.ymax === collected.ymax +- 0.01)
+
+      val totalCells = subrasters.map(_.size).sum
+
+      assert(totalCells === src.size)
 
       subrasters.zipWithIndex.foreach{case (r, i) ⇒
         // TODO: how to test?

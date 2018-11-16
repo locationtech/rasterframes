@@ -29,8 +29,8 @@ import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.{GeoTiffSegment, GeoTiffSegmentLayout, GeoTiffSegmentLayoutTransform, MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{ArrayTile, CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
+import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
@@ -39,7 +39,6 @@ import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-import spire.syntax.cfor._
 
 import scala.util.Try
 
@@ -219,79 +218,37 @@ object RasterSource extends LazyLogging {
       }
     }
 
-
     def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
       val info = realInfo
-      //val layerMetadata = extractGeoTiffLayout(info)
-      if (info.segmentLayout.isTiled) {
-        if (bandCount == 1) {
-          val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
-          val layout = LayoutDefinition(extent, info.segmentLayout.tileLayout)
-          val rows = Array.ofDim[Raster[Tile]](geotile.segmentCount)
-          // We use the same transform with the index set to zero, which results in the index
-          // values not being offset within the larger scene.
-          val transform = TiledSegmentTransform(0, info.segmentLayout, GeoTiffSegmentLayoutTransform(info.segmentLayout, 1))
-          for (si ← rows.indices) {
 
-            val seg: GeoTiffSegment = geotile.getSegment(si)
+      // Thanks to @pomadchin for showing me how to do this :-)
+      val (tileCols, tileRows) = info.segmentLayout.tileLayout.tileDimensions
+      val windows = info.segmentLayout.listWindows(math.max(tileCols, tileRows))
+      val re = info.rasterExtent
 
-            val (tileCols, tileRows) = transform.segmentLayoutTransform.getSegmentDimensions(si)
-            val tile = ArrayTile.empty(info.cellType, tileCols, tileRows)
+      if(info.bandCount == 1) {
+        val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
 
-            if (cellType.isFloatingPoint)
-              cfor(0)(_ < seg.size, _ + 1) { i =>
-                val col = transform.indexToCol(i)
-                val row = transform.indexToRow(i)
-                if(col < tileCols && row < tileRows) {
-                  val v = seg.getDouble(i)
-                  tile.setDouble(col, row, v)
-                }
-              }
-            else
-              cfor(0)(_ < seg.size, _ + 1) { i =>
-                val col = transform.indexToCol(i)
-                val row = transform.indexToRow(i)
-                if(col < tileCols && row < tileRows) {
-                  val v = seg.getInt(i)
-                  tile.set(col, row, v)
-                }
-              }
-
-            val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(si)
-            val extent = layout.mapTransform(layoutCol, layoutRow)
-            rows(si) = Raster(tile, extent)
-          }
-          Left(rows)
+        val subtiles = geotile.crop(windows)
+        val rows = for {
+          (gridbounds, tile) ← subtiles
+        } yield {
+          val extent = re.extentFor(gridbounds, false)
+          Raster(tile, extent)
         }
-        else {
-//          val geotile = GeoTiffReader.geoTiffMultibandTile(info)
-//          val rows = Array.ofDim[Raster[MultibandTile]](geotile.segmentCount)
-//          for (i ← rows.indices) {
-//            val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
-//            val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
-//            val sk = SpatialKey(layoutCol, layoutRow)
-//
-//            val seg: GeoTiffSegment = geotile.getSegment(i)
-//
-//            val arraytile: MultibandTile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
-//            val extent = layerMetadata.mapTransform(sk)
-//            Raster(arraytile, extent)
-//          }
-//          Right(rows)
-          logger.warn("Tiled multiband geotiff reading not yet implemented. Reverting to whole file reading.")
-          val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
-          Right(Seq(Raster(geoTiffTile.toArrayTile(), info.extent)))
-        }
+        Left(rows.toSeq)
       }
       else {
-        if (bandCount == 1) {
-          val geoTiffTile = GeoTiffReader.geoTiffSinglebandTile(info)
-          Left(Seq(Raster(geoTiffTile.toArrayTile(), info.extent)))
+        val geotile = GeoTiffReader.geoTiffMultibandTile(info)
+
+        val subtiles = geotile.crop(windows)
+        val rows = for {
+          (gridbounds, tile) ← subtiles
+        } yield {
+          val extent = re.extentFor(gridbounds, false)
+          Raster(tile, extent)
         }
-        else {
-          val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
-          Right(Seq(Raster(geoTiffTile.toArrayTile(), info.extent)))
-        }
+        Right(rows.toSeq)
       }
     }
   }
