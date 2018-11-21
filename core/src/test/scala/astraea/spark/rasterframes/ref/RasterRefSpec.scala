@@ -24,6 +24,8 @@ package astraea.spark.rasterframes.ref
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions._
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
+import geotrellis.raster.Tile
 import geotrellis.vector.Extent
 
 /**
@@ -48,9 +50,10 @@ class RasterRefSpec extends TestEnvironment with TestData {
     val subRaster = RasterRef(src, Option(subExtent))
   }
 
+  import spark.implicits._
+
   describe("GetCRS Expression") {
     it("should read from RasterRef") {
-      import spark.implicits._
       new Fixture {
         val ds = Seq((1, fullRaster)).toDF("index", "ref")
         val crs = ds.select(GetCRS($"ref"))
@@ -59,7 +62,6 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
     it("should read from sub-RasterRef") {
-      import spark.implicits._
       new Fixture {
         val ds = Seq((1, subRaster)).toDF("index", "ref")
         val crs = ds.select(GetCRS($"ref"))
@@ -71,7 +73,6 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   describe("GetDimensions Expression") {
     it("should read from RasterRef") {
-      import spark.implicits._
       new Fixture {
         val ds = Seq((1, fullRaster)).toDF("index", "ref")
         val dims = ds.select(GetDimensions($"ref"))
@@ -80,10 +81,28 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
     it("should read from sub-RasterRef") {
-      import spark.implicits._
       new Fixture {
         val ds = Seq((1, subRaster)).toDF("index", "ref")
         val dims = ds.select(GetDimensions($"ref"))
+        assert(dims.count() === 1)
+        assert(dims.first() !== null)
+      }
+    }
+
+    it("should read from RasterRefTile") {
+      new Fixture {
+        val ds = Seq((1, RasterRefTile(fullRaster): Tile)).toDF("index", "ref")
+        val dims = ds.select(GetDimensions($"ref"))
+        println(counter)
+        assert(dims.count() === 1)
+        assert(dims.first() !== null)
+      }
+    }
+    it("should read from sub-RasterRefTiles") {
+      new Fixture {
+        val ds = Seq((1, RasterRefTile(subRaster): Tile)).toDF("index", "ref")
+        val dims = ds.select(GetDimensions($"ref"))
+        println(counter)
         assert(dims.count() === 1)
         assert(dims.first() !== null)
       }

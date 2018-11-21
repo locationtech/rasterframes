@@ -23,11 +23,14 @@ package org.apache.spark.sql.rf
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
 import geotrellis.raster._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
+
 
 /**
  * UDT for singleband tiles.
@@ -78,34 +81,59 @@ case object TileUDT  {
     val CELL_TYPE = 0
     val COLS = 1
     val ROWS = 2
-    val DATA = 3
+    val CELLS = 3
+    val REF = 4
   }
 
   implicit def tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
+    import scala.language.reflectiveCalls
+
     override def schema: StructType = StructType(Seq(
       StructField("cellType", StringType, false),
       StructField("cols", ShortType, false),
       StructField("rows", ShortType, false),
-      StructField("data", BinaryType, false)
+      StructField("cells", BinaryType, true),
+      StructField("ref", classOf[RasterRef].schema, true)
     ))
 
+    def isRef[R](row: R, io: CatalystIO[R]): Boolean = io.isNullAt(row, C.CELLS)
+
     override def to[R](t: Tile, io: CatalystIO[R]): R = {
-      io.create(
-        io.encode(t.cellType.name),
-        t.cols.toShort,
-        t.rows.toShort,
-        t.toBytes
-      )
+      t match {
+        case ref: RasterRefTile ⇒
+          io.create(
+            io.encode(ref.cellType.name),
+            ref.cols.toShort,
+            ref.rows.toShort,
+            null,
+            io.to(ref.rr)
+          )
+        case _ ⇒
+          io.create(
+            io.encode(t.cellType.name),
+            t.cols.toShort,
+            t.rows.toShort,
+            t.toBytes,
+            null
+          )
+      }
     }
     override def from[R](row: R, io: CatalystIO[R]): Tile = {
       row match {
-        case ir: InternalRow ⇒ new InternalRowTile(ir)
-        case _: Row ⇒
-          val ct = CellType.fromName(io.getString(row, 0))
-          val cols = io.getShort(row, 1)
-          val rows = io.getShort(row, 2)
-          val data = io.getByteArray(row, 3)
-          ArrayTile.fromBytes(data, ct, cols, rows)
+        case ir: InternalRow if !isRef(row, io) ⇒ new InternalRowTile(ir)
+        case _ ⇒
+          if(isRef(row, io)) {
+            val ref = io.get[RasterRef](row, C.REF)
+            RasterRefTile(ref)
+          }
+          else {
+            val ct = CellType.fromName(io.getString(row, C.CELL_TYPE))
+            val cols = io.getShort(row, C.COLS)
+            val rows = io.getShort(row, C.ROWS)
+
+            val data = io.getByteArray(row, 3)
+            ArrayTile.fromBytes(data, ct, cols, rows)
+          }
       }
     }
   }

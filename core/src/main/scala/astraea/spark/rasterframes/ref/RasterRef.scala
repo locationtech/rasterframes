@@ -76,6 +76,7 @@ object RasterRef extends LazyLogging {
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
     val extent: Extent = rr.extent
     val crs: CRS = rr.crs
+    override val cellType = rr.cellType
 
     override val cols: Int = rr.cols
     override val rows: Int = rr.rows

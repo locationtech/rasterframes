@@ -226,7 +226,7 @@ object RasterSource extends LazyLogging {
       val windows = info.segmentLayout.listWindows(math.max(tileCols, tileRows))
       val re = info.rasterExtent
 
-      if(info.bandCount == 1) {
+      if (info.bandCount == 1) {
         val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
 
         val subtiles = geotile.crop(windows)

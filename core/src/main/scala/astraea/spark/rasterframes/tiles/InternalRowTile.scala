@@ -67,7 +67,7 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   override val rows: Int = mem.getShort(C.ROWS)
 
   /** Get the internally encoded tile data cells. */
-  override lazy val toBytes: Array[Byte] = mem.getBinary(C.DATA)
+  override lazy val toBytes: Array[Byte] = mem.getBinary(C.CELLS)
 
   private lazy val toByteBuffer: ByteBuffer = {
     val data = toBytes
