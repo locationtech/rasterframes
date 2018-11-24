@@ -38,13 +38,15 @@ class MODISCatalogRelationTest extends TestEnvironment {
     val scenes = catalog
       .where($"acquisition_date".as[Timestamp] === to_timestamp(lit("2018-1-1")))
       .where($"granule_id".contains("h24v03"))
+      .cache()
 
     it("should provide a non-empty catalog") {
+      scenes.show(false)
       assert(scenes.count() === 1)
     }
 
     it("should construct band specific download URLs") {
-      val b01 = scenes.select(modis_band_url("B01"))
+      val b01 = scenes.select($"assets"("B01").as[String])
       b01.show(false)
       noException shouldBe thrownBy {
         new URL(b01.first())
@@ -54,7 +56,7 @@ class MODISCatalogRelationTest extends TestEnvironment {
     it("should download geotiff as blob") {
       import org.apache.spark.sql.functions.{length ⇒ alength}
       val b01 = scenes.limit(1)
-        .select(download(modis_band_url("B01")) as "data")
+        .select(download($"assets"("B01")) as "data")
 
       val len = b01.select(alength($"data").as[Long])
       assert(len.first() >= 4000000)
@@ -62,8 +64,9 @@ class MODISCatalogRelationTest extends TestEnvironment {
 
     it("should download geotiff as tiles") {
       val b01 = scenes
-        .select($"*", download_tiles(modis_band_url("B01"))).cache()
-      assert(b01.count() === 25)
+        .select(read_tiles($"assets"("B01"), $"assets"("B02")))
+      b01.show(false)
+      assert(b01.count() === 100)
 
 //      val kv = b01.select($"B01_extent", $"B01_tile").as[(Extent, Tile)]
 //      kv.collect.zipWithIndex.foreach { case ((extent, tile), idx) ⇒

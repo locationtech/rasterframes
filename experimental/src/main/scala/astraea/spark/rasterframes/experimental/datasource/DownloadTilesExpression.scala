@@ -21,27 +21,26 @@
 package astraea.spark.rasterframes.experimental.datasource
 
 import java.net.URI
-import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.encoders.StandardEncoders
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.ref.HttpRangeReader
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.{ArrayTile, Tile}
-import geotrellis.raster.io.geotiff.GeoTiffSegment
+import geotrellis.proj4.CRS
+import geotrellis.raster.{ProjectedRaster, Tile}
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.spark.SpatialKey
+import geotrellis.spark.io.hadoop.HdfsRangeReader
+import geotrellis.spark.io.s3.S3Client
+import geotrellis.spark.io.s3.util.S3RangeReader
+import geotrellis.util.{ByteReader, FileRangeReader, RangeReader, StreamingByteReader}
+import geotrellis.vector.Extent
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.Path
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, UnaryExpression}
+import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, Generator, Literal}
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
-import org.apache.spark.unsafe.types.UTF8String
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.util.GeoTiffInfoSupport
-import geotrellis.vector.Extent
-
-import scala.util.control.NonFatal
 
 /**
  * Catalyst generator to convert a geotiff download URL into a series of rows containing the internal
@@ -49,65 +48,119 @@ import scala.util.control.NonFatal
  *
  * @since 5/4/18
  */
-case class DownloadTilesExpression(override val child: Expression, colPrefix: String) extends UnaryExpression
-  with Generator with CodegenFallback with GeoTiffInfoSupport with StandardEncoders with DownloadSupport with LazyLogging {
+case class DownloadTilesExpression(children: Seq[Expression]) extends Expression
+  with Generator with CodegenFallback with DownloadSupport with LazyLogging {
 
   private val TileType = new TileUDT()
 
   override def nodeName: String = "download_tiles"
 
-  override def checkInputDataTypes(): TypeCheckResult = {
-    if(child.dataType == StringType) TypeCheckSuccess
-    else TypeCheckFailure(
-      s"Expected '${StringType.typeName}' but received '${child.dataType.simpleString}'"
-    )
-  }
-
-  private def tlmEncoder = tileLayerMetadataEncoder[SpatialKey]
+  def inputTypes = Seq.fill(children.length)(StringType)
 
   override def elementSchema: StructType = StructType(Seq(
-    StructField(colPrefix + "_metadata", tlmEncoder.schema, false),
-    StructField(colPrefix + "_spatial_key", spatialKeyEncoder.schema, false),
-    StructField(colPrefix + "_extent", classOf[Extent].schema, false),
-    StructField(colPrefix + "_tile", TileType, false)
-  ))
+    StructField("crs", classOf[CRS].schema, true),
+    StructField("extent", classOf[Extent].schema, true)
+  ) ++
+    children
+      .zipWithIndex
+      .map {
+        case (l: Literal, _) ⇒ String.valueOf(l.value)
+        case (a: Alias, _) ⇒ a.name
+        case (_, i) ⇒ s"_${i + 1}"
+      }
+      .map(name ⇒ {
+        StructField(name, TileType, true)
+      })
+  )
 
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
-    try {
-      val urlString = child.eval(input).asInstanceOf[UTF8String]
-      val bytes = ByteBuffer.wrap(getBytes(URI.create(urlString.toString)))
-      val (info, layerMetadata) = extractGeoTiffLayout(bytes)
-      //See if GeoTiff is CoG compliant
-      if(info.segmentLayout.isTiled) {
-        val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
-        val rows = Array.ofDim[InternalRow](geotile.segmentCount)
-        for(i ← rows.indices) {
-          val seg: GeoTiffSegment = geotile.getSegment(i)
-          val (tileCols, tileRows) = info.segmentLayout.getSegmentDimensions(i)
-          val (layoutCol, layoutRow) = info.segmentLayout.getSegmentCoordinate(i)
-          val sk = SpatialKey(layoutCol, layoutRow)
-          val arraytile: Tile = ArrayTile.fromBytes(seg.bytes, info.cellType, tileCols, tileRows)
-          val extent = layerMetadata.mapTransform(sk)
-          val tile = arraytile.toInternalRow
-          val e = extent.toInternalRow
-          val skEnc = spatialKeyEncoder.toRow(sk)
-          val tlm = tlmEncoder.toRow(layerMetadata)
-          rows(i) = InternalRow(tlm, skEnc, e, tile)
-        }
-        rows
-      }
-      else {
-        val geotiff = GeoTiffReader.readSingleband(bytes)
-        val tile = geotiff.tile.toInternalRow
-        val e = geotiff.extent.toInternalRow
-        val sk = spatialKeyEncoder.toRow(SpatialKey(0, 0))
-        val tlm = tlmEncoder.toRow(layerMetadata)
-        Traversable(InternalRow(tlm, sk, e, tile))
-      }
+  private def reader(uri: URI): ByteReader = {
+    val rr: RangeReader = uri.getScheme match {
+      case "http" | "https" ⇒ HttpRangeReader(uri)
+      case "file" ⇒ FileRangeReader(uri.getPath)
+      case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" ⇒
+        HdfsRangeReader(new Path(uri), new Configuration())
+      case "s3" ⇒
+        S3RangeReader(uri, S3Client.DEFAULT)
     }
-    catch {
-      case NonFatal(ex) ⇒ logger.error("Error fetching data", ex)
-        Traversable.empty
+    StreamingByteReader(rr)
+  }
+
+  def checkDimensions(tiles: Array[Array[ProjectedRaster[Tile]]], uris: Seq[URI]) = {
+    val rowDims = tiles.map(row ⇒ {
+      row.map {
+        case null ⇒ null
+        case t ⇒ t.tile.dimensions
+      }
+    })
+
+    val notSameDim = rowDims
+      .map(_.distinct.count(_ != null))
+      .indexWhere(_ > 1)
+
+    if (notSameDim >= 0) {
+      throw new IllegalArgumentException("Detecuris: Seq[Option[String]] ted rows with different sized tiles: " +
+        rowDims(notSameDim).mkString(", ") + "\nfrom: " + uris.mkString(", "))
     }
   }
+
+
+  private def safeTranspose(tiles: Seq[Seq[ProjectedRaster[Tile]]]) = {
+    // We need to transpose the nested sequence of from column major to row major order
+    // However, some columns have no rows, the default transpose needs a regular grid...
+    // so we do it manually.
+    val numRows = tiles.map(_.size).max
+    val numCols = tiles.length
+    val tileGrid = Array.fill(numRows)(Array.ofDim[ProjectedRaster[Tile]](numCols))
+
+    for {
+      (rows, col) ← tiles.zipWithIndex
+      (tile, row) ← rows.zipWithIndex
+    } {
+      tileGrid(row)(col) = tile
+    }
+    tileGrid
+  }
+
+  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+    val uris = children.map(_.eval(input).toString).map(URI.create)
+    val colMajor = uris.map { uri ⇒
+      val tiff = GeoTiffReader.readSingleband(reader(uri))
+      val segmentLayout = tiff.imageData.segmentLayout
+      val windows = segmentLayout.listWindows(256)
+      val re = tiff.rasterExtent
+
+      val subtiles = tiff.crop(windows)
+      for {
+        (gridbounds, tile) ← subtiles.toSeq
+      } yield {
+        val extent = re.extentFor(gridbounds, false)
+        ProjectedRaster(tile, extent, tiff.crs)
+      }
+    }
+
+    val rowMajor = safeTranspose(colMajor)
+
+    checkDimensions(rowMajor, uris)
+
+    rowMajor.map(row ⇒ {
+      val serializedTiles = row.map {
+        case null ⇒ null
+        case t ⇒ TileType.serialize(t)
+      }
+
+      val firstBandExt = row
+        .find(_ != null)
+        .map(p ⇒ Seq(p.crs.toInternalRow, p.extent.toInternalRow))
+        .getOrElse(Seq(null, null))
+
+      InternalRow(firstBandExt ++ serializedTiles: _*)
+    })
+  }
+
+}
+
+object DownloadTilesExpression {
+  def apply(urls: Seq[Column]): Column =  new Column(
+    new DownloadTilesExpression(urls.map(_.expr))
+  )
 }

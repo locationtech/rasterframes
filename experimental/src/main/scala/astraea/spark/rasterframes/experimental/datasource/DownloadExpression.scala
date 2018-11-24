@@ -24,6 +24,7 @@ import java.net.URI
 
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -31,6 +32,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow, UnaryExpression}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
+import astraea.spark.rasterframes.util._
 
 /**
  * Downloads data from URL and stores it in a column.
@@ -58,4 +60,13 @@ case class DownloadExpression(override val child: Expression, colPrefix: String)
     val bytes = getBytes(URI.create(urlString.toString))
     Traversable(new GenericInternalRow(Array[Any](bytes)))
   }
+}
+
+object DownloadExpression {
+  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+
+  def apply(urlColumn: Column): TypedColumn[Any, Array[Byte]] =
+    new Column(
+      new DownloadExpression(urlColumn.expr, urlColumn.columnName)
+    ).as[Array[Byte]]
 }

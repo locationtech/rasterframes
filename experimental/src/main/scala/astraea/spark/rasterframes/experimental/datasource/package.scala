@@ -20,10 +20,7 @@
  */
 
 package astraea.spark.rasterframes.experimental
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
-import astraea.spark.rasterframes.util._
 import org.apache.spark.sql._
-import org.apache.spark.sql.rf.CanBeColumn
 
 
 /**
@@ -32,10 +29,11 @@ import org.apache.spark.sql.rf.CanBeColumn
  * @since 9/3/18
  */
 package object datasource {
-  def download(urlColumn: Column): TypedColumn[Any, Array[Byte]] = {
-    DownloadExpression(urlColumn.expr, urlColumn.columnName).asColumn
-  }.as[Array[Byte]]
+  /** Downloads the referenced URL into an uninterpreted binary data array. */
+  def download(urlColumn: Column): TypedColumn[Any, Array[Byte]] =
+    DownloadExpression(urlColumn)
 
-  def download_tiles(urlColumn: Column): Column =
-    DownloadTilesExpression(urlColumn.expr, urlColumn.columnName).asColumn
+  /** Downloads the contents at each of the referenced URLs, interpreting
+   * them as equally sized and  */
+  def read_tiles(urls: Column*): Column =  DownloadTilesExpression(urls)
 }
