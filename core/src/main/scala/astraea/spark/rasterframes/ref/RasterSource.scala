@@ -223,7 +223,7 @@ object RasterSource extends LazyLogging {
 
       // Thanks to @pomadchin for showing me how to do this :-)
       val (tileCols, tileRows) = info.segmentLayout.tileLayout.tileDimensions
-      val windows = info.segmentLayout.listWindows(math.max(tileCols, tileRows))
+      val windows = info.segmentLayout.listWindows(256)
       val re = info.rasterExtent
 
       if (info.bandCount == 1) {
