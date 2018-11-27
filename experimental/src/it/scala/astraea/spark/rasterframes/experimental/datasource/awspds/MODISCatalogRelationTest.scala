@@ -64,7 +64,7 @@ class MODISCatalogRelationTest extends TestEnvironment {
 
     it("should download geotiff as tiles") {
       val b01 = scenes
-        .select(read_tiles($"assets"("B01"), $"assets"("B02")))
+        .select(read_tiles($"assets"("B01") as "B01", $"assets"("B02") as "B02"))
       b01.show(false)
       assert(b01.count() === 100)
 

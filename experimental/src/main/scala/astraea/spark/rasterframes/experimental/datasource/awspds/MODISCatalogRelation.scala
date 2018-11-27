@@ -75,7 +75,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
         MCD43A4_BAND_MAP as ASSETS.name
       )
       .orderBy(ACQUISITION_DATE.name, GID.name)
-      .repartition(8)
+      .repartition(col(GRANULE_ID.name))
   }
 }
 

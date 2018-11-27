@@ -21,6 +21,8 @@
 
 package astraea.spark.rasterframes.experimental
 import org.apache.spark.sql._
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.rf.VersionShims
 
 
 /**
@@ -30,10 +32,16 @@ import org.apache.spark.sql._
  */
 package object datasource {
   /** Downloads the referenced URL into an uninterpreted binary data array. */
-  def download(urlColumn: Column): TypedColumn[Any, Array[Byte]] =
-    DownloadExpression(urlColumn)
+  def download(urlColumn: Column): TypedColumn[Any, Array[Byte]] =  DownloadExpression(urlColumn)
 
   /** Downloads the contents at each of the referenced URLs, interpreting
    * them as equally sized and  */
-  def read_tiles(urls: Column*): Column =  DownloadTilesExpression(urls)
+  def read_tiles(urls: Column*): Column = ReadTilesExpression(urls)
+
+  def register(sqlContext: SQLContext): Unit = {
+    // Expression-oriented functions have a different registration scheme
+    // Currently have to register with the `builtin` registry due to Spark data hiding.
+    val registry: FunctionRegistry = rf.registry(sqlContext)
+    VersionShims.registerExpression(registry, "rf_read_tiles", ReadTilesExpression.apply)
+  }
 }

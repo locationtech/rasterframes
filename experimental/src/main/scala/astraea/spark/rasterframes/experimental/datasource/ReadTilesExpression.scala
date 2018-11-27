@@ -48,7 +48,7 @@ import org.apache.spark.sql.types._
  *
  * @since 5/4/18
  */
-case class DownloadTilesExpression(children: Seq[Expression]) extends Expression
+case class ReadTilesExpression(children: Seq[Expression]) extends Expression
   with Generator with CodegenFallback with DownloadSupport with LazyLogging {
 
   private val TileType = new TileUDT()
@@ -159,8 +159,8 @@ case class DownloadTilesExpression(children: Seq[Expression]) extends Expression
 
 }
 
-object DownloadTilesExpression {
+object ReadTilesExpression {
   def apply(urls: Seq[Column]): Column =  new Column(
-    new DownloadTilesExpression(urls.map(_.expr))
+    new ReadTilesExpression(urls.map(_.expr))
   )
 }
