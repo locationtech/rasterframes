@@ -29,17 +29,6 @@ import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
  * @since 5/4/18
  */
 package object awspds {
-
-  /**
-   * Constructs link with the form:
-   * `https://modis-pds.s3.amazonaws.com/MCD43A4.006/23/15/2013003/MCD43A4.A2013003.h23v15.006.2016125143738_{bandID}.TIF`
-   * @param bandID Band ID suffix, e.g. "B04"
-   * @return
-   */
-  def modis_band_url(bandID: String): TypedColumn[Any, String] = {
-    concat(col("download_url"), concat(col("gid"), lit(s"_$bandID.TIF")))
-  }.as(bandID).as[String]
-
   /**
    * Constructs link with the form:
    * `https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_{bandId].TIF`

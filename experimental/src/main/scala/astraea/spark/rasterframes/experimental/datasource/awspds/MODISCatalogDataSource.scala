@@ -25,6 +25,7 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 import astraea.spark.rasterframes.util.withResource
+import astraea.spark.rasterframes._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.hadoop.fs.{FileSystem, Path ⇒ HadoopPath}
 import org.apache.hadoop.io.IOUtils
@@ -52,6 +53,10 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider wi
      */
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     require(parameters.get("path").isEmpty, "MODISCatalogDataSource doesn't support specifying a path. Please use `load()`.")
+
+    sqlContext.withRasterFrames
+    astraea.spark.rasterframes.experimental.datasource.register(sqlContext)
+
     val start = parameters.get("start").map(LocalDate.parse).getOrElse(LocalDate.of(2013, 1, 1))
     val end = parameters.get("end").map(LocalDate.parse).getOrElse(LocalDate.now().minusDays(7))
     val useBlacklist = parameters.get("useBlacklist").forall(_.toBoolean)
@@ -64,7 +69,7 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider wi
 }
 
 object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
-  final val SHORT_NAME = "modis-catalog"
+  final val SHORT_NAME = "aws-pds-modis"
   final val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
   override def maxCacheFileAgeHours: Int = Int.MaxValue
 
@@ -90,7 +95,11 @@ object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
       val inputs = sceneFiles(start, end, useBlacklist).par
         .flatMap(cachedURI(_))
         .toArray
+      logger.debug(s"Concatinating scene files to '$retval':\n${inputs.mkString("\t" ,"\n\t", "\n")}")
       try {
+        val dest = fs.create(retval)
+        dest.hflush()
+        dest.close()
         fs.concat(retval, inputs)
       }
       catch {

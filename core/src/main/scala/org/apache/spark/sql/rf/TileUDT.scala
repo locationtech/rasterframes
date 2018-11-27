@@ -74,7 +74,7 @@ case object TileUDT  {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
   UDTRegistration.register(classOf[ProjectedRasterTile].getName, classOf[TileUDT].getName)
 
-  final val typeName: String = "rf_tile"
+  final val typeName: String = "tile"
 
   // Column mapping which must match layout below
   object C {

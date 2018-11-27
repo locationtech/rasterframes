@@ -33,7 +33,9 @@ import org.apache.spark.sql.types._
  * @since 5/4/18
  */
 case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
-  extends BaseRelation with TableScan with PDSFields with CachedDatasetRelation with LazyLogging {
+  extends BaseRelation with TableScan with CachedDatasetRelation with LazyLogging {
+
+  import MODISCatalogRelation._
 
   protected def cacheFile: HadoopPath = sceneList.suffix(".parquet")
 
@@ -47,8 +49,8 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
     PRODUCT_ID,
     ACQUISITION_DATE,
     GRANULE_ID,
-    DOWNLOAD_URL,
-    GID
+    GID,
+    ASSETS
   ))
 
   protected def constructDataset: Dataset[Row] = {
@@ -64,16 +66,42 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
 
     catalog
       .withColumn("__split_gid", split($"gid", "\\."))
+      .withColumn(DOWNLOAD_URL.name, regexp_replace(col(DOWNLOAD_URL.name), "index.html", ""))
       .select(
-        $"__split_gid"(0) as PRODUCT_ID.name,
+        $"__split_gid" (0) as PRODUCT_ID.name,
         $"date" as ACQUISITION_DATE.name,
-        $"__split_gid"(2) as GRANULE_ID.name,
-        regexp_replace($"download_url", "index.html", "") as DOWNLOAD_URL.name,
-        $"${GID.name}"
+        $"__split_gid" (2) as GRANULE_ID.name,
+        $"${GID.name}",
+        MCD43A4_BAND_MAP as ASSETS.name
       )
-      .drop($"__split_gid")
       .orderBy(ACQUISITION_DATE.name, GID.name)
-      .repartition(8)
-
+      .repartition(col(GRANULE_ID.name))
   }
+}
+
+object MODISCatalogRelation extends PDSFields {
+
+  def MCD43A4_LINK(suffix: String) =
+    concat(col(DOWNLOAD_URL.name), concat(col(GID.name), lit(suffix)))
+
+  val MCD43A4_BAND_MAP = map(
+    lit("B01"), MCD43A4_LINK("_B01.TIF"),
+    lit("B01qa"), MCD43A4_LINK("_B01qa.TIF"),
+    lit("B02"), MCD43A4_LINK("_B02.TIF"),
+    lit("B02qa"), MCD43A4_LINK("_B02qa.TIF"),
+    lit("B03"), MCD43A4_LINK("_B03.TIF"),
+    lit("B03qa"), MCD43A4_LINK("_B03qa.TIF"),
+    lit("B04"), MCD43A4_LINK("_B04.TIF"),
+    lit("B04qa"), MCD43A4_LINK("_B04qa.TIF"),
+    lit("B05"), MCD43A4_LINK("_B05.TIF"),
+    lit("B05qa"), MCD43A4_LINK("_B05qa.TIF"),
+    lit("B06"), MCD43A4_LINK("_B06.TIF"),
+    lit("B06qa"), MCD43A4_LINK("_B06qa.TIF"),
+    lit("B07"), MCD43A4_LINK("_B07.TIF"),
+    lit("B07qa"), MCD43A4_LINK("_B07qa.TIF"),
+    lit("metadata.json"), MCD43A4_LINK("_meta.json"),
+    lit("metadata.xml"), MCD43A4_LINK(".hdf.xml"),
+    lit("index.html"), concat(col(DOWNLOAD_URL.name), lit("index.html"))
+  )
+
 }

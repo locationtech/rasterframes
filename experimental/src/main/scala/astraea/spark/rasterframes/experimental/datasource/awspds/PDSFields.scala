@@ -44,6 +44,7 @@ trait PDSFields {
   final val PATH = StructField("path", ShortType, false)
   final val ROW = StructField("row", ShortType, false)
   final val BOUNDS = StructField(BOUNDS_COLUMN.columnName, JTSTypes.GeometryTypeInstance, false)
+  final val ASSETS = StructField("assets", DataTypes.createMapType(StringType, StringType))
   final def BOUNDS_WGS84 = StructField(
     "bounds_wgs84", StandardEncoders.envelopeEncoder.schema, false
   )
