@@ -27,8 +27,7 @@ import org.apache.spark.sql.functions._
  * @since 1/14/18
  */
 class GeoTiffDataSourceSpec
-    extends TestEnvironment with TestData
-    with IntelliJPresentationCompilerHack {
+    extends TestEnvironment with TestData {
 
   val cogPath = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
   val nonCogPath = getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI

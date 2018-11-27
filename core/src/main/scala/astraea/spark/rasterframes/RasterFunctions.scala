@@ -20,17 +20,16 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.ExplodeTileExpression
-import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMeanAggregateFunction}
+import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{functions ⇒ F}
+import astraea.spark.rasterframes.{expressions ⇒ E, functions ⇒ F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions.{lit, udf}
+import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.rf._
 
 import scala.reflect.runtime.universe._
@@ -41,37 +40,22 @@ import scala.reflect.runtime.universe._
  * @since 4/3/17
  */
 trait RasterFunctions {
-  import util._
   import SparkDefaultEncoders._
+  import util._
 
   // format: off
   /** Create a row for each cell in Tile. */
-  def explodeTiles(cols: Column*): Column = explodeTilesSample(1.0, cols: _*)
+  def explodeTiles(cols: Column*): Column = explodeTileSample(1.0, cols: _*)
 
   /** Create a row for each cell in Tile with random sampling. */
-  def explodeTilesSample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column = {
-    val exploder = ExplodeTileExpression(sampleFraction, seed, cols.map(_.expr))
-    // Hack to grab the first two non-cell columns, containing the column and row indexes
-    val metaNames = exploder.elementSchema.fieldNames.take(2)
-    val colNames = cols.map(_.columnName)
-    new Column(exploder).as(metaNames ++ colNames)
-  }
-
-  def explodeTilesSample(sampleFraction: Double, seed: Long, cols: Column*): Column =
-    explodeTilesSample(sampleFraction, Some(seed), cols: _*)
-
-  def explodeTilesSample(sampleFraction: Double, cols: Column*): Column =
-    explodeTilesSample(sampleFraction, None, cols: _*)
-
-  /** Create a row for each cell in Tile with random sampling */
-  @Deprecated
-  def explodeTileSample(sampleFraction: Double, cols: Column*): Column = explodeTilesSample(sampleFraction, cols:_*)
+  def explodeTileSample(sampleFraction: Double, cols: Column*): Column =
+    E.ExplodeTiles(sampleFraction, cols)
 
   /** Query the number of (cols, rows) in a Tile. */
-  def tileDimensions(col: Column): Column = expressions.DimensionsExpression(col.expr).asColumn
+  def tileDimensions(col: Column): Column = E.GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
-  def envelope(col: Column): TypedColumn[Any, Envelope] = expressions.EnvelopeExpression(col.expr).asColumn.as[Envelope]
+  def envelope(col: Column): TypedColumn[Any, Envelope] = E.GetEnvelope(col)
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
@@ -91,17 +75,20 @@ trait RasterFunctions {
     F.assembleTile(cols, rows, ct)(columnIndex, rowIndex, cellData)
   }.as(cellData.columnName).as[Tile]
 
+
   /** Extract the Tile's cell type */
-  def cellType(col: Column): TypedColumn[Any, String] =
-    expressions.CellTypeExpression(col.expr).asColumn.as[String]
+  def cellType(col: Column): TypedColumn[Any, String] = E.GetCellType(col)
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    udf[Tile, Tile](F.convertCellType(cellType)).apply(col).as[Tile]
+    E.SetCellType(col, cellType)
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
-    udf[Tile, Tile](F.convertCellType(cellTypeName)).apply(col).as[Tile]
+    E.SetCellType(col, cellTypeName)
+
+  /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
+  def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] = E.BoundsToGeometry(bounds)
 
   /** Assign a `NoData` value to the Tiles. */
   def withNoData(col: Column, nodata: Double) = withAlias("withNoData", col)(
@@ -120,17 +107,17 @@ trait RasterFunctions {
   ).as[CellStatistics]
 
   /** Computes the column aggregate mean. */
-  def aggMean(col: Column) = CellMeanAggregateFunction(col.expr)
+  def aggMean(col: Column) = CellMeanAggregate(col.expr)
     .toAggregateExpression().asColumn
     .as[Double]
 
   /** Computes the number of non-NoData cells in a column. */
-  def aggDataCells(col: Column) = CellCountAggregateFunction(true, col.expr)
+  def aggDataCells(col: Column) = CellCountAggregate(true, col.expr)
     .toAggregateExpression().asColumn
     .as[Long]
 
   /** Computes the number of NoData cells in a column. */
-  def aggNoDataCells(col: Column) = CellCountAggregateFunction(false, col.expr)
+  def aggNoDataCells(col: Column) = CellCountAggregate(false, col.expr)
     .toAggregateExpression().asColumn
     .as[Long]
 

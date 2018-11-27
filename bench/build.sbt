@@ -4,7 +4,8 @@ libraryDependencies ++= Seq(
   spark("core").value,
   spark("sql").value,
   geotrellis("spark").value,
-  geotrellis("raster").value
+  geotrellis("raster").value,
+  "org.slf4j" % "slf4j-log4j12" % "1.7.16"
 )
 
 jmhIterations := Some(5)

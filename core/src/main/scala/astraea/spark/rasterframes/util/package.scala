@@ -30,11 +30,11 @@ import geotrellis.raster.prototype.TilePrototypeMethods
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
-import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
-import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference}
+import org.apache.spark.sql.catalyst.expressions.{Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
+import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
 
 import scala.util.control.NonFatal
@@ -62,10 +62,10 @@ package object util extends LazyLogging {
   }
 
   // Type lambda aliases
-  type WithMergeMethods[V] = (V ⇒ TileMergeMethods[V])
-  type WithPrototypeMethods[V <: CellGrid] = (V ⇒ TilePrototypeMethods[V])
-  type WithCropMethods[V <: CellGrid] = (V ⇒ TileCropMethods[V])
-  type WithMaskMethods[V] = (V ⇒ TileMaskMethods[V])
+  type WithMergeMethods[V] = V ⇒ TileMergeMethods[V]
+  type WithPrototypeMethods[V <: CellGrid] = V ⇒ TilePrototypeMethods[V]
+  type WithCropMethods[V <: CellGrid] = V ⇒ TileCropMethods[V]
+  type WithMaskMethods[V] = V ⇒ TileMaskMethods[V]
 
   type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
 
@@ -97,13 +97,17 @@ package object util extends LazyLogging {
     def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l ⇒ right.map((l, _)))
   }
 
-  implicit class NamedColumn(col: Column) {
-    def columnName: String = col.expr match {
-      case ua: UnresolvedAttribute ⇒ ua.name
-      case ar: AttributeReference ⇒ ar.name
-      case as: Alias ⇒ as.name
-      case o ⇒ o.prettyName
+  implicit class ExpressionWithName(val expr: Expression) extends AnyVal {
+    import org.apache.spark.sql.catalyst.expressions.Literal
+    def name: String = expr match {
+      case n: NamedExpression ⇒ n.name
+      case l: Literal if l.dataType == StringType ⇒ String.valueOf(l.value)
+      case o ⇒ o.toString
     }
+  }
+
+  implicit class NamedColumn(val col: Column) extends AnyVal {
+    def columnName: String = col.expr.name
   }
 
   private[rasterframes]

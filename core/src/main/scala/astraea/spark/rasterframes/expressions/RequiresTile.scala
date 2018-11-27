@@ -21,8 +21,8 @@ package astraea.spark.rasterframes.expressions
 
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
+import org.apache.spark.sql.rf.TileUDT
 
 /**
  * Mixin for indicating an expression requires a Tile for input.
@@ -30,10 +30,13 @@ import org.apache.spark.sql.gt.types.TileUDT
  * @since 12/28/17
  */
 trait RequiresTile { self: UnaryExpression ⇒
-  abstract override def checkInputDataTypes(): TypeCheckResult = {
-    if(child.dataType.isInstanceOf[TileUDT]) TypeCheckSuccess
-    else TypeCheckFailure(
-      s"Expected '${TileUDT.typeName}' but received '${child.dataType.simpleString}'"
-    )
-  }
+  abstract override def checkInputDataTypes(): TypeCheckResult = RequiresTile.check(child)
+}
+
+object RequiresTile {
+  def check(expr: Expression): TypeCheckResult =
+    if(expr.dataType.isInstanceOf[TileUDT]) TypeCheckSuccess
+     else TypeCheckFailure(
+       s"Expected 'TileUDT' but received '${expr.dataType.simpleString}'"
+     )
 }

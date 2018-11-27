@@ -26,7 +26,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.VersionShims.InvokeSafely
 import org.apache.spark.sql.types.{ObjectType, StringType, StructField, StructType}
 import org.apache.spark.unsafe.types.UTF8String
-
+import CatalystSerializer._
 import scala.reflect.classTag
 
 /**
@@ -36,10 +36,12 @@ import scala.reflect.classTag
  */
 object CellTypeEncoder {
   def apply(): ExpressionEncoder[CellType] = {
+    // We can't use StringBackedEncoder due to `CellType` being a type alias,
+    // and Spark doesn't like that.
     import org.apache.spark.sql.catalyst.expressions._
     import org.apache.spark.sql.catalyst.expressions.objects._
     val ctType = ScalaReflection.dataTypeFor[DataType]
-    val schema = StructType(Seq(StructField("cellTypeName", StringType, false)))
+    val schema = CatalystSerializer[CellType].schema
     val inputObject = BoundReference(0, ctType, nullable = false)
 
     val intermediateType = ObjectType(classOf[String])

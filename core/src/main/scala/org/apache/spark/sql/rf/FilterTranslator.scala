@@ -19,7 +19,7 @@ package org.apache.spark.sql.rf
 
 import java.sql.{Date, Timestamp}
 
-import astraea.spark.rasterframes.expressions.SpatialExpression.{Contains, Intersects}
+import astraea.spark.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
 import astraea.spark.rasterframes.rules._
 import org.apache.spark.sql.catalyst.CatalystTypeConverters.{convertToScala, createToScalaConverter}
 import org.apache.spark.sql.catalyst.expressions

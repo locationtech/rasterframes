@@ -19,9 +19,13 @@
 
 package astraea.spark.rasterframes.bench
 
+import java.net.URI
 import java.util.concurrent.TimeUnit
 
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import geotrellis.raster.Tile
+import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.openjdk.jmh.annotations._
@@ -38,10 +42,10 @@ class TileEncodeBench extends SparkEnv {
   val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
   val boundEncoder = tileEncoder.resolveAndBind()
 
-  @Param(Array("uint8", "int32", "float32", "float64"))
+  @Param(Array("uint8", "int32", "float32", "float64", "rasterRef"))
   var cellTypeName: String = _
 
-  @Param(Array("128", "256", "512"))
+  @Param(Array("64", "512"))
   var tileSize: Int = _
 
   @transient
@@ -49,7 +53,13 @@ class TileEncodeBench extends SparkEnv {
 
   @Setup(Level.Trial)
   def setupData(): Unit = {
-    tile = randomTile(tileSize, tileSize, cellTypeName)
+    cellTypeName match {
+      case "rasterRef" ⇒
+        val baseCOG = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_B1.TIF"
+        tile = RasterRefTile(RasterRef(RasterSource(URI.create(baseCOG)), Some(Extent(253785.0, 3235185.0, 485115.0, 3471015.0))))
+      case _ ⇒
+        tile = randomTile(tileSize, tileSize, cellTypeName)
+    }
   }
 
   @Benchmark

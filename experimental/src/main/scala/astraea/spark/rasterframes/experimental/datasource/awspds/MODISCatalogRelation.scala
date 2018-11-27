@@ -21,12 +21,11 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.rdd.RDD
+import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
-import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
 
 /**
  * Constructs a dataframe from the available scenes
@@ -34,26 +33,30 @@ import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
  * @since 5/4/18
  */
 case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
-  extends BaseRelation with TableScan with LazyLogging {
+  extends BaseRelation with TableScan with CachedDatasetRelation with LazyLogging {
+
+  import MODISCatalogRelation._
+
+  protected def cacheFile: HadoopPath = sceneList.suffix(".parquet")
 
   private val inputSchema = StructType(Seq(
-    StructField("date", DateType, false),
-    StructField("download_url", StringType, false),
-    StructField("gid", StringType, false)
+    StructField("date", TimestampType, false),
+    DOWNLOAD_URL,
+    GID
   ))
 
   def schema = StructType(Seq(
-    StructField("productId", StringType, false),
-    StructField("acquisitionDate", DateType, false),
-    StructField("granuleId", StringType, false),
-    StructField("download_url", StringType, false),
-    StructField("gid", StringType, false)
+    PRODUCT_ID,
+    ACQUISITION_DATE,
+    GRANULE_ID,
+    GID,
+    ASSETS
   ))
 
-  def buildScan(): RDD[Row] = {
+  protected def constructDataset: Dataset[Row] = {
     import sqlContext.implicits._
 
-    logger.debug("Scene file is: " + sceneList)
+    logger.debug("Parsing " + sceneList)
     val catalog = sqlContext.read
       .option("header", "true")
       .option("mode", "DROPMALFORMED") // <--- mainly for the fact that we have internal headers from the concat
@@ -61,18 +64,44 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
       .schema(inputSchema)
       .csv(sceneList.toString)
 
-    val result = catalog
-      .withColumn("split_gid", split($"gid", "\\."))
+    catalog
+      .withColumn("__split_gid", split($"gid", "\\."))
+      .withColumn(DOWNLOAD_URL.name, regexp_replace(col(DOWNLOAD_URL.name), "index.html", ""))
       .select(
-        $"split_gid"(0) as "productId",
-        $"date" as "acquisitionDate",
-        $"split_gid"(2) as "granuleId",
-        regexp_replace($"download_url", "index.html", "") as "download_url",
-        $"gid"
+        $"__split_gid" (0) as PRODUCT_ID.name,
+        $"date" as ACQUISITION_DATE.name,
+        $"__split_gid" (2) as GRANULE_ID.name,
+        $"${GID.name}",
+        MCD43A4_BAND_MAP as ASSETS.name
       )
-      .drop($"split_gid")
-    result.rdd
+      .orderBy(ACQUISITION_DATE.name, GID.name)
+      .repartition(col(GRANULE_ID.name))
   }
 }
 
+object MODISCatalogRelation extends PDSFields {
 
+  def MCD43A4_LINK(suffix: String) =
+    concat(col(DOWNLOAD_URL.name), concat(col(GID.name), lit(suffix)))
+
+  val MCD43A4_BAND_MAP = map(
+    lit("B01"), MCD43A4_LINK("_B01.TIF"),
+    lit("B01qa"), MCD43A4_LINK("_B01qa.TIF"),
+    lit("B02"), MCD43A4_LINK("_B02.TIF"),
+    lit("B02qa"), MCD43A4_LINK("_B02qa.TIF"),
+    lit("B03"), MCD43A4_LINK("_B03.TIF"),
+    lit("B03qa"), MCD43A4_LINK("_B03qa.TIF"),
+    lit("B04"), MCD43A4_LINK("_B04.TIF"),
+    lit("B04qa"), MCD43A4_LINK("_B04qa.TIF"),
+    lit("B05"), MCD43A4_LINK("_B05.TIF"),
+    lit("B05qa"), MCD43A4_LINK("_B05qa.TIF"),
+    lit("B06"), MCD43A4_LINK("_B06.TIF"),
+    lit("B06qa"), MCD43A4_LINK("_B06qa.TIF"),
+    lit("B07"), MCD43A4_LINK("_B07.TIF"),
+    lit("B07qa"), MCD43A4_LINK("_B07qa.TIF"),
+    lit("metadata.json"), MCD43A4_LINK("_meta.json"),
+    lit("metadata.xml"), MCD43A4_LINK(".hdf.xml"),
+    lit("index.html"), concat(col(DOWNLOAD_URL.name), lit("index.html"))
+  )
+
+}

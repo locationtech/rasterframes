@@ -21,11 +21,9 @@ package astraea.spark.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
-import geotrellis.raster.Tile
+import astraea.spark.rasterframes.tiles.InternalRowTile
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.rf.InternalRowTile
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.openjdk.jmh.annotations._
 
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -36,6 +34,8 @@ import org.openjdk.jmh.annotations._
  * @since 9/29/17
  */
 class TileCellScanBench extends SparkEnv {
+
+  private val TileType = new TileUDT()
 
   @Param(Array("uint8", "int32", "float32", "float64"))
   var cellTypeName: String = _
@@ -48,12 +48,12 @@ class TileCellScanBench extends SparkEnv {
 
   @Setup(Level.Trial)
   def setupData(): Unit = {
-    tileRow = TileUDT.serialize(randomTile(tileSize, tileSize, cellTypeName))
+    tileRow = TileType.serialize(randomTile(tileSize, tileSize, cellTypeName))
   }
 
   @Benchmark
   def deserializeRead(): Double  = {
-    val tile = TileUDT.deserialize(tileRow)
+    val tile = TileType.deserialize(tileRow)
     val (cols, rows) = tile.dimensions
     tile.getDouble(cols - 1, rows - 1) +
       tile.getDouble(cols/2, rows/2) +

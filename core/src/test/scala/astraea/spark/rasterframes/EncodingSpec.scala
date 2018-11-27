@@ -22,6 +22,7 @@ package astraea.spark.rasterframes
 import java.io.File
 import java.net.URI
 
+import astraea.spark.rasterframes.ref.RasterSource
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
@@ -35,7 +36,7 @@ import org.apache.spark.sql.functions._
  *
  * @since 9/18/17
  */
-class EncodingSpec extends TestEnvironment with TestData with IntelliJPresentationCompilerHack {
+class EncodingSpec extends TestEnvironment with TestData {
 
   import sqlContext.implicits._
 

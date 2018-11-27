@@ -39,8 +39,7 @@ import scala.reflect.ClassTag
 
 class TileFeatureSupportSpec extends TestEnvironment
   with TestData
-  with BeforeAndAfter
-  with IntelliJPresentationCompilerHack {
+  with BeforeAndAfter {
 
   val strTF1 = TileFeature(squareIncrementingTile(3),"data1")
   val strTF2 = TileFeature(squareIncrementingTile(3),"data2")
@@ -87,8 +86,8 @@ class TileFeatureSupportSpec extends TestEnvironment
 
       val foo1 = Foo(10,Seq("Hello","Goodbye"))
       val foo2 = Foo(20, Seq("HelloAgain"))
-      val fooTF1 = TileFeature(byteArrayTile, Foo(10,Seq("Hello","Goodbye")))
-      val fooTF2 = TileFeature(byteArrayTile, Foo(20, Seq("HelloAgain")))
+      val fooTF1 = TileFeature(byteArrayTile, foo1)
+      val fooTF2 = TileFeature(byteArrayTile, foo2)
 
       testAllOps(fooTF1,fooTF2)
     }

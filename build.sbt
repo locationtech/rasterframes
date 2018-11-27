@@ -12,6 +12,10 @@ lazy val deployment = project
   .dependsOn(root)
   .disablePlugins(SparkPackagePlugin)
 
+lazy val adhoc = project
+  .dependsOn(experimental)
+  .disablePlugins(SparkPackagePlugin)
+
 lazy val core = project
   .disablePlugins(SparkPackagePlugin)
 

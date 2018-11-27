@@ -46,7 +46,7 @@ trait DownloadSupport { self: LazyLogging ⇒
   private def doGet[T](uri: java.net.URI, handler: HttpMethodBase ⇒ T): T = {
     val client = new HttpClient()
     val method = applyMethodParams(new GetMethod(uri.toASCIIString))
-    logger.info("Requesting " + uri)
+    logger.debug("Requesting " + uri)
     val status = client.executeMethod(method)
     status match {
       case HttpStatus.SC_OK ⇒ handler(method)

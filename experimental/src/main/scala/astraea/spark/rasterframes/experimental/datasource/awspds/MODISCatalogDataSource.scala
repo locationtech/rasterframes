@@ -25,6 +25,7 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 import astraea.spark.rasterframes.util.withResource
+import astraea.spark.rasterframes._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.hadoop.fs.{FileSystem, Path ⇒ HadoopPath}
 import org.apache.hadoop.io.IOUtils
@@ -41,7 +42,7 @@ import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationP
  * @since 5/4/18
  */
 class MODISCatalogDataSource extends DataSourceRegister with RelationProvider with LazyLogging  {
-  override def shortName(): String = MODISCatalogDataSource.NAME
+  override def shortName(): String = MODISCatalogDataSource.SHORT_NAME
   /**
      * Create a MODIS catalog data source.
      * @param sqlContext spark stuff
@@ -52,6 +53,10 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider wi
      */
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     require(parameters.get("path").isEmpty, "MODISCatalogDataSource doesn't support specifying a path. Please use `load()`.")
+
+    sqlContext.withRasterFrames
+    astraea.spark.rasterframes.experimental.datasource.register(sqlContext)
+
     val start = parameters.get("start").map(LocalDate.parse).getOrElse(LocalDate.of(2013, 1, 1))
     val end = parameters.get("end").map(LocalDate.parse).getOrElse(LocalDate.now().minusDays(7))
     val useBlacklist = parameters.get("useBlacklist").forall(_.toBoolean)
@@ -64,8 +69,8 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider wi
 }
 
 object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
-  val NAME = "modis-catalog"
-  val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
+  final val SHORT_NAME = "aws-pds-modis"
+  final val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
   override def maxCacheFileAgeHours: Int = Int.MaxValue
 
   // List of missing days
@@ -84,13 +89,17 @@ object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
 
   private def sceneListFile(start: LocalDate, end: LocalDate, useBlacklist: Boolean)(implicit fs: FileSystem): HadoopPath = {
     logger.info(s"Using '$cacheDir' for scene file cache")
-    val basename = new HadoopPath(s"$NAME-$start-to-$end.csv")
+    val basename = new HadoopPath(s"$SHORT_NAME-$start-to-$end.csv")
     cachedFile(basename).getOrElse {
       val retval = cacheName(Right(basename))
       val inputs = sceneFiles(start, end, useBlacklist).par
         .flatMap(cachedURI(_))
         .toArray
+      logger.debug(s"Concatinating scene files to '$retval':\n${inputs.mkString("\t" ,"\n\t", "\n")}")
       try {
+        val dest = fs.create(retval)
+        dest.hflush()
+        dest.close()
         fs.concat(retval, inputs)
       }
       catch {

@@ -17,15 +17,13 @@
 package astraea.spark
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
-import geotrellis.raster.{MultibandTile, Tile, TileFeature}
+import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
-import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import shapeless.tag.@@
 
-import scala.annotation.implicitNotFound
 import scala.language.higherKinds
 import scala.reflect.runtime.universe._
 
@@ -40,7 +38,6 @@ package object rasterframes extends StandardColumns
   with rasterframes.extensions.Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
-  with SpatialEncoders
   with DataFrameFunctions.Library {
 
   /**

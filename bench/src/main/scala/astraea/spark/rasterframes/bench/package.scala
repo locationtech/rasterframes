@@ -19,6 +19,8 @@
 
 package astraea.spark.rasterframes
 
+import java.net.URI
+
 import geotrellis.raster.{ArrayTile, CellType, NODATA, Tile, isNoData}
 
 /**
@@ -47,4 +49,9 @@ package object bench {
       })
     }
   }
+
+  private val baseCOG = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_%s.TIF"
+  lazy val remoteCOGSingleband1 = URI.create(baseCOG.format("B1"))
+  lazy val remoteCOGSingleband2 = URI.create(baseCOG.format("B2"))
+
 }

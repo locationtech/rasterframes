@@ -19,32 +19,24 @@
  */
 
 package astraea.spark.rasterframes.experimental.datasource
-import astraea.spark.rasterframes.util._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.CanBeColumn
+import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+
 /**
  * Module support.
  *
  * @since 5/4/18
  */
 package object awspds {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
   /**
    * Constructs link with the form:
-   * `https://modis-pds.s3.amazonaws.com/MCD43A4.006/23/15/2013003/MCD43A4.A2013003.h23v15.006.2016125143738_${bandID}.TIF`
-   * @param bandID Band ID suffix, e.g. "B04"
+   * `https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_{bandId].TIF`
+   * @param bandID Band ID suffix, e.g. "B4"
    * @return
    */
-  def modis_band_url(bandID: String): TypedColumn[Any, String] = {
-    concat(col("download_url"), concat(col("gid"), lit(s"_$bandID.TIF")))
+  def l8_band_url(bandID: String): TypedColumn[Any, String] = {
+    concat(col("download_url"), concat(col("product_id"), lit(s"_$bandID.TIF")))
   }.as(bandID).as[String]
 
-  def download(urlColumn: Column): TypedColumn[Any, Array[Byte]] = {
-    DownloadExpression(urlColumn.expr, urlColumn.columnName).asColumn
-  }.as[Array[Byte]]
-
-  def download_tiles(urlColumn: Column): Column = {
-    DownloadTilesExpression(urlColumn.expr, urlColumn.columnName).asColumn
-  }
 }

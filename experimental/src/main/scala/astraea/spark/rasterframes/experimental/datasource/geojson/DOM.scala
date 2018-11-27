@@ -27,7 +27,7 @@ import spray.json._
 import spray.json.DefaultJsonProtocol._
 
 /**
- * Lightweight DOM for
+ * Lightweight DOM for parsing GeoJSON feature sets.
  *
  * @since 7/17/18
  */
@@ -37,9 +37,9 @@ object DOM {
     implicit val domFormat: RootJsonFormat[GeoJsonFeatureSet] =  jsonFormat1(GeoJsonFeatureSet.apply)
   }
 
-  case class GeoJsonFeature(geometry: Geometry, bbox: Option[Extent], assets: Map[String, JsValue], properties: Map[String, JsValue])
+  case class GeoJsonFeature(geometry: Geometry, bbox: Option[Extent], properties: Map[String, JsValue])
   object GeoJsonFeature {
-    implicit val featureFormat: RootJsonFormat[GeoJsonFeature] = jsonFormat4(GeoJsonFeature.apply)
+    implicit val featureFormat: RootJsonFormat[GeoJsonFeature] = jsonFormat3(GeoJsonFeature.apply)
   }
 
   implicit val geomFormat: RootJsonFormat[Geometry] = new RootJsonFormat[Geometry] {

@@ -21,29 +21,30 @@
 
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.functions.cellTypes
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.gt.types.TileUDT
-import org.apache.spark.sql.rf.InternalRowTile
+import org.apache.spark.sql.rf._
 import org.scalatest.Inspectors
-import astraea.spark.rasterframes.functions.cellTypes
 
 /**
  * RasterFrame test rig.
  *
  * @since 7/10/17
  */
-class TileUDTSpec extends TestEnvironment with TestData with Inspectors with IntelliJPresentationCompilerHack {
+class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
   import TestData.randomTile
 
   spark.version
   val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
+  val TileType = new TileUDT()
 
   describe("TileUDT") {
     val tileSizes = Seq(2, 64, 128, 222, 511)
     val ct = cellTypes().filter(_ != "bool")
 
-    def forEveryConfig(test: (Tile) ⇒ Unit): Unit = {
+    def forEveryConfig(test: Tile ⇒ Unit): Unit = {
       forEvery(tileSizes.combinations(2).toSeq) { case Seq(cols, rows) ⇒
         forEvery(ct) { c ⇒
           val tile = randomTile(cols, rows, CellType.fromName(c))
@@ -54,8 +55,8 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors with Int
 
     it("should (de)serialize tile") {
       forEveryConfig { tile ⇒
-        val row = TileUDT.serialize(tile)
-        val tileAgain = TileUDT.deserialize(row)
+        val row = TileType.serialize(tile)
+        val tileAgain = TileType.deserialize(row)
         assert(tileAgain === tile)
       }
     }
@@ -64,15 +65,15 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors with Int
       forEveryConfig { tile ⇒
         val row = tileEncoder.toRow(tile)
         assert(!row.isNullAt(0))
-        val tileAgain = TileUDT.deserialize(row.getStruct(0, TileUDT.sqlType.size))
+        val tileAgain = TileType.deserialize(row.getStruct(0, TileType.sqlType.size))
         assert(tileAgain === tile)
       }
     }
 
     it("should extract properties") {
       forEveryConfig { tile ⇒
-        val row = TileUDT.serialize(tile)
-        val wrapper = new InternalRowTile(row)
+        val row = TileType.serialize(tile)
+        val wrapper = row.to[Tile]
         assert(wrapper.cols === tile.cols)
         assert(wrapper.rows === tile.rows)
         assert(wrapper.cellType === tile.cellType)
@@ -81,8 +82,8 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors with Int
 
     it("should directly extract cells") {
       forEveryConfig { tile ⇒
-        val row = TileUDT.serialize(tile)
-        val wrapper = new InternalRowTile(row)
+        val row = TileType.serialize(tile)
+        val wrapper = row.to[Tile]
         val (cols,rows) = wrapper.dimensions
         val indexes = Seq((0, 0), (cols - 1, rows - 1), (cols/2, rows/2), (1, 1))
         forAll(indexes) { case (c, r) ⇒
