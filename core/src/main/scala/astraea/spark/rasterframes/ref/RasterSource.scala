@@ -228,25 +228,23 @@ object RasterSource extends LazyLogging {
       if (info.bandCount == 1) {
         val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
 
-        val subtiles = geotile.crop(windows)
-        val rows = for {
-          (gridbounds, tile) ← subtiles
-        } yield {
-          val extent = re.extentFor(gridbounds, false)
+        val rows = windows.map(gb => {
+          val tile = geotile.crop(gb)
+          val extent = re.extentFor(gb, clamp = false)
           Raster(tile, extent)
-        }
+        })
+
         Left(rows.toSeq)
       }
       else {
         val geotile = GeoTiffReader.geoTiffMultibandTile(info)
 
-        val subtiles = geotile.crop(windows)
-        val rows = for {
-          (gridbounds, tile) ← subtiles
-        } yield {
-          val extent = re.extentFor(gridbounds, false)
+        val rows = windows.map(gb => {
+          val tile = geotile.crop(gb)
+          val extent = re.extentFor(gb, clamp = false)
           Raster(tile, extent)
-        }
+        })
+
         Right(rows.toSeq)
       }
     }
