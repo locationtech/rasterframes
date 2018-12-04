@@ -47,7 +47,7 @@ trait GeoTiffInfoSupport {
   }
 
   def extractGeoTiffLayout(reader: ByteReader): (GeoTiffReader.GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
-    val info: GeoTiffInfo = Shims.readGeoTiffInfo(reader, false, true)
+    val info: GeoTiffInfo = Shims.readGeoTiffInfo(reader, decompress = false, streaming = true, withOverviews = false)
     (info, extractGeoTiffLayout(info))
   }
 

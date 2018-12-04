@@ -37,6 +37,7 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
 
+import scala.Boolean.box
 import scala.util.control.NonFatal
 
 /**
@@ -167,16 +168,26 @@ package object util extends LazyLogging {
     }
 
     // GT 1.2.1 to 2.0.0
-    def readGeoTiffInfo(byteReader: ByteReader, decompress: Boolean, streaming: Boolean): GeoTiffReader.GeoTiffInfo = {
+    // only decompress and streaming apply to 1.2.x
+    // only streaming and withOverviews apply to 2.0.x
+    // 1.2.x only has a 3-arg readGeoTiffInfo method
+    // 2.0.x has a 3- and 4-arg readGeoTiffInfo method, but the 3-arg one has different boolean
+    // parameters than the 1.2.x one
+    def readGeoTiffInfo(byteReader: ByteReader,
+                        decompress: Boolean,
+                        streaming: Boolean,
+                        withOverviews: Boolean): GeoTiffReader.GeoTiffInfo = {
       val reader = GeoTiffReader.getClass.getDeclaredMethods
-        .find(_.getName == "readGeoTiffInfo")
-        .getOrElse(throw new RuntimeException("Could not find method GeoTiffReader.readGeoTiffInfo"))
+        .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 4)
+        .getOrElse(
+          GeoTiffReader.getClass.getDeclaredMethods
+            .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 3)
+            .getOrElse(
+              throw new RuntimeException("Could not find method GeoTiffReader.readGeoTiffInfo")))
 
       val result = reader.getParameterCount match {
-        case 3 ⇒ reader.invoke(GeoTiffReader, byteReader,
-          Boolean.box(decompress), Boolean.box(streaming))
-        case 4 ⇒ reader.invoke(GeoTiffReader, byteReader,
-          Boolean.box(decompress), Boolean.box(streaming), None)
+        case 3 ⇒ reader.invoke(GeoTiffReader, byteReader, box(decompress), box(streaming))
+        case 4 ⇒ reader.invoke(GeoTiffReader, byteReader, box(streaming), box(withOverviews), None)
       }
       result.asInstanceOf[GeoTiffReader.GeoTiffInfo]
     }
