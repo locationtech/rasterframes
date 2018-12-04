@@ -41,7 +41,7 @@ import org.apache.spark.unsafe.types.UTF8String
  *
  * @since 10/19/18
  */
-trait CatalystSerializer[T] {
+trait CatalystSerializer[T] extends Serializable {
   def schema: StructType
   protected def to[R](t: T, io: CatalystIO[R]): R
   protected def from[R](t: R, io: CatalystIO[R]): T
@@ -63,7 +63,7 @@ object CatalystSerializer {
    *
    * @tparam R row storage type
    */
-  trait CatalystIO[R] {
+  trait CatalystIO[R] extends Serializable {
     def create(values: Any*): R
     def to[T: CatalystSerializer](t: T): R = CatalystSerializer[T].to(t, this)
     def isNullAt(d: R, ordinal: Int): Boolean

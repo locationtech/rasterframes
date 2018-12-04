@@ -24,13 +24,14 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{CellSize, CellType, GridExtent, MultibandTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.raster.{ArrayMultibandTile, CellSize, CellType, GridExtent, MultibandTile, MutableArrayTile, Raster, RasterExtent, Tile, TileLayout}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
@@ -62,6 +63,27 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]]
 
+  def readAllLazy(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
+    val extents = nativeTiling
+    if (bandCount == 1) {
+      val rasters = for {
+        extent ← extents
+        rr = RasterRef(this, Some(extent))
+        tile: Tile = RasterRefTile(rr)
+      } yield Raster(tile, extent)
+      Left(rasters)
+    }
+    else {
+      // Need to figure this out.
+      RasterSource._logger.warn("Lazy reading is not available for multiband images. Performing eager read.")
+      val rasters = for {
+        extent ← extents
+        raster = this.read(extent).right.get
+      } yield raster
+      Right(rasters)
+    }
+  }
+
   def nativeLayout: Option[TileLayout]
 
   def rasterExtent = RasterExtent(extent, cols, rows)
@@ -84,6 +106,8 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 }
 
 object RasterSource extends LazyLogging {
+
+  private def _logger = logger
 
   def apply(source: URI, callback: Option[ReadCallback] = None): RasterSource =
     source.getScheme match {
@@ -221,29 +245,31 @@ object RasterSource extends LazyLogging {
     def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
       val info = realInfo
 
-      // Thanks to @pomadchin for showing me how to do this :-)
+      // Thanks to @pomadchin for showing me how to use listWindows :-)
       val windows = info.segmentLayout.listWindows(256)
+      val windowLookup = windows.zipWithIndex.toMap
       val re = info.rasterExtent
 
       if (info.bandCount == 1) {
         val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
-
-        val rows = windows.map(gb => {
-          val tile = geotile.crop(gb)
+        val rows: Array[Raster[MutableArrayTile]] = Array.ofDim(windows.length)
+        geotile.crop(windows).foreach { case (gb, tile) ⇒
           val extent = re.extentFor(gb, clamp = false)
-          Raster(tile, extent)
-        })
+          val idx = windowLookup(gb)
+          rows(idx) = Raster(tile, extent)
+        }
 
         Left(rows.toSeq)
       }
       else {
         val geotile = GeoTiffReader.geoTiffMultibandTile(info)
 
-        val rows = windows.map(gb => {
-          val tile = geotile.crop(gb)
-          val extent = re.extentFor(gb, clamp = false)
-          Raster(tile, extent)
-        })
+        val rows: Array[Raster[ArrayMultibandTile]] = Array.ofDim(windows.length)
+          geotile.crop(windows).foreach { case (gb, tile) ⇒
+            val extent = re.extentFor(gb, clamp = false)
+            val idx = windowLookup(gb)
+            rows(idx) = Raster(tile, extent)
+        }
 
         Right(rows.toSeq)
       }
