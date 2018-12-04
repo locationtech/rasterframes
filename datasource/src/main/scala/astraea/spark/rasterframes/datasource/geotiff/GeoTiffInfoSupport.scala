@@ -24,10 +24,9 @@ import astraea.spark.rasterframes.util.Shims
 import geotrellis.raster.TileLayout
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo
-import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.util.ByteReader
-import geotrellis.vector.Extent
 
 /**
  * Utility mix-in for generating a tlm from GeoTiff headers.
@@ -49,7 +48,8 @@ trait GeoTiffInfoSupport {
   }
 
   def extractGeoTiffLayout(reader: ByteReader): (GeoTiffReader.GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
-    val info: GeoTiffInfo = Shims.readGeoTiffInfo(reader, false, true)
+    val info: GeoTiffInfo =
+      Shims.readGeoTiffInfo(reader, decompress = false, streaming = true, withOverviews = false)
     // Some notes on GeoTiffInfo properties:
     // * `info.extent` is the actual geotiff extent
     // * `info.segmentLayout.tileLayout` contains the internal, regularized gridding of a tiled GeoTIFF
