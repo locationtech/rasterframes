@@ -74,7 +74,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       forEvery(checkedValues) { x => assert((x == 0 && result.head == 4) || result.contains(x - 1)) }
     }
 
-    it("Should compute quantiles"){
+    it("Should compute quantiles") {
       import sqlContext.implicits._
       val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val numBreaks = 5
@@ -173,6 +173,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
     it("should compute mean and total count") {
       val tileSize = 5
+
       def rndTile = {
         val data = Array.fill(tileSize * tileSize)(scala.util.Random.nextGaussian())
         ArrayTile(data, tileSize, tileSize): Tile
@@ -308,19 +309,29 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val maxTile = dsNd.select(localAggMax($"tiles")).first()
       assert(maxTile.toArray() === incompleteTile.toArray())
     }
+  }
+  describe("NoData handling") {
+    import sqlContext.implicits._
+    val tsize = 5
+    val count = 20
+    val nds = 2
+    val tiles = (Seq.fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
+      .map(injectND(nds)) :+ null).toDF("tiles")
 
-    it("should count cells by no-data state") {
-      import sqlContext.implicits._
-      val tsize = 5
-      val count = 20
-      val nds = 2
-      val tiles = (Seq.fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
-        .map(injectND(nds)) :+ null).toDF("tiles")
-
+    it("should count cells by NoData state") {
       val counts = tiles.select(noDataCells($"tiles")).collect().dropRight(1)
       forEvery(counts)(c ⇒ assert(c === nds))
       val counts2 = tiles.select(dataCells($"tiles")).collect().dropRight(1)
       forEvery(counts2)(c ⇒ assert(c === tsize * tsize - nds))
+    }
+
+    it("should detect all NoData tiles") {
+      val ndCount = tiles.select("*").where(isNoDataTile($"tiles")).count()
+      ndCount should be(1)
+
+      val ndTiles = (Seq.fill[Tile](count)(ArrayTile.empty(UByteConstantNoDataCellType, tsize, tsize)) :+ null).toDF("tiles")
+      val ndCount2 = ndTiles.select("*").where(isNoDataTile($"tiles")).count()
+      ndCount2 should be(count + 1)
     }
   }
 }

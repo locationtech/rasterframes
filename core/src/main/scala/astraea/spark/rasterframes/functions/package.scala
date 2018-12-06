@@ -15,7 +15,6 @@
  */
 package astraea.spark.rasterframes
 
-import astraea.spark.rasterframes.expressions.BoundsToGeometry
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.util.CRSParser
@@ -78,6 +77,11 @@ package object functions {
     )
     count
   })
+
+  private[rasterframes] val isNoDataTile: (Tile) ⇒ Boolean = (t: Tile) ⇒ {
+    if(t == null) true
+    else t.isNoDataTile
+  }
 
   /** Flattens tile into an array. */
   private[rasterframes] def tileToArray[T: HasCellType: TypeTag]: (Tile) ⇒ Array[T] = {
@@ -470,6 +474,7 @@ package object functions {
     sqlContext.udf.register("rf_tileStats", tileStats)
     sqlContext.udf.register("rf_dataCells", dataCells)
     sqlContext.udf.register("rf_noDataCells", noDataCells)
+    sqlContext.udf.register("rf_isNoDataTile", isNoDataTile)
     sqlContext.udf.register("rf_localAggStats", localAggStats)
     sqlContext.udf.register("rf_localAggMax", localAggMax)
     sqlContext.udf.register("rf_localAggMin", localAggMin)

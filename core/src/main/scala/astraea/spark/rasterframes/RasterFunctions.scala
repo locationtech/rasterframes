@@ -169,6 +169,12 @@ trait RasterFunctions {
       udf(F.noDataCells).apply(tile)
     ).as[Long]
 
+
+  def isNoDataTile(tile: Column): TypedColumn[Any, Boolean] =
+    withAlias("isNoDataTile", tile)(
+      udf(F.isNoDataTile).apply(tile)
+    ).as[Boolean]
+
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
   def localAggStats(col: Column): Column =
   withAlias("localAggStats", col)(
