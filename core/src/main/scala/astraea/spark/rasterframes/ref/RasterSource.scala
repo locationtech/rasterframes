@@ -245,31 +245,29 @@ object RasterSource extends LazyLogging {
     def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
       val info = realInfo
 
-      // Thanks to @pomadchin for showing me how to use listWindows :-)
+      // Thanks to @pomadchin for showing us how to do this :-)
       val windows = info.segmentLayout.listWindows(256)
-      val windowLookup = windows.zipWithIndex.toMap
       val re = info.rasterExtent
 
       if (info.bandCount == 1) {
         val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
-        val rows: Array[Raster[MutableArrayTile]] = Array.ofDim(windows.length)
-        geotile.crop(windows).foreach { case (gb, tile) ⇒
+
+        val rows = windows.map(gb => {
+          val tile = geotile.crop(gb)
           val extent = re.extentFor(gb, clamp = false)
-          val idx = windowLookup(gb)
-          rows(idx) = Raster(tile, extent)
-        }
+          Raster(tile, extent)
+        })
 
         Left(rows.toSeq)
       }
       else {
         val geotile = GeoTiffReader.geoTiffMultibandTile(info)
 
-        val rows: Array[Raster[ArrayMultibandTile]] = Array.ofDim(windows.length)
-          geotile.crop(windows).foreach { case (gb, tile) ⇒
-            val extent = re.extentFor(gb, clamp = false)
-            val idx = windowLookup(gb)
-            rows(idx) = Raster(tile, extent)
-        }
+        val rows = windows.map(gb => {
+          val tile = geotile.crop(gb)
+          val extent = re.extentFor(gb, clamp = false)
+          Raster(tile, extent)
+        })
 
         Right(rows.toSeq)
       }
