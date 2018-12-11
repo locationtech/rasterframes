@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.util._
@@ -44,7 +45,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
   private val rasterSourceType = new RasterSourceUDT()
-  private val rasterRefSchema = classOf[RasterRef].schema
+  private val rasterRefSchema = CatalystSerializer[RasterRef].schema
 
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceType)
   override def nodeName: String = "raster_source_to_raster_ref"

@@ -22,6 +22,7 @@ package astraea.spark.rasterframes.experimental.datasource
 
 import java.net.URI
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.HttpRangeReader
 import com.typesafe.scalalogging.LazyLogging
@@ -58,8 +59,8 @@ case class ReadTilesExpression(children: Seq[Expression]) extends Expression
   def inputTypes = Seq.fill(children.length)(StringType)
 
   override def elementSchema: StructType = StructType(Seq(
-    StructField("crs", classOf[CRS].schema, true),
-    StructField("extent", classOf[Extent].schema, true)
+    StructField("crs", CatalystSerializer[CRS].schema, true),
+    StructField("extent", CatalystSerializer[Extent].schema, true)
   ) ++
     children
       .zipWithIndex

@@ -44,7 +44,7 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
 
   def userClass: Class[RasterSource] = classOf[RasterSource]
 
-  override def sqlType: DataType = userClass.schema
+  override def sqlType: DataType = CatalystSerializer[RasterSource].schema
 
   override def serialize(obj: RasterSource): InternalRow =
     Option(obj)

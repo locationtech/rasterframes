@@ -46,7 +46,7 @@ class TileUDT extends UserDefinedType[Tile] {
 
   def userClass: Class[Tile] = classOf[Tile]
 
-  def sqlType: StructType = userClass.schema
+  def sqlType: StructType = CatalystSerializer[Tile].schema
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
@@ -93,7 +93,7 @@ case object TileUDT  {
       StructField("cols", ShortType, false),
       StructField("rows", ShortType, false),
       StructField("cells", BinaryType, true),
-      StructField("ref", classOf[RasterRef].schema, true)
+      StructField("ref", CatalystSerializer[RasterRef].schema, true)
     ))
 
     def isRef[R](row: R, io: CatalystIO[R]): Boolean = io.isNullAt(row, C.CELLS)

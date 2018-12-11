@@ -21,6 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
 import astraea.spark.rasterframes.expressions.{RasterSourceToRasterRefs, URIToRasterSource}
@@ -126,7 +127,7 @@ object L8Relation extends PDSFields {
         case ACQUISITION_DATE ⇒ ACQUISITION_DATE.copy(name = StandardColumns.TIMESTAMP_COLUMN.columnName)
         case s if s.name == BOUNDS_WGS84.name ⇒ BOUNDS
         case s if s != DOWNLOAD_URL ⇒ s
-      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, classOf[RasterRef].schema, true))
+      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, CatalystSerializer[RasterRef].schema, true))
     )
   }
 }

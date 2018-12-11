@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterRef
 import com.typesafe.scalalogging.LazyLogging
@@ -41,7 +42,7 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
 
   override def nodeName: String = "raster_ref_to_tile"
 
-  override def inputTypes = Seq(classOf[RasterRef].schema)
+  override def inputTypes = Seq(CatalystSerializer[RasterRef].schema)
 
   override def dataType: DataType = new TileUDT
 

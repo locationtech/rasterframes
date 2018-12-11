@@ -45,8 +45,8 @@ case class BoundsToGeometry(child: Expression) extends UnaryExpression with Code
 
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
 
-  private val envSchema = classOf[Envelope].schema
-  private val extSchema = classOf[Extent].schema
+  private val envSchema = CatalystSerializer[Envelope].schema
+  private val extSchema = CatalystSerializer[Extent].schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {

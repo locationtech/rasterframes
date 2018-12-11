@@ -42,7 +42,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class GeometryToBounds(child: Expression) extends UnaryExpression with CodegenFallback {
   override def nodeName: String = "geometry_bounds"
 
-  override def dataType: DataType = classOf[Extent].schema
+  override def dataType: DataType = CatalystSerializer[Extent].schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {

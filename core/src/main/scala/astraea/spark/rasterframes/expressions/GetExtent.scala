@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
 import astraea.spark.rasterframes.ref.ProjectedRasterLike
@@ -38,7 +39,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 9/10/18
  */
 case class GetExtent(child: Expression) extends OnProjectedRasterExpression with CodegenFallback {
-  override def dataType: DataType = classOf[Extent].schema
+  override def dataType: DataType = CatalystSerializer[Extent].schema
   override def nodeName: String = "extent"
   override def eval(prl: ProjectedRasterLike): InternalRow = prl.extent.toInternalRow
 }

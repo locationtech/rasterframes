@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import geotrellis.raster.{Grid, Tile}
@@ -43,7 +44,7 @@ trait OnGridExpression extends UnaryExpression {
       (row: InternalRow) ⇒ row.to[Tile]
     case _: RasterSourceUDT ⇒
       (row: InternalRow) ⇒ row.to[RasterSource]
-    case t if t.conformsTo(classOf[RasterRef].schema) ⇒
+    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
       (row: InternalRow) ⇒ row.to[RasterRef]
   }
 

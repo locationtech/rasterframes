@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
+import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate, CellStatsAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{expressions ⇒ E, functions ⇒ F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}

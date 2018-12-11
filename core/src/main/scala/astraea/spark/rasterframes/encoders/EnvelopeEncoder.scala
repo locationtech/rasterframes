@@ -18,7 +18,7 @@ import scala.reflect.classTag
  */
 object EnvelopeEncoder {
 
-  val schema = classOf[Envelope].schema
+  val schema = CatalystSerializer[Envelope].schema
 
   val dataType: DataType = ScalaReflection.dataTypeFor[Envelope]
 

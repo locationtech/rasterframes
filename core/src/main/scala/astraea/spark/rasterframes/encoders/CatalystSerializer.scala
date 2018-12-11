@@ -209,10 +209,6 @@ object CatalystSerializer {
   private[rasterframes]
   implicit def rasterSourceSerializer: CatalystSerializer[RasterSource] = RasterSourceUDT.rasterSourceSerializer
 
-  implicit class WithSchema[T: CatalystSerializer](t: Class[T]) {
-    def schema: StructType = CatalystSerializer[T].schema
-  }
-
   implicit class WithToRow[T: CatalystSerializer](t: T) {
     def toInternalRow: InternalRow = CatalystSerializer[T].toInternalRow(t)
     def toRow: Row = CatalystSerializer[T].toRow(t)

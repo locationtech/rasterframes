@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
@@ -51,7 +52,7 @@ trait OnProjectedRasterExpression extends UnaryExpression {
     }
     case _: RasterSourceUDT ⇒
       (row: InternalRow) ⇒ row.to[RasterSource]
-    case t if t.conformsTo(classOf[RasterRef].schema) ⇒
+    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
       (row: InternalRow) ⇒ row.to[RasterRef]
   }
 
