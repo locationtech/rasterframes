@@ -61,6 +61,17 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .as[(Int, Int)].first() === (3, 3))
     }
 
+    it("should report cell type") {
+      import sqlContext.implicits._
+      val ct = functions.cellTypes().filter(_ != "bool")
+      forEvery(ct) { c ⇒
+        val expected = CellType.fromName(c)
+        val tile = randomTile(5, 5, expected)
+        val result = Seq(tile).toDF("tile").select(cellType($"tile")).first()
+        result should be (expected)
+      }
+    }
+
     // tiles defined for the next few tests
     val tile1 = fracTile(10, 10, 5)
     val tile2 = ArrayTile(Array(-5, -4, -3, -2, -1, 0, 1, 2, 3), 3, 3)

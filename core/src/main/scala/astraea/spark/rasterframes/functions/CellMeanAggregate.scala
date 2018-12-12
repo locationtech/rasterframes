@@ -19,6 +19,7 @@
 
 package astraea.spark.rasterframes.functions
 
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
@@ -52,8 +53,8 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
   private val sumCells = udf(tileSum)
 
   val updateExpressions = Seq(
-    If(IsNull(child), sum , Add(sum, sumCells(child.asColumn).expr)),
-    If(IsNull(child), count, Add(count, dataCellCounts(child.asColumn).expr))
+    If(IsNull(child), sum , Add(sum, sumCells(new Column(child)).expr)),
+    If(IsNull(child), count, Add(count, dataCellCounts(new Column(child)).expr))
   )
 
   val mergeExpressions = Seq(
@@ -71,6 +72,13 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
 
   def children = Seq(child)
 
+}
+
+object CellMeanAggregate {
+  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  /** Computes the column aggregate mean. */
+  def apply(tile: Column): TypedColumn[Any, Double] =
+    new Column(new CellMeanAggregate(tile.expr).toAggregateExpression()).as[Double]
 }
 
 

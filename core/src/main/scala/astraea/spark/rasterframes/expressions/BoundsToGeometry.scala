@@ -30,7 +30,6 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure,
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.apache.spark.sql.jts.JTSTypes
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
@@ -73,5 +72,5 @@ case class BoundsToGeometry(child: Expression) extends UnaryExpression with Code
 
 object BoundsToGeometry extends SpatialEncoders {
   def apply(bounds: Column): TypedColumn[Any, Geometry] =
-    new BoundsToGeometry(bounds.expr).asColumn.as[Geometry]
+    new Column(new BoundsToGeometry(bounds.expr)).as[Geometry]
 }

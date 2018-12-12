@@ -19,32 +19,29 @@
 
 package astraea.spark.rasterframes.expressions
 
-import geotrellis.raster.Grid
+import astraea.spark.rasterframes.TileDimensions
+import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import geotrellis.raster.CellGrid
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 
 /**
  * Extract a Tile's dimensions
  * @since 12/21/17
  */
-case class GetDimensions(child: Expression) extends OnGridExpression
+case class GetDimensions(child: Expression) extends OnCellGridExpression
   with CodegenFallback {
-  override def nodeName: String = "dimensions"
+  override def nodeName: String = "tile_dimensions"
 
-  def dataType = StructType(Seq(
-    StructField("cols", ShortType),
-    StructField("rows", ShortType)
-  ))
+  def dataType = CatalystSerializer[TileDimensions].schema
 
-  override def eval(grid: Grid): Any =
-    InternalRow(grid.cols.toShort, grid.rows.toShort)
+  override def eval(grid: CellGrid): Any = TileDimensions(grid.cols, grid.rows).toInternalRow
 }
 
 object GetDimensions {
+  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
   def apply(col: Column): Column =
-    new GetDimensions(col.expr).asColumn
+    new Column(new GetDimensions(col.expr)).as[TileDimensions]
 }

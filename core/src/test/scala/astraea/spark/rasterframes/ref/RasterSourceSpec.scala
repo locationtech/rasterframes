@@ -164,8 +164,8 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
   }
 
-  describe("RasterSource.readAll should") {
-    it("return consistently ordered tiles across bands for a given scene") {
+  describe("RasterSource.readAll") {
+    it("should return consistently ordered tiles across bands for a given scene") {
 
       // These specific scenes exhibit the problem where
       // we see different subtile segment ordering across

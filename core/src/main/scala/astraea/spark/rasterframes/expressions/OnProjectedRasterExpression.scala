@@ -34,7 +34,7 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 
 /**
- * Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and
+ * Implements boilerplate for subtype expressions processing TileUDT (when ProjectedRasterTile), RasterSourceUDT, and
  * RasterSource-shaped rows.
  *
  * @since 11/3/18
@@ -47,7 +47,8 @@ trait OnProjectedRasterExpression extends UnaryExpression {
         val tile = row.to[Tile]
         tile match {
           case pr: ProjectedRasterTile ⇒ pr
-          case _ ⇒ null
+          // TODO: don't let match error happen. Refactor this sub case up a level.
+          // Not sure how to do do it since we're returning functions that are evaluated later.
         }
     }
     case _: RasterSourceUDT ⇒
@@ -74,6 +75,5 @@ trait OnProjectedRasterExpression extends UnaryExpression {
 
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
   def eval(prl: ProjectedRasterLike): Any
-
 
 }

@@ -22,17 +22,15 @@
 package astraea.spark.rasterframes.ref
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.Grid
+import geotrellis.raster.CellGrid
 import geotrellis.vector.Extent
 
 /**
- * Trait declaring shape of a grid projected over a coordinate system.
+ * Trait declaring shape of a raster projected over a coordinate system.
  *
  * @since 11/3/18
  */
-trait ProjectedRasterLike extends Grid {
+trait ProjectedRasterLike extends CellGrid {
   def crs: CRS
   def extent: Extent
-  def rows: Int
-  def cols: Int
 }

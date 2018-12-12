@@ -30,6 +30,7 @@ import scala.reflect.runtime.universe._
  */
 package object rf {
   implicit class CanBeColumn(expression: Expression) {
+    @deprecated("Use `new Column(...)` instead", "0.8.0")
     def asColumn: Column = Column(expression)
   }
 

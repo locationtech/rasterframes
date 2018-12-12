@@ -19,8 +19,13 @@
 
 package astraea.spark.rasterframes
 
+import org.apache.spark.sql.Column
+import org.apache.spark.sql.catalyst.expressions.Literal
+
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe._
+import scala.reflect.runtime.universe.{Literal ⇒ _, _}
+
+
 
 /**
  * Module utilities
@@ -34,4 +39,11 @@ package object encoders {
   private[rasterframes] def typeToClassTag[T: TypeTag]: ClassTag[T] = {
     ClassTag[T](typeTag[T].mirror.runtimeClass(typeTag[T].tpe))
   }
+
+  /** Constructs a Dataframe literal from anything with a serializer. */
+  def serialized_literal[T >: Null: CatalystSerializer](t: T): Column = {
+    val ser = CatalystSerializer[T]
+    new Column(Literal.create(ser.toInternalRow(t), ser.schema))
+  }
+
 }

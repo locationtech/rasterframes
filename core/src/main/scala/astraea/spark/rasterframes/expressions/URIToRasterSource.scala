@@ -60,9 +60,9 @@ case class URIToRasterSource(override val child: Expression, accumulator: Option
 
 object URIToRasterSource {
   def apply(rasterURI: Column): TypedColumn[Any, RasterRef] =
-    new URIToRasterSource(rasterURI.expr, None).asColumn.as[RasterRef]
+    new Column(new URIToRasterSource(rasterURI.expr, None)).as[RasterRef]
   def apply(rasterURI: Column, accumulator: ReadAccumulator): TypedColumn[Any, RasterRef] =
-    new URIToRasterSource(rasterURI.expr, Option(accumulator)).asColumn.as[RasterRef]
+    new Column(new URIToRasterSource(rasterURI.expr, Option(accumulator))).as[RasterRef]
   def apply(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
-    new URIToRasterSource(rasterURI.expr, accumulator).asColumn.as[RasterRef]
+    new Column(new URIToRasterSource(rasterURI.expr, accumulator)).as[RasterRef]
 }

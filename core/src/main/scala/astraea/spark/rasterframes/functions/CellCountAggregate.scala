@@ -19,6 +19,7 @@
 
 package astraea.spark.rasterframes.functions
 
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
@@ -52,7 +53,7 @@ case class CellCountAggregate(isData: Boolean, child: Expression) extends Declar
     else udf(noDataCells)
 
   val updateExpressions = Seq(
-    If(IsNull(child), count, Add(count, cellTest(child.asColumn).expr))
+    If(IsNull(child), count, Add(count, cellTest(new Column(child)).expr))
   )
 
   val mergeExpressions = Seq(
@@ -68,6 +69,12 @@ case class CellCountAggregate(isData: Boolean, child: Expression) extends Declar
   def dataType = LongType
 
   def children = Seq(child)
+}
+
+object CellCountAggregate {
+  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  def apply(isData: Boolean, tile: Column): TypedColumn[Any, Long] =
+    new Column(new CellCountAggregate(isData, tile.expr).toAggregateExpression()).as[Long]
 }
 
 

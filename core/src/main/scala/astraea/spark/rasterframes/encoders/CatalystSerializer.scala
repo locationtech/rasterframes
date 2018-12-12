@@ -30,6 +30,7 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.{Column, Row}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Literal
+import org.apache.spark.sql.expressions.MutableAggregationBuffer
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
@@ -76,7 +77,6 @@ object CatalystSerializer {
     def getDouble(d: R, ordinal: Int): Double
     def getString(d: R, ordinal: Int): String
     def getByteArray(d: R, ordinal: Int): Array[Byte]
-    //def getStruct(d: R, ordinal: Int, numFields: Int): R
     def get[T: CatalystSerializer](d: R, ordinal: Int): T
     def encode(str: String): AnyRef
   }
@@ -84,23 +84,26 @@ object CatalystSerializer {
   object CatalystIO {
     def apply[R: CatalystIO]: CatalystIO[R] = implicitly
 
-    implicit val rowIO: CatalystIO[Row] = new CatalystIO[Row] {
-      override def isNullAt(d: Row, ordinal: Int): Boolean = d.isNullAt(ordinal)
-      override def getBoolean(d: Row, ordinal: Int): Boolean = d.getBoolean(ordinal)
-      override def getByte(d: Row, ordinal: Int): Byte = d.getByte(ordinal)
-      override def getShort(d: Row, ordinal: Int): Short = d.getShort(ordinal)
-      override def getInt(d: Row, ordinal: Int): Int = d.getInt(ordinal)
-      override def getLong(d: Row, ordinal: Int): Long = d.getLong(ordinal)
-      override def getFloat(d: Row, ordinal: Int): Float =  d.getFloat(ordinal)
-      override def getDouble(d: Row, ordinal: Int): Double = d.getDouble(ordinal)
-      override def getString(d: Row, ordinal: Int): String = d.getString(ordinal)
-      override def getByteArray(d: Row, ordinal: Int): Array[Byte] = d.get(ordinal).asInstanceOf[Array[Byte]]
-      override def get[T: CatalystSerializer](d: Row, ordinal: Int): T = {
+    trait AbstractRowEncoder[R <: Row] extends CatalystIO[R] {
+      override def isNullAt(d: R, ordinal: Int): Boolean = d.isNullAt(ordinal)
+      override def getBoolean(d: R, ordinal: Int): Boolean = d.getBoolean(ordinal)
+      override def getByte(d: R, ordinal: Int): Byte = d.getByte(ordinal)
+      override def getShort(d: R, ordinal: Int): Short = d.getShort(ordinal)
+      override def getInt(d: R, ordinal: Int): Int = d.getInt(ordinal)
+      override def getLong(d: R, ordinal: Int): Long = d.getLong(ordinal)
+      override def getFloat(d: R, ordinal: Int): Float =  d.getFloat(ordinal)
+      override def getDouble(d: R, ordinal: Int): Double = d.getDouble(ordinal)
+      override def getString(d: R, ordinal: Int): String = d.getString(ordinal)
+      override def getByteArray(d: R, ordinal: Int): Array[Byte] = d.get(ordinal).asInstanceOf[Array[Byte]]
+      override def get[T: CatalystSerializer](d: R, ordinal: Int): T = {
         val struct = d.getStruct(ordinal)
         struct.to[T]
       }
-      override def create(values: Any*): Row = Row(values: _*)
       override def encode(str: String): String = str
+    }
+
+    implicit val rowIO: CatalystIO[Row] = new AbstractRowEncoder[Row] {
+      override def create(values: Any*): Row = Row(values: _*)
     }
 
     implicit val internalRowIO: CatalystIO[InternalRow] = new CatalystIO[InternalRow] {
@@ -122,13 +125,6 @@ object CatalystSerializer {
       override def create(values: Any*): InternalRow = InternalRow(values: _*)
       override def encode(str: String): UTF8String = UTF8String.fromString(str)
     }
-  }
-
-
-  /** Constructs a Dataframe literal from anything with a serializer. */
-  def serialized_literal[T >: Null: CatalystSerializer](t: T): Column = {
-    val ser = CatalystSerializer[T]
-    new Column(Literal.create(ser.toInternalRow(t), ser.schema))
   }
 
   implicit val envelopeSerializer: CatalystSerializer[Envelope] = new CatalystSerializer[Envelope] {

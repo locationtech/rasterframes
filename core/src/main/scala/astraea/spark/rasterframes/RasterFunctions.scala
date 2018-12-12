@@ -77,7 +77,7 @@ trait RasterFunctions {
 
 
   /** Extract the Tile's cell type */
-  def cellType(col: Column): TypedColumn[Any, String] = E.GetCellType(col)
+  def cellType(col: Column): TypedColumn[Any, CellType] = E.GetCellType(col)
 
   /** Change the Tile's cell type */
   def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
@@ -107,19 +107,13 @@ trait RasterFunctions {
   ).as[CellStatistics]
 
   /** Computes the column aggregate mean. */
-  def aggMean(col: Column) = CellMeanAggregate(col.expr)
-    .toAggregateExpression().asColumn
-    .as[Double]
+  def aggMean(col: Column) = CellMeanAggregate(col)
 
   /** Computes the number of non-NoData cells in a column. */
-  def aggDataCells(col: Column) = CellCountAggregate(true, col.expr)
-    .toAggregateExpression().asColumn
-    .as[Long]
+  def aggDataCells(col: Column) = CellCountAggregate(true, col)
 
   /** Computes the number of NoData cells in a column. */
-  def aggNoDataCells(col: Column) = CellCountAggregate(false, col.expr)
-    .toAggregateExpression().asColumn
-    .as[Long]
+  def aggNoDataCells(col: Column) = CellCountAggregate(false, col)
 
   /** Compute the Tile-wise mean */
   def tileMean(col: Column): TypedColumn[Any, Double] =

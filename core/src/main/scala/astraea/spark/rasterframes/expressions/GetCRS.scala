@@ -46,5 +46,5 @@ case class GetCRS(child: Expression) extends OnProjectedRasterExpression with Co
 
 object GetCRS {
   def apply(ref: Column): TypedColumn[Any, CRS] =
-    new GetCRS(ref.expr).asColumn.as[CRS]
+    new Column(new GetCRS(ref.expr)).as[CRS]
 }

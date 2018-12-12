@@ -185,7 +185,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
         import spark.implicits._
         val df = Seq(src).toDF("src")
         val refs = df.select(RasterSourceToRasterRefs($"src"))
-        refs.printSchema()
+        assert(refs.count() > 1)
       }
     }
 

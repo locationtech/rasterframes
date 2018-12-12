@@ -30,7 +30,6 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure,
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.apache.spark.sql.jts.{AbstractGeometryUDT, JTSTypes}
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
@@ -64,5 +63,5 @@ object GeometryToBounds {
   import astraea.spark.rasterframes.encoders.StandardEncoders._
 
   def apply(bounds: Column): TypedColumn[Any, Extent] =
-    new GeometryToBounds(bounds.expr).asColumn.as[Extent]
+    new Column(new GeometryToBounds(bounds.expr)).as[Extent]
 }

@@ -26,7 +26,7 @@ import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterRef
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.Tile
-import org.apache.spark.sql.Column
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
@@ -53,6 +53,7 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
 }
 
 object RasterRefToTile {
-  def apply(rr: Column): Column =
-    RasterRefToTile(rr.expr).asColumn
+  import astraea.spark.rasterframes.encoders.StandardEncoders._
+  def apply(rr: Column): TypedColumn[Any, Tile] =
+    new Column(RasterRefToTile(rr.expr)).as[Tile]
 }

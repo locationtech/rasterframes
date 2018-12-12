@@ -144,8 +144,7 @@ object RasterSource extends LazyLogging {
   // According to https://goo.gl/2z8xx9 the GeoTIFF date format is 'YYYY:MM:DD HH:MM:SS'
   private val dateFormat = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
-  trait URIRasterSource {
-    _: RasterSource ⇒
+  trait URIRasterSource { _: RasterSource ⇒
     def source: URI
 
     abstract override def toString: String = {
@@ -252,7 +251,7 @@ object RasterSource extends LazyLogging {
       if (info.bandCount == 1) {
         val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
 
-        val rows = windows.map(gb => {
+        val rows = windows.map(gb ⇒ {
           val tile = geotile.crop(gb)
           val extent = re.extentFor(gb, clamp = false)
           Raster(tile, extent)
@@ -263,7 +262,7 @@ object RasterSource extends LazyLogging {
       else {
         val geotile = GeoTiffReader.geoTiffMultibandTile(info)
 
-        val rows = windows.map(gb => {
+        val rows = windows.map(gb ⇒ {
           val tile = geotile.crop(gb)
           val extent = re.extentFor(gb, clamp = false)
           Raster(tile, extent)
@@ -275,8 +274,7 @@ object RasterSource extends LazyLogging {
   }
 
   case class FileGeoTiffRasterSource(source: URI, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString {
-    self ⇒
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
     @transient
     protected lazy val rangeReader = {
       val base = FileRangeReader(source.getPath)
@@ -286,8 +284,7 @@ object RasterSource extends LazyLogging {
   }
 
   case class HadoopGeoTiffRasterSource(source: URI, config: () ⇒ Configuration, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString {
-    self ⇒
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
     @transient
     protected lazy val rangeReader = {
       val base = HdfsRangeReader(new Path(source.getPath), config())
@@ -296,8 +293,7 @@ object RasterSource extends LazyLogging {
   }
 
   case class S3GeoTiffRasterSource(source: URI, client: () ⇒ S3Client, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString {
-    self ⇒
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
     @transient
     protected lazy val rangeReader = {
       val base = S3RangeReader(source, client())
@@ -306,23 +302,25 @@ object RasterSource extends LazyLogging {
   }
 
   case class HttpGeoTiffRasterSource(source: URI, callback: Option[ReadCallback]) extends RangeReaderRasterSource
-    with URIRasterSource with URIRasterSourceDebugString {
-    self ⇒
-    @transient
-    private lazy val baseReader = HttpRangeReader(source)
+    with URIRasterSource with URIRasterSourceDebugString { self ⇒
 
     @transient
     protected lazy val rangeReader = {
-      callback.map(cb ⇒ ReportingRangeReader(baseReader, cb, self)).getOrElse(baseReader)
+      val base = HttpRangeReader(source)
+      callback.map(cb ⇒ ReportingRangeReader(base, cb, self)).getOrElse(base)
     }
 
     override protected def resolveDate: Option[ZonedDateTime] = {
       super.resolveDate
-        .orElse(
-          baseReader.response.headers.get("Last-Modified")
+        .orElse {
+          val hrr = rangeReader match {
+            case h: HttpRangeReader ⇒ h
+            case ReportingRangeReader(h: HttpRangeReader, _, _) ⇒ h
+          }
+          hrr.response.headers.get("Last-Modified")
             .flatMap(_.headOption)
             .flatMap(s ⇒ Try(ZonedDateTime.parse(s, DateTimeFormatter.RFC_1123_DATE_TIME)).toOption)
-        )
+        }
     }
   }
 

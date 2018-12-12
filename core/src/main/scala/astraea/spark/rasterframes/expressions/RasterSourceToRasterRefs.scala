@@ -26,7 +26,7 @@ import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.sql.Column
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -71,7 +71,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
 }
 
 object RasterSourceToRasterRefs {
-  def apply(rrs: Column*): Column = apply(true, rrs: _*)
-  def apply(applyTiling: Boolean, rrs: Column*): Column =
-    new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling).asColumn.as[RasterRef]
+  def apply(rrs: Column*): TypedColumn[Any, RasterRef] = apply(true, rrs: _*)
+  def apply(applyTiling: Boolean, rrs: Column*): TypedColumn[Any, RasterRef] =
+    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling)).as[RasterRef]
 }

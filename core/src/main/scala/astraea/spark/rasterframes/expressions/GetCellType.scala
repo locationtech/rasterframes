@@ -19,34 +19,29 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import geotrellis.raster.Tile
+import geotrellis.raster.{CellGrid, CellType}
+import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
-import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.{DataType, StringType}
+import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * Extract a Tile's cell type
  * @since 12/21/17
  */
-case class GetCellType(child: Expression) extends UnaryExpression
-  with RequiresTile with CodegenFallback {
+case class GetCellType(child: Expression) extends OnCellGridExpression with CodegenFallback {
 
   override def nodeName: String = "cell_type"
 
-  def dataType: DataType = StringType
-
-  override protected def nullSafeEval(input: Any): Any = {
-    val tile = row(input).to[Tile]
-    UTF8String.fromString(tile.cellType.name)
-  }
+  def dataType: DataType = CatalystSerializer[CellType].schema
+  /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
+  override def eval(cg: CellGrid): Any = cg.cellType.toInternalRow
 }
 
 object GetCellType {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
-  def apply(col: Column): TypedColumn[Any, String] =
-    new GetCellType(col.expr).asColumn.as[String]
+  import astraea.spark.rasterframes.encoders.StandardEncoders._
+  def apply(col: Column): TypedColumn[Any, CellType] =
+    new Column(new GetCellType(col.expr)).as[CellType]
 }

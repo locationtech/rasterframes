@@ -29,7 +29,6 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 
@@ -46,5 +45,5 @@ case class GetExtent(child: Expression) extends OnProjectedRasterExpression with
 
 object GetExtent {
   def apply(col: Column): TypedColumn[Any, Extent] =
-    new GetExtent(col.expr).asColumn.as[Extent]
+    new Column(new GetExtent(col.expr)).as[Extent]
 }

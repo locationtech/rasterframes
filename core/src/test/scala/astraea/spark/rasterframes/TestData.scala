@@ -154,10 +154,10 @@ object TestData extends TestData {
     val base: Tile = cellType match {
       case _: FloatCells ⇒
         val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
-        ArrayTile(data, cols, rows)
+        ArrayTile(data, cols, rows).interpretAs(cellType)
       case _: DoubleCells ⇒
         val data = Array.fill(cols * rows)(rnd.nextGaussian())
-        ArrayTile(data, cols, rows)
+        ArrayTile(data, cols, rows).interpretAs(cellType)
       case _ ⇒
         val words = cellType.bits / 8
         val bytes = Array.ofDim[Byte](cols * rows * words)

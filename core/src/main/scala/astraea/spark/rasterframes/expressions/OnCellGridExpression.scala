@@ -24,7 +24,7 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
-import geotrellis.raster.{Grid, Tile}
+import geotrellis.raster.{CellGrid, Grid, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -38,8 +38,10 @@ import org.apache.spark.sql.types.DataType
  *
  * @since 11/4/18
  */
-trait OnGridExpression extends UnaryExpression {
-  private val toGrid: PartialFunction[DataType, InternalRow ⇒ Grid] = {
+trait OnCellGridExpression extends UnaryExpression {
+  // TODO: DRY w.r.t. OnProjectedRasterExpression....
+
+  private val toGrid: PartialFunction[DataType, InternalRow ⇒ CellGrid] = {
     case _: TileUDT ⇒
       (row: InternalRow) ⇒ row.to[Tile]
     case _: RasterSourceUDT ⇒
@@ -65,6 +67,6 @@ trait OnGridExpression extends UnaryExpression {
   }
 
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
-  def eval(grid: Grid): Any
+  def eval(grid: CellGrid): Any
 
 }
