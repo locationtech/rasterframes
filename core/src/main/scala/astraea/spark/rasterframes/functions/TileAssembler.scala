@@ -64,7 +64,7 @@ case class TileAssembler(cols: Int, rows: Int, ct: CellType) extends UserDefined
   }
 
   def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val source = buffer2.getAs[mutable.WrappedArray[Double]](0)
+    val source = buffer2.getSeq[Double](0)
     val dest = buffer1.getAs[mutable.WrappedArray[Double]](0)
 
     for {
@@ -77,7 +77,7 @@ case class TileAssembler(cols: Int, rows: Int, ct: CellType) extends UserDefined
   }
 
   def evaluate(buffer: Row): Any = {
-    val cells = buffer.getAs[mutable.WrappedArray[Double]](0).toArray[Double]
+    val cells = buffer.getSeq[Double](0).toArray[Double]
     ArrayTile.apply(cells.array, cols, rows).convert(ct)
   }
 }

@@ -21,14 +21,12 @@ package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import org.apache.spark.sql.rf.TileUDT._
 import astraea.spark.rasterframes.util._
 import geotrellis.raster._
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow}
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import spire.syntax.cfor.cfor
 

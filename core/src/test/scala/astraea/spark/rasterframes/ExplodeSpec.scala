@@ -169,6 +169,4 @@ class ExplodeSpec extends TestEnvironment with TestData {
       assert(image.tile.toArrayTile() === recovered.tile.toArrayTile())
     }
   }
-
-  protected def withFixture(test: Any) = ???
 }
