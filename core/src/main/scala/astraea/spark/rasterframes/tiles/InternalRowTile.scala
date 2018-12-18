@@ -25,8 +25,6 @@ import java.nio.ByteBuffer
 
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.types._
-import org.apache.spark.unsafe.types.UTF8String
 
 /**
  * Wrapper around a `Tile` encoded in a Catalyst `InternalRow`, for the purpose
@@ -41,8 +39,12 @@ import org.apache.spark.unsafe.types.UTF8String
 class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   import org.apache.spark.sql.rf.TileUDT.C
   import InternalRowTile._
+
   /** @group COPIES */
-  override def toArrayTile(): ArrayTile = {
+  override def toArrayTile(): ArrayTile = realizedTile
+
+  // TODO: We want to reimpliement the delegated methods so that they read directly from tungsten storage
+  protected lazy val realizedTile: ArrayTile = {
     val data = toBytes
     if(data.length < cols * rows && cellType.name != "bool") {
       val ctile = ConstantTile.fromBytes(data, cellType, cols, rows)
@@ -54,7 +56,7 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   }
 
   /** @group COPIES */
-  protected override def delegate: Tile = toArrayTile()
+  protected override def delegate: Tile = realizedTile
 
   /** Retrieve the cell type from the internal encoding. */
   override lazy val cellType: CellType =
