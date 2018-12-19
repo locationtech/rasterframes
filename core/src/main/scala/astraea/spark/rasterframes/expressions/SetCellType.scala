@@ -83,8 +83,8 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
 object SetCellType {
 
   def apply(tile: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    new SetCellType(tile.expr, lit(cellType.name).expr).asColumn.as[Tile]
+    new Column(new SetCellType(tile.expr, lit(cellType.name).expr)).as[Tile]
   def apply(tile: Column, cellType: String): TypedColumn[Any, Tile] =
-    new SetCellType(tile.expr, lit(cellType).expr).asColumn.as[Tile]
+    new Column(new SetCellType(tile.expr, lit(cellType).expr)).as[Tile]
 
 }

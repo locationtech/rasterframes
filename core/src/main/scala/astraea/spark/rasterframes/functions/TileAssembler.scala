@@ -19,65 +19,105 @@
 
 package astraea.spark.rasterframes.functions
 
+import java.nio.ByteBuffer
+
+import astraea.spark.rasterframes.util._
 import geotrellis.raster.{DataType ⇒ _, _}
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.aggregate.{ImperativeAggregate, TypedImperativeAggregate}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
-
-import scala.collection.mutable
+import org.apache.spark.sql.{Column, TypedColumn}
+import spire.syntax.cfor._
 
 /**
  * Aggregator for reassembling tiles from from exploded form
  *
  * @since 9/24/17
  */
-case class TileAssembler(cols: Int, rows: Int, ct: CellType) extends UserDefinedAggregateFunction {
-  def inputSchema: StructType = StructType(Seq(
-    StructField("columnIndex", IntegerType, false),
-    StructField("rowIndex", IntegerType, false),
-    StructField("cellValues", DoubleType, false)
-  ))
+case class TileAssembler(
+  colIndex: Expression,
+  rowIndex: Expression,
+  cellValue: Expression,
+  tileCols: Int, tileRows: Int,
+  cellType: CellType,
+  mutableAggBufferOffset: Int = 0,
+  inputAggBufferOffset: Int = 0
+) extends TypedImperativeAggregate[ByteBuffer] with ImplicitCastInputTypes {
 
-  def bufferSchema: StructType = StructType(Seq(
-    StructField("cells", DataTypes.createArrayType(DoubleType, false), false)
-  ))
+  override def children: Seq[Expression] = Seq(colIndex, rowIndex, cellValue)
 
-  def dataType: DataType = new TileUDT()
+  override def inputTypes = Seq(IntegerType, IntegerType, DoubleType)
 
-  def deterministic: Boolean = true
+  private val TileType = new TileUDT()
 
-  def initialize(buffer: MutableAggregationBuffer): Unit = {
-    buffer(0) = Array.ofDim[Double](cols * rows).fill(doubleNODATA)
+  override def prettyName: String = "assemble_tiles"
+
+  override def withNewMutableAggBufferOffset(newMutableAggBufferOffset: Int): ImperativeAggregate =
+    copy(mutableAggBufferOffset = newMutableAggBufferOffset)
+
+  override def withNewInputAggBufferOffset(newInputAggBufferOffset: Int): ImperativeAggregate =
+    copy(inputAggBufferOffset = newInputAggBufferOffset)
+
+  override def nullable: Boolean = true
+
+  override def dataType: DataType = TileType
+
+  override def createAggregationBuffer(): ByteBuffer = {
+    val buff = ByteBuffer.allocateDirect(tileCols * tileRows * java.lang.Double.BYTES)
+    val dubs = buff.asDoubleBuffer()
+    val length = dubs.capacity()
+    cfor(0)(_ < length, _ + 1) { idx ⇒
+      dubs.put(idx, doubleNODATA)
+    }
+    buff
   }
 
-  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val col = input.getInt(0)
-    val row = input.getInt(1)
-    val cell = input.getDouble(2)
-
-    val cells = buffer.getAs[mutable.WrappedArray[Double]](0)
-
-    cells(row * cols + col) = cell
-
-    buffer(0) = cells
+  override def update(buffer: ByteBuffer, input: InternalRow): ByteBuffer = {
+    val col = colIndex.eval(input).asInstanceOf[Int]
+    val row = rowIndex.eval(input).asInstanceOf[Int]
+    val cell = cellValue.eval(input).asInstanceOf[Double]
+    val cells = buffer.asDoubleBuffer()
+    cells.put(row * tileCols + col, cell)
+    buffer
   }
 
-  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val source = buffer2.getSeq[Double](0)
-    val dest = buffer1.getAs[mutable.WrappedArray[Double]](0)
-
-    for {
-      i ← source.indices
-      cell = source(i)
-      if isData(cell)
-    } dest(i) = cell
-
-    buffer1(0) = dest
+  override def merge(buffer: ByteBuffer, input: ByteBuffer): ByteBuffer = {
+    val left = buffer.asDoubleBuffer()
+    val right = input.asDoubleBuffer()
+    val length = left.capacity()
+    cfor(0)(_ < length, _ + 1) { idx ⇒
+      val cell = right.get(idx)
+      if (isData(cell)) left.put(idx, cell)
+    }
+    buffer
   }
 
-  def evaluate(buffer: Row): Any = {
-    val cells = buffer.getSeq[Double](0).toArray[Double]
-    ArrayTile.apply(cells.array, cols, rows).convert(ct)
+  override def eval(buffer: ByteBuffer): InternalRow = {
+    // TODO: figure out how to eliminate copies here.
+    val result = buffer.asDoubleBuffer()
+    val length = result.capacity()
+    val cells =  Array.ofDim[Double](length)
+    result.get(cells)
+    val tile = ArrayTile.apply(cells, tileCols, tileRows).convert(cellType)
+    TileType.serialize(tile)
   }
+
+  override def serialize(buffer: ByteBuffer): Array[Byte] = {
+    val length = buffer.capacity()
+    val data = Array.ofDim[Byte](length)
+    buffer.get(data)
+    data
+  }
+
+  override def deserialize(storageFormat: Array[Byte]): ByteBuffer = ByteBuffer.wrap(storageFormat)
+
+}
+
+object TileAssembler {
+  import astraea.spark.rasterframes.encoders.StandardEncoders._
+  def apply(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType): TypedColumn[Any, Tile] =
+    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, cols, rows, ct).toAggregateExpression())
+      .as(cellData.columnName).as[Tile]
 }

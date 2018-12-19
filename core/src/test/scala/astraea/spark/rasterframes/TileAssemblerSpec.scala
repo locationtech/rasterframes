@@ -23,7 +23,7 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.ref.RasterSource
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster._
-import org.apache.spark.TaskContext
+import geotrellis.raster.render.ColorRamps
 import org.apache.spark.sql.Dataset
 
 /**
@@ -48,13 +48,14 @@ class TileAssemblerSpec extends TestEnvironment with TestData {
 
       val exploded = util.time("exploded") {
         df
-          .select($"index", $"extent", explodeTiles($"tile"))
+          .select($"index", explodeTiles($"tile"))
           .forceCache
       }
 
       df.unpersist()
 
       val assembled = util.time("assembled") {
+        exploded.printSchema()
         exploded
           .groupBy($"index")
           .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN, $"tile", 256, 256, UShortConstantNoDataCellType))
@@ -63,9 +64,14 @@ class TileAssemblerSpec extends TestEnvironment with TestData {
 
       exploded.unpersist()
 
-      assembled.select($"index".as[Int], $"tile".as[Tile]).foreach(p ⇒ p._2.renderPng().write(s"target/${p._1}.png"))
+      //assembled.select($"index".as[Int], $"tile".as[Tile]).foreach(p ⇒ p._2.renderPng(ColorRamps.BlueToOrange).write(s"target/${p._1}.png"))
 
-      //assert(assembled.count() === rows)
+      assert(assembled.count() === df.count())
+
+      val expected = df.select(aggStats($"tile")).first()
+      val result = assembled.select(aggStats($"tile")).first()
+
+      assert(result === expected)
 
     }
   }

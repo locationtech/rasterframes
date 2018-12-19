@@ -144,8 +144,6 @@ package object functions {
     }
   }
 
-  private[rasterframes] def assembleTile(cols: Int, rows: Int, ct: CellType) = TileAssembler(cols, rows, ct)
-
   /** Computes the column aggregate histogram */
   private[rasterframes] val aggHistogram = HistogramAggregate()
 
