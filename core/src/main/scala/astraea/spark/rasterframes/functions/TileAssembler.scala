@@ -40,7 +40,7 @@ case class TileAssembler(
   colIndex: Expression,
   rowIndex: Expression,
   cellValue: Expression,
-  tileCols: Int, tileRows: Int,
+  maxTileCols: Int, maxTileRows: Int,
   cellType: CellType,
   mutableAggBufferOffset: Int = 0,
   inputAggBufferOffset: Int = 0
@@ -65,7 +65,7 @@ case class TileAssembler(
   override def dataType: DataType = TileType
 
   override def createAggregationBuffer(): ByteBuffer = {
-    val buff = ByteBuffer.allocateDirect(tileCols * tileRows * java.lang.Double.BYTES)
+    val buff = ByteBuffer.allocateDirect(maxTileCols * maxTileRows * java.lang.Double.BYTES)
     val dubs = buff.asDoubleBuffer()
     val length = dubs.capacity()
     cfor(0)(_ < length, _ + 1) { idx ⇒
@@ -76,10 +76,12 @@ case class TileAssembler(
 
   override def update(buffer: ByteBuffer, input: InternalRow): ByteBuffer = {
     val col = colIndex.eval(input).asInstanceOf[Int]
+    require(col < maxTileCols, s"`maxTileCols` is $maxTileCols, but received index value $col")
     val row = rowIndex.eval(input).asInstanceOf[Int]
+    require(row < maxTileRows, s"`maxTileRows` is $maxTileRows, but received index value $row")
     val cell = cellValue.eval(input).asInstanceOf[Double]
     val cells = buffer.asDoubleBuffer()
-    cells.put(row * tileCols + col, cell)
+    cells.put(row * maxTileCols + col, cell)
     buffer
   }
 
@@ -100,7 +102,7 @@ case class TileAssembler(
     val length = result.capacity()
     val cells =  Array.ofDim[Double](length)
     result.get(cells)
-    val tile = ArrayTile.apply(cells, tileCols, tileRows).convert(cellType)
+    val tile = ArrayTile.apply(cells, maxTileCols, maxTileRows).convert(cellType)
     TileType.serialize(tile)
   }
 
@@ -117,7 +119,7 @@ case class TileAssembler(
 
 object TileAssembler {
   import astraea.spark.rasterframes.encoders.StandardEncoders._
-  def apply(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType): TypedColumn[Any, Tile] =
-    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, cols, rows, ct).toAggregateExpression())
+  def apply(columnIndex: Column, rowIndex: Column, cellData: Column, maxTileCols: Int, maxTileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
+    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, maxTileCols, maxTileRows, ct).toAggregateExpression())
       .as(cellData.columnName).as[Tile]
 }
