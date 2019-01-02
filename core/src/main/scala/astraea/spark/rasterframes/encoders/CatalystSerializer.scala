@@ -27,10 +27,8 @@ import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, Tile}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.{Column, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.Literal
-import org.apache.spark.sql.expressions.MutableAggregationBuffer
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String

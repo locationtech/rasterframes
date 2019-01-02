@@ -23,7 +23,6 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.ref.RasterSource
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster._
-import geotrellis.raster.render.ColorRamps
 import org.apache.spark.sql.Dataset
 
 /**
@@ -55,10 +54,11 @@ class TileAssemblerSpec extends TestEnvironment with TestData {
       df.unpersist()
 
       val assembled = util.time("assembled") {
-        exploded.printSchema()
         exploded
           .groupBy($"index")
-          .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN, $"tile", 256, 256, UShortConstantNoDataCellType))
+          .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
+            $"tile", 256, 256,
+            UShortUserDefinedNoDataCellType(32767)))
           .forceCache
       }
 
@@ -71,7 +71,7 @@ class TileAssemblerSpec extends TestEnvironment with TestData {
       val expected = df.select(aggStats($"tile")).first()
       val result = assembled.select(aggStats($"tile")).first()
 
-      assert(result === expected)
+      assert(result.copy(noDataCells = expected.noDataCells) === expected)
 
     }
   }

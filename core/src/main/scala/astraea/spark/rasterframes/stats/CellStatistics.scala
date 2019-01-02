@@ -36,6 +36,14 @@ case class CellStatistics(dataCells: Long, noDataCells: Long, min: Double, max: 
     "variance: " + variance,
     "stddev: " + math.sqrt(variance)
   ).mkString("\n")
+
+  override def toString: String = {
+    val fields = Seq("dataCells", "noDataCells", "min", "max", "mean", "variance")
+    fields.iterator
+      .zip(productIterator)
+      .map(p ⇒ p._1 + "=" + p._2)
+      .mkString(productPrefix + "(", ",", ")")
+  }
 }
 object CellStatistics {
   // Convert GeoTrellis stats object into our simplified one.
