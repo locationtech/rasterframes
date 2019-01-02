@@ -213,6 +213,7 @@ object RasterSource extends LazyLogging {
 
   case class GDALRasterSource(source: URI, callback: Option[ReadCallback]) extends RasterSource with URIRasterSource {
     import geotrellis.contrib.vlm.gdal.{GDALRasterSource ⇒ VLMRasterSource}
+    import GDALRasterSource.MAX_SIZE
 
     @transient
     private lazy val gdal = {
@@ -236,16 +237,27 @@ object RasterSource extends LazyLogging {
 
     override def rows: Int = gdal.rows
 
-    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] =
+    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
+
+      callback.foreach { cb ⇒
+        val grid = rasterExtent.gridBoundsFor(extent, clamp = false)
+        cb.readRange(this, 0, grid.size.toInt * cellType.bytes * bandCount)
+      }
+
       if (bandCount == 1)
         Left(gdal.read(extent, Seq(0)).get.mapTile(_.band(0)))
       else
         Right(gdal.read(extent).get)
+    }
 
     override def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
       val grid = gdal.gridBounds
 
-      val tiled = grid.split(256, 256).toTraversable
+      callback.foreach { cb ⇒
+        cb.readRange(this, 0, grid.size.toInt * cellType.bytes * bandCount)
+      }
+
+      val tiled = grid.split(MAX_SIZE, MAX_SIZE).toTraversable
 
       if (bandCount == 1)
         Left(gdal.readBounds(tiled, Seq(0)).map(_.mapTile(_.band(0))).toSeq)
@@ -253,11 +265,13 @@ object RasterSource extends LazyLogging {
         Right(gdal.readBounds(tiled).toSeq)
     }
 
-    override def nativeLayout: Option[TileLayout] =
-      Some(TileLayout(1, 1, cols, rows))
+    override def nativeLayout: Option[TileLayout] = {
+      Some(TileLayout(cols / MAX_SIZE + 1, rows / MAX_SIZE + 1, math.min(cols, MAX_SIZE), math.min(rows, MAX_SIZE)))
+    }
   }
 
   object GDALRasterSource {
+    final val MAX_SIZE = 256
     def unapply(scheme: String): Boolean = scheme.startsWith("gdal+")
   }
 
