@@ -150,8 +150,8 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         assert(counter.reads === 0)
         assert(subRaster.tile.statistics.map(_.dataCells) === Some(subRaster.cols * subRaster.rows))
-        assert(counter.reads > 0)
         println(counter)
+        assert(counter.reads > 0)
       }
     }
 

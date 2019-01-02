@@ -134,8 +134,10 @@ object RasterSource extends LazyLogging {
 
   private def _logger = logger
 
+
   def apply(source: URI, callback: Option[ReadCallback] = None): RasterSource =
     source.getScheme match {
+      case GDALRasterSource() ⇒ GDALRasterSource(source, callback)
       case "http" | "https" ⇒ HttpGeoTiffRasterSource(source, callback)
       case "file" ⇒ FileGeoTiffRasterSource(source, callback)
       case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" ⇒
@@ -207,6 +209,56 @@ object RasterSource extends LazyLogging {
     def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
       Left(Raster(tile, extent).split(nativeLayout.get, Split.Options(false, false)).toSeq)
     }
+  }
+
+  case class GDALRasterSource(source: URI, callback: Option[ReadCallback]) extends RasterSource with URIRasterSource {
+    import geotrellis.contrib.vlm.gdal.{GDALRasterSource ⇒ VLMRasterSource}
+
+    @transient
+    private lazy val gdal = {
+      val cleaned = source.toASCIIString.replace("gdal+", "")
+      VLMRasterSource(cleaned)
+    }
+
+    override def crs: CRS = gdal.crs
+
+    override def extent: Extent = gdal.extent
+
+    // TODO: See if dates are available in gdal.
+    // Maybe useful: gdal.dataset.getMetadata_Dict
+    override def timestamp: Option[ZonedDateTime] = None
+
+    override def cellType: CellType = gdal.cellType
+
+    override def bandCount: Int = gdal.bandCount
+
+    override def cols: Int = gdal.cols
+
+    override def rows: Int = gdal.rows
+
+    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] =
+      if (bandCount == 1)
+        Left(gdal.read(extent, Seq(0)).get.mapTile(_.band(0)))
+      else
+        Right(gdal.read(extent).get)
+
+    override def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
+      val grid = gdal.gridBounds
+
+      val tiled = grid.split(256, 256).toTraversable
+
+      if (bandCount == 1)
+        Left(gdal.readBounds(tiled, Seq(0)).map(_.mapTile(_.band(0))).toSeq)
+      else
+        Right(gdal.readBounds(tiled).toSeq)
+    }
+
+    override def nativeLayout: Option[TileLayout] =
+      Some(TileLayout(1, 1, cols, rows))
+  }
+
+  object GDALRasterSource {
+    def unapply(scheme: String): Boolean = scheme.startsWith("gdal+")
   }
 
   trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport with LazyLogging {

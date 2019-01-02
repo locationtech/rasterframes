@@ -6,7 +6,7 @@ libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",
   "org.locationtech.geomesa" %% "geomesa-z3" % rfGeoMesaVersion.value,
   "org.locationtech.geomesa" %% "geomesa-spark-jts" % rfGeoMesaVersion.value exclude("jgridshift", "jgridshift"),
-
+  "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.7.4-local.1",
   spark("core").value % Provided,
   spark("mllib").value % Provided,
   spark("sql").value % Provided,
