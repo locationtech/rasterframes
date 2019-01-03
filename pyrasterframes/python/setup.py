@@ -105,7 +105,7 @@ with open('README.rst') as f:
     readme = f.read()
 
 #pyspark_ver = 'pyspark>=2.2.0,<2.3'
-pyspark_ver = 'pyspark>=2.3.0'
+pyspark_ver = 'pyspark==2.3.2'
 
 setup_args = dict(
     name='pyrasterframes',

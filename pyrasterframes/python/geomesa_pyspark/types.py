@@ -14,26 +14,19 @@ from pyspark.sql import Row
 from pyspark.sql.types import *
 from pyrasterframes.context import RFContext
 
-
-__all__ = ['GeometryUDT']
-
 class GeometryUDT(UserDefinedType):
-    """User-defined type (UDT).
-
-    .. note:: WARN: Internal use only.
-    """
-
     @classmethod
     def sqlType(self):
-        return StructField("wkb", BinaryType(), False)
+        #    return StructField("wkb", BinaryType(), False)
+        return StructType([StructField("wkb", BinaryType(), True)])
 
     @classmethod
     def module(cls):
-        return 'geomesa_pyspark'
+        return 'geomesa_pyspark.types'
 
     @classmethod
     def scalaUDT(cls):
-        return 'org.apache.spark.sql.jts.GeometryUDT'
+        return 'org.apache.spark.sql.jts.' + cls.__name__
 
     def serialize(self, obj):
         if (obj is None): return None
@@ -41,3 +34,35 @@ class GeometryUDT(UserDefinedType):
 
     def deserialize(self, datum):
         return RFContext._jvm_mirror().generateGeometry(datum[0])
+
+
+class PointUDT(GeometryUDT):
+    pass
+
+
+class LineStringUDT(GeometryUDT):
+    pass
+
+
+class PolygonUDT(GeometryUDT):
+    pass
+
+
+class MultiPointUDT(GeometryUDT):
+    pass
+
+
+class MultiLineStringUDT(GeometryUDT):
+    pass
+
+
+class MultiPolygonUDT(GeometryUDT):
+    pass
+
+
+class GeometryUDT(GeometryUDT):
+    pass
+
+
+class GeometryCollectionUDT(GeometryUDT):
+    pass

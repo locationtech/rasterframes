@@ -34,19 +34,19 @@ object ProjectPlugin extends AutoPlugin {
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
       "boundless-releases" at "https://repo.boundlessgeo.com/main/"
     ),
-    rfSparkVersion in ThisBuild := "2.3.1" ,
-    rfGeoTrellisVersion in ThisBuild := "2.0.0",
-//    rfSparkVersion in ThisBuild := "2.2.1" ,
-//    rfGeoTrellisVersion in ThisBuild := "1.2.1",
-    rfGeoMesaVersion in ThisBuild := "2.0.1",
+    // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
+    rfSparkVersion in ThisBuild := "2.3.2" ,
+    rfGeoTrellisVersion in ThisBuild := "2.1.0",
+    rfGeoMesaVersion in ThisBuild := "2.1.0",
 
     publishTo := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
     fork in Test := true,
-    javaOptions in Test := Seq("-Xmx2G"),
+    javaOptions in Test := Seq("-Xmx2G", "-Djava.library.path=/usr/local/lib"),
     parallelExecution in Test := false,
+    testOptions in Test += Tests.Argument("-oDF"),
     developers := List(
       Developer(
         id = "metasim",

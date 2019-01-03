@@ -51,7 +51,7 @@ class RasterFunctionsTest(unittest.TestCase):
         cls.rf = rf.withColumn('tile2', convertCellType(cls.tileCol, 'float32')) \
             .drop(cls.tileCol) \
             .withColumnRenamed('tile2', cls.tileCol).asRF()
-        cls.rf.show()
+        #cls.rf.show()
 
 
     def test_identify_columns(self):
@@ -114,9 +114,7 @@ class RasterFunctionsTest(unittest.TestCase):
             aggDataCells(self.tileCol),
             aggNoDataCells(self.tileCol),
             aggStats(self.tileCol),
-
-            # Not currently working:
-            # aggHistogram(self.tileCol),
+            aggHistogram(self.tileCol)
         )
         aggs.show()
         row = aggs.first()
