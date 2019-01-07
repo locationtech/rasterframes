@@ -55,7 +55,6 @@ object DOM {
 
   implicit val envelopeFormat: RootJsonFormat[Envelope] = new RootJsonFormat[Envelope] {
     override def read(json: JsValue): Envelope = json match {
-      // Per the STAC spect, bbox values are in the order [west, south, east, north]
       case JsArray(Vector(JsNumber(west), JsNumber(south), JsNumber(east), JsNumber(north))) ⇒
         new Envelope(west.toDouble, east.toDouble, south.toDouble, north.toDouble)
       case x => deserializationError("Expected Array as JsArray, but got " + x)
@@ -67,7 +66,6 @@ object DOM {
 
   implicit val extentFormat: RootJsonFormat[Extent] = new RootJsonFormat[Extent] {
     override def read(json: JsValue): Extent = json match {
-      // Per the STAC spect, bbox values are in the order [west, south, east, north]
       case JsArray(Vector(JsNumber(west), JsNumber(south), JsNumber(east), JsNumber(north))) ⇒
         Extent(west.toDouble, south.toDouble, east.toDouble, north.toDouble)
       case x => deserializationError("Expected Array as JsArray, but got " + x)

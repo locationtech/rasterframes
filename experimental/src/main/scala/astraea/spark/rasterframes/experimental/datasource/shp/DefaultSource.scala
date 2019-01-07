@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea. Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,39 +15,34 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ * SPDX-License-Identifier: Apache-2.0
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource.geojson
-
+package astraea.spark.rasterframes.experimental.datasource.shp
+import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
-import org.locationtech.geomesa.spark.jts._
-import org.apache.spark.annotation.Experimental
 
 /**
- * Basic support for parsing GeoJson into a DataFrame with a geometry/spatial column.
- * Properties as rendered as a `Map[String,String]`
  *
- * @since 5/2/18
+ *
+ * @since 2019-01-05
  */
 @Experimental
 class DefaultSource extends DataSourceRegister with RelationProvider {
   import DefaultSource._
   override def shortName(): String = SHORT_NAME
-
-  override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val path = parameters.getOrElse(PATH_PARAM,
-      throw new IllegalArgumentException("Valid URI 'path' parameter required.")
-    )
-    sqlContext.withJTS
-    val infer = parameters.get(INFER_SCHEMA).forall(_.toBoolean)
-    GeoJsonRelation(sqlContext, path, infer)
+  override def createRelation(
+    sqlContext: SQLContext,
+    parameters: Map[String, String]): BaseRelation = {
+    val path = parameters.getOrElse(
+      PATH_PARAM,
+      throw new IllegalArgumentException("Valid URI 'path' parameter required."))
+    ShapeFileRelation(sqlContext, path)
   }
 }
-
 object DefaultSource {
-  final val SHORT_NAME = "geojson"
+  final val SHORT_NAME = "shp"
   final val PATH_PARAM = "path"
-  final val INFER_SCHEMA = "inferSchema"
 }
