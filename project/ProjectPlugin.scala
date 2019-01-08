@@ -28,6 +28,7 @@ object ProjectPlugin extends AutoPlugin {
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion := "2.11.12",
     scalacOptions ++= Seq("-feature", "-deprecation"),
+    scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     cancelable in Global := true,
     resolvers ++= Seq(
