@@ -28,10 +28,8 @@ import org.apache.spark.sql.jts.AbstractGeometryUDT
  * @since 2019-01-05
  */
 class ShapeFileDataSourceTest extends TestEnvironment {
-
-
   describe("ShapeFile DataSource") {
-    it("should read simple features") {
+    it("should read simple features from shapefile and sidecars") {
       val src = getClass.getResource("/louisaforest.shp").toExternalForm
 
       val df = spark.read.format("shp").load(src)
@@ -44,5 +42,20 @@ class ShapeFileDataSourceTest extends TestEnvironment {
       assert(df.count() === 1721)
       assert(df.select("cover_type").distinct().count() === 1)
     }
+
+    it("should read simple features from shapefile archive") {
+      val src = getClass.getResource("/louisaforest.zip").toExternalForm
+
+      val df = spark.read.format("shp").load(src)
+
+      assert(df.columns.length === 4)
+      assert(df.schema.exists(_.dataType.isInstanceOf[AbstractGeometryUDT[_]]))
+
+      //df.show(false)
+
+      assert(df.count() === 1721)
+      assert(df.select("cover_type").distinct().count() === 1)
+    }
+
   }
 }

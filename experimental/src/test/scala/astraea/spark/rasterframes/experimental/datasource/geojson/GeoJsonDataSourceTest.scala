@@ -35,7 +35,7 @@ class GeoJsonDataSourceTest extends TestEnvironment {
   describe("GeoJson spark reader") {
     it("should read geometry without inference") {
       val results = spark.read
-        .option(DefaultSource.INFER_SCHEMA, false)
+        .option(GeoJsonDataSource.INFER_SCHEMA, false)
         .format("geojson")
         .load(examplePath)
       assert(results.columns.length === 2)
@@ -45,7 +45,7 @@ class GeoJsonDataSourceTest extends TestEnvironment {
 
     it("should read geometry") {
       val results = spark.read
-        .option(DefaultSource.INFER_SCHEMA, true)
+        .option(GeoJsonDataSource.INFER_SCHEMA, true)
         .format("geojson")
         .load(examplePath)
       results.printSchema()
