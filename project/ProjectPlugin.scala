@@ -32,7 +32,8 @@ object ProjectPlugin extends AutoPlugin {
     cancelable in Global := true,
     resolvers ++= Seq(
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
-      "boundless-releases" at "https://repo.boundlessgeo.com/main/"
+      "boundless-releases" at "https://repo.boundlessgeo.com/main/",
+      "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
     ),
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion in ThisBuild := "2.3.2" ,

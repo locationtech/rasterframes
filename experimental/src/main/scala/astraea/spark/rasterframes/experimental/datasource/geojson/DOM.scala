@@ -32,12 +32,58 @@ import spray.json.DefaultJsonProtocol._
  * @since 7/17/18
  */
 object DOM {
-  case class GeoJsonFeatureSet(features: Seq[GeoJsonFeature])
-  object GeoJsonFeatureSet {
-    implicit val domFormat: RootJsonFormat[GeoJsonFeatureSet] =  jsonFormat1(GeoJsonFeatureSet.apply)
+
+  implicit val envelopeFormat: RootJsonFormat[Envelope] = new RootJsonFormat[Envelope] {
+    override def read(json: JsValue): Envelope = json match {
+      case JsArray(Vector(JsNumber(west), JsNumber(south), JsNumber(east), JsNumber(north))) =>
+        new Envelope(west.toDouble, east.toDouble, south.toDouble, north.toDouble)
+      case JsArray(
+          Vector(JsNumber(west), JsNumber(south), _, JsNumber(east), JsNumber(north), _)) =>
+        new Envelope(west.toDouble, east.toDouble, south.toDouble, north.toDouble)
+      case x => deserializationError("Expected Array as JsArray, but got " + x)
+    }
+
+    override def write(obj: Envelope): JsValue =
+      JsArray(
+        Vector(
+          JsNumber(obj.getMinX),
+          JsNumber(obj.getMinY),
+          JsNumber(obj.getMaxX),
+          JsNumber(obj.getMaxY)
+        )
+      )
   }
 
-  case class GeoJsonFeature(geometry: Geometry, bbox: Option[Extent], properties: Map[String, JsValue])
+  implicit val extentFormat: RootJsonFormat[Extent] = new RootJsonFormat[Extent] {
+    override def read(json: JsValue): Extent = json match {
+      case JsArray(Vector(JsNumber(west), JsNumber(south), JsNumber(east), JsNumber(north))) =>
+        Extent(west.toDouble, south.toDouble, east.toDouble, north.toDouble)
+      case JsArray(
+          Vector(JsNumber(west), JsNumber(south), _, JsNumber(east), JsNumber(north), _)) =>
+        Extent(west.toDouble, south.toDouble, east.toDouble, north.toDouble)
+      case x => deserializationError("Expected Array as JsArray, but got " + x)
+    }
+
+    override def write(obj: Extent): JsValue =
+      JsArray(
+        Vector(
+          JsNumber(obj.xmin),
+          JsNumber(obj.ymin),
+          JsNumber(obj.xmax),
+          JsNumber(obj.ymax)
+        )
+      )
+  }
+
+  case class GeoJsonFeatureSet(features: Seq[GeoJsonFeature])
+  object GeoJsonFeatureSet {
+    implicit val domFormat: RootJsonFormat[GeoJsonFeatureSet] = jsonFormat1(GeoJsonFeatureSet.apply)
+  }
+
+  case class GeoJsonFeature(
+    geometry: Geometry,
+    bbox: Option[Extent],
+    properties: Map[String, JsValue])
   object GeoJsonFeature {
     implicit val featureFormat: RootJsonFormat[GeoJsonFeature] = jsonFormat3(GeoJsonFeature.apply)
   }
@@ -53,27 +99,4 @@ object DOM {
     }
   }
 
-  implicit val envelopeFormat: RootJsonFormat[Envelope] = new RootJsonFormat[Envelope] {
-    override def read(json: JsValue): Envelope = json match {
-      // Per the STAC spect, bbox values are in the order [west, south, east, north]
-      case JsArray(Vector(JsNumber(west), JsNumber(south), JsNumber(east), JsNumber(north))) ⇒
-        new Envelope(west.toDouble, east.toDouble, south.toDouble, north.toDouble)
-      case x => deserializationError("Expected Array as JsArray, but got " + x)
-    }
-
-    override def write(obj: Envelope): JsValue = JsArray(Vector(
-      JsNumber(obj.getMinX), JsNumber(obj.getMinY), JsNumber(obj.getMaxX), JsNumber(obj.getMaxY)))
-  }
-
-  implicit val extentFormat: RootJsonFormat[Extent] = new RootJsonFormat[Extent] {
-    override def read(json: JsValue): Extent = json match {
-      // Per the STAC spect, bbox values are in the order [west, south, east, north]
-      case JsArray(Vector(JsNumber(west), JsNumber(south), JsNumber(east), JsNumber(north))) ⇒
-        Extent(west.toDouble, south.toDouble, east.toDouble, north.toDouble)
-      case x => deserializationError("Expected Array as JsArray, but got " + x)
-    }
-
-    override def write(obj: Extent): JsValue = JsArray(Vector(
-      JsNumber(obj.xmin), JsNumber(obj.ymin), JsNumber(obj.xmax), JsNumber(obj.ymax)))
-  }
 }
