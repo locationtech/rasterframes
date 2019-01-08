@@ -53,5 +53,15 @@ class GeoJsonDataSourceTest extends TestEnvironment {
       assert(results.schema.fields(1).dataType == LongType)
       assert(results.count() === 3)
     }
+
+    it("should handle file with 3D bbox") {
+      val results = spark.read
+        .geojson
+        .option(GeoJsonDataSource.INFER_SCHEMA, true)
+        .load(example2)
+
+      results.show()
+    }
   }
+
 }
