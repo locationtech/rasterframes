@@ -30,26 +30,25 @@ import org.apache.spark.sql.types.{LongType, MapType}
  */
 class GeoJsonDataSourceTest extends TestEnvironment {
 
-  val examplePath = getClass.getResource("/example.geojson").toURI.toASCIIString
+  val example1 = getClass.getResource("/example.geojson").toURI.toASCIIString
+  val example2 = getClass.getResource("/buildings.geojson").toURI.toASCIIString
 
   describe("GeoJson spark reader") {
     it("should read geometry without inference") {
       val results = spark.read
+        .geojson
         .option(GeoJsonDataSource.INFER_SCHEMA, false)
-        .format("geojson")
-        .load(examplePath)
+        .load(example1)
       assert(results.columns.length === 2)
       assert(results.schema.fields(1).dataType.isInstanceOf[MapType])
       assert(results.count() === 3)
     }
 
-    it("should read geometry") {
+    it("should read geometry with inference") {
       val results = spark.read
+        .geojson
         .option(GeoJsonDataSource.INFER_SCHEMA, true)
-        .format("geojson")
-        .load(examplePath)
-      results.printSchema()
-      results.show(false)
+        .load(example1)
       assert(results.columns.length === 4)
       assert(results.schema.fields(1).dataType == LongType)
       assert(results.count() === 3)

@@ -32,7 +32,7 @@ class ShapeFileDataSourceTest extends TestEnvironment {
     it("should read simple features from shapefile and sidecars") {
       val src = getClass.getResource("/louisaforest.shp").toExternalForm
 
-      val df = spark.read.format("shp").load(src)
+      val df = spark.read.shapefile.load(src)
 
       assert(df.columns.length === 4)
       assert(df.schema.exists(_.dataType.isInstanceOf[AbstractGeometryUDT[_]]))
@@ -46,7 +46,7 @@ class ShapeFileDataSourceTest extends TestEnvironment {
     it("should read simple features from shapefile archive") {
       val src = getClass.getResource("/louisaforest.zip").toExternalForm
 
-      val df = spark.read.format("shp").load(src)
+      val df = spark.read.shapefile.load(src)
 
       assert(df.columns.length === 4)
       assert(df.schema.exists(_.dataType.isInstanceOf[AbstractGeometryUDT[_]]))
