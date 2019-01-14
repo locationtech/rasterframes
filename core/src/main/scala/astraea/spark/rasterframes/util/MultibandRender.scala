@@ -34,23 +34,23 @@ import scala.util.Try
  */
 object MultibandRender {
   object CellTransforms {
-    def clamp(min: Int, max: Int)(z: Int) = {
+    def clamp(min: Int, max: Int): Int => Int = (z: Int) => {
       if(isData(z)) { if(z > max) { max } else if(z < min) { min } else { z } }
       else { z }
     }
 
-    val clampByte = clamp(0, 255) _
+    val clampByte: Int => Int = clamp(0, 255)
 
-    def brightnessCorrect(brightness: Int)(v: Int): Int =
+    def brightnessCorrect(brightness: Int) = (v: Int) =>
       if(v > 0) { v + brightness }
       else { v }
 
-    def contrastCorrect(contrast: Int)(v: Int): Int = {
+    def contrastCorrect(contrast: Int) = (v: Int) => {
       val contrastFactor = (259 * (contrast + 255)) / (255 * (259 - contrast))
       (contrastFactor * (v - 128)) + 128
     }
 
-    def gammaCorrect(gamma: Double)(v: Int): Int = {
+    def gammaCorrect(gamma: Double) = (v: Int) => {
       val gammaCorrection = 1 / gamma
       (255 * math.pow(v / 255.0, gammaCorrection)).toInt
     }
@@ -90,13 +90,13 @@ object MultibandRender {
 
     /** Apply color correction so it "looks nice". */
     def colorAdjust(tile: Tile): Tile = {
-      val pipeline =
-        brightnessCorrect(brightness) _ andThen
-        clampByte andThen
-        gammaCorrect(gamma) andThen
-        clampByte andThen
-        contrastCorrect(contrast) andThen
-        clampByte
+      // The original rendering below causes primitive boxing.
+      val pipeline: Int => Int = (c: Int) =>
+        clampByte(contrastCorrect(contrast)(
+          clampByte(gammaCorrect(gamma)(
+            clampByte(brightnessCorrect(brightness)(c))
+          ))
+        ))
 
       normalizeCellType(tile).map(pipeline)
     }
@@ -123,7 +123,7 @@ object MultibandRender {
     val (clampMin, clampMax) = (4000, 15176)
 
     override def compressRange(tile: Tile): Tile = {
-      val clamper = clamp(clampMin, clampMax) _
+      val clamper = clamp(clampMin, clampMax)
       tile.map(clamper).normalize(clampMin, clampMax, 0, 255)
     }
   }
