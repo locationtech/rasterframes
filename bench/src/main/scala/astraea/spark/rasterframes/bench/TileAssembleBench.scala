@@ -35,10 +35,10 @@ class TileAssembleBench extends SparkEnv {
 
   val cellType = ByteConstantNoDataCellType
 
-  @Param(Array("256"))
+  @Param(Array("256", "512"))
   var tileSize: Int = _
 
-  @Param(Array("1000"))
+  @Param(Array("100"))
   var numTiles: Int = _
 
   var cells1: DataFrame = _

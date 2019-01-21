@@ -19,10 +19,10 @@
 
 package astraea.spark.rasterframes.functions
 
-import java.nio.ByteBuffer
+import java.nio.{ByteBuffer, DoubleBuffer}
 
 import astraea.spark.rasterframes.util._
-import geotrellis.raster.{DataType ⇒ _, _}
+import geotrellis.raster.{DataType => _, _}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.aggregate.{ImperativeAggregate, TypedImperativeAggregate}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes}
@@ -42,6 +42,7 @@ case class TileAssembler(
   cellValue: Expression,
   maxTileCols: Int, maxTileRows: Int,
   cellType: CellType,
+  cropEdges: Boolean = true,
   mutableAggBufferOffset: Int = 0,
   inputAggBufferOffset: Int = 0
 ) extends TypedImperativeAggregate[ByteBuffer] with ImplicitCastInputTypes {
@@ -96,14 +97,38 @@ case class TileAssembler(
     buffer
   }
 
+  private def maxIndexes(result: DoubleBuffer): (Int, Int) = {
+    var rMax = 0
+    var cMax = 0
+    cfor(0)(_ < maxTileRows, _ + 1) { row =>
+      cfor(0)(_ < maxTileCols, _ + 1) { col =>
+        val cell = result.get(row * maxTileCols + col)
+        if (isData(cell)) {
+          rMax = math.max(rMax, row)
+          cMax = math.max(cMax, col)
+        }
+      }
+    }
+    (cMax, rMax)
+  }
+
   override def eval(buffer: ByteBuffer): InternalRow = {
     // TODO: figure out how to eliminate copies here.
     val result = buffer.asDoubleBuffer()
+
+
     val length = result.capacity()
     val cells =  Array.ofDim[Double](length)
     result.get(cells)
-    val tile = ArrayTile.apply(cells, maxTileCols, maxTileRows).convert(cellType)
-    TileType.serialize(tile)
+    val tile = ArrayTile(cells, maxTileCols, maxTileRows).convert(cellType)
+
+    val cropped = if (cropEdges) {
+      val (cMax, rMax) = maxIndexes(result)
+      tile.crop(cMax + 1, rMax + 1)
+    }
+    else tile
+
+    TileType.serialize(cropped)
   }
 
   override def serialize(buffer: ByteBuffer): Array[Byte] = {
@@ -120,6 +145,10 @@ case class TileAssembler(
 object TileAssembler {
   import astraea.spark.rasterframes.encoders.StandardEncoders._
   def apply(columnIndex: Column, rowIndex: Column, cellData: Column, maxTileCols: Int, maxTileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
-    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, maxTileCols, maxTileRows, ct).toAggregateExpression())
-      .as(cellData.columnName).as[Tile]
+    new Column(
+      new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, maxTileCols, maxTileRows, ct)
+        .toAggregateExpression()
+    )
+      .as(cellData.columnName)
+      .as[Tile]
 }

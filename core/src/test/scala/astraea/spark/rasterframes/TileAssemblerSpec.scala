@@ -21,28 +21,28 @@
 
 package astraea.spark.rasterframes
 import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.ref.RasterSource.InMemoryRasterSource
 import com.typesafe.scalalogging.LazyLogging
+import geotrellis.proj4.LatLng
 import geotrellis.raster._
-import org.apache.spark.sql.Dataset
+import geotrellis.raster.render.ColorRamps
+import geotrellis.vector.Extent
+import org.apache.spark.sql._
+import org.apache.spark.sql.{functions => F}
 
 /**
  *
  *
  * @since 2018-12-18
  */
-class TileAssemblerSpec extends TestEnvironment with TestData {
+class TileAssemblerSpec extends TestEnvironment {
   import TileAssemblerSpec._
   describe("TileAssembler") {
     import sqlContext.implicits._
 
     it("should reassemble a realistic scene") {
       val df = util.time("read scene") {
-        RasterSource(remoteMODIS).readAll().left.get
-          .zipWithIndex
-          .map { case (r, i) ⇒ (i, r.tile, r.extent) }
-          .toDF("index", "tile", "extent")
-          .repartition($"index")
-          .forceCache
+        RasterSource(TestData.remoteMODIS).toDF
       }
 
       val exploded = util.time("exploded") {
@@ -74,6 +74,27 @@ class TileAssemblerSpec extends TestEnvironment with TestData {
       assert(result.copy(noDataCells = expected.noDataCells) === expected)
 
     }
+
+    it("should crop edge tiles properly") {
+
+      val rs = InMemoryRasterSource(TestData.randomTile(260, 257, ByteConstantNoDataCellType), Extent(10, 20, 30, 40), LatLng)
+      val df = rs.toDF
+      val exploded = df.select($"index", $"extent", explodeTiles($"tile"))
+
+      val assembled = exploded
+        .groupBy($"index", $"extent")
+        .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
+          $"tile", 256, 256, rs.cellType))
+
+      assert(
+        df.join(assembled,"index")
+          .select((df("tile") === assembled("tile")) as "eq")
+          .agg(F.max("eq")).as[Boolean]
+          .first
+      )
+
+
+    }
   }
 }
 
@@ -85,6 +106,18 @@ object TileAssemblerSpec extends  LazyLogging {
       val cnt = cached.count()
       logger.info(s"Caching Dataset ${ds.rdd.id} with size $cnt.")
       cached
+    }
+  }
+
+  implicit class WithToDF(val rs: RasterSource) {
+    def toDF(implicit spark: SparkSession): DataFrame = {
+      import spark.implicits._
+      rs.readAll().left.get
+        .zipWithIndex
+        .map { case (r, i) ⇒ (i, r.extent, r.tile) }
+        .toDF("index", "extent", "tile")
+        .repartition($"index")
+        .forceCache
     }
   }
 }

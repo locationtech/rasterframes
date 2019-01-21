@@ -31,7 +31,8 @@ import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster.{ArrayMultibandTile, CellSize, CellType, GridExtent, MultibandTile, MutableArrayTile, Raster, RasterExtent, Tile, TileLayout}
+import geotrellis.raster._
+import geotrellis.raster.split.Split
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
@@ -107,6 +108,8 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
 object RasterSource extends LazyLogging {
 
+  final val NOMINAL_TILE_SIZE: Int = 256
+
   private def _logger = logger
 
   def apply(source: URI, callback: Option[ReadCallback] = None): RasterSource =
@@ -169,10 +172,17 @@ object RasterSource extends LazyLogging {
       Raster(tile.crop(rasterExtent.gridBoundsFor(extent, false)), extent)
     )
 
-    override def nativeLayout: Option[TileLayout] = Some(TileLayout(1, 1, cols, rows))
+    override def nativeLayout: Option[TileLayout] = Some(
+      TileLayout(
+        layoutCols = math.ceil(this.cols.toDouble / NOMINAL_TILE_SIZE).toInt,
+        layoutRows = math.ceil(this.rows.toDouble / NOMINAL_TILE_SIZE).toInt,
+        tileCols = NOMINAL_TILE_SIZE,
+        tileRows = NOMINAL_TILE_SIZE)
+    )
 
-    def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] =
-      Left(Seq(Raster(tile, extent)))
+    def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
+      Left(Raster(tile, extent).split(nativeLayout.get, Split.Options(false, false)).toSeq)
+    }
   }
 
   trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport with LazyLogging {
@@ -245,7 +255,7 @@ object RasterSource extends LazyLogging {
       val info = realInfo
 
       // Thanks to @pomadchin for showing us how to do this :-)
-      val windows = info.segmentLayout.listWindows(256)
+      val windows = info.segmentLayout.listWindows(NOMINAL_TILE_SIZE)
       val re = info.rasterExtent
 
       if (info.bandCount == 1) {
