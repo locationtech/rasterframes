@@ -70,9 +70,12 @@ trait RasterFunctions {
   )
 
   /** Create a Tile from  a column of cell data with location indexes. */
-  @Experimental
   def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType): TypedColumn[Any, Tile] =
     F.TileAssembler(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType)
+
+  /** Create a Tile from  a column of cell data with location indexes, assuming tile sized defined by NOMINAL_TILE_SIZE. */
+  def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, ct: CellType): TypedColumn[Any, Tile] =
+    F.TileAssembler(columnIndex: Column, rowIndex: Column, cellData: Column, ct: CellType)
 
   /** Extract the Tile's cell type */
   def cellType(col: Column): TypedColumn[Any, CellType] = E.GetCellType(col)

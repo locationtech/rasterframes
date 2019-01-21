@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
+import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
@@ -108,7 +109,6 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
 object RasterSource extends LazyLogging {
 
-  final val NOMINAL_TILE_SIZE: Int = 256
 
   private def _logger = logger
 

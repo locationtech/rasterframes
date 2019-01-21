@@ -17,6 +17,7 @@
 package astraea.spark
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
+import com.typesafe.config.{Config, ConfigFactory}
 import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
@@ -39,6 +40,9 @@ package object rasterframes extends StandardColumns
   with rasterframes.jts.Implicits
   with StandardEncoders
   with DataFrameFunctions.Library {
+
+  /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
+  final val NOMINAL_TILE_SIZE: Int = ConfigFactory.load().getInt("rasterframes.nominal-tile-size")
 
   /**
    * Initialization injection point. Must be called before any RasterFrame

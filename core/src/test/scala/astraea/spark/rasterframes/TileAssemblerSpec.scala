@@ -40,6 +40,27 @@ class TileAssemblerSpec extends TestEnvironment {
   describe("TileAssembler") {
     import sqlContext.implicits._
 
+    it("should reassemble a small scene") {
+      val raster = TestData.l8Sample(8).projectedRaster
+      val rf = raster.toRF(16, 16)
+      val ct = rf.tileLayerMetadata.merge.cellType
+      val (tileCols, tileRows) = rf.tileLayerMetadata.merge.tileLayout.tileDimensions
+
+      val exploded = rf.select($"spatial_key", explodeTiles($"tile"))
+
+      val assembled = exploded
+        .groupBy($"spatial_key")
+        .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN, $"tile", tileCols, tileRows, ct))
+
+
+      assert(
+        rf.join(assembled, "spatial_key")
+          .select(rf("tile") === assembled("tile")).as[Boolean]
+          .collect()
+          .forall(identity)
+      )
+    }
+
     it("should reassemble a realistic scene") {
       val df = util.time("read scene") {
         RasterSource(TestData.remoteMODIS).toDF
@@ -64,7 +85,7 @@ class TileAssemblerSpec extends TestEnvironment {
 
       exploded.unpersist()
 
-      //assembled.select($"index".as[Int], $"tile".as[Tile]).foreach(p ⇒ p._2.renderPng(ColorRamps.BlueToOrange).write(s"target/${p._1}.png"))
+      assembled.select($"index".as[Int], $"tile".as[Tile]).foreach(p ⇒ p._2.renderPng(ColorRamps.BlueToOrange).write(s"target/${p._1}.png"))
 
       assert(assembled.count() === df.count())
 
@@ -84,7 +105,7 @@ class TileAssemblerSpec extends TestEnvironment {
       val assembled = exploded
         .groupBy($"index", $"extent")
         .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
-          $"tile", 256, 256, rs.cellType))
+          $"tile", rs.cellType))
 
       assert(
         df.join(assembled,"index")
