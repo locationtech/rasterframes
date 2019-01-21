@@ -4,8 +4,7 @@ libraryDependencies ++= Seq(
   geotrellis("s3").value,
   spark("core").value % Provided,
   spark("mllib").value % Provided,
-  spark("sql").value % Provided,
-  "org.geotools" % "gt-shapefile" % "19.4"
+  spark("sql").value % Provided
 )
 
 fork in IntegrationTest := true
