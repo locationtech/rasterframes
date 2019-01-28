@@ -98,7 +98,7 @@ object MultibandRender {
           ))
         ))
 
-      normalizeCellType(tile).map(pipeline)
+      normalizeCellType(tile).mapIfSet(pipeline)
     }
 
     val applyAdjustment: Tile ⇒ Tile =
@@ -124,7 +124,7 @@ object MultibandRender {
 
     override def compressRange(tile: Tile): Tile = {
       val clamper = clamp(clampMin, clampMax)
-      tile.map(clamper).normalize(clampMin, clampMax, 0, 255)
+      tile.mapIfSet(clamper).normalize(clampMin, clampMax, 0, 255)
     }
   }
 
