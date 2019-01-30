@@ -5,9 +5,11 @@ import java.sql.Timestamp
 import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{SpatialKey, TemporalKey}
 import org.apache.spark.sql.functions.col
-import com.vividsolutions.jts.geom.{Point ⇒ jtsPoint, Polygon ⇒ jtsPolygon}
+import com.vividsolutions.jts.geom.{Point => jtsPoint, Polygon => jtsPolygon}
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
 import astraea.spark.rasterframes.encoders.StandardEncoders
+import geotrellis.proj4.CRS
+import geotrellis.vector.Extent
 
 /**
  * Constants identifying column in most RasterFrames.
@@ -24,6 +26,7 @@ trait StandardColumns extends StandardEncoders {
   /** Default RasterFrame timestamp column name */
   val TIMESTAMP_COLUMN = col("timestamp").as[Timestamp]
 
+
   /** Default RasterFrame column name for an tile bounds value. */
   // This is a `def` because `PolygonUDT` needs to be initialized first.
   def BOUNDS_COLUMN = col("bounds").as[jtsPolygon]
@@ -31,6 +34,12 @@ trait StandardColumns extends StandardEncoders {
   /** Default RasterFrame column name for the center coordinates of the tile's bounds. */
   // This is a `def` because `PointUDT` needs to be initialized first.
   def CENTER_COLUMN = col("center").as[jtsPoint]
+
+  /** Default Extent column name. */
+  def EXTENT_COLUMN = col("extent").as[Extent]
+
+  /** Default CRS column name. */
+  def CRS_COLUMN = col("crs").as[CRS]
 
   /** Default RasterFrame column name for an added spatial index. */
   val SPATIAL_INDEX_COLUMN = col("spatial_index").as[Long]

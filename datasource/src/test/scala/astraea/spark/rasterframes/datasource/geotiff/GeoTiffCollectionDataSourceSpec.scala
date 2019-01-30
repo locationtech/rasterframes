@@ -40,6 +40,8 @@ class GeoTiffCollectionDataSourceSpec
       }).length
 
       assert(df.select("path").distinct().count() === expected)
+
+      df.show(false)
     }
   }
 }

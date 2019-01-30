@@ -24,9 +24,11 @@ import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotiff.GeoTiffCollectionRelation.Cols
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.util._
+import geotrellis.proj4.CRS
 import geotrellis.spark.io.hadoop.HadoopGeoTiffRDD
-import geotrellis.vector.ProjectedExtent
+import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.jts.JTSTypes
@@ -44,8 +46,8 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
 
   override def schema: StructType = StructType(Seq(
     StructField(Cols.PATH, StringType, false),
-    StructField(Cols.CRS, StringType, false),
-    StructField(Cols.EX, JTSTypes.PolygonTypeInstance, nullable = true)
+    StructField(EXTENT_COLUMN.columnName, CatalystSerializer[Extent].schema, nullable = true),
+    StructField(CRS_COLUMN.columnName, CatalystSerializer[CRS].schema, false)
 //    StructField(METADATA_COLUMN.columnName,
 //      DataTypes.createMapType(StringType, StringType, false)
 //    )
@@ -61,12 +63,14 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
 
     val columnIndexes = requiredColumns.map(schema.fieldIndex)
 
+
+
     HadoopGeoTiffRDD.multiband(new Path(uri.toASCIIString), keyer, HadoopGeoTiffRDD.Options.DEFAULT)
-      .map { case ((path, extent), mbt) ⇒
+      .map { case ((path, pe), mbt) ⇒
         val entries = columnIndexes.map {
           case 0 ⇒ path
-          case 1 ⇒ extent.crs.toProj4String
-          case 2 ⇒ extent.extent.jtsGeom
+          case 1 ⇒ CatalystSerializer[Extent].toRow(pe.extent)
+          case 2 ⇒ CatalystSerializer[CRS].toRow(pe.crs)
           case i if i > 2 ⇒ {
             if(bandCount == 1 && mbt.bandCount > 2) mbt.color()
             else mbt.band(i - 3)
