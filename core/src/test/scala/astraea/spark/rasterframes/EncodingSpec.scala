@@ -22,7 +22,7 @@ package astraea.spark.rasterframes
 import java.io.File
 import java.net.URI
 
-import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
@@ -40,7 +40,7 @@ class EncodingSpec extends TestEnvironment with TestData {
 
   import sqlContext.implicits._
 
-  describe("Dataframe encoding ops on GeoTrellis types") {
+  describe("Spark encoding on standard types") {
 
     it("should code RDD[(Int, Tile)]") {
       val ds = Seq((1, byteArrayTile: Tile), (2, null)).toDS
@@ -110,9 +110,13 @@ class EncodingSpec extends TestEnvironment with TestData {
     }
 
     it("should code RDD[CRS]") {
-      val ds = Seq[CRS](LatLng, WebMercator, ConusAlbers, Sinusoidal).toDS()
+      val values = Seq[CRS](LatLng, WebMercator, ConusAlbers, Sinusoidal)
+      val ds = values.toDS()
       write(ds)
-      assert(ds.toDF.as[CRS].first === LatLng)
+
+      val results = ds.toDF.as[CRS].collect()
+
+      results should contain allElementsOf (values)
     }
 
     it("should code RDD[URI]") {
@@ -127,6 +131,17 @@ class EncodingSpec extends TestEnvironment with TestData {
       write(ds)
       assert(ds.first === env)
     }
+  }
+
+  describe("Specialized serialization on specific types") {
+    it("should serialize CRS") {
+      val ser = CatalystSerializer[CRS]
+      ser.fromRow(ser.toRow(LatLng)) should be(LatLng)
+
+      ser.fromRow(ser.toRow(Sinusoidal)) should be(Sinusoidal)
+
+    }
+
   }
 }
 

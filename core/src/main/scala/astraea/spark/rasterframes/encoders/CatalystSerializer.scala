@@ -23,6 +23,7 @@ package astraea.spark.rasterframes.encoders
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
+import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, Tile}
@@ -162,10 +163,12 @@ object CatalystSerializer {
       StructField("crsProj4", StringType, false)
     ))
     override def to[R](t: CRS, io: CatalystIO[R]): R = io.create(
-      io.encode(t.toProj4String)
+      io.encode(
+        t.epsgCode.map(c => "EPSG:" + c).getOrElse(t.toProj4String)
+      )
     )
     override def from[R](row: R, io: CatalystIO[R]): CRS =
-      CRS.fromString(io.getString(row, 0))
+      CRSParser(io.getString(row, 0))
   }
 
   implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
