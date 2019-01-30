@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes.functions
 
 import java.nio.{ByteBuffer, DoubleBuffer}
-
+import astraea.spark.rasterframes.encoders._
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
 import astraea.spark.rasterframes.functions.TileAssembler.TileBuffer
@@ -29,7 +29,7 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.aggregate.{
   ImperativeAggregate, TypedImperativeAggregate
 }
-import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes, Literal}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -44,16 +44,15 @@ case class TileAssembler(
   colIndex: Expression,
   rowIndex: Expression,
   cellValue: Expression,
-  maxTileCols: Short,
-  maxTileRows: Short,
-  cellType: CellType,
+  tileCols: Expression,
+  tileRows: Expression,
   mutableAggBufferOffset: Int = 0,
   inputAggBufferOffset: Int = 0)
     extends TypedImperativeAggregate[TileBuffer] with ImplicitCastInputTypes {
 
-  override def children: Seq[Expression] = Seq(colIndex, rowIndex, cellValue)
+  override def children: Seq[Expression] = Seq(colIndex, rowIndex, cellValue, tileCols, tileRows)
 
-  override def inputTypes = Seq(IntegerType, IntegerType, DoubleType)
+  override def inputTypes = Seq(ShortType, ShortType, DoubleType, ShortType, ShortType)
 
   private val TileType = new TileUDT()
 
@@ -69,36 +68,47 @@ case class TileAssembler(
 
   override def dataType: DataType = TileType
 
-  override def createAggregationBuffer(): TileBuffer = new TileBuffer(maxTileCols, maxTileRows)
+  override def createAggregationBuffer(): TileBuffer = new TileBuffer(Array.empty)
 
   @inline
-  private def toIndex(col: Int, row: Int) = row * maxTileCols + col
+  private def toIndex(col: Int, row: Int, tileCols: Short): Int = row * tileCols + col
 
-  override def update(buffer: TileBuffer, input: InternalRow): TileBuffer = {
-    val col = colIndex.eval(input).asInstanceOf[Int]
-    require(col < maxTileCols, s"`maxTileCols` is $maxTileCols, but received index value $col")
-    val row = rowIndex.eval(input).asInstanceOf[Int]
-    require(row < maxTileRows, s"`maxTileRows` is $maxTileRows, but received index value $row")
+  override def update(inBuf: TileBuffer, input: InternalRow): TileBuffer = {
+    val tc = tileCols.eval(input).asInstanceOf[Short]
+    val tr = tileRows.eval(input).asInstanceOf[Short]
+
+    val buffer = if (inBuf.isEmpty) {
+      TileBuffer(tc, tr)
+    } else inBuf
+
+    val col = colIndex.eval(input).asInstanceOf[Short]
+    require(col < tc, s"`tileCols` is $tc, but received index value $col")
+    val row = rowIndex.eval(input).asInstanceOf[Short]
+    require(row < tr, s"`tileRows` is $tr, but received index value $row")
 
     val cell = cellValue.eval(input).asInstanceOf[Double]
-    buffer.cellBuffer.put(toIndex(col, row), cell)
-    buffer.updateMaxColRow(col, row)
+    buffer.cellBuffer.put(toIndex(col, row, tc), cell)
     buffer
   }
 
-  override def merge(buffer: TileBuffer, input: TileBuffer): TileBuffer = {
+  override def merge(inBuf: TileBuffer, input: TileBuffer): TileBuffer = {
+
+    val buffer = if (inBuf.isEmpty) {
+      val (cols, rows) = input.tileSize
+      TileBuffer(cols, rows)
+    } else inBuf
+
+    val (tileCols, tileRows) = buffer.tileSize
     val left = buffer.cellBuffer
     val right = input.cellBuffer
-    cfor(0)(_ < maxTileRows, _ + 1) { row =>
-      cfor(0)(_ < maxTileCols, _ + 1) { col =>
-        val cell: Double = right.get(toIndex(col, row))
+    cfor(0)(_ < tileRows, _ + 1) { row =>
+      cfor(0)(_ < tileCols, _ + 1) { col =>
+        val cell: Double = right.get(toIndex(col, row, tileCols))
         if (isData(cell)) {
-          left.put(toIndex(col, row), cell)
+          left.put(toIndex(col, row, tileCols), cell)
         }
       }
     }
-    val (cMax, rMax) = input.maxColRow
-    buffer.updateMaxColRow(cMax, rMax)
     buffer
   }
 
@@ -108,12 +118,9 @@ case class TileAssembler(
     val length = result.capacity()
     val cells = Array.ofDim[Double](length)
     result.get(cells)
-    val tile = ArrayTile(cells, maxTileCols, maxTileRows).convert(cellType)
-
-    val (cMax, rMax) = buffer.maxColRow
-
-    val cropped = tile.crop(cMax + 1, rMax + 1)
-    TileType.serialize(cropped)
+    val (tileCols, tileRows) = buffer.tileSize
+    val tile = ArrayTile(cells, tileCols, tileRows)
+    TileType.serialize(tile)
   }
 
   override def serialize(buffer: TileBuffer): Array[Byte] = buffer.serialize()
@@ -123,21 +130,27 @@ case class TileAssembler(
 object TileAssembler {
   import astraea.spark.rasterframes.encoders.StandardEncoders._
 
-  private val indexPad = 2 * java.lang.Integer.BYTES
+  def apply(
+    columnIndex: Column,
+    rowIndex: Column,
+    cellData: Column,
+    tileCols: Column,
+    tileRows: Column): TypedColumn[Any, Tile] =
+    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, tileCols.expr,
+        tileRows.expr)
+        .toAggregateExpression())
+      .as(cellData.columnName)
+      .as[Tile]
 
-  class TileBuffer(val buffer: Array[Byte]) {
+  private val indexPad = 2 * java.lang.Short.BYTES
 
-    def this(maxTileCols: Int, maxTileRows: Int) =
-      this({
-        val cellPad = maxTileCols * maxTileRows * java.lang.Double.BYTES
-        val tmp = new TileBuffer(Array.ofDim[Byte](cellPad + indexPad))
-        tmp.reset()
-        tmp.buffer
-      })
+  class TileBuffer(val storage: Array[Byte]) {
 
-    def cellBuffer = ByteBuffer.wrap(buffer, 0, buffer.length - indexPad).asDoubleBuffer()
+    def isEmpty = storage.isEmpty
+
+    def cellBuffer = ByteBuffer.wrap(storage, 0, storage.length - indexPad).asDoubleBuffer()
     private def indexBuffer =
-      ByteBuffer.wrap(buffer, buffer.length - indexPad, indexPad).asIntBuffer()
+      ByteBuffer.wrap(storage, storage.length - indexPad, indexPad).asShortBuffer()
 
     def reset(): Unit = {
       val cells = cellBuffer
@@ -145,41 +158,24 @@ object TileAssembler {
       cfor(0)(_ < length, _ + 1) { idx =>
         cells.put(idx, doubleNODATA)
       }
-      indexBuffer.put(0, -1).put(1, -1)
     }
 
-    def serialize(): Array[Byte] = buffer
+    def serialize(): Array[Byte] = storage
 
-    def maxColRow: (Int, Int) = {
+    def tileSize: (Short, Short) = {
       val indexes = indexBuffer
       (indexes.get(0), indexes.get(1))
     }
 
-    def updateMaxColRow(col: Int, row: Int): Unit = {
-      var (cMax, rMax) = maxColRow
-      cMax = math.max(cMax, col)
-      rMax = math.max(rMax, row)
-      indexBuffer.put(0, cMax).put(1, rMax)
+  }
+  object TileBuffer {
+    def apply(tileCols: Short, tileRows: Short): TileBuffer = {
+      val cellPad = tileCols * tileRows * java.lang.Double.BYTES
+      val buf = new TileBuffer(Array.ofDim[Byte](cellPad + indexPad))
+      buf.reset()
+      buf.indexBuffer.put(0, tileCols).put(1, tileRows)
+      buf
     }
   }
 
-  def apply(
-    columnIndex: Column,
-    rowIndex: Column,
-    cellData: Column,
-    ct: CellType): TypedColumn[Any, Tile] =
-    apply(columnIndex, rowIndex, cellData, NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE, ct)
-
-  def apply(
-    columnIndex: Column,
-    rowIndex: Column,
-    cellData: Column,
-    maxTileCols: Int,
-    maxTileRows: Int,
-    ct: CellType): TypedColumn[Any, Tile] =
-    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr,
-        maxTileCols.toShort, maxTileRows.toShort, ct)
-        .toAggregateExpression())
-      .as(cellData.columnName)
-      .as[Tile]
 }

@@ -61,6 +61,27 @@ class TileAssemblerSpec extends TestEnvironment {
       )
     }
 
+    it("should crop edge tiles properly") {
+      val sceneSize = (260, 257)
+      val rs = InMemoryRasterSource(TestData.randomTile(sceneSize._1, sceneSize._2, ByteConstantNoDataCellType), Extent(10, 20, 30, 40), LatLng)
+      val df = rs.toDF
+      val exploded = df.select($"spatial_index", $"extent", tileDimensions($"tile") as "tile_dimensions", explodeTiles($"tile"))
+
+      val assembled = exploded
+        .groupBy($"spatial_index", $"extent", $"tile_dimensions")
+        .agg(
+          convertCellType(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
+            $"tile", $"tile_dimensions.cols", $"tile_dimensions.rows"), rs.cellType) as "tile"
+        )
+
+      assert(
+        df.join(assembled,"spatial_index")
+          .select((df("tile") === assembled("tile")) as "eq")
+          .agg(F.max("eq")).as[Boolean]
+          .first
+      )
+    }
+
     it("should reassemble a realistic scene") {
       val df = util.time("read scene") {
         RasterSource(TestData.remoteMODIS).toDF
@@ -68,7 +89,7 @@ class TileAssemblerSpec extends TestEnvironment {
 
       val exploded = util.time("exploded") {
         df
-          .select($"index", explodeTiles($"tile"))
+          .select($"spatial_index", explodeTiles($"tile"))
           .forceCache
       }
 
@@ -76,7 +97,7 @@ class TileAssemblerSpec extends TestEnvironment {
 
       val assembled = util.time("assembled") {
         exploded
-          .groupBy($"index")
+          .groupBy($"spatial_index")
           .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
             $"tile", 256, 256,
             UShortUserDefinedNoDataCellType(32767)))
@@ -85,7 +106,8 @@ class TileAssemblerSpec extends TestEnvironment {
 
       exploded.unpersist()
 
-      assembled.select($"index".as[Int], $"tile".as[Tile]).foreach(p ⇒ p._2.renderPng(ColorRamps.BlueToOrange).write(s"target/${p._1}.png"))
+      assembled.select($"spatial_index".as[Int], $"tile".as[Tile])
+        .foreach(p ⇒ p._2.renderPng(ColorRamps.BlueToOrange).write(s"target/${p._1}.png"))
 
       assert(assembled.count() === df.count())
 
@@ -93,29 +115,8 @@ class TileAssemblerSpec extends TestEnvironment {
       val result = assembled.select(aggStats($"tile")).first()
 
       assert(result.copy(noDataCells = expected.noDataCells) === expected)
-
     }
 
-    it("should crop edge tiles properly") {
-
-      val rs = InMemoryRasterSource(TestData.randomTile(260, 257, ByteConstantNoDataCellType), Extent(10, 20, 30, 40), LatLng)
-      val df = rs.toDF
-      val exploded = df.select($"index", $"extent", explodeTiles($"tile"))
-
-      val assembled = exploded
-        .groupBy($"index", $"extent")
-        .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
-          $"tile", rs.cellType))
-
-      assert(
-        df.join(assembled,"index")
-          .select((df("tile") === assembled("tile")) as "eq")
-          .agg(F.max("eq")).as[Boolean]
-          .first
-      )
-
-
-    }
   }
 }
 
@@ -136,8 +137,8 @@ object TileAssemblerSpec extends  LazyLogging {
       rs.readAll().left.get
         .zipWithIndex
         .map { case (r, i) ⇒ (i, r.extent, r.tile) }
-        .toDF("index", "extent", "tile")
-        .repartition($"index")
+        .toDF("spatial_index", "extent", "tile")
+        .repartition($"spatial_index")
         .forceCache
     }
   }

@@ -23,9 +23,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Literal
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{Literal ⇒ _, _}
-
-
+import scala.reflect.runtime.universe.{Literal => _, _}
 
 /**
  * Module utilities
@@ -40,10 +38,13 @@ package object encoders {
     ClassTag[T](typeTag[T].mirror.runtimeClass(typeTag[T].tpe))
   }
 
-  /** Constructs a Dataframe literal from anything with a serializer. */
-  def serialized_literal[T >: Null: CatalystSerializer](t: T): Column = {
+  /** Constructs a catalyst literal expression from anything with a serializer. */
+  def SerializedLiteral[T >: Null: CatalystSerializer](t: T): Literal = {
     val ser = CatalystSerializer[T]
-    new Column(Literal.create(ser.toInternalRow(t), ser.schema))
+    Literal.create(ser.toInternalRow(t), ser.schema)
   }
 
+  /** Constructs a Dataframe literal column from anything with a serializer. */
+  def serialized_literal[T >: Null: CatalystSerializer](t: T): Column =
+    new Column(SerializedLiteral(t))
 }

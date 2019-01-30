@@ -29,7 +29,7 @@ import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf._
 
 import scala.reflect.runtime.universe._
@@ -69,13 +69,13 @@ trait RasterFunctions {
     udf[Tile, AnyRef](F.arrayToTile(cols, rows)).apply(arrayCol)
   )
 
-  /** Create a Tile from  a column of cell data with location indexes. */
-  def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType): TypedColumn[Any, Tile] =
-    F.TileAssembler(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType)
+  /** Create a Tile from a column of cell data with location indexes and preform cell conversion. */
+  def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
+    convertCellType(F.TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile]
 
-  /** Create a Tile from  a column of cell data with location indexes, assuming tile sized defined by NOMINAL_TILE_SIZE. */
-  def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, ct: CellType): TypedColumn[Any, Tile] =
-    F.TileAssembler(columnIndex: Column, rowIndex: Column, cellData: Column, ct: CellType)
+  /** Create a Tile from  a column of cell data with location indexes. */
+  def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Column, tileRows: Column): TypedColumn[Any, Tile] =
+    F.TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
 
   /** Extract the Tile's cell type */
   def cellType(col: Column): TypedColumn[Any, CellType] = E.GetCellType(col)
