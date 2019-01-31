@@ -58,10 +58,10 @@ object CatalystSerializerEncoder {
 
     val inputObject = BoundReference(0, parentType, nullable = false)
 
-    val serializer = Seq(CatSerializeToRow(inputObject, serde))
+    val serializer = CatSerializeToRow(inputObject, serde)
 
     val deserializer: Expression = CatDeserializeFromRow(GetColumnByOrdinal(0, schema), serde, parentType)
 
-    ExpressionEncoder(schema, flat = false, serializer, deserializer, typeToClassTag[T])
+    ExpressionEncoder(schema, flat = false, Seq(serializer), deserializer, typeToClassTag[T])
   }
 }

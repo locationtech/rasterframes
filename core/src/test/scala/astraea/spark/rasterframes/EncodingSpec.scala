@@ -84,16 +84,12 @@ class EncodingSpec extends TestEnvironment with TestData {
     it("should code RDD[CellType]") {
       val ct = CellType.fromName("uint8")
       val ds = Seq(ct).toDS()
-      //ds.printSchema()
-      //ds.show(false)
       write(ds)
       assert(ds.toDF.as[CellType].first() === ct)
     }
 
     it("should code RDD[TileLayerMetadata[SpaceTimeKey]]") {
       val ds = Seq(tlm).toDS()
-      //ds.printSchema()
-      //ds.show(false)
       write(ds)
       assert(ds.toDF.as[TileLayerMetadata[SpaceTimeKey]].first() === tlm)
     }
@@ -145,8 +141,11 @@ class EncodingSpec extends TestEnvironment with TestData {
       val df = localSeqToDatasetHolder(values)(enc).toDS
       df.show(false)
 
-      val result = df.first()
-      println(result)
+      val results = df.collect()
+
+      results.map(_.toProj4String).foreach(println)
+
+      results should contain allElementsOf values
     }
 
     it("should serialize CRS") {
