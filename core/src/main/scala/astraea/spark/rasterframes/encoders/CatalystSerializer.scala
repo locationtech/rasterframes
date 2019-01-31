@@ -164,7 +164,9 @@ object CatalystSerializer {
     ))
     override def to[R](t: CRS, io: CatalystIO[R]): R = io.create(
       io.encode(
-        t.epsgCode.map(c => "EPSG:" + c).getOrElse(t.toProj4String)
+        // Don't do this... it's 1000x slower to decode.
+        //t.epsgCode.map(c => "EPSG:" + c).getOrElse(t.toProj4String)
+        t.toProj4String
       )
     )
     override def from[R](row: R, io: CatalystIO[R]): CRS =

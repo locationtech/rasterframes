@@ -36,6 +36,7 @@ import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
+import org.osgeo.proj4j.Proj4jException
 
 import scala.Boolean.box
 import scala.util.control.NonFatal
@@ -88,9 +89,13 @@ package object util extends LazyLogging {
     op.getClass.getSimpleName.replace("$", "").toLowerCase
 
   object CRSParser {
-    def apply(value: String): CRS = scala.util.Try(CRS.fromName(value))
-        .recover { case NonFatal(_) ⇒ CRS.fromString(value)}
-        .getOrElse(CRS.fromWKT(value))
+    def apply(value: String): CRS = {
+      value match {
+        case e if e.startsWith("EPSG") => CRS.fromName(e)
+        case p if p.startsWith("+proj") => CRS.fromString(p)
+        case w if w.startsWith("GEOGCS") => CRS.fromWKT(w)
+      }
+    }
   }
 
   implicit class WithCombine[T](left: Option[T]) {

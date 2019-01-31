@@ -9,7 +9,7 @@ libraryDependencies ++= Seq(
 )
 
 jmhIterations := Some(5)
-jmhWarmupIterations := Some(10)
+jmhWarmupIterations := Some(8)
 jmhTimeUnit := None
 javaOptions in Jmh := Seq("-Xmx4g")
 

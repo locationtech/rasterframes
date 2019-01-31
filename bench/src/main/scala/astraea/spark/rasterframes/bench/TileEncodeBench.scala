@@ -33,10 +33,6 @@ import org.openjdk.jmh.annotations._
 @BenchmarkMode(Array(Mode.AverageTime))
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
-/**
- * @author sfitch
- * @since 9/29/17
- */
 class TileEncodeBench extends SparkEnv {
 
   val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()

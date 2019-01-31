@@ -22,13 +22,14 @@ package astraea.spark.rasterframes
 import java.io.File
 import java.net.URI
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
 import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.{DatasetHolder, Encoder, Row}
 import org.apache.spark.sql.functions._
 
 /**
@@ -116,7 +117,7 @@ class EncodingSpec extends TestEnvironment with TestData {
 
       val results = ds.toDF.as[CRS].collect()
 
-      results should contain allElementsOf (values)
+      results should contain allElementsOf values
     }
 
     it("should code RDD[URI]") {
@@ -134,14 +135,25 @@ class EncodingSpec extends TestEnvironment with TestData {
   }
 
   describe("Specialized serialization on specific types") {
+    it("should support encoding") {
+      import sqlContext.implicits._
+
+      implicit val enc: ExpressionEncoder[CRS] = CatalystSerializerEncoder[CRS]
+
+      val values = Seq[CRS](LatLng, Sinusoidal, ConusAlbers)
+
+      val df = localSeqToDatasetHolder(values)(enc).toDS
+      df.show(false)
+
+      val result = df.first()
+      println(result)
+    }
+
     it("should serialize CRS") {
       val ser = CatalystSerializer[CRS]
       ser.fromRow(ser.toRow(LatLng)) should be(LatLng)
-
       ser.fromRow(ser.toRow(Sinusoidal)) should be(Sinusoidal)
-
     }
-
   }
 }
 
