@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2017 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,21 +15,22 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
-package astraea.spark.rasterframes
+package astraea.spark.rasterframes.encoders
 
 import java.io.File
 import java.net.URI
 
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
+import astraea.spark.rasterframes._
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
 import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.{DatasetHolder, Encoder, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions._
 
 /**
@@ -84,12 +85,16 @@ class EncodingSpec extends TestEnvironment with TestData {
     it("should code RDD[CellType]") {
       val ct = CellType.fromName("uint8")
       val ds = Seq(ct).toDS()
+      //ds.printSchema()
+      //ds.show(false)
       write(ds)
       assert(ds.toDF.as[CellType].first() === ct)
     }
 
     it("should code RDD[TileLayerMetadata[SpaceTimeKey]]") {
       val ds = Seq(tlm).toDS()
+      //ds.printSchema()
+      //ds.show(false)
       write(ds)
       assert(ds.toDF.as[TileLayerMetadata[SpaceTimeKey]].first() === tlm)
     }
@@ -113,7 +118,7 @@ class EncodingSpec extends TestEnvironment with TestData {
 
       val results = ds.toDF.as[CRS].collect()
 
-      results should contain allElementsOf values
+      results should contain allElementsOf (values)
     }
 
     it("should code RDD[URI]") {
@@ -130,29 +135,6 @@ class EncodingSpec extends TestEnvironment with TestData {
     }
   }
 
-  describe("Specialized serialization on specific types") {
-    it("should support encoding") {
-      import sqlContext.implicits._
 
-      implicit val enc: ExpressionEncoder[CRS] = CatalystSerializerEncoder[CRS]
-
-      val values = Seq[CRS](LatLng, Sinusoidal, ConusAlbers)
-
-      val df = localSeqToDatasetHolder(values)(enc).toDS
-      df.show(false)
-
-      val results = df.collect()
-
-      results.map(_.toProj4String).foreach(println)
-
-      results should contain allElementsOf values
-    }
-
-    it("should serialize CRS") {
-      val ser = CatalystSerializer[CRS]
-      ser.fromRow(ser.toRow(LatLng)) should be(LatLng)
-      ser.fromRow(ser.toRow(Sinusoidal)) should be(Sinusoidal)
-    }
-  }
 }
 
