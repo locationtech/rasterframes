@@ -18,9 +18,11 @@ package astraea.spark
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
 import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.sql._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import shapeless.tag.@@
@@ -39,7 +41,8 @@ package object rasterframes extends StandardColumns
   with rasterframes.extensions.Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
-  with DataFrameFunctions.Library {
+  with DataFrameFunctions.Library
+  with LazyLogging {
 
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
   final val NOMINAL_TILE_SIZE: Int = ConfigFactory.load().getInt("rasterframes.nominal-tile-size")
@@ -51,6 +54,18 @@ package object rasterframes extends StandardColumns
   def initRF(sqlContext: SQLContext): Unit = {
     import org.locationtech.geomesa.spark.jts._
     sqlContext.withJTS
+
+    val config = sqlContext.sparkSession.conf
+    if(config.getOption("spark.serializer").isEmpty) {
+      logger.warn("No serializer has been registered with Spark. Default Java serialization will be used, which is slow. " +
+        "Consider the following settings:" +
+        """
+        |    conf.set("spark.serializer", classOf[KryoSerializer].getName)
+        |    conf.set("spark.kryoserializer.buffer.max", "500m")
+      """.stripMargin
+      )
+    }
+
     rf.register(sqlContext)
     rasterframes.functions.register(sqlContext)
     rasterframes.expressions.register(sqlContext)

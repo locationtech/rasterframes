@@ -19,19 +19,16 @@
 
 package astraea.spark.rasterframes.extensions
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.{PairRDDConverter, RasterFrame}
+import astraea.spark.rasterframes.RasterFrame
 import astraea.spark.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
-import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialComponent, SpatialKey, TileLayerMetadata}
+import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.types.{MetadataBuilder, StructType, Metadata ⇒ SMetadata}
+import org.apache.spark.sql.types.{MetadataBuilder, Metadata => SMetadata}
 import spray.json.JsonFormat
 
-import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 /**

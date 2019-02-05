@@ -68,7 +68,18 @@ object ProjectPlugin extends AutoPlugin {
         email = "bguseman@astraea.io",
         url = url("http://www.astraea.io")
       )
-    )
+    ),
+    initialCommands in console :=
+      """
+        |import org.apache.spark._
+        |import org.apache.spark.sql._
+        |import org.apache.spark.sql.functions._
+        |import geotrellis.raster._
+        |import geotrellis.spark._
+        |import astraea.spark.rasterframes._
+        |implicit val spark = SparkSession.builder().master("local[*]").getOrCreate().withRasterFrames
+      """.stripMargin.trim,
+    cleanupCommands in console := "spark.stop()"
   )
 
   object autoImport {

@@ -9,6 +9,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 
 implicit val spark = SparkSession.builder().
+  config("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName).
   master("local[*]").appName("RasterFrames").getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 import spark.implicits._

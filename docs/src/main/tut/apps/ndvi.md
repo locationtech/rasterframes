@@ -11,6 +11,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 
 implicit val spark = SparkSession.builder().
+  config("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName).
   master("local[*]").appName("RasterFrames").getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 import spark.implicits._
@@ -50,11 +51,16 @@ val brownToGreen = ColorRamp(
 
 val colors = ColorMap.fromQuantileBreaks(pr.tile.histogramDouble(), brownToGreen)
 pr.tile.color(colors).renderPng().write("target/scala-2.11/tut/apps/rf-ndvi.png")
-
-//For a georefrenced singleband greyscale image, could do: `GeoTiff(pr).write("ndvi.tiff")`
 ```
 
 ![](rf-ndvi.png)
+
+For a georefrenced singleband greyscale image, we could have done this instead: 
+
+```scala
+GeoTiff(pr).write("ndvi.tiff")
+```
+
 
 ```tut:invisible
 spark.stop()
