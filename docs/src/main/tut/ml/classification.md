@@ -216,7 +216,7 @@ raster.tile.renderPng(clusterColors).write("target/scala-2.11/tut/ml/classified.
 ```tut:invisible
 val raster = SinglebandGeoTiff("../core/src/test/resources/L8-Labels-Elkton-VA.tiff").raster
 
-val k = raster.findMinMax._2
+val k = raster.tile.findMinMax._2
 
 val clusterColors = IndexedColorMap.fromColorMap(
   ColorRamps.Viridis.toColorMap((0 to k).toArray)
