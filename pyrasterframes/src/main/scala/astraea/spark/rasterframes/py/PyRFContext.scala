@@ -104,6 +104,10 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def generateGeometry(obj: Array[Byte]): Geometry =  WKBUtils.read(obj)
 
+  def explodeTilesSample(sampleFraction: Double, seed: Long, cols: Column*): Column =
+    explodeTilesSample(sampleFraction, Some(seed), cols: _*)
+
+
   def tileColumns(df: DataFrame): Array[Column] =
     df.asRF.tileColumns.toArray
 

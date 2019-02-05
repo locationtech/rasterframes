@@ -27,7 +27,7 @@ import java.time.{ZoneOffset, ZonedDateTime}
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
 import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
-import astraea.spark.rasterframes.datasource.splitFilters
+import astraea.spark.rasterframes.rules.splitFilters
 import astraea.spark.rasterframes.rules.SpatialFilters.{Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
 import astraea.spark.rasterframes.rules.SpatialRelationReceiver
 import astraea.spark.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
@@ -45,7 +45,7 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
@@ -219,7 +219,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   }
 
   override def buildScan(requiredColumns: Array[String]): RDD[Row] = {
-    logger.debug(s"Reading: $layerId from $uri")
+    logger.trace(s"Reading: $layerId from $uri")
     logger.trace(s"Required columns: ${requiredColumns.mkString(", ")}")
     logger.trace(s"Filters: $filters")
 

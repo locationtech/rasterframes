@@ -333,7 +333,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 
     val croppedTile = stitchedTile.crop(rasterCols, rasterRows)
 
-    ProjectedRaster(croppedTile, md.extent, md.crs)
+    ProjectedRaster(croppedTile.tile, md.extent, md.crs)
   }
 
   /** Convert the Red, Green & Blue assigned tiles in the RasterFrame into a single color composite raster.
@@ -369,6 +369,6 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 
     val croppedTile = stitchedTile.crop(rasterCols, rasterRows)
 
-    ProjectedRaster(croppedTile, md.extent, md.crs)
+    ProjectedRaster(croppedTile, md.crs)
   }
 }

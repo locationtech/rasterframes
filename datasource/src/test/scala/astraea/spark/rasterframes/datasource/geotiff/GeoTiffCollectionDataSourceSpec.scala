@@ -27,8 +27,7 @@ import astraea.spark.rasterframes._
  * @since 1/14/18
  */
 class GeoTiffCollectionDataSourceSpec
-    extends TestEnvironment with TestData
-    with IntelliJPresentationCompilerHack {
+    extends TestEnvironment with TestData {
 
   describe("GeoTiff directory reading") {
     it("shiould read a directory of files") {
@@ -41,6 +40,8 @@ class GeoTiffCollectionDataSourceSpec
       }).length
 
       assert(df.select("path").distinct().count() === expected)
+
+      df.show(false)
     }
   }
 }

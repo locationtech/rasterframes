@@ -59,7 +59,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
 
     it("should explode tiles with random sampling") {
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
-      val exploded = df.select(explodeTileSample(0.5, $"tile1", $"tile2"))
+      val exploded = df.select(explodeTilesSample(0.5, $"tile1", $"tile2"))
       assert(exploded.columns.length === 4)
       assert(exploded.count() < 9)
     }
@@ -169,6 +169,4 @@ class ExplodeSpec extends TestEnvironment with TestData {
       assert(image.tile.toArrayTile() === recovered.tile.toArrayTile())
     }
   }
-
-  protected def withFixture(test: Any) = ???
 }

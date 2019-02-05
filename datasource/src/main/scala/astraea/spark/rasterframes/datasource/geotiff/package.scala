@@ -36,10 +36,6 @@ package object geotiff {
    * a RasterFrame in expected form. */
   type GeoTiffRasterFrameReader = DataFrameReader @@ GeoTiffRasterFrameReaderTag
   trait GeoTiffRasterFrameReaderTag
-  /** Tagged type construction for enabling type-safe extension methods for writing
-   * a RasterFrame to a GeoTIFF. */
-  type GeoTiffRasterFrameWriter[T] = DataFrameWriter[T] @@ GeoTiffRasterFrameWriterTag
-  trait GeoTiffRasterFrameWriterTag
 
   /** Adds `geotiff` format specifier to `DataFrameReader`. */
   implicit class DataFrameReaderHasGeoTiffFormat(val reader: DataFrameReader) {
@@ -48,8 +44,7 @@ package object geotiff {
   }
 
   implicit class DataFrameWriterHasGeoTiffFormat[T](val writer: DataFrameWriter[T]) {
-    def geotiff: GeoTiffRasterFrameWriter[T] =
-      tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](writer.format(DefaultSource.SHORT_NAME))
+    def geotiff: DataFrameWriter[T] = writer.format(DefaultSource.SHORT_NAME)
   }
 
   /** Adds `loadRF` to appropriately tagged `DataFrameReader` */

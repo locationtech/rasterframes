@@ -24,7 +24,7 @@ package astraea.spark.rasterframes
  *
  * @since 12/17/17
  */
-class SpatialEncodingSpec extends TestEnvironment with TestData with IntelliJPresentationCompilerHack {
+class SpatialEncodingSpec extends TestEnvironment with TestData  {
 
   import sqlContext.implicits._
 

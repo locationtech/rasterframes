@@ -22,13 +22,12 @@ package astraea.spark.rasterframes.jts
 import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, ZonedDateTime}
 
-import astraea.spark.rasterframes.expressions.SpatialExpression.{Contains, Intersects}
+import astraea.spark.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
 import com.vividsolutions.jts.geom._
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.{Point ⇒ gtPoint}
-import org.apache.spark.sql.TypedColumn
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.CanBeColumn
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions.SpatialConstructors
 
 /**
@@ -42,13 +41,13 @@ trait Implicits extends SpatialConstructors {
     extends MethodExtensions[TypedColumn[Any, T]] {
 
     def intersects(geom: Geometry): TypedColumn[Any, Boolean] =
-      Intersects(self.expr, geomLit(geom).expr).asColumn.as[Boolean]
+      new Column(Intersects(self.expr, geomLit(geom).expr)).as[Boolean]
 
     def intersects(pt: gtPoint): TypedColumn[Any, Boolean] =
-      Intersects(self.expr, geomLit(pt.jtsGeom).expr).asColumn.as[Boolean]
+      new Column(Intersects(self.expr, geomLit(pt.jtsGeom).expr)).as[Boolean]
 
     def containsGeom(geom: Geometry): TypedColumn[Any, Boolean] =
-      Contains(self.expr, geomLit(geom).expr).asColumn.as[Boolean]
+      new Column(Contains(self.expr, geomLit(geom).expr)).as[Boolean]
 
   }
 
@@ -56,7 +55,7 @@ trait Implicits extends SpatialConstructors {
     extends MethodExtensions[TypedColumn[Any, Point]] {
 
     def intersects(geom: Geometry): TypedColumn[Any, Boolean] =
-      Intersects(self.expr, geomLit(geom).expr).asColumn.as[Boolean]
+      new Column(Intersects(self.expr, geomLit(geom).expr)).as[Boolean]
    }
 
   implicit class TimestampColumnMethods(val self: TypedColumn[Any, Timestamp])
@@ -76,9 +75,6 @@ trait Implicits extends SpatialConstructors {
 
     def betweenDates(start: Date, end: Date): TypedColumn[Any, Boolean] =
       betweenTimes(start: Timestamp, end: Timestamp)
-
-    def at(time: Timestamp): TypedColumn[Any, Boolean] = (self === lit(time)).as[Boolean]
-    def at(time: ZonedDateTime): TypedColumn[Any, Boolean] = at(time: Timestamp)
   }
 
   implicit class DateColumnMethods(val self: TypedColumn[Any, Date])
@@ -93,9 +89,6 @@ trait Implicits extends SpatialConstructors {
 
     def betweenDates(start: LocalDate, end: LocalDate): TypedColumn[Any, Boolean] =
       betweenDates(start: Date, end: Date)
-
-    def at(date: Date): TypedColumn[Any, Boolean] = (self === lit(date)).as[Boolean]
-    def at(date: LocalDate): TypedColumn[Any, Boolean] = at(date: Date)
   }
 }
 

@@ -16,11 +16,11 @@ addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.3-M5")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.2")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.3.1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.3.2")
 
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.3.2")
 
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.27")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.4")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 

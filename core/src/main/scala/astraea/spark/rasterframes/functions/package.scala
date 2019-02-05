@@ -78,6 +78,11 @@ package object functions {
     count
   })
 
+  private[rasterframes] val isNoDataTile: (Tile) ⇒ Boolean = (t: Tile) ⇒ {
+    if(t == null) true
+    else t.isNoDataTile
+  }
+
   /** Flattens tile into an array. */
   private[rasterframes] def tileToArray[T: HasCellType: TypeTag]: (Tile) ⇒ Array[T] = {
     def convert(tile: Tile) = {
@@ -139,23 +144,11 @@ package object functions {
     }
   }
 
-  private[rasterframes] def assembleTile(cols: Int, rows: Int, ct: CellType) = TileAssemblerFunction(cols, rows, ct)
-
   /** Computes the column aggregate histogram */
-  private[rasterframes] val aggHistogram = HistogramAggregateFunction()
+  private[rasterframes] val aggHistogram = HistogramAggregate()
 
   /** Computes the column aggregate statistics */
-  private[rasterframes] val aggStats = CellStatsAggregateFunction()
-
-  /** Change the tile's cell type. */
-  private[rasterframes] def convertCellType(cellType: CellType) = safeEval[Tile, Tile](_.convert(cellType))
-
-  /** Change the tile's cell type. */
-  private[rasterframes] def convertCellType(cellTypeName: String) =
-    safeEval[Tile, Tile](_.convert(CellType.fromName(cellTypeName)))
-
-  /** Convert the cell type of Tile */
-  private[rasterframes] val convertCellType: (Tile, String) ⇒ Tile = (t: Tile, s: String) ⇒ t.convert(CellType.fromName(s))
+  private[rasterframes] val aggStats = CellStatsAggregate()
 
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
@@ -205,24 +198,25 @@ package object functions {
   })
 
   /** Compute summary cell-wise statistics across tiles. */
-  private[rasterframes] val localAggStats = new LocalStatsAggregateFunction()
+  private[rasterframes] val localAggStats = new LocalStatsAggregate()
 
   /** Compute the cell-wise max across tiles. */
-  private[rasterframes] val localAggMax = new LocalTileOpAggregateFunction(Max)
+  private[rasterframes] val localAggMax = new LocalTileOpAggregate(Max)
 
   /** Compute the cell-wise min across tiles. */
-  private[rasterframes] val localAggMin = new LocalTileOpAggregateFunction(Min)
+  private[rasterframes] val localAggMin = new LocalTileOpAggregate(Min)
 
   /** Compute the cell-wise main across tiles. */
-  private[rasterframes] val localAggMean = new LocalMeanAggregateFunction()
+  private[rasterframes] val localAggMean = new LocalMeanAggregate()
 
   /** Compute the cell-wise count of non-NA across tiles. */
-  private[rasterframes] val localAggCount = new LocalCountAggregateFunction(true)
+  private[rasterframes] val localAggCount = new LocalCountAggregate(true)
 
   /** Compute the cell-wise count of non-NA across tiles. */
-  private[rasterframes] val localAggNodataCount = new LocalCountAggregateFunction(false)
+  private[rasterframes] val localAggNodataCount = new LocalCountAggregate(false)
 
   /** Convert the tile to a floating point type as needed for scalar operations. */
+  @inline
   private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
   /** Cell-wise addition between tiles. */
@@ -279,9 +273,9 @@ package object functions {
 
   /** Cell-wise normalized difference of tiles. */
   private[rasterframes] val normalizedDifference:  (Tile, Tile) ⇒ Tile = safeEval((t1: Tile, t2:Tile) => {
-    val fpt1 = floatingPointTile(t1)
-    val fpt2 = floatingPointTile(t2)
-    Divide(Subtract(fpt1, fpt2), Add(fpt1, fpt2))
+    val diff = floatingPointTile(Subtract(t1, t2))
+    val sum = floatingPointTile(Add(t1, t2))
+    Divide(diff, sum)
   })
 
   /** Render tile as ASCII string. */
@@ -442,13 +436,15 @@ package object functions {
   private[rasterframes] val localUnequalScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
     floatingPointTile(t).localUnequal(scalar)
   })
-  
+
+  /** Reporjects a geometry column from one CRS to another. */
   private[rasterframes] val reprojectGeometry: (Geometry, CRS, CRS) ⇒ Geometry =
     (sourceGeom, src, dst) ⇒ {
       val trans = new ReprojectionTransformer(src, dst)
       trans.transform(sourceGeom)
     }
 
+  /** Reporjects a geometry column from one CRS to another, where CRS are defined in Proj4 format. */
   private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
     (sourceGeom, srcName, dstName) ⇒ {
       val src = CRSParser(srcName)
@@ -476,6 +472,7 @@ package object functions {
     sqlContext.udf.register("rf_tileStats", tileStats)
     sqlContext.udf.register("rf_dataCells", dataCells)
     sqlContext.udf.register("rf_noDataCells", noDataCells)
+    sqlContext.udf.register("rf_isNoDataTile", isNoDataTile)
     sqlContext.udf.register("rf_localAggStats", localAggStats)
     sqlContext.udf.register("rf_localAggMax", localAggMax)
     sqlContext.udf.register("rf_localAggMin", localAggMin)
@@ -496,7 +493,6 @@ package object functions {
     sqlContext.udf.register("rf_normalizedDifference", normalizedDifference)
     sqlContext.udf.register("rf_cellTypes", cellTypes)
     sqlContext.udf.register("rf_renderAscii", renderAscii)
-    sqlContext.udf.register("rf_convertCellType", convertCellType)
     sqlContext.udf.register("rf_rasterize", rasterize)
     sqlContext.udf.register("rf_less", localLess)
     sqlContext.udf.register("rf_lessScalar", localLessScalar)

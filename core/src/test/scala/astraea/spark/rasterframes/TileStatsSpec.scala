@@ -36,11 +36,11 @@ import org.apache.spark.sql.functions._
 class TileStatsSpec extends TestEnvironment with TestData {
 
   import TestData.injectND
-  import sqlContext.implicits._
 
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._
     it("should report dimensions") {
+      import sqlContext.implicits._
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
 
       val dims = df.select(tileDimensions($"tile1") as "dims").select("dims.*")
@@ -61,19 +61,33 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .as[(Int, Int)].first() === (3, 3))
     }
 
+    it("should report cell type") {
+      import sqlContext.implicits._
+      val ct = functions.cellTypes().filter(_ != "bool")
+      forEvery(ct) { c ⇒
+        val expected = CellType.fromName(c)
+        val tile = randomTile(5, 5, expected)
+        val result = Seq(tile).toDF("tile").select(cellType($"tile")).first()
+        result should be (expected)
+      }
+    }
+
     // tiles defined for the next few tests
     val tile1 = fracTile(10, 10, 5)
     val tile2 = ArrayTile(Array(-5, -4, -3, -2, -1, 0, 1, 2, 3), 3, 3)
     val tile3 = randomTile(255, 255, IntCellType)
-    val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
 
     it("should compute accurate item counts") {
+      import sqlContext.implicits._
+      val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val checkedValues = Seq[Double](0, 4, 7, 13, 26)
       val result = checkedValues.map(x => ds.select(tileHistogram($"tiles")).first().itemCount(x))
       forEvery(checkedValues) { x => assert((x == 0 && result.head == 4) || result.contains(x - 1)) }
     }
 
-    it("Should compute quantiles"){
+    it("Should compute quantiles") {
+      import sqlContext.implicits._
+      val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val numBreaks = 5
       val breaks = ds.select(tileHistogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
       assert(breaks(1).length === numBreaks)
@@ -82,6 +96,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should support local min/max") {
+      import sqlContext.implicits._
       val ds = Seq[Tile](byteArrayTile, byteConstantTile).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
@@ -108,6 +123,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should count data and no-data cells") {
+      import sqlContext.implicits._
       val ds = (Seq.fill[Tile](10)(injectND(10)(randomTile(10, 10, UByteConstantNoDataCellType))) :+ null).toDF("tile")
       val expectedNoData = 10 * 10
       val expectedData = 10 * 10 * 10 - expectedNoData
@@ -131,13 +147,14 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute tile statistics") {
+      import sqlContext.implicits._
       withClue("mean") {
 
-        val ds = (Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)) :+ null).toDS()
-        val means1 = ds.select(tileStats($"value")).map(s ⇒ Option(s).map(_.mean).getOrElse(0.0)).collect
-        val means2 = ds.select(tileMean($"value")).collect.map(m ⇒ if (m.isNaN) 0.0 else m)
+        val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)).toDS()
+        val means1 = ds.select(tileStats($"value")).map(_.mean).collect
+        val means2 = ds.select(tileMean($"value")).collect
         // Compute the mean manually, knowing we're not dealing with no-data values.
-        val means = ds.select(tileToArray[Float]($"value")).map(a ⇒ if (a == null) 0.0 else a.sum / a.length).collect
+        val means = ds.select(tileToArray[Float]($"value")).map(a ⇒ a.sum.toDouble / a.length).collect
 
         forAll(means.zip(means1)) { case (l, r) ⇒ assert(l === r +- 1e-6) }
         forAll(means.zip(means2)) { case (l, r) ⇒ assert(l === r +- 1e-6) }
@@ -152,6 +169,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute per-tile histogram") {
+      import sqlContext.implicits._
       val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatCellType)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
@@ -166,6 +184,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
     it("should compute mean and total count") {
       val tileSize = 5
+
       def rndTile = {
         val data = Array.fill(tileSize * tileSize)(scala.util.Random.nextGaussian())
         ArrayTile(data, tileSize, tileSize): Tile
@@ -179,6 +198,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate histogram") {
+      import sqlContext.implicits._
       val tileSize = 5
       val rows = 10
       val ds = Seq.fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType)).toDF("tiles")
@@ -204,6 +224,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate mean") {
+      import sqlContext.implicits._
       val ds = (Seq.fill[Tile](10)(randomTile(5, 5, FloatCellType)) :+ null).toDF("tiles")
       val agg = ds.select(aggMean($"tiles"))
       val stats = ds.select(aggStats($"tiles") as "stats").select($"stats.mean".as[Double])
@@ -211,6 +232,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate statistics") {
+      import sqlContext.implicits._
       val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
 
       val exploded = ds.select(explodeTiles($"tiles"))
@@ -235,6 +257,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate local stats") {
+      import sqlContext.implicits._
       val ave = (nums: Array[Double]) ⇒ nums.sum / nums.length
 
       val ds = (Seq.fill[Tile](30)(randomTile(5, 5, FloatConstantNoDataCellType))
@@ -266,6 +289,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute accurate statistics") {
+      import sqlContext.implicits._
       val completeTile = squareIncrementingTile(4).convert(IntConstantNoDataCellType)
       val incompleteTile = injectND(2)(completeTile)
 
@@ -281,7 +305,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .toSeq.map(pr ⇒ pr._1 * 20 + pr._2)
       assert(countArray === expectedCount)
 
-      val countNodataArray = dsNd.select((localAggNoDataCells($"tiles"))).first().toArray
+      val countNodataArray = dsNd.select(localAggNoDataCells($"tiles")).first().toArray
       assert(countNodataArray === incompleteTile.localUndefined().toArray)
 
       // GeoTrellis docs do not say how NODATA is treated, but NODATA values are ignored
@@ -296,20 +320,29 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val maxTile = dsNd.select(localAggMax($"tiles")).first()
       assert(maxTile.toArray() === incompleteTile.toArray())
     }
+  }
+  describe("NoData handling") {
+    import sqlContext.implicits._
+    val tsize = 5
+    val count = 20
+    val nds = 2
+    val tiles = (Seq.fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
+      .map(injectND(nds)) :+ null).toDF("tiles")
 
-    it("should count cells by no-data state") {
-      val tsize = 5
-      val count = 20
-      val nds = 2
-      val tiles = (Seq.fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
-        .map(injectND(nds)) :+ null).toDF("tiles")
-
+    it("should count cells by NoData state") {
       val counts = tiles.select(noDataCells($"tiles")).collect().dropRight(1)
       forEvery(counts)(c ⇒ assert(c === nds))
       val counts2 = tiles.select(dataCells($"tiles")).collect().dropRight(1)
       forEvery(counts2)(c ⇒ assert(c === tsize * tsize - nds))
     }
-  }
 
-  protected def withFixture(test: Any) = ???
+    it("should detect all NoData tiles") {
+      val ndCount = tiles.select("*").where(isNoDataTile($"tiles")).count()
+      ndCount should be(1)
+
+      val ndTiles = (Seq.fill[Tile](count)(ArrayTile.empty(UByteConstantNoDataCellType, tsize, tsize)) :+ null).toDF("tiles")
+      val ndCount2 = ndTiles.select("*").where(isNoDataTile($"tiles")).count()
+      ndCount2 should be(count + 1)
+    }
+  }
 }
