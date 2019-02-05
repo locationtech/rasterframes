@@ -17,6 +17,7 @@
 package astraea.spark
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
+import astraea.spark.rasterframes.util.ZeroSevenCompatibilityKit
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.{Tile, TileFeature}
@@ -38,6 +39,7 @@ import scala.reflect.runtime.universe._
  */
 package object rasterframes extends StandardColumns
   with RasterFunctions
+  with ZeroSevenCompatibilityKit.RasterFunctions
   with rasterframes.extensions.Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
@@ -67,6 +69,7 @@ package object rasterframes extends StandardColumns
     }
 
     rf.register(sqlContext)
+    ZeroSevenCompatibilityKit.register(sqlContext)
     rasterframes.functions.register(sqlContext)
     rasterframes.expressions.register(sqlContext)
     rasterframes.rules.register(sqlContext)
