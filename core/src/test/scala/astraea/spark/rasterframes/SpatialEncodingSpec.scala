@@ -34,8 +34,7 @@ class SpatialEncodingSpec extends TestEnvironment with TestData  {
       val points = Seq(null, extent.center.jtsGeom, null)
       val ds = points.toDS
       write(ds)
-      ds.show()
-
+      //ds.show()
       assert(ds.collect().toSeq === points)
     }
   }

@@ -76,14 +76,14 @@ class DefaultSource extends DataSourceRegister
       val c = rf
         .where(SPATIAL_KEY_COLUMN("row") === sk.row)
         .agg(
-          F.sum(tileDimensions(tc)("cols") cast(LongType))
+          F.sum(tile_dimensions(tc)("cols") cast(LongType))
         ).first()
         .getLong(0)
 
       val r = rf
         .where(SPATIAL_KEY_COLUMN("col") === sk.col)
         .agg(
-          F.sum(tileDimensions(tc)("rows") cast(LongType))
+          F.sum(tile_dimensions(tc)("rows") cast(LongType))
         ).first()
         .getLong(0)
 

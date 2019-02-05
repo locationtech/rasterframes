@@ -56,22 +56,22 @@ class StatsComputeBench extends SparkEnv {
 
   @Benchmark
   def computeStats() = {
-    tiles.select(aggStats($"tile")).collect()
+    tiles.select(agg_stats($"tile")).collect()
   }
 
   @Benchmark
   def extractMean() = {
-    tiles.select(aggStats($"tile").getField("mean")).map(_.getDouble(0)).collect()
+    tiles.select(agg_stats($"tile").getField("mean")).map(_.getDouble(0)).collect()
   }
 
   @Benchmark
   def directMean() = {
-    tiles.repartition(10).select(aggMean($"tile")).collect()
+    tiles.repartition(10).select(agg_mean($"tile")).collect()
   }
 
 //  @Benchmark
 //  def computeCounts() = {
-//    tiles.toDF("tile").select(dataCells($"tile") as "counts").agg(sum($"counts")).collect()
+//    tiles.toDF("tile").select(data_cells($"tile") as "counts").agg(sum($"counts")).collect()
 //  }
 
 

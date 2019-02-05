@@ -89,7 +89,7 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
       .format(L8CatalogDataSource.SHORT_NAME)
       .load()
       .withColumnRenamed(PDSFields.ACQUISITION_DATE.name, PDSFields.TIMESTAMP.name)
-      .withColumn(PDSFields.BOUNDS.name, boundsGeometry(col(PDSFields.BOUNDS_WGS84.name)))
+      .withColumn(PDSFields.BOUNDS.name, bounds_geometry(col(PDSFields.BOUNDS_WGS84.name)))
       .drop(PDSFields.BOUNDS_WGS84.name)
 
     val filtered = aggFilters

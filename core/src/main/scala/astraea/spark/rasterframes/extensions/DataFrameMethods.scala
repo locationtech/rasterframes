@@ -205,7 +205,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
 //    val projected = self.select(otherCols :+ ProjectIntoLayer(refCols, space): _*)
 //
 //    // Lastly, convert cell type as desired
-//    val tileCols = projected.tileColumns.map(c ⇒ convertCellType(c, space.cellType).as(c.columnName))
+//    val tileCols = projected.tileColumns.map(c ⇒ convert_cell_type(c, space.cell_type).as(c.columnName))
 //    val remCols = projected.notTileColumns
 //
 //    val layer = projected.select(remCols ++ tileCols: _*)

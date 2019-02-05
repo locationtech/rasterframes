@@ -70,7 +70,7 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
   @Benchmark
   def computeDifferenceExpanded() = {
     expandedDF
-      .select(normalizedDifference($"B1", $"B2"))
+      .select(normalized_difference($"B1", $"B2"))
       .cache()
       .count()
   }
@@ -78,24 +78,24 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
   @Benchmark
   def computeDifferenceSingle() = {
     singleDF
-      .select(normalizedDifference($"B1", $"B2"))
+      .select(normalized_difference($"B1", $"B2"))
       .cache()
       .count()
   }
 
   @Benchmark
   def computeStatsSingle() = {
-    singleDF.select(aggStats($"B1")).collect()
+    singleDF.select(agg_stats($"B1")).collect()
   }
 
   @Benchmark
   def computeStatsExpanded() = {
-    expandedDF.select(aggStats($"B1")).collect()
+    expandedDF.select(agg_stats($"B1")).collect()
   }
 
   @Benchmark
   def computeDifferenceStats() = {
-    singleDF.select(aggStats(normalizedDifference($"B1", $"B2"))).collect()
+    singleDF.select(agg_stats(normalized_difference($"B1", $"B2"))).collect()
   }
 
 }

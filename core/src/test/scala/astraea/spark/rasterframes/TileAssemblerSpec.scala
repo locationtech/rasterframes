@@ -46,11 +46,11 @@ class TileAssemblerSpec extends TestEnvironment {
       val ct = rf.tileLayerMetadata.merge.cellType
       val (tileCols, tileRows) = rf.tileLayerMetadata.merge.tileLayout.tileDimensions
 
-      val exploded = rf.select($"spatial_key", explodeTiles($"tile"))
+      val exploded = rf.select($"spatial_key", explode_tiles($"tile"))
 
       val assembled = exploded
         .groupBy($"spatial_key")
-        .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN, $"tile", tileCols, tileRows, ct))
+        .agg(assemble_tile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN, $"tile", tileCols, tileRows, ct))
 
 
       assert(
@@ -65,12 +65,12 @@ class TileAssemblerSpec extends TestEnvironment {
       val sceneSize = (260, 257)
       val rs = InMemoryRasterSource(TestData.randomTile(sceneSize._1, sceneSize._2, ByteConstantNoDataCellType), Extent(10, 20, 30, 40), LatLng)
       val df = rs.toDF
-      val exploded = df.select($"spatial_index", $"extent", tileDimensions($"tile") as "tile_dimensions", explodeTiles($"tile"))
+      val exploded = df.select($"spatial_index", $"extent", tile_dimensions($"tile") as "tile_dimensions", explode_tiles($"tile"))
 
       val assembled = exploded
         .groupBy($"spatial_index", $"extent", $"tile_dimensions")
         .agg(
-          convertCellType(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
+          convert_cell_type(assemble_tile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
             $"tile", $"tile_dimensions.cols", $"tile_dimensions.rows"), rs.cellType) as "tile"
         )
 
@@ -89,7 +89,7 @@ class TileAssemblerSpec extends TestEnvironment {
 
       val exploded = util.time("exploded") {
         df
-          .select($"spatial_index", explodeTiles($"tile"))
+          .select($"spatial_index", explode_tiles($"tile"))
           .forceCache
       }
 
@@ -98,7 +98,7 @@ class TileAssemblerSpec extends TestEnvironment {
       val assembled = util.time("assembled") {
         exploded
           .groupBy($"spatial_index")
-          .agg(assembleTile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
+          .agg(assemble_tile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
             $"tile", 256, 256,
             UShortUserDefinedNoDataCellType(32767)))
           .forceCache
@@ -111,8 +111,8 @@ class TileAssemblerSpec extends TestEnvironment {
 
       assert(assembled.count() === df.count())
 
-      val expected = df.select(aggStats($"tile")).first()
-      val result = assembled.select(aggStats($"tile")).first()
+      val expected = df.select(agg_stats($"tile")).first()
+      val result = assembled.select(agg_stats($"tile")).first()
 
       assert(result.copy(noDataCells = expected.noDataCells) === expected)
     }

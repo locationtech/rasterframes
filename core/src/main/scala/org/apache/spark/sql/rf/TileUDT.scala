@@ -89,7 +89,7 @@ case object TileUDT  {
     import scala.language.reflectiveCalls
 
     override def schema: StructType = StructType(Seq(
-      StructField("cellType", StringType, false),
+      StructField("cell_type", StringType, false),
       StructField("cols", ShortType, false),
       StructField("rows", ShortType, false),
       StructField("cells", BinaryType, true),

@@ -140,7 +140,7 @@ class TileUDT(UserDefinedType):
     @classmethod
     def sqlType(self):
         return StructType([
-            StructField("cellType", StringType(), False),
+            StructField("cell_type", StringType(), False),
             StructField("cols", ShortType(), False),
             StructField("rows", ShortType(), False),
             StructField("cells", BinaryType(), True),
@@ -168,7 +168,7 @@ class TileUDT(UserDefinedType):
                   obj.toBytes)
 
     def deserialize(self, datum):
-        return RFContext._jvm_mirror().generateTile(datum[0], datum[1], datum[2], datum[3])
+        return RFContext._jvm_mirror().generate_tile(datum[0], datum[1], datum[2], datum[3])
 
 
 

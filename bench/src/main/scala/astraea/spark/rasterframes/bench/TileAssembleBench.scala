@@ -44,7 +44,7 @@ class TileAssembleBench extends SparkEnv {
   var cells1: DataFrame = _
   var cells2: DataFrame = _
 
-  val assembler = assembleTile(
+  val assembler = assemble_tile(
     $"column_index", $"row_index", $"tile",
     tileSize, tileSize, cellType
   )
@@ -53,7 +53,7 @@ class TileAssembleBench extends SparkEnv {
   def setupData(): Unit = {
     cells1 = Seq.fill(numTiles)(randomTile(tileSize, tileSize, cellType.name)).zipWithIndex
       .toDF("tile", "id")
-      .select($"id", explodeTiles($"tile"))
+      .select($"id", explode_tiles($"tile"))
       .repartition(4, $"id")
       .cache()
 

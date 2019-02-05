@@ -41,10 +41,10 @@ package object expressions {
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
     val registry: FunctionRegistry = rf.registry(sqlContext)
-    VersionShims.registerExpression(registry, "rf_explodeTiles", ExplodeTiles.apply(1.0, None, _))
-    VersionShims.registerExpression(registry, "rf_cellType", ub(GetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_convertCellType", bb(SetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_tileDimensions", ub(GetDimensions.apply))
-    VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(BoundsToGeometry.apply))
+    VersionShims.registerExpression(registry, "rf_explode_tiles", ExplodeTiles.apply(1.0, None, _))
+    VersionShims.registerExpression(registry, "rf_cell_type", ub(GetCellType.apply))
+    VersionShims.registerExpression(registry, "rf_convert_cell_type", bb(SetCellType.apply))
+    VersionShims.registerExpression(registry, "rf_tile_dimensions", ub(GetDimensions.apply))
+    VersionShims.registerExpression(registry, "rf_bounds_geometry", ub(BoundsToGeometry.apply))
   }
 }

@@ -108,9 +108,9 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
       val df = Seq((latLng, webMercator)).toDF("ll", "wm")
 
       val rp = df.select(
-        reprojectGeometry($"ll", LatLng, WebMercator) as "wm2",
-        reprojectGeometry($"wm", WebMercator, LatLng) as "ll2",
-        reprojectGeometry(reprojectGeometry($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
+        reproject_geometry($"ll", LatLng, WebMercator) as "wm2",
+        reproject_geometry($"wm", WebMercator, LatLng) as "ll2",
+        reproject_geometry(reproject_geometry($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
       ).as[(Geometry, Geometry, Geometry)]
 
 
@@ -123,7 +123,7 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
 
       df.createOrReplaceTempView("geom")
 
-      val wm4 = sql("SELECT rf_reprojectGeometry(ll, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 'EPSG:3857') AS wm4 from geom")
+      val wm4 = sql("SELECT rf_reproject_geometry(ll, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 'EPSG:3857') AS wm4 from geom")
         .as[Geometry].first()
       wm4 should matchGeom(webMercator, 0.00001)
     }

@@ -45,7 +45,7 @@ object MeanValue extends App {
   rf.printSchema
 
   val tileCol = rf("tile")
-  rf.agg(aggNoDataCells(tileCol), aggDataCells(tileCol), aggMean(tileCol)).show(false)
+  rf.agg(agg_no_data_cells(tileCol), agg_data_cells(tileCol), agg_mean(tileCol)).show(false)
 
   spark.stop()
 }

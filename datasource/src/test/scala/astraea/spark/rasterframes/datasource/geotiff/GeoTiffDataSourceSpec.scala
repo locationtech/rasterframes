@@ -87,7 +87,7 @@ class GeoTiffDataSourceSpec
       val rf = spark.read.geotiff.loadRF(l8samplePath)
       val expected = 309149454 // computed with rasterio
       val result = rf.agg(
-        sum(tileSum(rf("tile")))
+        sum(tile_sum(rf("tile")))
       ).collect().head.getDouble(0)
 
       assert(result === expected)

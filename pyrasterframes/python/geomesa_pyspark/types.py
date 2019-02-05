@@ -33,7 +33,7 @@ class GeometryUDT(UserDefinedType):
         return Row(obj.toBytes)
 
     def deserialize(self, datum):
-        return RFContext._jvm_mirror().generateGeometry(datum[0])
+        return RFContext._jvm_mirror().generate_geometry(datum[0])
 
 
 class PointUDT(GeometryUDT):

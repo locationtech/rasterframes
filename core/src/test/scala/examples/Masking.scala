@@ -34,7 +34,7 @@ object Masking extends App {
 
   val withMaskedTile = joinedRF.withColumn("maskTile", threshold(joinedRF("band_1"))).asRF
 
-  withMaskedTile.select(noDataCells(withMaskedTile("maskTile"))).show()
+  withMaskedTile.select(no_data_cells(withMaskedTile("maskTile"))).show()
 
   val masked = withMaskedTile.withColumn("masked", mask(joinedRF("band_2"), joinedRF("maskTile"))).asRF
 

@@ -52,12 +52,12 @@ object LocalArithmetic extends App {
     map { case (b, t) ⇒ t.projectedRaster.toRF(s"band_$b") }.
     reduce(_ spatialJoin _)
 
-  val addRF = joinedRF.withColumn("1+2", localAdd(joinedRF("band_1"), joinedRF("band_2"))).asRF
-  val divideRF = joinedRF.withColumn("1/2", localDivide(joinedRF("band_1"), joinedRF("band_2"))).asRF
+  val addRF = joinedRF.withColumn("1+2", local_add(joinedRF("band_1"), joinedRF("band_2"))).asRF
+  val divideRF = joinedRF.withColumn("1/2", local_divide(joinedRF("band_1"), joinedRF("band_2"))).asRF
 
   addRF.select("1+2").collect().apply(0) .getClass
 
-  val raster = divideRF.select(tileSum(divideRF("1/2")),
-    tileSum(joinedRF("band_1")), tileSum(joinedRF("band_2")))
+  val raster = divideRF.select(tile_sum(divideRF("1/2")),
+    tile_sum(joinedRF("band_1")), tile_sum(joinedRF("band_2")))
   raster.show(1)
 }

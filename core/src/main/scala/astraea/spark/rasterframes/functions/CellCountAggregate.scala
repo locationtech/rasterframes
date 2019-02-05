@@ -37,7 +37,7 @@ case class CellCountAggregate(isData: Boolean, child: Expression) extends Declar
 
   override def prettyName: String =
     if (isData) "agg_data_cells"
-    else "agg_nodata_cells"
+    else "agg_no_data_cells"
 
   private lazy val count =
     AttributeReference("count", LongType, false, Metadata.empty)()

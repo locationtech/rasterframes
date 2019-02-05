@@ -28,8 +28,8 @@ package astraea.spark.rasterframes.stats
 case class CellStatistics(dataCells: Long, noDataCells: Long, min: Double, max: Double, mean: Double, variance: Double) {
   def stddev: Double = math.sqrt(variance)
   def asciiStats = Seq(
-    "dataCells: " + dataCells,
-    "noDataCells: " + noDataCells,
+    "data_cells: " + dataCells,
+    "no_data_cells: " + noDataCells,
     "min: " + min,
     "max: " + max,
     "mean: " + mean,
@@ -38,7 +38,7 @@ case class CellStatistics(dataCells: Long, noDataCells: Long, min: Double, max: 
   ).mkString("\n")
 
   override def toString: String = {
-    val fields = Seq("dataCells", "noDataCells", "min", "max", "mean", "variance")
+    val fields = Seq("data_cells", "no_data_cells", "min", "max", "mean", "variance")
     fields.iterator
       .zip(productIterator)
       .map(p ⇒ p._1 + "=" + p._2)
