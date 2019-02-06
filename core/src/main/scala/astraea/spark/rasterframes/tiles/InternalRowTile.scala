@@ -23,6 +23,9 @@ package astraea.spark.rasterframes.tiles
 
 import java.nio.ByteBuffer
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
+import astraea.spark.rasterframes.model.{CellContext, Cells}
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 
@@ -37,7 +40,6 @@ import org.apache.spark.sql.catalyst.InternalRow
  * @since 11/29/17
  */
 class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
-  import org.apache.spark.sql.rf.TileUDT.C
   import InternalRowTile._
 
   /** @group COPIES */
@@ -58,18 +60,30 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   /** @group COPIES */
   protected override def delegate: Tile = realizedTile
 
+  private lazy val cellContext: CellContext =
+    CatalystIO[InternalRow].get[CellContext](mem, 0)
+
+
   /** Retrieve the cell type from the internal encoding. */
-  override lazy val cellType: CellType =
-    CellType.fromName(mem.getString(C.CELL_TYPE))
+  override def cellType: CellType = cellContext.cellType
 
   /** Retrieve the number of columns from the internal encoding. */
-  override val cols: Int = mem.getShort(C.COLS)
+  override def cols: Int = cellContext.cellColumns
 
   /** Retrieve the number of rows from the internal encoding. */
-  override val rows: Int = mem.getShort(C.ROWS)
+  override def rows: Int = cellContext.cellRows
 
   /** Get the internally encoded tile data cells. */
-  override lazy val toBytes: Array[Byte] = mem.getBinary(C.CELLS)
+  override lazy val toBytes: Array[Byte] = {
+    val cellData = CatalystIO[InternalRow]
+      .get[Cells](mem, 1)
+      .data
+
+    cellData.left
+      .getOrElse(throw new IllegalStateException(
+        "Expected tile cell bytes, but received RasterRef instead: " + cellData.right.get)
+      )
+  }
 
   private lazy val toByteBuffer: ByteBuffer = {
     val data = toBytes

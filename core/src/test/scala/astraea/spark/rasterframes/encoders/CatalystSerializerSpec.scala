@@ -20,17 +20,16 @@
  */
 
 package astraea.spark.rasterframes.encoders
+import astraea.spark.rasterframes.model.CellContext
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.proj4._
+import geotrellis.raster.UShortUserDefinedNoDataCellType
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 class CatalystSerializerSpec extends TestEnvironment with TestData {
 
-  import sqlContext.implicits._
   describe("Specialized serialization on specific types") {
     it("should support encoding") {
-      import sqlContext.implicits._
-
       implicit val enc: ExpressionEncoder[CRS] = CatalystSerializerEncoder[CRS]
 
       val values = Seq[CRS](LatLng, Sinusoidal, ConusAlbers, WebMercator)
@@ -44,6 +43,12 @@ class CatalystSerializerSpec extends TestEnvironment with TestData {
       val ser = CatalystSerializer[CRS]
       ser.fromRow(ser.toRow(LatLng)) should be(LatLng)
       ser.fromRow(ser.toRow(Sinusoidal)) should be(Sinusoidal)
+    }
+
+    it("should serialize CellContext") {
+      val ct = CellContext(UShortUserDefinedNoDataCellType(3), 12, 23)
+      val ser = CatalystSerializer[CellContext]
+      ser.fromRow(ser.toRow(ct)) should be(ct)
     }
   }
 }

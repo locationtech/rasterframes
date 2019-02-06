@@ -32,6 +32,7 @@ import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, Tile
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.rf.TileUDT
 
 /**
  * Test rig for encoding GT types into Catalyst types.
@@ -44,10 +45,14 @@ class EncodingSpec extends TestEnvironment with TestData {
 
   describe("Spark encoding on standard types") {
 
-    it("should code RDD[(Int, Tile)]") {
-      val ds = Seq((1, byteArrayTile: Tile), (2, null)).toDS
-      write(ds)
-      assert(ds.toDF.as[(Int, Tile)].collect().head === ((1, byteArrayTile)))
+    it("should serialize Tile") {
+      val TileType = new TileUDT()
+
+      forAll(allTileTypes) { t =>
+        noException shouldBe thrownBy {
+          TileType.deserialize(TileType.serialize(t))
+        }
+      }
     }
 
     it("should code RDD[Tile]") {
@@ -55,6 +60,12 @@ class EncodingSpec extends TestEnvironment with TestData {
       val ds = rdd.toDF("tile")
       write(ds)
       assert(ds.toDF.as[Tile].collect().head === byteArrayTile)
+    }
+
+    it("should code RDD[(Int, Tile)]") {
+      val ds = Seq((1, byteArrayTile: Tile), (2, null)).toDS
+      write(ds)
+      assert(ds.toDF.as[(Int, Tile)].collect().head === ((1, byteArrayTile)))
     }
 
     it("should code RDD[TileFeature]") {
@@ -105,7 +116,7 @@ class EncodingSpec extends TestEnvironment with TestData {
       assert(ds.toDF.as[(SpatialKey, SpaceTimeKey)].first === (sk, stk))
 
       // This stinks: vvvvvvvv Encoders don't seem to work with UDFs.
-      val key2col = udf((row: Row) ⇒ row.getInt(0))
+      val key2col = udf((row: Row) => row.getInt(0))
 
       val colNum = ds.select(key2col(ds(ds.columns.head))).as[Int].first()
       assert(colNum === 37)
@@ -118,13 +129,13 @@ class EncodingSpec extends TestEnvironment with TestData {
 
       val results = ds.toDF.as[CRS].collect()
 
-      results should contain allElementsOf (values)
+      results should contain allElementsOf values
     }
 
     it("should code RDD[URI]") {
       val ds = Seq[URI](new URI("http://astraea.earth/"), new File("/tmp/humbug").toURI).toDS()
       write(ds)
-      assert(ds.filter(u ⇒ Option(u.getHost).exists(_.contains("astraea"))).count === 1)
+      assert(ds.filter(u => Option(u.getHost).exists(_.contains("astraea"))).count === 1)
     }
 
     it("should code RDD[Envelope]") {
@@ -135,6 +146,4 @@ class EncodingSpec extends TestEnvironment with TestData {
     }
   }
 
-
 }
-

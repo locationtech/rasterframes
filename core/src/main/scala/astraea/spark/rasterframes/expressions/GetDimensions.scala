@@ -18,10 +18,9 @@
  */
 
 package astraea.spark.rasterframes.expressions
-
-import astraea.spark.rasterframes.TileDimensions
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.model.TileDimensions
 import geotrellis.raster.CellGrid
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.Expression
