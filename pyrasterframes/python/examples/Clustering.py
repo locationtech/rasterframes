@@ -24,7 +24,7 @@ bandColNames = list(map(lambda n: 'band_{}'.format(n), bandNumbers))
 
 # For each identified band, load the associated image file
 from functools import reduce
-joinedRF = reduce(lambda rf1, rf2: rf1.asRF().spatialJoin(rf2.drop('bounds').drop('metadata')),
+joinedRF = reduce(lambda rf1, rf2: rf1.asRF().spatialJoin(rf2.drop('bounds').drop('metadata').drop('extent').drop('crs')),
                   map(lambda bf: spark.read.geotiff(bf[1]) \
                       .withColumnRenamed('tile', 'band_{}'.format(bf[0])),
                   map(lambda b: (b, resource_dir.joinpath(filenamePattern.format(b)).as_uri()), bandNumbers)))
@@ -72,7 +72,7 @@ tlm = joinedRF.tileLayerMetadata()
 layout = tlm['layoutDefinition']['tileLayout']
 
 retiled = clustered.groupBy('spatial_key').agg(
-    assembleTile('column_index', 'row_index', 'prediction',
+    assemble_tile('column_index', 'row_index', 'prediction',
         layout['tileCols'], layout['tileRows'], 'int8')
 )
 

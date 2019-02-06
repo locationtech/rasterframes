@@ -53,7 +53,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     }
 
   /**
-   * Converts a ContextRDD[Spatialkey, MultibandTile, TileLayerMedadata[Spatialkey]] to a RasterFrame
+   * Converts a `ContextRDD[Spatialkey, MultibandTile, TileLayerMedadata[Spatialkey]]` to a RasterFrame
    */
   def asRF(
     layer: ContextRDD[SpatialKey, MultibandTile, TileLayerMetadata[SpatialKey]],

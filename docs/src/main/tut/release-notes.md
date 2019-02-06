@@ -5,7 +5,8 @@
 ### 0.8.0
 
 * Introduced at the source level the concept of a `RasterSource` and `RasterRef`, enabling lazy/delayed read of sub-scene tiles.
-* Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow snake_case conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.
+* _Deprecation_: Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow `snake_case` conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.
+* Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
    
 ## 0.7.x
 

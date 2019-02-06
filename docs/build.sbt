@@ -36,14 +36,6 @@ Tut / run / fork := true
 
 Tut / run / javaOptions := Seq("-Xmx8G", "-Dspark.ui.enabled=false")
 
-val skipTut = false
-
-if (skipTut) Seq(
-  Compile / paradox / sourceDirectory := tutSourceDirectory.value,
-  makeSite := makeSite.dependsOn(Compile / unidoc).value
-)
-else Seq(
-  Compile / paradox := (Compile / paradox).dependsOn(tutQuick).value,
-  Compile / paradox / sourceDirectory := tutTargetDirectory.value,
-  makeSite := makeSite.dependsOn(Compile / unidoc).value
-)
+Compile / paradox := (Compile / paradox).dependsOn(tutQuick).value
+Compile / paradox / sourceDirectory := tutTargetDirectory.value
+makeSite := makeSite.dependsOn(Compile / unidoc).dependsOn(Compile / paradox).value

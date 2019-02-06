@@ -21,7 +21,7 @@ import org.apache.spark.sql._
 def readTiff(name: String): SinglebandGeoTiff = SinglebandGeoTiff(s"../core/src/test/resources/$name")
 
 implicit val spark = SparkSession.builder().
-  config("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName).
+  withKryoSerialization.
   master("local[*]").appName(getClass.getName).getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 

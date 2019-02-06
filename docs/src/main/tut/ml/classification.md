@@ -22,7 +22,7 @@ import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.sql._
 
 implicit val spark = SparkSession.builder().
-  config("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName).
+  withKryoSerialization.
   master("local[*]").appName(getClass.getName).getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 

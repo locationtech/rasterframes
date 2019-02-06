@@ -24,6 +24,8 @@ import astraea.spark.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
 import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
+import org.apache.hadoop.conf.{Configuration => HadoopConfiguration}
+import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{MetadataBuilder, Metadata => SMetadata}
@@ -40,6 +42,10 @@ trait Implicits {
   implicit class WithSparkSessionMethods(val self: SparkSession) extends SparkSessionMethods
 
   implicit class WithSQLContextMethods(val self: SQLContext) extends SQLContextMethods
+
+  implicit class WithBKryoMethods(val self: SparkSession.Builder) extends KryoMethods.BuilderKryoMethods
+
+  implicit class WithSKryoMethods(val self: SparkConf) extends KryoMethods.SparkConfKryoMethods
 
   implicit class WithProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithPrototypeMethods: TypeTag](
     val self: ProjectedRaster[T]) extends ProjectedRasterMethods[T]

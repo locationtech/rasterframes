@@ -62,9 +62,13 @@ package object rasterframes extends StandardColumns
       logger.warn("No serializer has been registered with Spark. Default Java serialization will be used, which is slow. " +
         "Consider the following settings:" +
         """
-        |    conf.set("spark.serializer", classOf[KryoSerializer].getName)
-        |    conf.set("spark.kryoserializer.buffer.max", "500m")
+          |    SparkSession
+          |        .builder()
+          |        .master("local[*]")
+          |        .appName(getClass.getName)
+          |        .withKryoSerialization  // <--- RasterFrames extension method
       """.stripMargin
+
       )
     }
 

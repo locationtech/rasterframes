@@ -19,7 +19,7 @@ Next, initialize the `SparkSession`, and call the `withRasterFrames` method on i
 implicit val spark = SparkSession.builder().
   master("local").appName("RasterFrames").
   config("spark.ui.enabled", "false").
-  config("spark.serializer", classOf[org.apache.spark.serializer.KryoSerializer].getName).
+  withKryoSerialization.
   getOrCreate().
   withRasterFrames
 ```
