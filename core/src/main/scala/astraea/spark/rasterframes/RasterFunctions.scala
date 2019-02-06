@@ -20,9 +20,10 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
+import astraea.spark.rasterframes.expressions.ReprojectGeometry
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate, CellStatsAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{expressions ⇒ E, functions ⇒ F}
+import astraea.spark.rasterframes.{expressions => E, functions => F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -322,11 +323,17 @@ trait RasterFunctions {
       udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)
     ).as[Tile]
 
-  /** Reproject a column of geometry from one CRS to another. */  
+  /** Reproject a column of geometry from one CRS to another. */
+  def reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRSCol: Column): TypedColumn[Any, Geometry] =
+    ReprojectGeometry(sourceGeom, srcCRS, dstCRSCol)
+
+  /** Reproject a column of geometry from one CRS to another. */
+  def reproject_geometry(sourceGeom: Column, srcCRSCol: Column, dstCRS: CRS): TypedColumn[Any, Geometry] =
+    ReprojectGeometry(sourceGeom, srcCRSCol, dstCRS)
+
+  /** Reproject a column of geometry from one CRS to another. */
   def reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
-    withAlias("reproject_geometry", sourceGeom)(
-      udf(F.reprojectGeometry(_: Geometry, srcCRS, dstCRS)).apply(sourceGeom)
-    ).as[Geometry]
+    ReprojectGeometry(sourceGeom, srcCRS, dstCRS)
 
   /** Render Tile as ASCII string for debugging purposes. */
   @Experimental
