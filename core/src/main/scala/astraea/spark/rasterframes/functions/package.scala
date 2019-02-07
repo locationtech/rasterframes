@@ -219,9 +219,6 @@ package object functions {
   @inline
   private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-//  /** Cell-wise addition between tiles. */
-//  private[rasterframes] val localAdd: (Tile, Tile) ⇒ Tile = safeEval(Add.apply)
-
   /** Cell-wise addition of a scalar to a tile. */
   private[rasterframes] val localAddScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
     t.localAdd(scalar)
@@ -231,9 +228,6 @@ package object functions {
   private[rasterframes] val localAddScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
     floatingPointTile(t).localAdd(scalar)
   })
-
-  /** Cell-wise subtraction between tiles. */
-  private[rasterframes] val localSubtract: (Tile, Tile) ⇒ Tile = safeEval(Subtract.apply)
 
   /** Cell-wise subtraction of a scalar from a tile. */
   private[rasterframes] val localSubtractScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
@@ -245,9 +239,6 @@ package object functions {
     floatingPointTile(t).localSubtract(scalar)
   })
 
-  /** Cell-wise multiplication between tiles. */
-  private[rasterframes] val localMultiply: (Tile, Tile) ⇒ Tile = safeEval(Multiply.apply)
-
   /** Cell-wise multiplication of a tile by a scalar. */
   private[rasterframes] val localMultiplyScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
     t.localMultiply(scalar)
@@ -257,9 +248,6 @@ package object functions {
   private[rasterframes] val localMultiplyScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
     floatingPointTile(t).localMultiply(scalar)
   })
-
-  /** Cell-wise division between tiles. */
-  private[rasterframes] val localDivide: (Tile, Tile) ⇒ Tile = safeEval(Divide.apply)
 
   /** Cell-wise division of a tile by a scalar. */
   private[rasterframes] val localDivideScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
@@ -480,13 +468,10 @@ package object functions {
     sqlContext.udf.register("rf_local_agg_count", localAggCount)
     sqlContext.udf.register("rf_local_add_scalar", localAddScalar)
     sqlContext.udf.register("rf_local_add_scalar_int", localAddScalarInt)
-    sqlContext.udf.register("rf_local_subtract", localSubtract)
     sqlContext.udf.register("rf_local_subtract_scalar", localSubtractScalar)
     sqlContext.udf.register("rf_local_subtract_scalar_int", localSubtractScalarInt)
-    sqlContext.udf.register("rf_local_multiply", localMultiply)
     sqlContext.udf.register("rf_local_multiply_scalar", localMultiplyScalar)
     sqlContext.udf.register("rf_local_multiply_scalar_int", localMultiplyScalarInt)
-    sqlContext.udf.register("rf_local_divide", localDivide)
     sqlContext.udf.register("rf_local_divide_scalar", localDivideScalar)
     sqlContext.udf.register("rf_local_divide_scalar_int", localDivideScalarInt)
     sqlContext.udf.register("rf_normalized_difference", normalizedDifference)

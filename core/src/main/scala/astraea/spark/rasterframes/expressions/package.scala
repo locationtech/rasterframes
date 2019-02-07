@@ -47,5 +47,8 @@ package object expressions {
     VersionShims.registerExpression(registry, "rf_tile_dimensions", ub(GetDimensions.apply))
     VersionShims.registerExpression(registry, "rf_bounds_geometry", ub(BoundsToGeometry.apply))
     VersionShims.registerExpression(registry, "rf_local_add", bb(BinaryRasterOp.Add))
+    VersionShims.registerExpression(registry, "rf_local_subtract", bb(BinaryRasterOp.Subtract))
+    VersionShims.registerExpression(registry, "rf_local_multiply", bb(BinaryRasterOp.Multiply))
+    VersionShims.registerExpression(registry, "rf_local_divide", bb(BinaryRasterOp.Divide))
   }
 }

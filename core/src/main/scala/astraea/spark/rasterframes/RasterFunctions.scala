@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.{BinaryRasterOp, ReprojectGeometry}
+import astraea.spark.rasterframes.expressions.{BinaryRasterOp, ReprojectGeometry, UnaryRasterOp}
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate, CellStatsAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{expressions => E, functions => F}
@@ -211,65 +211,36 @@ trait RasterFunctions {
   ).as[Tile]
 
   /** Cellwise addition between two Tiles. */
-  def local_add(left: Column, right: Column): Column = BinaryRasterOp.Add(left, right)
+  def local_add(left: Column, right: Column): Column =
+    BinaryRasterOp.Add(left, right)
 
   /** Cellwise addition of a scalar to a tile. */
-  def local_add_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match {
-      case i: Int => F.localAddScalarInt(_: Tile, i)
-      case d: Double => F.localAddScalar(_: Tile, d)
-    }
-
-    udf(f).apply(tileCol).as(s"local_add_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_add_scalar[T: Numeric](tileCol: Column, value: T): Column =
+    UnaryRasterOp.AddScalar(tileCol, value)
 
   /** Cellwise subtraction between two Tiles. */
-  def local_subtract(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("local_subtract", left, right)(
-    udf(F.localSubtract).apply(left, right)
-  ).as[Tile]
+  def local_subtract(left: Column, right: Column): Column =
+    BinaryRasterOp.Subtract(left, right)
 
   /** Cellwise subtraction of a scalar from a tile. */
-  def local_subtract_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match {
-      case i: Int => F.localSubtractScalarInt(_: Tile, i)
-      case d: Double => F.localSubtractScalar(_: Tile, d)
-    }
-
-    udf(f).apply(tileCol).as(s"local_subtract_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_subtract_scalar[T: Numeric](tileCol: Column, value: T): Column =
+    UnaryRasterOp.SubtractScalar(tileCol, value)
 
   /** Cellwise multiplication between two Tiles. */
-  def local_multiply(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("local_multiply", left, right)(
-    udf(F.localMultiply).apply(left, right)
-  ).as[Tile]
+  def local_multiply(left: Column, right: Column): Column =
+    BinaryRasterOp.Multiply(left, right)
 
   /** Cellwise multiplication of a tile by a scalar. */
-  def local_multiply_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match {
-      case i: Int => F.localMultiplyScalarInt(_: Tile, i)
-      case d: Double => F.localMultiplyScalar(_: Tile, d)
-    }
-
-    udf(f).apply(tileCol).as(s"local_multiply_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_multiply_scalar[T: Numeric](tileCol: Column, value: T): Column =
+    UnaryRasterOp.MultiplyScalar(tileCol, value)
 
   /** Cellwise division between two Tiles. */
-  def local_divide(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("local_divide", left, right)(
-    udf(F.localDivide).apply(left, right)
-  ).as[Tile]
+  def local_divide(left: Column, right: Column): Column =
+    BinaryRasterOp.Divide(left, right)
 
   /** Cellwise division of a tile by a scalar. */
-  def local_divide_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match {
-      case i: Int => F.localDivideScalarInt(_: Tile, i)
-      case d: Double => F.localDivideScalar(_: Tile, d)
-    }
-
-    udf(f).apply(tileCol).as(s"local_divide_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_divide_scalar[T: Numeric](tileCol: Column, value: T): Column =
+    UnaryRasterOp.DivideScalar(tileCol, value)
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def local_algebra(op: LocalTileBinaryOp, left: Column, right: Column):

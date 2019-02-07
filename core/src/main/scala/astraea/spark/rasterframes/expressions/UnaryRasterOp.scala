@@ -27,6 +27,7 @@ import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.Tile
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -68,6 +69,36 @@ case class UnaryRasterOp(child: Expression, op: Tile => Tile, override val nodeN
       case Some(c) => c.toProjectRasterTile(result).toInternalRow
       case None => result.toInternalRow
     }
+  }
+}
+object UnaryRasterOp {
+  import geotrellis.raster.mapalgebra.{local => gt}
+
+  def apply(tile: Column, op: Tile => Tile, nodeName: String): Column =
+    new Column(new UnaryRasterOp(tile.expr, op, nodeName))
+
+  def AddScalar[T: Numeric](tile: Column, value: T): Column = value match {
+    case i: Int => UnaryRasterOp(tile, gt.Add(_, i), "local_add_scalar")
+    case d: Double => UnaryRasterOp(tile, gt.Add(_, d), "local_add_scalar")
+    case o => AddScalar(tile, implicitly[Numeric[T]].toDouble(o))
+  }
+
+  def SubtractScalar[T: Numeric](tile: Column, value: T): Column = value match {
+    case i: Int => UnaryRasterOp(tile, gt.Subtract(_, i), "local_subtract_scalar")
+    case d: Double => UnaryRasterOp(tile, gt.Subtract(_, d), "local_subtract_scalar")
+    case o => SubtractScalar(tile, implicitly[Numeric[T]].toDouble(o))
+  }
+
+  def MultiplyScalar[T: Numeric](tile: Column, value: T): Column = value match {
+    case i: Int => UnaryRasterOp(tile, gt.Multiply(_, i), "local_multiply_scalar")
+    case d: Double => UnaryRasterOp(tile, gt.Multiply(_, d), "local_multiply_scalar")
+    case o => MultiplyScalar(tile, implicitly[Numeric[T]].toDouble(o))
+  }
+
+  def DivideScalar[T: Numeric](tile: Column, value: T): Column = value match {
+    case i: Int => UnaryRasterOp(tile, gt.Divide(_, i), "local_divide_scalar")
+    case d: Double => UnaryRasterOp(tile, gt.Divide(_, d), "local_divide_scalar")
+    case o => DivideScalar(tile, implicitly[Numeric[T]].toDouble(o))
   }
 }
 

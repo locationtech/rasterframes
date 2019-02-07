@@ -46,6 +46,7 @@ object ZeroSevenCompatibilityKit {
   import SparkDefaultEncoders._
 
   trait RasterFunctions {
+    private val delegate = new astraea.spark.rasterframes.RasterFunctions {}
     // format: off
     /** Create a row for each cell in Tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -245,7 +246,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise addition between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAdd(left: Column, right: Column): Column = BinaryRasterOp.Add(left, right)
+    def localAdd(left: Column, right: Column): Column = delegate.local_add(left, right)
 
     /** Cellwise addition of a scalar to a tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -260,10 +261,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise subtraction between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localSubtract(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("localSubtract", left, right)(
-      udf(F.localSubtract).apply(left, right)
-    ).as[Tile]
+    def localSubtract(left: Column, right: Column): Column = delegate.local_subtract(left, right)
 
     /** Cellwise subtraction of a scalar from a tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -278,10 +276,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise multiplication between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localMultiply(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("localMultiply", left, right)(
-      udf(F.localMultiply).apply(left, right)
-    ).as[Tile]
+    def localMultiply(left: Column, right: Column): Column = delegate.local_multiply(left, right)
 
     /** Cellwise multiplication of a tile by a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -296,10 +291,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise division between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localDivide(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("localDivide", left, right)(
-      udf(F.localDivide).apply(left, right)
-    ).as[Tile]
+    def localDivide(left: Column, right: Column): Column = delegate.local_divide(left, right)
 
     /** Cellwise division of a tile by a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -491,6 +483,9 @@ object ZeroSevenCompatibilityKit {
     VersionShims.registerExpression(registry, "rf_tileDimensions", ub(E.GetDimensions.apply))
     VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(E.BoundsToGeometry.apply))
     VersionShims.registerExpression(registry, "rf_localAdd", bb(BinaryRasterOp.Add))
+    VersionShims.registerExpression(registry, "rf_localSubtract", bb(BinaryRasterOp.Subtract))
+    VersionShims.registerExpression(registry, "rf_localMultiply", bb(BinaryRasterOp.Multiply))
+    VersionShims.registerExpression(registry, "rf_localDivide", bb(BinaryRasterOp.Divide))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
@@ -517,13 +512,10 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_localAggCount", F.localAggCount)
     sqlContext.udf.register("rf_localAddScalar", F.localAddScalar)
     sqlContext.udf.register("rf_localAddScalarInt", F.localAddScalarInt)
-    sqlContext.udf.register("rf_localSubtract", F.localSubtract)
     sqlContext.udf.register("rf_localSubtractScalar", F.localSubtractScalar)
     sqlContext.udf.register("rf_localSubtractScalarInt", F.localSubtractScalarInt)
-    sqlContext.udf.register("rf_localMultiply", F.localMultiply)
     sqlContext.udf.register("rf_localMultiplyScalar", F.localMultiplyScalar)
     sqlContext.udf.register("rf_localMultiplyScalarInt", F.localMultiplyScalarInt)
-    sqlContext.udf.register("rf_localDivide", F.localDivide)
     sqlContext.udf.register("rf_localDivideScalar", F.localDivideScalar)
     sqlContext.udf.register("rf_localDivideScalarInt", F.localDivideScalarInt)
     sqlContext.udf.register("rf_normalizedDifference", F.normalizedDifference)

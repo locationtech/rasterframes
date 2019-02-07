@@ -22,12 +22,11 @@
 package astraea.spark.rasterframes
 import astraea.spark.rasterframes.expressions.ExtractTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.proj4.LatLng
+import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster.{ByteUserDefinedNoDataCellType, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
 import org.scalatest.{FunSpec, Matchers}
-import org.apache.spark.sql.functions._
 
 class RasterFunctionsTest extends FunSpec
   with TestEnvironment with Matchers {
@@ -41,19 +40,90 @@ class RasterFunctionsTest extends FunSpec
   val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
   val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)
   val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
+  val six = ProjectedRasterTile(three * two, three.extent, three.crs)
   val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
 
-  describe("binary tile operations") {
+  describe("arithmetic tile operations") {
     it("should local_add") {
       val df = Seq((one, two)).toDF("one", "two")
       val maybeThree = df.select(local_add($"one", $"two")).as[ProjectedRasterTile]
-      maybeThree.first() should be (three)
-      df.selectExpr("rf_local_add(one, two)").as[ProjectedRasterTile].first() should be (three)
+      maybeThree.first() should be(three)
+      df.selectExpr("rf_local_add(one, two)").as[ProjectedRasterTile].first() should be(three)
 
       val maybeThreeTile = df.select(local_add(ExtractTile($"one"), ExtractTile($"two"))).as[Tile]
-      maybeThreeTile.show(false)
+      maybeThreeTile.first() should be(three.toArrayTile())
+    }
+
+    it("should local_subtract") {
+      val df = Seq((three, two)).toDF("three", "two")
+      val maybeOne = df.select(local_subtract($"three", $"two")).as[ProjectedRasterTile]
+      maybeOne.first() should be(one)
+      df.selectExpr("rf_local_subtract(three, two)").as[ProjectedRasterTile].first() should be(one)
+
+      val maybeOneTile =
+        df.select(local_subtract(ExtractTile($"three"), ExtractTile($"two"))).as[Tile]
+      maybeOneTile.first() should be(one.toArrayTile())
+    }
+
+    it("should local_multiply") {
+      val df = Seq((three, two)).toDF("three", "two")
+      val maybeSix = df.select(local_multiply($"three", $"two")).as[ProjectedRasterTile]
+      maybeSix.first() should be(six)
+      df.selectExpr("rf_local_multiply(three, two)").as[ProjectedRasterTile].first() should be(six)
+
+      val maybeSixTile =
+        df.select(local_multiply(ExtractTile($"three"), ExtractTile($"two"))).as[Tile]
+      maybeSixTile.first() should be(six.toArrayTile())
+    }
+
+    it("should local_divide") {
+      val df = Seq((six, two)).toDF("six", "two")
+      val maybeThree = df.select(local_divide($"six", $"two")).as[ProjectedRasterTile]
+      maybeThree.first() should be(three)
+      df.selectExpr("rf_local_divide(six, two)").as[ProjectedRasterTile].first() should be(three)
+
+      val maybeThreeTile =
+        df.select(local_divide(ExtractTile($"six"), ExtractTile($"two"))).as[Tile]
+      maybeThreeTile.first() should be(three.toArrayTile())
+    }
+  }
+
+  describe("scalar tile operations") {
+    it("should local_add_scalar") {
+      val df = Seq(one).toDF("one")
+      val maybeThree = df.select(local_add_scalar($"one", 2)).as[ProjectedRasterTile]
+      maybeThree.first() should be(three)
+
+      val maybeThreeTile = df.select(local_add_scalar(ExtractTile($"one"), 2)).as[Tile]
+      maybeThreeTile.first() should be (three.toArrayTile())
+    }
+
+    it("should local_subtract_scalar") {
+      val df = Seq(three).toDF("three")
+      val maybeOne = df.select(local_subtract_scalar($"three", 2)).as[ProjectedRasterTile]
+      maybeOne.first() should be(one)
+
+      val maybeOneTile = df.select(local_subtract_scalar(ExtractTile($"three"), 2)).as[Tile]
+      maybeOneTile.first() should be (one.toArrayTile())
+    }
+
+    it("should local_multiply_scalar") {
+      val df = Seq(three).toDF("three")
+      val maybeSix = df.select(local_multiply_scalar($"three", 2)).as[ProjectedRasterTile]
+      maybeSix.first() should be (six)
+
+      val maybeSixTile = df.select(local_multiply_scalar(ExtractTile($"three"), 2)).as[Tile]
+      maybeSixTile.first() should be (six.toArrayTile())
+    }
+
+    it("should local_divide_scalar") {
+      val df = Seq(six).toDF("six")
+      val maybeThree = df.select(local_divide_scalar($"six", 2)).as[ProjectedRasterTile]
+      maybeThree.first() should be (three)
+
+      val maybeThreeTile = df.select(local_divide_scalar(ExtractTile($"six"), 2)).as[Tile]
       maybeThreeTile.first() should be (three.toArrayTile())
     }
   }

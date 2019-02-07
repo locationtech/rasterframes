@@ -25,7 +25,6 @@ import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}

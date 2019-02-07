@@ -91,4 +91,13 @@ object BinaryRasterOp {
   def Add(left: Expression, right: Expression)= new BinaryRasterOp(left, right, gt.Add.apply, "local_add")
   def Add(left: Column, right: Column): Column = new Column(Add(left.expr, right.expr))
 
+  def Subtract(left: Expression, right: Expression)= new BinaryRasterOp(left, right, gt.Subtract.apply, "local_subtract")
+  def Subtract(left: Column, right: Column): Column = new Column(Subtract(left.expr, right.expr))
+
+  def Multiply(left: Expression, right: Expression)= new BinaryRasterOp(left, right, gt.Multiply.apply, "local_multiply")
+  def Multiply(left: Column, right: Column): Column = new Column(Multiply(left.expr, right.expr))
+
+  def Divide(left: Expression, right: Expression) = new BinaryRasterOp(left, right, gt.Divide.apply, "local_divide")
+  def Divide(left: Column, right: Column): Column = new Column(Divide(left.expr, right.expr))
+
 }
