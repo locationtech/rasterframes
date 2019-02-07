@@ -51,7 +51,7 @@ The documentation may be built with
 sbt makeSite
 ```
 
-The `pyrasteframes` build instructions are located (pyrasterframes/python/README.rst)[pyrasterframes/python/README.rst]
+The `pyrasteframes` build instructions are located [pyrasterframes/python/README.rst](pyrasterframes/python/README.rst)
 
 ## Copyright and License
 
