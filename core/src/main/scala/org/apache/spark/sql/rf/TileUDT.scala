@@ -23,7 +23,7 @@ package org.apache.spark.sql.rf
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.model.{CellContext, Cells}
+import astraea.spark.rasterframes.model.{TileDataContext, Cells}
 import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
@@ -73,7 +73,6 @@ class TileUDT extends UserDefinedType[Tile] {
 
 case object TileUDT  {
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
-  UDTRegistration.register(classOf[ProjectedRasterTile].getName, classOf[TileUDT].getName)
 
   final val typeName: String = "tile"
 
@@ -81,12 +80,12 @@ case object TileUDT  {
     import scala.language.reflectiveCalls
 
     override def schema: StructType = StructType(Seq(
-      StructField("cell_context", CatalystSerializer[CellContext].schema, false),
+      StructField("cell_context", CatalystSerializer[TileDataContext].schema, false),
       StructField("cell_cata", CatalystSerializer[Cells].schema, false)
     ))
 
     override def to[R](t: Tile, io: CatalystIO[R]): R = io.create(
-      io.to(CellContext(t)),
+      io.to(TileDataContext(t)),
       io.to(Cells(t))
     )
 
@@ -96,7 +95,7 @@ case object TileUDT  {
       row match {
         case ir: InternalRow if !cells.isRef ⇒ new InternalRowTile(ir)
         case _ ⇒
-          val ctx = io.get[CellContext](row, 0)
+          val ctx = io.get[TileDataContext](row, 0)
           cells.toTile(ctx)
       }
     }

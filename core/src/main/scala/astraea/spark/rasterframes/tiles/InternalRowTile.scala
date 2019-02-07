@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
-import astraea.spark.rasterframes.model.{CellContext, Cells}
+import astraea.spark.rasterframes.model.{TileDataContext, Cells}
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 
@@ -60,8 +60,8 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   /** @group COPIES */
   protected override def delegate: Tile = realizedTile
 
-  private lazy val cellContext: CellContext =
-    CatalystIO[InternalRow].get[CellContext](mem, 0)
+  private lazy val cellContext: TileDataContext =
+    CatalystIO[InternalRow].get[TileDataContext](mem, 0)
 
 
   /** Retrieve the cell type from the internal encoding. */

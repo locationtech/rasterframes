@@ -25,12 +25,13 @@ import java.io.File
 import java.net.URI
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
 import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Encoder, Row}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf.TileUDT
 
@@ -75,6 +76,13 @@ class EncodingSpec extends TestEnvironment with TestData {
       assert(ds.toDF.as[TileFeature[Tile, String]].collect().head === thing)
     }
 
+    it("should code RDD[ProjectedRasterTile]") {
+      val tile = TestData.projectedRasterTile(20, 30, -1.2, extent)
+      val ds = Seq(tile).toDS()
+      write(ds)
+      assert(ds.toDF.as[ProjectedRasterTile].collect().head === tile)
+    }
+
     it("should code RDD[Extent]") {
       val ds = Seq(extent).toDS()
       write(ds)
@@ -96,8 +104,6 @@ class EncodingSpec extends TestEnvironment with TestData {
     it("should code RDD[CellType]") {
       val ct = CellType.fromName("uint8")
       val ds = Seq(ct).toDS()
-      //ds.printSchema()
-      //ds.show(false)
       write(ds)
       assert(ds.toDF.as[CellType].first() === ct)
     }

@@ -18,12 +18,11 @@ package astraea.spark
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
 import astraea.spark.rasterframes.util.ZeroSevenCompatibilityKit
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.sql._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import shapeless.tag.@@
@@ -61,7 +60,7 @@ package object rasterframes extends StandardColumns
     val config = sqlContext.sparkSession.conf
     if(config.getOption("spark.serializer").isEmpty) {
       logger.warn("No serializer has been registered with Spark. Default Java serialization will be used, which is slow. " +
-        "Consider the following settings:" +
+        "Consider using the following settings:" +
         """
           |    SparkSession
           |        .builder()

@@ -19,17 +19,14 @@
 
 package astraea.spark.rasterframes.functions
 
-import java.nio.{ByteBuffer, DoubleBuffer}
-import astraea.spark.rasterframes.encoders._
-import astraea.spark.rasterframes.util._
-import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
+import java.nio.ByteBuffer
+
 import astraea.spark.rasterframes.functions.TileAssembler.TileBuffer
+import astraea.spark.rasterframes.util._
 import geotrellis.raster.{DataType => _, _}
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.aggregate.{
-  ImperativeAggregate, TypedImperativeAggregate
-}
-import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes, Literal}
+import org.apache.spark.sql.catalyst.expressions.aggregate.{ImperativeAggregate, TypedImperativeAggregate}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}

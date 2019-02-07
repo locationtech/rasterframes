@@ -49,7 +49,6 @@ trait StandardEncoders extends SpatialEncoders{
   implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder()
 
   implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
-  implicit def projectedRasterTileEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder()
   implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
   implicit def crsEncoder: ExpressionEncoder[CRS] = CRSEncoder()
   implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ProjectedExtentEncoder()
@@ -60,6 +59,7 @@ trait StandardEncoders extends SpatialEncoders{
   implicit def rrEncoder: ExpressionEncoder[RasterRef] = ExpressionEncoder()
   implicit def prEncoder: ExpressionEncoder[ProjectedRaster[Tile]] = ExpressionEncoder()
   implicit def rsEncoder: ExpressionEncoder[RasterSource] = ExpressionEncoder()
+  implicit def serializerBasedEncoder[T: TypeTag: CatalystSerializer]: ExpressionEncoder[T] = CatalystSerializerEncoder[T]
 }
 
 object StandardEncoders extends StandardEncoders

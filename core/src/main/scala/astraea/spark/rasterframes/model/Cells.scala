@@ -30,7 +30,7 @@ import org.apache.spark.sql.types.{BinaryType, StructField, StructType}
 case class Cells(data: Either[Array[Byte], RasterRef]) {
   def isRef: Boolean = data.isRight
   /** Convert cells into either a RasterRefTile or an ArrayTile. */
-  def toTile(ctx: CellContext): Tile = {
+  def toTile(ctx: TileDataContext): Tile = {
     data.fold(
       bytes => ArrayTile.fromBytes(bytes, ctx.cellType, ctx.cellColumns, ctx.cellRows),
       ref => RasterRefTile(ref)

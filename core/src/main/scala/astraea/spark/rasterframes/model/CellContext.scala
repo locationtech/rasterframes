@@ -21,37 +21,28 @@
 
 package astraea.spark.rasterframes.model
 import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import geotrellis.raster.{CellType, Tile}
-import org.apache.spark.sql.types.{ShortType, StringType, StructField, StructType}
+import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 
-case class CellContext(cellType: CellType, cellColumns: Short, cellRows: Short)
+case class CellContext(tileCtx: TileContext, dataCtx: TileDataContext, colIndex: Short, rowIndex: Short)
 object CellContext {
-  /** Extracts the CellContext from a Tile. */
-  def apply(t: Tile): CellContext = {
-    require(t.cols <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.cols}")
-    require(t.rows <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.rows}")
-    CellContext(
-      t.cellType, t.cols.toShort, t.rows.toShort
-    )
-  }
-
-  implicit def tileSerializer: CatalystSerializer[CellContext] = new CatalystSerializer[CellContext] {
-    override def schema: StructType =  StructType(Seq(
-      StructField("cell_type", CatalystSerializer[CellType].schema, false),
-      StructField("cell_cols", ShortType, false),
-      StructField("cell_rows", ShortType, false)
+  implicit val serializer: CatalystSerializer[CellContext] = new CatalystSerializer[CellContext] {
+    override def schema: StructType = StructType(Seq(
+      StructField("tile_context", CatalystSerializer[TileContext].schema, false),
+      StructField("tile_data_context", CatalystSerializer[TileDataContext].schema, false),
+      StructField("col_index", ShortType, false),
+      StructField("row_index", ShortType, false)
     ))
-
-    override protected def to[R](t: CellContext, io: CatalystIO[R]): R = io.create(
-      io.to(t.cellType),
-      t.cellColumns,
-      t.cellRows
+    override protected def to[R](t: CellContext, io: CatalystSerializer.CatalystIO[R]): R = io.create(
+      io.to(t.tileCtx),
+      io.to(t.dataCtx),
+      t.colIndex,
+      t.rowIndex
     )
-    override protected def from[R](t: R, io: CatalystIO[R]): CellContext = CellContext(
-      io.get[CellType](t, 0),
-      io.getShort(t, 1),
-      io.getShort(t, 2)
+    override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): CellContext = CellContext(
+      io.get[TileContext](t, 0),
+      io.get[TileDataContext](t, 1),
+      io.getShort(t, 2),
+      io.getShort(t, 3)
     )
   }
 }
