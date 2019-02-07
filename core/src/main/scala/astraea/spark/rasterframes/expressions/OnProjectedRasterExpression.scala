@@ -42,18 +42,11 @@ import org.apache.spark.sql.types.DataType
 trait OnProjectedRasterExpression extends UnaryExpression {
 
   private val toPRL: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
-    case _: TileUDT ⇒
-      (row: InternalRow) ⇒ {
-        val tile = row.to[Tile](TileUDT.tileSerializer)
-        tile match {
-          case pr: ProjectedRasterTile ⇒ pr
-          // TODO: don't let match error happen. Refactor this sub case up a level.
-          // Not sure how to do do it since we're returning functions that are evaluated later.
-        }
-    }
     case _: RasterSourceUDT ⇒
       (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
+    case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
+      (row: InternalRow) => row.to[ProjectedRasterTile]
+    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) =>
       (row: InternalRow) ⇒ row.to[RasterRef]
   }
 
@@ -75,5 +68,4 @@ trait OnProjectedRasterExpression extends UnaryExpression {
 
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
   def eval(prl: ProjectedRasterLike): Any
-
 }

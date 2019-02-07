@@ -219,8 +219,8 @@ package object functions {
   @inline
   private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-  /** Cell-wise addition between tiles. */
-  private[rasterframes] val localAdd: (Tile, Tile) ⇒ Tile = safeEval(Add.apply)
+//  /** Cell-wise addition between tiles. */
+//  private[rasterframes] val localAdd: (Tile, Tile) ⇒ Tile = safeEval(Add.apply)
 
   /** Cell-wise addition of a scalar to a tile. */
   private[rasterframes] val localAddScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
@@ -478,7 +478,6 @@ package object functions {
     sqlContext.udf.register("rf_local_agg_min", localAggMin)
     sqlContext.udf.register("rf_local_agg_mean", localAggMean)
     sqlContext.udf.register("rf_local_agg_count", localAggCount)
-    sqlContext.udf.register("rf_local_add", localAdd)
     sqlContext.udf.register("rf_local_add_scalar", localAddScalar)
     sqlContext.udf.register("rf_local_add_scalar_int", localAddScalarInt)
     sqlContext.udf.register("rf_local_subtract", localSubtract)

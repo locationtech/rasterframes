@@ -24,7 +24,7 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
-import geotrellis.raster.{CellGrid, Grid, Tile}
+import geotrellis.raster.{CellGrid, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}

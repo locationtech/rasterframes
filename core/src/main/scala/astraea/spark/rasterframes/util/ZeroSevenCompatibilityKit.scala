@@ -21,9 +21,10 @@
 
 package astraea.spark.rasterframes.util
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
+import astraea.spark.rasterframes.expressions.BinaryRasterOp
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{HasCellType, util}
+import astraea.spark.rasterframes.{HasCellType, expressions => E, functions => F}
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -33,7 +34,6 @@ import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.functions.{lit, udf}
 import org.apache.spark.sql.rf.VersionShims
 import org.apache.spark.sql.{Column, SQLContext, TypedColumn, rf}
-import astraea.spark.rasterframes.{expressions => E, functions => F}
 
 import scala.reflect.runtime.universe._
 
@@ -245,10 +245,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise addition between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAdd(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("local_add", left, right)(
-      udf(F.localAdd).apply(left, right)
-    ).as[Tile]
+    def localAdd(left: Column, right: Column): Column = BinaryRasterOp.Add(left, right)
 
     /** Cellwise addition of a scalar to a tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -493,7 +490,7 @@ object ZeroSevenCompatibilityKit {
     VersionShims.registerExpression(registry, "rf_convertCellType", bb(E.SetCellType.apply))
     VersionShims.registerExpression(registry, "rf_tileDimensions", ub(E.GetDimensions.apply))
     VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(E.BoundsToGeometry.apply))
-
+    VersionShims.registerExpression(registry, "rf_localAdd", bb(BinaryRasterOp.Add))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
@@ -518,7 +515,6 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_localAggMin", F.localAggMin)
     sqlContext.udf.register("rf_localAggMean", F.localAggMean)
     sqlContext.udf.register("rf_localAggCount", F.localAggCount)
-    sqlContext.udf.register("rf_localAdd", F.localAdd)
     sqlContext.udf.register("rf_localAddScalar", F.localAddScalar)
     sqlContext.udf.register("rf_localAddScalarInt", F.localAddScalarInt)
     sqlContext.udf.register("rf_localSubtract", F.localSubtract)

@@ -30,7 +30,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 class CatalystSerializerSpec extends TestEnvironment with TestData {
   val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), 12, 23)
-  val tc = TileContext(WebMercator, Extent(1, 2, 3, 4))
+  val tc = TileContext(Extent(1, 2, 3, 4), WebMercator)
   val cc = CellContext(tc, dc, 34, 45)
 
   describe("Specialized serialization on specific types") {

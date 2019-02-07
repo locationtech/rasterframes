@@ -63,7 +63,7 @@ object ProjectedRasterTile {
       )
 
     override protected def to[R](t: ProjectedRasterTile, io: CatalystIO[R]): R = io.create(
-      io.to(TileContext(t.crs, t.extent)),
+      io.to(TileContext(t.extent, t.crs)),
       io.to[Tile](t)(TileUDT.tileSerializer)
     )
 

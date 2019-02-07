@@ -49,7 +49,7 @@ object Cells {
     }
   }
 
-  implicit def tileSerializer: CatalystSerializer[Cells] = new CatalystSerializer[Cells] {
+  implicit def cellsSerializer: CatalystSerializer[Cells] = new CatalystSerializer[Cells] {
     override def schema: StructType = StructType(Seq(
       StructField("cells", BinaryType, true),
       StructField("ref", CatalystSerializer[RasterRef].schema, true)

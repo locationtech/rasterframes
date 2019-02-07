@@ -46,5 +46,6 @@ package object expressions {
     VersionShims.registerExpression(registry, "rf_convert_cell_type", bb(SetCellType.apply))
     VersionShims.registerExpression(registry, "rf_tile_dimensions", ub(GetDimensions.apply))
     VersionShims.registerExpression(registry, "rf_bounds_geometry", ub(BoundsToGeometry.apply))
+    VersionShims.registerExpression(registry, "rf_local_add", bb(BinaryRasterOp.Add))
   }
 }

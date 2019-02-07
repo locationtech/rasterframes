@@ -20,13 +20,13 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.ReprojectGeometry
+import astraea.spark.rasterframes.expressions.{BinaryRasterOp, ReprojectGeometry}
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate, CellStatsAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{expressions => E, functions => F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
-import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
+import geotrellis.raster.mapalgebra.local.{Add, LocalTileBinaryOp}
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
@@ -211,10 +211,7 @@ trait RasterFunctions {
   ).as[Tile]
 
   /** Cellwise addition between two Tiles. */
-  def local_add(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("local_add", left, right)(
-    udf(F.localAdd).apply(left, right)
-  ).as[Tile]
+  def local_add(left: Column, right: Column): Column = BinaryRasterOp.Add(left, right)
 
   /** Cellwise addition of a scalar to a tile. */
   def local_add_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
