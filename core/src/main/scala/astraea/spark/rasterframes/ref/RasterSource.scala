@@ -42,6 +42,8 @@ import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.rf.RasterSourceUDT
 
 import scala.util.Try
 
@@ -108,7 +110,10 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 }
 
 object RasterSource extends LazyLogging {
-
+  implicit def rsEncoder: ExpressionEncoder[RasterSource] = {
+    RasterSourceUDT // Makes sure UDT is registered first
+    ExpressionEncoder()
+  }
 
   private def _logger = logger
 

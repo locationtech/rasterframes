@@ -43,9 +43,9 @@ trait OnCellGridExpression extends UnaryExpression {
 
   private val toGrid: PartialFunction[DataType, InternalRow ⇒ CellGrid] = {
     case _: TileUDT ⇒
-      (row: InternalRow) ⇒ row.to[Tile]
+      (row: InternalRow) ⇒ row.to[Tile](TileUDT.tileSerializer)
     case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource]
+      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
       (row: InternalRow) ⇒ row.to[RasterRef]
   }

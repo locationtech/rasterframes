@@ -64,11 +64,11 @@ object ProjectedRasterTile {
 
     override protected def to[R](t: ProjectedRasterTile, io: CatalystIO[R]): R = io.create(
       io.to(TileContext(t.crs, t.extent)),
-      io.to[Tile](t)
+      io.to[Tile](t)(TileUDT.tileSerializer)
     )
 
     override protected def from[R](t: R, io: CatalystIO[R]): ProjectedRasterTile = {
-      val tile = io.get[Tile](t, 1)
+      val tile = io.get[Tile](t, 1)(TileUDT.tileSerializer)
       tile match {
         case r: RasterRefTile => r
         case _ =>
@@ -81,5 +81,6 @@ object ProjectedRasterTile {
       }
     }
   }
+
   implicit val prtEncoder: Encoder[ProjectedRasterTile] = CatalystSerializerEncoder[ProjectedRasterTile]
 }

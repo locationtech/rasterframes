@@ -54,7 +54,7 @@ case class URIToRasterSource(override val child: Expression, accumulator: Option
     val uriString = input.asInstanceOf[UTF8String].toString
     val uri = URI.create(uriString)
     val ref = RasterSource(uri, accumulator)
-    ref.toInternalRow
+    RasterSourceUDT.serialize(ref)
   }
 }
 

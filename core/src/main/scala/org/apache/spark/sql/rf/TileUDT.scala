@@ -23,12 +23,9 @@ package org.apache.spark.sql.rf
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.model.{TileDataContext, Cells}
-import astraea.spark.rasterframes.ref.RasterRef
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import astraea.spark.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
+import astraea.spark.rasterframes.model.{Cells, TileDataContext}
+import astraea.spark.rasterframes.tiles.InternalRowTile
 import geotrellis.raster._
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
 

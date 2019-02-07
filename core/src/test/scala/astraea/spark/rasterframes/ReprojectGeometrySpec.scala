@@ -31,7 +31,7 @@ import org.scalatest.{FunSpec, Matchers}
  *
  * @since 11/29/18
  */
-class ReprojectGeometryTest extends FunSpec
+class ReprojectGeometrySpec extends FunSpec
   with TestEnvironment with Matchers {
   import spark.implicits._
 

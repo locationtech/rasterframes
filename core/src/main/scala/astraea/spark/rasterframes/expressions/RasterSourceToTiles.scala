@@ -53,6 +53,8 @@ case class RasterSourceToTiles(children: Seq[Expression], applyTiling: Boolean) 
   )
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+    implicit val ser = TileUDT.tileSerializer
+
     try {
       val refs = children.map { child ⇒
         val src = RasterSourceType.deserialize(child.eval(input))

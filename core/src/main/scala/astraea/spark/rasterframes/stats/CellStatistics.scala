@@ -19,6 +19,7 @@
  */
 
 package astraea.spark.rasterframes.stats
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 /**
  * Container for computed statistics over cells.
@@ -54,4 +55,7 @@ object CellStatistics {
     new CellStatistics(stats.dataCells, -1, stats.zmin.toDouble, stats.zmax.toDouble, stats.mean, stats.stddev * stats.stddev)
 
   def empty = new CellStatistics(0, 0, Double.NaN, Double.NaN, Double.NaN, Double.NaN)
+
+  implicit val statsEncoder: ExpressionEncoder[CellStatistics] = ExpressionEncoder()
+
 }

@@ -44,20 +44,20 @@ import scala.util.control.NonFatal
 case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Boolean) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
-  private val rasterSourceType = new RasterSourceUDT()
+  private val RasterSourceType = new RasterSourceUDT()
   private val rasterRefSchema = CatalystSerializer[RasterRef].schema
 
-  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceType)
+  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
   override def nodeName: String = "raster_source_to_raster_ref"
 
   override def elementSchema: StructType = StructType(
-    children.map(e ⇒ StructField(e.name, rasterRefSchema, true))
+    children.map(e ⇒ StructField(e.name, rasterRefSchema, false))
   )
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
       val refs = children.map { child ⇒
-        val src = rasterSourceType.deserialize(child.eval(input))
+        val src = RasterSourceType.deserialize(child.eval(input))
         if (applyTiling) src.nativeTiling.map(e ⇒ RasterRef(src, Some(e))) else Seq(RasterRef(src))
       }
       refs.transpose.map(ts ⇒ InternalRow(ts.map(_.toInternalRow): _*))

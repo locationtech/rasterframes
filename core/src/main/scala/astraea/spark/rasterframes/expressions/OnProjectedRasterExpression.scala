@@ -44,7 +44,7 @@ trait OnProjectedRasterExpression extends UnaryExpression {
   private val toPRL: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
     case _: TileUDT ⇒
       (row: InternalRow) ⇒ {
-        val tile = row.to[Tile]
+        val tile = row.to[Tile](TileUDT.tileSerializer)
         tile match {
           case pr: ProjectedRasterTile ⇒ pr
           // TODO: don't let match error happen. Refactor this sub case up a level.
@@ -52,7 +52,7 @@ trait OnProjectedRasterExpression extends UnaryExpression {
         }
     }
     case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource]
+      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
       (row: InternalRow) ⇒ row.to[RasterRef]
   }

@@ -260,7 +260,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val (mean, vrnc) = exploded.agg(avg($"tiles"), var_pop($"tiles")).as[(Double, Double)].first
 
       val stats = ds.select(agg_stats($"tiles") as "stats") ///.as[(Long, Double, Double, Double, Double)]
-      stats.printSchema()
+      //stats.printSchema()
       noException shouldBe thrownBy {
         ds.select(agg_stats($"tiles")).collect()
       }

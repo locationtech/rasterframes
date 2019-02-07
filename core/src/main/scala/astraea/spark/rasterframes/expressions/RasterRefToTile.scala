@@ -47,6 +47,7 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
   override def dataType: DataType = new TileUDT
 
   override protected def nullSafeEval(input: Any): Any = {
+    implicit val ser = TileUDT.tileSerializer
     val ref = row(input).to[RasterRef]
     (ref.tile: Tile).toInternalRow
   }

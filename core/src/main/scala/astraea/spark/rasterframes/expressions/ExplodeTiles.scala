@@ -27,6 +27,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow}
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import spire.syntax.cfor.cfor
 
@@ -64,7 +65,7 @@ case class ExplodeTiles(
     val tiles = Array.ofDim[Tile](children.length)
     cfor(0)(_ < tiles.length, _ + 1) { index =>
       val row = children(index).eval(input).asInstanceOf[InternalRow]
-      tiles(index) = if(row != null) row.to[Tile] else null
+      tiles(index) = if(row != null) row.to[Tile](TileUDT.tileSerializer) else null
     }
     val dims = tiles.filter(_ != null).map(_.dimensions)
     if(dims.isEmpty) Seq.empty[InternalRow]

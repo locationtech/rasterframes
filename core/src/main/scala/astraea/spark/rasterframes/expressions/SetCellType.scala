@@ -74,6 +74,7 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
   }
 
   override protected def nullSafeEval(left: Any, right: Any): InternalRow = {
+    implicit val ser = TileUDT.tileSerializer
     val t = row(left).to[Tile]
     val ct = toCellType(right)
     t.convert(ct).toInternalRow
