@@ -250,10 +250,8 @@ trait RasterFunctions {
     ).as[Tile]
 
   /** Compute the normalized difference of two tile columns */
-  def normalized_difference(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("normalized_difference", left, right)(
-      udf(F.normalizedDifference).apply(left, right)
-    ).as[Tile]
+  def normalized_difference(left: Column, right: Column): Column =
+    BinaryRasterOp(left, right, F.normalizedDifference, "normalized_difference")
 
   /** Constructor for constant tile column */
   def make_constant_tile(value: Number, cols: Int, rows: Int, cellType: String): TypedColumn[Any, Tile] =

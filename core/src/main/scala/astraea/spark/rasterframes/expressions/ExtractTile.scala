@@ -20,31 +20,28 @@
  */
 
 package astraea.spark.rasterframes.expressions
-import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef}
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster.Tile
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.{Column, TypedColumn}
 
 /** Expression to extract at tile from several types that contain tiles.*/
-case class ExtractTile(child: Expression) extends OnProjectedRasterExpression with CodegenFallback {
+case class ExtractTile(child: Expression) extends OnTileExpression with CodegenFallback {
   override def dataType: DataType = new TileUDT()
 
   override def nodeName: String = "extract_tile"
 
-  /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
-  override def eval(prl: ProjectedRasterLike): Any = {
-    val result = prl match {
-      case rr: RasterRef => rr.tile
-      case t: Tile       => t
-      case _             => null
-    }
-
-    TileUDT.tileSerializer.toInternalRow(result)
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): InternalRow = {
+    implicit val tileSer = TileUDT.tileSerializer
+    tile.toInternalRow
   }
 }
+
 object ExtractTile {
   import astraea.spark.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
   def apply(input: Column): TypedColumn[Any, Tile] =

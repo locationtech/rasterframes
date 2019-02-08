@@ -267,7 +267,7 @@ package object functions {
   })
 
   /** Render tile as ASCII string. */
-  private[rasterframes] val renderAscii: (Tile) ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
+  private[rasterframes] val renderAscii: Tile ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
 
   /** Constructor for constant tiles */
   private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {

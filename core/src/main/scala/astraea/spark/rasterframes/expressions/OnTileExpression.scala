@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,51 +20,42 @@
  */
 
 package astraea.spark.rasterframes.expressions
-
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
+import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
+import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.rf._
 
-/**
- * Implements boilerplate for subtype expressions processing TileUDT (when ProjectedRasterTile), RasterSourceUDT, and
- * RasterSource-shaped rows.
- *
- * @since 11/3/18
- */
-trait OnProjectedRasterExpression extends UnaryExpression {
-
-  private val toPRL: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
-    case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+/** Boilerplate for expressions operating on a single Tile-like . */
+trait OnTileExpression extends UnaryExpression {
+  private val extractor: PartialFunction[DataType, InternalRow => (Tile, Option[TileContext])] = {
+    case _: TileUDT =>
+      (row: InternalRow) => (row.to[Tile](TileUDT.tileSerializer), None)
     case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
-      (row: InternalRow) => row.to[ProjectedRasterTile]
-    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) =>
-      (row: InternalRow) ⇒ row.to[RasterRef]
+      (row: InternalRow) => {
+        val prt = row.to[ProjectedRasterTile]
+        (prt, Some(TileContext(prt)))
+      }
   }
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!toPRL.isDefinedAt(child.dataType)) {
-      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `ProjectedRasterLike`.")
+    if (!extractor.isDefinedAt(child.dataType)) {
+      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")
     }
     else TypeCheckSuccess
   }
 
-  final override protected def nullSafeEval(input: Any): Any = {
-    input match {
-      case row: InternalRow ⇒
-        val prl = toPRL(child.dataType)(row)
-        eval(prl)
-      case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
-    }
+  override protected def nullSafeEval(input: Any): InternalRow = {
+    val (tile, ctx) = extractor(child.dataType)(row(input))
+    eval(tile, ctx)
   }
 
-  /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
-  def eval(prl: ProjectedRasterLike): Any
+  protected def eval(tile: Tile, ctx: Option[TileContext]): InternalRow
+
 }

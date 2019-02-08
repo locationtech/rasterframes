@@ -23,13 +23,14 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.expressions.ExtractTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.{CRS, LatLng}
-import geotrellis.raster.{ByteUserDefinedNoDataCellType, Tile}
+import geotrellis.raster.testkit.RasterMatchers
+import geotrellis.raster.{ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
 import org.scalatest.{FunSpec, Matchers}
 
 class RasterFunctionsTest extends FunSpec
-  with TestEnvironment with Matchers {
+  with TestEnvironment with Matchers with RasterMatchers {
   import spark.implicits._
 
   val extent = Extent(10, 20, 30, 40)
@@ -48,45 +49,51 @@ class RasterFunctionsTest extends FunSpec
   describe("arithmetic tile operations") {
     it("should local_add") {
       val df = Seq((one, two)).toDF("one", "two")
+
       val maybeThree = df.select(local_add($"one", $"two")).as[ProjectedRasterTile]
-      maybeThree.first() should be(three)
-      df.selectExpr("rf_local_add(one, two)").as[ProjectedRasterTile].first() should be(three)
+      assertEqual(maybeThree.first(), three)
+
+      assertEqual(df.selectExpr("rf_local_add(one, two)").as[ProjectedRasterTile].first(), three)
 
       val maybeThreeTile = df.select(local_add(ExtractTile($"one"), ExtractTile($"two"))).as[Tile]
-      maybeThreeTile.first() should be(three.toArrayTile())
+      assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
 
     it("should local_subtract") {
       val df = Seq((three, two)).toDF("three", "two")
       val maybeOne = df.select(local_subtract($"three", $"two")).as[ProjectedRasterTile]
-      maybeOne.first() should be(one)
-      df.selectExpr("rf_local_subtract(three, two)").as[ProjectedRasterTile].first() should be(one)
+      assertEqual(maybeOne.first(), one)
+
+      assertEqual(df.selectExpr("rf_local_subtract(three, two)").as[ProjectedRasterTile].first(), one)
 
       val maybeOneTile =
         df.select(local_subtract(ExtractTile($"three"), ExtractTile($"two"))).as[Tile]
-      maybeOneTile.first() should be(one.toArrayTile())
+      assertEqual(maybeOneTile.first(), one.toArrayTile())
     }
 
     it("should local_multiply") {
       val df = Seq((three, two)).toDF("three", "two")
+
       val maybeSix = df.select(local_multiply($"three", $"two")).as[ProjectedRasterTile]
-      maybeSix.first() should be(six)
-      df.selectExpr("rf_local_multiply(three, two)").as[ProjectedRasterTile].first() should be(six)
+      assertEqual(maybeSix.first(), six)
+
+      assertEqual(df.selectExpr("rf_local_multiply(three, two)").as[ProjectedRasterTile].first(), six)
 
       val maybeSixTile =
         df.select(local_multiply(ExtractTile($"three"), ExtractTile($"two"))).as[Tile]
-      maybeSixTile.first() should be(six.toArrayTile())
+      assertEqual(maybeSixTile.first(), six.toArrayTile())
     }
 
     it("should local_divide") {
       val df = Seq((six, two)).toDF("six", "two")
       val maybeThree = df.select(local_divide($"six", $"two")).as[ProjectedRasterTile]
-      maybeThree.first() should be(three)
-      df.selectExpr("rf_local_divide(six, two)").as[ProjectedRasterTile].first() should be(three)
+      assertEqual(maybeThree.first(), three)
+
+      assertEqual(df.selectExpr("rf_local_divide(six, two)").as[ProjectedRasterTile].first(), three)
 
       val maybeThreeTile =
         df.select(local_divide(ExtractTile($"six"), ExtractTile($"two"))).as[Tile]
-      maybeThreeTile.first() should be(three.toArrayTile())
+      assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
   }
 
@@ -94,37 +101,52 @@ class RasterFunctionsTest extends FunSpec
     it("should local_add_scalar") {
       val df = Seq(one).toDF("one")
       val maybeThree = df.select(local_add_scalar($"one", 2)).as[ProjectedRasterTile]
-      maybeThree.first() should be(three)
+      assertEqual(maybeThree.first(), three)
+
+      val maybeThreeD = df.select(local_add_scalar($"one", 2.0)).as[ProjectedRasterTile]
+      assertEqual(maybeThreeD.first(), three.convert(DoubleConstantNoDataCellType))
 
       val maybeThreeTile = df.select(local_add_scalar(ExtractTile($"one"), 2)).as[Tile]
-      maybeThreeTile.first() should be (three.toArrayTile())
+      assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
 
     it("should local_subtract_scalar") {
       val df = Seq(three).toDF("three")
+
       val maybeOne = df.select(local_subtract_scalar($"three", 2)).as[ProjectedRasterTile]
-      maybeOne.first() should be(one)
+      assertEqual(maybeOne.first(), one)
+
+      val maybeOneD = df.select(local_subtract_scalar($"three", 2.0)).as[ProjectedRasterTile]
+      assertEqual(maybeOneD.first(), one)
 
       val maybeOneTile = df.select(local_subtract_scalar(ExtractTile($"three"), 2)).as[Tile]
-      maybeOneTile.first() should be (one.toArrayTile())
+      assertEqual(maybeOneTile.first(), one.toArrayTile())
     }
 
     it("should local_multiply_scalar") {
       val df = Seq(three).toDF("three")
+
       val maybeSix = df.select(local_multiply_scalar($"three", 2)).as[ProjectedRasterTile]
-      maybeSix.first() should be (six)
+      assertEqual(maybeSix.first(), six)
+
+      val maybeSixD = df.select(local_multiply_scalar($"three", 2.0)).as[ProjectedRasterTile]
+      assertEqual(maybeSixD.first(), six)
 
       val maybeSixTile = df.select(local_multiply_scalar(ExtractTile($"three"), 2)).as[Tile]
-      maybeSixTile.first() should be (six.toArrayTile())
+      assertEqual(maybeSixTile.first(), six.toArrayTile())
     }
 
     it("should local_divide_scalar") {
       val df = Seq(six).toDF("six")
+
       val maybeThree = df.select(local_divide_scalar($"six", 2)).as[ProjectedRasterTile]
-      maybeThree.first() should be (three)
+      assertEqual(maybeThree.first(), three)
+
+      val maybeThreeD = df.select(local_divide_scalar($"six", 2.0)).as[ProjectedRasterTile]
+      assertEqual(maybeThreeD.first(), three)
 
       val maybeThreeTile = df.select(local_divide_scalar(ExtractTile($"six"), 2)).as[Tile]
-      maybeThreeTile.first() should be (three.toArrayTile())
+      assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
   }
 }

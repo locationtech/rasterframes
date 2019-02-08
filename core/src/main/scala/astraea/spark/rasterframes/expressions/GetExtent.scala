@@ -24,7 +24,7 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
-import astraea.spark.rasterframes.ref.ProjectedRasterLike
+import astraea.spark.rasterframes.model.TileContext
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
@@ -37,10 +37,10 @@ import org.apache.spark.sql.{Column, TypedColumn}
  *
  * @since 9/10/18
  */
-case class GetExtent(child: Expression) extends OnProjectedRasterExpression with CodegenFallback {
+case class GetExtent(child: Expression) extends OnTileContextExpression with CodegenFallback {
   override def dataType: DataType = CatalystSerializer[Extent].schema
   override def nodeName: String = "extent"
-  override def eval(prl: ProjectedRasterLike): InternalRow = prl.extent.toInternalRow
+  override def eval(ctx: TileContext): InternalRow = ctx.extent.toInternalRow
 }
 
 object GetExtent {

@@ -27,7 +27,7 @@ import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.ProjectedRasterLike
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.proj4.CRS
-import geotrellis.raster.{ProjectedRaster, Tile}
+import geotrellis.raster.{CellType, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.Encoder
 import org.apache.spark.sql.rf.TileUDT
@@ -54,6 +54,8 @@ object ProjectedRasterTile {
   case class ConcreteProjectedRasterTile(t: Tile, extent: Extent, crs: CRS)
       extends ProjectedRasterTile {
     def delegate: Tile = t
+    override def convert(cellType: CellType): Tile =
+      ConcreteProjectedRasterTile(t.convert(cellType), extent, crs)
   }
 
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {

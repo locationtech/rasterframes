@@ -41,7 +41,8 @@ import org.apache.spark.unsafe.types.UTF8String
  *
  * @since 9/11/18
  */
-case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExpression with CodegenFallback {
+case class SetCellType(tile: Expression, cellType: Expression)
+  extends BinaryExpression with CodegenFallback {
   def left = tile
   def right = cellType
   override def nodeName: String = "set_cell_type"
@@ -50,25 +51,23 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
   private val ctSchema = CatalystSerializer[CellType].schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    RequiresTile.check(tile) match {
-      case TypeCheckSuccess ⇒
-        right.dataType match {
-          case StringType ⇒ TypeCheckSuccess
-          case st: StructType if st == ctSchema ⇒ TypeCheckSuccess
-          case _ ⇒ TypeCheckFailure(
-            s"Expected CellType but received '${right.dataType.simpleString}'"
-          )
-        }
-      case o ⇒ o
-    }
+    if (!left.dataType.isInstanceOf[TileUDT])
+      TypeCheckFailure(s"Expected 'TileUDT' but received '${left.dataType.simpleString}'")
+    else
+      right.dataType match {
+        case StringType => TypeCheckSuccess
+        case st: StructType if st == ctSchema => TypeCheckSuccess
+        case _ =>
+          TypeCheckFailure(s"Expected CellType but received '${right.dataType.simpleString}'")
+      }
   }
 
   private def toCellType(datum: Any): CellType = {
     right.dataType match {
-      case StringType ⇒
+      case StringType =>
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st: StructType if st == ctSchema ⇒
+      case st: StructType if st == ctSchema =>
         row(datum).to[CellType]
     }
   }
