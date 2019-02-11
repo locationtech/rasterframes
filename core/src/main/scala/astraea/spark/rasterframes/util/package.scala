@@ -89,9 +89,10 @@ package object util extends LazyLogging {
   object CRSParser {
     def apply(value: String): CRS = {
       value match {
-        case e if e.startsWith("EPSG") => CRS.fromName(e)
-        case p if p.startsWith("+proj") => CRS.fromString(p)
-        case w if w.startsWith("GEOGCS") => CRS.fromWKT(w)
+        case e if e.toUpperCase().startsWith("EPSG") => CRS.fromName(e)  //not case-sensitive
+        case p if p.startsWith("+proj") => CRS.fromString(p)  // case sensitive
+        case w if w.toUpperCase().startsWith("GEOGCS") => CRS.fromWKT(w)  //only case-sensitive inside double quotes
+        case _ ⇒ throw new IllegalArgumentException("crs string must be either EPSG code, +proj string, or OGC WKT")
       }
     }
   }
