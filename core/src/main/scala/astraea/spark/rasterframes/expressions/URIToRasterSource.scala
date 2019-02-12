@@ -24,8 +24,8 @@ package astraea.spark.rasterframes.expressions
 import java.net.URI
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
-import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
@@ -41,7 +41,7 @@ import org.apache.spark.unsafe.types.UTF8String
  *
  * @since 5/4/18
  */
-case class URIToRasterSource(override val child: Expression, accumulator: Option[ReadAccumulator])
+case class URIToRasterSource(override val child: Expression, accumulator: Option[ReadCallback])
   extends UnaryExpression with ExpectsInputTypes with CodegenFallback with LazyLogging {
 
   override def nodeName: String = "uri_to_raster_source"
@@ -61,8 +61,8 @@ case class URIToRasterSource(override val child: Expression, accumulator: Option
 object URIToRasterSource {
   def apply(rasterURI: Column): TypedColumn[Any, RasterRef] =
     new Column(new URIToRasterSource(rasterURI.expr, None)).as[RasterRef]
-  def apply(rasterURI: Column, accumulator: ReadAccumulator): TypedColumn[Any, RasterRef] =
+  def apply(rasterURI: Column, accumulator: ReadCallback): TypedColumn[Any, RasterRef] =
     new Column(new URIToRasterSource(rasterURI.expr, Option(accumulator))).as[RasterRef]
-  def apply(rasterURI: Column, accumulator: Option[ReadAccumulator]): TypedColumn[Any, RasterRef] =
+  def apply(rasterURI: Column, accumulator: Option[ReadCallback]): TypedColumn[Any, RasterRef] =
     new Column(new URIToRasterSource(rasterURI.expr, accumulator)).as[RasterRef]
 }

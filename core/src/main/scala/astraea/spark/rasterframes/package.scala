@@ -47,6 +47,7 @@ package object rasterframes extends StandardColumns
   with LazyLogging {
 
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
+  @transient
   final val NOMINAL_TILE_SIZE: Int = ConfigFactory.load().getInt("rasterframes.nominal-tile-size")
 
   /**

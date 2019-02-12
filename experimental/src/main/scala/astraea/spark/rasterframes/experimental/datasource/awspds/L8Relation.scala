@@ -26,6 +26,7 @@ import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
 import astraea.spark.rasterframes.expressions.{RasterSourceToRasterRefs, URIToRasterSource}
 import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.rules.SpatialFilters.{Contains, Intersects}
 import astraea.spark.rasterframes.rules._
 import astraea.spark.rasterframes.util._
@@ -41,7 +42,7 @@ import org.apache.spark.sql.{Column, Row, SQLContext}
  *
  * @since 8/21/18
  */
-case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: Option[ReadAccumulator], filters: Seq[Filter] = Seq.empty)
+case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: Option[ReadCallback], filters: Seq[Filter] = Seq.empty)
   extends BaseRelation with PrunedFilteredScan with SpatialRelationReceiver[L8Relation] with LazyLogging {
   override def schema: StructType = L8Relation.schema
 
