@@ -27,8 +27,6 @@ import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.SparkContext
 import org.apache.spark.util.LongAccumulator
 
-import scala.collection.mutable
-
 /**
  * Support for keeping counts of read operations from RasterSource-s
  *
@@ -44,22 +42,9 @@ case class ReadAccumulator(reads: () ⇒ LongAccumulator, bytes: () ⇒ LongAccu
 }
 
 object ReadAccumulator extends LazyLogging {
-  private val reads: mutable.Map[String, LongAccumulator] = mutable.Map.empty
-  private val bytes: mutable.Map[String, LongAccumulator] = mutable.Map.empty
-
   def apply(sc: SparkContext, prefix: String): ReadAccumulator = this.synchronized {
-    // TODO: Not sure how inititalize these in the proper scope... this is not it.
-    reads.getOrElseUpdate(prefix, sc.longAccumulator(prefix + ".reads"))//.reset()
-    bytes.getOrElseUpdate(prefix, sc.longAccumulator(prefix + ".bytes"))//.reset()
-    new ReadAccumulator(() ⇒ reads(prefix), () ⇒ bytes(prefix))
-  }
-
-  def log(): Unit = this.synchronized {
-    val keys = reads.keySet.intersect(bytes.keySet)
-    keys.foreach { key ⇒
-      val r = reads(key).value
-      val b = bytes(key).value
-      logger.info(s"readCount=$r, totalBytes=$b")
-    }
+    val reads = sc.longAccumulator(prefix + ".reads")
+    val bytes = sc.longAccumulator(prefix + ".bytes")
+    new ReadAccumulator(() ⇒ reads, () ⇒ bytes)
   }
 }

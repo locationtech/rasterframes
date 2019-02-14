@@ -51,7 +51,7 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
   }
 
   after {
-    ReadAccumulator.log()
+    spark.sparkContext.register()
   }
 
   describe("Read L8 on PDS as a DataSource") {
