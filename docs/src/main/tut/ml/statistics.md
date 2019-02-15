@@ -61,10 +61,7 @@ rf.withColumn("stats", tile_stats($"tile")).select(rf.spatialKeyColumn, $"stats.
 
 ### Histogram
 
-The `tileHistogram` function computes a histogram over the data in each tile. See the 
-@scaladoc[GeoTrellis `Histogram`](geotrellis.raster.histogram.Histogram) documentation for details on what's
-available in the resulting data structure. Use this version for integral cell types, and `tileHistorgramDouble` for
-floating  point cells types. 
+The `tile_histogram` function computes a histogram over the data in each tile. 
 
 In this example we compute quantile breaks.
 

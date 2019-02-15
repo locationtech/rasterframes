@@ -119,7 +119,7 @@ First, we get the DataFrame back into RasterFrame form:
 val tlm = joinedRF.tileLayerMetadata.left.get
 
 val retiled = clustered.groupBy($"spatial_key").agg(
-  assembleTile(
+  assemble_tile(
     $"column_index", $"row_index", $"prediction",
     tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType
   )

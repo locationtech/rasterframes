@@ -29,15 +29,8 @@ relative biomass.
 def redBand = SinglebandGeoTiff("../core/src/test/resources/L8-B4-Elkton-VA.tiff").projectedRaster.toRF("red_band")
 def nirBand = SinglebandGeoTiff("../core/src/test/resources/L8-B5-Elkton-VA.tiff").projectedRaster.toRF("nir_band")
 
-// Define UDF for computing NDVI from red and NIR bands
-val ndvi = udf((red: Tile, nir: Tile) ⇒ {
-  val redd = red.convert(DoubleConstantNoDataCellType)
-  val nird = nir.convert(DoubleConstantNoDataCellType)
-  (nird - redd)/(nird + redd)
-})
-
 // We use `asRF` to indicate we know the structure still conforms to RasterFrame constraints
-val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", ndvi($"red_band", $"nir_band")).asRF
+val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", normalized_difference($"red_band", $"nir_band")).asRF
 
 val pr = rf.toRaster($"ndvi", 466, 428)
 
