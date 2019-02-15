@@ -1,35 +1,56 @@
-
 import sbt.{IO, _}
 
 import scala.sys.process.Process
 
 moduleName := "rasterframes-deployment"
 
-lazy val rfNotebookContainer = taskKey[Unit]("Build a Docker container that supports RasterFrames notebooks.")
+val Docker = config("docker")
+val Python = config("python")
 
-rfNotebookContainer := {
+
+lazy val rfDockerImageName = settingKey[String]("Name to tag Docker image with.")
+rfDockerImageName := "s22s/rasterframes-notebooks"
+
+lazy val rfNotebookContainer = taskKey[Unit]("Build Jupyter Notebook Docker image with RasterFrames support.")
+rfNotebookContainer := (Docker / packageBin).value
+
+lazy val runRFNotebook = taskKey[String]("Run RasterFrames Jupyter Notebook image")
+runRFNotebook := {
+  val imageName = rfDockerImageName.value
+  val _ = rfNotebookContainer.value
+  Process(s"docker run -p 8888:8888 -p 4040:4040 $imageName").run()
+  imageName
+}
+
+Docker / resourceDirectory := baseDirectory.value / "docker"/ "jupyter"
+
+Docker / target := target.value / "docker"
+
+Docker / mappings := {
+  val rezDir = (Docker / resourceDirectory).value
+  val files = (rezDir ** "*") pair Path.relativeTo(rezDir)
+
+  val jar = (assembly in LocalProject("pyrasterframes")).value
+  val py = (packageBin in (LocalProject("pyrasterframes"), Python)).value
+
+  files ++ Seq(jar -> jar.getName, py -> py.getName)
+}
+
+def rfFiles = Def.task {
+  val destDir = (Docker / target).value
+  val filePairs = (Docker / mappings).value
+  IO.copy(filePairs.map { case (src, dst) ⇒ (src, destDir / dst) })
+}
+
+Docker / packageBin := {
+  val _ = rfFiles.value
   val logger = streams.value.log
-  val wd = baseDirectory.value / "docker"/ "jupyter"
-
+  val staging = (Docker / target).value
   val ver = (version in LocalRootProject).value
-  val assemblyFile = (assembly in LocalProject("pyrasterframes")).value
-  val PyZipFile = (packageBin in (LocalProject("pyrasterframes"), config("Python"))).value
 
-  val copiedFiles = Seq(assemblyFile, PyZipFile)
-    .map(f => {
-      val dest = wd / f.getName
-      logger.info(s"Copying ${f.getName} to: " + dest)
-      IO.copyFile(f, dest)
-      dest
-  })
-
-  val imageName = "s22s/rasterframes-notebooks"
-  //val targetFile = wd / s"$imageName.tar"
-  Process("docker-compose build", wd) ! logger
-  Process(s"docker tag $imageName:latest $imageName:$ver", wd) ! logger
-  //Process(s"docker save -o $targetFile $imageName:$ver") ! logger
-
-  IO.delete(copiedFiles)
-  logger.info("Removed copied artifacts")
-  //targetFile
+  logger.info(s"Running docker build in $staging")
+  val imageName = rfDockerImageName.value
+  Process("docker-compose build", staging).!
+  Process(s"docker tag $imageName:latest $imageName:$ver", staging).!
+  staging
 }

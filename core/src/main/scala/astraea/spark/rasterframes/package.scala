@@ -17,15 +17,17 @@
 package astraea.spark
 
 import astraea.spark.rasterframes.encoders.StandardEncoders
-import geotrellis.raster.{MultibandTile, Tile, TileFeature}
+import astraea.spark.rasterframes.util.ZeroSevenCompatibilityKit
+import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.scalalogging.LazyLogging
+import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.sql._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
-import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import shapeless.tag.@@
 
-import scala.annotation.implicitNotFound
 import scala.language.higherKinds
 import scala.reflect.runtime.universe._
 
@@ -37,11 +39,16 @@ import scala.reflect.runtime.universe._
  */
 package object rasterframes extends StandardColumns
   with RasterFunctions
+  with ZeroSevenCompatibilityKit.RasterFunctions
   with rasterframes.extensions.Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
-  with SpatialEncoders
-  with DataFrameFunctions.Library {
+  with DataFrameFunctions.Library
+  with LazyLogging {
+
+  /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
+  @transient
+  final val NOMINAL_TILE_SIZE: Int = ConfigFactory.load().getInt("rasterframes.nominal-tile-size")
 
   /**
    * Initialization injection point. Must be called before any RasterFrame
@@ -50,7 +57,24 @@ package object rasterframes extends StandardColumns
   def initRF(sqlContext: SQLContext): Unit = {
     import org.locationtech.geomesa.spark.jts._
     sqlContext.withJTS
+
+    val config = sqlContext.sparkSession.conf
+    if(config.getOption("spark.serializer").isEmpty) {
+      logger.warn("No serializer has been registered with Spark. Default Java serialization will be used, which is slow. " +
+        "Consider the following settings:" +
+        """
+          |    SparkSession
+          |        .builder()
+          |        .master("local[*]")
+          |        .appName(getClass.getName)
+          |        .withKryoSerialization  // <--- RasterFrames extension method
+      """.stripMargin
+
+      )
+    }
+
     rf.register(sqlContext)
+    ZeroSevenCompatibilityKit.register(sqlContext)
     rasterframes.functions.register(sqlContext)
     rasterframes.expressions.register(sqlContext)
     rasterframes.rules.register(sqlContext)

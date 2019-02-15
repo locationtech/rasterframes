@@ -19,16 +19,16 @@
 package astraea.spark.rasterframes.datasource.geotrellis
 
 import java.io.File
+import java.sql.Timestamp
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
+import astraea.spark.rasterframes.datasource.DataSourceOptions
+import astraea.spark.rasterframes.rules._
 import astraea.spark.rasterframes.util._
-import astraea.spark.rasterframes.util.debug._
 import geotrellis.proj4.LatLng
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.GeoTiff
-import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
+import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.spark._
 import geotrellis.spark.io._
@@ -37,20 +37,19 @@ import geotrellis.spark.io.avro.codecs.Implicits._
 import geotrellis.spark.io.index.ZCurveKeyIndexMethod
 import geotrellis.spark.tiling.ZoomedLayoutScheme
 import geotrellis.vector._
+import org.apache.avro.generic._
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.apache.hadoop.fs.FileUtil
-import org.apache.spark.sql.execution.datasources.LogicalRelation
-import org.apache.spark.sql.functions.{udf ⇒ sparkUdf, _}
+import org.apache.spark.sql.functions.{udf ⇒ sparkUdf}
 import org.apache.spark.sql.{DataFrame, Row}
-import org.scalatest.{BeforeAndAfterAll, Inspectors}
-import org.apache.avro.generic._
 import org.apache.spark.storage.StorageLevel
+import org.scalatest.{BeforeAndAfterAll, Inspectors}
 
 import scala.math.{max, min}
 
 class GeoTrellisDataSourceSpec
     extends TestEnvironment with TestData with BeforeAndAfterAll with Inspectors
-    with RasterMatchers with IntelliJPresentationCompilerHack {
+    with RasterMatchers with DataSourceOptions {
 
   val tileSize = 12
   lazy val layer = Layer(new File(outputLocalPath).toURI, LayerId("test-layer", 4))
@@ -130,7 +129,7 @@ class GeoTrellisDataSourceSpec
 
     it("used produce tile UDT that we can manipulate") {
       val df = layerReader.loadRF(layer)
-        .select(SPATIAL_KEY_COLUMN, tileStats(TILE_COLUMN))
+        .select(SPATIAL_KEY_COLUMN, tile_stats(TILE_COLUMN))
       assert(df.count() > 0)
     }
 
@@ -186,7 +185,7 @@ class GeoTrellisDataSourceSpec
         .withTileSubdivisions(param)
         .loadRF(layer)
 
-      val dims = df.select(tileDimensions(df.tileColumns.head)("cols"), tileDimensions(df.tileColumns.head)("rows")).first()
+      val dims = df.select(tile_dimensions(df.tileColumns.head)("cols"), tile_dimensions(df.tileColumns.head)("rows")).first()
       assert(dims.getAs[Int](0) === tileSize / param)
       assert(dims.getAs[Int](1) === tileSize / param)
 
@@ -199,7 +198,7 @@ class GeoTrellisDataSourceSpec
         .withTileSubdivisions(param)
         .loadRF(tfLayer)
 
-      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(tile_dimensions(rf.tileColumns.head)("cols"), tile_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / param)
       assert(dims.getAs[Int](1) === tileSize / param)
@@ -221,7 +220,7 @@ class GeoTrellisDataSourceSpec
 
       // is it subdivided?
       assert(rf.count === testRdd.count * subParam * subParam)
-      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(tile_dimensions(rf.tileColumns.head)("cols"), tile_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / subParam)
       assert(dims.getAs[Int](1) === tileSize / subParam)
@@ -264,14 +263,14 @@ class GeoTrellisDataSourceSpec
     def extractRelation(df: DataFrame): Option[GeoTrellisRelation] = {
       val plan = df.queryExecution.optimizedPlan
       plan.collectFirst {
-        case LogicalRelationWithGTR(gt: GeoTrellisRelation) ⇒ gt
+        case SpatialRelationReceiver(gt: GeoTrellisRelation) ⇒ gt
       }
     }
     def numFilters(df: DataFrame) = {
       extractRelation(df).map(_.filters.length).getOrElse(0)
     }
     def numSplitFilters(df: DataFrame) = {
-      extractRelation(df).map(_.splitFilters.length).getOrElse(0)
+      extractRelation(df).map(r ⇒ splitFilters(r.filters).length).getOrElse(0)
     }
 
     val pt1 = Point(-88, 60)
@@ -322,7 +321,7 @@ class GeoTrellisDataSourceSpec
       withClue("at now") {
         val df = layerReader
           .loadRF(layer)
-          .where(TIMESTAMP_COLUMN at now)
+          .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
 
         assert(numFilters(df) == 1)
         assert(df.count() == testRdd.count())
@@ -331,7 +330,7 @@ class GeoTrellisDataSourceSpec
       withClue("at earlier") {
         val df = layerReader
           .loadRF(layer)
-          .where(TIMESTAMP_COLUMN at now.minusDays(1))
+          .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
 
         assert(numFilters(df) === 1)
         assert(df.count() == 0)
@@ -363,7 +362,7 @@ class GeoTrellisDataSourceSpec
           .where(
             ((BOUNDS_COLUMN intersects pt1) ||
               (BOUNDS_COLUMN intersects pt2)) &&
-              (TIMESTAMP_COLUMN at now)
+              (TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
           )
 
         assert(numFilters(df) === 1)
@@ -376,7 +375,7 @@ class GeoTrellisDataSourceSpec
         val df = layerReader
           .loadRF(layer)
           .where((BOUNDS_COLUMN intersects pt1) || (BOUNDS_COLUMN intersects pt2))
-          .where(TIMESTAMP_COLUMN at now)
+          .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
 
         assert(numFilters(df) === 1)
         assert(numSplitFilters(df) === 2, extractRelation(df).toString)
@@ -386,12 +385,34 @@ class GeoTrellisDataSourceSpec
     }
 
     it("should support intersects with between times") {
-      val df = layerReader
-        .loadRF(layer)
-        .where(BOUNDS_COLUMN intersects pt1)
-        .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
+      withClue("intersects first") {
+        val df = layerReader
+          .loadRF(layer)
+          .where(BOUNDS_COLUMN intersects pt1)
+          .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
 
-      assert(numFilters(df) == 1)
+        assert(numFilters(df) == 1)
+      }
+      withClue("intersects last") {
+        val df = layerReader
+          .loadRF(layer)
+          .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
+          .where(BOUNDS_COLUMN intersects pt1)
+
+        assert(numFilters(df) == 1)
+      }
+
+      withClue("untyped columns") {
+        import spark.implicits._
+        val df = layerReader
+          .loadRF(layer)
+          .where($"timestamp" >= Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
+          .where($"timestamp" <= Timestamp.valueOf(now.plusDays(1).toLocalDateTime))
+          .where(st_intersects($"bounds", geomLit(pt1.jtsGeom)))
+
+        assert(numFilters(df) == 1)
+      }
+
     }
 
     it("should handle renamed spatial filter columns") {
@@ -400,7 +421,7 @@ class GeoTrellisDataSourceSpec
         .where(BOUNDS_COLUMN intersects region.jtsGeom)
         .withColumnRenamed(BOUNDS_COLUMN.columnName, "foobar")
 
-      assert(numFilters(df) === 1, df.explain(true))
+      assert(numFilters(df) === 1)
       assert(df.count > 0, df.printSchema)
     }
 
@@ -410,7 +431,7 @@ class GeoTrellisDataSourceSpec
         .where(BOUNDS_COLUMN intersects region.jtsGeom)
         .drop(BOUNDS_COLUMN)
 
-      assert(numFilters(df) === 1, df.explain(true))
+      assert(numFilters(df) === 1)
     }
   }
 
@@ -427,7 +448,7 @@ class GeoTrellisDataSourceSpec
 
       assert(rf.count === testRdd.count * subParam * subParam)
 
-      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(tile_dimensions(rf.tileColumns.head)("cols"), tile_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / subParam)
       assert(dims.getAs[Int](1) === tileSize / subParam)
@@ -442,7 +463,7 @@ class GeoTrellisDataSourceSpec
 
       // is it subdivided?
       assert(rf.count === testRdd.count * subParam * subParam)
-      val dims = rf.select(tileDimensions(rf.tileColumns.head)("cols"), tileDimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(tile_dimensions(rf.tileColumns.head)("cols"), tile_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / subParam)
       assert(dims.getAs[Int](1) === tileSize / subParam)

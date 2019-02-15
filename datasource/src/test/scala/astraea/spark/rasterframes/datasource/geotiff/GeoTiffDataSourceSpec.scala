@@ -21,17 +21,13 @@ package astraea.spark.rasterframes.datasource.geotiff
 import java.nio.file.Paths
 
 import astraea.spark.rasterframes._
-import geotrellis.proj4.LatLng
 import org.apache.spark.sql.functions._
-import geotrellis.vector._
-import geotrellis.vector.io.json.JsonFeatureCollection
 
 /**
  * @since 1/14/18
  */
 class GeoTiffDataSourceSpec
-    extends TestEnvironment with TestData
-    with IntelliJPresentationCompilerHack {
+    extends TestEnvironment with TestData {
 
   val cogPath = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
   val nonCogPath = getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI
@@ -69,7 +65,6 @@ class GeoTiffDataSourceSpec
 
       assert(rf.count() > 1)
 
-      import spark.implicits._
       import org.apache.spark.sql.functions._
       logger.info(
         rf.agg(
@@ -92,7 +87,7 @@ class GeoTiffDataSourceSpec
       val rf = spark.read.geotiff.loadRF(l8samplePath)
       val expected = 309149454 // computed with rasterio
       val result = rf.agg(
-        sum(tileSum(rf("tile")))
+        sum(tile_sum(rf("tile")))
       ).collect().head.getDouble(0)
 
       assert(result === expected)

@@ -57,16 +57,16 @@ object Tour extends App {
   rf.show(8, false)
 
   // Confirm we have equally sized tiles
-  rf.select(tileDimensions($"tile")).distinct().show()
+  rf.select(tile_dimensions($"tile")).distinct().show()
 
   // Count the number of no-data cells
-  rf.select(aggNoDataCells($"tile")).show(false)
+  rf.select(agg_no_data_cells($"tile")).show(false)
 
   // Compute per-tile statistics
-  rf.select(tileStats($"tile")).show(8, false)
+  rf.select(tile_stats($"tile")).show(8, false)
 
   // Compute some aggregate stats over all cells
-  rf.select(aggStats($"tile")).show(false)
+  rf.select(agg_stats($"tile")).show(false)
 
   // Create a Spark UDT to perform contrast adjustment via GeoTrellis
   val contrast = udf((t: Tile) ⇒ t.sigmoidal(0.2, 10))
@@ -75,14 +75,14 @@ object Tour extends App {
   val withAdjusted = rf.withColumn("adjusted", contrast($"tile")).asRF
 
   // Show the stats for the adjusted version
-  withAdjusted.select(aggStats($"adjusted")).show(false)
+  withAdjusted.select(agg_stats($"adjusted")).show(false)
 
   // Reassemble into a raster and save to a file
   val raster = withAdjusted.toRaster($"adjusted", 774, 500)
   GeoTiff(raster).write("contrast-adjusted.tiff")
 
   // Perform some arbitrary local ops between columns and render
-  val withOp = withAdjusted.withColumn("op", localSubtract($"tile", $"adjusted")).asRF
+  val withOp = withAdjusted.withColumn("op", local_subtract($"tile", $"adjusted")).asRF
   val raster2 = withOp.toRaster($"op", 774, 500)
   GeoTiff(raster2).write("with-op.tiff")
 
@@ -91,7 +91,7 @@ object Tour extends App {
   val k = 4
 
   // SparkML doesn't like NoData/NaN values, so we set the no-data value to something less offensive
-  val forML = rf.select(rf.spatialKeyColumn, withNoData($"tile", 99999) as "tile").asRF
+  val forML = rf.select(rf.spatialKeyColumn, with_no_data($"tile", 99999) as "tile").asRF
 
   // First we instantiate the transformer that converts tile rows into cell rows.
   val exploder = new TileExploder()
@@ -123,7 +123,7 @@ object Tour extends App {
 
   // RasterFrames provides a special aggregation function for assembling tiles from cells with column/row indexes
   val retiled = clusteredCells.groupBy(forML.spatialKeyColumn).agg(
-    assembleTile($"column_index", $"row_index", $"prediction", tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType)
+    assemble_tile($"column_index", $"row_index", $"prediction", tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType)
   )
 
   val clusteredRF = retiled.asRF($"spatial_key", tlm)

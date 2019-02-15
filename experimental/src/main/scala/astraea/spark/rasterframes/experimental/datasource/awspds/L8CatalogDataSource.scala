@@ -35,7 +35,7 @@ import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationP
  * @since 9/28/17
  */
 class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
-  def shortName = L8CatalogDataSource.NAME
+  def shortName = L8CatalogDataSource.SHORT_NAME
 
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     require(parameters.get("path").isEmpty, "MODISCatalogDataSource doesn't support specifying a path. Please use `load()`.")
@@ -48,7 +48,7 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
 }
 
 object L8CatalogDataSource extends LazyLogging with ResourceCacheSupport {
-  final val NAME: String = "awsl8-catalog"
+  final val SHORT_NAME: String = "awsl8-catalog"
   private val remoteSource = URI.create("http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz")
   private def sceneListFile(implicit fs: FileSystem) =
     cachedURI(remoteSource).getOrElse(throw new FileNotFoundException(remoteSource.toString))

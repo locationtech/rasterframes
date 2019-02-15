@@ -1,3 +1,4 @@
-astraea.spark.rasterframes.experimental.datasource.geojson.DefaultSource
+astraea.spark.rasterframes.experimental.datasource.geojson.GeoJsonDataSource
 astraea.spark.rasterframes.experimental.datasource.awspds.L8CatalogDataSource
 astraea.spark.rasterframes.experimental.datasource.awspds.MODISCatalogDataSource
+astraea.spark.rasterframes.experimental.datasource.awspds.L8DataSource

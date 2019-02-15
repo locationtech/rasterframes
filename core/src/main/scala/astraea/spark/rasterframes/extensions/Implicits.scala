@@ -19,17 +19,18 @@
 
 package astraea.spark.rasterframes.extensions
 
-import astraea.spark.rasterframes.{PairRDDConverter, RasterFrame}
+import astraea.spark.rasterframes.RasterFrame
 import astraea.spark.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
-import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialComponent, SpatialKey, TileLayerMetadata}
+import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
+import org.apache.hadoop.conf.{Configuration => HadoopConfiguration}
+import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
-import org.apache.spark.sql.types.{MetadataBuilder, Metadata ⇒ SMetadata}
+import org.apache.spark.sql.types.{MetadataBuilder, Metadata => SMetadata}
 import spray.json.JsonFormat
 
-import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 /**
@@ -41,6 +42,10 @@ trait Implicits {
   implicit class WithSparkSessionMethods(val self: SparkSession) extends SparkSessionMethods
 
   implicit class WithSQLContextMethods(val self: SQLContext) extends SQLContextMethods
+
+  implicit class WithBKryoMethods(val self: SparkSession.Builder) extends KryoMethods.BuilderKryoMethods
+
+  implicit class WithSKryoMethods(val self: SparkConf) extends KryoMethods.SparkConfKryoMethods
 
   implicit class WithProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithPrototypeMethods: TypeTag](
     val self: ProjectedRaster[T]) extends ProjectedRasterMethods[T]
@@ -57,15 +62,18 @@ trait Implicits {
     val self: RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]
   )(implicit spark: SparkSession) extends SpatioTemporalContextRDDMethods[T]
 
-  private[astraea] implicit class WithMetadataMethods[R: JsonFormat](val self: R)
+  private[astraea]
+  implicit class WithMetadataMethods[R: JsonFormat](val self: R)
       extends MetadataMethods[R]
 
-  private[astraea] implicit class WithMetadataAppendMethods(val self: SMetadata)
+  private[astraea]
+  implicit class WithMetadataAppendMethods(val self: SMetadata)
       extends MethodExtensions[SMetadata] {
     def append = new MetadataBuilder().withMetadata(self)
   }
 
-  private[astraea] implicit class WithMetadataBuilderMethods(val self: MetadataBuilder)
+  private[astraea]
+  implicit class WithMetadataBuilderMethods(val self: MetadataBuilder)
       extends MetadataBuilderMethods
 }
 

@@ -1,6 +1,6 @@
 import com.typesafe.sbt.SbtGit.git
 
-enablePlugins(SiteScaladocPlugin, ParadoxSitePlugin, TutPlugin, GhpagesPlugin, ScalaUnidocPlugin)
+enablePlugins(SiteScaladocPlugin, ParadoxPlugin, TutPlugin, GhpagesPlugin, ScalaUnidocPlugin)
 
 name := "rasterframes-docs"
 
@@ -15,19 +15,20 @@ autoAPIMappings := true
 ghpagesNoJekyll := true
 
 ScalaUnidoc / siteSubdirName := "latest/api"
+paradox / siteSubdirName := "."
 
 addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
+addMappingsToSiteDir(Compile / paradox / mappings, paradox / siteSubdirName)
 
-Paradox / paradoxProperties ++= Map(
+paradoxProperties ++= Map(
   "github.base_url" -> "https://github.com/locationtech/rasterframes",
   "version" -> version.value,
   "scaladoc.org.apache.spark.sql.gt" -> "http://rasterframes.io/latest"
   //"scaladoc.geotrellis.base_url" -> "https://geotrellis.github.io/scaladocs/latest",
   // "snip.pyexamples.base_dir" -> (baseDirectory.value + "/../pyrasterframes/python/test/examples")
 )
-Paradox / paradoxTheme := Some(builtinParadoxTheme("generic"))
-// Paradox / paradoxGroups := Map("Language" -> Seq("Scala", "Python"))
-Paradox / paradoxTheme / sourceDirectory := sourceDirectory.value / "main" / "paradox" / "_template"
+paradoxTheme := Some(builtinParadoxTheme("generic"))
+//paradoxTheme / sourceDirectory := sourceDirectory.value / "main" / "paradox" / "_template"
 
 Compile / doc / scalacOptions++= Seq( "-J-Xmx6G", "-no-link-warnings")
 
@@ -35,14 +36,6 @@ Tut / run / fork := true
 
 Tut / run / javaOptions := Seq("-Xmx8G", "-Dspark.ui.enabled=false")
 
-val skipTut = false
-
-if (skipTut) Seq(
-  Paradox / sourceDirectory := tutSourceDirectory.value,
-  makeSite := makeSite.dependsOn(Compile / unidoc).value
-)
-else Seq(
-  Paradox / paradox := (Paradox / paradox).dependsOn(tutQuick).value,
-  Paradox / sourceDirectory := tutTargetDirectory.value,
-  makeSite := makeSite.dependsOn(Compile / unidoc).value
-)
+Compile / paradox := (Compile / paradox).dependsOn(tutQuick).value
+Compile / paradox / sourceDirectory := tutTargetDirectory.value
+makeSite := makeSite.dependsOn(Compile / unidoc).dependsOn(Compile / paradox).value

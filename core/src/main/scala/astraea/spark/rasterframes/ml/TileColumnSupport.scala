@@ -20,7 +20,7 @@
 
 package astraea.spark.rasterframes.ml
 
-import org.apache.spark.sql.gt.types.TileUDT
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{StructField, StructType}
 
 /**

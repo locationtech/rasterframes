@@ -19,6 +19,8 @@ package astraea.spark.rasterframes
 
 import java.nio.file.{Files, Paths}
 
+import astraea.spark.rasterframes.ref.RasterSource
+import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.spark.testkit.{TestEnvironment ⇒ GeoTrellisTestEnvironment}
@@ -34,15 +36,18 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   with Matchers with Inspectors with Tolerance with LazyLogging {
 
+  override def sparkMaster: String = "local[*]"
+
   override implicit def sc: SparkContext = { _sc.setLogLevel("ERROR"); _sc }
+  //p.setProperty(“spark.driver.allowMultipleContexts”, “true”)
 
   lazy val sqlContext: SQLContext = {
     val session = SparkSession.builder.config(_sc.getConf).getOrCreate()
     astraea.spark.rasterframes.WithSQLContextMethods(session.sqlContext).withRasterFrames
   }
 
-  lazy val sql: (String) ⇒ DataFrame = sqlContext.sql
-  implicit val spark = sqlContext.sparkSession
+  lazy val sql: String ⇒ DataFrame = sqlContext.sql
+  implicit lazy val spark: SparkSession = sqlContext.sparkSession
 
   def isCI: Boolean = sys.env.get("CI").contains("true")
 
@@ -51,10 +56,10 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
     val sanitized = df.select(df.columns.map(c ⇒ col(c).as(toParquetFriendlyColumnName(c))): _*)
     val inRows = sanitized.count()
     val dest = Files.createTempFile(Paths.get(outputLocalPath), "rf", ".parquet")
-    logger.debug(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
+    logger.trace(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
     sanitized.write.mode(SaveMode.Overwrite).parquet(dest.toString)
     val rows = df.sparkSession.read.parquet(dest.toString).count()
-    logger.debug(s" it has $rows row(s)")
+    logger.trace(s" read back $rows row(s)")
     rows == inRows
   }
 
@@ -80,9 +85,17 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   def matchGeom(g: Geometry, tolerance: Double) = new GeometryMatcher(g, tolerance)
 }
 
-/** IntelliJ incorrectly indicates that `withFixture` needs to be implemented, resulting
- * in a distracting error. This for whatever reason gets it to quiet down. */
-trait IntelliJPresentationCompilerHack { this: Suite ⇒
-  // This is to avoid an IntelliJ error
-  protected def withFixture(test: Any) = ???
+object TestEnvironment {
+  case class ReadMonitor(ignoreHeader: Boolean = true) extends ReadCallback with LazyLogging {
+    var reads: Int = 0
+    var total: Long = 0
+    override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
+      logger.trace(s"Reading $length at $start from $source")
+      // Ignore header reads
+      if(!ignoreHeader || start > 0) reads += 1
+      total += length
+    }
+
+    override def toString: String = s"$productPrefix(reads=$reads, total=$total)"
+  }
 }

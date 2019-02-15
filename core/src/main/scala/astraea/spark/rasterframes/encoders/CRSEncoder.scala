@@ -19,6 +19,7 @@
 
 package astraea.spark.rasterframes.encoders
 
+import astraea.spark.rasterframes.util.CRSParser
 import geotrellis.proj4.CRS
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
@@ -32,5 +33,5 @@ object CRSEncoder {
     "crsProj4", "toProj4String", (CRSEncoder.getClass, "fromString")
   )
   // Not sure why this delegate is necessary, but doGenCode fails without it.
-  def fromString(str: String): CRS = CRS.fromString(str)
+  def fromString(str: String): CRS = CRSParser(str)
 }

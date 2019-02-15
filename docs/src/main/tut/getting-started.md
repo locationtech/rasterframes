@@ -12,7 +12,7 @@ Additional instructions can be found [here](https://github.com/locationtech/rast
 
 ## General Setup
 
-*RasterFrames* is published via [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Crasterframes) (click link to see latest versions).
+*RasterFrames* is published via [Maven Central](https://search.maven.org/search?q=g:org.locationtech.rasterframes) (click link to see latest versions).
 
 To use RasterFrames, add the following library dependencies:
 
@@ -36,12 +36,12 @@ Optional:
   version="$version$"
 }
 
-It assumes that SparkSQL 2.2.x is available in the runtime classpath. Here's how to add it explicitly:
+It assumes that SparkSQL 2.3.x is available in the runtime classpath. Here's how to add it explicitly:
 
 @@dependency[sbt,Maven,Gradle] {
   group="org.apache.spark"
   artifact="spark-sql"
-  version="2.2.1"
+  version="2.3.2"
 }
 
 @@@ note

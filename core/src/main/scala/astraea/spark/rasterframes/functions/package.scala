@@ -78,6 +78,11 @@ package object functions {
     count
   })
 
+  private[rasterframes] val isNoDataTile: (Tile) ⇒ Boolean = (t: Tile) ⇒ {
+    if(t == null) true
+    else t.isNoDataTile
+  }
+
   /** Flattens tile into an array. */
   private[rasterframes] def tileToArray[T: HasCellType: TypeTag]: (Tile) ⇒ Array[T] = {
     def convert(tile: Tile) = {
@@ -139,23 +144,11 @@ package object functions {
     }
   }
 
-  private[rasterframes] def assembleTile(cols: Int, rows: Int, ct: CellType) = TileAssemblerFunction(cols, rows, ct)
-
   /** Computes the column aggregate histogram */
-  private[rasterframes] val aggHistogram = HistogramAggregateFunction()
+  private[rasterframes] val aggHistogram = HistogramAggregate()
 
   /** Computes the column aggregate statistics */
-  private[rasterframes] val aggStats = CellStatsAggregateFunction()
-
-  /** Change the tile's cell type. */
-  private[rasterframes] def convertCellType(cellType: CellType) = safeEval[Tile, Tile](_.convert(cellType))
-
-  /** Change the tile's cell type. */
-  private[rasterframes] def convertCellType(cellTypeName: String) =
-    safeEval[Tile, Tile](_.convert(CellType.fromName(cellTypeName)))
-
-  /** Convert the cell type of Tile */
-  private[rasterframes] val convertCellType: (Tile, String) ⇒ Tile = (t: Tile, s: String) ⇒ t.convert(CellType.fromName(s))
+  private[rasterframes] val aggStats = CellStatsAggregate()
 
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
@@ -163,7 +156,7 @@ package object functions {
   /** Single tile histogram. */
   private[rasterframes] val tileHistogram = safeEval[Tile, CellHistogram](t ⇒ CellHistogram(t.histogramDouble))
 
-  /** Single tile statistics. Convenience for `tileHistogram.statistics`. */
+  /** Single tile statistics. Convenience for `tile_histogram.statistics`. */
   private[rasterframes] val tileStats = safeEval[Tile, CellStatistics]((t: Tile) ⇒
     if (t.cellType.isFloatingPoint) t.statisticsDouble.map(CellStatistics.apply).orNull
     else t.statistics.map(CellStatistics.apply).orNull
@@ -192,7 +185,7 @@ package object functions {
     else max
   })
 
-  /** Single tile mean. Convenience for `tileHistogram.statistics.mean`. */
+  /** Single tile mean. Convenience for `tile_histogram.statistics.mean`. */
   private[rasterframes] val tileMean: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {
     var sum: Double = 0.0
     var count: Long = 0
@@ -205,24 +198,25 @@ package object functions {
   })
 
   /** Compute summary cell-wise statistics across tiles. */
-  private[rasterframes] val localAggStats = new LocalStatsAggregateFunction()
+  private[rasterframes] val localAggStats = new LocalStatsAggregate()
 
   /** Compute the cell-wise max across tiles. */
-  private[rasterframes] val localAggMax = new LocalTileOpAggregateFunction(Max)
+  private[rasterframes] val localAggMax = new LocalTileOpAggregate(Max)
 
   /** Compute the cell-wise min across tiles. */
-  private[rasterframes] val localAggMin = new LocalTileOpAggregateFunction(Min)
+  private[rasterframes] val localAggMin = new LocalTileOpAggregate(Min)
 
   /** Compute the cell-wise main across tiles. */
-  private[rasterframes] val localAggMean = new LocalMeanAggregateFunction()
+  private[rasterframes] val localAggMean = new LocalMeanAggregate()
 
   /** Compute the cell-wise count of non-NA across tiles. */
-  private[rasterframes] val localAggCount = new LocalCountAggregateFunction(true)
+  private[rasterframes] val localAggCount = new LocalCountAggregate(true)
 
   /** Compute the cell-wise count of non-NA across tiles. */
-  private[rasterframes] val localAggNodataCount = new LocalCountAggregateFunction(false)
+  private[rasterframes] val localAggNodataCount = new LocalCountAggregate(false)
 
   /** Convert the tile to a floating point type as needed for scalar operations. */
+  @inline
   private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
   /** Cell-wise addition between tiles. */
@@ -279,7 +273,9 @@ package object functions {
 
   /** Cell-wise normalized difference of tiles. */
   private[rasterframes] val normalizedDifference:  (Tile, Tile) ⇒ Tile = safeEval((t1: Tile, t2:Tile) => {
-    Divide(Subtract(t1, t2), Add(t1, t2))
+    val diff = floatingPointTile(Subtract(t1, t2))
+    val sum = floatingPointTile(Add(t1, t2))
+    Divide(diff, sum)
   })
 
   /** Render tile as ASCII string. */
@@ -359,7 +355,7 @@ package object functions {
       // We have to do this because (as of spark 2.2.x) Encoder-only types
       // can't be used as UDF inputs. Only Spark-native types and UDTs.
       val extent = Extent(bounds.getEnvelopeInternal)
-      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value)
+      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value).tile
     }
   }
 
@@ -440,13 +436,15 @@ package object functions {
   private[rasterframes] val localUnequalScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar: Double) ⇒ {
     floatingPointTile(t).localUnequal(scalar)
   })
-  
+
+  /** Reporjects a geometry column from one CRS to another. */
   private[rasterframes] val reprojectGeometry: (Geometry, CRS, CRS) ⇒ Geometry =
     (sourceGeom, src, dst) ⇒ {
       val trans = new ReprojectionTransformer(src, dst)
       trans.transform(sourceGeom)
     }
 
+  /** Reporjects a geometry column from one CRS to another, where CRS are defined in Proj4 format. */
   private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
     (sourceGeom, srcName, dstName) ⇒ {
       val src = CRSParser(srcName)
@@ -457,63 +455,63 @@ package object functions {
 
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_mask", mask)
-    sqlContext.udf.register("rf_maskByValue", maskByValue)
-    sqlContext.udf.register("rf_inverseMask", inverseMask)
-    sqlContext.udf.register("rf_makeConstantTile", makeConstantTile)
-    sqlContext.udf.register("rf_tileZeros", tileZeros)
-    sqlContext.udf.register("rf_tileOnes", tileOnes)
-    sqlContext.udf.register("rf_tileToArrayInt", tileToArray[Int])
-    sqlContext.udf.register("rf_tileToArrayDouble", tileToArray[Double])
-    sqlContext.udf.register("rf_aggHistogram", aggHistogram)
-    sqlContext.udf.register("rf_aggStats", aggStats)
-    sqlContext.udf.register("rf_tileMin", tileMin)
-    sqlContext.udf.register("rf_tileMax", tileMax)
-    sqlContext.udf.register("rf_tileMean", tileMean)
-    sqlContext.udf.register("rf_tileSum", tileSum)
-    sqlContext.udf.register("rf_tileHistogram", tileHistogram)
-    sqlContext.udf.register("rf_tileStats", tileStats)
-    sqlContext.udf.register("rf_dataCells", dataCells)
-    sqlContext.udf.register("rf_noDataCells", noDataCells)
-    sqlContext.udf.register("rf_localAggStats", localAggStats)
-    sqlContext.udf.register("rf_localAggMax", localAggMax)
-    sqlContext.udf.register("rf_localAggMin", localAggMin)
-    sqlContext.udf.register("rf_localAggMean", localAggMean)
-    sqlContext.udf.register("rf_localAggCount", localAggCount)
-    sqlContext.udf.register("rf_localAdd", localAdd)
-    sqlContext.udf.register("rf_localAddScalar", localAddScalar)
-    sqlContext.udf.register("rf_localAddScalarInt", localAddScalarInt)
-    sqlContext.udf.register("rf_localSubtract", localSubtract)
-    sqlContext.udf.register("rf_localSubtractScalar", localSubtractScalar)
-    sqlContext.udf.register("rf_localSubtractScalarInt", localSubtractScalarInt)
-    sqlContext.udf.register("rf_localMultiply", localMultiply)
-    sqlContext.udf.register("rf_localMultiplyScalar", localMultiplyScalar)
-    sqlContext.udf.register("rf_localMultiplyScalarInt", localMultiplyScalarInt)
-    sqlContext.udf.register("rf_localDivide", localDivide)
-    sqlContext.udf.register("rf_localDivideScalar", localDivideScalar)
-    sqlContext.udf.register("rf_localDivideScalarInt", localDivideScalarInt)
-    sqlContext.udf.register("rf_normalizedDifference", normalizedDifference)
-    sqlContext.udf.register("rf_cellTypes", cellTypes)
-    sqlContext.udf.register("rf_renderAscii", renderAscii)
-    sqlContext.udf.register("rf_convertCellType", convertCellType)
+    sqlContext.udf.register("rf_mask_by_value", maskByValue)
+    sqlContext.udf.register("rf_inverse_mask", inverseMask)
+    sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
+    sqlContext.udf.register("rf_tile_zeros", tileZeros)
+    sqlContext.udf.register("rf_tile_ones", tileOnes)
+    sqlContext.udf.register("rf_tile_to_array_int", tileToArray[Int])
+    sqlContext.udf.register("rf_tile_to_array_double", tileToArray[Double])
+    sqlContext.udf.register("rf_agg_histogram", aggHistogram)
+    sqlContext.udf.register("rf_agg_stats", aggStats)
+    sqlContext.udf.register("rf_tile_min", tileMin)
+    sqlContext.udf.register("rf_tile_max", tileMax)
+    sqlContext.udf.register("rf_tile_mean", tileMean)
+    sqlContext.udf.register("rf_tile_sum", tileSum)
+    sqlContext.udf.register("rf_tile_histogram", tileHistogram)
+    sqlContext.udf.register("rf_tile_stats", tileStats)
+    sqlContext.udf.register("rf_data_cells", dataCells)
+    sqlContext.udf.register("rf_no_data_cells", noDataCells)
+    sqlContext.udf.register("rf_is_no_data_tile", isNoDataTile)
+    sqlContext.udf.register("rf_local_agg_stats", localAggStats)
+    sqlContext.udf.register("rf_local_agg_max", localAggMax)
+    sqlContext.udf.register("rf_local_agg_min", localAggMin)
+    sqlContext.udf.register("rf_local_agg_mean", localAggMean)
+    sqlContext.udf.register("rf_local_agg_count", localAggCount)
+    sqlContext.udf.register("rf_local_add", localAdd)
+    sqlContext.udf.register("rf_local_add_scalar", localAddScalar)
+    sqlContext.udf.register("rf_local_add_scalar_int", localAddScalarInt)
+    sqlContext.udf.register("rf_local_subtract", localSubtract)
+    sqlContext.udf.register("rf_local_subtract_scalar", localSubtractScalar)
+    sqlContext.udf.register("rf_local_subtract_scalar_int", localSubtractScalarInt)
+    sqlContext.udf.register("rf_local_multiply", localMultiply)
+    sqlContext.udf.register("rf_local_multiply_scalar", localMultiplyScalar)
+    sqlContext.udf.register("rf_local_multiply_scalar_int", localMultiplyScalarInt)
+    sqlContext.udf.register("rf_local_divide", localDivide)
+    sqlContext.udf.register("rf_local_divide_scalar", localDivideScalar)
+    sqlContext.udf.register("rf_local_divide_scalar_int", localDivideScalarInt)
+    sqlContext.udf.register("rf_normalized_difference", normalizedDifference)
+    sqlContext.udf.register("rf_cell_types", cellTypes)
+    sqlContext.udf.register("rf_render_ascii", renderAscii)
     sqlContext.udf.register("rf_rasterize", rasterize)
     sqlContext.udf.register("rf_less", localLess)
-    sqlContext.udf.register("rf_lessScalar", localLessScalar)
-    sqlContext.udf.register("rf_lessScalarInt", localLessScalarInt)
-    sqlContext.udf.register("rf_lessEqual", localLessEqual)
-    sqlContext.udf.register("rf_lessEqualScalar", localLessEqualScalar)
-    sqlContext.udf.register("rf_lessEqualScalarInt", localLessEqualScalarInt)
+    sqlContext.udf.register("rf_less_scalar", localLessScalar)
+    sqlContext.udf.register("rf_less_scalar_int", localLessScalarInt)
+    sqlContext.udf.register("rf_less_equal", localLessEqual)
+    sqlContext.udf.register("rf_less_equal_scalar", localLessEqualScalar)
+    sqlContext.udf.register("rf_less_equal_scalar_int", localLessEqualScalarInt)
     sqlContext.udf.register("rf_greater", localGreater)
-    sqlContext.udf.register("rf_greaterScalar", localGreaterScalar)
-    sqlContext.udf.register("rf_greaterScalarInt", localGreaterScalarInt)
-    sqlContext.udf.register("rf_greaterEqual", localGreaterEqual)
-    sqlContext.udf.register("rf_greaterEqualScalar", localGreaterEqualScalar)
-    sqlContext.udf.register("rf_greaterEqualScalarInt", localGreaterEqualScalarInt)
+    sqlContext.udf.register("rf_greater_scalar", localGreaterScalar)
+    sqlContext.udf.register("rf_greaterscalar_int", localGreaterScalarInt)
+    sqlContext.udf.register("rf_greater_equal", localGreaterEqual)
+    sqlContext.udf.register("rf_greater_equal_scalar", localGreaterEqualScalar)
+    sqlContext.udf.register("rf_greater_equal_scalar_int", localGreaterEqualScalarInt)
     sqlContext.udf.register("rf_equal", localEqual)
-    sqlContext.udf.register("rf_equalScalar", localEqualScalar)
-    sqlContext.udf.register("rf_equalScalarInt", localEqualScalarInt)
+    sqlContext.udf.register("rf_equal_scalar", localEqualScalar)
+    sqlContext.udf.register("rf_equal_scalar_int", localEqualScalarInt)
     sqlContext.udf.register("rf_unequal", localUnequal)
-    sqlContext.udf.register("rf_unequalScalar", localUnequalScalar)
-    sqlContext.udf.register("rf_unequalScalarInt", localUnequalScalarInt)
-    sqlContext.udf.register("rf_reprojectGeometry", reprojectGeometryCRSName)
+    sqlContext.udf.register("rf_unequal_scalar", localUnequalScalar)
+    sqlContext.udf.register("rf_unequal_scalar_int", localUnequalScalarInt)
+    sqlContext.udf.register("rf_reproject_geometry", reprojectGeometryCRSName)
   }
 }

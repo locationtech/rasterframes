@@ -13,7 +13,7 @@ from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from .context import RFContext
 
-__all__ = ['RasterFrame', 'TileUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RasterFrame', 'TileUDT', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
 
 class RasterFrame(DataFrame):
@@ -114,28 +114,51 @@ class RasterFrame(DataFrame):
         df = ctx._jrfctx.withSpatialIndex(self._jdf)
         return RasterFrame(df, ctx._spark_session)
 
-class TileUDT(UserDefinedType):
-    """User-defined type (UDT).
 
-    .. note:: WARN: Internal use only.
-    """
-
+class RasterSourceUDT(UserDefinedType):
     @classmethod
     def sqlType(self):
         return StructType([
-            StructField("cellType", StringType(), False),
-            StructField("cols", ShortType(), False),
-            StructField("rows", ShortType(), False),
-            StructField("data", BinaryType(), False)
-        ])
+            StructField("raster_source_kryo", BinaryType(), False)])
 
     @classmethod
     def module(cls):
-        return 'pyrasterframes'
+        return 'pyrasterframes.types'
 
     @classmethod
     def scalaUDT(cls):
-        return 'org.apache.spark.sql.gt.types.TileUDT'
+        return 'org.apache.spark.sql.rf.RasterSourceUDT'
+
+    def serialize(self, obj):
+        if (obj is None): return None
+        return None
+
+    def deserialize(self, datum):
+        return None
+
+class TileUDT(UserDefinedType):
+    @classmethod
+    def sqlType(self):
+        return StructType([
+            StructField("cell_type", StringType(), False),
+            StructField("cols", ShortType(), False),
+            StructField("rows", ShortType(), False),
+            StructField("cells", BinaryType(), True),
+            StructField("ref", StructType([
+              StructField("source", RasterSourceUDT(), False),
+              StructField("subextent", StructType([
+                  StructField("xmin", DoubleType(), False),
+                  StructField("ymin", DoubleType(), False),
+                  StructField("xmax", DoubleType(), False),
+                  StructField("ymax", DoubleType(), False)]), True)]), True)])
+
+    @classmethod
+    def module(cls):
+        return 'pyrasterframes.types'
+
+    @classmethod
+    def scalaUDT(cls):
+        return 'org.apache.spark.sql.rf.TileUDT'
 
     def serialize(self, obj):
         if (obj is None): return None
@@ -145,7 +168,7 @@ class TileUDT(UserDefinedType):
                   obj.toBytes)
 
     def deserialize(self, datum):
-        return RFContext._jvm_mirror().generateTile(datum[0], datum[1], datum[2], datum[3])
+        return RFContext._jvm_mirror().generate_tile(datum[0], datum[1], datum[2], datum[3])
 
 
 

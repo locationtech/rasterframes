@@ -21,5 +21,5 @@ rf.show(5, False)
 
 #py_mv_find_mean
 tileCol = 'tile'
-rf.agg(aggNoDataCells(tileCol), aggDataCells(tileCol), aggMean(tileCol)).show(5, False)
+rf.agg(agg_no_data_cells(tileCol), agg_data_cells(tileCol), agg_mean(tileCol)).show(5, False)
 #py_mv_find_mean

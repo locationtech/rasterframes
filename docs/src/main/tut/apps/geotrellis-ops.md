@@ -9,6 +9,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 
 implicit val spark = SparkSession.builder().
+  withKryoSerialization.
   master("local[*]").appName("RasterFrames").getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 import spark.implicits._
@@ -25,15 +26,15 @@ Here's an example creating a UDFs to invoke the `equalize` transformation on eac
 import geotrellis.raster.equalization._
 val equalizer = udf((t: Tile) => t.equalize())
 val equalized = rf.select(equalizer($"tile") as "equalized")
-equalized.select(tileMean($"equalized") as "equalizedMean").show(5, false)
+equalized.select(tile_mean($"equalized") as "equalizedMean").show(5, false)
 ```
 
 Here's an example downsampling a tile and rendering each tile as a matrix of numerical values.
 
 ```tut  
 val downsample = udf((t: Tile) => t.resample(4, 4))
-val downsampled = rf.select(renderAscii(downsample($"tile")) as "minime")
-downsampled.show(5, false)
+val downsampled = rf.where(no_data_cells($"tile") === 0).select(downsample($"tile") as "minime")
+downsampled.select(tile_to_array[Float]($"minime") as "cell_values").limit(2).show(false)
 ```
 
 

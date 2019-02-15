@@ -20,18 +20,17 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.ExplodeTileExpression
-import astraea.spark.rasterframes.functions.{CellCountAggregateFunction, CellMeanAggregateFunction}
+import astraea.spark.rasterframes.expressions.ReprojectGeometry
+import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate, CellStatsAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{functions ⇒ F}
+import astraea.spark.rasterframes.{expressions => E, functions => F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions.{lit, udf}
-import org.apache.spark.sql.rf._
+import org.apache.spark.sql.functions._
 
 import scala.reflect.runtime.universe._
 
@@ -41,260 +40,263 @@ import scala.reflect.runtime.universe._
  * @since 4/3/17
  */
 trait RasterFunctions {
-  import util._
   import SparkDefaultEncoders._
+  import util._
 
   // format: off
   /** Create a row for each cell in Tile. */
-  def explodeTiles(cols: Column*): Column = explodeTileSample(1.0, cols: _*)
+  def explode_tiles(cols: Column*): Column = explode_tiles_sample(1.0, None, cols: _*)
 
-  /** Create a row for each cell in Tile with random sampling. */
-  def explodeTileSample(sampleFraction: Double, cols: Column*): Column = {
-    val exploder = ExplodeTileExpression(sampleFraction, cols.map(_.expr))
-    // Hack to grab the first two non-cell columns, containing the column and row indexes
-    val metaNames = exploder.elementSchema.fieldNames.take(2)
-    val colNames = cols.map(_.columnName)
-    new Column(exploder).as(metaNames ++ colNames)
-  }
+  /** Create a row for each cell in Tile with random sampling and optional seed. */
+  def explode_tiles_sample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column =
+    E.ExplodeTiles(sampleFraction, seed, cols)
+
+  /** Create a row for each cell in Tile with random sampling (no seed). */
+  def explode_tiles_sample(sampleFraction: Double, cols: Column*): Column =
+    E.ExplodeTiles(sampleFraction, None, cols)
 
   /** Query the number of (cols, rows) in a Tile. */
-  def tileDimensions(col: Column): Column = expressions.DimensionsExpression(col.expr).asColumn
+  def tile_dimensions(col: Column): Column = E.GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
-  def envelope(col: Column): TypedColumn[Any, Envelope] = expressions.EnvelopeExpression(col.expr).asColumn.as[Envelope]
+  def envelope(col: Column): TypedColumn[Any, Envelope] = E.GetEnvelope(col)
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
-  def tileToArray[T: HasCellType: TypeTag](col: Column): TypedColumn[Any, Array[T]] = withAlias("tileToArray", col)(
+  def tile_to_array[T: HasCellType: TypeTag](col: Column): TypedColumn[Any, Array[T]] = withAlias("tile_to_array", col)(
     udf[Array[T], Tile](F.tileToArray).apply(col)
   ).as[Array[T]]
 
   @Experimental
   /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/
-  def arrayToTile(arrayCol: Column, cols: Int, rows: Int) = withAlias("arrayToTile", arrayCol)(
+  def array_to_tile(arrayCol: Column, cols: Int, rows: Int) = withAlias("array_to_tile", arrayCol)(
     udf[Tile, AnyRef](F.arrayToTile(cols, rows)).apply(arrayCol)
   )
 
+  /** Create a Tile from a column of cell data with location indexes and preform cell conversion. */
+  def assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
+    convert_cell_type(F.TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile]
+
   /** Create a Tile from  a column of cell data with location indexes. */
-  @Experimental
-  def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, cols: Int, rows: Int, ct: CellType): TypedColumn[Any, Tile] = {
-    F.assembleTile(cols, rows, ct)(columnIndex, rowIndex, cellData)
-  }.as(cellData.columnName).as[Tile]
+  def assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Column, tileRows: Column): TypedColumn[Any, Tile] =
+    F.TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
 
   /** Extract the Tile's cell type */
-  def cellType(col: Column): TypedColumn[Any, String] =
-    expressions.CellTypeExpression(col.expr).asColumn.as[String]
+  def cell_type(col: Column): TypedColumn[Any, CellType] = E.GetCellType(col)
 
   /** Change the Tile's cell type */
-  def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    udf[Tile, Tile](F.convertCellType(cellType)).apply(col).as[Tile]
+  def convert_cell_type(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
+    E.SetCellType(col, cellType)
 
   /** Change the Tile's cell type */
-  def convertCellType(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
-    udf[Tile, Tile](F.convertCellType(cellTypeName)).apply(col).as[Tile]
+  def convert_cell_type(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
+    E.SetCellType(col, cellTypeName)
+
+  /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
+  def bounds_geometry(bounds: Column): TypedColumn[Any, Geometry] = E.BoundsToGeometry(bounds)
 
   /** Assign a `NoData` value to the Tiles. */
-  def withNoData(col: Column, nodata: Double) = withAlias("withNoData", col)(
+  def with_no_data(col: Column, nodata: Double) = withAlias("with_no_data", col)(
     udf[Tile, Tile](F.withNoData(nodata)).apply(col)
   ).as[Tile]
 
   /**  Compute the full column aggregate floating point histogram. */
-  def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] =
+  def agg_histogram(col: Column): TypedColumn[Any, CellHistogram] =
   withAlias("histogram", col)(
     F.aggHistogram(col)
   ).as[CellHistogram]
 
   /** Compute the full column aggregate floating point statistics. */
-  def aggStats(col: Column): TypedColumn[Any, CellStatistics] = withAlias("aggStats", col)(
+  def agg_stats(col: Column): TypedColumn[Any, CellStatistics] = withAlias("agg_stats", col)(
     F.aggStats(col)
   ).as[CellStatistics]
 
   /** Computes the column aggregate mean. */
-  def aggMean(col: Column) = CellMeanAggregateFunction(col.expr)
-    .toAggregateExpression().asColumn
-    .as[Double]
+  def agg_mean(col: Column) = CellMeanAggregate(col)
 
   /** Computes the number of non-NoData cells in a column. */
-  def aggDataCells(col: Column) = CellCountAggregateFunction(true, col.expr)
-    .toAggregateExpression().asColumn
-    .as[Long]
+  def agg_data_cells(col: Column) = CellCountAggregate(true, col)
 
   /** Computes the number of NoData cells in a column. */
-  def aggNoDataCells(col: Column) = CellCountAggregateFunction(false, col.expr)
-    .toAggregateExpression().asColumn
-    .as[Long]
+  def agg_no_data_cells(col: Column) = CellCountAggregate(false, col)
 
   /** Compute the Tile-wise mean */
-  def tileMean(col: Column): TypedColumn[Any, Double] =
-  withAlias("tileMean", col)(
+  def tile_mean(col: Column): TypedColumn[Any, Double] =
+  withAlias("tile_mean", col)(
     udf[Double, Tile](F.tileMean).apply(col)
   ).as[Double]
 
   /** Compute the Tile-wise sum */
-  def tileSum(col: Column): TypedColumn[Any, Double] =
-  withAlias("tileSum", col)(
+  def tile_sum(col: Column): TypedColumn[Any, Double] =
+  withAlias("tile_sum", col)(
     udf[Double, Tile](F.tileSum).apply(col)
   ).as[Double]
 
   /** Compute the minimum cell value in tile. */
-  def tileMin(col: Column): TypedColumn[Any, Double] =
-  withAlias("tileMin", col)(
+  def tile_min(col: Column): TypedColumn[Any, Double] =
+  withAlias("tile_min", col)(
     udf[Double, Tile](F.tileMin).apply(col)
   ).as[Double]
 
   /** Compute the maximum cell value in tile. */
-  def tileMax(col: Column): TypedColumn[Any, Double] =
-  withAlias("tileMax", col)(
+  def tile_max(col: Column): TypedColumn[Any, Double] =
+  withAlias("tile_max", col)(
     udf[Double, Tile](F.tileMax).apply(col)
   ).as[Double]
 
   /** Compute TileHistogram of Tile values. */
-  def tileHistogram(col: Column): TypedColumn[Any, CellHistogram] =
-  withAlias("tileHistogram", col)(
+  def tile_histogram(col: Column): TypedColumn[Any, CellHistogram] =
+  withAlias("tile_histogram", col)(
     udf[CellHistogram, Tile](F.tileHistogram).apply(col)
   ).as[CellHistogram]
 
   /** Compute statistics of Tile values. */
-  def tileStats(col: Column): TypedColumn[Any, CellStatistics] =
-  withAlias("tileStats", col)(
+  def tile_stats(col: Column): TypedColumn[Any, CellStatistics] =
+  withAlias("tile_stats", col)(
     udf[CellStatistics, Tile](F.tileStats).apply(col)
   ).as[CellStatistics]
 
   /** Counts the number of non-NoData cells per Tile. */
-  def dataCells(tile: Column): TypedColumn[Any, Long] =
-    withAlias("dataCells", tile)(
+  def data_cells(tile: Column): TypedColumn[Any, Long] =
+    withAlias("data_cells", tile)(
       udf(F.dataCells).apply(tile)
     ).as[Long]
 
   /** Counts the number of NoData cells per Tile. */
-  def noDataCells(tile: Column): TypedColumn[Any, Long] =
-    withAlias("noDataCells", tile)(
+  def no_data_cells(tile: Column): TypedColumn[Any, Long] =
+    withAlias("no_data_cells", tile)(
       udf(F.noDataCells).apply(tile)
     ).as[Long]
 
+
+  def is_no_data_tile(tile: Column): TypedColumn[Any, Boolean] =
+    withAlias("is_no_data_tile", tile)(
+      udf(F.isNoDataTile).apply(tile)
+    ).as[Boolean]
+
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
-  def localAggStats(col: Column): Column =
-  withAlias("localAggStats", col)(
+  def local_agg_stats(col: Column): Column =
+  withAlias("local_agg_stats", col)(
     F.localAggStats(col)
   )
 
   /** Compute the cell-wise/local max operation between Tiles in a column. */
-  def localAggMax(col: Column): TypedColumn[Any, Tile] =
-  withAlias("localAggMax", col)(
+  def local_agg_max(col: Column): TypedColumn[Any, Tile] =
+  withAlias("local_agg_max", col)(
     F.localAggMax(col)
   ).as[Tile]
 
   /** Compute the cellwise/local min operation between Tiles in a column. */
-  def localAggMin(col: Column): TypedColumn[Any, Tile] =
-  withAlias("localAggMin", col)(
+  def local_agg_min(col: Column): TypedColumn[Any, Tile] =
+  withAlias("local_agg_min", col)(
     F.localAggMin(col)
   ).as[Tile]
 
   /** Compute the cellwise/local mean operation between Tiles in a column. */
-  def localAggMean(col: Column): TypedColumn[Any, Tile] =
-  withAlias("localAggMean", col)(
+  def local_agg_mean(col: Column): TypedColumn[Any, Tile] =
+  withAlias("local_agg_mean", col)(
     F.localAggMean(col)
   ).as[Tile]
 
   /** Compute the cellwise/local count of non-NoData cells for all Tiles in a column. */
-  def localAggDataCells(col: Column): TypedColumn[Any, Tile] =
-  withAlias("localCount", col)(
+  def local_agg_data_cells(col: Column): TypedColumn[Any, Tile] =
+  withAlias("local_agg_data_cells", col)(
     F.localAggCount(col)
   ).as[Tile]
 
   /** Compute the cellwise/local count of NoData cells for all Tiles in a column. */
-  def localAggNoDataCells(col: Column): TypedColumn[Any, Tile] =
-  withAlias("localNodataCount", col)(
+  def local_agg_no_data_cells(col: Column): TypedColumn[Any, Tile] =
+  withAlias("local_agg_no_data_cells", col)(
     F.localAggNodataCount(col)
   ).as[Tile]
 
   /** Cellwise addition between two Tiles. */
-  def localAdd(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("localAdd", left, right)(
+  def local_add(left: Column, right: Column): TypedColumn[Any, Tile] =
+  withAlias("local_add", left, right)(
     udf(F.localAdd).apply(left, right)
   ).as[Tile]
 
   /** Cellwise addition of a scalar to a tile. */
-  def localAddScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_add_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match {
       case i: Int => F.localAddScalarInt(_: Tile, i)
       case d: Double => F.localAddScalar(_: Tile, d)
     }
 
-    udf(f).apply(tileCol).as(s"localAddScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_add_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Cellwise subtraction between two Tiles. */
-  def localSubtract(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("localSubtract", left, right)(
+  def local_subtract(left: Column, right: Column): TypedColumn[Any, Tile] =
+  withAlias("local_subtract", left, right)(
     udf(F.localSubtract).apply(left, right)
   ).as[Tile]
 
   /** Cellwise subtraction of a scalar from a tile. */
-  def localSubtractScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_subtract_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match {
       case i: Int => F.localSubtractScalarInt(_: Tile, i)
       case d: Double => F.localSubtractScalar(_: Tile, d)
     }
 
-    udf(f).apply(tileCol).as(s"localSubtractScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_subtract_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Cellwise multiplication between two Tiles. */
-  def localMultiply(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("localMultiply", left, right)(
+  def local_multiply(left: Column, right: Column): TypedColumn[Any, Tile] =
+  withAlias("local_multiply", left, right)(
     udf(F.localMultiply).apply(left, right)
   ).as[Tile]
 
   /** Cellwise multiplication of a tile by a scalar. */
-  def localMultiplyScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_multiply_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match {
       case i: Int => F.localMultiplyScalarInt(_: Tile, i)
       case d: Double => F.localMultiplyScalar(_: Tile, d)
     }
 
-    udf(f).apply(tileCol).as(s"localMultiplyScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_multiply_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Cellwise division between two Tiles. */
-  def localDivide(left: Column, right: Column): TypedColumn[Any, Tile] =
-  withAlias("localDivide", left, right)(
+  def local_divide(left: Column, right: Column): TypedColumn[Any, Tile] =
+  withAlias("local_divide", left, right)(
     udf(F.localDivide).apply(left, right)
   ).as[Tile]
 
   /** Cellwise division of a tile by a scalar. */
-  def localDivideScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_divide_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match {
       case i: Int => F.localDivideScalarInt(_: Tile, i)
       case d: Double => F.localDivideScalar(_: Tile, d)
     }
 
-    udf(f).apply(tileCol).as(s"localDivideScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_divide_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
-  def localAlgebra(op: LocalTileBinaryOp, left: Column, right: Column):
+  def local_algebra(op: LocalTileBinaryOp, left: Column, right: Column):
   TypedColumn[Any, Tile] =
     withAlias(opName(op), left, right)(
       udf[Tile, Tile, Tile](op.apply).apply(left, right)
     ).as[Tile]
 
   /** Compute the normalized difference of two tile columns */
-  def normalizedDifference(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("normalizedDifference", left, right)(
+  def normalized_difference(left: Column, right: Column): TypedColumn[Any, Tile] =
+    withAlias("normalized_difference", left, right)(
       udf(F.normalizedDifference).apply(left, right)
     ).as[Tile]
 
   /** Constructor for constant tile column */
-  def makeConstantTile(value: Number, cols: Int, rows: Int, cellType: String): TypedColumn[Any, Tile] =
+  def make_constant_tile(value: Number, cols: Int, rows: Int, cellType: String): TypedColumn[Any, Tile] =
     udf(() => F.makeConstantTile(value, cols, rows, cellType)).apply().as(s"constant_$cellType").as[Tile]
 
   /** Alias for column of constant tiles of zero */
-  def tileZeros(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
+  def tile_zeros(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
     udf(() => F.tileZeros(cols, rows, cellType)).apply().as(s"zeros_$cellType").as[Tile]
 
   /** Alias for column of constant tiles of one */
-  def tileOnes(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
+  def tile_ones(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
     udf(() => F.tileOnes(cols, rows, cellType)).apply().as(s"ones_$cellType").as[Tile]
 
   /** Where the mask tile contains NODATA, replace values in the source tile with NODATA */
@@ -304,14 +306,14 @@ trait RasterFunctions {
     ).as[Tile]
 
   /** Where the mask tile equals the mask value, replace values in the source tile with NODATA */
-  def maskByValue(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
-    withAlias("maskByValue", sourceTile, maskTile, maskValue)(
+  def mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
+    withAlias("mask_by_value", sourceTile, maskTile, maskValue)(
       udf(F.maskByValue).apply(sourceTile, maskTile, maskValue)
     ).as[Tile]
 
   /** Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
-  def inverseMask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
-    withAlias("inverseMask", sourceTile, maskTile)(
+  def inverse_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
+    withAlias("inverse_mask", sourceTile, maskTile)(
       udf(F.inverseMask).apply(sourceTile, maskTile)
     ).as[Tile]
 
@@ -321,107 +323,113 @@ trait RasterFunctions {
       udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)
     ).as[Tile]
 
-  /** Reproject a column of geometry from one CRS to another. */  
-  def reprojectGeometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
-    withAlias("reprojectGeometry", sourceGeom)(
-      udf(F.reprojectGeometry(_: Geometry, srcCRS, dstCRS)).apply(sourceGeom)
-    ).as[Geometry]
+  /** Reproject a column of geometry from one CRS to another. */
+  def reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRSCol: Column): TypedColumn[Any, Geometry] =
+    ReprojectGeometry(sourceGeom, srcCRS, dstCRSCol)
+
+  /** Reproject a column of geometry from one CRS to another. */
+  def reproject_geometry(sourceGeom: Column, srcCRSCol: Column, dstCRS: CRS): TypedColumn[Any, Geometry] =
+    ReprojectGeometry(sourceGeom, srcCRSCol, dstCRS)
+
+  /** Reproject a column of geometry from one CRS to another. */
+  def reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
+    ReprojectGeometry(sourceGeom, srcCRS, dstCRS)
 
   /** Render Tile as ASCII string for debugging purposes. */
   @Experimental
-  def renderAscii(col: Column): TypedColumn[Any, String] =
-  withAlias("renderAscii", col)(
+  def render_ascii(col: Column): TypedColumn[Any, String] =
+  withAlias("render_ascii", col)(
     udf[String, Tile](F.renderAscii).apply(col)
   ).as[String]
 
   /** Cellwise less than value comparison between two tiles. */
-  def localLess(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("localLess", left, right)(
+  def local_less(left: Column, right: Column): TypedColumn[Any, Tile] =
+    withAlias("local_less", left, right)(
       udf(F.localLess).apply(left, right)
     ).as[Tile]
 
 
   /** Cellwise less than value comparison between a tile and a scalar. */
-  def localLessScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_less_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match{
       case i: Int ⇒ F.localLessScalarInt(_: Tile, i)
       case d: Double ⇒ F.localLessScalar(_: Tile, d)
     }
-    udf(f).apply(tileCol).as(s"localLessScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_less_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Cellwise less than or equal to value comparison between a tile and a scalar. */
-  def localLessEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("localLessEqual", left, right)(
+  def local_less_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("local_less_equal", left, right)(
       udf(F.localLess).apply(left, right)
     ).as[Tile]
 
   /** Cellwise less than or equal to value comparison between a tile and a scalar. */
-  def localLessEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_less_equal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match{
       case i: Int ⇒ F.localLessEqualScalarInt(_: Tile, i)
       case d: Double ⇒ F.localLessEqualScalar(_: Tile, d)
     }
-    udf(f).apply(tileCol).as(s"localLessEqualScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_less_equal_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Cellwise greater than value comparison between two tiles. */
-  def localGreater(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("localGreater", left, right)(
+  def local_greater(left: Column, right: Column): TypedColumn[Any, Tile] =
+    withAlias("local_greater", left, right)(
       udf(F.localGreater).apply(left, right)
     ).as[Tile]
 
 
   /** Cellwise greater than value comparison between a tile and a scalar. */
-  def localGreaterScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_greater_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match{
       case i: Int ⇒ F.localGreaterScalarInt(_: Tile, i)
       case d: Double ⇒ F.localGreaterScalar(_: Tile, d)
     }
-    udf(f).apply(tileCol).as(s"localGreaterScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_greater_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Cellwise greater than or equal to value comparison between two tiles. */
-  def localGreaterEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("localGreaterEqual", left, right)(
+  def local_greater_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("local_greater_equal", left, right)(
       udf(F.localGreaterEqual).apply(left, right)
     ).as[Tile]
 
   /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
-  def localGreaterEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_greater_equal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match{
       case i: Int ⇒ F.localGreaterEqualScalarInt(_: Tile, i)
       case d: Double ⇒ F.localGreaterEqualScalar(_: Tile, d)
     }
-    udf(f).apply(tileCol).as(s"localGreaterEqualScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_greater_equal_scalar($tileCol, $value)").as[Tile]
   }
 
   /** Cellwise equal to value comparison between two tiles. */
-  def localEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("localEqual", left, right)(
+  def local_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("local_equal", left, right)(
       udf(F.localEqual).apply(left, right)
     ).as[Tile]
 
   /** Cellwise equal to value comparison between a tile and a scalar. */
-  def localEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_equal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match{
       case i: Int ⇒ F.localEqualScalarInt(_: Tile, i)
       case d: Double ⇒ F.localEqualScalar(_: Tile, d)
     }
-    udf(f).apply(tileCol).as(s"localEqualScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_equal_scalar($tileCol, $value)").as[Tile]
   }
   /** Cellwise inequality comparison between two tiles. */
-  def localUnequal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("localUnequal", left, right)(
+  def local_unequal(left: Column, right: Column): TypedColumn[Any, Tile]  =
+    withAlias("local_unequal", left, right)(
       udf(F.localUnequal).apply(left, right)
     ).as[Tile]
 
   /** Cellwise inequality comparison between a tile and a scalar. */
-  def localUnequalScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
+  def local_unequal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
     val f = value match{
       case i: Int ⇒ F.localUnequalScalarInt(_: Tile, i)
       case d: Double ⇒ F.localUnequalScalar(_: Tile, d)
     }
-    udf(f).apply(tileCol).as(s"localUnequalScalar($tileCol, $value)").as[Tile]
+    udf(f).apply(tileCol).as(s"local_unequal_scalar($tileCol, $value)").as[Tile]
   }
 }

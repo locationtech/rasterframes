@@ -18,11 +18,14 @@
 
 package astraea.spark.rasterframes
 
+import java.net.URI
+import java.nio.file.Paths
 import java.time.ZonedDateTime
 
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.{functions ⇒ F}
 import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
-import geotrellis.proj4.LatLng
+import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
@@ -88,6 +91,10 @@ trait TestData {
 
   }
 
+  def geotiffDir = {
+    Paths.get(getClass.getResource("/L8-B8-Robinson-IL.tiff").getFile).getParent
+  }
+
   def readSingleband(name: String) = SinglebandGeoTiff(IOUtils.toByteArray(getClass.getResourceAsStream("/" + name)))
   def readMultiband(name: String) = MultibandGeoTiff(IOUtils.toByteArray(getClass.getResourceAsStream("/" + name)))
 
@@ -114,6 +121,14 @@ trait TestData {
     rf.toTileLayerRDD(rf.tileColumns.head).left.get
   }
 
+  private val baseCOG = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_%s.TIF"
+  lazy val remoteCOGSingleband1 = URI.create(baseCOG.format("B1"))
+  lazy val remoteCOGSingleband2 = URI.create(baseCOG.format("B2"))
+
+  lazy val remoteCOGMultiband =  URI.create("https://s3-us-west-2.amazonaws.com/radiant-nasa-iserv/2014/02/14/IP0201402141023382027S03100E/IP0201402141023382027S03100E-COG.tif")
+
+  lazy val remoteMODIS = URI.create("https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF")
+
   object JTS {
     val fact = new GeometryFactory()
     val c1 = new Coordinate(1, 2)
@@ -139,10 +154,10 @@ object TestData extends TestData {
     val base: Tile = cellType match {
       case _: FloatCells ⇒
         val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
-        ArrayTile(data, cols, rows)
+        ArrayTile(data, cols, rows).interpretAs(cellType)
       case _: DoubleCells ⇒
         val data = Array.fill(cols * rows)(rnd.nextGaussian())
-        ArrayTile(data, cols, rows)
+        ArrayTile(data, cols, rows).interpretAs(cellType)
       case _ ⇒
         val words = cellType.bits / 8
         val bytes = Array.ofDim[Byte](cols * rows * words)
@@ -175,7 +190,9 @@ object TestData extends TestData {
   /** A tile created through a geometric sequence.
     * 1/n of the tile's values will equal the tile size / n, assuming 1/n exists in the sequence */
   def fracTile(cols: Int, rows: Int, binNum: Int, denom: Int = 2): Tile = {
-    val fracs = (1 to binNum).map(x => 1/math.pow(denom, x)).map(x => (cols * rows * x).toInt)
+    val fracs = (1 to binNum)
+      .map(x => 1/math.pow(denom, x))
+      .map(x => (cols * rows * x).toInt)
     val fracSeq = fracs.flatMap(p => (1 to p).map(_ => p))
     // fill in the rest with zeroes
     val fullArr = (fracSeq ++ Seq.fill(rows * cols - fracSeq.length)(0)).toArray
@@ -183,8 +200,22 @@ object TestData extends TestData {
   }
 
   /** Create a series of random tiles. */
-  val makeTiles: (Int) ⇒ Array[Tile] = (count) ⇒
-    Array.fill(count)(randomTile(4, 4, UByteCellType))
+  val makeTiles: Int ⇒ Array[Tile] =
+    count ⇒ Array.fill(count)(randomTile(4, 4, UByteCellType))
+
+  def projectedRasterTile[N: Numeric](
+    cols: Int, rows: Int,
+    cellValue: N,
+    extent: Extent, crs: CRS = LatLng,
+    cellType: CellType = ByteConstantNoDataCellType): ProjectedRasterTile = {
+    val num = implicitly[Numeric[N]]
+
+    val base = if(cellType.isFloatingPoint)
+      ArrayTile(Array.fill(cols * rows)(num.toDouble(cellValue)), cols, rows)
+    else
+      ArrayTile(Array.fill(cols * rows)(num.toInt(cellValue)), cols, rows)
+    ProjectedRasterTile(base.convert(cellType), extent, crs)
+  }
 
   def randomSpatialTileLayerRDD(
     rasterCols: Int, rasterRows: Int,
@@ -207,14 +238,10 @@ object TestData extends TestData {
     def filter(c: Int, r: Int) = targeted.contains(r * t.cols + c)
 
     if(t.cellType.isFloatingPoint) {
-      t.mapDouble((c, r, v) ⇒ {
-        if(filter(c,r)) raster.doubleNODATA else v
-      })
+      t.mapDouble((c, r, v) ⇒ (if(filter(c,r)) raster.doubleNODATA else v): Double)
     }
     else {
-      t.map((c, r, v) ⇒ {
-        if(filter(c, r)) raster.NODATA else v
-      })
+      t.map((c, r, v) ⇒ if(filter(c, r)) raster.NODATA else v)
     }
   }
 }

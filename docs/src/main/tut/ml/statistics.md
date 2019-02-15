@@ -11,6 +11,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 
 implicit val spark = SparkSession.builder().
+  withKryoSerialization.
    master("local[*]").appName("RasterFrames").getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 import spark.implicits._
@@ -27,7 +28,7 @@ RasterFrames has a number of extension methods and columnar functions for perfor
 Get the nominal tile dimensions. Depending on the tiling there may be some tiles with different sizes on the edges.
 
 ```tut
-rf.select(rf.spatialKeyColumn, tileDimensions($"tile")).show(3)
+rf.select(rf.spatialKeyColumn, tile_dimensions($"tile")).show(3)
 ```
 
 ### Descriptive Statistics
@@ -37,7 +38,7 @@ rf.select(rf.spatialKeyColumn, tileDimensions($"tile")).show(3)
 Count the numer of `NoData` and non-`NoData` cells in each tile.
 
 ```tut
-rf.select(rf.spatialKeyColumn, noDataCells($"tile"), dataCells($"tile")).show(3)
+rf.select(rf.spatialKeyColumn, no_data_cells($"tile"), data_cells($"tile")).show(3)
 ```
 
 #### Tile Mean
@@ -46,44 +47,41 @@ Compute the mean value in each tile. Use `tileMean` for integral cell types, and
 cell types.
  
 ```tut
-rf.select(rf.spatialKeyColumn, tileMean($"tile")).show(3)
+rf.select(rf.spatialKeyColumn, tile_mean($"tile")).show(3)
 ```
 
 #### Tile Summary Statistics
 
-Compute a suite of summary statistics for each tile. Use `tileStats` for integral cells types, and `tileStatsDouble`
+Compute a suite of summary statistics for each tile. Use `tile_stats` for integral cells types, and `tile_stats_double`
 for floating point cell types.
 
 ```tut
-rf.withColumn("stats", tileStats($"tile")).select(rf.spatialKeyColumn, $"stats.*").show(3)
+rf.withColumn("stats", tile_stats($"tile")).select(rf.spatialKeyColumn, $"stats.*").show(3)
 ```
 
 ### Histogram
 
-The `tileHistogram` function computes a histogram over the data in each tile. See the 
-@scaladoc[GeoTrellis `Histogram`](geotrellis.raster.histogram.Histogram) documentation for details on what's
-available in the resulting data structure. Use this version for integral cell types, and `tileHistorgramDouble` for
-floating  point cells types. 
+The `tile_histogram` function computes a histogram over the data in each tile. 
 
 In this example we compute quantile breaks.
 
 ```tut
-rf.select(tileHistogram($"tile")).map(_.quantileBreaks(5)).show(5, false)
+rf.select(tile_histogram($"tile")).map(_.quantileBreaks(5)).show(5, false)
 ```
 
 ## Aggregate Statistics
 
-The `aggStats` function computes the same summary statistics as `tileStats`, but aggregates them over the whole 
+The `agg_stats` function computes the same summary statistics as `tile_stats`, but aggregates them over the whole 
 RasterFrame.
 
 ```tut
-rf.select(aggStats($"tile")).show()
+rf.select(agg_stats($"tile")).show()
 ```
 
 A more involved example: extract bin counts from a computed `Histogram`.
 
 ```tut
-rf.select(aggHistogram($"tile")).
+rf.select(agg_histogram($"tile")).
   map(h => for(v <- h.labels) yield(v, h.itemCount(v))).
   select(explode($"value") as "counts").
   select("counts._1", "counts._2").

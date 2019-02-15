@@ -24,7 +24,7 @@ package astraea.spark.rasterframes
  *
  * @since 12/17/17
  */
-class SpatialEncodingSpec extends TestEnvironment with TestData with IntelliJPresentationCompilerHack {
+class SpatialEncodingSpec extends TestEnvironment with TestData  {
 
   import sqlContext.implicits._
 
@@ -34,8 +34,7 @@ class SpatialEncodingSpec extends TestEnvironment with TestData with IntelliJPre
       val points = Seq(null, extent.center.jtsGeom, null)
       val ds = points.toDS
       write(ds)
-      ds.show()
-
+      //ds.show()
       assert(ds.collect().toSeq === points)
     }
   }

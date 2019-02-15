@@ -22,6 +22,7 @@ import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.sql._
 
 implicit val spark = SparkSession.builder().
+  withKryoSerialization.
   master("local[*]").appName(getClass.getName).getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 
@@ -77,7 +78,7 @@ val target = readTiff(filenamePattern.format("Labels")).
 Take a peek at what kind of label data we have to work with.
 
 ```tut
-target.select(aggStats(target(targetCol))).show
+target.select(agg_stats(target(targetCol))).show
 ```
 
 Join the target label RasterFrame with the band tiles to create our analytics base table
@@ -142,7 +143,7 @@ val trainer = new CrossValidator().
   setNumFolds(4)
 ```
 
-Push the "go" button:
+Push the "go button":
 
 ```tut
 val model = trainer.fit(abt)
@@ -185,7 +186,7 @@ First, we get the DataFrame back into RasterFrame form:
 val tlm = joinedRF.tileLayerMetadata.left.get
 
 val retiled = scored.groupBy($"spatial_key").agg(
-  assembleTile(
+  assemble_tile(
     $"column_index", $"row_index", $"prediction",
     tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType
   )
@@ -216,7 +217,7 @@ raster.tile.renderPng(clusterColors).write("target/scala-2.11/tut/ml/classified.
 ```tut:invisible
 val raster = SinglebandGeoTiff("../core/src/test/resources/L8-Labels-Elkton-VA.tiff").raster
 
-val k = raster.findMinMax._2
+val k = raster.tile.findMinMax._2
 
 val clusterColors = IndexedColorMap.fromColorMap(
   ColorRamps.Viridis.toColorMap((0 to k).toArray)

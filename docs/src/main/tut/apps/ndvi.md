@@ -11,6 +11,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 
 implicit val spark = SparkSession.builder().
+  withKryoSerialization.
   master("local[*]").appName("RasterFrames").getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel("ERROR")
 import spark.implicits._
@@ -28,15 +29,8 @@ relative biomass.
 def redBand = SinglebandGeoTiff("../core/src/test/resources/L8-B4-Elkton-VA.tiff").projectedRaster.toRF("red_band")
 def nirBand = SinglebandGeoTiff("../core/src/test/resources/L8-B5-Elkton-VA.tiff").projectedRaster.toRF("nir_band")
 
-// Define UDF for computing NDVI from red and NIR bands
-val ndvi = udf((red: Tile, nir: Tile) ⇒ {
-  val redd = red.convert(DoubleConstantNoDataCellType)
-  val nird = nir.convert(DoubleConstantNoDataCellType)
-  (nird - redd)/(nird + redd)
-})
-
 // We use `asRF` to indicate we know the structure still conforms to RasterFrame constraints
-val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", ndvi($"red_band", $"nir_band")).asRF
+val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", normalized_difference($"red_band", $"nir_band")).asRF
 
 val pr = rf.toRaster($"ndvi", 466, 428)
 
@@ -50,11 +44,16 @@ val brownToGreen = ColorRamp(
 
 val colors = ColorMap.fromQuantileBreaks(pr.tile.histogramDouble(), brownToGreen)
 pr.tile.color(colors).renderPng().write("target/scala-2.11/tut/apps/rf-ndvi.png")
-
-//For a georefrenced singleband greyscale image, could do: `GeoTiff(pr).write("ndvi.tiff")`
 ```
 
 ![](rf-ndvi.png)
+
+For a georefrenced singleband greyscale image, we could have done this instead: 
+
+```scala
+GeoTiff(pr).write("ndvi.tiff")
+```
+
 
 ```tut:invisible
 spark.stop()

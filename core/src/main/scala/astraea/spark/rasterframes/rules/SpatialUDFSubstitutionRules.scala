@@ -1,6 +1,6 @@
 package astraea.spark.rasterframes.rules
 
-import astraea.spark.rasterframes.expressions.SpatialExpression
+import astraea.spark.rasterframes.expressions.SpatialRelation
 import org.apache.spark.sql.catalyst.expressions.ScalaUDF
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
@@ -14,7 +14,7 @@ object SpatialUDFSubstitutionRules extends Rule[LogicalPlan] {
   def apply(plan: LogicalPlan): LogicalPlan = {
     plan.transform {
       case q: LogicalPlan ⇒ q.transformExpressions {
-        case s: ScalaUDF ⇒ SpatialExpression.fromUDF(s).getOrElse(s)
+        case s: ScalaUDF ⇒ SpatialRelation.fromUDF(s).getOrElse(s)
       }
     }
   }

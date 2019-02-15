@@ -61,14 +61,14 @@ class GeometryOperationsSpec extends TestEnvironment with TestData {
       val rasterized = toRasterize.withColumn("rasterized", rasterize($"geom", $"bounds", $"id", cols, rows))
 
       assert(rasterized.count() === df.count() * rf.count())
-      assert(rasterized.select(tileDimensions($"rasterized")).distinct().count() === 1)
-      val pixelCount = rasterized.select(aggDataCells($"rasterized")).first()
+      assert(rasterized.select(tile_dimensions($"rasterized")).distinct().count() === 1)
+      val pixelCount = rasterized.select(agg_data_cells($"rasterized")).first()
       assert(pixelCount < cols * rows)
 
 
       toRasterize.createOrReplaceTempView("stuff")
       val viaSQL = sql(s"select rf_rasterize(geom, bounds, id, $cols, $rows) as rasterized from stuff")
-      assert(viaSQL.select(aggDataCells($"rasterized")).first === pixelCount)
+      assert(viaSQL.select(agg_data_cells($"rasterized")).first === pixelCount)
 
       //rasterized.select($"rasterized".as[Tile]).foreach(t ⇒ t.renderPng(ColorMaps.IGBP).write("target/" + t.hashCode() + ".png"))
     }

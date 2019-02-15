@@ -273,7 +273,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 //
 //    val trans = md.mapTransform
 //
-//    //val cellType = rdd.first()._2.cellType
+//    //val cell_type = rdd.first()._2.cell_type
 //    val keyBounds = Bounds(SpatialKey(0, 0), SpatialKey(0, 0))
 //    val newLayerMetadata =
 //      md.copy(layout = newLayout, bounds = keyBounds)
@@ -333,7 +333,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 
     val croppedTile = stitchedTile.crop(rasterCols, rasterRows)
 
-    ProjectedRaster(croppedTile, md.extent, md.crs)
+    ProjectedRaster(croppedTile.tile, md.extent, md.crs)
   }
 
   /** Convert the Red, Green & Blue assigned tiles in the RasterFrame into a single color composite raster.
@@ -369,6 +369,6 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 
     val croppedTile = stitchedTile.crop(rasterCols, rasterRows)
 
-    ProjectedRaster(croppedTile, md.extent, md.crs)
+    ProjectedRaster(croppedTile, md.crs)
   }
 }

@@ -28,26 +28,27 @@ object ProjectPlugin extends AutoPlugin {
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion := "2.11.12",
     scalacOptions ++= Seq("-feature", "-deprecation"),
+    scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     cancelable in Global := true,
     resolvers ++= Seq(
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
-      "boundless-releases" at "https://repo.boundlessgeo.com/main/"
+      "boundless-releases" at "https://repo.boundlessgeo.com/main/",
+      "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
     ),
-
-//    rfSparkVersion in ThisBuild := "2.3.1" ,
-//    rfGeoTrellisVersion in ThisBuild := "2.0.0-RC1",
-    rfSparkVersion in ThisBuild := "2.2.1" ,
-    rfGeoTrellisVersion in ThisBuild := "1.2.1",
-    rfGeoMesaVersion in ThisBuild := "2.0.1",
+    // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
+    rfSparkVersion in ThisBuild := "2.3.2" ,
+    rfGeoTrellisVersion in ThisBuild := "2.1.0",
+    rfGeoMesaVersion in ThisBuild := "2.1.0",
 
     publishTo := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
     fork in Test := true,
-    javaOptions in Test := Seq("-Xmx2G"),
+    javaOptions in Test := Seq("-Xmx2G", "-Djava.library.path=/usr/local/lib"),
     parallelExecution in Test := false,
+    testOptions in Test += Tests.Argument("-oDF"),
     developers := List(
       Developer(
         id = "metasim",
@@ -67,7 +68,18 @@ object ProjectPlugin extends AutoPlugin {
         email = "bguseman@astraea.io",
         url = url("http://www.astraea.io")
       )
-    )
+    ),
+    initialCommands in console :=
+      """
+        |import org.apache.spark._
+        |import org.apache.spark.sql._
+        |import org.apache.spark.sql.functions._
+        |import geotrellis.raster._
+        |import geotrellis.spark._
+        |import astraea.spark.rasterframes._
+        |implicit val spark = SparkSession.builder().master("local[*]").getOrCreate().withRasterFrames
+      """.stripMargin.trim,
+    cleanupCommands in console := "spark.stop()"
   )
 
   object autoImport {

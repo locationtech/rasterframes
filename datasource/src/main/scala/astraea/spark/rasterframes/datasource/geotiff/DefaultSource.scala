@@ -20,8 +20,8 @@
 package astraea.spark.rasterframes.datasource.geotiff
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.datasource._
 import astraea.spark.rasterframes.util._
+import astraea.spark.rasterframes.datasource._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.LongType
@@ -34,17 +34,26 @@ import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
  * Spark SQL data source over GeoTIFF files.
  * @since 1/14/18
  */
-class DefaultSource extends DataSourceRegister with RelationProvider with CreatableRelationProvider with LazyLogging {
+class DefaultSource extends DataSourceRegister
+  with RelationProvider with CreatableRelationProvider
+  with DataSourceOptions with LazyLogging {
   def shortName() = DefaultSource.SHORT_NAME
 
   def path(parameters: Map[String, String]) =
-    uriParam(DefaultSource.PATH_PARAM, parameters)
+    uriParam(PATH_PARAM, parameters)
 
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
     val pathO = path(parameters)
     require(pathO.isDefined, "Valid URI 'path' parameter required.")
     sqlContext.withRasterFrames
-    GeoTiffRelation(sqlContext, pathO.get)
+
+    val p = pathO.get
+
+    if(p.getPath.contains("*")) {
+      val bandCount = parameters.get(DefaultSource.BAND_COUNT_PARAM).map(_.toInt).getOrElse(1)
+      GeoTiffCollectionRelation(sqlContext, p, bandCount)
+    }
+    else GeoTiffRelation(sqlContext, p)
   }
 
   override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = {
@@ -67,14 +76,14 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
       val c = rf
         .where(SPATIAL_KEY_COLUMN("row") === sk.row)
         .agg(
-          F.sum(tileDimensions(tc)("cols") cast(LongType))
+          F.sum(tile_dimensions(tc)("cols") cast(LongType))
         ).first()
         .getLong(0)
 
       val r = rf
         .where(SPATIAL_KEY_COLUMN("col") === sk.col)
         .agg(
-          F.sum(tileDimensions(tc)("rows") cast(LongType))
+          F.sum(tile_dimensions(tc)("rows") cast(LongType))
         ).first()
         .getLong(0)
 
@@ -99,7 +108,7 @@ class DefaultSource extends DataSourceRegister with RelationProvider with Creata
       case _ ⇒ ColorSpace.BlackIsZero
     }
 
-    val compress = parameters.get(DefaultSource.COMPRESS).map(_.toBoolean).getOrElse(false)
+    val compress = parameters.get(DefaultSource.COMPRESS_PARAM).map(_.toBoolean).getOrElse(false)
     val options = GeoTiffOptions(Tiled, if (compress) DeflateCompression else NoCompression, colorSpace)
     val tags = Tags(
       RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
@@ -118,5 +127,6 @@ object DefaultSource {
   final val PATH_PARAM = "path"
   final val IMAGE_WIDTH_PARAM = "imageWidth"
   final val IMAGE_HEIGHT_PARAM = "imageWidth"
-  final val COMPRESS = "compress"
+  final val COMPRESS_PARAM = "compress"
+  final val BAND_COUNT_PARAM = "bandCount"
 }

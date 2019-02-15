@@ -35,7 +35,7 @@ lazy val docs = project
   .disablePlugins(SparkPackagePlugin)
 
 lazy val bench = project
-  .dependsOn(core)
+  .dependsOn(core % "compile->test")
   .disablePlugins(SparkPackagePlugin)
   .settings(publish / skip := true)
 

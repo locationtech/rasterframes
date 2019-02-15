@@ -28,12 +28,12 @@ import geotrellis.vector.{Point ⇒ GTPoint}
  *
  * @since 12/16/17
  */
-class JTSSpec extends TestEnvironment with TestData with StandardColumns with IntelliJPresentationCompilerHack {
-  import spark.implicits._
-
+class JTSSpec extends TestEnvironment with TestData with StandardColumns {
   describe("JTS interop") {
     val rf = l8Sample(1).projectedRaster.toRF(10, 10).withBounds()
     it("should allow joining and filtering of tiles based on points") {
+      import spark.implicits._
+
       val crs = rf.tileLayerMetadata.merge.crs
       val coords = Seq(
         "one" -> GTPoint(-78.6445222907, 38.3957546898).reproject(LatLng, crs).jtsGeom,
@@ -79,12 +79,14 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns with In
     }
 
     it("should provide a means of getting a bounding box") {
-      val boxed = rf.select(BOUNDS_COLUMN, envelope(BOUNDS_COLUMN))
-      assert(boxed.select($"envelope(bounds)".as[Envelope]).first.getArea > 0)
+      import spark.implicits._
+      val boxed = rf.select(BOUNDS_COLUMN, envelope(BOUNDS_COLUMN) as "env")
+      assert(boxed.select($"env".as[Envelope]).first.getArea > 0)
       assert(boxed.toDF("bounds", "bbox").select("bbox.*").schema.length === 4)
     }
 
     it("should allow reprojection geometry") {
+      import spark.implicits._
       // Note: Test data copied from ReprojectSpec in GeoTrellis
       val fact = new GeometryFactory()
       val latLng: Geometry = fact.createLineString(Array(
@@ -106,9 +108,9 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns with In
       val df = Seq((latLng, webMercator)).toDF("ll", "wm")
 
       val rp = df.select(
-        reprojectGeometry($"ll", LatLng, WebMercator) as "wm2",
-        reprojectGeometry($"wm", WebMercator, LatLng) as "ll2",
-        reprojectGeometry(reprojectGeometry($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
+        reproject_geometry($"ll", LatLng, WebMercator) as "wm2",
+        reproject_geometry($"wm", WebMercator, LatLng) as "ll2",
+        reproject_geometry(reproject_geometry($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
       ).as[(Geometry, Geometry, Geometry)]
 
 
@@ -121,7 +123,7 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns with In
 
       df.createOrReplaceTempView("geom")
 
-      val wm4 = sql("SELECT rf_reprojectGeometry(ll, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 'EPSG:3857') AS wm4 from geom")
+      val wm4 = sql("SELECT rf_reproject_geometry(ll, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 'EPSG:3857') AS wm4 from geom")
         .as[Geometry].first()
       wm4 should matchGeom(webMercator, 0.00001)
     }

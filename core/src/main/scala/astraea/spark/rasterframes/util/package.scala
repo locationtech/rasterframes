@@ -30,14 +30,14 @@ import geotrellis.raster.prototype.TilePrototypeMethods
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
-import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
-import org.apache.spark.sql.catalyst.expressions.{Alias, AttributeReference}
+import org.apache.spark.sql.catalyst.expressions.{Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
+import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
 
-import scala.util.control.NonFatal
+import scala.Boolean.box
 
 /**
  * Internal utilities.
@@ -62,10 +62,10 @@ package object util extends LazyLogging {
   }
 
   // Type lambda aliases
-  type WithMergeMethods[V] = (V ⇒ TileMergeMethods[V])
-  type WithPrototypeMethods[V <: CellGrid] = (V ⇒ TilePrototypeMethods[V])
-  type WithCropMethods[V <: CellGrid] = (V ⇒ TileCropMethods[V])
-  type WithMaskMethods[V] = (V ⇒ TileMaskMethods[V])
+  type WithMergeMethods[V] = V ⇒ TileMergeMethods[V]
+  type WithPrototypeMethods[V <: CellGrid] = V ⇒ TilePrototypeMethods[V]
+  type WithCropMethods[V <: CellGrid] = V ⇒ TileCropMethods[V]
+  type WithMaskMethods[V] = V ⇒ TileMaskMethods[V]
 
   type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
 
@@ -87,9 +87,13 @@ package object util extends LazyLogging {
     op.getClass.getSimpleName.replace("$", "").toLowerCase
 
   object CRSParser {
-    def apply(value: String): CRS = scala.util.Try(CRS.fromName(value))
-        .recover { case NonFatal(_) ⇒ CRS.fromString(value)}
-        .getOrElse(CRS.fromWKT(value))
+    def apply(value: String): CRS = {
+      value match {
+        case e if e.startsWith("EPSG") => CRS.fromName(e)
+        case p if p.startsWith("+proj") => CRS.fromString(p)
+        case w if w.startsWith("GEOGCS") => CRS.fromWKT(w)
+      }
+    }
   }
 
   implicit class WithCombine[T](left: Option[T]) {
@@ -97,13 +101,17 @@ package object util extends LazyLogging {
     def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l ⇒ right.map((l, _)))
   }
 
-  implicit class NamedColumn(col: Column) {
-    def columnName: String = col.expr match {
-      case ua: UnresolvedAttribute ⇒ ua.name
-      case ar: AttributeReference ⇒ ar.name
-      case as: Alias ⇒ as.name
-      case o ⇒ o.prettyName
+  implicit class ExpressionWithName(val expr: Expression) extends AnyVal {
+    import org.apache.spark.sql.catalyst.expressions.Literal
+    def name: String = expr match {
+      case n: NamedExpression ⇒ n.name
+      case l: Literal if l.dataType == StringType ⇒ String.valueOf(l.value)
+      case o ⇒ o.toString
     }
+  }
+
+  implicit class NamedColumn(val col: Column) extends AnyVal {
+    def columnName: String = col.expr.name
   }
 
   private[rasterframes]
@@ -163,16 +171,26 @@ package object util extends LazyLogging {
     }
 
     // GT 1.2.1 to 2.0.0
-    def readGeoTiffInfo(byteReader: ByteReader, decompress: Boolean, streaming: Boolean): GeoTiffReader.GeoTiffInfo = {
+    // only decompress and streaming apply to 1.2.x
+    // only streaming and withOverviews apply to 2.0.x
+    // 1.2.x only has a 3-arg readGeoTiffInfo method
+    // 2.0.x has a 3- and 4-arg readGeoTiffInfo method, but the 3-arg one has different boolean
+    // parameters than the 1.2.x one
+    def readGeoTiffInfo(byteReader: ByteReader,
+                        decompress: Boolean,
+                        streaming: Boolean,
+                        withOverviews: Boolean): GeoTiffReader.GeoTiffInfo = {
       val reader = GeoTiffReader.getClass.getDeclaredMethods
-        .find(_.getName == "readGeoTiffInfo")
-        .getOrElse(throw new RuntimeException("Could not find method GeoTiffReader.readGeoTiffInfo"))
+        .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 4)
+        .getOrElse(
+          GeoTiffReader.getClass.getDeclaredMethods
+            .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 3)
+            .getOrElse(
+              throw new RuntimeException("Could not find method GeoTiffReader.readGeoTiffInfo")))
 
       val result = reader.getParameterCount match {
-        case 3 ⇒ reader.invoke(GeoTiffReader, byteReader,
-          Boolean.box(decompress), Boolean.box(streaming))
-        case 4 ⇒ reader.invoke(GeoTiffReader, byteReader,
-          Boolean.box(decompress), Boolean.box(streaming), None)
+        case 3 ⇒ reader.invoke(GeoTiffReader, byteReader, box(decompress), box(streaming))
+        case 4 ⇒ reader.invoke(GeoTiffReader, byteReader, box(streaming), box(withOverviews), None)
       }
       result.asInstanceOf[GeoTiffReader.GeoTiffInfo]
     }
