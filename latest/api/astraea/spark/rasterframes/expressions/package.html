@@ -89,58 +89,42 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="astraea.spark.rasterframes.expressions.CellTypeExpression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="CellTypeExpressionextendsUnaryExpressionwithRequiresTilewithProductwithSerializable"></a>
-      <a id="CellTypeExpression:CellTypeExpression"></a>
+              <ol><li name="astraea.spark.rasterframes.expressions.BoundsToGeometry" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BoundsToGeometryextendsUnaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="BoundsToGeometry:BoundsToGeometry"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="CellTypeExpression.html"><span class="name">CellTypeExpression</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <a href="RequiresTile.html" class="extype" name="astraea.spark.rasterframes.expressions.RequiresTile">RequiresTile</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="BoundsToGeometry.html"><span class="name">BoundsToGeometry</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@CellTypeExpressionextendsUnaryExpressionwithRequiresTilewithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@BoundsToGeometryextendsUnaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Extract a Tile's cell type</p><div class="fullcomment"><div class="comment cmt"><p>Extract a Tile's cell type</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/21/17</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.expressions.DimensionsExpression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DimensionsExpressionextendsUnaryExpressionwithRequiresTilewithProductwithSerializable"></a>
-      <a id="DimensionsExpression:DimensionsExpression"></a>
+      <p class="shortcomment cmt">Catalyst Expression for converting a bounding box structure into a JTS Geometry type.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst Expression for converting a bounding box structure into a JTS Geometry type.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/24/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.ExplodeTiles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ExplodeTilesextendsExpressionwithGeneratorwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="ExplodeTiles:ExplodeTiles"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="DimensionsExpression.html"><span class="name">DimensionsExpression</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <a href="RequiresTile.html" class="extype" name="astraea.spark.rasterframes.expressions.RequiresTile">RequiresTile</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="ExplodeTiles.html"><span class="name">ExplodeTiles</span></a><span class="params">(<span name="sampleFraction">sampleFraction: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a> = <span class="symbol">1.0</span></span>, <span name="seed">seed: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a>] = <span class="symbol">None</span></span>, <span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>]</span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Generator">Generator</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@DimensionsExpressionextendsUnaryExpressionwithRequiresTilewithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@ExplodeTilesextendsExpressionwithGeneratorwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Extract a Tile's dimensions</p><div class="fullcomment"><div class="comment cmt"><p>Extract a Tile's dimensions</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/21/17</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.expressions.EnvelopeExpression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="EnvelopeExpressionextendsUnaryExpressionwithCodegenFallbackwithGeomDeserializerSupportwithProductwithSerializable"></a>
-      <a id="EnvelopeExpression:EnvelopeExpression"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="EnvelopeExpression.html"><span class="name">EnvelopeExpression</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="GeomDeserializerSupport.html" class="extype" name="astraea.spark.rasterframes.expressions.GeomDeserializerSupport">GeomDeserializerSupport</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@EnvelopeExpressionextendsUnaryExpressionwithCodegenFallbackwithGeomDeserializerSupportwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Extracts the bounding box (envelope) of arbitrary JTS Geometry.</p><div class="fullcomment"><div class="comment cmt"><p>Extracts the bounding box (envelope) of arbitrary JTS Geometry.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2/22/18</p></dd></dl></div>
+      <p class="shortcomment cmt">Catalyst expression for converting a tile column into a pixel column, with each tile pixel occupying a separate row.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst expression for converting a tile column into a pixel column, with each tile pixel occupying a separate row.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>4/12/17</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.expressions.GeomDeserializerSupport" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="GeomDeserializerSupportextendsAnyRef"></a>
       <a id="GeomDeserializerSupport:GeomDeserializerSupport"></a>
@@ -159,6 +143,209 @@
     </span>
       <p class="shortcomment cmt">Support for deserializing JTS geometry inside expressions.</p><div class="fullcomment"><div class="comment cmt"><p>Support for deserializing JTS geometry inside expressions.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2/22/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.GeometryToBounds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GeometryToBoundsextendsUnaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="GeometryToBounds:GeometryToBounds"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GeometryToBounds.html"><span class="name">GeometryToBounds</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GeometryToBoundsextendsUnaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Catalyst Expression for getting the extent of a geometry.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst Expression for getting the extent of a geometry.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/24/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.GetCRS" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GetCRSextendsUnaryExpressionwithOnProjectedRasterExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="GetCRS:GetCRS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GetCRS.html"><span class="name">GetCRS</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <a href="OnProjectedRasterExpression.html" class="extype" name="astraea.spark.rasterframes.expressions.OnProjectedRasterExpression">OnProjectedRasterExpression</a> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetCRSextendsUnaryExpressionwithOnProjectedRasterExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.</p><div class="fullcomment"><div class="comment cmt"><p>Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/9/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.GetCellType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GetCellTypeextendsUnaryExpressionwithOnCellGridExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="GetCellType:GetCellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GetCellType.html"><span class="name">GetCellType</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <a href="OnCellGridExpression.html" class="extype" name="astraea.spark.rasterframes.expressions.OnCellGridExpression">OnCellGridExpression</a> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetCellTypeextendsUnaryExpressionwithOnCellGridExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extract a Tile's cell type</p><div class="fullcomment"><div class="comment cmt"><p>Extract a Tile's cell type</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/21/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.GetDimensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GetDimensionsextendsUnaryExpressionwithOnCellGridExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="GetDimensions:GetDimensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GetDimensions.html"><span class="name">GetDimensions</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <a href="OnCellGridExpression.html" class="extype" name="astraea.spark.rasterframes.expressions.OnCellGridExpression">OnCellGridExpression</a> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetDimensionsextendsUnaryExpressionwithOnCellGridExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extract a Tile's dimensions</p><div class="fullcomment"><div class="comment cmt"><p>Extract a Tile's dimensions</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/21/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.GetExtent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GetExtentextendsUnaryExpressionwithOnProjectedRasterExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="GetExtent:GetExtent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GetExtent.html"><span class="name">GetExtent</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <a href="OnProjectedRasterExpression.html" class="extype" name="astraea.spark.rasterframes.expressions.OnProjectedRasterExpression">OnProjectedRasterExpression</a> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetExtentextendsUnaryExpressionwithOnProjectedRasterExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Expression to extract the Extent out of a RasterRef or ProjectedRasterTile column.</p><div class="fullcomment"><div class="comment cmt"><p>Expression to extract the Extent out of a RasterRef or ProjectedRasterTile column.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/10/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.OnCellGridExpression" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="OnCellGridExpressionextendsUnaryExpression"></a>
+      <a id="OnCellGridExpression:OnCellGridExpression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="OnCellGridExpression.html"><span class="name">OnCellGridExpression</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@OnCellGridExpressionextendsUnaryExpression" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and RasterRefs
+as Grid types.</p><div class="fullcomment"><div class="comment cmt"><p>Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and RasterRefs
+as Grid types.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/4/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.OnProjectedRasterExpression" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="OnProjectedRasterExpressionextendsUnaryExpression"></a>
+      <a id="OnProjectedRasterExpression:OnProjectedRasterExpression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="OnProjectedRasterExpression.html"><span class="name">OnProjectedRasterExpression</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@OnProjectedRasterExpressionextendsUnaryExpression" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements boilerplate for subtype expressions processing TileUDT (when ProjectedRasterTile), RasterSourceUDT, and
+RasterSource-shaped rows.</p><div class="fullcomment"><div class="comment cmt"><p>Implements boilerplate for subtype expressions processing TileUDT (when ProjectedRasterTile), RasterSourceUDT, and
+RasterSource-shaped rows.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/3/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.RasterRefToTile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RasterRefToTileextendsUnaryExpressionwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable"></a>
+      <a id="RasterRefToTile:RasterRefToTile"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterRefToTile.html"><span class="name">RasterRefToTile</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@RasterRefToTileextendsUnaryExpressionwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Realizes a RasterRef into a Tile.</p><div class="fullcomment"><div class="comment cmt"><p>Realizes a RasterRef into a Tile.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/2/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.RasterSourceToRasterRefs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RasterSourceToRasterRefsextendsExpressionwithGeneratorwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable"></a>
+      <a id="RasterSourceToRasterRefs:RasterSourceToRasterRefs"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterSourceToRasterRefs.html"><span class="name">RasterSourceToRasterRefs</span></a><span class="params">(<span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>]</span>, <span name="applyTiling">applyTiling: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Generator">Generator</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@RasterSourceToRasterRefsextendsExpressionwithGeneratorwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Accepts RasterRef and generates one or more RasterRef instances representing the
+native internal sub-tiling, if any (and requested).</p><div class="fullcomment"><div class="comment cmt"><p>Accepts RasterRef and generates one or more RasterRef instances representing the
+native internal sub-tiling, if any (and requested).
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/6/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.RasterSourceToTiles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RasterSourceToTilesextendsExpressionwithGeneratorwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable"></a>
+      <a id="RasterSourceToTiles:RasterSourceToTiles"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterSourceToTiles.html"><span class="name">RasterSourceToTiles</span></a><span class="params">(<span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>]</span>, <span name="applyTiling">applyTiling: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Generator">Generator</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@RasterSourceToTilesextendsExpressionwithGeneratorwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Accepts RasterRef and generates one or more RasterRef instances representing the
+native internal sub-tiling, if any (and requested).</p><div class="fullcomment"><div class="comment cmt"><p>Accepts RasterRef and generates one or more RasterRef instances representing the
+native internal sub-tiling, if any (and requested).
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/6/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.ReprojectGeometry" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReprojectGeometryextendsExpressionwithCodegenFallbackwithExpectsInputTypeswithProductwithSerializable"></a>
+      <a id="ReprojectGeometry:ReprojectGeometry"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ReprojectGeometry.html"><span class="name">ReprojectGeometry</span></a><span class="params">(<span name="geometry">geometry: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="srcCRS">srcCRS: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="dstCRS">dstCRS: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@ReprojectGeometryextendsExpressionwithCodegenFallbackwithExpectsInputTypeswithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/29/18</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.expressions.RequiresTile" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="RequiresTileextendsAnyRef"></a>
       <a id="RequiresTile:RequiresTile"></a>
@@ -177,24 +364,84 @@
     </span>
       <p class="shortcomment cmt">Mixin for indicating an expression requires a Tile for input.</p><div class="fullcomment"><div class="comment cmt"><p>Mixin for indicating an expression requires a Tile for input.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/28/17</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.expressions.SpatialExpression" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="SpatialExpressionextendsBinaryExpressionwithCodegenFallbackwithGeomDeserializerSupport"></a>
-      <a id="SpatialExpression:SpatialExpression"></a>
+    </li><li name="astraea.spark.rasterframes.expressions.SetCellType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SetCellTypeextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="SetCellType:SetCellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SetCellType.html"><span class="name">SetCellType</span></a><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="cellType">cellType: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SetCellTypeextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Change the CellType of a Tile
+</p><div class="fullcomment"><div class="comment cmt"><p>Change the CellType of a Tile
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/11/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.SpatialRelation" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="SpatialRelationextendsBinaryExpressionwithCodegenFallbackwithGeomDeserializerSupport"></a>
+      <a id="SpatialRelation:SpatialRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="SpatialExpression.html"><span class="name">SpatialExpression</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="GeomDeserializerSupport.html" class="extype" name="astraea.spark.rasterframes.expressions.GeomDeserializerSupport">GeomDeserializerSupport</a></span>
+        <a href="SpatialRelation.html"><span class="name">SpatialRelation</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="GeomDeserializerSupport.html" class="extype" name="astraea.spark.rasterframes.expressions.GeomDeserializerSupport">GeomDeserializerSupport</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SpatialExpressionextendsBinaryExpressionwithCodegenFallbackwithGeomDeserializerSupport" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SpatialRelationextendsBinaryExpressionwithCodegenFallbackwithGeomDeserializerSupport" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Determine if two spatial constructs intersect each other.</p><div class="fullcomment"><div class="comment cmt"><p>Determine if two spatial constructs intersect each other.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/28/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.URIToRasterSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="URIToRasterSourceextendsUnaryExpressionwithExpectsInputTypeswithCodegenFallbackwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="URIToRasterSource:URIToRasterSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="URIToRasterSource.html"><span class="name">URIToRasterSource</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="accumulator">accumulator: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../ref/RasterSource$$ReadCallback.html" class="extype" name="astraea.spark.rasterframes.ref.RasterSource.ReadCallback">ReadCallback</a>]</span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@URIToRasterSourceextendsUnaryExpressionwithExpectsInputTypeswithCodegenFallbackwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Catalyst generator to convert a geotiff download URL into a series of rows
+containing references to the internal tiles and associated extents.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst generator to convert a geotiff download URL into a series of rows
+containing references to the internal tiles and associated extents.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.GetEnvelope" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GetEnvelopeextendsUnaryExpressionwithCodegenFallbackwithGeomDeserializerSupportwithProductwithSerializable"></a>
+      <a id="GetEnvelope:GetEnvelope"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GetEnvelope.html"><span class="name deprecated" title="Deprecated: (Since version 11/4/2018) Replace usages of this with GeometryToBounds">GetEnvelope</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="GeomDeserializerSupport.html" class="extype" name="astraea.spark.rasterframes.expressions.GeomDeserializerSupport">GeomDeserializerSupport</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetEnvelopeextendsUnaryExpressionwithCodegenFallbackwithGeomDeserializerSupportwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extracts the bounding box (envelope) of arbitrary JTS Geometry.</p><div class="fullcomment"><div class="comment cmt"><p>Extracts the bounding box (envelope) of arbitrary JTS Geometry.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 11/4/2018)</i> Replace usages of this with GeometryToBounds</p></dd><dt>Since</dt><dd><p>2/22/18</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -202,19 +449,274 @@
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="astraea.spark.rasterframes.expressions.SpatialExpression" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="SpatialExpression"></a>
-      <a id="SpatialExpression:SpatialExpression"></a>
+              <ol><li name="astraea.spark.rasterframes.expressions.BoundsToGeometry" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BoundsToGeometry"></a>
+      <a id="BoundsToGeometry:BoundsToGeometry"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="SpatialExpression$.html"><span class="name">SpatialExpression</span></a>
+        <a href="BoundsToGeometry$.html"><span class="name">BoundsToGeometry</span></a><span class="result"> extends <span class="extype" name="org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders">SpatialEncoders</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SpatialExpression" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@BoundsToGeometry" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.ExplodeTiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExplodeTiles"></a>
+      <a id="ExplodeTiles:ExplodeTiles"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExplodeTiles$.html"><span class="name">ExplodeTiles</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@ExplodeTiles" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.GeometryToBounds" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GeometryToBounds"></a>
+      <a id="GeometryToBounds:GeometryToBounds"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GeometryToBounds$.html"><span class="name">GeometryToBounds</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GeometryToBounds" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.GetCRS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GetCRS"></a>
+      <a id="GetCRS:GetCRS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GetCRS$.html"><span class="name">GetCRS</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetCRS" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.GetCellType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GetCellType"></a>
+      <a id="GetCellType:GetCellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GetCellType$.html"><span class="name">GetCellType</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetCellType" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.GetDimensions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GetDimensions"></a>
+      <a id="GetDimensions:GetDimensions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GetDimensions$.html"><span class="name">GetDimensions</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetDimensions" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.GetEnvelope" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GetEnvelope"></a>
+      <a id="GetEnvelope:GetEnvelope"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GetEnvelope$.html"><span class="name">GetEnvelope</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetEnvelope" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.GetExtent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GetExtent"></a>
+      <a id="GetExtent:GetExtent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GetExtent$.html"><span class="name">GetExtent</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@GetExtent" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.RasterRefToTile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterRefToTile"></a>
+      <a id="RasterRefToTile:RasterRefToTile"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterRefToTile$.html"><span class="name">RasterRefToTile</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@RasterRefToTile" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.RasterSourceToRasterRefs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterSourceToRasterRefs"></a>
+      <a id="RasterSourceToRasterRefs:RasterSourceToRasterRefs"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterSourceToRasterRefs$.html"><span class="name">RasterSourceToRasterRefs</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@RasterSourceToRasterRefs" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.RasterSourceToTiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterSourceToTiles"></a>
+      <a id="RasterSourceToTiles:RasterSourceToTiles"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterSourceToTiles$.html"><span class="name">RasterSourceToTiles</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@RasterSourceToTiles" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.ReprojectGeometry" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ReprojectGeometry"></a>
+      <a id="ReprojectGeometry:ReprojectGeometry"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ReprojectGeometry$.html"><span class="name">ReprojectGeometry</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@ReprojectGeometry" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.RequiresTile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RequiresTile"></a>
+      <a id="RequiresTile:RequiresTile"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RequiresTile$.html"><span class="name">RequiresTile</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@RequiresTile" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.SetCellType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SetCellType"></a>
+      <a id="SetCellType:SetCellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SetCellType$.html"><span class="name">SetCellType</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SetCellType" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.SpatialRelation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SpatialRelation"></a>
+      <a id="SpatialRelation:SpatialRelation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SpatialRelation$.html"><span class="name">SpatialRelation</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SpatialRelation" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.URIToRasterSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="URIToRasterSource"></a>
+      <a id="URIToRasterSource:URIToRasterSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="URIToRasterSource$.html"><span class="name">URIToRasterSource</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@URIToRasterSource" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

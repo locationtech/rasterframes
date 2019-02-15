@@ -50,7 +50,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Extension methods for literate and type-safe loading of geotrellis layers.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/12/18</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -68,7 +68,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="astraea.spark.rasterframes.datasource.geotrellis"><span>geotrellis</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="astraea.spark.rasterframes.datasource.geotrellis"><span>geotrellis</span></li><li class="in" name="astraea.spark.rasterframes.datasource.DataSourceOptions"><span>DataSourceOptions</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -125,7 +125,7 @@ for querying the GeoTrellis catalog and loading layers from it.</p>
     </span>
       
     </li><li name="astraea.spark.rasterframes.datasource.geotrellis.DefaultSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DefaultSourceextendsDataSourceRegisterwithRelationProviderwithCreatableRelationProvider"></a>
+      <a id="DefaultSourceextendsDataSourceRegisterwithRelationProviderwithCreatableRelationProviderwithDataSourceOptions"></a>
       <a id="DefaultSource:DefaultSource"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -133,10 +133,10 @@ for querying the GeoTrellis catalog and loading layers from it.</p>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DefaultSource.html"><span class="name">DefaultSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span> with <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span></span>
+        <a href="DefaultSource.html"><span class="name">DefaultSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span> with <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span> with <a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@DefaultSourceextendsDataSourceRegisterwithRelationProviderwithCreatableRelationProvider" title="Permalink" target="_top">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@DefaultSourceextendsDataSourceRegisterwithRelationProviderwithCreatableRelationProviderwithDataSourceOptions" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -253,7 +253,7 @@ a RasterFrame to a GeoTrellis layer.</p>
     </span>
       <p class="shortcomment cmt">Extension methods for loading a RasterFrame from a tagged <code>DataFrameReader</code>.</p>
     </li><li name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="GeoTrellisRelationextendsBaseRelationwithPrunedScanwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="GeoTrellisRelationextendsBaseRelationwithPrunedScanwithSpatialRelationReceiver[astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation]withLazyLoggingwithProductwithSerializable"></a>
       <a id="GeoTrellisRelation:GeoTrellisRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -261,10 +261,10 @@ a RasterFrame to a GeoTrellis layer.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="GeoTrellisRelation.html"><span class="name">GeoTrellisRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="uri">uri: <span class="extype" name="java.net.URI">URI</span></span>, <span name="layerId">layerId: <span class="extype" name="geotrellis.spark.LayerId">LayerId</span></span>, <span name="numPartitions">numPartitions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="failOnUnrecognizedFilter">failOnUnrecognizedFilter: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>, <span name="tileSubdivisions">tileSubdivisions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="filters">filters: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span> with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="GeoTrellisRelation.html"><span class="name">GeoTrellisRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="uri">uri: <span class="extype" name="java.net.URI">URI</span></span>, <span name="layerId">layerId: <span class="extype" name="geotrellis.spark.LayerId">LayerId</span></span>, <span name="numPartitions">numPartitions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="failOnUnrecognizedFilter">failOnUnrecognizedFilter: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>, <span name="tileSubdivisions">tileSubdivisions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="filters">filters: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span> with <a href="../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a>[<a href="GeoTrellisRelation.html" class="extype" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation">GeoTrellisRelation</a>] with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@GeoTrellisRelationextendsBaseRelationwithPrunedScanwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@GeoTrellisRelationextendsBaseRelationwithPrunedScanwithSpatialRelationReceiver[astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation]withLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -396,6 +396,57 @@ a RasterFrame to a GeoTrellis layer.</p>
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#IMAGE_HEIGHT_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="IMAGE_HEIGHT_PARAM:String(&quot;imageWidth&quot;)"></a>
+      <a id="IMAGE_HEIGHT_PARAM:String(&quot;imageWidth&quot;)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">IMAGE_HEIGHT_PARAM</span><span class="result">: String(&quot;imageWidth&quot;)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@IMAGE_HEIGHT_PARAM:String(&quot;imageWidth&quot;)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#IMAGE_WIDTH_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="IMAGE_WIDTH_PARAM:String(&quot;imageWidth&quot;)"></a>
+      <a id="IMAGE_WIDTH_PARAM:String(&quot;imageWidth&quot;)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">IMAGE_WIDTH_PARAM</span><span class="result">: String(&quot;imageWidth&quot;)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@IMAGE_WIDTH_PARAM:String(&quot;imageWidth&quot;)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#LAYER_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="LAYER_PARAM:String(&quot;layer&quot;)"></a>
+      <a id="LAYER_PARAM:String(&quot;layer&quot;)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">LAYER_PARAM</span><span class="result">: String(&quot;layer&quot;)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@LAYER_PARAM:String(&quot;layer&quot;)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.datasource.geotrellis.Layer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Layer"></a>
       <a id="Layer:Layer"></a>
@@ -409,23 +460,6 @@ a RasterFrame to a GeoTrellis layer.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@Layer" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="astraea.spark.rasterframes.datasource.geotrellis.LogicalRelationWithGTR" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="LogicalRelationWithGTR"></a>
-      <a id="LogicalRelationWithGTR:LogicalRelationWithGTR"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$LogicalRelationWithGTR$.html"><span class="name">LogicalRelationWithGTR</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@LogicalRelationWithGTR" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -447,30 +481,74 @@ a RasterFrame to a GeoTrellis layer.</p>
       </a>
     </span>
       
-    </li><li name="astraea.spark.rasterframes.datasource.geotrellis.SpatialFilterPushdownRules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="SpatialFilterPushdownRules"></a>
-      <a id="SpatialFilterPushdownRules:SpatialFilterPushdownRules"></a>
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#NUM_PARTITIONS_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="NUM_PARTITIONS_PARAM:String(&quot;numPartitions&quot;)"></a>
+      <a id="NUM_PARTITIONS_PARAM:String(&quot;numPartitions&quot;)"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <a href="SpatialFilterPushdownRules$.html"><span class="name">SpatialFilterPushdownRules</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.rules.Rule">Rule</span>[<span class="extype" name="org.apache.spark.sql.catalyst.plans.logical.LogicalPlan">LogicalPlan</span>]</span>
+        <span class="name">NUM_PARTITIONS_PARAM</span><span class="result">: String(&quot;numPartitions&quot;)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@SpatialFilterPushdownRules" title="Permalink" target="_top">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@NUM_PARTITIONS_PARAM:String(&quot;numPartitions&quot;)" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Logical plan manipulations to handle spatial queries on tile components.</p><div class="fullcomment"><div class="comment cmt"><p>Logical plan manipulations to handle spatial queries on tile components.
-Starting points for understanding the Catalyst optimizer:
-- <span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode">org.apache.spark.sql.catalyst.trees.TreeNode</span>
-- <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">org.apache.spark.sql.catalyst.expressions.Expression</span>
-- <span class="extype" name="org.apache.spark.sql.catalyst.plans.logical.LogicalPlan">org.apache.spark.sql.catalyst.plans.logical.LogicalPlan</span>
-- <span class="extype" name="org.apache.spark.sql.catalyst.analysis.Analyzer">org.apache.spark.sql.catalyst.analysis.Analyzer</span>
-- <span class="extype" name="org.apache.spark.sql.catalyst.optimizer.Optimizer">org.apache.spark.sql.catalyst.optimizer.Optimizer</span>
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/21/17</p></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#PATH_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PATH_PARAM:String(&quot;path&quot;)"></a>
+      <a id="PATH_PARAM:String(&quot;path&quot;)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PATH_PARAM</span><span class="result">: String(&quot;path&quot;)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@PATH_PARAM:String(&quot;path&quot;)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#TILE_COLUMN_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TILE_COLUMN_PARAM:String(&quot;tileColumn&quot;)"></a>
+      <a id="TILE_COLUMN_PARAM:String(&quot;tileColumn&quot;)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TILE_COLUMN_PARAM</span><span class="result">: String(&quot;tileColumn&quot;)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@TILE_COLUMN_PARAM:String(&quot;tileColumn&quot;)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#TILE_SUBDIVISIONS_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TILE_SUBDIVISIONS_PARAM:String(&quot;tileSubdivisions&quot;)"></a>
+      <a id="TILE_SUBDIVISIONS_PARAM:String(&quot;tileSubdivisions&quot;)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TILE_SUBDIVISIONS_PARAM</span><span class="result">: String(&quot;tileSubdivisions&quot;)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@TILE_SUBDIVISIONS_PARAM:String(&quot;tileSubdivisions&quot;)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TileFeatureSupport"></a>
       <a id="TileFeatureSupport:TileFeatureSupport"></a>
@@ -488,6 +566,23 @@ Starting points for understanding the Catalyst optimizer:
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.datasource.DataSourceOptions#ZOOM_PARAM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ZOOM_PARAM:String(&quot;zoom&quot;)"></a>
+      <a id="ZOOM_PARAM:String(&quot;zoom&quot;)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ZOOM_PARAM</span><span class="result">: String(&quot;zoom&quot;)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.package@ZOOM_PARAM:String(&quot;zoom&quot;)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.datasource.geotrellis#geotrellis_layer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="geotrellis_layer:org.apache.spark.sql.TypedColumn[Any,astraea.spark.rasterframes.datasource.geotrellis.Layer]"></a>
       <a id="geotrellis_layer:TypedColumn[Any,Layer]"></a>
@@ -531,7 +626,9 @@ Starting points for understanding the Catalyst optimizer:
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="astraea.spark.rasterframes.datasource.DataSourceOptions">
+              <h3>Inherited from <a href="../DataSourceOptions.html" class="extype" name="astraea.spark.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>

@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -154,15 +154,8 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <pre class="prettyprint"><code class="language-scala">def redBand = SinglebandGeoTiff(&quot;../core/src/test/resources/L8-B4-Elkton-VA.tiff&quot;).projectedRaster.toRF(&quot;red_band&quot;)
 def nirBand = SinglebandGeoTiff(&quot;../core/src/test/resources/L8-B5-Elkton-VA.tiff&quot;).projectedRaster.toRF(&quot;nir_band&quot;)
 
-// Define UDF for computing NDVI from red and NIR bands
-val ndvi = udf((red: Tile, nir: Tile) ⇒ {
-  val redd = red.convert(DoubleConstantNoDataCellType)
-  val nird = nir.convert(DoubleConstantNoDataCellType)
-  (nird - redd)/(nird + redd)
-})
-
 // We use `asRF` to indicate we know the structure still conforms to RasterFrame constraints
-val rf = redBand.spatialJoin(nirBand).withColumn(&quot;ndvi&quot;, ndvi($&quot;red_band&quot;, $&quot;nir_band&quot;)).asRF
+val rf = redBand.spatialJoin(nirBand).withColumn(&quot;ndvi&quot;, normalized_difference($&quot;red_band&quot;, $&quot;nir_band&quot;)).asRF
 
 val pr = rf.toRaster($&quot;ndvi&quot;, 466, 428)
 
@@ -176,10 +169,11 @@ val brownToGreen = ColorRamp(
 
 val colors = ColorMap.fromQuantileBreaks(pr.tile.histogramDouble(), brownToGreen)
 pr.tile.color(colors).renderPng().write(&quot;target/scala-2.11/tut/apps/rf-ndvi.png&quot;)
-
-//For a georefrenced singleband greyscale image, could do: `GeoTiff(pr).write(&quot;ndvi.tiff&quot;)`
 </code></pre>
 <p><img src="rf-ndvi.png" /></p>
+<p>For a georefrenced singleband greyscale image, we could have done this instead: </p>
+<pre class="prettyprint"><code class="language-scala">GeoTiff(pr).write(&quot;ndvi.tiff&quot;)
+</code></pre>
 <div class="nav-next">
 <p><strong>Next:</strong> <a href="../ml/index.html">Machine Learning</a></p>
 </div>
@@ -219,7 +213,7 @@ pr.tile.color(colors).renderPng().write(&quot;target/scala-2.11/tut/apps/rf-ndvi
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

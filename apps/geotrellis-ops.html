@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -153,12 +153,12 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 import geotrellis.raster.equalization._
 
 scala&gt; val equalizer = udf((t: Tile) =&gt; t.equalize())
-equalizer: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.gt.types.TileUDT@41058886,Some(List(org.apache.spark.sql.gt.types.TileUDT@41058886)))
+equalizer: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.rf.TileUDT@69438db0,Some(List(org.apache.spark.sql.rf.TileUDT@69438db0)))
 
 scala&gt; val equalized = rf.select(equalizer($&quot;tile&quot;) as &quot;equalized&quot;)
-equalized: org.apache.spark.sql.DataFrame = [equalized: rf_tile]
+equalized: org.apache.spark.sql.DataFrame = [equalized: tile]
 
-scala&gt; equalized.select(tileMean($&quot;equalized&quot;) as &quot;equalizedMean&quot;).show(5, false)
+scala&gt; equalized.select(tile_mean($&quot;equalized&quot;) as &quot;equalizedMean&quot;).show(5, false)
 +------------------+
 |equalizedMean     |
 +------------------+
@@ -173,37 +173,18 @@ only showing top 5 rows
 </code></pre>
 <p>Here&rsquo;s an example downsampling a tile and rendering each tile as a matrix of numerical values.</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val downsample = udf((t: Tile) =&gt; t.resample(4, 4))
-downsample: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.gt.types.TileUDT@41058886,Some(List(org.apache.spark.sql.gt.types.TileUDT@41058886)))
+downsample: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.rf.TileUDT@69438db0,Some(List(org.apache.spark.sql.rf.TileUDT@69438db0)))
 
-scala&gt; val downsampled = rf.select(renderAscii(downsample($&quot;tile&quot;)) as &quot;minime&quot;)
-downsampled: org.apache.spark.sql.DataFrame = [minime: string]
+scala&gt; val downsampled = rf.where(no_data_cells($&quot;tile&quot;) === 0).select(downsample($&quot;tile&quot;) as &quot;minime&quot;)
+downsampled: org.apache.spark.sql.DataFrame = [minime: tile]
 
-scala&gt; downsampled.show(5, false)
-+-------------------+
-|minime             |
-+-------------------+
-|∘∘∘∘
-∘∘∘∘
-∘∘∘∘
-∘∘∘∘|
-|.%*+
-=@=@
-#+:#
-:-  |
-|-:*+
-.=-.
- +@#
-%.@#|
-|. @#
-::=+
-%@#=
- +*-|
-|:#*=
- .-:
-@+% 
-#+@=|
-+-------------------+
-only showing top 5 rows
+scala&gt; downsampled.select(tile_to_array[Float]($&quot;minime&quot;) as &quot;cell_values&quot;).limit(2).show(false)
++-----------------------------------------------------------------------------------------------------------------------------------------+
+|cell_values                                                                                                                              |
++-----------------------------------------------------------------------------------------------------------------------------------------+
+|[8136.0, 11087.0, 10196.0, 10105.0, 9959.0, 11311.0, 9853.0, 12560.0, 10539.0, 10032.0, 8157.0, 11072.0, 8208.0, 8686.0, 7857.0, 7889.0] |
+|[8837.0, 8316.0, 10855.0, 10780.0, 8125.0, 10082.0, 9930.0, 8290.0, 7624.0, 10739.0, 12019.0, 11287.0, 11738.0, 8125.0, 11830.0, 11260.0]|
++-----------------------------------------------------------------------------------------------------------------------------------------+
 
 </code></pre>
 <div class="nav-next">
@@ -245,7 +226,7 @@ only showing top 5 rows
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

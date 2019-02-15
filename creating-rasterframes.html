@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -155,6 +155,7 @@ import org.apache.spark.sql._
 <pre class="prettyprint"><code class="language-scala">implicit val spark = SparkSession.builder().
   master(&quot;local&quot;).appName(&quot;RasterFrames&quot;).
   config(&quot;spark.ui.enabled&quot;, &quot;false&quot;).
+  withKryoSerialization.
   getOrCreate().
   withRasterFrames
 </code></pre>
@@ -176,7 +177,7 @@ import java.io.File
 val tiffRF = spark.read.
   geotiff.
   loadRF(samplePath.toURI)
-// tiffRF: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, bounds: polygon ... 4 more fields]
+// tiffRF: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, extent: struct&lt;xmin: double, ymin: double ... 2 more fields&gt; ... 5 more fields]
 </code></pre>
 <p>Let&rsquo;s inspect the structure of what we get back:</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; tiffRF.printSchema()
@@ -184,13 +185,19 @@ root
  |-- spatial_key: struct (nullable = false)
  |    |-- col: integer (nullable = false)
  |    |-- row: integer (nullable = false)
- |-- bounds: polygon (nullable = true)
+ |-- extent: struct (nullable = true)
+ |    |-- xmin: double (nullable = false)
+ |    |-- ymin: double (nullable = false)
+ |    |-- xmax: double (nullable = false)
+ |    |-- ymax: double (nullable = false)
+ |-- crs: struct (nullable = true)
+ |    |-- crsProj4: string (nullable = false)
  |-- metadata: map (nullable = true)
  |    |-- key: string
  |    |-- value: string (valueContainsNull = false)
- |-- tile_1: rf_tile (nullable = false)
- |-- tile_2: rf_tile (nullable = false)
- |-- tile_3: rf_tile (nullable = false)
+ |-- tile_1: tile (nullable = false)
+ |-- tile_2: tile (nullable = false)
+ |-- tile_3: tile (nullable = false)
 
 </code></pre>
 <p>As reported by Spark, RasterFrames extracts 6 columns from the GeoTIFF we selected. Some of these columns are dependent on the contents of the source data, and some are are always available. Let&rsquo;s take a look at these in more detail.</p>
@@ -213,7 +220,7 @@ tiffRF.write.geotrellis.asLayer(layer).save()
 </code></pre>
 <p>Now we can point our catalog reader at the base directory and see what was saved:</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val cat = spark.read.geotrellisCatalog(base)
-cat: org.apache.spark.sql.DataFrame = [index: int, layer: struct&lt;base: struct&lt;uri: string&gt;, id: struct&lt;name: string, zoom: int&gt;&gt; ... 9 more fields]
+cat: org.apache.spark.sql.DataFrame = [index: int, layer: struct&lt;base: struct&lt;uri: string&gt;, id: struct&lt;name: string, zoom: int&gt;&gt; ... 10 more fields]
 
 scala&gt; cat.printSchema
 root
@@ -226,6 +233,7 @@ root
  |    |    |-- zoom: integer (nullable = false)
  |-- format: string (nullable = true)
  |-- keyClass: string (nullable = true)
+ |-- layerType: string (nullable = true)
  |-- path: string (nullable = true)
  |-- valueClass: string (nullable = true)
  |-- bounds: struct (nullable = true)
@@ -256,16 +264,16 @@ root
 
 
 scala&gt; cat.show()
-+-----+--------------------+------+--------------------+--------+--------------------+-------------+--------+--------------------+--------------------+--------------------+
-|index|               layer|format|            keyClass|    path|          valueClass|       bounds|cellType|                 crs|              extent|    layoutDefinition|
-+-----+--------------------+------+--------------------+--------+--------------------+-------------+--------+--------------------+--------------------+--------------------+
-|    0|[[file:///var/fol...|  file|geotrellis.spark....|sample/0|geotrellis.raster...|[[4,3],[0,0]]|  uint16|+proj=utm +zone=1...|[395295.0,364455....|[[402855.0,364455...|
-+-----+--------------------+------+--------------------+--------+--------------------+-------------+--------+--------------------+--------------------+--------------------+
++-----+--------------------+------+--------------------+-------------+--------+--------------------+----------------+--------+--------------------+--------------------+--------------------+
+|index|               layer|format|            keyClass|    layerType|    path|          valueClass|          bounds|cellType|                 crs|              extent|    layoutDefinition|
++-----+--------------------+------+--------------------+-------------+--------+--------------------+----------------+--------+--------------------+--------------------+--------------------+
+|    0|[[file:///var/fol...|  file|geotrellis.spark....|AvroLayerType|sample/0|geotrellis.raster...|[[4, 3], [0, 0]]|  uint16|+proj=utm +zone=1...|[395295.0, 364455...|[[402855.0, 36445...|
++-----+--------------------+------+--------------------+-------------+--------+--------------------+----------------+--------+--------------------+--------------------+--------------------+
 
 </code></pre>
 <p>As you can see, there&rsquo;s a lot of information stored in each row of the catalog. Most of this is associated with how the layer is discretized. However, there may be other application specific metadata serialized with a layer that can be use to filter the catalog entries or select a specific one. But for now, we&rsquo;re just going to load a RasterFrame in from the catalog using a convenience function.</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val firstLayer = cat.select(geotrellis_layer).first
-firstLayer: astraea.spark.rasterframes.datasource.geotrellis.Layer = Layer(file:///var/folders/lr/7lb0jzbj1x951n71lpcc2cy40000gn/T/rf-3802239814832170648/,Layer(name = &quot;sample&quot;, zoom = 0))
+firstLayer: astraea.spark.rasterframes.datasource.geotrellis.Layer = Layer(file:///var/folders/lr/7lb0jzbj1x951n71lpcc2cy40000gn/T/rf-8052206094168588699/,Layer(name = &quot;sample&quot;, zoom = 0))
 
 scala&gt; val rfAgain = spark.read.geotrellis.loadRF(firstLayer)
 rfAgain: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, bounds: polygon ... 3 more fields]
@@ -274,26 +282,26 @@ scala&gt; rfAgain.show()
 +-----------+--------------------+--------------------+--------------------+--------------------+
 |spatial_key|              bounds|              tile_1|              tile_2|              tile_3|
 +-----------+--------------------+--------------------+--------------------+--------------------+
-|      [4,3]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [4,1]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [4,2]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [0,1]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [0,0]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,1]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,1]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,0]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,1]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,0]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,0]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [0,2]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,2]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [0,3]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [1,3]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [4,0]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,3]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,2]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [2,3]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
-|      [3,2]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [4, 3]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [4, 2]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [4, 1]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 0]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 0]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 1]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 0]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 1]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 0]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 1]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 1]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 2]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 3]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [4, 0]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 3]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 2]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 2]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 3]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 2]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 3]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
 +-----------+--------------------+--------------------+--------------------+--------------------+
 
 </code></pre>
@@ -312,20 +320,20 @@ import geotrellis.spark.io._
 <h3><a href="#from-projectedextent" name="from-projectedextent" class="anchor"><span class="anchor-link"></span></a>From <code>ProjectedExtent</code></h3>
 <p>The simplest mechanism for getting a RasterFrame is to use the <code>toRF(tileCols, tileRows)</code> extension method on <code>ProjectedRaster</code>.</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val scene = SinglebandGeoTiff(&quot;../core/src/test/resources/L8-B8-Robinson-IL.tiff&quot;)
-scene: geotrellis.raster.io.geotiff.SinglebandGeoTiff = SinglebandGeoTiff(geotrellis.raster.UShortConstantNoDataArrayTile@624029ce,Extent(431902.5, 4313647.5, 443512.5, 4321147.5),EPSG:32616,Tags(Map(AREA_OR_POINT -&gt; POINT),List(Map())),GeoTiffOptions(geotrellis.raster.io.geotiff.Striped@400ccb09,geotrellis.raster.io.geotiff.compression.DeflateCompression$@2361949f,1,None))
+scene: geotrellis.raster.io.geotiff.SinglebandGeoTiff = SinglebandGeoTiff(geotrellis.raster.io.geotiff.UInt16GeoTiffTile@4d1de87a,Extent(431902.5, 4313647.5, 443512.5, 4321147.5),EPSG:32616,Tags(Map(AREA_OR_POINT -&gt; POINT),List(Map())),GeoTiffOptions(geotrellis.raster.io.geotiff.Striped@31749216,DeflateCompression(-1),1,None,PixelInterleave,None,Tiff),List())
 
 scala&gt; val rf = scene.projectedRaster.toRF(128, 128)
-rf: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tile: rf_tile]
+rf: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tile: tile]
 
 scala&gt; rf.show(5, false)
 +-----------+--------------------------------------------------------+
 |spatial_key|tile                                                    |
 +-----------+--------------------------------------------------------+
-|[0,0]      |geotrellis.raster.UShortConstantNoDataArrayTile@484b0c43|
-|[1,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@366529fd|
-|[6,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@9e1674a |
-|[3,1]      |geotrellis.raster.UShortConstantNoDataArrayTile@6a68ccf3|
-|[4,2]      |geotrellis.raster.UShortConstantNoDataArrayTile@7ad1ece9|
+|[0, 0]     |geotrellis.raster.UShortConstantNoDataArrayTile@7a768e0c|
+|[1, 1]     |geotrellis.raster.UShortConstantNoDataArrayTile@54955bc7|
+|[6, 1]     |geotrellis.raster.UShortConstantNoDataArrayTile@6a8a30f2|
+|[3, 1]     |geotrellis.raster.UShortConstantNoDataArrayTile@23c520e9|
+|[4, 2]     |geotrellis.raster.UShortConstantNoDataArrayTile@6d8ddc73|
 +-----------+--------------------------------------------------------+
 only showing top 5 rows
 
@@ -451,7 +459,7 @@ res11: String =
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

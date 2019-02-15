@@ -47,13 +47,36 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"></div>
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Module extension methods.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2019-01-08</p></dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
         
 
       <div id="mbrsel">
         <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
-        
-        
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="astraea.spark.rasterframes.experimental.datasource.geojson"><span>geojson</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
             <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
@@ -66,46 +89,41 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="astraea.spark.rasterframes.experimental.datasource.geojson.DefaultSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DefaultSourceextendsDataSourceRegisterwithRelationProvider"></a>
-      <a id="DefaultSource:DefaultSource"></a>
+              <ol><li name="astraea.spark.rasterframes.experimental.datasource.geojson.DataFrameReaderHasGeoJson" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DataFrameReaderHasGeoJsonextendsAnyRef"></a>
+      <a id="DataFrameReaderHasGeoJson:DataFrameReaderHasGeoJson"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$DataFrameReaderHasGeoJson.html"><span class="name">DataFrameReaderHasGeoJson</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@DataFrameReaderHasGeoJsonextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.geojson.GeoJsonDataSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GeoJsonDataSourceextendsDataSourceRegisterwithRelationProvider"></a>
+      <a id="GeoJsonDataSource:GeoJsonDataSource"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DefaultSource.html"><span class="name">DefaultSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span></span>
+        <a href="GeoJsonDataSource.html"><span class="name">GeoJsonDataSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@DefaultSourceextendsDataSourceRegisterwithRelationProvider" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@GeoJsonDataSourceextendsDataSourceRegisterwithRelationProvider" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Basic support for parsing GeoJson into a DataFrame with a geometry/spatial column.</p><div class="fullcomment"><div class="comment cmt"><p>Basic support for parsing GeoJson into a DataFrame with a geometry/spatial column.
 Properties as rendered as a <code>Map[String,String]</code>
-</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@Experimental</span><span class="args">()</span>
-              
-        </dd><dt>Since</dt><dd><p>5/2/18</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.experimental.datasource.geojson.GeoJsonRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="GeoJsonRelationextendsBaseRelationwithTableScanwithProductwithSerializable"></a>
-      <a id="GeoJsonRelation:GeoJsonRelation"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="GeoJsonRelation.html"><span class="name">GeoJsonRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="inferSchema">inferSchema: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@GeoJsonRelationextendsBaseRelationwithTableScanwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Basic support for parsing GeoJson into a DataFrame with a geometry/spatial column.</p><div class="fullcomment"><div class="comment cmt"><p>Basic support for parsing GeoJson into a DataFrame with a geometry/spatial column.
-Properties as rendered as a <code>Map[String,String]</code>.
 </p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@Experimental</span><span class="args">()</span>
               
@@ -117,36 +135,37 @@ Properties as rendered as a <code>Map[String,String]</code>.
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="astraea.spark.rasterframes.experimental.datasource.geojson.DefaultSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DefaultSource"></a>
-      <a id="DefaultSource:DefaultSource"></a>
+              <ol><li name="astraea.spark.rasterframes.experimental.datasource.geojson.DOM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DOM"></a>
+      <a id="DOM:DOM"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="DefaultSource$.html"><span class="name">DefaultSource</span></a>
+        <a href="DOM$.html"><span class="name">DOM</span></a>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@DefaultSource" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@DOM" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="astraea.spark.rasterframes.experimental.datasource.geojson.GeoJsonRelation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="GeoJsonRelation"></a>
-      <a id="GeoJsonRelation:GeoJsonRelation"></a>
+      <p class="shortcomment cmt">Lightweight DOM for parsing GeoJSON feature sets.</p><div class="fullcomment"><div class="comment cmt"><p>Lightweight DOM for parsing GeoJSON feature sets.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/17/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.geojson.GeoJsonDataSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GeoJsonDataSource"></a>
+      <a id="GeoJsonDataSource:GeoJsonDataSource"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="GeoJsonRelation$.html"><span class="name">GeoJsonRelation</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="GeoJsonDataSource$.html"><span class="name">GeoJsonDataSource</span></a>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@GeoJsonRelation" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.geojson.package@GeoJsonDataSource" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -160,7 +179,11 @@ Properties as rendered as a <code>Map[String,String]</code>.
         </div>
 
         <div id="inheritedMembers">
-        
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
         
         </div>
 

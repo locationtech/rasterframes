@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -164,6 +164,7 @@ import org.apache.spark.sql._
 def readTiff(name: String): SinglebandGeoTiff = SinglebandGeoTiff(s&quot;../core/src/test/resources/$name&quot;)
 
 implicit val spark = SparkSession.builder().
+  withKryoSerialization.
   master(&quot;local[*]&quot;).appName(getClass.getName).getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel(&quot;ERROR&quot;)
 
@@ -188,10 +189,10 @@ root
  |-- spatial_key: struct (nullable = true)
  |    |-- col: integer (nullable = false)
  |    |-- row: integer (nullable = false)
- |-- band_1: rf_tile (nullable = true)
- |-- band_2: rf_tile (nullable = true)
- |-- band_3: rf_tile (nullable = true)
- |-- band_4: rf_tile (nullable = true)
+ |-- band_1: tile (nullable = true)
+ |-- band_2: tile (nullable = true)
+ |-- band_3: tile (nullable = true)
+ |-- band_4: tile (nullable = true)
 
 </code></pre>
 <h2><a href="#ml-pipeline" name="ml-pipeline" class="anchor"><span class="anchor-link"></span></a>ML Pipeline</h2>
@@ -222,14 +223,14 @@ scala&gt; clustered.show(8)
 +-----------+------------+---------+-------+------+------+------+--------------------+----------+
 |spatial_key|column_index|row_index| band_1|band_2|band_3|band_4|            features|prediction|
 +-----------+------------+---------+-------+------+------+------+--------------------+----------+
-|      [0,0]|           0|        0| 9470.0|8491.0|7805.0|6697.0|[9470.0,8491.0,78...|         1|
-|      [0,0]|           1|        0| 9566.0|8607.0|8046.0|6898.0|[9566.0,8607.0,80...|         1|
-|      [0,0]|           2|        0| 9703.0|8808.0|8377.0|7222.0|[9703.0,8808.0,83...|         0|
-|      [0,0]|           3|        0| 9856.0|8983.0|8565.0|7557.0|[9856.0,8983.0,85...|         0|
-|      [0,0]|           4|        0|10105.0|9270.0|8851.0|7912.0|[10105.0,9270.0,8...|         0|
-|      [0,0]|           5|        0|10273.0|9463.0|9196.0|8341.0|[10273.0,9463.0,9...|         2|
-|      [0,0]|           6|        0| 9920.0|9077.0|8480.0|7534.0|[9920.0,9077.0,84...|         0|
-|      [0,0]|           7|        0| 9559.0|8603.0|7847.0|6829.0|[9559.0,8603.0,78...|         1|
+|     [0, 0]|           0|        0| 9470.0|8491.0|7805.0|6697.0|[9470.0,8491.0,78...|         1|
+|     [0, 0]|           1|        0| 9566.0|8607.0|8046.0|6898.0|[9566.0,8607.0,80...|         1|
+|     [0, 0]|           2|        0| 9703.0|8808.0|8377.0|7222.0|[9703.0,8808.0,83...|         0|
+|     [0, 0]|           3|        0| 9856.0|8983.0|8565.0|7557.0|[9856.0,8983.0,85...|         0|
+|     [0, 0]|           4|        0|10105.0|9270.0|8851.0|7912.0|[10105.0,9270.0,8...|         0|
+|     [0, 0]|           5|        0|10273.0|9463.0|9196.0|8341.0|[10273.0,9463.0,9...|         2|
+|     [0, 0]|           6|        0| 9920.0|9077.0|8480.0|7534.0|[9920.0,9077.0,84...|         0|
+|     [0, 0]|           7|        0| 9559.0|8603.0|7847.0|6829.0|[9559.0,8603.0,78...|         1|
 +-----------+------------+---------+-------+------+------+------+--------------------+----------+
 only showing top 8 rows
 
@@ -250,7 +251,7 @@ Within set sum of squared errors: 1.0416215116259007E10
 <pre class="prettyprint"><code class="language-scala">val tlm = joinedRF.tileLayerMetadata.left.get
 
 val retiled = clustered.groupBy($&quot;spatial_key&quot;).agg(
-  assembleTile(
+  assemble_tile(
     $&quot;column_index&quot;, $&quot;row_index&quot;, $&quot;prediction&quot;,
     tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType
   )
@@ -337,7 +338,7 @@ raster.tile.renderPng(clusterColors).write(&quot;target/scala-2.11/tut/ml/cluste
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

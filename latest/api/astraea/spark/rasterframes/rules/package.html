@@ -47,7 +47,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Module utilties.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Rule registration support.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2/19/18</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
@@ -87,13 +87,87 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="astraea.spark.rasterframes.rules.SpatialRelationReceiver" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="SpatialRelationReceiver[+T&lt;:astraea.spark.rasterframes.rules.SpatialRelationReceiver[T]]extendsAnyRef"></a>
+      <a id="SpatialRelationReceiver[+T&lt;:SpatialRelationReceiver[T]]:SpatialRelationReceiver[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SpatialRelationReceiver.html"><span class="name">SpatialRelationReceiver</span></a><span class="tparams">[<span name="T">+T &lt;: <a href="SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a>[<span class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver.T">T</span>]</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.rules.package@SpatialRelationReceiver[+T&lt;:astraea.spark.rasterframes.rules.SpatialRelationReceiver[T]]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Interface for <code>LogicalRelation</code>s with the ability to capture spatial relations in query.</p><div class="fullcomment"><div class="comment cmt"><p>Interface for <code>LogicalRelation</code>s with the ability to capture spatial relations in query.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/16/18</p></dd></dl></div>
+    </li></ol>
+            </div>
 
         
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="astraea.spark.rasterframes.rules.SpatialUDFSubstitutionRules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="astraea.spark.rasterframes.rules.SpatialFilterPushdownRules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SpatialFilterPushdownRules"></a>
+      <a id="SpatialFilterPushdownRules:SpatialFilterPushdownRules"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SpatialFilterPushdownRules$.html"><span class="name">SpatialFilterPushdownRules</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.rules.Rule">Rule</span>[<span class="extype" name="org.apache.spark.sql.catalyst.plans.logical.LogicalPlan">LogicalPlan</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.rules.package@SpatialFilterPushdownRules" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Logical plan manipulations to handle spatial queries on tile components.</p><div class="fullcomment"><div class="comment cmt"><p>Logical plan manipulations to handle spatial queries on tile components.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/21/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.rules.SpatialFilters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SpatialFilters"></a>
+      <a id="SpatialFilters:SpatialFilters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SpatialFilters$.html"><span class="name">SpatialFilters</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.rules.package@SpatialFilters" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">New filter types captured and rewritten for use in spatiotemporal data sources that can handle them.</p><div class="fullcomment"><div class="comment cmt"><p>New filter types captured and rewritten for use in spatiotemporal data sources that can handle them.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/11/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.rules.SpatialRelationReceiver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SpatialRelationReceiver"></a>
+      <a id="SpatialRelationReceiver:SpatialRelationReceiver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SpatialRelationReceiver$.html"><span class="name">SpatialRelationReceiver</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.rules.package@SpatialRelationReceiver" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.rules.SpatialUDFSubstitutionRules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="SpatialUDFSubstitutionRules"></a>
       <a id="SpatialUDFSubstitutionRules:SpatialUDFSubstitutionRules"></a>
       <h4 class="signature">
@@ -111,6 +185,24 @@
     </span>
       <p class="shortcomment cmt">Swaps out spatial relation UDFs for expression forms.</p><div class="fullcomment"><div class="comment cmt"><p>Swaps out spatial relation UDFs for expression forms.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2/19/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.rules.TemporalFilters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TemporalFilters"></a>
+      <a id="TemporalFilters:TemporalFilters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TemporalFilters$.html"><span class="name">TemporalFilters</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.rules.package@TemporalFilters" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">New filter types captured and rewritten for use in spatiotemporal data sources that can handle them.</p><div class="fullcomment"><div class="comment cmt"><p>New filter types captured and rewritten for use in spatiotemporal data sources that can handle them.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/16/18</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.rules#register" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="register(sqlContext:org.apache.spark.sql.SQLContext):Unit"></a>
       <a id="register(SQLContext):Unit"></a>
@@ -145,6 +237,23 @@
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.rules#splitFilters" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="splitFilters(f:Seq[org.apache.spark.sql.sources.Filter]):Seq[org.apache.spark.sql.sources.Filter]"></a>
+      <a id="splitFilters(Seq[Filter]):Seq[Filter]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">splitFilters</span><span class="params">(<span name="f">f: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.rules.package@splitFilters(f:Seq[org.apache.spark.sql.sources.Filter]):Seq[org.apache.spark.sql.sources.Filter]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Separate And conditions into separate filters.</p>
     </li></ol>
             </div>
 

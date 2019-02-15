@@ -147,6 +147,17 @@ a:active {
 
 a.anchor .anchor-link:before {
   content: "§";
+}
+
+a.go-to-source::before {
+  content: "📄";
+}
+
+.prettyprint .icon {
+  float: right;
+}
+
+a.anchor .anchor-link, .icon {
   font-size: 18px;
   font-family: "icons" !important;
   font-style: normal !important;

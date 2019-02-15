@@ -106,58 +106,78 @@
       </a>
     </span>
       
-    </li><li name="org.apache.spark.sql.rf.InternalRowTile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="InternalRowTileextendsArrayTile"></a>
-      <a id="InternalRowTile:InternalRowTile"></a>
+    </li><li name="org.apache.spark.sql.rf.RasterSourceUDT" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RasterSourceUDTextendsUserDefinedType[astraea.spark.rasterframes.ref.RasterSource]"></a>
+      <a id="RasterSourceUDT:RasterSourceUDT"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="InternalRowTile.html"><span class="name">InternalRowTile</span></a><span class="result"> extends <span class="extype" name="geotrellis.raster.ArrayTile">ArrayTile</span></span>
+        <a href="RasterSourceUDT.html"><span class="name">RasterSourceUDT</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.types.UserDefinedType">UserDefinedType</span>[<a href="../../../../../astraea/spark/rasterframes/ref/RasterSource.html" class="extype" name="astraea.spark.rasterframes.ref.RasterSource">RasterSource</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@InternalRowTileextendsArrayTile" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@RasterSourceUDTextendsUserDefinedType[astraea.spark.rasterframes.ref.RasterSource]" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Wrapper around a <code>Tile</code> encoded in a Catalyst <code>InternalRow</code>, for the purpose
-of providing compatible semantics over common operations.</p><div class="fullcomment"><div class="comment cmt"><p>Wrapper around a <code>Tile</code> encoded in a Catalyst <code>InternalRow</code>, for the purpose
-of providing compatible semantics over common operations.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/29/17</p></dd></dl></div>
-    </li><li name="org.apache.spark.sql.rf.KryoBackedUDT" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="KryoBackedUDT[T&gt;:Null]extendsAnyRef"></a>
-      <a id="KryoBackedUDT[T&gt;:Null]:KryoBackedUDT[T]"></a>
+      <p class="shortcomment cmt">Catalyst representation of a RasterSource.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst representation of a RasterSource.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@SQLUserDefinedType</span><span class="args">()</span>
+              
+        </dd><dt>Since</dt><dd><p>9/5/18</p></dd></dl></div>
+    </li><li name="org.apache.spark.sql.rf.TileUDT" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TileUDTextendsUserDefinedType[geotrellis.raster.Tile]"></a>
+      <a id="TileUDT:TileUDT"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="KryoBackedUDT.html"><span class="name">KryoBackedUDT</span></a><span class="tparams">[<span name="T">T &gt;: <span class="extype" name="scala.Null">Null</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="TileUDT.html"><span class="name">TileUDT</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.types.UserDefinedType">UserDefinedType</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@KryoBackedUDT[T&gt;:Null]extendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@TileUDTextendsUserDefinedType[geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Base class for UDTs who's contents is encoded using kryo
-</p><div class="fullcomment"><div class="comment cmt"><p>Base class for UDTs who's contents is encoded using kryo
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>4/18/17</p></dd></dl></div>
-    </li><li name="org.apache.spark.sql.rf.WithDecoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="WithDecoder[T]extendsAnyRef"></a>
-      <a id="WithDecoder[T]:WithDecoder[T]"></a>
+      <p class="shortcomment cmt">UDT for singleband tiles.</p><div class="fullcomment"><div class="comment cmt"><p>UDT for singleband tiles.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@SQLUserDefinedType</span><span class="args">()</span>
+              
+        </dd><dt>Since</dt><dd><p>5/11/17</p></dd></dl></div>
+    </li><li name="org.apache.spark.sql.rf.WithPPrint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="WithPPrint[T]extendsAnyRef"></a>
+      <a id="WithPPrint[T]:WithPPrint[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$WithDecoder.html"><span class="name">WithDecoder</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="package$$WithPPrint.html"><span class="name">WithPPrint</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@WithDecoder[T]extendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@WithPPrint[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.apache.spark.sql.rf.WithTypeConformity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="WithTypeConformityextendsAnyVal"></a>
+      <a id="WithTypeConformity:WithTypeConformity"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$WithTypeConformity.html"><span class="name">WithTypeConformity</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@WithTypeConformityextendsAnyVal" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -187,19 +207,36 @@ of providing compatible semantics over common operations.
     </span>
       <p class="shortcomment cmt">This is a copy of <span class="extype" name="org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter">org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter</span>, modified to add our spatial predicates.</p><div class="fullcomment"><div class="comment cmt"><p>This is a copy of <span class="extype" name="org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter">org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter</span>, modified to add our spatial predicates.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/11/18</p></dd></dl></div>
-    </li><li name="org.apache.spark.sql.rf.InternalRowTile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="InternalRowTile"></a>
-      <a id="InternalRowTile:InternalRowTile"></a>
+    </li><li name="org.apache.spark.sql.rf.RasterSourceUDT" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterSourceUDT"></a>
+      <a id="RasterSourceUDT:RasterSourceUDT"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="InternalRowTile$.html"><span class="name">InternalRowTile</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="RasterSourceUDT$.html"><span class="name">RasterSourceUDT</span></a><span class="result"> extends <a href="RasterSourceUDT.html" class="extype" name="org.apache.spark.sql.rf.RasterSourceUDT">RasterSourceUDT</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@InternalRowTile" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@RasterSourceUDT" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.apache.spark.sql.rf.TileUDT" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TileUDT"></a>
+      <a id="TileUDT:TileUDT"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TileUDT$.html"><span class="name">TileUDT</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.apache.spark.sql.rf.package@TileUDT" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

@@ -89,8 +89,28 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="astraea.spark.rasterframes.encoders.StandardEncoders" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="StandardEncodersextendsAnyRef"></a>
+              <ol><li name="astraea.spark.rasterframes.encoders.CatalystSerializer" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="CatalystSerializer[T]extendsSerializable"></a>
+      <a id="CatalystSerializer[T]:CatalystSerializer[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CatalystSerializer.html"><span class="name">CatalystSerializer</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.package@CatalystSerializer[T]extendsSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Typeclass for converting to/from JVM object to catalyst encoding.</p><div class="fullcomment"><div class="comment cmt"><p>Typeclass for converting to/from JVM object to catalyst encoding. The reason this exists is that
+instantiating and binding <code>ExpressionEncoder[T]</code> is *very* expensive, and not suitable for
+operations internal to an  <code>Expression</code>.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>10/19/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="StandardEncodersextendsSpatialEncoders"></a>
       <a id="StandardEncoders:StandardEncoders"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -98,10 +118,10 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="StandardEncoders.html"><span class="name">StandardEncoders</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="StandardEncoders.html"><span class="name">StandardEncoders</span></a><span class="result"> extends <span class="extype" name="org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders">SpatialEncoders</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.package@StandardEncodersextendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.package@StandardEncodersextendsSpatialEncoders" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -131,6 +151,40 @@
     </span>
       <p class="shortcomment cmt">Custom encoder for GT <code>CRS</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Custom encoder for GT <code>CRS</code>.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/21/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.CatalystSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CatalystSerializer"></a>
+      <a id="CatalystSerializer:CatalystSerializer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="CatalystSerializer$.html"><span class="name">CatalystSerializer</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.package@CatalystSerializer" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.encoders.CatalystSerializerEncoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CatalystSerializerEncoder"></a>
+      <a id="CatalystSerializerEncoder:CatalystSerializerEncoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="CatalystSerializerEncoder$.html"><span class="name">CatalystSerializerEncoder</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.package@CatalystSerializerEncoder" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="astraea.spark.rasterframes.encoders.CellTypeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="CellTypeEncoder"></a>
       <a id="CellTypeEncoder:CellTypeEncoder"></a>
@@ -203,6 +257,23 @@ a type intersection.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p
     </span>
       <p class="shortcomment cmt">Custom encoder for <span class="extype" name="ProjectedExtent">ProjectedExtent</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Custom encoder for <span class="extype" name="ProjectedExtent">ProjectedExtent</span>. Necessary because CRS isn't a case class.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/2/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders#SerializedLiteral" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SerializedLiteral[T&gt;:Null](t:T)(implicitevidence$3:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):org.apache.spark.sql.catalyst.expressions.Literal"></a>
+      <a id="SerializedLiteral[T&gt;:Null](T)(CatalystSerializer[T]):Literal"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SerializedLiteral</span><span class="tparams">[<span name="T">T &gt;: <span class="extype" name="scala.Null">Null</span></span>]</span><span class="params">(<span name="t">t: <span class="extype" name="astraea.spark.rasterframes.encoders.SerializedLiteral.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="astraea.spark.rasterframes.encoders.SerializedLiteral.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Literal">Literal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.package@SerializedLiteral[T&gt;:Null](t:T)(implicitevidence$3:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):org.apache.spark.sql.catalyst.expressions.Literal" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a catalyst literal expression from anything with a serializer.</p>
     </li><li name="astraea.spark.rasterframes.encoders.StandardEncoders" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="StandardEncoders"></a>
       <a id="StandardEncoders:StandardEncoders"></a>
@@ -273,8 +344,8 @@ a type intersection.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p
       </a>
     </span>
       <p class="shortcomment cmt">Specialized encoder for <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span>, necessary to be able to delegate to the
-speciallized cell type and crs encoders.</p><div class="fullcomment"><div class="comment cmt"><p>Specialized encoder for <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span>, necessary to be able to delegate to the
-speciallized cell type and crs encoders.
+specialized cell type and crs encoders.</p><div class="fullcomment"><div class="comment cmt"><p>Specialized encoder for <span class="extype" name="TileLayerMetadata">TileLayerMetadata</span>, necessary to be able to delegate to the
+specialized cell type and crs encoders.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>7/21/17</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.encoders.URIEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="URIEncoder"></a>
@@ -294,6 +365,23 @@ speciallized cell type and crs encoders.
     </span>
       <p class="shortcomment cmt">Custom Encoder for allowing friction-free use of URIs in DataFrames.</p><div class="fullcomment"><div class="comment cmt"><p>Custom Encoder for allowing friction-free use of URIs in DataFrames.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1/16/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders#serialized_literal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="serialized_literal[T&gt;:Null](t:T)(implicitevidence$4:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):org.apache.spark.sql.Column"></a>
+      <a id="serialized_literal[T&gt;:Null](T)(CatalystSerializer[T]):Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">serialized_literal</span><span class="tparams">[<span name="T">T &gt;: <span class="extype" name="scala.Null">Null</span></span>]</span><span class="params">(<span name="t">t: <span class="extype" name="astraea.spark.rasterframes.encoders.serialized_literal.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="astraea.spark.rasterframes.encoders.serialized_literal.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.package@serialized_literal[T&gt;:Null](t:T)(implicitevidence$4:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a Dataframe literal column from anything with a serializer.</p>
     </li></ol>
             </div>
 

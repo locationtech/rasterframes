@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -151,61 +151,61 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <h2><a href="#tile-statistics" name="tile-statistics" class="anchor"><span class="anchor-link"></span></a>Tile Statistics</h2>
 <h3><a href="#tile-dimensions" name="tile-dimensions" class="anchor"><span class="anchor-link"></span></a>Tile Dimensions</h3>
 <p>Get the nominal tile dimensions. Depending on the tiling there may be some tiles with different sizes on the edges.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(rf.spatialKeyColumn, tileDimensions($&quot;tile&quot;)).show(3)
-+-----------+---------------+
-|spatial_key|dimension(tile)|
-+-----------+---------------+
-|      [6,3]|      [128,128]|
-|      [4,0]|      [128,128]|
-|      [0,0]|      [128,128]|
-+-----------+---------------+
+<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(rf.spatialKeyColumn, tile_dimensions($&quot;tile&quot;)).show(3)
++-----------+---------------------+
+|spatial_key|tile_dimensions(tile)|
++-----------+---------------------+
+|     [6, 3]|           [128, 128]|
+|     [4, 0]|           [128, 128]|
+|     [0, 0]|           [128, 128]|
++-----------+---------------------+
 only showing top 3 rows
 
 </code></pre>
 <h3><a href="#descriptive-statistics" name="descriptive-statistics" class="anchor"><span class="anchor-link"></span></a>Descriptive Statistics</h3>
 <h4><a href="#nodata-counts" name="nodata-counts" class="anchor"><span class="anchor-link"></span></a>NoData Counts</h4>
 <p>Count the numer of <code>NoData</code> and non-<code>NoData</code> cells in each tile.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(rf.spatialKeyColumn, noDataCells($&quot;tile&quot;), dataCells($&quot;tile&quot;)).show(3)
-+-----------+-----------------+---------------+
-|spatial_key|noDataCells(tile)|dataCells(tile)|
-+-----------+-----------------+---------------+
-|      [6,3]|            15688|            696|
-|      [4,0]|                0|          16384|
-|      [0,0]|                0|          16384|
-+-----------+-----------------+---------------+
+<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(rf.spatialKeyColumn, no_data_cells($&quot;tile&quot;), data_cells($&quot;tile&quot;)).show(3)
++-----------+-------------------+----------------+
+|spatial_key|no_data_cells(tile)|data_cells(tile)|
++-----------+-------------------+----------------+
+|     [6, 3]|              15688|             696|
+|     [4, 0]|                  0|           16384|
+|     [0, 0]|                  0|           16384|
++-----------+-------------------+----------------+
 only showing top 3 rows
 
 </code></pre>
 <h4><a href="#tile-mean" name="tile-mean" class="anchor"><span class="anchor-link"></span></a>Tile Mean</h4>
 <p>Compute the mean value in each tile. Use <code>tileMean</code> for integral cell types, and <code>tileMeanDouble</code> for floating point cell types.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(rf.spatialKeyColumn, tileMean($&quot;tile&quot;)).show(3)
+<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(rf.spatialKeyColumn, tile_mean($&quot;tile&quot;)).show(3)
 +-----------+------------------+
-|spatial_key|    tileMean(tile)|
+|spatial_key|   tile_mean(tile)|
 +-----------+------------------+
-|      [6,3]|10757.254310344828|
-|      [4,0]| 9883.589050292969|
-|      [0,0]|10338.119995117188|
+|     [6, 3]|10757.254310344828|
+|     [4, 0]| 9883.589050292969|
+|     [0, 0]|10338.119995117188|
 +-----------+------------------+
 only showing top 3 rows
 
 </code></pre>
 <h4><a href="#tile-summary-statistics" name="tile-summary-statistics" class="anchor"><span class="anchor-link"></span></a>Tile Summary Statistics</h4>
-<p>Compute a suite of summary statistics for each tile. Use <code>tileStats</code> for integral cells types, and <code>tileStatsDouble</code> for floating point cell types.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; rf.withColumn(&quot;stats&quot;, tileStats($&quot;tile&quot;)).select(rf.spatialKeyColumn, $&quot;stats.*&quot;).show(3)
+<p>Compute a suite of summary statistics for each tile. Use <code>tile_stats</code> for integral cells types, and <code>tile_stats_double</code> for floating point cell types.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; rf.withColumn(&quot;stats&quot;, tile_stats($&quot;tile&quot;)).select(rf.spatialKeyColumn, $&quot;stats.*&quot;).show(3)
 +-----------+---------+-----------+------+-------+------------------+------------------+
 |spatial_key|dataCells|noDataCells|   min|    max|              mean|          variance|
 +-----------+---------+-----------+------+-------+------------------+------------------+
-|      [6,3]|      696|         -1|7604.0|16143.0|10757.254310344822| 3271125.902280271|
-|      [4,0]|    16384|         -1|7678.0|16464.0| 9883.589050292961|2163148.3790329304|
-|      [0,0]|    16384|         -1|7291.0|23077.0| 10338.11999511721|3386469.0957086035|
+|     [6, 3]|      696|         -1|7604.0|16143.0|10757.254310344822| 3271125.902280271|
+|     [4, 0]|    16384|         -1|7678.0|16464.0| 9883.589050292961|2163148.3790329304|
+|     [0, 0]|    16384|         -1|7291.0|23077.0| 10338.11999511721|3386469.0957086035|
 +-----------+---------+-----------+------+-------+------------------+------------------+
 only showing top 3 rows
 
 </code></pre>
 <h3><a href="#histogram" name="histogram" class="anchor"><span class="anchor-link"></span></a>Histogram</h3>
-<p>The <code>tileHistogram</code> function computes a histogram over the data in each tile. See the <a href="http://rasterframes.io/latest/api/geotrellis/raster/histogram/Histogram.html">GeoTrellis <code>Histogram</code></a> documentation for details on what&rsquo;s available in the resulting data structure. Use this version for integral cell types, and <code>tileHistorgramDouble</code> for floating point cells types. </p>
+<p>The <code>tile_histogram</code> function computes a histogram over the data in each tile. </p>
 <p>In this example we compute quantile breaks.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(tileHistogram($&quot;tile&quot;)).map(_.quantileBreaks(5)).show(5, false)
+<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(tile_histogram($&quot;tile&quot;)).map(_.quantileBreaks(5)).show(5, false)
 +---------------------------------------------------------------------------------------------------+
 |value                                                                                              |
 +---------------------------------------------------------------------------------------------------+
@@ -219,8 +219,8 @@ only showing top 5 rows
 
 </code></pre>
 <h2><a href="#aggregate-statistics" name="aggregate-statistics" class="anchor"><span class="anchor-link"></span></a>Aggregate Statistics</h2>
-<p>The <code>aggStats</code> function computes the same summary statistics as <code>tileStats</code>, but aggregates them over the whole RasterFrame.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(aggStats($&quot;tile&quot;)).show()
+<p>The <code>agg_stats</code> function computes the same summary statistics as <code>tile_stats</code>, but aggregates them over the whole RasterFrame.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(agg_stats($&quot;tile&quot;)).show()
 +---------+-----------+------+-------+-----------------+------------------+
 |dataCells|noDataCells|   min|    max|             mean|          variance|
 +---------+-----------+------+-------+-----------------+------------------+
@@ -229,7 +229,7 @@ only showing top 5 rows
 
 </code></pre>
 <p>A more involved example: extract bin counts from a computed <code>Histogram</code>.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(aggHistogram($&quot;tile&quot;)).
+<pre class="prettyprint"><code class="language-scala">scala&gt; rf.select(agg_histogram($&quot;tile&quot;)).
      |   map(h =&gt; for(v &lt;- h.labels) yield(v, h.itemCount(v))).
      |   select(explode($&quot;value&quot;) as &quot;counts&quot;).
      |   select(&quot;counts._1&quot;, &quot;counts._2&quot;).
@@ -306,7 +306,7 @@ only showing top 10 rows
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

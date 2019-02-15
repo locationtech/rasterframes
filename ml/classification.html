@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -163,6 +163,7 @@ import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.sql._
 
 implicit val spark = SparkSession.builder().
+  withKryoSerialization.
   master(&quot;local[*]&quot;).appName(getClass.getName).getOrCreate().withRasterFrames
 spark.sparkContext.setLogLevel(&quot;ERROR&quot;)
 
@@ -197,12 +198,12 @@ root
  |-- spatial_key: struct (nullable = true)
  |    |-- col: integer (nullable = false)
  |    |-- row: integer (nullable = false)
- |-- band_2: rf_tile (nullable = true)
- |-- band_3: rf_tile (nullable = true)
- |-- band_4: rf_tile (nullable = true)
- |-- band_5: rf_tile (nullable = true)
- |-- band_6: rf_tile (nullable = true)
- |-- band_7: rf_tile (nullable = true)
+ |-- band_2: tile (nullable = true)
+ |-- band_3: tile (nullable = true)
+ |-- band_4: tile (nullable = true)
+ |-- band_5: tile (nullable = true)
+ |-- band_6: tile (nullable = true)
+ |-- band_7: tile (nullable = true)
 
 </code></pre>
 <p>Similarly pull we pull in the target label data. When load the target label raster we have to convert the cell type to <code>Double</code> to meet expectations of SparkML. </p>
@@ -214,7 +215,7 @@ val target = readTiff(filenamePattern.format(&quot;Labels&quot;)).
   toRF(tileSize, tileSize, targetCol)
 </code></pre>
 <p>Take a peek at what kind of label data we have to work with.</p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; target.select(aggStats(target(targetCol))).show
+<pre class="prettyprint"><code class="language-scala">scala&gt; target.select(agg_stats(target(targetCol))).show
 +---------+-----------+---+---+------------------+------------------+
 |dataCells|noDataCells|min|max|              mean|          variance|
 +---------+-----------+---+---+------------------+------------------+
@@ -262,9 +263,9 @@ val trainer = new CrossValidator().
   setEstimatorParamMaps(paramGrid).
   setNumFolds(4)
 </code></pre>
-<p>Push the &ldquo;go&rdquo; button:</p>
+<p>Push the &ldquo;go button&rdquo;:</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val model = trainer.fit(abt)
-model: org.apache.spark.ml.tuning.CrossValidatorModel = cv_61d862f5f5e3
+model: org.apache.spark.ml.tuning.CrossValidatorModel = cv_fe7476a7bd47
 </code></pre>
 <h2><a href="#model-evaluation" name="model-evaluation" class="anchor"><span class="anchor-link"></span></a>Model Evaluation</h2>
 <p>To view the model&rsquo;s performance we format the <code>paramGrid</code> settings used for each model and render the parameter/performance association.</p>
@@ -277,7 +278,7 @@ model: org.apache.spark.ml.tuning.CrossValidatorModel = cv_61d862f5f5e3
 +------------+------------------+
 |params      |metric            |
 +------------+------------------+
-|maxDepth = 2|0.9612720982887348|
+|maxDepth = 2|0.9602839559962448|
 |maxDepth = 3|0.9850291835043165|
 |maxDepth = 4|0.9856287038880095|
 +------------+------------------+
@@ -291,9 +292,9 @@ scala&gt; scored.groupBy($&quot;prediction&quot; as &quot;class&quot;).count().s
 +-----+-----+
 |class|count|
 +-----+-----+
-|  0.0| 7181|
-|  1.0|14851|
-|  2.0| 9402|
+|  0.0| 7186|
+|  1.0|15730|
+|  2.0| 9384|
 +-----+-----+
 
 </code></pre>
@@ -303,7 +304,7 @@ scala&gt; scored.groupBy($&quot;prediction&quot; as &quot;class&quot;).count().s
 <pre class="prettyprint"><code class="language-scala">val tlm = joinedRF.tileLayerMetadata.left.get
 
 val retiled = scored.groupBy($&quot;spatial_key&quot;).agg(
-  assembleTile(
+  assemble_tile(
     $&quot;column_index&quot;, $&quot;row_index&quot;, $&quot;prediction&quot;,
     tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType
   )
@@ -393,7 +394,7 @@ raster.tile.renderPng(clusterColors).write(&quot;target/scala-2.11/tut/ml/classi
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

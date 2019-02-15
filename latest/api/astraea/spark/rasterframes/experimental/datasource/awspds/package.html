@@ -89,62 +89,24 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="astraea.spark.rasterframes.experimental.datasource.awspds.DownloadExpression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DownloadExpressionextendsUnaryExpressionwithGeneratorwithCodegenFallbackwithGeoTiffInfoSupportwithDownloadSupportwithLazyLoggingwithProductwithSerializable"></a>
-      <a id="DownloadExpression:DownloadExpression"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DownloadExpression.html"><span class="name">DownloadExpression</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="colPrefix">colPrefix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Generator">Generator</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="../../../datasource/geotiff/GeoTiffInfoSupport.html" class="extype" name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport">GeoTiffInfoSupport</a> with <a href="DownloadSupport.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.DownloadSupport">DownloadSupport</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@DownloadExpressionextendsUnaryExpressionwithGeneratorwithCodegenFallbackwithGeoTiffInfoSupportwithDownloadSupportwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Downloads data from URL and stores it in a column.</p><div class="fullcomment"><div class="comment cmt"><p>Downloads data from URL and stores it in a column.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.DownloadSupport" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="DownloadSupportextendsAnyRef"></a>
-      <a id="DownloadSupport:DownloadSupport"></a>
+              <ol><li name="astraea.spark.rasterframes.experimental.datasource.awspds.CachedDatasetRelation" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="CachedDatasetRelationextendsResourceCacheSupport"></a>
+      <a id="CachedDatasetRelation:CachedDatasetRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="DownloadSupport.html"><span class="name">DownloadSupport</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="CachedDatasetRelation.html"><span class="name">CachedDatasetRelation</span></a><span class="result"> extends <a href="ResourceCacheSupport.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.ResourceCacheSupport">ResourceCacheSupport</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@DownloadSupportextendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@CachedDatasetRelationextendsResourceCacheSupport" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Common support for downloading data.</p><div class="fullcomment"><div class="comment cmt"><p>Common support for downloading data.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/5/18</p></dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.DownloadTilesExpression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DownloadTilesExpressionextendsUnaryExpressionwithGeneratorwithCodegenFallbackwithGeoTiffInfoSupportwithStandardEncoderswithDownloadSupportwithLazyLoggingwithProductwithSerializable"></a>
-      <a id="DownloadTilesExpression:DownloadTilesExpression"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DownloadTilesExpression.html"><span class="name">DownloadTilesExpression</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="colPrefix">colPrefix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Generator">Generator</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="../../../datasource/geotiff/GeoTiffInfoSupport.html" class="extype" name="astraea.spark.rasterframes.datasource.geotiff.GeoTiffInfoSupport">GeoTiffInfoSupport</a> with <a href="../../../encoders/StandardEncoders.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardEncoders">StandardEncoders</a> with <a href="DownloadSupport.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.DownloadSupport">DownloadSupport</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@DownloadTilesExpressionextendsUnaryExpressionwithGeneratorwithCodegenFallbackwithGeoTiffInfoSupportwithStandardEncoderswithDownloadSupportwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Catalyst generator to convert a geotiff download URL into a series of rows containing the internal
-tiles and associated extents.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst generator to convert a geotiff download URL into a series of rows containing the internal
-tiles and associated extents.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
+      <p class="shortcomment cmt">Mix-in for a data source that is cached as a parquet file.</p><div class="fullcomment"><div class="comment cmt"><p>Mix-in for a data source that is cached as a parquet file.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/24/18</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.L8CatalogDataSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="L8CatalogDataSourceextendsDataSourceRegisterwithRelationProvider"></a>
       <a id="L8CatalogDataSource:L8CatalogDataSource"></a>
@@ -164,7 +126,7 @@ tiles and associated extents.
       <p class="shortcomment cmt">Data source for querying AWS PDS catalog of L8 imagery.</p><div class="fullcomment"><div class="comment cmt"><p>Data source for querying AWS PDS catalog of L8 imagery.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/28/17</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.L8CatalogRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="L8CatalogRelationextendsBaseRelationwithTableScanwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="L8CatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable"></a>
       <a id="L8CatalogRelation:L8CatalogRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -172,15 +134,51 @@ tiles and associated extents.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="L8CatalogRelation.html"><span class="name">L8CatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneListPath">sceneListPath: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="L8CatalogRelation.html"><span class="name">L8CatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneListPath">sceneListPath: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="CachedDatasetRelation.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.CachedDatasetRelation">CachedDatasetRelation</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@L8CatalogRelationextendsBaseRelationwithTableScanwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@L8CatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Schema definition and parser for AWS PDS L8 scene data.</p><div class="fullcomment"><div class="comment cmt"><p>Schema definition and parser for AWS PDS L8 scene data.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/28/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.L8DataSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="L8DataSourceextendsDataSourceRegisterwithRelationProvider"></a>
+      <a id="L8DataSource:L8DataSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="L8DataSource.html"><span class="name">L8DataSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@L8DataSourceextendsDataSourceRegisterwithRelationProvider" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Experiment in providing RasterFrames over whole PDS catalog.</p><div class="fullcomment"><div class="comment cmt"><p>Experiment in providing RasterFrames over whole PDS catalog.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/21/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="L8RelationextendsBaseRelationwithPrunedFilteredScanwithSpatialRelationReceiver[astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation]withLazyLoggingwithProductwithSerializable"></a>
+      <a id="L8Relation:L8Relation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="L8Relation.html"><span class="name">L8Relation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="useTiling">useTiling: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="accumulator">accumulator: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../../ref/RasterSource$$ReadCallback.html" class="extype" name="astraea.spark.rasterframes.ref.RasterSource.ReadCallback">ReadCallback</a>]</span>, <span name="filters">filters: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.PrunedFilteredScan">PrunedFilteredScan</span> with <a href="../../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a>[<a href="L8Relation.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation">L8Relation</a>] with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@L8RelationextendsBaseRelationwithPrunedFilteredScanwithSpatialRelationReceiver[astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation]withLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Spark relation over AWS PDS Landsat 8 collection.</p><div class="fullcomment"><div class="comment cmt"><p>Spark relation over AWS PDS Landsat 8 collection.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/21/18</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.MODISCatalogDataSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="MODISCatalogDataSourceextendsDataSourceRegisterwithRelationProviderwithLazyLogging"></a>
       <a id="MODISCatalogDataSource:MODISCatalogDataSource"></a>
@@ -202,7 +200,7 @@ Param</p><div class="fullcomment"><div class="comment cmt"><p>DataSource over th
 Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.MODISCatalogRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="MODISCatalogRelationextendsBaseRelationwithTableScanwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="MODISCatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable"></a>
       <a id="MODISCatalogRelation:MODISCatalogRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -210,16 +208,35 @@ Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="MODISCatalogRelation.html"><span class="name">MODISCatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneList">sceneList: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="MODISCatalogRelation.html"><span class="name">MODISCatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneList">sceneList: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="CachedDatasetRelation.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.CachedDatasetRelation">CachedDatasetRelation</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@MODISCatalogRelationextendsBaseRelationwithTableScanwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@MODISCatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Constructs a dataframe from the available scenes
 </p><div class="fullcomment"><div class="comment cmt"><p>Constructs a dataframe from the available scenes
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.PDSFields" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="PDSFieldsextendsAnyRef"></a>
+      <a id="PDSFields:PDSFields"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PDSFields.html"><span class="name">PDSFields</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@PDSFieldsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Standard column names
+</p><div class="fullcomment"><div class="comment cmt"><p>Standard column names
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/21/18</p></dd></dl></div>
     </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.ResourceCacheSupport" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="ResourceCacheSupportextendsDownloadSupport"></a>
       <a id="ResourceCacheSupport:ResourceCacheSupport"></a>
@@ -229,7 +246,7 @@ Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ResourceCacheSupport.html"><span class="name">ResourceCacheSupport</span></a><span class="result"> extends <a href="DownloadSupport.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.DownloadSupport">DownloadSupport</a></span>
+        <a href="ResourceCacheSupport.html"><span class="name">ResourceCacheSupport</span></a><span class="result"> extends <a href="../DownloadSupport.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.DownloadSupport">DownloadSupport</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@ResourceCacheSupportextendsDownloadSupport" title="Permalink" target="_top">
@@ -262,6 +279,57 @@ Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.L8CatalogRelation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="L8CatalogRelation"></a>
+      <a id="L8CatalogRelation:L8CatalogRelation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="L8CatalogRelation$.html"><span class="name">L8CatalogRelation</span></a><span class="result"> extends <a href="PDSFields.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.PDSFields">PDSFields</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@L8CatalogRelation" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.L8DataSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="L8DataSource"></a>
+      <a id="L8DataSource:L8DataSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="L8DataSource$.html"><span class="name">L8DataSource</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@L8DataSource" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="L8Relation"></a>
+      <a id="L8Relation:L8Relation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="L8Relation$.html"><span class="name">L8Relation</span></a><span class="result"> extends <a href="PDSFields.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.PDSFields">PDSFields</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@L8Relation" title="Permalink" target="_top">
+        <img src="../../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.MODISCatalogDataSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="MODISCatalogDataSource"></a>
       <a id="MODISCatalogDataSource:MODISCatalogDataSource"></a>
@@ -279,59 +347,59 @@ Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
       </a>
     </span>
       
-    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds#download" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="download(urlColumn:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Array[Byte]]"></a>
-      <a id="download(Column):TypedColumn[Any,Array[Byte]]"></a>
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.MODISCatalogRelation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MODISCatalogRelation"></a>
+      <a id="MODISCatalogRelation:MODISCatalogRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">download</span><span class="params">(<span name="urlColumn">urlColumn: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
+        <a href="MODISCatalogRelation$.html"><span class="name">MODISCatalogRelation</span></a><span class="result"> extends <a href="PDSFields.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.PDSFields">PDSFields</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@download(urlColumn:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Array[Byte]]" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@MODISCatalogRelation" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds#download_tiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="download_tiles(urlColumn:org.apache.spark.sql.Column):org.apache.spark.sql.Column"></a>
-      <a id="download_tiles(Column):Column"></a>
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds.PDSFields" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PDSFields"></a>
+      <a id="PDSFields:PDSFields"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">download_tiles</span><span class="params">(<span name="urlColumn">urlColumn: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+        <a href="PDSFields$.html"><span class="name">PDSFields</span></a><span class="result"> extends <a href="PDSFields.html" class="extype" name="astraea.spark.rasterframes.experimental.datasource.awspds.PDSFields">PDSFields</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@download_tiles(urlColumn:org.apache.spark.sql.Column):org.apache.spark.sql.Column" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@PDSFields" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds#modis_band_url" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="modis_band_url(bandID:String):org.apache.spark.sql.TypedColumn[Any,String]"></a>
-      <a id="modis_band_url(String):TypedColumn[Any,String]"></a>
+    </li><li name="astraea.spark.rasterframes.experimental.datasource.awspds#l8_band_url" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="l8_band_url(bandID:String):org.apache.spark.sql.TypedColumn[Any,String]"></a>
+      <a id="l8_band_url(String):TypedColumn[Any,String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">modis_band_url</span><span class="params">(<span name="bandID">bandID: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">l8_band_url</span><span class="params">(<span name="bandID">bandID: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@modis_band_url(bandID:String):org.apache.spark.sql.TypedColumn[Any,String]" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#astraea.spark.rasterframes.experimental.datasource.awspds.package@l8_band_url(bandID:String):org.apache.spark.sql.TypedColumn[Any,String]" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Constructs link with the form:
-<code>https://modis-pds.s3.amazonaws.com/MCD43A4.006/23/15/2013003/MCD43A4.A2013003.h23v15.006.2016125143738_${bandID}.TIF</code></p><div class="fullcomment"><div class="comment cmt"><p>Constructs link with the form:
-<code>https://modis-pds.s3.amazonaws.com/MCD43A4.006/23/15/2013003/MCD43A4.A2013003.h23v15.006.2016125143738_${bandID}.TIF</code></p></div><dl class="paramcmts block"><dt class="param">bandID</dt><dd class="cmt"><p>Band ID suffix, e.g. &quot;B04&quot;</p></dd></dl></div>
+<code>https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_{bandId].TIF</code></p><div class="fullcomment"><div class="comment cmt"><p>Constructs link with the form:
+<code>https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_{bandId].TIF</code></p></div><dl class="paramcmts block"><dt class="param">bandID</dt><dd class="cmt"><p>Band ID suffix, e.g. &quot;B4&quot;</p></dd></dl></div>
     </li></ol>
             </div>
 

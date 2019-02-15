@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -146,7 +146,19 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
 <h1><a href="#release-nbsp-notes" name="release-nbsp-notes" class="anchor"><span class="anchor-link"></span></a>Release&nbsp;Notes</h1>
+<h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
+<h3><a href="#0-8-0" name="0-8-0" class="anchor"><span class="anchor-link"></span></a>0.8.0</h3>
+<ul>
+  <li>Introduced at the source level the concept of a <code>RasterSource</code> and <code>RasterRef</code>, enabling lazy/delayed read of sub-scene tiles.</li>
+  <li><em>Deprecation</em>: Tile column functions (in <code>RasterFunctions</code>) and SQL registered names have all been renamed to follow <code>snake_case</code> conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.</li>
+  <li>Added <code>withKryoSerialization</code> extension methods on <code>SparkSession.Builder</code> and <code>SparkConf</code>.</li>
+</ul>
 <h2><a href="#0-7-x" name="0-7-x" class="anchor"><span class="anchor-link"></span></a>0.7.x</h2>
+<h3><a href="#0-7-1" name="0-7-1" class="anchor"><span class="anchor-link"></span></a>0.7.1</h3>
+<ul>
+  <li>Fixed ColorRamp pipeline in MultibandRender</li>
+  <li>Fixed Python wrapper for <code>explodeTiles</code></li>
+</ul>
 <h3><a href="#0-7-0" name="0-7-0" class="anchor"><span class="anchor-link"></span></a>0.7.0</h3>
 <ul>
   <li>Now an incubating project under Eclipse Foundation LocationTech! GitHub repo moved to <a href="https://github.com/locationtech/rasterframes">locationtech/rasterframes</a>.</li>
@@ -269,6 +281,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <ul>
   <li><a href="release-notes.html#release-nbsp-notes" class="header">Release&nbsp;Notes</a>
   <ul>
+    <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a></li>
     <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a></li>
     <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a></li>
     <li><a href="release-notes.html#0-5-x" class="header">0.5.x</a></li>
@@ -311,7 +324,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

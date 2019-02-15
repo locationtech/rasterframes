@@ -47,14 +47,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">GeoTrellisRelation</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="uri">uri: <span class="extype" name="java.net.URI">URI</span></span>, <span name="layerId">layerId: <span class="extype" name="geotrellis.spark.LayerId">LayerId</span></span>, <span name="numPartitions">numPartitions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="failOnUnrecognizedFilter">failOnUnrecognizedFilter: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>, <span name="tileSubdivisions">tileSubdivisions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="filters">filters: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span> with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">GeoTrellisRelation</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="uri">uri: <span class="extype" name="java.net.URI">URI</span></span>, <span name="layerId">layerId: <span class="extype" name="geotrellis.spark.LayerId">LayerId</span></span>, <span name="numPartitions">numPartitions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="failOnUnrecognizedFilter">failOnUnrecognizedFilter: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>, <span name="tileSubdivisions">tileSubdivisions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol">None</span></span>, <span name="filters">filters: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span> with <a href="../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a>[<a href="" class="extype" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation">GeoTrellisRelation</a>] with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A Spark SQL <code>Relation</code> over a standard GeoTrellis layer.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span>, <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span>, <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span>, <a href="../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a>[<a href="" class="extype" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation">GeoTrellisRelation</a>], <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span>, <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -72,7 +72,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation"><span>GeoTrellisRelation</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="geotrellis.util.LazyLogging"><span>LazyLogging</span></li><li class="in" name="org.apache.spark.sql.sources.PrunedScan"><span>PrunedScan</span></li><li class="in" name="org.apache.spark.sql.sources.BaseRelation"><span>BaseRelation</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation"><span>GeoTrellisRelation</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="geotrellis.util.LazyLogging"><span>LazyLogging</span></li><li class="in" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver"><span>SpatialRelationReceiver</span></li><li class="in" name="org.apache.spark.sql.sources.PrunedScan"><span>PrunedScan</span></li><li class="in" name="org.apache.spark.sql.sources.BaseRelation"><span>BaseRelation</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -222,6 +222,23 @@
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.rules.SpatialRelationReceiver#asBaseRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asBaseRelation:org.apache.spark.sql.sources.BaseRelation"></a>
+      <a id="asBaseRelation:BaseRelation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asBaseRelation</span><span class="result">: <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation@asBaseRelation:org.apache.spark.sql.sources.BaseRelation" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Type gymnastics helper.</p><div class="fullcomment"><div class="comment cmt"><p>Type gymnastics helper.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -248,7 +265,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">buildScan</span><span class="params">(<span name="requiredColumns">requiredColumns: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[<span class="extype" name="org.apache.spark.sql.Row">Row</span>]</span>
+        <span class="name">buildScan</span><span class="params">(<span name="requiredColumns">requiredColumns: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[<span class="extype" name="org.apache.spark.sql.Row">Row</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation@buildScan(requiredColumns:Array[String]):org.apache.spark.rdd.RDD[org.apache.spark.sql.Row]" title="Permalink" target="_top">
@@ -370,6 +387,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation#hasFilter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasFilter(filter:org.apache.spark.sql.sources.Filter):Boolean"></a>
+      <a id="hasFilter(Filter):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasFilter</span><span class="params">(<span name="filter">filter: <span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation@hasFilter(filter:org.apache.spark.sql.sources.Filter):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Check to see if relation already exists in this.</p><div class="fullcomment"><div class="comment cmt"><p>Check to see if relation already exists in this.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation">GeoTrellisRelation</a> → <a href="../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -557,23 +591,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation">GeoTrellisRelation</a> → BaseRelation</dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation#splitFilters" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="splitFilters:Seq[org.apache.spark.sql.sources.Filter]"></a>
-      <a id="splitFilters:Seq[Filter]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">splitFilters</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.collection.Seq" class="extype" target="_top">Seq</a>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation@splitFilters:Seq[org.apache.spark.sql.sources.Filter]" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Separate And conditions into separate filters.</p>
     </li><li name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation#sqlContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sqlContext:org.apache.spark.sql.SQLContext"></a>
       <a id="sqlContext:SQLContext"></a>
@@ -668,7 +685,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">unhandledFilters</span><span class="params">(<span name="filters">filters: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>]</span>
+        <span class="name">unhandledFilters</span><span class="params">(<span name="filters">filters: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="org.apache.spark.sql.sources.Filter">Filter</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation@unhandledFilters(filters:Array[org.apache.spark.sql.sources.Filter]):Array[org.apache.spark.sql.sources.Filter]" title="Permalink" target="_top">
@@ -762,7 +779,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation#withFilter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation#withFilter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withFilter(value:org.apache.spark.sql.sources.Filter):astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation"></a>
       <a id="withFilter(Filter):GeoTrellisRelation"></a>
       <h4 class="signature">
@@ -778,7 +795,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Convenience to create new relation with the give filter added.</p>
+      <p class="shortcomment cmt">Create new relation with the give filter added.</p><div class="fullcomment"><div class="comment cmt"><p>Create new relation with the give filter added.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation">GeoTrellisRelation</a> → <a href="../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -798,6 +815,8 @@
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a></h3>
             </div><div class="parent" name="geotrellis.util.LazyLogging">
               <h3>Inherited from <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span></h3>
+            </div><div class="parent" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">
+              <h3>Inherited from <a href="../../rules/SpatialRelationReceiver.html" class="extype" name="astraea.spark.rasterframes.rules.SpatialRelationReceiver">SpatialRelationReceiver</a>[<a href="" class="extype" name="astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation">GeoTrellisRelation</a>]</h3>
             </div><div class="parent" name="org.apache.spark.sql.sources.PrunedScan">
               <h3>Inherited from <span class="extype" name="org.apache.spark.sql.sources.PrunedScan">PrunedScan</span></h3>
             </div><div class="parent" name="org.apache.spark.sql.sources.BaseRelation">

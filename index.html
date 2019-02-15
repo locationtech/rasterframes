@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.7.0
+0.8.0-RC3
 </div>
 </div>
 <div class="nav-toc">
@@ -140,12 +140,12 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
 <h1><a href="#rasterframes" name="rasterframes" class="anchor"><span class="anchor-link"></span></a>RasterFrames</h1>
-<p><em>RasterFrames™</em> brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of <a href="https://geotrellis.io/">GeoTrellis</a>. </p>
-<p>The source code can be found on GitHub at <a href="https://github.com/locationtech/rasterframes">locationtech/rasterframes</a>.</p>
-<p>The underlying purpose of RasterFrames™ is to allow data scientists and software developers to process and analyze geospatial-temporal raster data with the same flexibility and ease as any other Spark Catalyst data type. At its core is a user-defined type (UDT) called <a href="http://rasterframes.io/latest/api/org/apache/spark/sql/gt/types/TileUDT.html"><code>TileUDT</code></a>, which encodes a GeoTrellis <a href="http://rasterframes.io/latest/api/geotrellis/raster/Tile.html"><code>Tile</code></a> in a form the Spark Catalyst engine can process. Furthermore, we extend the definition of a DataFrame to encompass some additional invariants, allowing for geospatial operations within and between RasterFrames to occur, while still maintaining necessary geo-referencing constructs.</p>
+<p>RasterFrames® brings together Earth-observing (EO) data analysis, big data computing, and DataFrame-based data science. The recent explosion of EO data from public and private satellite operators presents both a huge opportunity as well as a challenge to the data analysis community. It is <em>Big Data</em> in the truest sense, and its footprint is rapidly getting bigger. </p>
+<p>RasterFrames provides a DataFrame-centric view over arbitrary EO data, enabling spatiotemporal queries, map algebra raster operations, and compatibility with the ecosystem of Spark ML algorithms. By using DataFrames as the core cognitive and compute data model, it is able to deliver these features in a form that is accessible to general analysts while handling the rapidly growing data footprint.</p>
 <p>To learn more, please see the <a href="getting-started.html">Getting Started</a> section of this manual.</p>
-<img src="RasterFramePipeline.svg" width="600px"/><div class="callout note "><div class="callout-title">Note</div>
-<p>RasterFrames™ is a new project under active development. Feedback and contributions are welcomed as we look to improve it. Please <a href="https://github.com/locationtech/rasterframes/issues">submit an issue</a> if there&rsquo;s a particular feature you think should be included.</p></div><div class="md-left">
+<p>The source code can be found on GitHub at <a href="https://github.com/locationtech/rasterframes">locationtech/rasterframes</a>.</p>
+<img src="RasterFramePipeline.svg" width="600px"/>
+<hr/><div class="md-left">
 <h2><a href="#detailed-contents" name="detailed-contents" class="anchor"><span class="anchor-link"></span></a>Detailed Contents</h2>
 <div class="toc ">
 <ul>
@@ -188,6 +188,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   <li><a href="reference.html" class="page">Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a>
   <ul>
+    <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a></li>
     <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a></li>
     <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a></li>
     <li><a href="release-notes.html#0-5-x" class="header">0.5.x</a></li>
@@ -199,7 +200,6 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   <li><a href="https://gitter.im/s22s/raster-frames">Gitter Channel</a>&nbsp;&nbsp;<a href="https://gitter.im/s22s/raster-frames?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/s22s/raster-frames.svg" alt="Join the chat at https://gitter.im/s22s/raster-frames" /></a></li>
   <li><a href="latest/api/index.html">API Documentation</a></li>
   <li><a href="https://github.com/locationtech/rasterframes">GitHub Repository</a></li>
-  <li><a href="https://docs.geotrellis.io/en/latest/">GeoTrellis Documentation</a></li>
   <li><a href="http://www.astraea.earth/">Astraea, Inc.</a> (the company behind RasterFrames)</li>
 </ul></div><div class="md-clear">
 <p>&nbsp;</p></div>
@@ -256,7 +256,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2018
+<span class="text">&copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>
