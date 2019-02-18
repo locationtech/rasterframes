@@ -56,7 +56,7 @@ To build the Docker image based on local development changes:
 
 ```bash
 # from the root of the repo
-sbt deployment/rfNotebookContainer
+sbt deployment/rfDocker
 ```
 
 ## Base images
