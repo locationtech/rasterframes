@@ -94,7 +94,13 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     */
   def cell_type(name: String): CellType = CellType.fromName(name)
 
-  def cell_types: Seq[String] = astraea.spark.rasterframes.functions.cellTypes()
+  /**
+    * Convenience list of valid cell type strings
+    * @return Java List of String, which py4j can interpret as a python `list`
+    */
+  def cell_types = {
+    astraea.spark.rasterframes.functions.cellTypes().asJava
+  }
 
   /** DESERIALIZATION **/
 
