@@ -23,35 +23,33 @@ package astraea.spark.rasterframes.model
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import geotrellis.raster.{CellType, Tile}
-import org.apache.spark.sql.types.{ShortType, StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StructField, StructType}
 
-case class TileDataContext(cellType: CellType, cellColumns: Short, cellRows: Short)
+/** Encapsulates all information about a tile aside from actual cell values. */
+case class TileDataContext(cellType: CellType, dimensions: TileDimensions)
 object TileDataContext {
   /** Extracts the TileDataContext from a Tile. */
   def apply(t: Tile): TileDataContext = {
     require(t.cols <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.cols}")
     require(t.rows <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.rows}")
     TileDataContext(
-      t.cellType, t.cols.toShort, t.rows.toShort
+      t.cellType, TileDimensions(t.dimensions)
     )
   }
 
   implicit val serializer: CatalystSerializer[TileDataContext] = new CatalystSerializer[TileDataContext] {
     override def schema: StructType =  StructType(Seq(
       StructField("cell_type", CatalystSerializer[CellType].schema, false),
-      StructField("cell_cols", ShortType, false),
-      StructField("cell_rows", ShortType, false)
+      StructField("dimensions", CatalystSerializer[CellType].schema, false)
     ))
 
     override protected def to[R](t: TileDataContext, io: CatalystIO[R]): R = io.create(
       io.to(t.cellType),
-      t.cellColumns,
-      t.cellRows
+      io.to(t.dimensions)
     )
     override protected def from[R](t: R, io: CatalystIO[R]): TileDataContext = TileDataContext(
       io.get[CellType](t, 0),
-      io.getShort(t, 1),
-      io.getShort(t, 2)
+      io.get[TileDimensions](t, 1)
     )
   }
 }

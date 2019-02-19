@@ -34,6 +34,8 @@ import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 case class TileDimensions(cols: Int, rows: Int) extends Grid
 
 object TileDimensions {
+  def apply(colsRows: (Int, Int)): TileDimensions = new TileDimensions(colsRows._1, colsRows._2)
+
   implicit val serializer: CatalystSerializer[TileDimensions] = new CatalystSerializer[TileDimensions] {
     override def schema: StructType = StructType(Seq(
       StructField("cols", ShortType, false),
