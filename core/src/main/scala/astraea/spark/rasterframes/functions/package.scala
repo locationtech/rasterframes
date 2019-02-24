@@ -219,53 +219,6 @@ package object functions {
   @inline
   private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-  /** Cell-wise addition of a scalar to a tile. */
-  private[rasterframes] val localAddScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
-    t.localAdd(scalar)
-  })
-
-  /** Cell-wise addition of a scalar to a tile. */
-  private[rasterframes] val localAddScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
-    floatingPointTile(t).localAdd(scalar)
-  })
-
-  /** Cell-wise subtraction of a scalar from a tile. */
-  private[rasterframes] val localSubtractScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
-    t.localSubtract(scalar)
-  })
-
-  /** Cell-wise subtraction of a scalar from a tile. */
-  private[rasterframes] val localSubtractScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
-    floatingPointTile(t).localSubtract(scalar)
-  })
-
-  /** Cell-wise multiplication of a tile by a scalar. */
-  private[rasterframes] val localMultiplyScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
-    t.localMultiply(scalar)
-  })
-
-  /** Cell-wise multiplication of a tile by a scalar. */
-  private[rasterframes] val localMultiplyScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
-    floatingPointTile(t).localMultiply(scalar)
-  })
-
-  /** Cell-wise division of a tile by a scalar. */
-  private[rasterframes] val localDivideScalarInt: (Tile, Int) ⇒ Tile = safeEval((t: Tile, scalar:Int) => {
-    t.localDivide(scalar)
-  })
-
-  /** Cell-wise division of a tile by a scalar. */
-  private[rasterframes] val localDivideScalar: (Tile, Double) ⇒ Tile = safeEval((t: Tile, scalar:Double) => {
-    floatingPointTile(t).localDivide(scalar)
-  })
-
-  /** Cell-wise normalized difference of tiles. */
-  private[rasterframes] val normalizedDifference:  (Tile, Tile) ⇒ Tile = safeEval((t1: Tile, t2:Tile) => {
-    val diff = floatingPointTile(Subtract(t1, t2))
-    val sum = floatingPointTile(Add(t1, t2))
-    Divide(diff, sum)
-  })
-
   /** Render tile as ASCII string. */
   private[rasterframes] val renderAscii: Tile ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
 
@@ -466,15 +419,7 @@ package object functions {
     sqlContext.udf.register("rf_local_agg_min", localAggMin)
     sqlContext.udf.register("rf_local_agg_mean", localAggMean)
     sqlContext.udf.register("rf_local_agg_count", localAggCount)
-    sqlContext.udf.register("rf_local_add_scalar", localAddScalar)
-    sqlContext.udf.register("rf_local_add_scalar_int", localAddScalarInt)
-    sqlContext.udf.register("rf_local_subtract_scalar", localSubtractScalar)
-    sqlContext.udf.register("rf_local_subtract_scalar_int", localSubtractScalarInt)
-    sqlContext.udf.register("rf_local_multiply_scalar", localMultiplyScalar)
-    sqlContext.udf.register("rf_local_multiply_scalar_int", localMultiplyScalarInt)
-    sqlContext.udf.register("rf_local_divide_scalar", localDivideScalar)
-    sqlContext.udf.register("rf_local_divide_scalar_int", localDivideScalarInt)
-    sqlContext.udf.register("rf_normalized_difference", normalizedDifference)
+
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_render_ascii", renderAscii)
     sqlContext.udf.register("rf_rasterize", rasterize)

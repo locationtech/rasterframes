@@ -20,22 +20,22 @@
  */
 
 package astraea.spark.rasterframes.expressions.mapalgebra
+import astraea.spark.rasterframes._
 import geotrellis.raster.Tile
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import geotrellis.raster.mapalgebra.{local => gt}
-import org.apache.spark.sql.Column
 import org.apache.spark.sql.functions.lit
 
 /** Perform cell-wise multiplication by a scalar value. */
 case class MultiplyScalar (left: Expression, right: Expression) extends RasterScalarOp with CodegenFallback {
   override val nodeName: String = "local_multiply_scalar"
-  override protected def op(tile: Tile, value: Int): Tile = gt.Multiply(tile, value)
-  override protected def op(tile: Tile, value: Double): Tile = gt.Multiply(tile, value)
+  override protected def op(tile: Tile, value: Int): Tile = tile.localMultiply(value)
+  override protected def op(tile: Tile, value: Double): Tile = tile.localMultiply(value)
 }
 object MultiplyScalar {
-  def apply(tile: Column, value: Column): Column =
-    new Column(new MultiplyScalar(tile.expr, value.expr))
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(new MultiplyScalar(tile.expr, lit(value).expr))
+  def apply(tile: Column, value: Column): TypedColumn[Any, Tile] =
+    new Column(new MultiplyScalar(tile.expr, value.expr)).as[Tile]
+  def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
+    new Column(new MultiplyScalar(tile.expr, lit(value).expr)).as[Tile]
 }

@@ -21,7 +21,7 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.generators._
-import astraea.spark.rasterframes.expressions.mapalgebra.BinaryRasterOp
+import astraea.spark.rasterframes.expressions.mapalgebra._
 import astraea.spark.rasterframes.expressions.transformers._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
@@ -50,9 +50,16 @@ package object expressions {
     VersionShims.registerExpression(registry, "rf_convert_cell_type", bb(SetCellType.apply))
     VersionShims.registerExpression(registry, "rf_tile_dimensions", ub(GetDimensions.apply))
     VersionShims.registerExpression(registry, "rf_bounds_geometry", ub(BoundsToGeometry.apply))
-    VersionShims.registerExpression(registry, "rf_local_add", bb(BinaryRasterOp.Add))
-    VersionShims.registerExpression(registry, "rf_local_subtract", bb(BinaryRasterOp.Subtract))
-    VersionShims.registerExpression(registry, "rf_local_multiply", bb(BinaryRasterOp.Multiply))
-    VersionShims.registerExpression(registry, "rf_local_divide", bb(BinaryRasterOp.Divide))
+    VersionShims.registerExpression(registry, "rf_local_add", bb(Add.apply))
+    VersionShims.registerExpression(registry, "rf_local_subtract", bb(Subtract.apply))
+    VersionShims.registerExpression(registry, "rf_local_multiply", bb(Multiply.apply))
+    VersionShims.registerExpression(registry, "rf_local_divide", bb(Divide.apply))
+
+
+    VersionShims.registerExpression(registry, "rf_local_add_scalar", bb(AddScalar.apply))
+    VersionShims.registerExpression(registry, "rf_local_subtract_scalar", bb(SubtractScalar.apply))
+    VersionShims.registerExpression(registry, "rf_local_multiply_scalar", bb(MultiplyScalar.apply))
+    VersionShims.registerExpression(registry, "rf_local_divide_scalar", bb(DivideScalar.apply))
+    VersionShims.registerExpression(registry, "rf_normalized_difference", bb(NormalizedDifference.apply))
   }
 }

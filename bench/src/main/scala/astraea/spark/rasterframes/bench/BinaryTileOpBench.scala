@@ -22,7 +22,8 @@
 package astraea.spark.rasterframes.bench
 import java.util.concurrent.TimeUnit
 
-import astraea.spark.rasterframes.expressions.mapalgebra.BinaryRasterOp
+import astraea.spark.rasterframes.expressions.mapalgebra._
+import astraea.spark.rasterframes._
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.{local => gt}
 import org.apache.spark.sql._
@@ -55,12 +56,12 @@ class BinaryTileOpBench extends SparkEnv {
   }
 
   @Benchmark
-  def viaExpression() = {
-    tiles.select(BinaryRasterOp.Add($"left", $"right")).collect()
+  def viaExpression(): Array[Tile] = {
+    tiles.select(Add($"left", $"right")).collect()
   }
 
   @Benchmark
-  def viaUdf() = {
-    tiles.select(localAddUDF($"left", $"right")).collect()
+  def viaUdf(): Array[Tile] = {
+    tiles.select(localAddUDF($"left", $"right").as[Tile]).collect()
   }
 }

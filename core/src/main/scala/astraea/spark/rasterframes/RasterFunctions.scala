@@ -215,47 +215,47 @@ trait RasterFunctions {
 
   /** Cellwise addition between two Tiles. */
   def local_add(left: Column, right: Column): Column =
-    BinaryRasterOp.Add(left, right)
+    Add(left, right)
 
   /** Cellwise addition of a scalar value to a tile. */
-  def local_add_scalar[T: Numeric](tileCol: Column, value: T): Column = AddScalar(tileCol, value)
+  def local_add_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = AddScalar(tileCol, value)
   /** Cellwise addition of a scalar column to a tile. */
-  def local_add_scalar(tileCol: Column, value: Column): Column = AddScalar(tileCol, value)
+  def local_add_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] = AddScalar(tileCol, value)
 
   /** Cellwise subtraction between two Tiles. */
-  def local_subtract(left: Column, right: Column): Column =
-    BinaryRasterOp.Subtract(left, right)
+  def local_subtract(left: Column, right: Column): TypedColumn[Any, Tile] =
+    Subtract(left, right)
 
   /** Cellwise subtraction of a scalar value from a tile. */
-  def local_subtract_scalar[T: Numeric](tileCol: Column, value: T): Column =
+  def local_subtract_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile]  =
     SubtractScalar(tileCol, value)
 
   /** Cellwise subtraction of a scalar column from a tile. */
-  def local_subtract_scalar(tileCol: Column, value: Column): Column =
+  def local_subtract_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] =
     SubtractScalar(tileCol, value)
 
   /** Cellwise multiplication between two Tiles. */
-  def local_multiply(left: Column, right: Column): Column =
-    BinaryRasterOp.Multiply(left, right)
+  def local_multiply(left: Column, right: Column): TypedColumn[Any, Tile] =
+    Multiply(left, right)
 
   /** Cellwise multiplication of a tile by a scalar value. */
-  def local_multiply_scalar[T: Numeric](tileCol: Column, value: T): Column =
+  def local_multiply_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
     MultiplyScalar(tileCol, value)
 
   /** Cellwise multiplication of a tile by a scalar column. */
-  def local_multiply_scalar(tileCol: Column, value: Column): Column =
+  def local_multiply_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] =
     MultiplyScalar(tileCol, value)
 
   /** Cellwise division between two Tiles. */
-  def local_divide(left: Column, right: Column): Column =
-    BinaryRasterOp.Divide(left, right)
+  def local_divide(left: Column, right: Column): TypedColumn[Any, Tile] =
+    Divide(left, right)
 
   /** Cellwise division of a tile by a scalar value. */
-  def local_divide_scalar[T: Numeric](tileCol: Column, value: T): Column =
+  def local_divide_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
     DivideScalar(tileCol, value)
 
   /** Cellwise division of a tile by a scalar column. */
-  def local_divide_scalar(tileCol: Column, value: Column): Column =
+  def local_divide_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] =
     DivideScalar(tileCol, value)
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
@@ -266,8 +266,8 @@ trait RasterFunctions {
     ).as[Tile]
 
   /** Compute the normalized difference of two tile columns */
-  def normalized_difference(left: Column, right: Column): Column =
-    BinaryRasterOp(left, right, F.normalizedDifference, "normalized_difference")
+  def normalized_difference(left: Column, right: Column) =
+    NormalizedDifference(left, right)
 
   /** Constructor for constant tile column */
   def make_constant_tile(value: Number, cols: Int, rows: Int, cellType: String): TypedColumn[Any, Tile] =

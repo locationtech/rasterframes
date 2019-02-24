@@ -50,10 +50,6 @@ trait RasterScalarOp extends BinaryExpression {
   protected def op(tile: Tile, value: Int): Tile
   protected def op(tile: Tile, value: Double): Tile
 
-  /** Convert the tile to a floating point type as needed for scalar operations. */
-  @inline
-  private def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
-
   override protected def nullSafeEval(tileIn: Any, valueIn: Any): Any = {
     implicit val tileSer = TileUDT.tileSerializer
 

@@ -25,17 +25,13 @@ import geotrellis.raster.Tile
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.functions._
 
-case class AddScalar(left: Expression, right: Expression) extends RasterScalarOp with CodegenFallback {
-  override val nodeName: String = "local_add_scalar"
-  override protected def op(tile: Tile, value: Int): Tile = tile.localAdd(value)
-  override protected def op(tile: Tile, value: Double): Tile = tile.localAdd(value)
+/** Performs cell-wise subtraction between two tiles. */
+case class Subtract(left: Expression, right: Expression) extends BinaryRasterOp with CodegenFallback {
+  override val nodeName: String = "local_subtract"
+  override protected def op(left: Tile, right: Tile): Tile = left.localSubtract(right)
 }
-
-object AddScalar {
-  def apply(tile: Column, value: Column): TypedColumn[Any, Tile] =
-    new Column(new AddScalar(tile.expr, value.expr)).as[Tile]
-  def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(new AddScalar(tile.expr, lit(value).expr)).as[Tile]
+object Subtract {
+  def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
+    new Column(Subtract(left.expr, right.expr)).as[Tile]
 }
