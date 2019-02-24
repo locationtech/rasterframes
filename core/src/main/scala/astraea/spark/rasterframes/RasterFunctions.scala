@@ -20,9 +20,10 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.mapalgebra._
+import astraea.spark.rasterframes.expressions.localops._
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.stats.Sum
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
@@ -131,9 +132,7 @@ trait RasterFunctions {
 
   /** Compute the Tile-wise sum */
   def tile_sum(col: Column): TypedColumn[Any, Double] =
-  withAlias("tile_sum", col)(
-    udf[Double, Tile](F.tileSum).apply(col)
-  ).as[Double]
+    Sum(col)
 
   /** Compute the minimum cell value in tile. */
   def tile_min(col: Column): TypedColumn[Any, Double] =
@@ -312,92 +311,49 @@ trait RasterFunctions {
 
   /** Cellwise less than value comparison between two tiles. */
   def local_less(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("local_less", left, right)(
-      udf(F.localLess).apply(left, right)
-    ).as[Tile]
-
+    Less(left, right)
 
   /** Cellwise less than value comparison between a tile and a scalar. */
-  def local_less_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match{
-      case i: Int ⇒ F.localLessScalarInt(_: Tile, i)
-      case d: Double ⇒ F.localLessScalar(_: Tile, d)
-    }
-    udf(f).apply(tileCol).as(s"local_less_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_less[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    Less(tileCol, value)
 
   /** Cellwise less than or equal to value comparison between a tile and a scalar. */
   def local_less_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("local_less_equal", left, right)(
-      udf(F.localLess).apply(left, right)
-    ).as[Tile]
+    LessEqual(left, right)
 
   /** Cellwise less than or equal to value comparison between a tile and a scalar. */
-  def local_less_equal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match{
-      case i: Int ⇒ F.localLessEqualScalarInt(_: Tile, i)
-      case d: Double ⇒ F.localLessEqualScalar(_: Tile, d)
-    }
-    udf(f).apply(tileCol).as(s"local_less_equal_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_less_equal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    LessEqual(tileCol, value)
 
   /** Cellwise greater than value comparison between two tiles. */
   def local_greater(left: Column, right: Column): TypedColumn[Any, Tile] =
-    withAlias("local_greater", left, right)(
-      udf(F.localGreater).apply(left, right)
-    ).as[Tile]
-
+    Greater(left, right)
 
   /** Cellwise greater than value comparison between a tile and a scalar. */
-  def local_greater_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match{
-      case i: Int ⇒ F.localGreaterScalarInt(_: Tile, i)
-      case d: Double ⇒ F.localGreaterScalar(_: Tile, d)
-    }
-    udf(f).apply(tileCol).as(s"local_greater_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_greater[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    Greater(tileCol, value)
 
   /** Cellwise greater than or equal to value comparison between two tiles. */
   def local_greater_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("local_greater_equal", left, right)(
-      udf(F.localGreaterEqual).apply(left, right)
-    ).as[Tile]
+    GreaterEqual(left, right)
 
   /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
-  def local_greater_equal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match{
-      case i: Int ⇒ F.localGreaterEqualScalarInt(_: Tile, i)
-      case d: Double ⇒ F.localGreaterEqualScalar(_: Tile, d)
-    }
-    udf(f).apply(tileCol).as(s"local_greater_equal_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_greater_equal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    GreaterEqual(tileCol, value)
 
   /** Cellwise equal to value comparison between two tiles. */
   def local_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("local_equal", left, right)(
-      udf(F.localEqual).apply(left, right)
-    ).as[Tile]
+    Equal(left, right)
 
   /** Cellwise equal to value comparison between a tile and a scalar. */
-  def local_equal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match{
-      case i: Int ⇒ F.localEqualScalarInt(_: Tile, i)
-      case d: Double ⇒ F.localEqualScalar(_: Tile, d)
-    }
-    udf(f).apply(tileCol).as(s"local_equal_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_equal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    Equal(tileCol, value)
+
   /** Cellwise inequality comparison between two tiles. */
   def local_unequal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    withAlias("local_unequal", left, right)(
-      udf(F.localUnequal).apply(left, right)
-    ).as[Tile]
+    Unequal(left, right)
 
   /** Cellwise inequality comparison between a tile and a scalar. */
-  def local_unequal_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-    val f = value match{
-      case i: Int ⇒ F.localUnequalScalarInt(_: Tile, i)
-      case d: Double ⇒ F.localUnequalScalar(_: Tile, d)
-    }
-    udf(f).apply(tileCol).as(s"local_unequal_scalar($tileCol, $value)").as[Tile]
-  }
+  def local_unequal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    Unequal(tileCol, value)
 }

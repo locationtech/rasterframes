@@ -139,29 +139,29 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def local_multiply_scalar_int(col: Column, scalar: Int): Column = local_multiply[Int](col, scalar)
 
-  def local_less_scalar(col: Column, scalar: Double): Column = local_less_scalar[Double](col, scalar)
+  def local_less_scalar(col: Column, scalar: Double): Column = local_less[Double](col, scalar)
 
-  def local_less_scalar_int(col: Column, scalar: Int): Column = local_less_scalar[Int](col, scalar)
+  def local_less_scalar_int(col: Column, scalar: Int): Column = local_less[Int](col, scalar)
 
-  def local_less_equal_scalar(col: Column, scalar: Double): Column = local_less_equal_scalar[Double](col, scalar)
+  def local_less_equal_scalar(col: Column, scalar: Double): Column = local_less_equal[Double](col, scalar)
 
-  def local_less_equal_scalar_int(col: Column, scalar: Int): Column = local_less_equal_scalar[Int](col, scalar)
+  def local_less_equal_scalar_int(col: Column, scalar: Int): Column = local_less_equal[Int](col, scalar)
 
-  def local_greater_scalar(col: Column, scalar: Double): Column = local_greater_scalar[Double](col, scalar)
+  def local_greater_scalar(col: Column, scalar: Double): Column = local_greater[Double](col, scalar)
 
-  def local_greater_scalar_int(col: Column, scalar: Int): Column = local_greater_scalar[Int](col, scalar)
+  def local_greater_scalar_int(col: Column, scalar: Int): Column = local_greater[Int](col, scalar)
 
-  def local_greater_equal_scalar(col: Column, scalar: Double): Column = local_greater_equal_scalar[Double](col, scalar)
+  def local_greater_equal_scalar(col: Column, scalar: Double): Column = local_greater_equal[Double](col, scalar)
 
-  def local_greater_equal_scalar_int(col: Column, scalar: Int): Column = local_greater_equal_scalar[Int](col, scalar)
+  def local_greater_equal_scalar_int(col: Column, scalar: Int): Column = local_greater_equal[Int](col, scalar)
 
-  def local_equal_scalar(col: Column, scalar: Double): Column = local_equal_scalar[Double](col, scalar)
+  def local_equal_scalar(col: Column, scalar: Double): Column = local_equal[Double](col, scalar)
 
-  def local_equal_scalar_int(col: Column, scalar: Int): Column = local_equal_scalar[Int](col, scalar)
+  def local_equal_scalar_int(col: Column, scalar: Int): Column = local_equal[Int](col, scalar)
 
-  def local_unequal_scalar(col: Column, scalar: Double): Column = local_unequal_scalar[Double](col, scalar)
+  def local_unequal_scalar(col: Column, scalar: Double): Column = local_unequal[Double](col, scalar)
 
-  def local_unequal_scalar_int(col: Column, scalar: Int): Column = local_unequal_scalar[Int](col, scalar)
+  def local_unequal_scalar_int(col: Column, scalar: Int): Column = local_unequal[Int](col, scalar)
 
   // return toRaster, get just the tile, and make an array out of it
   def toIntRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Int] = {

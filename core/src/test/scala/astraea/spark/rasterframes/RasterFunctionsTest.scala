@@ -46,6 +46,7 @@ class RasterFunctionsTest extends FunSpec
   val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
+  implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
 
   describe("arithmetic tile operations") {
     it("should local_add") {
@@ -99,7 +100,7 @@ class RasterFunctionsTest extends FunSpec
   }
 
   describe("scalar tile operations") {
-    it("should local_add_scalar") {
+    it("should local_add") {
       val df = Seq(one).toDF("one")
       val maybeThree = df.select(local_add($"one", 2)).as[ProjectedRasterTile]
       assertEqual(maybeThree.first(), three)
@@ -111,7 +112,7 @@ class RasterFunctionsTest extends FunSpec
       assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
 
-    it("should local_subtract_scalar") {
+    it("should local_subtract") {
       val df = Seq(three).toDF("three")
 
       val maybeOne = df.select(local_subtract($"three", 2)).as[ProjectedRasterTile]
@@ -124,7 +125,7 @@ class RasterFunctionsTest extends FunSpec
       assertEqual(maybeOneTile.first(), one.toArrayTile())
     }
 
-    it("should local_multiply_scalar") {
+    it("should local_multiply") {
       val df = Seq(three).toDF("three")
 
       val maybeSix = df.select(local_multiply($"three", 2)).as[ProjectedRasterTile]
@@ -137,7 +138,7 @@ class RasterFunctionsTest extends FunSpec
       assertEqual(maybeSixTile.first(), six.toArrayTile())
     }
 
-    it("should local_divide_scalar") {
+    it("should local_divide") {
       val df = Seq(six).toDF("six")
 
       val maybeThree = df.select(local_divide($"six", 2)).as[ProjectedRasterTile]
@@ -149,5 +150,79 @@ class RasterFunctionsTest extends FunSpec
       val maybeThreeTile = df.select(local_divide(ExtractTile($"six"), 2)).as[Tile]
       assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
+  }
+
+  describe("tile comparison relations") {
+    it("should evaluate local_less") {
+      val df = Seq((two, three, six)).toDF("two", "three", "six")
+      df.select(tile_sum(local_less($"two", 6))).first() should be(100.0)
+      df.select(tile_sum(local_less($"two", 1.9))).first() should be(0.0)
+      df.select(tile_sum(local_less($"two", 2))).first() should be(0.0)
+      df.select(tile_sum(local_less($"three", $"two"))).first() should be(0.0)
+      df.select(tile_sum(local_less($"three", $"three"))).first() should be(0.0)
+      df.select(tile_sum(local_less($"three", $"six"))).first() should be(100.0)
+
+      df.selectExpr("rf_tile_sum(rf_local_less(two, 6))").as[Double].first() should be(100.0)
+      df.selectExpr("rf_tile_sum(rf_local_less(three, three))").as[Double].first() should be(0.0)
+    }
+
+    it("should evaluate local_less_equal") {
+      val df = Seq((two, three, six)).toDF("two", "three", "six")
+      df.select(tile_sum(local_less_equal($"two", 6))).first() should be(100.0)
+      df.select(tile_sum(local_less_equal($"two", 1.9))).first() should be(0.0)
+      df.select(tile_sum(local_less_equal($"two", 2))).first() should be(100.0)
+      df.select(tile_sum(local_less_equal($"three", $"two"))).first() should be(0.0)
+      df.select(tile_sum(local_less_equal($"three", $"three"))).first() should be(100.0)
+      df.select(tile_sum(local_less_equal($"three", $"six"))).first() should be(100.0)
+
+      df.selectExpr("rf_tile_sum(rf_local_less_equal(two, 6))").as[Double].first() should be(100.0)
+      df.selectExpr("rf_tile_sum(rf_local_less_equal(three, three))").as[Double].first() should be(100.0)
+    }
+
+    it("should evaluate local_greater") {
+      val df = Seq((two, three, six)).toDF("two", "three", "six")
+      df.select(tile_sum(local_greater($"two", 6))).first() should be(0.0)
+      df.select(tile_sum(local_greater($"two", 1.9))).first() should be(100.0)
+      df.select(tile_sum(local_greater($"two", 2))).first() should be(0.0)
+      df.select(tile_sum(local_greater($"three", $"two"))).first() should be(100.0)
+      df.select(tile_sum(local_greater($"three", $"three"))).first() should be(0.0)
+      df.select(tile_sum(local_greater($"three", $"six"))).first() should be(0.0)
+
+      df.selectExpr("rf_tile_sum(rf_local_greater(two, 1.9))").as[Double].first() should be(100.0)
+      df.selectExpr("rf_tile_sum(rf_local_greater(three, three))").as[Double].first() should be(0.0)
+    }
+
+    it("should evaluate local_greater_equal") {
+      val df = Seq((two, three, six)).toDF("two", "three", "six")
+      df.select(tile_sum(local_greater_equal($"two", 6))).first() should be(0.0)
+      df.select(tile_sum(local_greater_equal($"two", 1.9))).first() should be(100.0)
+      df.select(tile_sum(local_greater_equal($"two", 2))).first() should be(100.0)
+      df.select(tile_sum(local_greater_equal($"three", $"two"))).first() should be(100.0)
+      df.select(tile_sum(local_greater_equal($"three", $"three"))).first() should be(100.0)
+      df.select(tile_sum(local_greater_equal($"three", $"six"))).first() should be(0.0)
+      df.selectExpr("rf_tile_sum(rf_local_greater_equal(two, 1.9))").as[Double].first() should be(100.0)
+      df.selectExpr("rf_tile_sum(rf_local_greater_equal(three, three))").as[Double].first() should be(100.0)
+    }
+
+    it("should evaluate local_equal") {
+      val df = Seq((two, three, three)).toDF("two", "threeA", "threeB")
+      df.select(tile_sum(local_equal($"two", 2))).first() should be(100.0)
+      df.select(tile_sum(local_equal($"two", 2.1))).first() should be(0.0)
+      df.select(tile_sum(local_equal($"two", $"threeA"))).first() should be(0.0)
+      df.select(tile_sum(local_equal($"threeA", $"threeB"))).first() should be(100.0)
+      df.selectExpr("rf_tile_sum(rf_local_equal(two, 1.9))").as[Double].first() should be(0.0)
+      df.selectExpr("rf_tile_sum(rf_local_equal(threeA, threeB))").as[Double].first() should be(100.0)
+    }
+
+    it("should evaluate local_unequal") {
+      val df = Seq((two, three, three)).toDF("two", "threeA", "threeB")
+      df.select(tile_sum(local_unequal($"two", 2))).first() should be(0.0)
+      df.select(tile_sum(local_unequal($"two", 2.1))).first() should be(100.0)
+      df.select(tile_sum(local_unequal($"two", $"threeA"))).first() should be(100.0)
+      df.select(tile_sum(local_unequal($"threeA", $"threeB"))).first() should be(0.0)
+      df.selectExpr("rf_tile_sum(rf_local_unequal(two, 1.9))").as[Double].first() should be(100.0)
+      df.selectExpr("rf_tile_sum(rf_local_unequal(threeA, threeB))").as[Double].first() should be(0.0)
+    }
+
   }
 }

@@ -166,24 +166,17 @@ class RasterSourceSpec extends TestEnvironment with TestData {
 
   describe("RasterSource.readAll") {
     it("should return consistently ordered tiles across bands for a given scene") {
-
-      // These specific scenes exhibit the problem where
-      // we see different subtile segment ordering across
-      // the bands of a given scene.
+      // These specific scenes exhibit the problem where we see different subtile segment ordering across the bands of a given scene.
       val rURI = new URI("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B4.TIF")
       val bURI = new URI("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B2.TIF")
-      //val gURI = new URI("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B3.TIF")
 
       val red = RasterSource(rURI).readAll().left.get
       val blue = RasterSource(bURI).readAll().left.get
-      //val green = RasterSource(gURI).readAll().left.get
 
       red should not be empty
       red.size should equal(blue.size)
-      //red.size should equal(green.size)
 
       red.map(_.dimensions) should contain theSameElementsAs blue.map(_.dimensions)
-      //red.map(_.dimensions) should contain theSameElementsInOrderAs green.map(_.dimensions)
     }
   }
 }

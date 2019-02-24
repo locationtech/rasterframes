@@ -21,7 +21,8 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.generators._
-import astraea.spark.rasterframes.expressions.mapalgebra._
+import astraea.spark.rasterframes.expressions.localops._
+import astraea.spark.rasterframes.expressions.stats.Sum
 import astraea.spark.rasterframes.expressions.transformers._
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
@@ -63,5 +64,15 @@ package object expressions {
     VersionShims.registerExpression(registry, "rf_local_divide", bb(Divide.apply))
 
     VersionShims.registerExpression(registry, "rf_normalized_difference", bb(NormalizedDifference.apply))
+
+    VersionShims.registerExpression(registry,"rf_local_less", bb(Less.apply))
+    VersionShims.registerExpression(registry,"rf_local_greater", bb(Greater.apply))
+    VersionShims.registerExpression(registry,"rf_local_less_equal", bb(LessEqual.apply))
+    VersionShims.registerExpression(registry,"rf_local_greater_equal", bb(GreaterEqual.apply))
+    VersionShims.registerExpression(registry,"rf_local_equal", bb(Equal.apply))
+    VersionShims.registerExpression(registry,"rf_local_unequal", bb(Unequal.apply))
+
+    VersionShims.registerExpression(registry,"rf_tile_sum", ub(Sum.apply))
+
   }
 }

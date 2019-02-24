@@ -82,10 +82,11 @@ object DynamicExtractors {
         val (tile, ctx) = tileExtractor(t)(in.asInstanceOf[InternalRow])
         TileArg(tile, ctx)
       }
-    case _: DoubleType | _: FloatType =>
+    case _: DoubleType | _: FloatType | _: DecimalType =>
       (in: Any) => in match {
         case d: Double => DoubleArg(d)
         case f: Float => DoubleArg(f.toDouble)
+        case d: Decimal => DoubleArg(d.toDouble)
       }
     case _: IntegerType | _: ByteType | _: ShortType =>
       (in: Any) => in match {

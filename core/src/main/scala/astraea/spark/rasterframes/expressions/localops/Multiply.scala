@@ -19,7 +19,7 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions.mapalgebra
+package astraea.spark.rasterframes.expressions.localops
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
@@ -29,17 +29,16 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Column, TypedColumn}
 
-/** Performs cell-wise division between two tiles. */
-case class Divide(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "local_divide"
-  override protected def op(left: Tile, right: Tile): Tile = left.localDivide(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localDivide(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localDivide(right)
+/** Performs cell-wise multiplication between two tiles. */
+case class Multiply(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
+  override val nodeName: String = "local_multiply"
+  override protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
+  override protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
+  override protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
 }
-object Divide {
+object Multiply {
   def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
-    new Column(Divide(left.expr, right.expr)).as[Tile]
-
+    new Column(Multiply(left.expr, right.expr)).as[Tile]
   def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(new Divide(tile.expr, lit(value).expr)).as[Tile]
+    new Column(Multiply(tile.expr, lit(value).expr)).as[Tile]
 }

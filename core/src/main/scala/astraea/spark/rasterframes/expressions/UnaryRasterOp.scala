@@ -36,11 +36,11 @@ trait UnaryRasterOp extends UnaryExpression {
     } else TypeCheckSuccess
   }
 
-  override protected def nullSafeEval(input: Any): InternalRow = {
+  override protected def nullSafeEval(input: Any): Any = {
     val (tile, ctx) = tileExtractor(child.dataType)(row(input))
     eval(tile, ctx)
   }
 
-  protected def eval(tile: Tile, ctx: Option[TileContext]): InternalRow
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any
 }
 

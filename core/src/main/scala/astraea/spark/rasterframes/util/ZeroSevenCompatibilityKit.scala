@@ -21,13 +21,13 @@
 
 package astraea.spark.rasterframes.util
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.mapalgebra._
+import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.generators._
+import astraea.spark.rasterframes.expressions.localops._
+import astraea.spark.rasterframes.expressions.stats.Sum
+import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.expressions.mapalgebra._
-import astraea.spark.rasterframes.expressions.generators._
-import astraea.spark.rasterframes.expressions.accessors._
-import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.{HasCellType, functions => F}
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.proj4.CRS
@@ -152,10 +152,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute the Tile-wise sum */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileSum(col: Column): TypedColumn[Any, Double] =
-    withAlias("tileSum", col)(
-      udf[Double, Tile](F.tileSum).apply(col)
-    ).as[Double]
+    def tileSum(col: Column): TypedColumn[Any, Double] = delegate.tile_sum(col)
 
     /** Compute the minimum cell value in tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -337,105 +334,53 @@ object ZeroSevenCompatibilityKit {
     /** Cellwise less than value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def localLess(left: Column, right: Column): TypedColumn[Any, Tile] =
-      withAlias("localLess", left, right)(
-        udf(F.localLess).apply(left, right)
-      ).as[Tile]
+      delegate.local_less(left, right)
 
 
     /** Cellwise less than value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localLessScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-      val f = value match{
-        case i: Int => F.localLessScalarInt(_: Tile, i)
-        case d: Double => F.localLessScalar(_: Tile, d)
-      }
-      udf(f).apply(tileCol).as(s"localLessScalar($tileCol, $value)").as[Tile]
-    }
+    def localLessScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_less(tileCol, value)
 
     /** Cellwise less than or equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localLessEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
-      withAlias("localLessEqual", left, right)(
-        udf(F.localLess).apply(left, right)
-      ).as[Tile]
+    def localLessEqual(left: Column, right: Column): TypedColumn[Any, Tile]  = delegate.local_less_equal(left, right)
 
     /** Cellwise less than or equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localLessEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-      val f = value match{
-        case i: Int => F.localLessEqualScalarInt(_: Tile, i)
-        case d: Double => F.localLessEqualScalar(_: Tile, d)
-      }
-      udf(f).apply(tileCol).as(s"localLessEqualScalar($tileCol, $value)").as[Tile]
-    }
+    def localLessEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_less_equal(tileCol, value)
 
     /** Cellwise greater than value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def localGreater(left: Column, right: Column): TypedColumn[Any, Tile] =
-      withAlias("localGreater", left, right)(
-        udf(F.localGreater).apply(left, right)
-      ).as[Tile]
-
+      delegate.local_greater(left, right)
 
     /** Cellwise greater than value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localGreaterScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-      val f = value match{
-        case i: Int => F.localGreaterScalarInt(_: Tile, i)
-        case d: Double => F.localGreaterScalar(_: Tile, d)
-      }
-      udf(f).apply(tileCol).as(s"localGreaterScalar($tileCol, $value)").as[Tile]
-    }
+    def localGreaterScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_greater(tileCol, value)
 
     /** Cellwise greater than or equal to value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localGreaterEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
-      withAlias("localGreaterEqual", left, right)(
-        udf(F.localGreaterEqual).apply(left, right)
-      ).as[Tile]
+    def localGreaterEqual(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.local_greater_equal(left, right)
 
     /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localGreaterEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-      val f = value match{
-        case i: Int => F.localGreaterEqualScalarInt(_: Tile, i)
-        case d: Double => F.localGreaterEqualScalar(_: Tile, d)
-      }
-      udf(f).apply(tileCol).as(s"localGreaterEqualScalar($tileCol, $value)").as[Tile]
-    }
+    def localGreaterEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_greater_equal(tileCol, value)
 
     /** Cellwise equal to value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localEqual(left: Column, right: Column): TypedColumn[Any, Tile]  =
-      withAlias("localEqual", left, right)(
-        udf(F.localEqual).apply(left, right)
-      ).as[Tile]
+    def localEqual(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.local_equal(left, right)
 
     /** Cellwise equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-      val f = value match{
-        case i: Int => F.localEqualScalarInt(_: Tile, i)
-        case d: Double => F.localEqualScalar(_: Tile, d)
-      }
-      udf(f).apply(tileCol).as(s"localEqualScalar($tileCol, $value)").as[Tile]
-    }
+    def localEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_equal(tileCol, value)
+
     /** Cellwise inequality comparison between two tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localUnequal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-      withAlias("localUnequal", left, right)(
-        udf(F.localUnequal).apply(left, right)
-      ).as[Tile]
+    def localUnequal(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.local_unequal(left, right)
 
     /** Cellwise inequality comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localUnequalScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = {
-      val f = value match{
-        case i: Int => F.localUnequalScalarInt(_: Tile, i)
-        case d: Double => F.localUnequalScalar(_: Tile, d)
-      }
-      udf(f).apply(tileCol).as(s"localUnequalScalar($tileCol, $value)").as[Tile]
-    }
+    def localUnequalScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_unequal(tileCol, value)
   }
 
   def register(sqlContext: SQLContext): Unit = {
@@ -459,6 +404,14 @@ object ZeroSevenCompatibilityKit {
     VersionShims.registerExpression(registry, "rf_localDivide", bb(Divide.apply))
     VersionShims.registerExpression(registry, "rf_normalizedDifference", bb(NormalizedDifference.apply))
 
+    VersionShims.registerExpression(registry,"rf_localLess", bb(Less.apply))
+    VersionShims.registerExpression(registry,"rf_localLessEqual", bb(LessEqual.apply))
+    VersionShims.registerExpression(registry,"rf_localGreater", bb(Greater.apply))
+    VersionShims.registerExpression(registry,"rf_localGreaterEqual", bb(GreaterEqual.apply))
+    VersionShims.registerExpression(registry,"rf_localEqual", bb(Equal.apply))
+    VersionShims.registerExpression(registry,"rf_localUnequal", bb(Unequal.apply))
+    VersionShims.registerExpression(registry,"rf_tileSum", ub(Sum.apply))
+
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
@@ -471,7 +424,6 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_tileMin", F.tileMin)
     sqlContext.udf.register("rf_tileMax", F.tileMax)
     sqlContext.udf.register("rf_tileMean", F.tileMean)
-    sqlContext.udf.register("rf_tileSum", F.tileSum)
     sqlContext.udf.register("rf_tileHistogram", F.tileHistogram)
     sqlContext.udf.register("rf_tileStats", F.tileStats)
     sqlContext.udf.register("rf_dataCells", F.dataCells)
@@ -482,26 +434,8 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_localAggMin", F.localAggMin)
     sqlContext.udf.register("rf_localAggMean", F.localAggMean)
     sqlContext.udf.register("rf_localAggCount", F.localAggCount)
-
     sqlContext.udf.register("rf_cellTypes", F.cellTypes)
     sqlContext.udf.register("rf_renderAscii", F.renderAscii)
-    sqlContext.udf.register("rf_lessScalar", F.localLessScalar)
-    sqlContext.udf.register("rf_lessScalarInt", F.localLessScalarInt)
-    sqlContext.udf.register("rf_lessEqual", F.localLessEqual)
-    sqlContext.udf.register("rf_lessEqualScalar", F.localLessEqualScalar)
-    sqlContext.udf.register("rf_lessEqualScalarInt", F.localLessEqualScalarInt)
-    sqlContext.udf.register("rf_greater", F.localGreater)
-    sqlContext.udf.register("rf_greaterScalar", F.localGreaterScalar)
-    sqlContext.udf.register("rf_greaterScalarInt", F.localGreaterScalarInt)
-    sqlContext.udf.register("rf_greaterEqual", F.localGreaterEqual)
-    sqlContext.udf.register("rf_greaterEqualScalar", F.localGreaterEqualScalar)
-    sqlContext.udf.register("rf_greaterEqualScalarInt", F.localGreaterEqualScalarInt)
-    sqlContext.udf.register("rf_equal", F.localEqual)
-    sqlContext.udf.register("rf_equalScalar", F.localEqualScalar)
-    sqlContext.udf.register("rf_equalScalarInt", F.localEqualScalarInt)
-    sqlContext.udf.register("rf_unequal", F.localUnequal)
-    sqlContext.udf.register("rf_unequalScalar", F.localUnequalScalar)
-    sqlContext.udf.register("rf_unequalScalarInt", F.localUnequalScalarInt)
     sqlContext.udf.register("rf_reprojectGeometry", F.reprojectGeometryCRSName)
   }
 }

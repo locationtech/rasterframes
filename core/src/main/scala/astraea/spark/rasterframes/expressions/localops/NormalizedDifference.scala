@@ -19,7 +19,7 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions.mapalgebra
+package astraea.spark.rasterframes.expressions.localops
 import astraea.spark.rasterframes.expressions.fpTile
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.BinaryRasterOp

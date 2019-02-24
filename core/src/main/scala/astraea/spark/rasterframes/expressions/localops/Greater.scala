@@ -18,28 +18,28 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  */
-
-package astraea.spark.rasterframes.expressions.mapalgebra
+package astraea.spark.rasterframes.expressions.localops
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.{BinaryLocalRasterOp, BinaryRasterOp}
+import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Column, TypedColumn}
 
-/** Performs cell-wise addition between two tiles. */
-case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "local_add"
-  override protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
-  override protected def op(left: Tile,  right: Double): Tile = left.localAdd(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
+case class Greater(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
+  override val nodeName: String = "local_greater"
+  override protected def op(left: Tile, right: Tile): Tile = left.localGreater(right)
+
+  override protected def op(left: Tile, right: Double): Tile = left.localGreater(right)
+  override protected def op(left: Tile, right: Int): Tile = left.localGreater(right)
 }
-object Add {
+
+object Greater {
   def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
-    new Column(Add(left.expr, right.expr)).as[Tile]
+    new Column(Greater(left.expr, right.expr)).as[Tile]
 
   def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(new Add(tile.expr, lit(value).expr)).as[Tile]
+    new Column(Greater(tile.expr, lit(value).expr)).as[Tile]
 }

@@ -19,7 +19,7 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions.mapalgebra
+package astraea.spark.rasterframes.expressions.localops
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
@@ -29,16 +29,17 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Column, TypedColumn}
 
-/** Performs cell-wise multiplication between two tiles. */
-case class Multiply(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "local_multiply"
-  override protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
+/** Performs cell-wise addition between two tiles. */
+case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
+  override val nodeName: String = "local_add"
+  override protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
+  override protected def op(left: Tile,  right: Double): Tile = left.localAdd(right)
+  override protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
 }
-object Multiply {
+object Add {
   def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
-    new Column(Multiply(left.expr, right.expr)).as[Tile]
+    new Column(Add(left.expr, right.expr)).as[Tile]
+
   def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(new Multiply(tile.expr, lit(value).expr)).as[Tile]
+    new Column(Add(tile.expr, lit(value).expr)).as[Tile]
 }
