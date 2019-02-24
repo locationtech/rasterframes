@@ -32,7 +32,7 @@ case class Cells(data: Either[Array[Byte], RasterRef]) {
   /** Convert cells into either a RasterRefTile or an ArrayTile. */
   def toTile(ctx: TileDataContext): Tile = {
     data.fold(
-      bytes => ArrayTile.fromBytes(bytes, ctx.cellType, ctx.cellColumns, ctx.cellRows),
+      bytes => ArrayTile.fromBytes(bytes, ctx.cellType, ctx.dimensions.cols, ctx.dimensions.rows),
       ref => RasterRefTile(ref)
     )
   }

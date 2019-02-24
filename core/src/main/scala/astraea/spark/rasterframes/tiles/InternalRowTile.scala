@@ -23,9 +23,8 @@ package astraea.spark.rasterframes.tiles
 
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
-import astraea.spark.rasterframes.model.{TileDataContext, Cells}
+import astraea.spark.rasterframes.model.{Cells, TileDataContext}
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 
@@ -68,10 +67,10 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   override def cellType: CellType = cellContext.cellType
 
   /** Retrieve the number of columns from the internal encoding. */
-  override def cols: Int = cellContext.cellColumns
+  override def cols: Int = cellContext.dimensions.cols
 
   /** Retrieve the number of rows from the internal encoding. */
-  override def rows: Int = cellContext.cellRows
+  override def rows: Int = cellContext.dimensions.rows
 
   /** Get the internally encoded tile data cells. */
   override lazy val toBytes: Array[Byte] = {

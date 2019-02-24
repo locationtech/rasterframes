@@ -20,7 +20,7 @@
  */
 
 package astraea.spark.rasterframes.encoders
-import astraea.spark.rasterframes.model.{CellContext, TileContext, TileDataContext}
+import astraea.spark.rasterframes.model.{CellContext, TileContext, TileDataContext, TileDimensions}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.proj4._
@@ -29,7 +29,7 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 class CatalystSerializerSpec extends TestEnvironment with TestData {
-  val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), 12, 23)
+  val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), TileDimensions(12, 23))
   val tc = TileContext(Extent(1, 2, 3, 4), WebMercator)
   val cc = CellContext(tc, dc, 34, 45)
 

@@ -40,7 +40,7 @@ object TileDataContext {
   implicit val serializer: CatalystSerializer[TileDataContext] = new CatalystSerializer[TileDataContext] {
     override def schema: StructType =  StructType(Seq(
       StructField("cell_type", CatalystSerializer[CellType].schema, false),
-      StructField("dimensions", CatalystSerializer[CellType].schema, false)
+      StructField("dimensions", CatalystSerializer[TileDimensions].schema, false)
     ))
 
     override protected def to[R](t: TileDataContext, io: CatalystIO[R]): R = io.create(

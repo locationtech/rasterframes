@@ -21,17 +21,12 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import astraea.spark.rasterframes.model.TileContext
-import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.DataType
 
 /**
  * Implements boilerplate for subtype expressions processing TileUDT (when ProjectedRasterTile), RasterSourceUDT, and
@@ -41,17 +36,8 @@ import org.apache.spark.sql.types.DataType
  */
 trait OnTileContextExpression extends UnaryExpression {
 
-  private val toPRL: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
-    case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
-      (row: InternalRow) => row.to[ProjectedRasterTile]
-    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) =>
-      (row: InternalRow) ⇒ row.to[RasterRef]
-  }
-
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!toPRL.isDefinedAt(child.dataType)) {
+    if (!projectedRasterLikeExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `ProjectedRasterLike`.")
     }
     else TypeCheckSuccess
@@ -60,7 +46,7 @@ trait OnTileContextExpression extends UnaryExpression {
   final override protected def nullSafeEval(input: Any): Any = {
     input match {
       case row: InternalRow ⇒
-        val prl = toPRL(child.dataType)(row)
+        val prl = projectedRasterLikeExtractor(child.dataType)(row)
         eval(TileContext(prl.extent, prl.crs))
       case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
     }

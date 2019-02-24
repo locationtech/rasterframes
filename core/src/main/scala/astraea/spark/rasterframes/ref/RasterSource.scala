@@ -24,16 +24,16 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
+import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
-import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
-import astraea.spark.rasterframes.model.{TileContext, TileDimensions}
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
+import geotrellis.raster._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster._
 import geotrellis.raster.split.Split
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
@@ -111,9 +111,8 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def gridExtent = GridExtent(extent, cellSize)
 
-  def tileContext: TileContext = TileContext(extent, crs, dimensions)
+  def tileContext: TileContext = TileContext(extent, crs)
 
-  @deprecated("purge", "now")
   def nativeTiling: Seq[Extent] = {
     nativeLayout.map { tileLayout ⇒
       val layout = LayoutDefinition(extent, tileLayout)

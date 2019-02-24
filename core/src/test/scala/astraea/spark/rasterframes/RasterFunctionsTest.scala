@@ -20,6 +20,7 @@
  */
 
 package astraea.spark.rasterframes
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.ExtractTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.{CRS, LatLng}
@@ -103,8 +104,8 @@ class RasterFunctionsTest extends FunSpec
       val maybeThree = df.select(local_add_scalar($"one", 2)).as[ProjectedRasterTile]
       assertEqual(maybeThree.first(), three)
 
-      val maybeThreeD = df.select(local_add_scalar($"one", 2.0)).as[ProjectedRasterTile]
-      assertEqual(maybeThreeD.first(), three.convert(DoubleConstantNoDataCellType))
+      val maybeThreeD = df.select(local_add_scalar($"one", 2.1)).as[ProjectedRasterTile]
+      assertEqual(maybeThreeD.first(), three.convert(DoubleConstantNoDataCellType).localAdd(0.1))
 
       val maybeThreeTile = df.select(local_add_scalar(ExtractTile($"one"), 2)).as[Tile]
       assertEqual(maybeThreeTile.first(), three.toArrayTile())

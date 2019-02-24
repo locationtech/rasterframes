@@ -31,7 +31,7 @@ import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
 /** Expression to extract at tile from several types that contain tiles.*/
-case class ExtractTile(child: Expression) extends OnTileExpression with CodegenFallback {
+case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def dataType: DataType = new TileUDT()
 
   override def nodeName: String = "extract_tile"

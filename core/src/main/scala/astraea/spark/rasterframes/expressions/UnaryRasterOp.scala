@@ -20,65 +20,27 @@
  */
 
 package astraea.spark.rasterframes.expressions
-
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import astraea.spark.rasterframes.model.TileContext
-import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
-import org.apache.spark.sql.Column
+import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.Expression
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf.TileUDT
-import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
+import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 
-/** Expression for performing a Tile => Tile function while preserving any TileContext */
-case class UnaryRasterOp(child: Expression, op: Tile => Tile, override val nodeName: String) extends OnTileExpression
-  with CodegenFallback with LazyLogging {
-
-  override def dataType: DataType = child.dataType
-
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): InternalRow = {
-    implicit val tileSer = TileUDT.tileSerializer
-    val result = op(tile)
-    ctx match {
-      case Some(c) => c.toProjectRasterTile(result).toInternalRow
-      case None => result.toInternalRow
-    }
-  }
-}
-object UnaryRasterOp {
-  import geotrellis.raster.mapalgebra.{local => gt}
-
-  def apply(tile: Column, op: Tile => Tile, nodeName: String): Column =
-    new Column(new UnaryRasterOp(tile.expr, op, nodeName))
-
-  /** Convert the tile to a floating point type as needed for scalar operations. */
-  @inline
-  private def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
-
-  def AddScalar[T: Numeric](tile: Column, value: T): Column = value match {
-    case i: Int => UnaryRasterOp(tile, gt.Add(_, i), "local_add_scalar")
-    case d: Double => UnaryRasterOp(tile, t => gt.Add(fpTile(t), d), "local_add_scalar")
-    case o => AddScalar(tile, implicitly[Numeric[T]].toDouble(o))
+/** Boilerplate for expressions operating on a single Tile-like . */
+trait UnaryRasterOp extends UnaryExpression {
+  override def checkInputDataTypes(): TypeCheckResult = {
+    if (!tileExtractor.isDefinedAt(child.dataType)) {
+      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")
+    } else TypeCheckSuccess
   }
 
-  def SubtractScalar[T: Numeric](tile: Column, value: T): Column = value match {
-    case i: Int => UnaryRasterOp(tile, gt.Subtract(_, i), "local_subtract_scalar")
-    case d: Double => UnaryRasterOp(tile, t => gt.Subtract(fpTile(t), d), "local_subtract_scalar")
-    case o => SubtractScalar(tile, implicitly[Numeric[T]].toDouble(o))
+  override protected def nullSafeEval(input: Any): InternalRow = {
+    val (tile, ctx) = tileExtractor(child.dataType)(row(input))
+    eval(tile, ctx)
   }
 
-  def MultiplyScalar[T: Numeric](tile: Column, value: T): Column = value match {
-    case i: Int => UnaryRasterOp(tile, gt.Multiply(_, i), "local_multiply_scalar")
-    case d: Double => UnaryRasterOp(tile, t => gt.Multiply(fpTile(t), d), "local_multiply_scalar")
-    case o => MultiplyScalar(tile, implicitly[Numeric[T]].toDouble(o))
-  }
-
-  def DivideScalar[T: Numeric](tile: Column, value: T): Column = value match {
-    case i: Int => UnaryRasterOp(tile, gt.Divide(_, i), "local_divide_scalar")
-    case d: Double => UnaryRasterOp(tile, t => gt.Divide(fpTile(t), d), "local_divide_scalar")
-    case o => DivideScalar(tile, implicitly[Numeric[T]].toDouble(o))
-  }
+  protected def eval(tile: Tile, ctx: Option[TileContext]): InternalRow
 }
 

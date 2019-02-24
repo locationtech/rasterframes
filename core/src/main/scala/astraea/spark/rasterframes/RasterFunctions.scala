@@ -20,13 +20,14 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.{BinaryRasterOp, ReprojectGeometry, UnaryRasterOp}
-import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate, CellStatsAggregate}
+import astraea.spark.rasterframes.expressions.arith.{AddScalar, DivideScalar, MultiplyScalar, SubtractScalar}
+import astraea.spark.rasterframes.expressions.{BinaryRasterOp, ReprojectGeometry}
+import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{expressions => E, functions => F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
-import geotrellis.raster.mapalgebra.local.{Add, LocalTileBinaryOp}
+import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
@@ -214,33 +215,46 @@ trait RasterFunctions {
   def local_add(left: Column, right: Column): Column =
     BinaryRasterOp.Add(left, right)
 
-  /** Cellwise addition of a scalar to a tile. */
-  def local_add_scalar[T: Numeric](tileCol: Column, value: T): Column =
-    UnaryRasterOp.AddScalar(tileCol, value)
+  /** Cellwise addition of a scalar value to a tile. */
+  def local_add_scalar[T: Numeric](tileCol: Column, value: T): Column = AddScalar(tileCol, value)
+  /** Cellwise addition of a scalar column to a tile. */
+  def local_add_scalar(tileCol: Column, value: Column): Column = AddScalar(tileCol, value)
 
   /** Cellwise subtraction between two Tiles. */
   def local_subtract(left: Column, right: Column): Column =
     BinaryRasterOp.Subtract(left, right)
 
-  /** Cellwise subtraction of a scalar from a tile. */
+  /** Cellwise subtraction of a scalar value from a tile. */
   def local_subtract_scalar[T: Numeric](tileCol: Column, value: T): Column =
-    UnaryRasterOp.SubtractScalar(tileCol, value)
+    SubtractScalar(tileCol, value)
+
+  /** Cellwise subtraction of a scalar column from a tile. */
+  def local_subtract_scalar(tileCol: Column, value: Column): Column =
+    SubtractScalar(tileCol, value)
 
   /** Cellwise multiplication between two Tiles. */
   def local_multiply(left: Column, right: Column): Column =
     BinaryRasterOp.Multiply(left, right)
 
-  /** Cellwise multiplication of a tile by a scalar. */
+  /** Cellwise multiplication of a tile by a scalar value. */
   def local_multiply_scalar[T: Numeric](tileCol: Column, value: T): Column =
-    UnaryRasterOp.MultiplyScalar(tileCol, value)
+    MultiplyScalar(tileCol, value)
+
+  /** Cellwise multiplication of a tile by a scalar column. */
+  def local_multiply_scalar(tileCol: Column, value: Column): Column =
+    MultiplyScalar(tileCol, value)
 
   /** Cellwise division between two Tiles. */
   def local_divide(left: Column, right: Column): Column =
     BinaryRasterOp.Divide(left, right)
 
-  /** Cellwise division of a tile by a scalar. */
+  /** Cellwise division of a tile by a scalar value. */
   def local_divide_scalar[T: Numeric](tileCol: Column, value: T): Column =
-    UnaryRasterOp.DivideScalar(tileCol, value)
+    DivideScalar(tileCol, value)
+
+  /** Cellwise division of a tile by a scalar column. */
+  def local_divide_scalar(tileCol: Column, value: Column): Column =
+    DivideScalar(tileCol, value)
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def local_algebra(op: LocalTileBinaryOp, left: Column, right: Column):
