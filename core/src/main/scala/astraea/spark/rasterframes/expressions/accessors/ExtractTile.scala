@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,31 +19,33 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions
+package astraea.spark.rasterframes.expressions.accessors
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.encoders.StandardEncoders.crsEncoder
+import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
-import geotrellis.proj4.CRS
+import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions._
+import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
-/**
- * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
- *
- * @since 9/9/18
- */
-case class GetCRS(child: Expression) extends OnTileContextExpression with CodegenFallback {
-  override def dataType: DataType = CatalystSerializer[CRS].schema
-  override def nodeName: String = "crs"
-  override def eval(ctx: TileContext): InternalRow = ctx.crs.toInternalRow
+/** Expression to extract at tile from several types that contain tiles.*/
+case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
+  override def dataType: DataType = new TileUDT()
+
+  override def nodeName: String = "extract_tile"
+
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): InternalRow = {
+    implicit val tileSer = TileUDT.tileSerializer
+    tile.toInternalRow
+  }
 }
 
-object GetCRS {
-  def apply(ref: Column): TypedColumn[Any, CRS] =
-    new Column(new GetCRS(ref.expr)).as[CRS]
+object ExtractTile {
+  import astraea.spark.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
+  def apply(input: Column): TypedColumn[Any, Tile] =
+    new Column(new ExtractTile(input.expr)).as[Tile]
 }

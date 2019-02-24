@@ -160,15 +160,14 @@ class TileUDT(UserDefinedType):
     def scalaUDT(cls):
         return 'org.apache.spark.sql.rf.TileUDT'
 
+    # NB: These will need implementations if UDFs are to be supported,
+    # preferably in numpy arrays.
     def serialize(self, obj):
         if (obj is None): return None
-        return Row(obj.cellType().name().encode("UTF8"),
-                  obj.cols().toShort(),
-                  obj.rows().toShort(),
-                  obj.toBytes)
+        return None
 
     def deserialize(self, datum):
-        return RFContext._jvm_mirror().generate_tile(datum[0], datum[1], datum[2], datum[3])
+        return None
 
 
 

@@ -19,11 +19,11 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions
+package astraea.spark.rasterframes.expressions.transformers
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, serialized_literal}
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, serialized_literal}
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.proj4.CRS

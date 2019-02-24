@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,11 +19,12 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions
+package astraea.spark.rasterframes.expressions.accessors
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
+import astraea.spark.rasterframes.expressions.OnTileContextExpression
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow

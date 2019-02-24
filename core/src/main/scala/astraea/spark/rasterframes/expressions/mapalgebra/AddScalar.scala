@@ -19,8 +19,7 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions.arith
-import astraea.spark.rasterframes.expressions.RasterScalarOp
+package astraea.spark.rasterframes.expressions.mapalgebra
 import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression

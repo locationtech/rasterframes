@@ -19,9 +19,7 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions.arith
-
-import astraea.spark.rasterframes.expressions.RasterScalarOp
+package astraea.spark.rasterframes.expressions.mapalgebra
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.{local => gt}
 import org.apache.spark.sql.Column
@@ -29,16 +27,16 @@ import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.functions.lit
 
-/** Perform cell-wise subtraction by a scalar value. */
-case class SubtractScalar(left: Expression, right: Expression) extends RasterScalarOp with CodegenFallback {
-  override val nodeName: String = "local_subtract_scalar"
-  override protected def op(tile: Tile, value: Int): Tile = gt.Subtract(tile, value)
-  override protected def op(tile: Tile, value: Double): Tile = gt.Subtract(tile, value)
+/** Perform cell-wise division by a scalar value. */
+case class DivideScalar(left: Expression, right: Expression) extends RasterScalarOp with CodegenFallback {
+  override val nodeName: String = "local_divide_scalar"
+  override protected def op(tile: Tile, value: Int): Tile = gt.Divide(tile, value)
+  override protected def op(tile: Tile, value: Double): Tile = gt.Divide(tile, value)
 }
 
-object SubtractScalar {
+object DivideScalar {
   def apply(tile: Column, value: Column): Column =
-    new Column(new SubtractScalar(tile.expr, value.expr))
+    new Column(new DivideScalar(tile.expr, value.expr))
   def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(new SubtractScalar(tile.expr, lit(value).expr))
+    new Column(new DivideScalar(tile.expr, lit(value).expr))
 }

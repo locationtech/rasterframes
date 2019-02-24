@@ -64,8 +64,8 @@ package object rasterframes extends StandardColumns
         """
           |    SparkSession
           |        .builder()
-          |        .master("local[*]")
-          |        .appName(getClass.getName)
+          |        .master("...")
+          |        .appName("...")
           |        .withKryoSerialization  // <--- RasterFrames extension method
       """.stripMargin
 

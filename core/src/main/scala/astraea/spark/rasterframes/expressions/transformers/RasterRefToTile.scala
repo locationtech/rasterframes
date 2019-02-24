@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,18 +19,19 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions
+package astraea.spark.rasterframes.expressions.transformers
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.row
 import astraea.spark.rasterframes.ref.RasterRef
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.Tile
-import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
  * Realizes a RasterRef into a Tile.

@@ -19,16 +19,16 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions
-
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
+package astraea.spark.rasterframes.expressions.mapalgebra
 import astraea.spark.rasterframes.expressions.DynamicExtractors.tileExtractor
+import astraea.spark.rasterframes.expressions.row
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.BinaryExpression
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, NumericType}
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 
 /** Expression for performing a (Tile, Numaric) => Tile function while preserving any TileContext */
 trait RasterScalarOp extends BinaryExpression {
@@ -71,4 +71,3 @@ trait RasterScalarOp extends BinaryExpression {
     }
   }
 }
-

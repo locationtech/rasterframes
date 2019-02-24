@@ -19,14 +19,16 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions
+package astraea.spark.rasterframes.expressions.mapalgebra
+
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.row
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.Tile
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}

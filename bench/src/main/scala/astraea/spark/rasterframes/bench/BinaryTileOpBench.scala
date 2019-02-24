@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.bench
 import java.util.concurrent.TimeUnit
 
-import astraea.spark.rasterframes.expressions.BinaryRasterOp
+import astraea.spark.rasterframes.expressions.mapalgebra.BinaryRasterOp
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.{local => gt}
 import org.apache.spark.sql._

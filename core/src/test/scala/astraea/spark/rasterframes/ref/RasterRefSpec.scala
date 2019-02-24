@@ -23,7 +23,8 @@ package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions._
+import astraea.spark.rasterframes.expressions.transformers._
+import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.raster.Tile
 import geotrellis.vector.Extent

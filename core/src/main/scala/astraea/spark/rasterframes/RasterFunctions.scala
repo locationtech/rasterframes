@@ -20,11 +20,13 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.arith.{AddScalar, DivideScalar, MultiplyScalar, SubtractScalar}
-import astraea.spark.rasterframes.expressions.{BinaryRasterOp, ReprojectGeometry}
+import astraea.spark.rasterframes.expressions.mapalgebra._
+import astraea.spark.rasterframes.expressions.generators._
+import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{expressions => E, functions => F}
+import astraea.spark.rasterframes.{functions => F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -50,17 +52,17 @@ trait RasterFunctions {
 
   /** Create a row for each cell in Tile with random sampling and optional seed. */
   def explode_tiles_sample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column =
-    E.ExplodeTiles(sampleFraction, seed, cols)
+    ExplodeTiles(sampleFraction, seed, cols)
 
   /** Create a row for each cell in Tile with random sampling (no seed). */
   def explode_tiles_sample(sampleFraction: Double, cols: Column*): Column =
-    E.ExplodeTiles(sampleFraction, None, cols)
+    ExplodeTiles(sampleFraction, None, cols)
 
   /** Query the number of (cols, rows) in a Tile. */
-  def tile_dimensions(col: Column): Column = E.GetDimensions(col)
+  def tile_dimensions(col: Column): Column = GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
-  def envelope(col: Column): TypedColumn[Any, Envelope] = E.GetEnvelope(col)
+  def envelope(col: Column): TypedColumn[Any, Envelope] = GetEnvelope(col)
 
   /** Flattens Tile into an array. A numeric type parameter is required. */
   @Experimental
@@ -83,18 +85,18 @@ trait RasterFunctions {
     F.TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
 
   /** Extract the Tile's cell type */
-  def cell_type(col: Column): TypedColumn[Any, CellType] = E.GetCellType(col)
+  def cell_type(col: Column): TypedColumn[Any, CellType] = GetCellType(col)
 
   /** Change the Tile's cell type */
   def convert_cell_type(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    E.SetCellType(col, cellType)
+    SetCellType(col, cellType)
 
   /** Change the Tile's cell type */
   def convert_cell_type(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
-    E.SetCellType(col, cellTypeName)
+    SetCellType(col, cellTypeName)
 
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
-  def bounds_geometry(bounds: Column): TypedColumn[Any, Geometry] = E.BoundsToGeometry(bounds)
+  def bounds_geometry(bounds: Column): TypedColumn[Any, Geometry] = BoundsToGeometry(bounds)
 
   /** Assign a `NoData` value to the Tiles. */
   def with_no_data(col: Column, nodata: Double) = withAlias("with_no_data", col)(

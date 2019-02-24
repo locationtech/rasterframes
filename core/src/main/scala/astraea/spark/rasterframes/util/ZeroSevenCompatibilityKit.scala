@@ -21,10 +21,14 @@
 
 package astraea.spark.rasterframes.util
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
-import astraea.spark.rasterframes.expressions.BinaryRasterOp
+import astraea.spark.rasterframes.expressions.mapalgebra.BinaryRasterOp
 import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{HasCellType, expressions => E, functions => F}
+import astraea.spark.rasterframes.expressions.mapalgebra._
+import astraea.spark.rasterframes.expressions.generators._
+import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.transformers._
+import astraea.spark.rasterframes.{HasCellType, functions => F}
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -55,16 +59,16 @@ object ZeroSevenCompatibilityKit {
     /** Create a row for each cell in Tile with random sampling and optional seed. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def explodeTilesSample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column =
-      E.ExplodeTiles(sampleFraction, seed, cols)
+      ExplodeTiles(sampleFraction, seed, cols)
 
     /** Create a row for each cell in Tile with random sampling (no seed). */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def explodeTilesSample(sampleFraction: Double, cols: Column*): Column =
-      E.ExplodeTiles(sampleFraction, None, cols)
+      ExplodeTiles(sampleFraction, None, cols)
 
     /** Query the number of (cols, rows) in a Tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileDimensions(col: Column): Column = E.GetDimensions(col)
+    def tileDimensions(col: Column): Column = GetDimensions(col)
 
     /** Flattens Tile into an array. A numeric type parameter is required. */
     @Experimental
@@ -92,21 +96,21 @@ object ZeroSevenCompatibilityKit {
 
     /** Extract the Tile's cell type */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def cellType(col: Column): TypedColumn[Any, CellType] = E.GetCellType(col)
+    def cellType(col: Column): TypedColumn[Any, CellType] = GetCellType(col)
 
     /** Change the Tile's cell type */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def convertCellType(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
-      E.SetCellType(col, cellType)
+      SetCellType(col, cellType)
 
     /** Change the Tile's cell type */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def convertCellType(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
-      E.SetCellType(col, cellTypeName)
+      SetCellType(col, cellTypeName)
 
     /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] = E.BoundsToGeometry(bounds)
+    def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] = BoundsToGeometry(bounds)
 
     /** Assign a `NoData` value to the Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -477,11 +481,11 @@ object ZeroSevenCompatibilityKit {
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
     val registry: FunctionRegistry = rf.registry(sqlContext)
-    VersionShims.registerExpression(registry, "rf_explodeTiles", E.ExplodeTiles.apply(1.0, None, _))
-    VersionShims.registerExpression(registry, "rf_cellType", ub(E.GetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_convertCellType", bb(E.SetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_tileDimensions", ub(E.GetDimensions.apply))
-    VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(E.BoundsToGeometry.apply))
+    VersionShims.registerExpression(registry, "rf_explodeTiles", ExplodeTiles.apply(1.0, None, _))
+    VersionShims.registerExpression(registry, "rf_cellType", ub(GetCellType.apply))
+    VersionShims.registerExpression(registry, "rf_convertCellType", bb(SetCellType.apply))
+    VersionShims.registerExpression(registry, "rf_tileDimensions", ub(GetDimensions.apply))
+    VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(BoundsToGeometry.apply))
     VersionShims.registerExpression(registry, "rf_localAdd", bb(BinaryRasterOp.Add))
     VersionShims.registerExpression(registry, "rf_localSubtract", bb(BinaryRasterOp.Subtract))
     VersionShims.registerExpression(registry, "rf_localMultiply", bb(BinaryRasterOp.Multiply))

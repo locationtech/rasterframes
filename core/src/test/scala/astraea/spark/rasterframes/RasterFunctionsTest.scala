@@ -21,7 +21,7 @@
 
 package astraea.spark.rasterframes
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.expressions.ExtractTile
+import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster.testkit.RasterMatchers

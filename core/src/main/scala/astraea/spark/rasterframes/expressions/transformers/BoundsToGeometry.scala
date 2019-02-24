@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,49 +19,59 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions
-
+package astraea.spark.rasterframes.expressions.transformers
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.row
+import com.vividsolutions.jts.geom.{Envelope, Geometry}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
-import org.apache.spark.sql.jts.{AbstractGeometryUDT, JTSTypes}
+import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 
 /**
- * Catalyst Expression for getting the extent of a geometry.
+ * Catalyst Expression for converting a bounding box structure into a JTS Geometry type.
  *
  * @since 8/24/18
  */
-case class GeometryToBounds(child: Expression) extends UnaryExpression with CodegenFallback {
-  override def nodeName: String = "geometry_bounds"
+case class BoundsToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
+    override def nodeName: String = "bounds_geometry"
 
-  override def dataType: DataType = CatalystSerializer[Extent].schema
+  override def dataType: DataType = JTSTypes.GeometryTypeInstance
+
+  private val envSchema = CatalystSerializer[Envelope].schema
+  private val extSchema = CatalystSerializer[Extent].schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {
-      case _: AbstractGeometryUDT[_] ⇒ TypeCheckSuccess
+      case dt if dt == envSchema || dt == extSchema ⇒ TypeCheckSuccess
       case o ⇒ TypeCheckFailure(
-        s"Expected geometry but received '${o.simpleString}'."
+        s"Expected bounding box of form '${envSchema}' but received '${o.simpleString}'."
       )
     }
   }
 
   override protected def nullSafeEval(input: Any): Any = {
-    val geom = JTSTypes.GeometryTypeInstance.deserialize(input)
-    val extent = Extent(geom.getEnvelopeInternal)
-    CatalystSerializer[Extent].toInternalRow(extent)
+    val r = row(input)
+    val extent = if(child.dataType == envSchema) {
+      val env = r.to[Envelope]
+      Extent(env)
+    }
+    else {
+      r.to[Extent]
+    }
+    val geom = extent.jtsGeom
+    JTSTypes.GeometryTypeInstance.serialize(geom)
   }
 }
 
-object GeometryToBounds {
-  import astraea.spark.rasterframes.encoders.StandardEncoders._
-
-  def apply(bounds: Column): TypedColumn[Any, Extent] =
-    new Column(new GeometryToBounds(bounds.expr)).as[Extent]
+object BoundsToGeometry extends SpatialEncoders {
+  def apply(bounds: Column): TypedColumn[Any, Geometry] =
+    new Column(new BoundsToGeometry(bounds.expr)).as[Geometry]
 }

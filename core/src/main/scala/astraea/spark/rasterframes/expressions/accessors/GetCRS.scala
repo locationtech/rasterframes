@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2017 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,33 +15,36 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
-package astraea.spark.rasterframes.expressions
+package astraea.spark.rasterframes.expressions.accessors
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import geotrellis.raster.{CellGrid, CellType}
-import org.apache.spark.sql.catalyst.expressions.Expression
+import astraea.spark.rasterframes.encoders.StandardEncoders.crsEncoder
+import astraea.spark.rasterframes.expressions.OnTileContextExpression
+import astraea.spark.rasterframes.model.TileContext
+import geotrellis.proj4.CRS
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
- * Extract a Tile's cell type
- * @since 12/21/17
+ * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
+ *
+ * @since 9/9/18
  */
-case class GetCellType(child: Expression) extends OnCellGridExpression with CodegenFallback {
-
-  override def nodeName: String = "cell_type"
-
-  def dataType: DataType = CatalystSerializer[CellType].schema
-  /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
-  override def eval(cg: CellGrid): Any = cg.cellType.toInternalRow
+case class GetCRS(child: Expression) extends OnTileContextExpression with CodegenFallback {
+  override def dataType: DataType = CatalystSerializer[CRS].schema
+  override def nodeName: String = "crs"
+  override def eval(ctx: TileContext): InternalRow = ctx.crs.toInternalRow
 }
 
-object GetCellType {
-  import astraea.spark.rasterframes.encoders.StandardEncoders._
-  def apply(col: Column): TypedColumn[Any, CellType] =
-    new Column(new GetCellType(col.expr)).as[CellType]
+object GetCRS {
+  def apply(ref: Column): TypedColumn[Any, CRS] =
+    new Column(new GetCRS(ref.expr)).as[CRS]
 }

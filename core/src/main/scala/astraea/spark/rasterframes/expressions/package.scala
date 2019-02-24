@@ -19,6 +19,10 @@
 
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.generators._
+import astraea.spark.rasterframes.expressions.mapalgebra.BinaryRasterOp
+import astraea.spark.rasterframes.expressions.transformers._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.rf.VersionShims
