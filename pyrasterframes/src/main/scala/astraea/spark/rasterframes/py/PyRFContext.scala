@@ -123,21 +123,21 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   // All the scalar tile arithmetic functions
 
-  def local_add_scalar(col: Column, scalar: Double): Column = local_add_scalar[Double](col, scalar)
+  def local_add_scalar(col: Column, scalar: Double): Column = local_add[Double](col, scalar)
 
-  def local_add_scalar_int(col: Column, scalar: Int): Column = local_add_scalar[Int](col, scalar)
+  def local_add_scalar_int(col: Column, scalar: Int): Column = local_add[Int](col, scalar)
 
-  def local_subtract_scalar(col: Column, scalar: Double): Column = local_subtract_scalar[Double](col, scalar)
+  def local_subtract_scalar(col: Column, scalar: Double): Column = local_subtract[Double](col, scalar)
 
-  def local_subtract_scalar_int(col: Column, scalar: Int): Column = local_subtract_scalar[Int](col, scalar)
+  def local_subtract_scalar_int(col: Column, scalar: Int): Column = local_subtract[Int](col, scalar)
 
-  def local_divide_scalar(col: Column, scalar: Double): Column = local_divide_scalar[Double](col, scalar)
+  def local_divide_scalar(col: Column, scalar: Double): Column = local_divide[Double](col, scalar)
 
-  def local_divide_scalar_int(col: Column, scalar: Int): Column = local_divide_scalar[Int](col, scalar)
+  def local_divide_scalar_int(col: Column, scalar: Int): Column = local_divide[Int](col, scalar)
 
-  def local_multiply_scalar(col: Column, scalar: Double): Column = local_multiply_scalar[Double](col, scalar)
+  def local_multiply_scalar(col: Column, scalar: Double): Column = local_multiply[Double](col, scalar)
 
-  def local_multiply_scalar_int(col: Column, scalar: Int): Column = local_multiply_scalar[Int](col, scalar)
+  def local_multiply_scalar_int(col: Column, scalar: Int): Column = local_multiply[Int](col, scalar)
 
   def local_less_scalar(col: Column, scalar: Double): Column = local_less_scalar[Double](col, scalar)
 

@@ -213,50 +213,36 @@ trait RasterFunctions {
     F.localAggNodataCount(col)
   ).as[Tile]
 
-  /** Cellwise addition between two Tiles. */
+  /** Cellwise addition between two Tiles or Tile and scalar column. */
   def local_add(left: Column, right: Column): Column =
     Add(left, right)
 
   /** Cellwise addition of a scalar value to a tile. */
-  def local_add_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = AddScalar(tileCol, value)
-  /** Cellwise addition of a scalar column to a tile. */
-  def local_add_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] = AddScalar(tileCol, value)
+  def local_add[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = Add(tileCol, value)
 
   /** Cellwise subtraction between two Tiles. */
   def local_subtract(left: Column, right: Column): TypedColumn[Any, Tile] =
     Subtract(left, right)
 
   /** Cellwise subtraction of a scalar value from a tile. */
-  def local_subtract_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile]  =
-    SubtractScalar(tileCol, value)
-
-  /** Cellwise subtraction of a scalar column from a tile. */
-  def local_subtract_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] =
-    SubtractScalar(tileCol, value)
+  def local_subtract[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile]  =
+    Subtract(tileCol, value)
 
   /** Cellwise multiplication between two Tiles. */
   def local_multiply(left: Column, right: Column): TypedColumn[Any, Tile] =
     Multiply(left, right)
 
   /** Cellwise multiplication of a tile by a scalar value. */
-  def local_multiply_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    MultiplyScalar(tileCol, value)
-
-  /** Cellwise multiplication of a tile by a scalar column. */
-  def local_multiply_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] =
-    MultiplyScalar(tileCol, value)
+  def local_multiply[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    Multiply(tileCol, value)
 
   /** Cellwise division between two Tiles. */
   def local_divide(left: Column, right: Column): TypedColumn[Any, Tile] =
     Divide(left, right)
 
   /** Cellwise division of a tile by a scalar value. */
-  def local_divide_scalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    DivideScalar(tileCol, value)
-
-  /** Cellwise division of a tile by a scalar column. */
-  def local_divide_scalar(tileCol: Column, value: Column): TypedColumn[Any, Tile] =
-    DivideScalar(tileCol, value)
+  def local_divide[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
+    Divide(tileCol, value)
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def local_algebra(op: LocalTileBinaryOp, left: Column, right: Column):

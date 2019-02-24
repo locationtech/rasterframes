@@ -23,6 +23,7 @@ import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.mapalgebra._
 import astraea.spark.rasterframes.expressions.transformers._
+import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.rf.VersionShims
@@ -35,6 +36,12 @@ import org.apache.spark.sql.{SQLContext, rf}
  */
 package object expressions {
   private[expressions] def row(input: Any) = input.asInstanceOf[InternalRow]
+
+
+  /** Convert the tile to a floating point type as needed for scalar operations. */
+  @inline
+  private[expressions]
+  def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
   /** Unary expression builder builder. */
   private def ub[A, B](f: A ⇒ B)(a: Seq[A]): B = f(a.head)
@@ -55,11 +62,6 @@ package object expressions {
     VersionShims.registerExpression(registry, "rf_local_multiply", bb(Multiply.apply))
     VersionShims.registerExpression(registry, "rf_local_divide", bb(Divide.apply))
 
-
-    VersionShims.registerExpression(registry, "rf_local_add_scalar", bb(AddScalar.apply))
-    VersionShims.registerExpression(registry, "rf_local_subtract_scalar", bb(SubtractScalar.apply))
-    VersionShims.registerExpression(registry, "rf_local_multiply_scalar", bb(MultiplyScalar.apply))
-    VersionShims.registerExpression(registry, "rf_local_divide_scalar", bb(DivideScalar.apply))
     VersionShims.registerExpression(registry, "rf_normalized_difference", bb(NormalizedDifference.apply))
   }
 }

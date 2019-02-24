@@ -25,8 +25,7 @@ import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.raster.{CellGrid, Tile}
 import org.apache.spark.sql.rf.TileUDT
-import org.apache.spark.sql.types.DataType
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import org.apache.spark.sql.types._
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
@@ -36,7 +35,6 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.rf._
 
 private[expressions]
@@ -71,5 +69,30 @@ object DynamicExtractors {
       (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
       (row: InternalRow) ⇒ row.to[RasterRef]
+  }
+
+  sealed trait TileOrNumberArg
+  case class TileArg(tile: Tile, ctx: Option[TileContext]) extends TileOrNumberArg
+  case class DoubleArg(d: Double) extends  TileOrNumberArg
+  case class IntegerArg(d: Int) extends  TileOrNumberArg
+
+  lazy val tileOrNumberExtractor: PartialFunction[DataType, Any => TileOrNumberArg] = {
+    case t if tileExtractor.isDefinedAt(t) =>
+      (in: Any) => {
+        val (tile, ctx) = tileExtractor(t)(in.asInstanceOf[InternalRow])
+        TileArg(tile, ctx)
+      }
+    case _: DoubleType | _: FloatType =>
+      (in: Any) => in match {
+        case d: Double => DoubleArg(d)
+        case f: Float => DoubleArg(f.toDouble)
+      }
+    case _: IntegerType | _: ByteType | _: ShortType =>
+      (in: Any) => in match {
+        case i: Int => IntegerArg(i)
+        case b: Byte => IntegerArg(b)
+        case s: Short => IntegerArg(s.toInt)
+        case c: Char => IntegerArg(c.toInt)
+      }
   }
 }

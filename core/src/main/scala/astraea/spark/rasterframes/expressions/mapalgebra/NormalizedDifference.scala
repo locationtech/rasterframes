@@ -20,7 +20,9 @@
  */
 
 package astraea.spark.rasterframes.expressions.mapalgebra
+import astraea.spark.rasterframes.expressions.fpTile
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.expressions.BinaryRasterOp
 import geotrellis.raster.Tile
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.Expression

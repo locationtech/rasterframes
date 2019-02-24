@@ -101,52 +101,52 @@ class RasterFunctionsTest extends FunSpec
   describe("scalar tile operations") {
     it("should local_add_scalar") {
       val df = Seq(one).toDF("one")
-      val maybeThree = df.select(local_add_scalar($"one", 2)).as[ProjectedRasterTile]
+      val maybeThree = df.select(local_add($"one", 2)).as[ProjectedRasterTile]
       assertEqual(maybeThree.first(), three)
 
-      val maybeThreeD = df.select(local_add_scalar($"one", 2.1)).as[ProjectedRasterTile]
+      val maybeThreeD = df.select(local_add($"one", 2.1)).as[ProjectedRasterTile]
       assertEqual(maybeThreeD.first(), three.convert(DoubleConstantNoDataCellType).localAdd(0.1))
 
-      val maybeThreeTile = df.select(local_add_scalar(ExtractTile($"one"), 2)).as[Tile]
+      val maybeThreeTile = df.select(local_add(ExtractTile($"one"), 2)).as[Tile]
       assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
 
     it("should local_subtract_scalar") {
       val df = Seq(three).toDF("three")
 
-      val maybeOne = df.select(local_subtract_scalar($"three", 2)).as[ProjectedRasterTile]
+      val maybeOne = df.select(local_subtract($"three", 2)).as[ProjectedRasterTile]
       assertEqual(maybeOne.first(), one)
 
-      val maybeOneD = df.select(local_subtract_scalar($"three", 2.0)).as[ProjectedRasterTile]
+      val maybeOneD = df.select(local_subtract($"three", 2.0)).as[ProjectedRasterTile]
       assertEqual(maybeOneD.first(), one)
 
-      val maybeOneTile = df.select(local_subtract_scalar(ExtractTile($"three"), 2)).as[Tile]
+      val maybeOneTile = df.select(local_subtract(ExtractTile($"three"), 2)).as[Tile]
       assertEqual(maybeOneTile.first(), one.toArrayTile())
     }
 
     it("should local_multiply_scalar") {
       val df = Seq(three).toDF("three")
 
-      val maybeSix = df.select(local_multiply_scalar($"three", 2)).as[ProjectedRasterTile]
+      val maybeSix = df.select(local_multiply($"three", 2)).as[ProjectedRasterTile]
       assertEqual(maybeSix.first(), six)
 
-      val maybeSixD = df.select(local_multiply_scalar($"three", 2.0)).as[ProjectedRasterTile]
+      val maybeSixD = df.select(local_multiply($"three", 2.0)).as[ProjectedRasterTile]
       assertEqual(maybeSixD.first(), six)
 
-      val maybeSixTile = df.select(local_multiply_scalar(ExtractTile($"three"), 2)).as[Tile]
+      val maybeSixTile = df.select(local_multiply(ExtractTile($"three"), 2)).as[Tile]
       assertEqual(maybeSixTile.first(), six.toArrayTile())
     }
 
     it("should local_divide_scalar") {
       val df = Seq(six).toDF("six")
 
-      val maybeThree = df.select(local_divide_scalar($"six", 2)).as[ProjectedRasterTile]
+      val maybeThree = df.select(local_divide($"six", 2)).as[ProjectedRasterTile]
       assertEqual(maybeThree.first(), three)
 
-      val maybeThreeD = df.select(local_divide_scalar($"six", 2.0)).as[ProjectedRasterTile]
+      val maybeThreeD = df.select(local_divide($"six", 2.0)).as[ProjectedRasterTile]
       assertEqual(maybeThreeD.first(), three)
 
-      val maybeThreeTile = df.select(local_divide_scalar(ExtractTile($"six"), 2)).as[Tile]
+      val maybeThreeTile = df.select(local_divide(ExtractTile($"six"), 2)).as[Tile]
       assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
   }

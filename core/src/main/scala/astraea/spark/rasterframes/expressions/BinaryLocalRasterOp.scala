@@ -19,11 +19,10 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions.mapalgebra
+package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.expressions.DynamicExtractors.tileExtractor
-import astraea.spark.rasterframes.expressions.row
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
@@ -32,8 +31,7 @@ import org.apache.spark.sql.catalyst.expressions.BinaryExpression
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 
-
-trait BinaryRasterOp extends BinaryExpression with LazyLogging {
+trait BinaryLocalRasterOp extends BinaryExpression with LazyLogging {
 
   override def dataType: DataType = left.dataType
 
@@ -41,32 +39,39 @@ trait BinaryRasterOp extends BinaryExpression with LazyLogging {
     if (!tileExtractor.isDefinedAt(left.dataType)) {
       TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     }
-    else if (!tileExtractor.isDefinedAt(right.dataType)) {
-      TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a raster type.")
+    else if (!tileOrNumberExtractor.isDefinedAt(right.dataType)) {
+      TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a compatible type.")
     }
     else TypeCheckSuccess
   }
 
-  protected def op(left: Tile, right: Tile): Tile
-
   override protected def nullSafeEval(input1: Any, input2: Any): Any = {
     implicit val tileSer = TileUDT.tileSerializer
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(input1))
-    val (rightTile, rightCtx) = tileExtractor(right.dataType)(row(input2))
+    val result = tileOrNumberExtractor(right.dataType)(input2) match {
+       case TileArg(rightTile, rightCtx) =>
+         if (leftCtx.isEmpty && rightCtx.isDefined)
+           logger.warn(
+             s"Right-hand parameter '${right}' provided an extent and CRS, but the left-hand parameter " +
+               s"'${left}' didn't have any. Because the left-hand side defines output type, the right-hand context will be lost.")
 
-    if (leftCtx.isEmpty && rightCtx.isDefined)
-      logger.warn(
-          s"Right-hand parameter '${right}' provided an extent and CRS, but the left-hand parameter " +
-            s"'${left}' didn't have any. Because the left-hand side defines output type, the right-hand context will be lost.")
+         if(leftCtx.isDefined && rightCtx.isDefined && leftCtx != rightCtx)
+           logger.warn(s"Both '${left}' and '${right}' provided an extent and CRS, but they are different. Left-hand side will be used.")
 
-    if(leftCtx.isDefined && rightCtx.isDefined && leftCtx != rightCtx)
-      logger.warn(s"Both '${left}' and '${right}' provided an extent and CRS, but they are different. Left-hand side will be used.")
-
-    val result = op(leftTile, rightTile)
+         op(leftTile, rightTile)
+       case DoubleArg(d) => op(fpTile(leftTile), d)
+       case IntegerArg(i) => op(leftTile, i)
+    }
 
     leftCtx match {
       case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
       case None => result.toInternalRow
     }
   }
+
+
+  protected def op(left: Tile, right: Tile): Tile
+  protected def op(left: Tile, right: Double): Tile
+  protected def op(left: Tile, right: Int): Tile
 }
+

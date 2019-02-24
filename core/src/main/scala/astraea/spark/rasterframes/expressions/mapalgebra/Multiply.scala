@@ -22,17 +22,23 @@
 package astraea.spark.rasterframes.expressions.mapalgebra
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
 import geotrellis.raster.Tile
-import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.functions.lit
+import org.apache.spark.sql.{Column, TypedColumn}
 
 /** Performs cell-wise multiplication between two tiles. */
-case class Multiply(left: Expression, right: Expression) extends BinaryRasterOp with CodegenFallback {
+case class Multiply(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "local_multiply"
   override protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
+  override protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
+  override protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
 }
 object Multiply {
   def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
     new Column(Multiply(left.expr, right.expr)).as[Tile]
+  def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
+    new Column(new Multiply(tile.expr, lit(value).expr)).as[Tile]
 }

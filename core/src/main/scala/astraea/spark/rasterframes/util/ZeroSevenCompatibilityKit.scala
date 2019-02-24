@@ -254,7 +254,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise addition of a scalar to a tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAddScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_add_scalar(tileCol, value)
+    def localAddScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_add(tileCol, value)
 
     /** Cellwise subtraction between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -262,14 +262,14 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise subtraction of a scalar from a tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localSubtractScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_subtract_scalar(tileCol, value)
+    def localSubtractScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_subtract(tileCol, value)
     /** Cellwise multiplication between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def localMultiply(left: Column, right: Column): Column = delegate.local_multiply(left, right)
 
     /** Cellwise multiplication of a tile by a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localMultiplyScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_multiply_scalar(tileCol, value)
+    def localMultiplyScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_multiply(tileCol, value)
 
     /** Cellwise division between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -277,7 +277,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Cellwise division of a tile by a scalar. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localDivideScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_divide_scalar(tileCol, value)
+    def localDivideScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_divide(tileCol, value)
     /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def localAlgebra(op: LocalTileBinaryOp, left: Column, right: Column):
@@ -457,12 +457,7 @@ object ZeroSevenCompatibilityKit {
     VersionShims.registerExpression(registry, "rf_localSubtract", bb(Subtract.apply))
     VersionShims.registerExpression(registry, "rf_localMultiply", bb(Multiply.apply))
     VersionShims.registerExpression(registry, "rf_localDivide", bb(Divide.apply))
-
-    VersionShims.registerExpression(registry, "rf_local_add_scalar", bb(AddScalar.apply))
-    VersionShims.registerExpression(registry, "rf_local_subtract_scalar", bb(SubtractScalar.apply))
-    VersionShims.registerExpression(registry, "rf_local_multiply_scalar", bb(MultiplyScalar.apply))
-    VersionShims.registerExpression(registry, "rf_local_divide_scalar", bb(DivideScalar.apply))
-    VersionShims.registerExpression(registry, "rf_normalized_difference", bb(NormalizedDifference.apply))
+    VersionShims.registerExpression(registry, "rf_normalizedDifference", bb(NormalizedDifference.apply))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
