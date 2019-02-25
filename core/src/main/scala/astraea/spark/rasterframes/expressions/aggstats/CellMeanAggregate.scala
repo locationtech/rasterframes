@@ -21,7 +21,9 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
-import astraea.spark.rasterframes.expressions.tilestats.Sum
+import astraea.spark.rasterframes.expressions
+import astraea.spark.rasterframes.expressions.tilestats.{DataCells, Sum}
+import astraea.spark.rasterframes.expressions.udfexpr
 import astraea.spark.rasterframes.functions._
 import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.dsl.expressions._
@@ -60,23 +62,17 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
     Literal(0L)
   )
 
-  private val dataCellCounts = udf(dataCells)
-  // Cant' figure out why this is necessary to properly handle
-  // null rows. If we use `tilestats.Sum`
-  private val tileSum: Tile ⇒ Double = (t: Tile) ⇒ {
-    var sum: Double = 0.0
-    t.foreachDouble(z ⇒ if(isData(z)) sum = sum + z)
-    sum
-  }
-  private val SumCells = (tileCol: Expression ) => ScalaUDF(
-    tileSum, DoubleType, Seq(tileCol), Seq(TileType), Some("cell_sum")
-  )
+  // Cant' figure out why we can't just use the Expression directly
+  // this is necessary to properly handle null rows. For example,
+  // if we use `tilestats.Sum` directly, we get an NPE when the stage is executed.
+  private val DataCellCounts = udfexpr(DataCells.op)
+  private val SumCells = udfexpr(Sum.op)
 
   val updateExpressions = Seq(
     // TODO: Figure out why this doesn't work. See above.
     //If(IsNull(child), sum , Add(sum, Sum(child))),
     If(IsNull(child), sum , Add(sum, SumCells(child))),
-    If(IsNull(child), count, Add(count, dataCellCounts(new Column(child)).expr))
+    If(IsNull(child), count, Add(count, DataCellCounts(child)))
   )
 
   val mergeExpressions = Seq(

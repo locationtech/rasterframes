@@ -32,14 +32,16 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class Sum(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "tile_sum"
   override def dataType: DataType = DoubleType
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = {
-    var sum: Double = 0.0
-    tile.foreachDouble(z ⇒ if(isData(z)) sum = sum + z)
-    sum
-  }
+  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = Sum.op(tile)
 }
 
 object Sum {
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(Sum(tile.expr)).as[Double]
+
+  def op = (tile: Tile) => {
+    var sum: Double = 0.0
+    tile.foreachDouble(z ⇒ if(isData(z)) sum = sum + z)
+    sum
+  }
 }

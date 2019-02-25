@@ -23,13 +23,13 @@ package astraea.spark.rasterframes.util
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
 import astraea.spark.rasterframes.expressions.TileAssembler
 import astraea.spark.rasterframes.expressions.accessors._
-import astraea.spark.rasterframes.expressions.aggstats.{CellCountAggregate, CellMeanAggregate}
+import astraea.spark.rasterframes.expressions.aggstats._
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.localops._
-import astraea.spark.rasterframes.expressions.tilestats.Sum
+import astraea.spark.rasterframes.expressions.tilestats._
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
-import astraea.spark.rasterframes.{HasCellType, functions => F}
+import astraea.spark.rasterframes.{functions => F}
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -39,8 +39,6 @@ import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.functions.{lit, udf}
 import org.apache.spark.sql.rf.VersionShims._
 import org.apache.spark.sql.{Column, SQLContext, TypedColumn, rf}
-
-import scala.reflect.runtime.universe._
 
 /**
  * UDFs for working with Tiles in Spark DataFrames.
@@ -178,18 +176,11 @@ object ZeroSevenCompatibilityKit {
 
     /** Counts the number of non-NoData cells per Tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def dataCells(tile: Column): TypedColumn[Any, Long] =
-      withAlias("dataCells", tile)(
-        udf(F.dataCells).apply(tile)
-      ).as[Long]
+    def dataCells(tile: Column): TypedColumn[Any, Long] = delegate.data_cells(tile)
 
     /** Counts the number of NoData cells per Tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def noDataCells(tile: Column): TypedColumn[Any, Long] =
-      withAlias("noDataCells", tile)(
-        udf(F.noDataCells).apply(tile)
-      ).as[Long]
-
+    def noDataCells(tile: Column): TypedColumn[Any, Long] = delegate.no_data_cells(tile)
 
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def isNoDataTile(tile: Column): TypedColumn[Any, Boolean] =
@@ -404,6 +395,8 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_localEqual", bb(Equal.apply))
     registry.registerFunc("rf_localUnequal", bb(Unequal.apply))
     registry.registerFunc("rf_tileSum", ub(Sum.apply))
+    registry.registerFunc("rf_dataCells", ub(DataCells.apply))
+    registry.registerFunc("rf_noDataCells", ub(NoDataCells.apply))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
@@ -417,8 +410,6 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_tileMean", F.tileMean)
     sqlContext.udf.register("rf_tileHistogram", F.tileHistogram)
     sqlContext.udf.register("rf_tileStats", F.tileStats)
-    sqlContext.udf.register("rf_dataCells", F.dataCells)
-    sqlContext.udf.register("rf_noDataCells", F.noDataCells)
     sqlContext.udf.register("rf_isNoDataTile", F.isNoDataTile)
     sqlContext.udf.register("rf_localAggStats", F.localAggStats)
     sqlContext.udf.register("rf_localAggMax", F.localAggMax)

@@ -22,8 +22,9 @@ import java.net.URI
 import java.nio.file.Paths
 import java.time.ZonedDateTime
 
+import astraea.spark.rasterframes.expressions.tilestats.NoDataCells
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import astraea.spark.rasterframes.{functions ⇒ F}
+import astraea.spark.rasterframes.{functions => F}
 import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster
@@ -179,9 +180,9 @@ object TestData extends TestData {
           ) (
             z ⇒ if (isNoData(z)) rnd.nextGaussian() else z
           )
-        } while (F.noDataCells(result) != 0L)
+        } while (NoDataCells.op(result) != 0L)
 
-        assert(F.noDataCells(result) == 0L,
+        assert(NoDataCells.op(result) == 0L,
           s"Should not have any NoData cells for $cellType:\n${result.asciiDraw()}")
         result
     }

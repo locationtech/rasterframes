@@ -21,11 +21,11 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
-import astraea.spark.rasterframes.functions.{dataCells, noDataCells}
+import astraea.spark.rasterframes.expressions.tilestats.{DataCells, NoDataCells}
+import astraea.spark.rasterframes.expressions.udfexpr
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
-import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{LongType, Metadata}
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -52,11 +52,11 @@ case class CellCountAggregate(isData: Boolean, child: Expression) extends Declar
   )
 
   private val cellTest =
-    if (isData) udf(dataCells)
-    else udf(noDataCells)
+    if (isData) udfexpr(DataCells.op)
+    else udfexpr(NoDataCells.op)
 
   val updateExpressions = Seq(
-    If(IsNull(child), count, Add(count, cellTest(new Column(child)).expr))
+    If(IsNull(child), count, Add(count, cellTest(child)))
   )
 
   val mergeExpressions = Seq(

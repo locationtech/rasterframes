@@ -24,8 +24,8 @@ import astraea.spark.rasterframes.expressions.TileAssembler
 import astraea.spark.rasterframes.expressions.localops._
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.accessors._
-import astraea.spark.rasterframes.expressions.aggstats.{CellCountAggregate, CellMeanAggregate}
-import astraea.spark.rasterframes.expressions.tilestats.Sum
+import astraea.spark.rasterframes.expressions.aggstats._
+import astraea.spark.rasterframes.expressions.tilestats._
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions => F}
@@ -163,16 +163,11 @@ trait RasterFunctions {
 
   /** Counts the number of non-NoData cells per Tile. */
   def data_cells(tile: Column): TypedColumn[Any, Long] =
-    withAlias("data_cells", tile)(
-      udf(F.dataCells).apply(tile)
-    ).as[Long]
+    DataCells(tile)
 
   /** Counts the number of NoData cells per Tile. */
   def no_data_cells(tile: Column): TypedColumn[Any, Long] =
-    withAlias("no_data_cells", tile)(
-      udf(F.noDataCells).apply(tile)
-    ).as[Long]
-
+    NoDataCells(tile)
 
   def is_no_data_tile(tile: Column): TypedColumn[Any, Boolean] =
     withAlias("is_no_data_tile", tile)(

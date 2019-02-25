@@ -241,6 +241,14 @@ class RasterFunctionsTest extends FunSpec
     }
   }
 
+  describe("per-tile stats") {
+    it("should compute data cell counts") {
+      val df = Seq(TestData.injectND(4)(two)).toDF("two")
+      df.select(data_cells($"two")).first() should be(96L)
+      checkDocs("rf_data_cells")
+    }
+  }
+
   describe("analytical transformations") {
     it("should compute normalized_difference") {
       val df = Seq((three, two)).toDF("three", "two")

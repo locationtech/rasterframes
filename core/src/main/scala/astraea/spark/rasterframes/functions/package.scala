@@ -56,29 +56,6 @@ package object functions {
   private[rasterframes] def safeEval[P1, P2, R](f: (P1, P2) ⇒ R): (P1, P2) ⇒ R =
     (p1, p2) ⇒ if (p1 == null || p2 == null) null.asInstanceOf[R] else f(p1, p2)
 
-
-  /** Count tile cells that have a data value. */
-  private[rasterframes] val dataCells: (Tile) ⇒ Long = safeEval((t: Tile) ⇒ {
-    var count: Long = 0
-    t.dualForeach(
-      z ⇒ if(isData(z)) count = count + 1
-    ) (
-      z ⇒ if(isData(z)) count = count + 1
-    )
-    count
-  })
-
-  /** Count tile cells that have a no-data value. */
-  private[rasterframes] val noDataCells: (Tile) ⇒ Long = safeEval((t: Tile) ⇒ {
-    var count: Long = 0
-    t.dualForeach(
-      z ⇒ if(isNoData(z)) count = count + 1
-    )(
-      z ⇒ if(isNoData(z)) count = count + 1
-    )
-    count
-  })
-
   private[rasterframes] val isNoDataTile: (Tile) ⇒ Boolean = (t: Tile) ⇒ {
     if(t == null) true
     else t.isNoDataTile
@@ -278,8 +255,6 @@ package object functions {
     sqlContext.udf.register("rf_tile_mean", tileMean)
     sqlContext.udf.register("rf_tile_histogram", tileHistogram)
     sqlContext.udf.register("rf_tile_stats", tileStats)
-    sqlContext.udf.register("rf_data_cells", dataCells)
-    sqlContext.udf.register("rf_no_data_cells", noDataCells)
     sqlContext.udf.register("rf_is_no_data_tile", isNoDataTile)
     sqlContext.udf.register("rf_local_agg_stats", localAggStats)
     sqlContext.udf.register("rf_local_agg_max", localAggMax)

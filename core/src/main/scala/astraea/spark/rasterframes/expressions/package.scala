@@ -22,14 +22,17 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.localops._
-import astraea.spark.rasterframes.expressions.tilestats.Sum
+import astraea.spark.rasterframes.expressions.tilestats._
 import astraea.spark.rasterframes.expressions.transformers._
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
-import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.rf.VersionShims._
 import org.apache.spark.sql.{SQLContext, rf}
 
+import scala.util.Try
+import scala.reflect.runtime.universe._
 /**
  * Module of Catalyst expressions for efficiently working with tiles.
  *
@@ -41,6 +44,14 @@ package object expressions {
   @inline
   private[expressions]
   def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
+
+  /** As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function. */
+  private[expressions]
+  def udfexpr[RT: TypeTag, A1: TypeTag](f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
+    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
+    val inputTypes = Try(ScalaReflection.schemaFor(typeTag[A1]).dataType :: Nil).toOption
+    ScalaUDF(f, dataType, Seq(child),  inputTypes.getOrElse(Nil), nullable = nullable)
+  }
 
   def register(sqlContext: SQLContext): Unit = {
     // Expression-oriented functions have a different registration scheme
@@ -67,5 +78,7 @@ package object expressions {
     registry.registerExpression[Sum]("rf_tile_sum")
     registry.registerExpression[TileToArrayDouble]("rf_tile_to_array_double")
     registry.registerExpression[TileToArrayInt]("rf_tile_to_array_int")
+    registry.registerExpression[DataCells]("rf_data_cells")
+    registry.registerExpression[NoDataCells]("rf_no_data_cells")
   }
 }
