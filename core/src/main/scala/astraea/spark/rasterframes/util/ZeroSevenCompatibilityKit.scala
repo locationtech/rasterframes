@@ -71,13 +71,6 @@ object ZeroSevenCompatibilityKit {
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def tileDimensions(col: Column): Column = GetDimensions(col)
 
-    /** Flattens Tile into an array. A numeric type parameter is required. */
-    @Experimental
-    @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileToArray[T: HasCellType: TypeTag](col: Column): TypedColumn[Any, Array[T]] = withAlias("tileToArray", col)(
-      udf[Array[T], Tile](F.tileToArray).apply(col)
-    ).as[Array[T]]
-
     @Experimental
     /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")

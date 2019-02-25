@@ -84,52 +84,6 @@ package object functions {
     else t.isNoDataTile
   }
 
-  /** Flattens tile into an array. */
-  private[rasterframes] def tileToArray[T: HasCellType: TypeTag]: (Tile) ⇒ Array[T] = {
-    def convert(tile: Tile) = {
-      typeOf[T] match {
-        case t if t =:= typeOf[Int] ⇒ tile.toArray()
-        case t if t =:= typeOf[Double] ⇒ tile.toArrayDouble()
-        case t if t =:= typeOf[Byte] ⇒ tile.toArray().map(_.toByte)          // TODO: Check NoData handling. probably need to use dualForeach
-        case t if t =:= typeOf[Short] ⇒ tile.toArray().map(_.toShort)
-        case t if t =:= typeOf[Float] ⇒ tile.toArrayDouble().map(_.toFloat)
-      }
-    }
-
-    safeEval[Tile, Array[T]] { t ⇒
-      val tile = t match {
-        case c: ConstantTile ⇒ c.toArrayTile()
-        case o ⇒ o
-      }
-      val asArray: Array[_] = tile match {
-        case t: IntArrayTile ⇒
-          if (typeOf[T] =:= typeOf[Int]) t.array
-          else convert(t)
-        case t: DoubleArrayTile ⇒
-          if (typeOf[T] =:= typeOf[Double]) t.array
-          else convert(t)
-        case t: ByteArrayTile ⇒
-          if (typeOf[T] =:= typeOf[Byte]) t.array
-          else convert(t)
-        case t: UByteArrayTile ⇒
-          if (typeOf[T] =:= typeOf[Byte]) t.array
-          else convert(t)
-        case t: ShortArrayTile ⇒
-          if (typeOf[T] =:= typeOf[Short]) t.array
-          else convert(t)
-        case t: UShortArrayTile ⇒
-          if (typeOf[T] =:= typeOf[Short]) t.array
-          else convert(t)
-        case t: FloatArrayTile ⇒
-          if (typeOf[T] =:= typeOf[Float]) t.array
-          else convert(t)
-        case _: Tile ⇒
-          throw new IllegalArgumentException("Unsupported tile type: " + tile.getClass)
-      }
-      asArray.asInstanceOf[Array[T]]
-    }
-  }
-
   /** Converts an array into a tile. */
   private[rasterframes] def arrayToTile(cols: Int, rows: Int) = {
     safeEval[AnyRef, Tile]{
@@ -317,8 +271,6 @@ package object functions {
     sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
     sqlContext.udf.register("rf_tile_zeros", tileZeros)
     sqlContext.udf.register("rf_tile_ones", tileOnes)
-    sqlContext.udf.register("rf_tile_to_array_int", tileToArray[Int])
-    sqlContext.udf.register("rf_tile_to_array_double", tileToArray[Double])
     sqlContext.udf.register("rf_agg_histogram", aggHistogram)
     sqlContext.udf.register("rf_agg_stats", aggStats)
     sqlContext.udf.register("rf_tile_min", tileMin)

@@ -28,7 +28,6 @@ import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 
-/** Computes on two tile columns. */
 @ExpressionDescription(
   usage = "_FUNC_(left, right) - Computes the normalized difference '(left - right) / (left + right)' between two tile columns",
   note = "Common usage includes computing NDVI via red and NIR bands.",

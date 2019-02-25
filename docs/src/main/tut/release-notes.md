@@ -8,6 +8,8 @@
 * _Deprecation_: Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow `snake_case` conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.
 * Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
 * _Breaking_: In Scala and SQL, `..._scalar` functions (e.g. `local_add_scalar`) have been removed. Non-scalar forms now dynamically detect type of right hand side.
+* _Breaking_: `tileToArray` has been replaced with `tile_to_array_double` and `tile_to_array_int`. 
+
    
 ## 0.7.x
 

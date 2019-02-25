@@ -171,7 +171,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         val means2 = ds.select(tile_mean($"value")).collect
         // Compute the mean manually, knowing we're not dealing with no-data values.
         val means =
-          ds.select(tile_to_array[Float]($"value")).map(a => a.sum.toDouble / a.length).collect
+          ds.select(tile_to_array_double($"value")).map(a => a.sum.toDouble / a.length).collect
 
         forAll(means.zip(means1)) { case (l, r) => assert(l === r +- 1e-6) }
         forAll(means.zip(means2)) { case (l, r) => assert(l === r +- 1e-6) }

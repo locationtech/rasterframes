@@ -237,7 +237,24 @@ class RasterFunctionsTest extends FunSpec
       df.select(tile_sum(local_unequal($"threeA", $"threeB"))).first() should be(0.0)
       df.selectExpr("rf_tile_sum(rf_local_unequal(two, 1.9))").as[Double].first() should be(100.0)
       df.selectExpr("rf_tile_sum(rf_local_unequal(threeA, threeB))").as[Double].first() should be(0.0)
+      checkDocs("rf_local_unequal")
     }
+  }
 
+  describe("analytical transformations") {
+    it("should compute normalized_difference") {
+      val df = Seq((three, two)).toDF("three", "two")
+
+      df.select(tile_to_array_double(normalized_difference($"three", $"two")))
+        .first()
+        .forall(_ == 0.2) shouldBe true
+
+      df.selectExpr("rf_tile_to_array_double(rf_normalized_difference(three, two))")
+        .as[Array[Double]]
+        .first()
+        .forall(_ == 0.2) shouldBe true
+
+      checkDocs("rf_normalized_difference")
+    }
   }
 }

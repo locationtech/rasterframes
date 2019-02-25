@@ -103,14 +103,14 @@ class ExplodeSpec extends TestEnvironment with TestData {
 
       val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
       val df = Seq[Tile](tile).toDF("tile")
-      val arrayDF = df.select(tile_to_array[Float]($"tile").as[Array[Float]])
+      val arrayDF = df.select(tile_to_array_double($"tile").as[Array[Double]])
       assert(arrayDF.first().sum === 110.0f +- 0.0001f)
     }
 
     it("should convert an array into a tile") {
       val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
       val df = Seq[Tile](tile, null).toDF("tile")
-      val arrayDF = df.withColumn("tileArray", tile_to_array[Float]($"tile"))
+      val arrayDF = df.withColumn("tileArray", tile_to_array_double($"tile"))
 
       val back = arrayDF.withColumn("backToTile", array_to_tile($"tileArray", 10, 10))
 

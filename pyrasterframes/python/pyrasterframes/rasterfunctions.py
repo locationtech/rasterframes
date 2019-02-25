@@ -196,8 +196,10 @@ _rf_column_functions = {
     # ------- RasterFrames functions -------
     'tile_dimensions': 'Query the number of (cols, rows) in a Tile.',
     'envelope': 'Extracts the bounding box (envelope) of the geometry.',
-    'tile_to_int_array': 'Flattens Tile into an array of integers.',
-    'tile_to_double_array': 'Flattens Tile into an array of doubles.',
+    'tile_to_int_array': 'Flattens Tile into an array of integers. Deprecated in favor of `tile_to_array_int`.',
+    'tile_to_double_array': 'Flattens Tile into an array of doubles. Deprecated in favor of `tile_to_array_double`',
+    'tile_to_array_int': 'Flattens Tile into an array of integers.',
+    'tile_to_array_double': 'Flattens Tile into an array of doubles.',
     'cell_type': 'Extract the Tile\'s cell type',
     'agg_histogram': 'Compute the full column aggregate floating point histogram',
     'agg_stats': 'Compute the full column aggregate floating point statistics',

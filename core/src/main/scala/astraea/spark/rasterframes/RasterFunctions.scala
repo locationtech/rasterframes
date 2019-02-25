@@ -66,11 +66,13 @@ trait RasterFunctions {
   /** Extracts the bounding box of a geometry as a JTS envelope. */
   def envelope(col: Column): TypedColumn[Any, Envelope] = GetEnvelope(col)
 
-  /** Flattens Tile into an array. A numeric type parameter is required. */
-  @Experimental
-  def tile_to_array[T: HasCellType: TypeTag](col: Column): TypedColumn[Any, Array[T]] = withAlias("tile_to_array", col)(
-    udf[Array[T], Tile](F.tileToArray).apply(col)
-  ).as[Array[T]]
+  /** Flattens Tile into a double array. */
+  def tile_to_array_double(col: Column): TypedColumn[Any, Array[Double]] =
+    TileToArrayDouble(col)
+
+  /** Flattens Tile into an integer array. */
+  def tile_to_array_int(col: Column): TypedColumn[Any, Array[Double]] =
+    TileToArrayDouble(col)
 
   @Experimental
   /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/

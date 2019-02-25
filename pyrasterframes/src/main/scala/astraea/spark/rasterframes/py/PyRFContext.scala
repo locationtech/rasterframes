@@ -117,9 +117,9 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def temporalKeyColumn(df: DataFrame): Column =
     df.asRF.temporalKeyColumn.orNull
 
-  def tile_to_int_array(col: Column): Column = tile_to_array[Int](col)
+  def tile_to_int_array(col: Column): Column = tile_to_array_int(col)
 
-  def tile_to_double_array(col: Column): Column = tile_to_array[Double](col)
+  def tile_to_double_array(col: Column): Column = tile_to_array_double(col)
 
   // All the scalar tile arithmetic functions
 
