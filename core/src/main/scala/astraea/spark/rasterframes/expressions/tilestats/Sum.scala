@@ -19,15 +19,15 @@
  *
  */
 
-package astraea.spark.rasterframes.expressions.stats
+package astraea.spark.rasterframes.expressions.tilestats
+import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster._
-import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, DoubleType}
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+import org.apache.spark.sql.{Column, TypedColumn}
 
 case class Sum(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "tile_sum"

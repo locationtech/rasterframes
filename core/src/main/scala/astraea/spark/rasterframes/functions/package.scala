@@ -15,6 +15,7 @@
  */
 package astraea.spark.rasterframes
 
+import astraea.spark.rasterframes.expressions.aggstats._
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.util.CRSParser
@@ -161,8 +162,6 @@ package object functions {
     if (t.cellType.isFloatingPoint) t.statisticsDouble.map(CellStatistics.apply).orNull
     else t.statistics.map(CellStatistics.apply).orNull
   )
-
-
 
   /** Find the minimum cell value. */
   private[rasterframes] val tileMin: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {

@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2017 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,13 +15,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
-package astraea.spark.rasterframes.functions
+package astraea.spark.rasterframes.expressions
 
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.functions.TileAssembler.TileBuffer
+import astraea.spark.rasterframes.expressions.TileAssembler.TileBuffer
 import astraea.spark.rasterframes.util._
 import geotrellis.raster.{DataType => _, _}
 import org.apache.spark.sql.catalyst.InternalRow

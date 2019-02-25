@@ -20,12 +20,13 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
+import astraea.spark.rasterframes.expressions.TileAssembler
 import astraea.spark.rasterframes.expressions.localops._
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.accessors._
-import astraea.spark.rasterframes.expressions.stats.Sum
+import astraea.spark.rasterframes.expressions.aggstats.{CellCountAggregate, CellMeanAggregate}
+import astraea.spark.rasterframes.expressions.tilestats.Sum
 import astraea.spark.rasterframes.expressions.transformers._
-import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions => F}
 import com.vividsolutions.jts.geom.{Envelope, Geometry}
@@ -79,11 +80,11 @@ trait RasterFunctions {
 
   /** Create a Tile from a column of cell data with location indexes and preform cell conversion. */
   def assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
-    convert_cell_type(F.TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile]
+    convert_cell_type(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile]
 
   /** Create a Tile from  a column of cell data with location indexes. */
   def assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Column, tileRows: Column): TypedColumn[Any, Tile] =
-    F.TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
+    TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
 
   /** Extract the Tile's cell type */
   def cell_type(col: Column): TypedColumn[Any, CellType] = GetCellType(col)
@@ -100,7 +101,7 @@ trait RasterFunctions {
   def bounds_geometry(bounds: Column): TypedColumn[Any, Geometry] = BoundsToGeometry(bounds)
 
   /** Assign a `NoData` value to the Tiles. */
-  def with_no_data(col: Column, nodata: Double) = withAlias("with_no_data", col)(
+  def with_no_data(col: Column, nodata: Double): TypedColumn[Any, Tile] = withAlias("with_no_data", col)(
     udf[Tile, Tile](F.withNoData(nodata)).apply(col)
   ).as[Tile]
 

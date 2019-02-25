@@ -22,7 +22,7 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.localops._
-import astraea.spark.rasterframes.expressions.stats.Sum
+import astraea.spark.rasterframes.expressions.tilestats.Sum
 import astraea.spark.rasterframes.expressions.transformers._
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.InternalRow

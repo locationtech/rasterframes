@@ -21,12 +21,13 @@
 
 package astraea.spark.rasterframes.util
 import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
+import astraea.spark.rasterframes.expressions.TileAssembler
 import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.aggstats.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.localops._
-import astraea.spark.rasterframes.expressions.stats.Sum
+import astraea.spark.rasterframes.expressions.tilestats.Sum
 import astraea.spark.rasterframes.expressions.transformers._
-import astraea.spark.rasterframes.functions.{CellCountAggregate, CellMeanAggregate}
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{HasCellType, functions => F}
 import com.vividsolutions.jts.geom.Geometry
@@ -54,7 +55,7 @@ object ZeroSevenCompatibilityKit {
     // format: off
     /** Create a row for each cell in Tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def explodeTiles(cols: Column*): Column = explodeTilesSample(1.0, None, cols: _*)
+    def explodeTiles(cols: Column*): Column = delegate.explode_tiles(cols: _*)
 
     /** Create a row for each cell in Tile with random sampling and optional seed. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -87,12 +88,12 @@ object ZeroSevenCompatibilityKit {
     /** Create a Tile from a column of cell data with location indexes and preform cell conversion. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
-      convertCellType(F.TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile]
+      convertCellType(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile]
 
     /** Create a Tile from  a column of cell data with location indexes. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def assembleTile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Column, tileRows: Column): TypedColumn[Any, Tile] =
-      F.TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
+      TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
 
     /** Extract the Tile's cell type */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")

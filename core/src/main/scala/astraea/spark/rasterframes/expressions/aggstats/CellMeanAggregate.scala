@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2017 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,19 +15,22 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
-package astraea.spark.rasterframes.functions
+package astraea.spark.rasterframes.expressions.aggstats
 
-import astraea.spark.rasterframes.expressions.stats.Sum
-import org.apache.spark.sql.{Column, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression}
-import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
-import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
+import astraea.spark.rasterframes.expressions.tilestats.Sum
+import astraea.spark.rasterframes.functions._
+import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.dsl.expressions._
-import org.apache.spark.sql.catalyst.expressions._
+import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
+import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.{TileUDT, _}
+import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
+import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
  * Cell mean aggregate function
@@ -36,7 +39,7 @@ import org.apache.spark.sql.rf.{TileUDT, _}
  */
 case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
 
-  override def prettyName: String = "agg_mean"
+  override def nodeName: String = "agg_mean"
 
   private lazy val sum =
     AttributeReference("sum", DoubleType, false, Metadata.empty)()
@@ -49,11 +52,19 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
     Literal(0.0),
     Literal(0L)
   )
-
+  /** Add up all the cell values. */
+  private val tileSum: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {
+    var sum: Double = 0.0
+    t.foreachDouble(z ⇒ if(isData(z)) sum = sum + z)
+    sum
+  })
   private val dataCellCounts = udf(dataCells)
+  private val sumCells = udf(tileSum)
 
   val updateExpressions = Seq(
-    If(IsNull(child), sum , Add(sum, Sum(child))),
+    // TODO: Figure out why this doesn't work.
+    //If(IsNull(child), sum , Add(sum, Sum(child))),
+    If(IsNull(child), sum , Add(sum, sumCells(new Column(child)).expr)),
     If(IsNull(child), count, Add(count, dataCellCounts(new Column(child)).expr))
   )
 
@@ -64,9 +75,9 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
 
   val evaluateExpression = sum / new Cast(count, DoubleType)
 
-  def inputTypes = Seq(TileUDT)
+  def inputTypes = Seq(new TileUDT())
 
-  def nullable = true
+  def nullable = child.nullable
 
   def dataType = DoubleType
 

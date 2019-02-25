@@ -21,21 +21,14 @@
 
 package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.model.TileContext
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.raster.{CellGrid, Tile}
-import org.apache.spark.sql.rf.TileUDT
-import org.apache.spark.sql.types._
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.raster.Tile
+import geotrellis.raster.{CellGrid, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.rf._
+import org.apache.spark.sql.rf.{TileUDT, _}
+import org.apache.spark.sql.types._
 
 private[expressions]
 object DynamicExtractors {
