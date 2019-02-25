@@ -154,7 +154,7 @@ def _create_maskByValue():
 _rf_unique_functions = {
     'array_to_tile': _create_arrayToTile(),
     'assemble_tile': _create_assembleTile(),
-    'cellTypes': lambda: _context_call('cellTypes'),
+    'cell_types': lambda: _context_call('cell_types'),
     'convert_cell_type': _create_convertCellType(),
     'explode_tiles': _create_explode_tiles(),
     'explode_tiles_sample': _create_explode_tiles_sample(),
