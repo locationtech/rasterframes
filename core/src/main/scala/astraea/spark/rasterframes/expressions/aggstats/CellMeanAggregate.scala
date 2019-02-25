@@ -37,8 +37,15 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * 
  * @since 10/5/17
  */
+@ExpressionDescription(
+  usage = "_FUNC_(tile) - Computes the mean of all cell values.",
+  examples = """
+    Examples:
+      > SELECT _FUNC_(tile);
+         ....
+  """)
 case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
-
+  private val TileType = new TileUDT()
   override def nodeName: String = "agg_mean"
 
   private lazy val sum =
@@ -52,19 +59,23 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
     Literal(0.0),
     Literal(0L)
   )
-  /** Add up all the cell values. */
-  private val tileSum: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {
+
+  private val dataCellCounts = udf(dataCells)
+  // Cant' figure out why this is necessary to properly handle
+  // null rows. If we use `tilestats.Sum`
+  private val tileSum: Tile ⇒ Double = (t: Tile) ⇒ {
     var sum: Double = 0.0
     t.foreachDouble(z ⇒ if(isData(z)) sum = sum + z)
     sum
-  })
-  private val dataCellCounts = udf(dataCells)
-  private val sumCells = udf(tileSum)
+  }
+  private val SumCells = (tileCol: Expression ) => ScalaUDF(
+    tileSum, DoubleType, Seq(tileCol), Seq(TileType), Some("cell_sum")
+  )
 
   val updateExpressions = Seq(
-    // TODO: Figure out why this doesn't work.
+    // TODO: Figure out why this doesn't work. See above.
     //If(IsNull(child), sum , Add(sum, Sum(child))),
-    If(IsNull(child), sum , Add(sum, sumCells(new Column(child)).expr)),
+    If(IsNull(child), sum , Add(sum, SumCells(child))),
     If(IsNull(child), count, Add(count, dataCellCounts(new Column(child)).expr))
   )
 
@@ -75,14 +86,13 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
 
   val evaluateExpression = sum / new Cast(count, DoubleType)
 
-  def inputTypes = Seq(new TileUDT())
+  def inputTypes = Seq(TileType)
 
   def nullable = child.nullable
 
   def dataType = DoubleType
 
   def children = Seq(child)
-
 }
 
 object CellMeanAggregate {

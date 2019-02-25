@@ -23,12 +23,9 @@ package astraea.spark.rasterframes.expressions
 import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster.Tile
-import geotrellis.raster
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.types.{DoubleType, IntegerType, LongType}
 
 /** Boilerplate for expressions operating on a single Tile-like . */
 trait UnaryRasterOp extends UnaryExpression {
@@ -42,24 +39,6 @@ trait UnaryRasterOp extends UnaryExpression {
     val (tile, ctx) = tileExtractor(child.dataType)(row(input))
     eval(tile, ctx)
   }
-
-//  def na = dataType match {
-//    case _: DoubleType => raster.doubleNODATA
-//    case _: IntegerType => raster.NODATA
-//    case _ => null
-//  }
-//
-//  override def eval(input: InternalRow): Any = {
-//    if(input == null) na
-//    else {
-//      val value = child.eval(input)
-//      if (value == null) {
-//        na
-//      } else {
-//        nullSafeEval(value)
-//      }
-//    }
-//  }
 
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any
 }

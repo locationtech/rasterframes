@@ -20,10 +20,9 @@
  */
 
 package astraea.spark.rasterframes
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.proj4.LatLng
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
@@ -48,6 +47,13 @@ class RasterFunctionsTest extends FunSpec
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
 
+  def checkDocs(name: String): Unit = {
+    val docs = sql(s"DESCRIBE FUNCTION EXTENDED $name").as[String].collect().mkString("\n")
+    docs shouldNot include("not found")
+    docs shouldNot include("null")
+    docs shouldNot include("N/A")
+  }
+
   describe("arithmetic tile operations") {
     it("should local_add") {
       val df = Seq((one, two)).toDF("one", "two")
@@ -59,6 +65,7 @@ class RasterFunctionsTest extends FunSpec
 
       val maybeThreeTile = df.select(local_add(ExtractTile($"one"), ExtractTile($"two"))).as[Tile]
       assertEqual(maybeThreeTile.first(), three.toArrayTile())
+      checkDocs("rf_local_add")
     }
 
     it("should local_subtract") {
@@ -71,6 +78,7 @@ class RasterFunctionsTest extends FunSpec
       val maybeOneTile =
         df.select(local_subtract(ExtractTile($"three"), ExtractTile($"two"))).as[Tile]
       assertEqual(maybeOneTile.first(), one.toArrayTile())
+      checkDocs("rf_local_subtract")
     }
 
     it("should local_multiply") {
@@ -84,6 +92,7 @@ class RasterFunctionsTest extends FunSpec
       val maybeSixTile =
         df.select(local_multiply(ExtractTile($"three"), ExtractTile($"two"))).as[Tile]
       assertEqual(maybeSixTile.first(), six.toArrayTile())
+      checkDocs("rf_local_multiply")
     }
 
     it("should local_divide") {
@@ -96,6 +105,7 @@ class RasterFunctionsTest extends FunSpec
       val maybeThreeTile =
         df.select(local_divide(ExtractTile($"six"), ExtractTile($"two"))).as[Tile]
       assertEqual(maybeThreeTile.first(), three.toArrayTile())
+      checkDocs("rf_local_divide")
     }
   }
 
@@ -164,6 +174,7 @@ class RasterFunctionsTest extends FunSpec
 
       df.selectExpr("rf_tile_sum(rf_local_less(two, 6))").as[Double].first() should be(100.0)
       df.selectExpr("rf_tile_sum(rf_local_less(three, three))").as[Double].first() should be(0.0)
+      checkDocs("rf_local_less")
     }
 
     it("should evaluate local_less_equal") {
@@ -177,6 +188,7 @@ class RasterFunctionsTest extends FunSpec
 
       df.selectExpr("rf_tile_sum(rf_local_less_equal(two, 6))").as[Double].first() should be(100.0)
       df.selectExpr("rf_tile_sum(rf_local_less_equal(three, three))").as[Double].first() should be(100.0)
+      checkDocs("rf_local_less_equal")
     }
 
     it("should evaluate local_greater") {
@@ -190,6 +202,7 @@ class RasterFunctionsTest extends FunSpec
 
       df.selectExpr("rf_tile_sum(rf_local_greater(two, 1.9))").as[Double].first() should be(100.0)
       df.selectExpr("rf_tile_sum(rf_local_greater(three, three))").as[Double].first() should be(0.0)
+      checkDocs("rf_local_greater")
     }
 
     it("should evaluate local_greater_equal") {
@@ -202,6 +215,7 @@ class RasterFunctionsTest extends FunSpec
       df.select(tile_sum(local_greater_equal($"three", $"six"))).first() should be(0.0)
       df.selectExpr("rf_tile_sum(rf_local_greater_equal(two, 1.9))").as[Double].first() should be(100.0)
       df.selectExpr("rf_tile_sum(rf_local_greater_equal(three, three))").as[Double].first() should be(100.0)
+      checkDocs("rf_local_greater_equal")
     }
 
     it("should evaluate local_equal") {
@@ -212,6 +226,7 @@ class RasterFunctionsTest extends FunSpec
       df.select(tile_sum(local_equal($"threeA", $"threeB"))).first() should be(100.0)
       df.selectExpr("rf_tile_sum(rf_local_equal(two, 1.9))").as[Double].first() should be(0.0)
       df.selectExpr("rf_tile_sum(rf_local_equal(threeA, threeB))").as[Double].first() should be(100.0)
+      checkDocs("rf_local_equal")
     }
 
     it("should evaluate local_unequal") {

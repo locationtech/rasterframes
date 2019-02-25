@@ -27,7 +27,7 @@ import astraea.spark.rasterframes.expressions.transformers._
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
-import org.apache.spark.sql.rf.VersionShims
+import org.apache.spark.sql.rf.VersionShims._
 import org.apache.spark.sql.{SQLContext, rf}
 
 /**
@@ -37,42 +37,35 @@ import org.apache.spark.sql.{SQLContext, rf}
  */
 package object expressions {
   private[expressions] def row(input: Any) = input.asInstanceOf[InternalRow]
-
-
   /** Convert the tile to a floating point type as needed for scalar operations. */
   @inline
   private[expressions]
   def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-  /** Unary expression builder builder. */
-  private def ub[A, B](f: A ⇒ B)(a: Seq[A]): B = f(a.head)
-  /** Binary expression builder builder. */
-  private def bb[A, B](f: (A, A) ⇒ B)(a: Seq[A]): B = f(a.head, a.last)
-
   def register(sqlContext: SQLContext): Unit = {
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
     val registry: FunctionRegistry = rf.registry(sqlContext)
-    VersionShims.registerExpression(registry, "rf_explode_tiles", ExplodeTiles.apply(1.0, None, _))
-    VersionShims.registerExpression(registry, "rf_cell_type", ub(GetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_convert_cell_type", bb(SetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_tile_dimensions", ub(GetDimensions.apply))
-    VersionShims.registerExpression(registry, "rf_bounds_geometry", ub(BoundsToGeometry.apply))
-    VersionShims.registerExpression(registry, "rf_local_add", bb(Add.apply))
-    VersionShims.registerExpression(registry, "rf_local_subtract", bb(Subtract.apply))
-    VersionShims.registerExpression(registry, "rf_local_multiply", bb(Multiply.apply))
-    VersionShims.registerExpression(registry, "rf_local_divide", bb(Divide.apply))
 
-    VersionShims.registerExpression(registry, "rf_normalized_difference", bb(NormalizedDifference.apply))
-
-    VersionShims.registerExpression(registry,"rf_local_less", bb(Less.apply))
-    VersionShims.registerExpression(registry,"rf_local_greater", bb(Greater.apply))
-    VersionShims.registerExpression(registry,"rf_local_less_equal", bb(LessEqual.apply))
-    VersionShims.registerExpression(registry,"rf_local_greater_equal", bb(GreaterEqual.apply))
-    VersionShims.registerExpression(registry,"rf_local_equal", bb(Equal.apply))
-    VersionShims.registerExpression(registry,"rf_local_unequal", bb(Unequal.apply))
-
-    VersionShims.registerExpression(registry,"rf_tile_sum", ub(Sum.apply))
-
+    registry.registerExpression[Add]("rf_local_add")
+    registry.registerExpression[Subtract]("rf_local_subtract")
+    registry.registerExpression[ExplodeTiles]("rf_explode_tiles")
+    registry.registerExpression[GetCellType]("rf_cell_type")
+    registry.registerExpression[SetCellType]("rf_convert_cell_type")
+    registry.registerExpression[GetDimensions]("rf_tile_dimensions")
+    registry.registerExpression[BoundsToGeometry]("rf_bounds_geometry")
+    registry.registerExpression[Subtract]("rf_local_subtract")
+    registry.registerExpression[Multiply]("rf_local_multiply")
+    registry.registerExpression[Divide]("rf_local_divide")
+    registry.registerExpression[NormalizedDifference]("rf_normalized_difference")
+    registry.registerExpression[Less]("rf_local_less")
+    registry.registerExpression[Greater]("rf_local_greater")
+    registry.registerExpression[LessEqual]("rf_local_less_equal")
+    registry.registerExpression[GreaterEqual]("rf_local_greater_equal")
+    registry.registerExpression[Equal]("rf_local_equal")
+    registry.registerExpression[Unequal]("rf_local_unequal")
+    registry.registerExpression[Sum]("rf_tile_sum")
+    registry.registerExpression[TileToArrayDouble]("rf_tile_to_array_double")
+    registry.registerExpression[TileToArrayInt]("rf_tile_to_array_int")
   }
 }

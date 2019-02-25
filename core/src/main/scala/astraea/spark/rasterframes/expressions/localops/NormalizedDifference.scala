@@ -25,12 +25,23 @@ import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.BinaryRasterOp
 import geotrellis.raster.Tile
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 
-/** Computes (left - right) / (left + right) on two tile columns. */
+/** Computes on two tile columns. */
+@ExpressionDescription(
+  usage = "_FUNC_(left, right) - Computes the normalized difference '(left - right) / (left + right)' between two tile columns",
+  note = "Common usage includes computing NDVI via red and NIR bands.",
+  arguments = """
+  Arguments:
+    * left - first tile argument
+    * right - second tile argument""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(nir, red);
+       ..."""
+)
 case class NormalizedDifference(left: Expression, right: Expression) extends BinaryRasterOp with CodegenFallback {
-
   override val nodeName: String = "normalized_difference"
   override protected def op(left: Tile, right: Tile): Tile = {
     val diff = fpTile(left.localSubtract(right))

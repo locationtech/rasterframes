@@ -24,12 +24,24 @@ package astraea.spark.rasterframes.expressions.localops
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Column, TypedColumn}
 
-/** Performs cell-wise multiplication between two tiles. */
+@ExpressionDescription(
+  usage = "_FUNC_(tile, rhs) - Performs cell-wise multiplication between two tiles or a tile and a scalar.",
+  arguments = """
+  Arguments:
+    * tile - left-hand-side tile
+    * rhs  - a tile or scalar value to add to each cell""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(tile, 1.5);
+       ...
+    > SELECT _FUNC_(tile1, tile2);
+       ..."""
+)
 case class Multiply(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "local_multiply"
   override protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)

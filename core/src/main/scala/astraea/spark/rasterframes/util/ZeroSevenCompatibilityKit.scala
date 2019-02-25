@@ -37,7 +37,7 @@ import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.functions.{lit, udf}
-import org.apache.spark.sql.rf.VersionShims
+import org.apache.spark.sql.rf.VersionShims._
 import org.apache.spark.sql.{Column, SQLContext, TypedColumn, rf}
 
 import scala.reflect.runtime.universe._
@@ -394,32 +394,29 @@ object ZeroSevenCompatibilityKit {
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
     val registry: FunctionRegistry = rf.registry(sqlContext)
-    VersionShims.registerExpression(registry, "rf_explodeTiles", ExplodeTiles.apply(1.0, None, _))
-    VersionShims.registerExpression(registry, "rf_cellType", ub(GetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_convertCellType", bb(SetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_tileDimensions", ub(GetDimensions.apply))
-    VersionShims.registerExpression(registry, "rf_boundsGeometry", ub(BoundsToGeometry.apply))
-    VersionShims.registerExpression(registry, "rf_localAdd", bb(Add.apply))
-    VersionShims.registerExpression(registry, "rf_localSubtract", bb(Subtract.apply))
-    VersionShims.registerExpression(registry, "rf_localMultiply", bb(Multiply.apply))
-    VersionShims.registerExpression(registry, "rf_localDivide", bb(Divide.apply))
-    VersionShims.registerExpression(registry, "rf_normalizedDifference", bb(NormalizedDifference.apply))
-
-    VersionShims.registerExpression(registry,"rf_localLess", bb(Less.apply))
-    VersionShims.registerExpression(registry,"rf_localLessEqual", bb(LessEqual.apply))
-    VersionShims.registerExpression(registry,"rf_localGreater", bb(Greater.apply))
-    VersionShims.registerExpression(registry,"rf_localGreaterEqual", bb(GreaterEqual.apply))
-    VersionShims.registerExpression(registry,"rf_localEqual", bb(Equal.apply))
-    VersionShims.registerExpression(registry,"rf_localUnequal", bb(Unequal.apply))
-    VersionShims.registerExpression(registry,"rf_tileSum", ub(Sum.apply))
+    registry.registerFunc("rf_explodeTiles", ExplodeTiles.apply(1.0, None, _))
+    registry.registerFunc("rf_cellType", ub(GetCellType.apply))
+    registry.registerFunc("rf_convertCellType", bb(SetCellType.apply))
+    registry.registerFunc("rf_tileDimensions", ub(GetDimensions.apply))
+    registry.registerFunc("rf_boundsGeometry", ub(BoundsToGeometry.apply))
+    registry.registerFunc("rf_localAdd", bb(Add.apply))
+    registry.registerFunc("rf_localSubtract", bb(Subtract.apply))
+    registry.registerFunc("rf_localMultiply", bb(Multiply.apply))
+    registry.registerFunc("rf_localDivide", bb(Divide.apply))
+    registry.registerFunc("rf_normalizedDifference", bb(NormalizedDifference.apply))
+    registry.registerFunc("rf_localLess", bb(Less.apply))
+    registry.registerFunc("rf_localLessEqual", bb(LessEqual.apply))
+    registry.registerFunc("rf_localGreater", bb(Greater.apply))
+    registry.registerFunc("rf_localGreaterEqual", bb(GreaterEqual.apply))
+    registry.registerFunc("rf_localEqual", bb(Equal.apply))
+    registry.registerFunc("rf_localUnequal", bb(Unequal.apply))
+    registry.registerFunc("rf_tileSum", ub(Sum.apply))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
-    sqlContext.udf.register("rf_tileToArrayInt", F.tileToArray[Int])
-    sqlContext.udf.register("rf_tileToArrayDouble", F.tileToArray[Double])
     sqlContext.udf.register("rf_aggHistogram", F.aggHistogram)
     sqlContext.udf.register("rf_aggStats", F.aggStats)
     sqlContext.udf.register("rf_tileMin", F.tileMin)

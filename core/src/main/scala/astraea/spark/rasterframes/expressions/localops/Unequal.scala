@@ -24,12 +24,22 @@ package astraea.spark.rasterframes.expressions.localops
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Column, TypedColumn}
 
-/** Performs cell-wise not equal between a tile and another tile or scalar. */
+@ExpressionDescription(
+  usage = "_FUNC_(lhs, rhs) - Performs cell-wise inequality test between two tiles.",
+  arguments = """
+  Arguments:
+    * lhs - first tile argument
+    * rhs - second tile argument""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(tile1, tile2);
+       ..."""
+)
 case class Unequal(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
   override val nodeName: String = "local_unequal"
   override protected def op(left: Tile, right: Tile): Tile = left.localUnequal(right)
