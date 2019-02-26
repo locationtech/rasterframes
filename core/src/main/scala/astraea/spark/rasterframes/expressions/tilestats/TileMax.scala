@@ -20,43 +20,43 @@
  */
 
 package astraea.spark.rasterframes.expressions.tilestats
-import astraea.spark.rasterframes.expressions.{UnaryRasterOp, NullToValue}
+
+import astraea.spark.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import astraea.spark.rasterframes.model.TileContext
-import geotrellis.raster._
-import org.apache.spark.sql.{Column, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.types.{DataType, LongType}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.types.{DataType, DoubleType}
+import org.apache.spark.sql.{Column, TypedColumn}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Counts the number of non-no-data cells in a tile",
+  usage = "_FUNC_(tile) - Determines the maximum cell value.",
   arguments = """
   Arguments:
     * tile - tile column to analyze""",
   examples = """
   Examples:
     > SELECT _FUNC_(tile);
-       357"""
+       -1"""
 )
-case class DataCells(child: Expression) extends UnaryRasterOp
-  with CodegenFallback with NullToValue {
-  override def nodeName: String = "data_cells"
-  override def dataType: DataType = LongType
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = DataCells.op(tile)
-  override def na: Any = 0L
+case class TileMax(child: Expression) extends UnaryRasterOp
+  with NullToValue with CodegenFallback {
+  override def nodeName: String = "tile_max"
+  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMax.op(tile)
+  override def dataType: DataType = DoubleType
+  override def na: Any = Double.MinValue
 }
-object DataCells {
+object TileMax {
   import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
-  def apply(tile: Column): TypedColumn[Any, Long] =
-    new Column(DataCells(tile.expr)).as[Long]
 
-  val op = (tile: Tile) => {
-    var count: Long = 0
-    tile.dualForeach(
-      z ⇒ if(isData(z)) count = count + 1
-    ) (
-      z ⇒ if(isData(z)) count = count + 1
-    )
-    count
+  def apply(tile: Column): TypedColumn[Any, Double] =
+    new Column(TileMax(tile.expr)).as[Double]
+
+  /** Find the maximum cell value. */
+  val op = (tile: Tile) ⇒ {
+    var max: Double = Double.MinValue
+    tile.foreachDouble(z ⇒ if(isData(z)) max = math.max(max, z))
+    if (max == Double.MinValue) Double.NaN
+    else max
   }
 }

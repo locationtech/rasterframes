@@ -206,7 +206,7 @@ object TestData extends TestData {
 
   def projectedRasterTile[N: Numeric](
     cols: Int, rows: Int,
-    cellValue: N,
+    cellValue: => N,
     extent: Extent, crs: CRS = LatLng,
     cellType: CellType = ByteConstantNoDataCellType): ProjectedRasterTile = {
     val num = implicitly[Numeric[N]]

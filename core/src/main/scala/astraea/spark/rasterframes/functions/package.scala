@@ -56,11 +56,6 @@ package object functions {
   private[rasterframes] def safeEval[P1, P2, R](f: (P1, P2) ⇒ R): (P1, P2) ⇒ R =
     (p1, p2) ⇒ if (p1 == null || p2 == null) null.asInstanceOf[R] else f(p1, p2)
 
-  private[rasterframes] val isNoDataTile: (Tile) ⇒ Boolean = (t: Tile) ⇒ {
-    if(t == null) true
-    else t.isNoDataTile
-  }
-
   /** Converts an array into a tile. */
   private[rasterframes] def arrayToTile(cols: Int, rows: Int) = {
     safeEval[AnyRef, Tile]{
@@ -94,21 +89,7 @@ package object functions {
     else t.statistics.map(CellStatistics.apply).orNull
   )
 
-  /** Find the minimum cell value. */
-  private[rasterframes] val tileMin: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {
-    var min: Double = Double.MaxValue
-    t.foreachDouble(z ⇒ if(isData(z)) min = math.min(min, z))
-    if (min == Double.MaxValue) Double.NaN
-    else min
-  })
 
-  /** Find the maximum cell value. */
-  private[rasterframes] val tileMax: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {
-    var max: Double = Double.MinValue
-    t.foreachDouble(z ⇒ if(isData(z)) max = math.max(max, z))
-    if (max == Double.MinValue) Double.NaN
-    else max
-  })
 
   /** Single tile mean. Convenience for `tile_histogram.statistics.mean`. */
   private[rasterframes] val tileMean: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {
@@ -250,12 +231,9 @@ package object functions {
     sqlContext.udf.register("rf_tile_ones", tileOnes)
     sqlContext.udf.register("rf_agg_histogram", aggHistogram)
     sqlContext.udf.register("rf_agg_stats", aggStats)
-    sqlContext.udf.register("rf_tile_min", tileMin)
-    sqlContext.udf.register("rf_tile_max", tileMax)
     sqlContext.udf.register("rf_tile_mean", tileMean)
     sqlContext.udf.register("rf_tile_histogram", tileHistogram)
     sqlContext.udf.register("rf_tile_stats", tileStats)
-    sqlContext.udf.register("rf_is_no_data_tile", isNoDataTile)
     sqlContext.udf.register("rf_local_agg_stats", localAggStats)
     sqlContext.udf.register("rf_local_agg_max", localAggMax)
     sqlContext.udf.register("rf_local_agg_min", localAggMin)

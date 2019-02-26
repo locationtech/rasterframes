@@ -80,5 +80,9 @@ package object expressions {
     registry.registerExpression[TileToArrayInt]("rf_tile_to_array_int")
     registry.registerExpression[DataCells]("rf_data_cells")
     registry.registerExpression[NoDataCells]("rf_no_data_cells")
+    registry.registerExpression[IsNoDataTile]("rf_is_no_data_tile")
+    registry.registerExpression[TileMin]("rf_tile_min")
+    registry.registerExpression[TileMax]("rf_tile_max")
+
   }
 }

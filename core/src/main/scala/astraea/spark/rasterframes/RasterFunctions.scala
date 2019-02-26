@@ -139,15 +139,11 @@ trait RasterFunctions {
 
   /** Compute the minimum cell value in tile. */
   def tile_min(col: Column): TypedColumn[Any, Double] =
-  withAlias("tile_min", col)(
-    udf[Double, Tile](F.tileMin).apply(col)
-  ).as[Double]
+    TileMin(col)
 
   /** Compute the maximum cell value in tile. */
   def tile_max(col: Column): TypedColumn[Any, Double] =
-  withAlias("tile_max", col)(
-    udf[Double, Tile](F.tileMax).apply(col)
-  ).as[Double]
+    TileMax(col)
 
   /** Compute TileHistogram of Tile values. */
   def tile_histogram(col: Column): TypedColumn[Any, CellHistogram] =
@@ -170,9 +166,7 @@ trait RasterFunctions {
     NoDataCells(tile)
 
   def is_no_data_tile(tile: Column): TypedColumn[Any, Boolean] =
-    withAlias("is_no_data_tile", tile)(
-      udf(F.isNoDataTile).apply(tile)
-    ).as[Boolean]
+    IsNoDataTile(tile)
 
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
   def local_agg_stats(col: Column): Column =

@@ -23,7 +23,7 @@ package astraea.spark.rasterframes.expressions
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 
-trait WithNullToNumeric { self: UnaryExpression =>
+trait NullToValue { self: UnaryExpression =>
 
   def na: Any
 

@@ -20,43 +20,33 @@
  */
 
 package astraea.spark.rasterframes.expressions.tilestats
-import astraea.spark.rasterframes.expressions.{UnaryRasterOp, NullToValue}
+import astraea.spark.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.types.{DataType, LongType}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.types.{BooleanType, DataType}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Counts the number of non-no-data cells in a tile",
+  usage = "_FUNC_(tile) - Produces `true` if all the cells in a given tile are no-data",
   arguments = """
   Arguments:
     * tile - tile column to analyze""",
   examples = """
   Examples:
     > SELECT _FUNC_(tile);
-       357"""
+       false"""
 )
-case class DataCells(child: Expression) extends UnaryRasterOp
+case class IsNoDataTile(child: Expression) extends UnaryRasterOp
   with CodegenFallback with NullToValue {
-  override def nodeName: String = "data_cells"
-  override def dataType: DataType = LongType
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = DataCells.op(tile)
-  override def na: Any = 0L
+  override def nodeName: String = "is_no_data_tile"
+  override def na: Any = true
+  override def dataType: DataType = BooleanType
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile.isNoDataTile
 }
-object DataCells {
+object IsNoDataTile {
   import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
-  def apply(tile: Column): TypedColumn[Any, Long] =
-    new Column(DataCells(tile.expr)).as[Long]
-
-  val op = (tile: Tile) => {
-    var count: Long = 0
-    tile.dualForeach(
-      z ⇒ if(isData(z)) count = count + 1
-    ) (
-      z ⇒ if(isData(z)) count = count + 1
-    )
-    count
-  }
+  def apply(tile: Column): TypedColumn[Any, Boolean] =
+    new Column(IsNoDataTile(tile.expr)).as[Boolean]
 }

@@ -148,17 +148,11 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute the minimum cell value in tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileMin(col: Column): TypedColumn[Any, Double] =
-    withAlias("tileMin", col)(
-      udf[Double, Tile](F.tileMin).apply(col)
-    ).as[Double]
+    def tileMin(col: Column): TypedColumn[Any, Double] = delegate.tile_min(col)
 
     /** Compute the maximum cell value in tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileMax(col: Column): TypedColumn[Any, Double] =
-    withAlias("tileMax", col)(
-      udf[Double, Tile](F.tileMax).apply(col)
-    ).as[Double]
+    def tileMax(col: Column): TypedColumn[Any, Double] = delegate.tile_max(col)
 
     /** Compute TileHistogram of Tile values. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -183,10 +177,7 @@ object ZeroSevenCompatibilityKit {
     def noDataCells(tile: Column): TypedColumn[Any, Long] = delegate.no_data_cells(tile)
 
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def isNoDataTile(tile: Column): TypedColumn[Any, Boolean] =
-      withAlias("isNoDataTile", tile)(
-        udf(F.isNoDataTile).apply(tile)
-      ).as[Boolean]
+    def isNoDataTile(tile: Column): TypedColumn[Any, Boolean] = delegate.is_no_data_tile(tile)
 
     /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -397,6 +388,9 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_tileSum", ub(Sum.apply))
     registry.registerFunc("rf_dataCells", ub(DataCells.apply))
     registry.registerFunc("rf_noDataCells", ub(NoDataCells.apply))
+    registry.registerFunc("rf_isNoDataTile", ub(IsNoDataTile.apply))
+    registry.registerFunc("rf_tileMin", ub(TileMin.apply))
+    registry.registerFunc("rf_tileMax", ub(TileMax.apply))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
@@ -405,12 +399,9 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
     sqlContext.udf.register("rf_aggHistogram", F.aggHistogram)
     sqlContext.udf.register("rf_aggStats", F.aggStats)
-    sqlContext.udf.register("rf_tileMin", F.tileMin)
-    sqlContext.udf.register("rf_tileMax", F.tileMax)
     sqlContext.udf.register("rf_tileMean", F.tileMean)
     sqlContext.udf.register("rf_tileHistogram", F.tileHistogram)
     sqlContext.udf.register("rf_tileStats", F.tileStats)
-    sqlContext.udf.register("rf_isNoDataTile", F.isNoDataTile)
     sqlContext.udf.register("rf_localAggStats", F.localAggStats)
     sqlContext.udf.register("rf_localAggMax", F.localAggMax)
     sqlContext.udf.register("rf_localAggMin", F.localAggMin)

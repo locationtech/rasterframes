@@ -24,11 +24,21 @@ import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster._
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, DoubleType}
 import org.apache.spark.sql.{Column, TypedColumn}
 
+@ExpressionDescription(
+  usage = "_FUNC_(tile) - Computes the sum of all the cells in a tile..",
+  arguments = """
+  Arguments:
+    * tile - tile to sum up""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(tile5);
+       2135.34"""
+)
 case class Sum(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "tile_sum"
   override def dataType: DataType = DoubleType

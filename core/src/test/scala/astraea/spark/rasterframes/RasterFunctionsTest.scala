@@ -23,6 +23,8 @@ package astraea.spark.rasterframes
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
+import geotrellis.raster
+import geotrellis.raster.mapalgebra.local.Min
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
@@ -43,6 +45,9 @@ class RasterFunctionsTest extends FunSpec
   val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
   val six = ProjectedRasterTile(three * two, three.extent, three.crs)
   val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
+  val rand  = TestData.injectND(4)(
+    TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
+  )
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
@@ -247,6 +252,34 @@ class RasterFunctionsTest extends FunSpec
       df.select(data_cells($"two")).first() should be(96L)
       checkDocs("rf_data_cells")
     }
+    it("should compute no-data cell counts") {
+      val df = Seq(TestData.injectND(4)(two)).toDF("two")
+      df.select(no_data_cells($"two")).first() should be(4L)
+      checkDocs("rf_no_data_cells")
+    }
+    it("should detect no-data tiles") {
+      val df = Seq(nd).toDF("nd")
+      df.select(is_no_data_tile($"nd")).first() should be(true)
+      val df2 = Seq(two).toDF("not_nd")
+      df2.select(is_no_data_tile($"not_nd")).first() should be(false)
+      checkDocs("rf_is_no_data_tile")
+    }
+    it("should find the minimum cell value") {
+      val min = rand.toArray().filter(c => raster.isData(c)).min.toDouble
+      val df = Seq(rand).toDF("rand")
+      df.select(tile_min($"rand")).first() should be(min)
+      df.selectExpr("rf_tile_min(rand)").as[Double].first() should be(min)
+      checkDocs("rf_tile_min")
+    }
+
+    it("should find the maximum cell value") {
+      val max = rand.toArray().filter(c => raster.isData(c)).max.toDouble
+      val df = Seq(rand).toDF("rand")
+      df.select(tile_max($"rand")).first() should be(max)
+      df.selectExpr("rf_tile_max(rand)").as[Double].first() should be(max)
+      checkDocs("rf_tile_max")
+    }
+
   }
 
   describe("analytical transformations") {

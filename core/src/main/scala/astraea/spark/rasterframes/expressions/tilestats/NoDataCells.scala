@@ -21,7 +21,7 @@
 
 package astraea.spark.rasterframes.expressions.tilestats
 
-import astraea.spark.rasterframes.expressions.{UnaryRasterOp, WithNullToNumeric}
+import astraea.spark.rasterframes.expressions.{UnaryRasterOp, NullToValue}
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -40,7 +40,7 @@ import org.apache.spark.sql.types.{DataType, LongType}
        357"""
 )
 case class NoDataCells(child: Expression) extends UnaryRasterOp
-  with CodegenFallback with WithNullToNumeric {
+  with CodegenFallback with NullToValue {
   override def nodeName: String = "no_data_cells"
   override def dataType: DataType = LongType
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = NoDataCells.op(tile)
