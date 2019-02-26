@@ -114,7 +114,7 @@ class TileAssemblerSpec extends TestEnvironment {
       val expected = df.select(agg_stats($"tile")).first()
       val result = assembled.select(agg_stats($"tile")).first()
 
-      assert(result.copy(noDataCells = expected.noDataCells) === expected)
+      assert(result.copy(no_data_cells = expected.no_data_cells) === expected)
     }
 
   }

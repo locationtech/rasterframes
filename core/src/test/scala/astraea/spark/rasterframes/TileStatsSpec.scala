@@ -187,8 +187,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val r1 = ds.select(tile_histogram($"tiles"))
       assert(r1.first.totalCount === 5 * 5)
       write(r1)
-      sql("select rf_tile_histogram(tiles) as hist from tmp").printSchema()
-      val r2 = sql("select rf_tile_histogram(tiles) as hist from tmp").as[CellHistogram]
+      val r2 = sql("select hist.* from (select rf_tile_histogram(tiles) as hist from tmp)").as[CellHistogram]
       write(r2)
       assert(r1.first.mean === r2.first.mean)
     }
@@ -231,7 +230,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       //stats.select("stats.*").show(false)
       assert(stats.first().stddev === 1.0 +- 0.3) // <-- playing with statistical fire :)
 
-      val hist2 = sql("select rf_agg_histogram(tiles) as hist from tmp").as[CellHistogram](CellHistogram.encoder)
+      val hist2 = sql("select hist.* from (select rf_agg_histogram(tiles) as hist from tmp)").as[CellHistogram]
 
       assert(hist2.first.totalCount === rows * tileSize * tileSize)
     }

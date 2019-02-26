@@ -21,12 +21,11 @@
 
 package astraea.spark.rasterframes.expressions.tilestats
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
-import astraea.spark.rasterframes.stats.CellHistogram
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import geotrellis.raster.Tile
+import org.apache.spark.sql.catalyst.CatalystTypeConverters
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
@@ -46,12 +45,14 @@ case class TileHistogram(child: Expression) extends UnaryRasterOp
   with CodegenFallback {
   override def nodeName: String = "tile_histogram"
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
-    TileHistogram.op(tile).toInternalRow
-  override def dataType: DataType = CatalystSerializer[CellHistogram].schema
+    TileHistogram.converter(TileHistogram.op(tile))
+  override def dataType: DataType = CellHistogram.schema
 }
 object TileHistogram {
   def apply(tile: Column): TypedColumn[Any, CellHistogram] =
     new Column(TileHistogram(tile.expr)).as[CellHistogram]
+
+  private lazy val converter = CatalystTypeConverters.createToCatalystConverter(CellHistogram.schema)
 
   /** Single tile histogram. */
   val op = (t: Tile) ⇒ CellHistogram(t)

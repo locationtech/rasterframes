@@ -21,12 +21,11 @@
 
 package astraea.spark.rasterframes.expressions.tilestats
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.stats.CellStatistics
 import geotrellis.raster.Tile
+import org.apache.spark.sql.catalyst.CatalystTypeConverters
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
@@ -46,12 +45,14 @@ case class TileStats(child: Expression) extends UnaryRasterOp
   with CodegenFallback {
   override def nodeName: String = "tile_stats"
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
-    TileStats.op(tile).map(_.toInternalRow).orNull
-  override def dataType: DataType = CatalystSerializer[CellStatistics].schema
+    TileStats.converter(TileStats.op(tile).orNull)
+  override def dataType: DataType = CellStatistics.schema
 }
 object TileStats {
   def apply(tile: Column): TypedColumn[Any, CellStatistics] =
     new Column(TileStats(tile.expr)).as[CellStatistics]
+
+  private lazy val converter = CatalystTypeConverters.createToCatalystConverter(CellStatistics.schema)
 
   /** Single tile statistics. */
   val op = (t: Tile) ⇒ CellStatistics(t)

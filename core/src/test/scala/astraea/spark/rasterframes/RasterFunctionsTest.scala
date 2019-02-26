@@ -21,15 +21,13 @@
 
 package astraea.spark.rasterframes
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
-import astraea.spark.rasterframes.stats.CellStatistics
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
 import geotrellis.raster
-import geotrellis.raster.mapalgebra.local.Min
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.{Encoders, rf}
+import org.apache.spark.sql.Encoders
 import org.scalatest.{FunSpec, Matchers}
 
 class RasterFunctionsTest extends FunSpec
@@ -295,7 +293,7 @@ class RasterFunctionsTest extends FunSpec
       val mean = values.sum.toDouble / values.length
       val df = Seq(rand).toDF("rand")
       val stats = df.select(tile_stats($"rand")).first()
-      stats.mean should be (mean)
+      stats.mean should be (mean +- 0.00001)
 
       df.select(tile_stats($"rand") as "stats")
         .select($"stats.mean").as[Double]
@@ -313,7 +311,7 @@ class RasterFunctionsTest extends FunSpec
       val df = Seq(rand).toDF("rand")
       val hist = df.select(tile_histogram($"rand")).first()
 
-      hist.stats.mean should be (mean)
+      hist.stats.mean should be (mean +- 0.00001)
 
       df.select(tile_histogram($"rand") as "hist")
         .select($"hist.stats.mean").as[Double]

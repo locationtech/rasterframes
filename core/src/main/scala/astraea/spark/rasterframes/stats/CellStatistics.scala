@@ -19,21 +19,20 @@
  */
 
 package astraea.spark.rasterframes.stats
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
+import astraea.spark.rasterframes.encoders.StandardEncoders
 import geotrellis.raster.Tile
-import org.apache.spark.sql.Encoder
-import org.apache.spark.sql.types.{DoubleType, LongType, StructField, StructType}
+import org.apache.spark.sql.types.StructType
 
 /**
  * Container for computed statistics over cells.
  *
  * @since 4/3/18
  */
-case class CellStatistics(dataCells: Long, noDataCells: Long, min: Double, max: Double, mean: Double, variance: Double) {
+case class CellStatistics(data_cells: Long, no_data_cells: Long, min: Double, max: Double, mean: Double, variance: Double) {
   def stddev: Double = math.sqrt(variance)
   def asciiStats = Seq(
-    "data_cells: " + dataCells,
-    "no_data_cells: " + noDataCells,
+    "data_cells: " + data_cells,
+    "no_data_cells: " + no_data_cells,
     "min: " + min,
     "max: " + max,
     "mean: " + mean,
@@ -62,32 +61,10 @@ object CellStatistics {
   def apply(tile: Tile): Option[CellStatistics] = {
     val base = if (tile.cellType.isFloatingPoint) tile.statisticsDouble.map(CellStatistics.apply)
     else tile.statistics.map(CellStatistics.apply)
-    base.map(s => s.copy(noDataCells = tile.size - s.dataCells))
+    base.map(s => s.copy(no_data_cells = tile.size - s.data_cells))
   }
 
   def empty = new CellStatistics(0, 0, Double.NaN, Double.NaN, Double.NaN, Double.NaN)
 
-  implicit val serializer: CatalystSerializer[CellStatistics] = new CatalystSerializer[CellStatistics] {
-    override def schema: StructType = StructType(Seq(
-      StructField("data_cells", LongType, false),
-      StructField("no_data_cells", LongType, false),
-      StructField("min", DoubleType, false),
-      StructField("max", DoubleType, false),
-      StructField("mean", DoubleType, false),
-      StructField("variance", DoubleType, false)
-    ))
-    override protected def to[R](t: CellStatistics, io: CatalystSerializer.CatalystIO[R]): R = io.create(
-      t.dataCells, t.noDataCells, t.min, t.max, t.mean, t.variance
-    )
-    override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): CellStatistics = CellStatistics(
-      io.getLong(t, 0),
-      io.getLong(t, 1),
-      io.getDouble(t, 2),
-      io.getDouble(t, 3),
-      io.getDouble(t, 4),
-      io.getDouble(t, 5)
-    )
-  }
-
-  implicit val encoder: Encoder[CellStatistics] = CatalystSerializerEncoder[CellStatistics](true)
+  lazy val schema: StructType = StandardEncoders.cellStatsEncoder.schema
 }
