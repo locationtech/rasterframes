@@ -42,8 +42,8 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
   override def dataType: DataType =
     StructType(
       Seq(
-        StructField("dataCells", LongType),
-        StructField("noDataCells", LongType),
+        StructField("data_cells", LongType),
+        StructField("no_data_cells", LongType),
         StructField("min", DoubleType),
         StructField("max", DoubleType),
         StructField("mean", DoubleType),

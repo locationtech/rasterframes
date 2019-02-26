@@ -29,11 +29,12 @@ import scala.reflect.runtime.universe._
  *
  * @since 12/28/17
  */
-private[rasterframes] trait SparkDefaultEncoders {
+private[rasterframes] trait SparkBasicEncoders {
   implicit def arrayEnc[T: TypeTag]: Encoder[Array[T]] = ExpressionEncoder()
-  implicit def genEnc[T: TypeTag]: Encoder[T] = ExpressionEncoder()
-  implicit val intEnc = Encoders.scalaInt
-  implicit val stringEnc = Encoders.STRING
+  implicit val intEnc: Encoder[Int] = Encoders.scalaInt
+  implicit val longEnc: Encoder[Long] = Encoders.scalaLong
+  implicit val stringEnc: Encoder[String] = Encoders.STRING
+  implicit val doubleEnc: Encoder[Double] = Encoders.scalaDouble
+  implicit val boolEnc: Encoder[Boolean] = Encoders.scalaBoolean
 }
 
-private[rasterframes] object SparkDefaultEncoders extends SparkDefaultEncoders

@@ -44,7 +44,6 @@ case class GetDimensions(child: Expression) extends OnCellGridExpression
 }
 
 object GetDimensions {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
   def apply(col: Column): Column =
     new Column(new GetDimensions(col.expr)).as[TileDimensions]
 }

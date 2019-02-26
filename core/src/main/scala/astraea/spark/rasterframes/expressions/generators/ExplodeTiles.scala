@@ -39,9 +39,10 @@ import spire.syntax.cfor.cfor
  * @since 4/12/17
  */
 case class ExplodeTiles(
-  sampleFraction: Double = 1.0, seed: Option[Long] = None, override val children: Seq[Expression])
-    extends Expression with Generator with CodegenFallback {
+  sampleFraction: Double , seed: Option[Long], override val children: Seq[Expression])
+  extends Expression with Generator with CodegenFallback {
 
+  def this(children: Seq[Expression]) = this(1.0, None, children)
   override def nodeName: String = "explode_tiles"
 
   override def elementSchema: StructType = {

@@ -20,7 +20,6 @@
  */
 
 package astraea.spark.rasterframes.util
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
 import astraea.spark.rasterframes.expressions.TileAssembler
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.aggstats._
@@ -46,7 +45,8 @@ import org.apache.spark.sql.{Column, SQLContext, TypedColumn, rf}
  * @since 4/3/17
  */
 object ZeroSevenCompatibilityKit {
-  import SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 
   trait RasterFunctions {
     private val delegate = new astraea.spark.rasterframes.RasterFunctions {}
@@ -137,10 +137,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute the Tile-wise mean */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileMean(col: Column): TypedColumn[Any, Double] =
-    withAlias("tileMean", col)(
-      udf[Double, Tile](F.tileMean).apply(col)
-    ).as[Double]
+    def tileMean(col: Column): TypedColumn[Any, Double] = delegate.tile_mean(col)
 
     /** Compute the Tile-wise sum */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -157,16 +154,11 @@ object ZeroSevenCompatibilityKit {
     /** Compute TileHistogram of Tile values. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def tileHistogram(col: Column): TypedColumn[Any, CellHistogram] =
-    withAlias("tileHistogram", col)(
-      udf[CellHistogram, Tile](F.tileHistogram).apply(col)
-    ).as[CellHistogram]
+      delegate.tile_histogram(col)
 
     /** Compute statistics of Tile values. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileStats(col: Column): TypedColumn[Any, CellStatistics] =
-    withAlias("tileStats", col)(
-      udf[CellStatistics, Tile](F.tileStats).apply(col)
-    ).as[CellStatistics]
+    def tileStats(col: Column): TypedColumn[Any, CellStatistics] = delegate.tile_stats(col)
 
     /** Counts the number of non-NoData cells per Tile. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -391,6 +383,9 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_isNoDataTile", ub(IsNoDataTile.apply))
     registry.registerFunc("rf_tileMin", ub(TileMin.apply))
     registry.registerFunc("rf_tileMax", ub(TileMax.apply))
+    registry.registerFunc("rf_tileMean", ub(TileMean.apply))
+    registry.registerFunc("rf_tileStats", ub(TileStats.apply))
+    registry.registerFunc("rf_tileHistogram", ub(TileHistogram.apply))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
@@ -399,9 +394,6 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
     sqlContext.udf.register("rf_aggHistogram", F.aggHistogram)
     sqlContext.udf.register("rf_aggStats", F.aggStats)
-    sqlContext.udf.register("rf_tileMean", F.tileMean)
-    sqlContext.udf.register("rf_tileHistogram", F.tileHistogram)
-    sqlContext.udf.register("rf_tileStats", F.tileStats)
     sqlContext.udf.register("rf_localAggStats", F.localAggStats)
     sqlContext.udf.register("rf_localAggMax", F.localAggMax)
     sqlContext.udf.register("rf_localAggMin", F.localAggMin)

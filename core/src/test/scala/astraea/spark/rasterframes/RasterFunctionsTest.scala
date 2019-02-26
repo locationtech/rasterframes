@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
+import astraea.spark.rasterframes.stats.CellStatistics
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
 import geotrellis.raster
@@ -28,7 +29,7 @@ import geotrellis.raster.mapalgebra.local.Min
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.{Encoders, rf}
 import org.scalatest.{FunSpec, Matchers}
 
 class RasterFunctionsTest extends FunSpec
@@ -54,6 +55,7 @@ class RasterFunctionsTest extends FunSpec
 
   def checkDocs(name: String): Unit = {
     val docs = sql(s"DESCRIBE FUNCTION EXTENDED $name").as[String].collect().mkString("\n")
+    docs should include(name)
     docs shouldNot include("not found")
     docs shouldNot include("null")
     docs shouldNot include("N/A")
@@ -279,7 +281,49 @@ class RasterFunctionsTest extends FunSpec
       df.selectExpr("rf_tile_max(rand)").as[Double].first() should be(max)
       checkDocs("rf_tile_max")
     }
+    it("should compute the tile mean cell value") {
+      val values = rand.toArray().filter(c => raster.isData(c))
+      val mean = values.sum.toDouble / values.length
+      val df = Seq(rand).toDF("rand")
+      df.select(tile_mean($"rand")).first() should be(mean)
+      df.selectExpr("rf_tile_mean(rand)").as[Double].first() should be(mean)
+      checkDocs("rf_tile_mean")
+    }
 
+    it("should compute the tile summary statistics") {
+      val values = rand.toArray().filter(c => raster.isData(c))
+      val mean = values.sum.toDouble / values.length
+      val df = Seq(rand).toDF("rand")
+      val stats = df.select(tile_stats($"rand")).first()
+      stats.mean should be (mean)
+
+      df.select(tile_stats($"rand") as "stats")
+        .select($"stats.mean").as[Double]
+        .first() should be(mean +- 0.00001)
+      df.selectExpr("rf_tile_stats(rand) as stats")
+        .select($"stats.no_data_cells").as[Long]
+        .first() should be <= 96L
+
+      checkDocs("rf_tile_stats")
+    }
+
+    it("should compute the tile histogram") {
+      val values = rand.toArray().filter(c => raster.isData(c))
+      val mean = values.sum.toDouble / values.length
+      val df = Seq(rand).toDF("rand")
+      val hist = df.select(tile_histogram($"rand")).first()
+
+      hist.stats.mean should be (mean)
+
+      df.select(tile_histogram($"rand") as "hist")
+        .select($"hist.stats.mean").as[Double]
+        .first() should be(mean +- 0.00001)
+      df.selectExpr("rf_tile_histogram(rand) as hist")
+        .select($"hist.stats.no_data_cells").as[Long]
+        .first() should be >= 4L
+
+      checkDocs("rf_tile_histogram")
+    }
   }
 
   describe("analytical transformations") {

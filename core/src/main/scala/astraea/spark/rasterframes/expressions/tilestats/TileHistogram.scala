@@ -21,42 +21,38 @@
 
 package astraea.spark.rasterframes.expressions.tilestats
 
-import astraea.spark.rasterframes.expressions.{NullToValue, UnaryRasterOp}
+import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
-import geotrellis.raster.{Tile, isData}
+import astraea.spark.rasterframes.stats.CellHistogram
+import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.apache.spark.sql.types.{DataType, DoubleType}
+import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Determines the maximum cell value.",
+  usage = "_FUNC_(tile) - Computes per-tile histogram.",
   arguments = """
   Arguments:
     * tile - tile column to analyze""",
   examples = """
   Examples:
     > SELECT _FUNC_(tile);
-       1"""
+       ..."""
 )
-case class TileMax(child: Expression) extends UnaryRasterOp
-  with NullToValue with CodegenFallback {
-  override def nodeName: String = "tile_max"
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMax.op(tile)
-  override def dataType: DataType = DoubleType
-  override def na: Any = Double.MinValue
+case class TileHistogram(child: Expression) extends UnaryRasterOp
+  with CodegenFallback {
+  override def nodeName: String = "tile_histogram"
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
+    TileHistogram.op(tile).toInternalRow
+  override def dataType: DataType = CatalystSerializer[CellHistogram].schema
 }
-object TileMax {
-  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
+object TileHistogram {
+  def apply(tile: Column): TypedColumn[Any, CellHistogram] =
+    new Column(TileHistogram(tile.expr)).as[CellHistogram]
 
-  def apply(tile: Column): TypedColumn[Any, Double] =
-    new Column(TileMax(tile.expr)).as[Double]
-
-  /** Find the maximum cell value. */
-  val op = (tile: Tile) ⇒ {
-    var max: Double = Double.MinValue
-    tile.foreachDouble(z ⇒ if(isData(z)) max = math.max(max, z))
-    if (max == Double.MinValue) Double.NaN
-    else max
-  }
+  /** Single tile histogram. */
+  val op = (t: Tile) ⇒ CellHistogram(t)
 }

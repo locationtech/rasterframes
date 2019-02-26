@@ -19,12 +19,11 @@
 
 package astraea.spark.rasterframes
 
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders
 import astraea.spark.rasterframes.expressions.TileAssembler
-import astraea.spark.rasterframes.expressions.localops._
-import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.aggstats._
+import astraea.spark.rasterframes.expressions.generators._
+import astraea.spark.rasterframes.expressions.localops._
 import astraea.spark.rasterframes.expressions.tilestats._
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
@@ -37,16 +36,14 @@ import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 
-import scala.reflect.runtime.universe._
-
 /**
  * UDFs for working with Tiles in Spark DataFrames.
  *
  * @since 4/3/17
  */
 trait RasterFunctions {
-  import SparkDefaultEncoders._
   import util._
+  import PrimitiveEncoders._
 
   // format: off
   /** Create a row for each cell in Tile. */
@@ -82,7 +79,7 @@ trait RasterFunctions {
 
   /** Create a Tile from a column of cell data with location indexes and preform cell conversion. */
   def assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
-    convert_cell_type(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile]
+    convert_cell_type(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile](singlebandTileEncoder)
 
   /** Create a Tile from  a column of cell data with location indexes. */
   def assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Column, tileRows: Column): TypedColumn[Any, Tile] =
@@ -129,9 +126,7 @@ trait RasterFunctions {
 
   /** Compute the Tile-wise mean */
   def tile_mean(col: Column): TypedColumn[Any, Double] =
-  withAlias("tile_mean", col)(
-    udf[Double, Tile](F.tileMean).apply(col)
-  ).as[Double]
+    TileMean(col)
 
   /** Compute the Tile-wise sum */
   def tile_sum(col: Column): TypedColumn[Any, Double] =
@@ -147,15 +142,11 @@ trait RasterFunctions {
 
   /** Compute TileHistogram of Tile values. */
   def tile_histogram(col: Column): TypedColumn[Any, CellHistogram] =
-  withAlias("tile_histogram", col)(
-    udf[CellHistogram, Tile](F.tileHistogram).apply(col)
-  ).as[CellHistogram]
+    TileHistogram(col)
 
   /** Compute statistics of Tile values. */
   def tile_stats(col: Column): TypedColumn[Any, CellStatistics] =
-  withAlias("tile_stats", col)(
-    udf[CellStatistics, Tile](F.tileStats).apply(col)
-  ).as[CellStatistics]
+    TileStats(col)
 
   /** Counts the number of non-NoData cells per Tile. */
   def data_cells(tile: Column): TypedColumn[Any, Long] =

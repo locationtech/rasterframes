@@ -46,7 +46,7 @@ case class IsNoDataTile(child: Expression) extends UnaryRasterOp
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile.isNoDataTile
 }
 object IsNoDataTile {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.boolEnc
   def apply(tile: Column): TypedColumn[Any, Boolean] =
     new Column(IsNoDataTile(tile.expr)).as[Boolean]
 }

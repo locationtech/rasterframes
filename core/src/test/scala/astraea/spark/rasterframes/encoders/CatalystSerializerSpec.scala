@@ -35,7 +35,7 @@ class CatalystSerializerSpec extends TestEnvironment with TestData {
 
   describe("Specialized serialization on specific types") {
     it("should support encoding") {
-      implicit val enc: ExpressionEncoder[CRS] = CatalystSerializerEncoder[CRS]
+      implicit val enc: ExpressionEncoder[CRS] = CatalystSerializerEncoder[CRS](true)
 
       val values = Seq[CRS](LatLng, Sinusoidal, ConusAlbers, WebMercator)
       val df = spark.createDataset(values)(enc)

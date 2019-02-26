@@ -22,6 +22,7 @@
 package astraea.spark.rasterframes.expressions.tilestats
 
 import astraea.spark.rasterframes.expressions.{NullToValue, UnaryRasterOp}
+import astraea.spark.rasterframes.functions.safeEval
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -30,33 +31,37 @@ import org.apache.spark.sql.types.{DataType, DoubleType}
 import org.apache.spark.sql.{Column, TypedColumn}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Determines the maximum cell value.",
+  usage = "_FUNC_(tile) - Computes the mean cell value of a tile.",
   arguments = """
   Arguments:
     * tile - tile column to analyze""",
   examples = """
   Examples:
     > SELECT _FUNC_(tile);
-       1"""
+       -1"""
 )
-case class TileMax(child: Expression) extends UnaryRasterOp
+case class TileMean(child: Expression) extends UnaryRasterOp
   with NullToValue with CodegenFallback {
-  override def nodeName: String = "tile_max"
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMax.op(tile)
+  override def nodeName: String = "tile_mean"
+  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMean.op(tile)
   override def dataType: DataType = DoubleType
-  override def na: Any = Double.MinValue
+  override def na: Any = Double.MaxValue
 }
-object TileMax {
+object TileMean {
   import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
 
   def apply(tile: Column): TypedColumn[Any, Double] =
-    new Column(TileMax(tile.expr)).as[Double]
+    new Column(TileMean(tile.expr)).as[Double]
 
-  /** Find the maximum cell value. */
-  val op = (tile: Tile) ⇒ {
-    var max: Double = Double.MinValue
-    tile.foreachDouble(z ⇒ if(isData(z)) max = math.max(max, z))
-    if (max == Double.MinValue) Double.NaN
-    else max
+  /** Single tile mean. */
+  val op = (t: Tile) ⇒ {
+    var sum: Double = 0.0
+    var count: Long = 0
+    t.dualForeach(
+      z ⇒ if(isData(z)) { count = count + 1; sum = sum + z }
+    ) (
+      z ⇒ if(isData(z)) { count = count + 1; sum = sum + z }
+    )
+    sum/count
   }
 }

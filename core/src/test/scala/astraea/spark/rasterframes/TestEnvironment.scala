@@ -19,11 +19,12 @@ package astraea.spark.rasterframes
 
 import java.nio.file.{Files, Paths}
 
+import astraea.spark.rasterframes.encoders.StandardEncoders
 import astraea.spark.rasterframes.ref.RasterSource
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
 import com.vividsolutions.jts.geom.Geometry
-import geotrellis.spark.testkit.{TestEnvironment ⇒ GeoTrellisTestEnvironment}
+import geotrellis.spark.testkit.{TestEnvironment => GeoTrellisTestEnvironment}
 import geotrellis.util.LazyLogging
 import org.apache.spark.SparkContext
 import org.apache.spark.sql._

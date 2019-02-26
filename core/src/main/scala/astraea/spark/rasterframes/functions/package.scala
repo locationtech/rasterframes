@@ -80,29 +80,6 @@ package object functions {
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
-  /** Single tile histogram. */
-  private[rasterframes] val tileHistogram = safeEval[Tile, CellHistogram](t ⇒ CellHistogram(t.histogramDouble))
-
-  /** Single tile statistics. Convenience for `tile_histogram.statistics`. */
-  private[rasterframes] val tileStats = safeEval[Tile, CellStatistics]((t: Tile) ⇒
-    if (t.cellType.isFloatingPoint) t.statisticsDouble.map(CellStatistics.apply).orNull
-    else t.statistics.map(CellStatistics.apply).orNull
-  )
-
-
-
-  /** Single tile mean. Convenience for `tile_histogram.statistics.mean`. */
-  private[rasterframes] val tileMean: (Tile) ⇒ Double = safeEval((t: Tile) ⇒ {
-    var sum: Double = 0.0
-    var count: Long = 0
-    t.dualForeach(
-      z ⇒ if(isData(z)) { count = count + 1; sum = sum + z }
-    ) (
-      z ⇒ if(isData(z)) { count = count + 1; sum = sum + z }
-    )
-    sum/count
-  })
-
   /** Compute summary cell-wise statistics across tiles. */
   private[rasterframes] val localAggStats = new LocalStatsAggregate()
 
@@ -120,10 +97,6 @@ package object functions {
 
   /** Compute the cell-wise count of non-NA across tiles. */
   private[rasterframes] val localAggNodataCount = new LocalCountAggregate(false)
-
-  /** Convert the tile to a floating point type as needed for scalar operations. */
-  @inline
-  private def floatingPointTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
   /** Render tile as ASCII string. */
   private[rasterframes] val renderAscii: Tile ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
@@ -231,9 +204,7 @@ package object functions {
     sqlContext.udf.register("rf_tile_ones", tileOnes)
     sqlContext.udf.register("rf_agg_histogram", aggHistogram)
     sqlContext.udf.register("rf_agg_stats", aggStats)
-    sqlContext.udf.register("rf_tile_mean", tileMean)
-    sqlContext.udf.register("rf_tile_histogram", tileHistogram)
-    sqlContext.udf.register("rf_tile_stats", tileStats)
+
     sqlContext.udf.register("rf_local_agg_stats", localAggStats)
     sqlContext.udf.register("rf_local_agg_max", localAggMax)
     sqlContext.udf.register("rf_local_agg_min", localAggMin)

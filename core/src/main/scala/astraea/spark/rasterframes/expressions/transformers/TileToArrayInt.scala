@@ -27,7 +27,7 @@ import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.util.ArrayData
-import org.apache.spark.sql.types.{DataType, DataTypes, DoubleType}
+import org.apache.spark.sql.types.{DataType, DataTypes, DoubleType, IntegerType}
 import org.apache.spark.sql.{Column, TypedColumn}
 
 @ExpressionDescription(
@@ -38,13 +38,13 @@ import org.apache.spark.sql.{Column, TypedColumn}
 )
 case class TileToArrayInt(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "tile_to_array_int"
-  override def dataType: DataType = DataTypes.createArrayType(DoubleType, false)
+  override def dataType: DataType = DataTypes.createArrayType(IntegerType, false)
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     ArrayData.toArrayData(tile.toArray())
   }
 }
 object TileToArrayInt {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.arrayEnc
   def apply(tile: Column): TypedColumn[Any, Array[Int]] =
     new Column(TileToArrayInt(tile.expr)).as[Array[Int]]
 }

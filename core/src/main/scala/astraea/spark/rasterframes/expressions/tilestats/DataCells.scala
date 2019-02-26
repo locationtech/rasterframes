@@ -46,9 +46,9 @@ case class DataCells(child: Expression) extends UnaryRasterOp
   override def na: Any = 0L
 }
 object DataCells {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
   def apply(tile: Column): TypedColumn[Any, Long] =
-    new Column(DataCells(tile.expr)).as[Long]
+  new Column(DataCells(tile.expr)).as[Long]
 
   val op = (tile: Tile) => {
     var count: Long = 0

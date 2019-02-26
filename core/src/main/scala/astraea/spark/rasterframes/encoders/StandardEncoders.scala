@@ -20,9 +20,8 @@
 package astraea.spark.rasterframes.encoders
 
 import java.net.URI
+import java.sql.Timestamp
 
-import astraea.spark.rasterframes.stats.CellHistogram
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, Tile}
@@ -38,13 +37,14 @@ import scala.reflect.runtime.universe._
  * Implicit encoder definitions for RasterFrame types.
  */
 trait StandardEncoders extends SpatialEncoders {
+  object PrimitiveEncoders extends SparkBasicEncoders
+  def expressionEncoder[T: TypeTag]: ExpressionEncoder[T] = ExpressionEncoder()
   implicit def spatialKeyEncoder: ExpressionEncoder[SpatialKey] = ExpressionEncoder()
   implicit def temporalKeyEncoder: ExpressionEncoder[TemporalKey] = ExpressionEncoder()
   implicit def spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = ExpressionEncoder()
-  implicit def histEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
   implicit def layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = ExpressionEncoder()
   implicit def stkBoundsEncoder: ExpressionEncoder[KeyBounds[SpaceTimeKey]] = ExpressionEncoder()
-  implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder()
+  implicit def extentEncoder: ExpressionEncoder[Extent] = CatalystSerializerEncoder[Extent](true)
   implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
   implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
   implicit def crsEncoder: ExpressionEncoder[CRS] = CRSEncoder()
@@ -53,7 +53,8 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def cellTypeEncoder: ExpressionEncoder[CellType] = CellTypeEncoder()
   implicit def uriEncoder: ExpressionEncoder[URI] = URIEncoder()
   implicit def envelopeEncoder: ExpressionEncoder[Envelope] = EnvelopeEncoder()
-  //implicit def projectedRasterTileEncoder = ProjectedRasterTile.prtEncoder
+  implicit def timestampEncoder: ExpressionEncoder[Timestamp] = ExpressionEncoder()
+  implicit def strMapEncoder: ExpressionEncoder[Map[String, String]] = ExpressionEncoder()
 }
 
 object StandardEncoders extends StandardEncoders

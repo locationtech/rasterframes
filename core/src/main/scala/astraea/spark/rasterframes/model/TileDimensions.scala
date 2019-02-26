@@ -21,9 +21,10 @@
 
 package astraea.spark.rasterframes.model
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
 import geotrellis.raster.Grid
+import org.apache.spark.sql.Encoder
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 
 /**
@@ -52,4 +53,6 @@ object TileDimensions {
       io.getShort(t, 1)
     )
   }
+
+  implicit val encoder: Encoder[TileDimensions] = CatalystSerializerEncoder[TileDimensions](true)
 }

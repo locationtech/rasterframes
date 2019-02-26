@@ -34,13 +34,12 @@ import org.apache.spark.sql.functions._
  * @since 9/18/17
  */
 class TileStatsSpec extends TestEnvironment with TestData {
-
+  import sqlContext.implicits._
   import TestData.injectND
 
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._
     it("should report dimensions") {
-      import sqlContext.implicits._
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
 
       val dims = df.select(tile_dimensions($"tile1") as "dims").select("dims.*")
@@ -63,7 +62,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should report cell type") {
-      import sqlContext.implicits._
       val ct = functions.cellTypes().filter(_ != "bool")
       forEvery(ct) { c =>
         val expected = CellType.fromName(c)
@@ -79,7 +77,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     val tile3 = randomTile(255, 255, IntCellType)
 
     it("should compute accurate item counts") {
-      import sqlContext.implicits._
       val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val checkedValues = Seq[Double](0, 4, 7, 13, 26)
       val result = checkedValues.map(x => ds.select(tile_histogram($"tiles")).first().itemCount(x))
@@ -89,7 +86,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("Should compute quantiles") {
-      import sqlContext.implicits._
       val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val numBreaks = 5
       val breaks = ds.select(tile_histogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
@@ -126,7 +122,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should count data and no-data cells") {
-      import sqlContext.implicits._
       val ds =
         (Seq.fill[Tile](10)(injectND(10)(randomTile(10, 10, UByteConstantNoDataCellType))) :+ null)
           .toDF("tile")
@@ -150,14 +145,14 @@ class TileStatsSpec extends TestEnvironment with TestData {
       assert(ds.select(agg_no_data_cells($"tile")).first() === expectedNoData)
 
       val resultTileStats = ds
-        .select(tile_stats($"tile")("dataCells") as "cells")
+        .select(tile_stats($"tile")("data_cells") as "cells")
         .agg(sum("cells"))
         .as[Long]
         .first()
       assert(resultTileStats === expectedData)
 
       val (aggDC, aggNDC) =
-        ds.select(agg_stats($"tile")).select("dataCells", "noDataCells").as[(Long, Long)].first()
+        ds.select(agg_stats($"tile") as "stats").select("stats.data_cells", "stats.no_data_cells").as[(Long, Long)].first()
       assert(aggDC === expectedData)
       assert(aggNDC === expectedNoData)
     }
@@ -171,7 +166,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         val means2 = ds.select(tile_mean($"value")).collect
         // Compute the mean manually, knowing we're not dealing with no-data values.
         val means =
-          ds.select(tile_to_array_double($"value")).map(a => a.sum.toDouble / a.length).collect
+          ds.select(tile_to_array_double($"value")).map(a => a.sum / a.length).collect
 
         forAll(means.zip(means1)) { case (l, r) => assert(l === r +- 1e-6) }
         forAll(means.zip(means2)) { case (l, r) => assert(l === r +- 1e-6) }
@@ -186,16 +181,14 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute per-tile histogram") {
-      import sqlContext.implicits._
       val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatCellType)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
       val r1 = ds.select(tile_histogram($"tiles"))
       assert(r1.first.totalCount === 5 * 5)
       write(r1)
-
-      val r2 = sql("select hist.* from (select rf_tile_histogram(tiles) as hist from tmp)").as[
-          CellHistogram]
+      sql("select rf_tile_histogram(tiles) as hist from tmp").printSchema()
+      val r2 = sql("select rf_tile_histogram(tiles) as hist from tmp").as[CellHistogram]
       write(r2)
       assert(r1.first.mean === r2.first.mean)
     }
@@ -216,14 +209,14 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate histogram") {
-      import sqlContext.implicits._
       val tileSize = 5
       val rows = 10
       val ds = Seq
         .fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType))
         .toDF("tiles")
       ds.createOrReplaceTempView("tmp")
-      val agg = ds.select(agg_histogram($"tiles")).as[CellHistogram]
+      //ds.select(agg_histogram($"tiles")).printSchema()
+      val agg = ds.select(agg_histogram($"tiles"))
       val histArray = agg.collect()
       assert(histArray.length === 1)
 
@@ -238,14 +231,12 @@ class TileStatsSpec extends TestEnvironment with TestData {
       //stats.select("stats.*").show(false)
       assert(stats.first().stddev === 1.0 +- 0.3) // <-- playing with statistical fire :)
 
-      val hist2 = sql("select hist.* from (select rf_agg_histogram(tiles) as hist from tmp)").as[
-          CellHistogram]
+      val hist2 = sql("select rf_agg_histogram(tiles) as hist from tmp").as[CellHistogram](CellHistogram.encoder)
 
       assert(hist2.first.totalCount === rows * tileSize * tileSize)
     }
 
     it("should compute aggregate mean") {
-      import sqlContext.implicits._
       val ds = (Seq.fill[Tile](10)(randomTile(5, 5, FloatCellType)) :+ null).toDF("tiles")
       val agg = ds.select(agg_mean($"tiles"))
       val stats = ds.select(agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
@@ -253,7 +244,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate statistics") {
-      import sqlContext.implicits._
       val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
 
       val exploded = ds.select(explode_tiles($"tiles"))
@@ -271,7 +261,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
       ds.createOrReplaceTempView("tmp")
       val agg2 = sql("select stats.* from (select rf_agg_stats(tiles) as stats from tmp)")
-      assert(agg2.first().getAs[Long]("dataCells") === 250L)
+      assert(agg2.first().getAs[Long]("data_cells") === 250L)
 
       val agg3 = ds.agg(agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
       assert(mean === agg3.first())
@@ -312,7 +302,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute accurate statistics") {
-      import sqlContext.implicits._
       val completeTile = squareIncrementingTile(4).convert(IntConstantNoDataCellType)
       val incompleteTile = injectND(2)(completeTile)
 
@@ -346,7 +335,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
   }
   describe("NoData handling") {
-    import sqlContext.implicits._
     val tsize = 5
     val count = 20
     val nds = 2

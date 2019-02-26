@@ -37,7 +37,7 @@ import org.apache.spark.sql.types.{DataType, LongType}
   examples = """
   Examples:
     > SELECT _FUNC_(tile);
-       357"""
+       12"""
 )
 case class NoDataCells(child: Expression) extends UnaryRasterOp
   with CodegenFallback with NullToValue {
@@ -47,7 +47,7 @@ case class NoDataCells(child: Expression) extends UnaryRasterOp
   override def na: Any = 0L
 }
 object NoDataCells {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
   def apply(tile: Column): TypedColumn[Any, Long] =
     new Column(NoDataCells(tile.expr)).as[Long]
 

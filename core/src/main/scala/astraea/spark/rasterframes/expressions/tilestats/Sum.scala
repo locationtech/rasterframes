@@ -20,7 +20,6 @@
  */
 
 package astraea.spark.rasterframes.expressions.tilestats
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster._
@@ -46,6 +45,7 @@ case class Sum(child: Expression) extends UnaryRasterOp with CodegenFallback {
 }
 
 object Sum {
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(Sum(tile.expr)).as[Double]
 

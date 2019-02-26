@@ -47,7 +47,7 @@ case class TileMin(child: Expression) extends UnaryRasterOp
   override def na: Any = Double.MaxValue
 }
 object TileMin {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
 
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(TileMin(tile.expr)).as[Double]

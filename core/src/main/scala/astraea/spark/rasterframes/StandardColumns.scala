@@ -6,17 +6,16 @@ import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{SpatialKey, TemporalKey}
 import org.apache.spark.sql.functions.col
 import com.vividsolutions.jts.geom.{Point => jtsPoint, Polygon => jtsPolygon}
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
-import astraea.spark.rasterframes.encoders.StandardEncoders
 import geotrellis.proj4.CRS
 import geotrellis.vector.Extent
+import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 
 /**
  * Constants identifying column in most RasterFrames.
  *
  * @since 2/19/18
  */
-trait StandardColumns extends StandardEncoders {
+trait StandardColumns {
   /** Default RasterFrame spatial column name. */
   val SPATIAL_KEY_COLUMN = col("spatial_key").as[SpatialKey]
 

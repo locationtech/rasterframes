@@ -92,7 +92,7 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
 }
 
 object CellMeanAggregate {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
   /** Computes the column aggregate mean. */
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(new CellMeanAggregate(tile.expr).toAggregateExpression()).as[Double]

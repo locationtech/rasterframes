@@ -75,7 +75,7 @@ case class CellCountAggregate(isData: Boolean, child: Expression) extends Declar
 }
 
 object CellCountAggregate {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
   def apply(isData: Boolean, tile: Column): TypedColumn[Any, Long] =
     new Column(new CellCountAggregate(isData, tile.expr).toAggregateExpression()).as[Long]
 }

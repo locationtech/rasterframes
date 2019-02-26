@@ -23,7 +23,8 @@ package astraea.spark.rasterframes.expressions.aggstats
 
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.encoders.StandardEncoders
+import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.functions.safeEval
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster.Tile
@@ -48,7 +49,7 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
 
   override def bufferSchema: StructType = StructType(StructField("buffer", BinaryType) :: Nil)
 
-  override def dataType: DataType = StandardEncoders.histEncoder.schema
+  override def dataType: DataType = CatalystSerializer[CellHistogram].schema
 
   override def deterministic: Boolean = true
 
@@ -83,7 +84,7 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
 
   override def evaluate(buffer: Row): Any = {
     val hist = unmarshall(buffer.getAs[Array[Byte]](0))
-    CellHistogram(hist)
+    CellHistogram(hist).toRow
   }
 }
 

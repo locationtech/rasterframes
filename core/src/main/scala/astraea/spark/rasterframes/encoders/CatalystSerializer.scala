@@ -24,8 +24,11 @@ package astraea.spark.rasterframes.encoders
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
+
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
  * Typeclass for converting to/from JVM object to catalyst encoding. The reason this exists is that
@@ -59,6 +62,9 @@ object CatalystSerializer extends StandardSerializers {
   trait CatalystIO[R] extends Serializable {
     def create(values: Any*): R
     def to[T: CatalystSerializer](t: T): R = CatalystSerializer[T].to(t, this)
+    def toSeq[T: CatalystSerializer](t: Seq[T]): AnyRef
+    def get[T: CatalystSerializer](d: R, ordinal: Int): T
+    def getSeq[T: CatalystSerializer](d: R, ordinal: Int): Seq[T]
     def isNullAt(d: R, ordinal: Int): Boolean
     def getBoolean(d: R, ordinal: Int): Boolean
     def getByte(d: R, ordinal: Int): Byte
@@ -69,7 +75,6 @@ object CatalystSerializer extends StandardSerializers {
     def getDouble(d: R, ordinal: Int): Double
     def getString(d: R, ordinal: Int): String
     def getByteArray(d: R, ordinal: Int): Array[Byte]
-    def get[T: CatalystSerializer](d: R, ordinal: Int): T
     def encode(str: String): AnyRef
   }
 
@@ -86,11 +91,15 @@ object CatalystSerializer extends StandardSerializers {
       override def getFloat(d: R, ordinal: Int): Float =  d.getFloat(ordinal)
       override def getDouble(d: R, ordinal: Int): Double = d.getDouble(ordinal)
       override def getString(d: R, ordinal: Int): String = d.getString(ordinal)
-      override def getByteArray(d: R, ordinal: Int): Array[Byte] = d.get(ordinal).asInstanceOf[Array[Byte]]
+      override def getByteArray(d: R, ordinal: Int): Array[Byte] =
+        d.get(ordinal).asInstanceOf[Array[Byte]]
       override def get[T: CatalystSerializer](d: R, ordinal: Int): T = {
         val struct = d.getStruct(ordinal)
         struct.to[T]
       }
+      override def toSeq[T: CatalystSerializer](t: Seq[T]): AnyRef = t.map(_.toRow)
+      override def getSeq[T: CatalystSerializer](d: R, ordinal: Int): Seq[T] =
+        d.getSeq[Row](ordinal).map(_.to[T])
       override def encode(str: String): String = str
     }
 
@@ -115,10 +124,21 @@ object CatalystSerializer extends StandardSerializers {
         struct.to[T]
       }
       override def create(values: Any*): InternalRow = InternalRow(values: _*)
+      override def toSeq[T: CatalystSerializer](t: Seq[T]): ArrayData =
+        ArrayData.toArrayData(t.map(_.toInternalRow).toArray)
+
+      override def getSeq[T: CatalystSerializer](d: InternalRow, ordinal: Int): Seq[T] = {
+        val ad = d.getArray(ordinal)
+        val result = Array.ofDim[Any](ad.numElements()).asInstanceOf[Array[T]]
+        ad.foreach(
+          CatalystSerializer[T].schema,
+          (i, v) => result(i) = v.asInstanceOf[InternalRow].to[T]
+        )
+        result.toSeq
+      }
       override def encode(str: String): UTF8String = UTF8String.fromString(str)
     }
   }
-
 
   implicit class WithToRow[T: CatalystSerializer](t: T) {
     def toInternalRow: InternalRow = CatalystSerializer[T].toInternalRow(t)

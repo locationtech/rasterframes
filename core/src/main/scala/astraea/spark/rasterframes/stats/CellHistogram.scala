@@ -19,7 +19,13 @@
  */
 
 package astraea.spark.rasterframes.stats
-import geotrellis.raster.histogram.{StreamingHistogram, Histogram ⇒ GTHistogram}
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
+import geotrellis.raster.Tile
+import geotrellis.raster.histogram.{Histogram => GTHistogram}
+import org.apache.spark.sql.Encoder
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.types._
+
 import scala.collection.mutable.{ListBuffer => MutableListBuffer}
 
 /**
@@ -28,7 +34,6 @@ import scala.collection.mutable.{ListBuffer => MutableListBuffer}
  * @since 4/3/18
  */
 case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
-
   def labels = bins.map(_.value)
   def mean = stats.mean
   def totalCount = stats.dataCells
@@ -68,7 +73,7 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
     }
   }
 
-  private def cdfIntervals(): Iterator[((Double, Double), (Double, Double))] = {
+  private def cdfIntervals: Iterator[((Double, Double), (Double, Double))] = {
     if(bins.size < 2) {
       Iterator.empty
     } else {
@@ -151,15 +156,58 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
 
 object CellHistogram {
   case class Bin(value: Double, count: Long)
+  object Bin {
+    implicit def serializer: CatalystSerializer[Bin] = new CatalystSerializer[Bin] {
+      override def schema: StructType = StructType(Seq(
+        StructField("value", DoubleType, false),
+        StructField("count", LongType, false)
+      ))
+      override protected def to[R](t: Bin, io: CatalystSerializer.CatalystIO[R]): R =
+        io.create(t.value, t.count)
+      override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): Bin =
+        Bin(io.getDouble(t, 0), io.getLong(t, 1))
+    }
+  }
+
+  def apply(tile: Tile): CellHistogram = {
+    val (bins, stats) = if (tile.cellType.isFloatingPoint) {
+      val h = tile.histogramDouble
+      val bins = h.binCounts().map(p ⇒ Bin(p._1, p._2))
+      (bins, h.statistics().map(CellStatistics.apply).orNull)
+    }
+    else {
+      val h = tile.histogram
+      val bins = h.binCounts().map(p ⇒ Bin(p._1, p._2))
+      (bins, h.statistics().map(CellStatistics.apply).orNull)
+    }
+    val updatedStats = stats.copy(noDataCells = tile.size - stats.dataCells)
+    CellHistogram(updatedStats, bins)
+  }
+
   def apply(hist: GTHistogram[Int]): CellHistogram = {
     val stats = CellStatistics(hist.statistics().get)
     CellHistogram(stats, hist.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2)))
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
     val stats = hist.statistics().map(CellStatistics.apply).getOrElse(CellStatistics.empty)
-    // Code should be this, but can't due to geotrellis#2664:
-    // val bins = hist.binCounts().map(p ⇒ Bin(p._1, p._2))
-    val bins = hist.asInstanceOf[StreamingHistogram].buckets().map(b ⇒ Bin(b.label, b.count))
+    val bins = hist.binCounts().map(p ⇒ Bin(p._1, p._2))
     CellHistogram(stats, bins)
   }
+
+  implicit val serializer: CatalystSerializer[CellHistogram] = new CatalystSerializer[CellHistogram] {
+    override def schema: StructType = StructType(Seq(
+      StructField("stats", CatalystSerializer[CellStatistics].schema, false),
+      StructField("bins", DataTypes.createArrayType(CatalystSerializer[Bin].schema, false), false)
+    ))
+    override protected def to[R](t: CellHistogram, io: CatalystSerializer.CatalystIO[R]): R = io.create(
+      io.to(t.stats),
+      io.toSeq(t.bins)
+    )
+    override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): CellHistogram = CellHistogram(
+      io.get[CellStatistics](t, 0),
+      io.getSeq[Bin](t, 1)
+    )
+  }
+
+  implicit val encoder: Encoder[CellHistogram] = CatalystSerializerEncoder[CellHistogram](true)
 }

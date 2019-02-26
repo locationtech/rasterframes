@@ -83,6 +83,8 @@ package object expressions {
     registry.registerExpression[IsNoDataTile]("rf_is_no_data_tile")
     registry.registerExpression[TileMin]("rf_tile_min")
     registry.registerExpression[TileMax]("rf_tile_max")
-
+    registry.registerExpression[TileMean]("rf_tile_mean")
+    registry.registerExpression[TileStats]("rf_tile_stats")
+    registry.registerExpression[TileHistogram]("rf_tile_histogram")
   }
 }

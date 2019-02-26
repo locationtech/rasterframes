@@ -43,7 +43,7 @@ case class TileToArrayDouble(child: Expression) extends UnaryRasterOp with Codeg
   }
 }
 object TileToArrayDouble {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.arrayEnc
   def apply(tile: Column): TypedColumn[Any, Array[Double]] =
     new Column(TileToArrayDouble(tile.expr)).as[Array[Double]]
 }
