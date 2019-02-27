@@ -23,7 +23,7 @@ package astraea.spark.rasterframes.expressions.tilestats
 
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
-import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.CatalystTypeConverters
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback

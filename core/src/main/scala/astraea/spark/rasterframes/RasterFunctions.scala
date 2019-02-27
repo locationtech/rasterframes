@@ -106,23 +106,20 @@ trait RasterFunctions {
 
   /**  Compute the full column aggregate floating point histogram. */
   def agg_histogram(col: Column): TypedColumn[Any, CellHistogram] =
-  withAlias("histogram", col)(
-    F.aggHistogram(col)
-  ).as[CellHistogram]
+    HistogramAggregate(col)
 
   /** Compute the full column aggregate floating point statistics. */
-  def agg_stats(col: Column): TypedColumn[Any, CellStatistics] = withAlias("agg_stats", col)(
-    F.aggStats(col)
-  ).as[CellStatistics]
+  def agg_stats(col: Column): TypedColumn[Any, CellStatistics] =
+    CellStatsAggregate(col)
 
   /** Computes the column aggregate mean. */
   def agg_mean(col: Column) = CellMeanAggregate(col)
 
   /** Computes the number of non-NoData cells in a column. */
-  def agg_data_cells(col: Column) = CellCountAggregate(true, col)
+  def agg_data_cells(col: Column) = CellCountAggregate.DataCells(col)
 
   /** Computes the number of NoData cells in a column. */
-  def agg_no_data_cells(col: Column) = CellCountAggregate(false, col)
+  def agg_no_data_cells(col: Column) = CellCountAggregate.NoDataCells(col)
 
   /** Compute the Tile-wise mean */
   def tile_mean(col: Column): TypedColumn[Any, Double] =

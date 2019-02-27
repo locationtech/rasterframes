@@ -71,12 +71,6 @@ package object functions {
     }
   }
 
-  /** Computes the column aggregate histogram */
-  private[rasterframes] val aggHistogram = HistogramAggregate()
-
-  /** Computes the column aggregate statistics */
-  private[rasterframes] val aggStats = CellStatsAggregate()
-
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
@@ -99,7 +93,7 @@ package object functions {
   private[rasterframes] val localAggNodataCount = new LocalCountAggregate(false)
 
   /** Render tile as ASCII string. */
-  private[rasterframes] val renderAscii: Tile ⇒ String = safeEval(_.renderAscii(AsciiArtEncoder.Palette.NARROW))
+  private[rasterframes] val renderAscii: Tile ⇒ String = safeEval("\n" + _.renderAscii(AsciiArtEncoder.Palette.NARROW))
 
   /** Constructor for constant tiles */
   private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {
@@ -202,8 +196,6 @@ package object functions {
     sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
     sqlContext.udf.register("rf_tile_zeros", tileZeros)
     sqlContext.udf.register("rf_tile_ones", tileOnes)
-    sqlContext.udf.register("rf_agg_histogram", aggHistogram)
-    sqlContext.udf.register("rf_agg_stats", aggStats)
 
     sqlContext.udf.register("rf_local_agg_stats", localAggStats)
     sqlContext.udf.register("rf_local_agg_max", localAggMax)

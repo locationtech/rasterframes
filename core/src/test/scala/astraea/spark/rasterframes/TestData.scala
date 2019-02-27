@@ -23,6 +23,7 @@ import java.nio.file.Paths
 import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes.expressions.tilestats.NoDataCells
+import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.{functions => F}
 import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
@@ -238,11 +239,18 @@ object TestData extends TestData {
     val targeted = rnd.shuffle(indexes).take(num)
     def filter(c: Int, r: Int) = targeted.contains(r * t.cols + c)
 
-    if(t.cellType.isFloatingPoint) {
+    val injected = if(t.cellType.isFloatingPoint) {
       t.mapDouble((c, r, v) ⇒ (if(filter(c,r)) raster.doubleNODATA else v): Double)
     }
     else {
       t.map((c, r, v) ⇒ if(filter(c, r)) raster.NODATA else v)
     }
+
+//    t match {
+//      case TileContext(ext, crs) => ProjectedRasterTile(injected, ext, crs)
+//      case _ => injected
+//    }
+
+    injected
   }
 }

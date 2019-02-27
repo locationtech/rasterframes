@@ -32,7 +32,10 @@ case class TileContext(extent: Extent, crs: CRS) {
 }
 object TileContext {
   def apply(prt: ProjectedRasterTile): TileContext = new TileContext(prt.extent, prt.crs)
-
+  def unapply(tile: Tile): Option[(Extent, CRS)] = tile match {
+    case prt: ProjectedRasterTile => Some((prt.extent, prt.crs))
+    case _ => None
+  }
   implicit val serializer: CatalystSerializer[TileContext] = new CatalystSerializer[TileContext] {
     override def schema: StructType = StructType(Seq(
       StructField("extent", CatalystSerializer[Extent].schema, false),

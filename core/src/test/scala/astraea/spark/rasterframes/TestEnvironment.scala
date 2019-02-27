@@ -19,7 +19,7 @@ package astraea.spark.rasterframes
 
 import java.nio.file.{Files, Paths}
 
-import astraea.spark.rasterframes.encoders.StandardEncoders
+import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.stringEnc
 import astraea.spark.rasterframes.ref.RasterSource
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
@@ -84,6 +84,14 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   }
 
   def matchGeom(g: Geometry, tolerance: Double) = new GeometryMatcher(g, tolerance)
+
+  def checkDocs(name: String): Unit = {
+    val docs = sql(s"DESCRIBE FUNCTION EXTENDED $name").as[String].collect().mkString("\n")
+    docs should include(name)
+    docs shouldNot include("not found")
+    docs shouldNot include("null")
+    docs shouldNot include("N/A")
+  }
 }
 
 object TestEnvironment {

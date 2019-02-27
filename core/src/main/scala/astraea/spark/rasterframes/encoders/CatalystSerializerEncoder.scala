@@ -71,7 +71,7 @@ object CatalystSerializerEncoder {
 
     val parentType: DataType = ScalaReflection.dataTypeFor[T]
 
-    val inputObject = BoundReference(0, parentType, nullable = false)
+    val inputObject = BoundReference(0, parentType, nullable = true)
 
     val serializer = CatSerializeToRow(inputObject, serde)
 

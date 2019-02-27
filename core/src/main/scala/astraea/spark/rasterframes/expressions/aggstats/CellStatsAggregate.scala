@@ -21,8 +21,12 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
+import astraea.spark.rasterframes.stats.CellStatistics
 import geotrellis.raster.{Tile, _}
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.{Column, Row, TypedColumn}
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
+import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, _}
@@ -34,34 +38,18 @@ import org.apache.spark.sql.types.{DataType, _}
  */
 case class CellStatsAggregate() extends UserDefinedAggregateFunction {
   import CellStatsAggregate.C
-
+  // TODO: rewrite as a DeclarativeAggregate
   private val TileType = new TileUDT()
 
   override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
   override def dataType: DataType =
-    StructType(
-      Seq(
-        StructField("data_cells", LongType),
-        StructField("no_data_cells", LongType),
-        StructField("min", DoubleType),
-        StructField("max", DoubleType),
-        StructField("mean", DoubleType),
-        StructField("variance", DoubleType)
-      )
-    )
+    StructType(Seq(StructField("data_cells", LongType), StructField("no_data_cells", LongType), StructField("min", DoubleType),
+        StructField("max", DoubleType), StructField("mean", DoubleType), StructField("variance", DoubleType)))
 
   override def bufferSchema: StructType =
-    StructType(
-      Seq(
-        StructField("dataCells", LongType),
-        StructField("noDataCells", LongType),
-        StructField("min", DoubleType),
-        StructField("max", DoubleType),
-        StructField("sum", DoubleType),
-        StructField("sumSqr", DoubleType)
-      )
-    )
+    StructType(Seq(StructField("dataCells", LongType), StructField("noDataCells", LongType), StructField("min", DoubleType),
+        StructField("max", DoubleType), StructField("sum", DoubleType), StructField("sumSqr", DoubleType)))
 
   override def deterministic: Boolean = true
 
@@ -75,7 +63,7 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
   }
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    if(!input.isNullAt(0)) {
+    if (!input.isNullAt(0)) {
       val tile = input.getAs[Tile](0)
       var count = buffer.getLong(C.COUNT)
       var nodata = buffer.getLong(C.NODATA)
@@ -84,15 +72,15 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
       var sum = buffer.getDouble(C.SUM)
       var sumSqr = buffer.getDouble(C.SUM_SQRS)
 
-      tile.foreachDouble(c ⇒ if (isData(c)) {
-        count += 1
-        min = math.min(min, c)
-        max = math.max(max, c)
-        sum = sum + c
-        sumSqr = sumSqr + c * c
-      }
-      else nodata += 1
-      )
+      tile.foreachDouble(
+          c =>
+            if (isData(c)) {
+            count += 1
+            min = math.min(min, c)
+            max = math.max(max, c)
+            sum = sum + c
+            sumSqr = sumSqr + c * c
+          } else nodata += 1)
 
       buffer(C.COUNT) = count
       buffer(C.NODATA) = nodata
@@ -123,6 +111,35 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
 }
 
 object CellStatsAggregate {
+  import astraea.spark.rasterframes.encoders.StandardEncoders.cellStatsEncoder
+
+  def apply(col: Column): TypedColumn[Any, CellStatistics] =
+    new Column(new CellStatsAggregateUDAF(col.expr)).as[CellStatistics]
+
+  /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Compute aggregate descriptive cell statistics over a tile column.",
+    arguments = """
+  Arguments:
+    * tile - tile column to analyze""",
+    examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+    +----------+-------------+---+-----+-------+-----------------+
+    |data_cells|no_data_cells|min|max  |mean   |variance         |
+    +----------+-------------+---+-----+-------+-----------------+
+    |960       |40           |1.0|255.0|127.175|5441.704791666667|
+    +----------+-------------+---+-----+-------+-----------------+"""
+  )
+  class CellStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
+    extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(child), new CellStatsAggregate()), Complete, false, NamedExpression.newExprId)
+    override def nodeName: String = "agg_stats"
+  }
+  object CellStatsAggregateUDAF {
+    def apply(child: Expression): CellStatsAggregateUDAF = new CellStatsAggregateUDAF(child)
+  }
+
   /**  Column index values. */
   private object C {
     final val COUNT = 0

@@ -112,16 +112,11 @@ object ZeroSevenCompatibilityKit {
 
     /**  Compute the full column aggregate floating point histogram. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] =
-    withAlias("histogram", col)(
-      F.aggHistogram(col)
-    ).as[CellHistogram]
+    def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.agg_histogram(col)
 
     /** Compute the full column aggregate floating point statistics. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggStats(col: Column): TypedColumn[Any, CellStatistics] = withAlias("aggStats", col)(
-      F.aggStats(col)
-    ).as[CellStatistics]
+    def aggStats(col: Column): TypedColumn[Any, CellStatistics] = delegate.agg_stats(col)
 
     /** Computes the column aggregate mean. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -129,11 +124,11 @@ object ZeroSevenCompatibilityKit {
 
     /** Computes the number of non-NoData cells in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggDataCells(col: Column) = CellCountAggregate(true, col)
+    def aggDataCells(col: Column): TypedColumn[Any, Long] = delegate.agg_data_cells(col)
 
     /** Computes the number of NoData cells in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggNoDataCells(col: Column) = CellCountAggregate(false, col)
+    def aggNoDataCells(col: Column): TypedColumn[Any, Long] = delegate.agg_no_data_cells(col)
 
     /** Compute the Tile-wise mean */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -386,14 +381,14 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_tileMean", ub(TileMean.apply))
     registry.registerFunc("rf_tileStats", ub(TileStats.apply))
     registry.registerFunc("rf_tileHistogram", ub(TileHistogram.apply))
+    registry.registerFunc("rf_aggStats", ub(CellStatsAggregate.CellStatsAggregateUDAF.apply))
+    registry.registerFunc("rf_aggHistogram", ub(HistogramAggregate.HistogramAggregateUDAF.apply))
 
     sqlContext.udf.register("rf_maskByValue", F.maskByValue)
     sqlContext.udf.register("rf_inverseMask", F.inverseMask)
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
-    sqlContext.udf.register("rf_aggHistogram", F.aggHistogram)
-    sqlContext.udf.register("rf_aggStats", F.aggStats)
     sqlContext.udf.register("rf_localAggStats", F.localAggStats)
     sqlContext.udf.register("rf_localAggMax", F.localAggMax)
     sqlContext.udf.register("rf_localAggMin", F.localAggMin)

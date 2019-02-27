@@ -19,11 +19,9 @@
  */
 
 package astraea.spark.rasterframes.stats
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder, StandardEncoders}
+import astraea.spark.rasterframes.encoders.StandardEncoders
 import geotrellis.raster.Tile
 import geotrellis.raster.histogram.{Histogram => GTHistogram}
-import org.apache.spark.sql.Encoder
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types._
 
 import scala.collection.mutable.{ListBuffer => MutableListBuffer}
@@ -173,11 +171,13 @@ object CellHistogram {
   }
 
   def apply(hist: GTHistogram[Int]): CellHistogram = {
-    val stats = CellStatistics(hist.statistics().get)
+    val stats = hist.statistics().map(CellStatistics.apply).getOrElse(CellStatistics.empty)
+    // TODO: stats will be missing a no-data count
     CellHistogram(stats, hist.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2)))
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
     val stats = hist.statistics().map(CellStatistics.apply).getOrElse(CellStatistics.empty)
+    // TODO: stats will be missing a no-data count
     val bins = hist.binCounts().map(p ⇒ Bin(p._1, p._2))
     CellHistogram(stats, bins)
   }

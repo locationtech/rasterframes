@@ -20,6 +20,7 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.aggstats.{CellCountAggregate, CellStatsAggregate, HistogramAggregate}
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.localops._
 import astraea.spark.rasterframes.expressions.tilestats._
@@ -86,5 +87,10 @@ package object expressions {
     registry.registerExpression[TileMean]("rf_tile_mean")
     registry.registerExpression[TileStats]("rf_tile_stats")
     registry.registerExpression[TileHistogram]("rf_tile_histogram")
+    registry.registerExpression[CellCountAggregate.DataCells]("rf_agg_data_cells")
+    registry.registerExpression[CellCountAggregate.NoDataCells]("rf_agg_no_data_cells")
+    registry.registerExpression[CellStatsAggregate.CellStatsAggregateUDAF]("rf_agg_stats")
+    registry.registerExpression[HistogramAggregate.HistogramAggregateUDAF]("rf_agg_histogram")
+
   }
 }

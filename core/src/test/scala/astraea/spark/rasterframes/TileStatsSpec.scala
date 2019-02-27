@@ -121,42 +121,6 @@ class TileStatsSpec extends TestEnvironment with TestData {
       }
     }
 
-    it("should count data and no-data cells") {
-      val ds =
-        (Seq.fill[Tile](10)(injectND(10)(randomTile(10, 10, UByteConstantNoDataCellType))) :+ null)
-          .toDF("tile")
-      val expectedNoData = 10 * 10
-      val expectedData = 10 * 10 * 10 - expectedNoData
-
-      //logger.debug(ds.select($"tile").as[Tile].first.cell_type.name)
-
-      assert(
-          ds.select(data_cells($"tile") as "cells")
-            .agg(sum("cells"))
-            .as[Long]
-            .first() === expectedData)
-      assert(
-          ds.select(no_data_cells($"tile") as "cells")
-            .agg(sum("cells"))
-            .as[Long]
-            .first() === expectedNoData)
-
-      assert(ds.select(agg_data_cells($"tile")).first() === expectedData)
-      assert(ds.select(agg_no_data_cells($"tile")).first() === expectedNoData)
-
-      val resultTileStats = ds
-        .select(tile_stats($"tile")("data_cells") as "cells")
-        .agg(sum("cells"))
-        .as[Long]
-        .first()
-      assert(resultTileStats === expectedData)
-
-      val (aggDC, aggNDC) =
-        ds.select(agg_stats($"tile") as "stats").select("stats.data_cells", "stats.no_data_cells").as[(Long, Long)].first()
-      assert(aggDC === expectedData)
-      assert(aggNDC === expectedNoData)
-    }
-
     it("should compute tile statistics") {
       import sqlContext.implicits._
       withClue("mean") {
@@ -214,25 +178,25 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType))
         .toDF("tiles")
       ds.createOrReplaceTempView("tmp")
-      //ds.select(agg_histogram($"tiles")).printSchema()
       val agg = ds.select(agg_histogram($"tiles"))
+
       val histArray = agg.collect()
-      assert(histArray.length === 1)
+      histArray.length should be (1)
 
       // examine histogram info
       val hist = histArray.head
-      //logger.info(hist.asciiHistogram(128))
-      //logger.info(hist.asciiStats)
       assert(hist.totalCount === rows * tileSize * tileSize)
       assert(hist.bins.map(_.count).sum === rows * tileSize * tileSize)
 
       val stats = agg.map(_.stats).as("stats")
       //stats.select("stats.*").show(false)
-      assert(stats.first().stddev === 1.0 +- 0.3) // <-- playing with statistical fire :)
+      assert(stats.first().stddev === 1.0 +- 0.3)
 
       val hist2 = sql("select hist.* from (select rf_agg_histogram(tiles) as hist from tmp)").as[CellHistogram]
 
-      assert(hist2.first.totalCount === rows * tileSize * tileSize)
+      hist2.first.totalCount should be (rows * tileSize * tileSize)
+
+      checkDocs("rf_agg_histogram")
     }
 
     it("should compute aggregate mean") {

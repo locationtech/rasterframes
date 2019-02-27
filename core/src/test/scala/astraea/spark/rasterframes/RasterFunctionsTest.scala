@@ -20,14 +20,16 @@
  */
 
 package astraea.spark.rasterframes
+import astraea.spark.rasterframes.TestData.injectND
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster.testkit.RasterMatchers
-import geotrellis.raster.{ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, Tile}
+import geotrellis.raster.{ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, Tile, UByteConstantNoDataCellType}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.functions.sum
 import org.scalatest.{FunSpec, Matchers}
 
 class RasterFunctionsTest extends FunSpec
@@ -39,25 +41,25 @@ class RasterFunctionsTest extends FunSpec
   val ct = ByteUserDefinedNoDataCellType(-2)
   val cols = 10
   val rows = cols
+  val tileSize = cols * rows
+  val tileCount = 10
+  val numND = 4
   val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
   val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)
   val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
   val six = ProjectedRasterTile(three * two, three.extent, three.crs)
   val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
-  val rand  = TestData.injectND(4)(
+  val rand  = TestData.injectND(numND)(
     TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
   )
-
+  val expectedRandNoData: Long = numND * tileCount
+  val expectedRandData: Long = cols * rows * tileCount - expectedRandNoData
+  val randNDTiles = Seq.fill[Tile](tileCount)(injectND(numND)(
+    TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
+  )).map(ProjectedRasterTile(_, extent, crs)) :+ null
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
 
-  def checkDocs(name: String): Unit = {
-    val docs = sql(s"DESCRIBE FUNCTION EXTENDED $name").as[String].collect().mkString("\n")
-    docs should include(name)
-    docs shouldNot include("not found")
-    docs shouldNot include("null")
-    docs shouldNot include("N/A")
-  }
 
   describe("arithmetic tile operations") {
     it("should local_add") {
@@ -248,13 +250,27 @@ class RasterFunctionsTest extends FunSpec
 
   describe("per-tile stats") {
     it("should compute data cell counts") {
-      val df = Seq(TestData.injectND(4)(two)).toDF("two")
-      df.select(data_cells($"two")).first() should be(96L)
+      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
+      df.select(data_cells($"two")).first() shouldBe (cols * rows - numND).toLong
+
+      val df2 = randNDTiles.toDF("tile")
+      df2.select(data_cells($"tile") as "cells")
+        .agg(sum("cells"))
+        .as[Long]
+        .first() should be (expectedRandData)
+
       checkDocs("rf_data_cells")
     }
     it("should compute no-data cell counts") {
-      val df = Seq(TestData.injectND(4)(two)).toDF("two")
-      df.select(no_data_cells($"two")).first() should be(4L)
+      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
+      df.select(no_data_cells($"two")).first() should be(numND)
+
+      val df2 = randNDTiles.toDF("tile")
+      df2.select(no_data_cells($"tile") as "cells")
+        .agg(sum("cells"))
+        .as[Long]
+        .first() should be (expectedRandNoData)
+
       checkDocs("rf_no_data_cells")
     }
     it("should detect no-data tiles") {
@@ -300,7 +316,14 @@ class RasterFunctionsTest extends FunSpec
         .first() should be(mean +- 0.00001)
       df.selectExpr("rf_tile_stats(rand) as stats")
         .select($"stats.no_data_cells").as[Long]
-        .first() should be <= 96L
+        .first() should be <= (cols * rows - numND).toLong
+
+      val df2 = randNDTiles.toDF("tile")
+      df2
+        .select(tile_stats($"tile")("data_cells") as "cells")
+        .agg(sum("cells"))
+        .as[Long]
+        .first() should be (expectedRandData)
 
       checkDocs("rf_tile_stats")
     }
@@ -318,9 +341,44 @@ class RasterFunctionsTest extends FunSpec
         .first() should be(mean +- 0.00001)
       df.selectExpr("rf_tile_histogram(rand) as hist")
         .select($"hist.stats.no_data_cells").as[Long]
-        .first() should be >= 4L
+        .first() should be >= numND.toLong
 
       checkDocs("rf_tile_histogram")
+    }
+  }
+
+  describe("aggregate statistics") {
+    it("should count data cells") {
+      val df = randNDTiles.toDF("tile")
+      df.select(agg_data_cells($"tile")).first() should be (expectedRandData)
+      df.selectExpr("rf_agg_data_cells(tile)").as[Long].first() should be (expectedRandData)
+
+      checkDocs("rf_agg_data_cells")
+    }
+    it("should count no-data cells") {
+      val df = randNDTiles.toDF("tile")
+      df.select(agg_no_data_cells($"tile")).first() should be (expectedRandNoData)
+      df.selectExpr("rf_agg_no_data_cells(tile)").as[Long].first() should be (expectedRandNoData)
+      checkDocs("rf_agg_no_data_cells")
+    }
+
+    it("should compute aggregate statistics") {
+      val df = randNDTiles.toDF("tile")
+      df
+        .select(agg_stats($"tile") as "stats")
+        .select("stats.data_cells", "stats.no_data_cells")
+        .as[(Long, Long)]
+        .first() should be ((expectedRandData, expectedRandNoData))
+      df.selectExpr("rf_agg_stats(tile) as stats")
+        .select("stats.data_cells")
+        .as[Long]
+        .first() should be (expectedRandData)
+
+      checkDocs("rf_agg_stats")
+    }
+
+    it("should compute a aggregate histogram") {
+      checkDocs("rf_agg_histogram")
     }
   }
 

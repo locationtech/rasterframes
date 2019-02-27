@@ -23,6 +23,8 @@ package astraea.spark.rasterframes.expressions.aggstats
 
 import astraea.spark.rasterframes.expressions.tilestats.{DataCells, NoDataCells}
 import astraea.spark.rasterframes.expressions.udfexpr
+import astraea.spark.rasterframes.functions
+import astraea.spark.rasterframes.functions.safeEval
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
@@ -36,9 +38,10 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 10/5/17
  * @param isData true if count should be of non-NoData cells, false if count should be of NoData cells.
  */
-case class CellCountAggregate(isData: Boolean, child: Expression) extends DeclarativeAggregate {
+abstract class CellCountAggregate(isData: Boolean) extends DeclarativeAggregate {
+  def child: Expression
 
-  override def prettyName: String =
+  override def nodeName: String =
     if (isData) "agg_data_cells"
     else "agg_no_data_cells"
 
@@ -51,12 +54,12 @@ case class CellCountAggregate(isData: Boolean, child: Expression) extends Declar
     Literal(0L)
   )
 
-  private val cellTest =
-    if (isData) udfexpr(DataCells.op)
-    else udfexpr(NoDataCells.op)
+  private val CellTest =
+    if (isData) udfexpr(safeEval(DataCells.op))
+    else udfexpr(safeEval(NoDataCells.op))
 
   val updateExpressions = Seq(
-    If(IsNull(child), count, Add(count, cellTest(child)))
+    If(IsNull(child), count, Add(count, CellTest(child)))
   )
 
   val mergeExpressions = Seq(
@@ -76,8 +79,37 @@ case class CellCountAggregate(isData: Boolean, child: Expression) extends Declar
 
 object CellCountAggregate {
   import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
-  def apply(isData: Boolean, tile: Column): TypedColumn[Any, Long] =
-    new Column(new CellCountAggregate(isData, tile.expr).toAggregateExpression()).as[Long]
+
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Count the total data (non-no-data) cells in a tile column.",
+    arguments = """
+  Arguments:
+    * tile - tile column to analyze""",
+    examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+       92384753"""
+  )
+  case class DataCells(child: Expression) extends CellCountAggregate(true)
+  object DataCells {
+    def apply(tile: Column): TypedColumn[Any, Long] =
+      new Column(DataCells(tile.expr).toAggregateExpression()).as[Long]
+  }
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Count the total no-data cells in a tile column.",
+    arguments = """
+  Arguments:
+    * tile - tile column to analyze""",
+    examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+       23584"""
+  )
+  case class NoDataCells(child: Expression) extends CellCountAggregate(false)
+  object NoDataCells {
+    def apply(tile: Column): TypedColumn[Any, Long] =
+      new Column(NoDataCells(tile.expr).toAggregateExpression()).as[Long]
+  }
 }
 
 

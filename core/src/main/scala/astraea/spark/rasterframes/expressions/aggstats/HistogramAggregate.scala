@@ -23,14 +23,16 @@ package astraea.spark.rasterframes.expressions.aggstats
 
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, StandardEncoders}
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.aggstats.CellStatsAggregate.CellStatsAggregateUDAF
 import astraea.spark.rasterframes.functions.safeEval
-import astraea.spark.rasterframes.stats.CellHistogram
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import geotrellis.raster.Tile
 import geotrellis.raster.histogram.{Histogram, StreamingHistogram}
 import geotrellis.spark.util.KryoSerializer
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Column, Row, TypedColumn}
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
+import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
@@ -42,7 +44,7 @@ import org.apache.spark.sql.types._
  */
 case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunction {
   def this() = this(StreamingHistogram.DEFAULT_NUM_BUCKETS)
-
+  // TODO: rewrite as TypedAggregateExpression or similar.
   private val TileType = new TileUDT()
 
   override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
@@ -89,5 +91,27 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
 }
 
 object HistogramAggregate {
-  def apply() = new HistogramAggregate(StreamingHistogram.DEFAULT_NUM_BUCKETS)
+  import astraea.spark.rasterframes.encoders.StandardEncoders.cellHistEncoder
+
+  def apply(col: Column): TypedColumn[Any, CellHistogram] =
+    new Column(new HistogramAggregateUDAF(col.expr)).as[CellHistogram]
+  /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Compute aggregate cell histogram over a tile column.",
+    arguments = """
+  Arguments:
+    * tile - tile column to analyze""",
+    examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+      ..."""
+  )
+  class HistogramAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
+    extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(child), new HistogramAggregate()), Complete, false, NamedExpression.newExprId)
+    override def nodeName: String = "agg_histogram"
+  }
+  object HistogramAggregateUDAF {
+    def apply(child: Expression): HistogramAggregateUDAF = new HistogramAggregateUDAF(child)
+  }
 }

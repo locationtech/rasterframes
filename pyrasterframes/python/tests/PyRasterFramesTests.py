@@ -126,7 +126,7 @@ class RasterFunctionsTest(unittest.TestCase):
         print(row['agg_data_cells(tile)'])
         self.assertEqual(row['agg_data_cells(tile)'], 387000)
         self.assertEqual(row['agg_no_data_cells(tile)'], 1000)
-        self.assertEqual(row['agg_stats(tile)'].dataCells, row['agg_data_cells(tile)'])
+        self.assertEqual(row['agg_stats(tile)'].data_cells, row['agg_data_cells(tile)'])
 
 
     def test_sql(self):
@@ -192,7 +192,7 @@ class RasterFunctionsTest(unittest.TestCase):
         rf1 = self.rf.select(self.rf.tile,
                              local_multiply(
                                  convert_cell_type(
-                                     local_greater(self.rf.tile, 25000),
+                                     local_greater_scalar_int(self.rf.tile, 25000),
                                      "uint8"),
                                   mask_value).alias('mask'))
         rf2 = rf1.select(rf1.tile, mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
