@@ -45,7 +45,7 @@ case class TileMean(child: Expression) extends UnaryRasterOp
   override def nodeName: String = "tile_mean"
   override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMean.op(tile)
   override def dataType: DataType = DoubleType
-  override def na: Any = Double.MaxValue
+  override def na: Any = Double.NaN
 }
 object TileMean {
   import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc

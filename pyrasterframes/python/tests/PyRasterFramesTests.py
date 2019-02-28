@@ -194,7 +194,7 @@ class RasterFunctionsTest(unittest.TestCase):
                                  convert_cell_type(
                                      local_greater_scalar_int(self.rf.tile, 25000),
                                      "uint8"),
-                                  mask_value).alias('mask'))
+                                  lit(mask_value)).alias('mask'))
         rf2 = rf1.select(rf1.tile, mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
         result = rf2.agg(agg_no_data_cells(rf2.tile) < agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]

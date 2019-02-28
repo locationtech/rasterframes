@@ -30,6 +30,7 @@ import org.apache.spark.sql.catalyst.expressions.BinaryExpression
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 
+/** Operation combining two tiles into a new tile. */
 trait BinaryRasterOp extends BinaryExpression with LazyLogging {
 
   override def dataType: DataType = left.dataType

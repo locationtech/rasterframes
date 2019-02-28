@@ -139,28 +139,6 @@ package object functions {
     ).map(_.toString).distinct
 
   /**
-    * Generate a tile with the values from the data tile, but where cells in the
-    * masking tile contain NODATA, replace the data value with NODATA.
-    */
-  private[rasterframes] val mask: (Tile, Tile) ⇒ Tile =
-    (dataTile, maskingTile) ⇒ Mask(dataTile, Defined(maskingTile), 0, NODATA)
-
-  /**
-    * Generate a tile with the values from the data tile, but where cells in the
-    * masking tile contain the masking value, replace the data value with NODATA.
-    */
-  private[rasterframes] val maskByValue: (Tile, Tile, Int) ⇒ Tile =
-    (dataTile, maskingTile, maskingValue) ⇒
-      Mask(dataTile, maskingTile, maskingValue, NODATA)
-
-  /**
-    * Generate a tile with the values from the data tile, but where cells in the
-    * masking tile DO NOT contain NODATA, replace the data value with NODATA.
-    */
-  private[rasterframes] val inverseMask: (Tile, Tile) ⇒ Tile =
-    (dataTile, maskingTile) ⇒ InverseMask(dataTile, Defined(maskingTile), 0, NODATA)
-
-  /**
    * Rasterize geometry into tiles.
    */
   private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
@@ -173,13 +151,6 @@ package object functions {
     }
   }
 
-  /** Reporjects a geometry column from one CRS to another. */
-  private[rasterframes] val reprojectGeometry: (Geometry, CRS, CRS) ⇒ Geometry =
-    (sourceGeom, src, dst) ⇒ {
-      val trans = new ReprojectionTransformer(src, dst)
-      trans.transform(sourceGeom)
-    }
-
   /** Reporjects a geometry column from one CRS to another, where CRS are defined in Proj4 format. */
   private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
     (sourceGeom, srcName, dstName) ⇒ {
@@ -190,9 +161,7 @@ package object functions {
     }
 
   def register(sqlContext: SQLContext): Unit = {
-    sqlContext.udf.register("rf_mask", mask)
-    sqlContext.udf.register("rf_mask_by_value", maskByValue)
-    sqlContext.udf.register("rf_inverse_mask", inverseMask)
+
     sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
     sqlContext.udf.register("rf_tile_zeros", tileZeros)
     sqlContext.udf.register("rf_tile_ones", tileOnes)

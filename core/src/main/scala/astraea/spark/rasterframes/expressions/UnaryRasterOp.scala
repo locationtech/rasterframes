@@ -36,6 +36,7 @@ trait UnaryRasterOp extends UnaryExpression {
   }
 
   override protected def nullSafeEval(input: Any): Any = {
+    // TODO: Ensure InternalRowTile is preserved
     val (tile, ctx) = tileExtractor(child.dataType)(row(input))
     eval(tile, ctx)
   }

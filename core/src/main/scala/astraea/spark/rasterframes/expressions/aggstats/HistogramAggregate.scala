@@ -23,19 +23,18 @@ package astraea.spark.rasterframes.expressions.aggstats
 
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.expressions.aggstats.CellStatsAggregate.CellStatsAggregateUDAF
 import astraea.spark.rasterframes.functions.safeEval
-import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster.Tile
 import geotrellis.raster.histogram.{Histogram, StreamingHistogram}
 import geotrellis.spark.util.KryoSerializer
-import org.apache.spark.sql.{Column, Row, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Column, Row, TypedColumn}
 
 /**
  * Histogram aggregation function for a full column of tiles.
@@ -94,7 +93,10 @@ object HistogramAggregate {
   import astraea.spark.rasterframes.encoders.StandardEncoders.cellHistEncoder
 
   def apply(col: Column): TypedColumn[Any, CellHistogram] =
-    new Column(new HistogramAggregateUDAF(col.expr)).as[CellHistogram]
+    new Column(new HistogramAggregateUDAF(col.expr))
+      .as(s"agg_histogram($col)") // node renaming in class doesn't seem to propogate
+      .as[CellHistogram]
+
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute aggregate cell histogram over a tile column.",

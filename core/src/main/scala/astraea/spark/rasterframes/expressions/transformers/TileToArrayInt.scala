@@ -24,10 +24,10 @@ package astraea.spark.rasterframes.expressions.transformers
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.util.ArrayData
-import org.apache.spark.sql.types.{DataType, DataTypes, DoubleType, IntegerType}
+import org.apache.spark.sql.types.{DataType, DataTypes, IntegerType}
 import org.apache.spark.sql.{Column, TypedColumn}
 
 @ExpressionDescription(

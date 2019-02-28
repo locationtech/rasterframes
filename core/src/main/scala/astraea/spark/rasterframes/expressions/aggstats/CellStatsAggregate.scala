@@ -43,13 +43,23 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
 
   override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
-  override def dataType: DataType =
-    StructType(Seq(StructField("data_cells", LongType), StructField("no_data_cells", LongType), StructField("min", DoubleType),
-        StructField("max", DoubleType), StructField("mean", DoubleType), StructField("variance", DoubleType)))
+  override def dataType: DataType = StructType(Seq(
+    StructField("data_cells", LongType),
+    StructField("no_data_cells", LongType),
+    StructField("min", DoubleType),
+    StructField("max", DoubleType),
+    StructField("mean", DoubleType),
+    StructField("variance", DoubleType)
+  ))
 
-  override def bufferSchema: StructType =
-    StructType(Seq(StructField("dataCells", LongType), StructField("noDataCells", LongType), StructField("min", DoubleType),
-        StructField("max", DoubleType), StructField("sum", DoubleType), StructField("sumSqr", DoubleType)))
+  override def bufferSchema: StructType = StructType(Seq(
+    StructField("data_cells", LongType),
+    StructField("no_data_cells", LongType),
+    StructField("min", DoubleType),
+    StructField("max", DoubleType),
+    StructField("sum", DoubleType),
+    StructField("sumSqr", DoubleType)
+  ))
 
   override def deterministic: Boolean = true
 
@@ -114,7 +124,9 @@ object CellStatsAggregate {
   import astraea.spark.rasterframes.encoders.StandardEncoders.cellStatsEncoder
 
   def apply(col: Column): TypedColumn[Any, CellStatistics] =
-    new Column(new CellStatsAggregateUDAF(col.expr)).as[CellStatistics]
+    new Column(new CellStatsAggregateUDAF(col.expr))
+      .as(s"agg_stats($col)") // node renaming in class doesn't seem to propogate
+      .as[CellStatistics]
 
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
   @ExpressionDescription(

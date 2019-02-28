@@ -268,23 +268,17 @@ object ZeroSevenCompatibilityKit {
     /** Where the mask tile equals the mask value, replace values in the source tile with NODATA */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def maskByValue(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
-      withAlias("maskByValue", sourceTile, maskTile, maskValue)(
-        udf(F.maskByValue).apply(sourceTile, maskTile, maskValue)
-      ).as[Tile]
+      delegate.mask_by_value(sourceTile, maskTile, maskValue)
 
     /** Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def inverseMask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
-      withAlias("inverseMask", sourceTile, maskTile)(
-        udf(F.inverseMask).apply(sourceTile, maskTile)
-      ).as[Tile]
+      delegate.inverse_mask(sourceTile, maskTile)
 
     /** Reproject a column of geometry from one CRS to another. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def reprojectGeometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
-      withAlias("reprojectGeometry", sourceGeom)(
-        udf(F.reprojectGeometry(_: Geometry, srcCRS, dstCRS)).apply(sourceGeom)
-      ).as[Geometry]
+      delegate.reproject_geometry(sourceGeom, srcCRS, dstCRS)
 
     /** Render Tile as ASCII string for debugging purposes. */
     @Experimental
@@ -384,8 +378,6 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_aggStats", ub(CellStatsAggregate.CellStatsAggregateUDAF.apply))
     registry.registerFunc("rf_aggHistogram", ub(HistogramAggregate.HistogramAggregateUDAF.apply))
 
-    sqlContext.udf.register("rf_maskByValue", F.maskByValue)
-    sqlContext.udf.register("rf_inverseMask", F.inverseMask)
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)

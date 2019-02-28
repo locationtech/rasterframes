@@ -248,21 +248,15 @@ trait RasterFunctions {
 
   /** Where the mask tile contains NODATA, replace values in the source tile with NODATA */
   def mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
-    withAlias("mask", sourceTile, maskTile)(
-      udf(F.mask).apply(sourceTile, maskTile)
-    ).as[Tile]
+    Mask.MaskByDefined(sourceTile, maskTile)
 
   /** Where the mask tile equals the mask value, replace values in the source tile with NODATA */
   def mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
-    withAlias("mask_by_value", sourceTile, maskTile, maskValue)(
-      udf(F.maskByValue).apply(sourceTile, maskTile, maskValue)
-    ).as[Tile]
+    Mask.MaskByValue(sourceTile, maskTile, maskValue)
 
   /** Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
   def inverse_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
-    withAlias("inverse_mask", sourceTile, maskTile)(
-      udf(F.inverseMask).apply(sourceTile, maskTile)
-    ).as[Tile]
+    Mask.InverseMaskByDefined(sourceTile, maskTile)
 
   /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =

@@ -65,28 +65,39 @@ object DynamicExtractors {
   }
 
   sealed trait TileOrNumberArg
+  sealed trait NumberArg extends TileOrNumberArg
   case class TileArg(tile: Tile, ctx: Option[TileContext]) extends TileOrNumberArg
-  case class DoubleArg(d: Double) extends  TileOrNumberArg
-  case class IntegerArg(d: Int) extends  TileOrNumberArg
+  case class DoubleArg(value: Double) extends NumberArg
+  case class IntegerArg(value: Int) extends NumberArg
 
-  lazy val tileOrNumberExtractor: PartialFunction[DataType, Any => TileOrNumberArg] = {
-    case t if tileExtractor.isDefinedAt(t) =>
-      (in: Any) => {
-        val (tile, ctx) = tileExtractor(t)(in.asInstanceOf[InternalRow])
+  lazy val tileOrNumberExtractor: PartialFunction[DataType, Any => TileOrNumberArg] =
+    tileArgExtractor.orElse(numberArgExtractor)
+
+  lazy val tileArgExtractor: PartialFunction[DataType, Any => TileArg] = {
+    case t if tileExtractor.isDefinedAt(t) => {
+      case ir: InternalRow =>
+        val (tile, ctx) = tileExtractor(t)(ir)
         TileArg(tile, ctx)
-      }
-    case _: DoubleType | _: FloatType | _: DecimalType =>
-      (in: Any) => in match {
-        case d: Double => DoubleArg(d)
-        case f: Float => DoubleArg(f.toDouble)
-        case d: Decimal => DoubleArg(d.toDouble)
-      }
-    case _: IntegerType | _: ByteType | _: ShortType =>
-      (in: Any) => in match {
-        case i: Int => IntegerArg(i)
-        case b: Byte => IntegerArg(b)
-        case s: Short => IntegerArg(s.toInt)
-        case c: Char => IntegerArg(c.toInt)
-      }
+    }
+  }
+
+  lazy val numberArgExtractor: PartialFunction[DataType, Any => NumberArg] =
+    doubleArgExtractor.orElse(intArgExtractor)
+
+  lazy val doubleArgExtractor: PartialFunction[DataType, Any => DoubleArg] = {
+    case _: DoubleType | _: FloatType | _: DecimalType => {
+      case d: Double  => DoubleArg(d)
+      case f: Float   => DoubleArg(f.toDouble)
+      case d: Decimal => DoubleArg(d.toDouble)
+    }
+  }
+
+  lazy val intArgExtractor: PartialFunction[DataType, Any => IntegerArg] = {
+    case _: IntegerType | _: ByteType | _: ShortType => {
+      case i: Int   => IntegerArg(i)
+      case b: Byte  => IntegerArg(b)
+      case s: Short => IntegerArg(s.toInt)
+      case c: Char  => IntegerArg(c.toInt)
+    }
   }
 }

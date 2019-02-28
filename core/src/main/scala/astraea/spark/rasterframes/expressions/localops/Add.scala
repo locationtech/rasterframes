@@ -45,7 +45,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "local_add"
   override protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
-  override protected def op(left: Tile,  right: Double): Tile = left.localAdd(right)
+  override protected def op(left: Tile, right: Double): Tile = left.localAdd(right)
   override protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
 }
 object Add {

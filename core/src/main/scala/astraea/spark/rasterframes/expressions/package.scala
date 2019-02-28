@@ -91,6 +91,8 @@ package object expressions {
     registry.registerExpression[CellCountAggregate.NoDataCells]("rf_agg_no_data_cells")
     registry.registerExpression[CellStatsAggregate.CellStatsAggregateUDAF]("rf_agg_stats")
     registry.registerExpression[HistogramAggregate.HistogramAggregateUDAF]("rf_agg_histogram")
-
+    registry.registerExpression[Mask.MaskByDefined]("rf_mask")
+    registry.registerExpression[Mask.MaskByValue]("rf_mask_by_value")
+    registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")
   }
 }
