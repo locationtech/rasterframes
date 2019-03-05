@@ -51,11 +51,18 @@ class RasterFunctionsTest extends FunSpec
   val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
   val randTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
   val randNDTile  = TestData.injectND(numND)(randTile)
+
+  val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
+  val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
+
   val expectedRandNoData: Long = numND * tileCount
   val expectedRandData: Long = cols * rows * tileCount - expectedRandNoData
   val randNDTilesWithNull = Seq.fill[Tile](tileCount)(injectND(numND)(
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
+
+
+
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
 
@@ -406,7 +413,7 @@ class RasterFunctionsTest extends FunSpec
     }
 
     it("should mask one tile against another") {
-      val df = Seq(randTile).toDF("Tile")
+      val df = Seq(randTile).toDF("tile")
       // create an artificial mask for values > 25000; masking value will be 4
       val mask_value = 4
 
@@ -424,7 +431,24 @@ class RasterFunctionsTest extends FunSpec
       checkDocs("rf_mask")
     }
 
-    it("should inverse mask one tile  against another") {
+    it("should render ascii art") {
+      val df = Seq[Tile](ProjectedRasterTile(TestData.l8Labels)).toDF("tile")
+      val r1 = df.select(render_ascii($"tile"))
+      val r2 = df.selectExpr("rf_render_ascii(tile)").as[String]
+      r1.first() should be(r2.first())
+      checkDocs("rf_render_ascii")
+    }
+
+    it("should render cells as matrix") {
+      val df = Seq(randDoubleNDTile).toDF("tile")
+      val r1 = df.select(render_matrix($"tile"))
+      r1.show(false)
+      val r2 = df.selectExpr("rf_render_matrix(tile)").as[String]
+      r1.first() should be(r2.first())
+      checkDocs("rf_render_matrix")
+    }
+
+    it("should inverse mask one tile against another") {
       checkDocs("rf_inverse_mask")
       fail("missing test")
     }

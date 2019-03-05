@@ -17,17 +17,13 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.expressions.aggstats._
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
-import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Geometry
-import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster.render.ascii.AsciiArtEncoder
 import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.SQLContext
-
-import scala.reflect.runtime.universe._
 
 /**
  * Module utils.
@@ -92,9 +88,6 @@ package object functions {
   /** Compute the cell-wise count of non-NA across tiles. */
   private[rasterframes] val localAggNodataCount = new LocalCountAggregate(false)
 
-  /** Render tile as ASCII string. */
-  private[rasterframes] val renderAscii: Tile ⇒ String = safeEval("\n" + _.renderAscii(AsciiArtEncoder.Palette.NARROW))
-
   /** Constructor for constant tiles */
   private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {
     val cellType = CellType.fromName(cellTypeName)
@@ -142,7 +135,7 @@ package object functions {
    * Rasterize geometry into tiles.
    */
   private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
-    import geotrellis.vector.{Geometry ⇒ GTGeometry}
+    import geotrellis.vector.{Geometry => GTGeometry}
     (geom, bounds, value, cols, rows) ⇒ {
       // We have to do this because (as of spark 2.2.x) Encoder-only types
       // can't be used as UDF inputs. Only Spark-native types and UDTs.
@@ -173,7 +166,6 @@ package object functions {
     sqlContext.udf.register("rf_local_agg_count", localAggCount)
 
     sqlContext.udf.register("rf_cell_types", cellTypes)
-    sqlContext.udf.register("rf_render_ascii", renderAscii)
     sqlContext.udf.register("rf_rasterize", rasterize)
 
     sqlContext.udf.register("rf_reproject_geometry", reprojectGeometryCRSName)

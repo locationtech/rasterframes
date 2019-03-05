@@ -276,12 +276,13 @@ trait RasterFunctions {
   def reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRS, dstCRS)
 
-  /** Render Tile as ASCII string for debugging purposes. */
-  @Experimental
+  /** Render Tile as ASCII string, for debugging purposes. */
   def render_ascii(col: Column): TypedColumn[Any, String] =
-  withAlias("render_ascii", col)(
-    udf[String, Tile](F.renderAscii).apply(col)
-  ).as[String]
+    DebugRender.RenderAscii(col)
+
+  /** Render Tile cell values as numeric values, for debugging purposes. */
+  def render_matrix(col: Column): TypedColumn[Any, String] =
+    DebugRender.RenderMatrix(col)
 
   /** Cellwise less than value comparison between two tiles. */
   def local_less(left: Column, right: Column): TypedColumn[Any, Tile] =

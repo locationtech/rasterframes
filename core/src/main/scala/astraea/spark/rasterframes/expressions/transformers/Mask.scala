@@ -101,8 +101,6 @@ object Mask {
       new Column(MaskByDefined(targetTile.expr, maskTile.expr)).as[Tile]
   }
 
-
-
   @ExpressionDescription(
     usage = "_FUNC_(target, mask) - Generate a tile with the values from the data tile, but where cells in the masking tile DO NOT contain NODATA, replace the data value with NODATA",
     arguments = """

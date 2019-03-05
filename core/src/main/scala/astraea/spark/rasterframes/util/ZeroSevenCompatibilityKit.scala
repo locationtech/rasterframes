@@ -283,10 +283,7 @@ object ZeroSevenCompatibilityKit {
     /** Render Tile as ASCII string for debugging purposes. */
     @Experimental
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def renderAscii(col: Column): TypedColumn[Any, String] =
-    withAlias("renderAscii", col)(
-      udf[String, Tile](F.renderAscii).apply(col)
-    ).as[String]
+    def renderAscii(col: Column): TypedColumn[Any, String] = delegate.render_ascii(col)
 
     /** Cellwise less than value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -377,6 +374,7 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_tileHistogram", ub(TileHistogram.apply))
     registry.registerFunc("rf_aggStats", ub(CellStatsAggregate.CellStatsAggregateUDAF.apply))
     registry.registerFunc("rf_aggHistogram", ub(HistogramAggregate.HistogramAggregateUDAF.apply))
+    registry.registerFunc("rf_renderAscii", ub(DebugRender.RenderMatrix.apply))
 
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
@@ -387,7 +385,6 @@ object ZeroSevenCompatibilityKit {
     sqlContext.udf.register("rf_localAggMean", F.localAggMean)
     sqlContext.udf.register("rf_localAggCount", F.localAggCount)
     sqlContext.udf.register("rf_cellTypes", F.cellTypes)
-    sqlContext.udf.register("rf_renderAscii", F.renderAscii)
     sqlContext.udf.register("rf_reprojectGeometry", F.reprojectGeometryCRSName)
   }
 }

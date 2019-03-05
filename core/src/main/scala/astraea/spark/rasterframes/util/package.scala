@@ -20,7 +20,8 @@
 package astraea.spark.rasterframes
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.CellGrid
+import geotrellis.raster
+import geotrellis.raster.{CellGrid, Tile, isNoData}
 import geotrellis.raster.crop.TileCropMethods
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -36,6 +37,7 @@ import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
+import spire.syntax.cfor._
 
 import scala.Boolean.box
 
@@ -151,6 +153,31 @@ package object util extends LazyLogging {
   def registerResolution(sqlContext: SQLContext, rule: Rule[LogicalPlan]): Unit = {
     logger.error("Extended rule resolution not available in this version of Spark")
     analyzer(sqlContext).extendedResolutionRules
+  }
+
+  implicit class TileAsMatrix(val tile: Tile) extends AnyVal {
+    def renderMatrix(significantDigits: Int): String = {
+      val ND = s"%${significantDigits+5}s".format(Double.NaN)
+      val fmt = s"% ${significantDigits+5}.${significantDigits}g"
+      val buf = new StringBuilder("[")
+      cfor(0)(_ < tile.rows, _ + 1) { row =>
+        if(row > 0) buf.append(' ')
+        buf.append('[')
+        cfor(0)(_ < tile.cols, _ + 1) { col =>
+          val v = tile.getDouble(col, row)
+          if (isNoData(v)) buf.append(ND)
+          else buf.append(fmt.format(v))
+
+          if (col < tile.cols - 1)
+            buf.append(',')
+        }
+        buf.append(']')
+        if (row < tile.rows - 1)
+          buf.append(",\n")
+      }
+      buf.append("]")
+      buf.toString()
+    }
   }
 
   object Shims {

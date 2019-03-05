@@ -27,6 +27,7 @@ import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.ProjectedRasterLike
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.proj4.CRS
+import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.raster.{CellType, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.Encoder
@@ -50,6 +51,8 @@ object ProjectedRasterTile {
     ConcreteProjectedRasterTile(t, extent, crs)
   def apply(pr: ProjectedRaster[Tile]): ProjectedRasterTile =
     ConcreteProjectedRasterTile(pr.tile, pr.extent, pr.crs)
+  def apply(tiff: SinglebandGeoTiff): ProjectedRasterTile =
+    ConcreteProjectedRasterTile(tiff.tile, tiff.extent, tiff.crs)
 
   case class ConcreteProjectedRasterTile(t: Tile, extent: Extent, crs: CRS)
       extends ProjectedRasterTile {
