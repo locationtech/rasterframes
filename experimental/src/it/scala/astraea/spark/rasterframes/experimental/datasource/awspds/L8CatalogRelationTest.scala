@@ -63,7 +63,7 @@ class L8CatalogRelationTest extends TestEnvironment {
     it("should download geotiff as tiles") {
       val b01 = scenes
         .select($"*", read_tiles(l8_band_url("B1")))
-      assert(b01.count() === 289)
+      assert(b01.count() === 1089)
     }
   }
 }

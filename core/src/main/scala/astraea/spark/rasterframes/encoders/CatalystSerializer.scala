@@ -94,8 +94,10 @@ object CatalystSerializer extends StandardSerializers {
       override def getByteArray(d: R, ordinal: Int): Array[Byte] =
         d.get(ordinal).asInstanceOf[Array[Byte]]
       override def get[T: CatalystSerializer](d: R, ordinal: Int): T = {
-        val struct = d.getStruct(ordinal)
-        struct.to[T]
+        d.getAs[Any](ordinal) match {
+          case r: Row => r.to[T]
+          case o => o.asInstanceOf[T]
+        }
       }
       override def toSeq[T: CatalystSerializer](t: Seq[T]): AnyRef = t.map(_.toRow)
       override def getSeq[T: CatalystSerializer](d: R, ordinal: Int): Seq[T] =

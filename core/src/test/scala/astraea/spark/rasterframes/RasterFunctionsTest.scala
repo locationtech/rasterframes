@@ -44,20 +44,20 @@ class RasterFunctionsTest extends FunSpec
   val tileSize = cols * rows
   val tileCount = 10
   val numND = 4
-  val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
-  val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)
-  val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
-  val six = ProjectedRasterTile(three * two, three.extent, three.crs)
-  val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
-  val randTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
-  val randNDTile  = TestData.injectND(numND)(randTile)
+  lazy val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
+  lazy val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)
+  lazy val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
+  lazy val six = ProjectedRasterTile(three * two, three.extent, three.crs)
+  lazy val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
+  lazy val randTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
+  lazy val randNDTile  = TestData.injectND(numND)(randTile)
 
-  val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
-  val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
+  lazy val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
+  lazy val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
 
   val expectedRandNoData: Long = numND * tileCount
   val expectedRandData: Long = cols * rows * tileCount - expectedRandNoData
-  val randNDTilesWithNull = Seq.fill[Tile](tileCount)(injectND(numND)(
+  lazy val randNDTilesWithNull = Seq.fill[Tile](tileCount)(injectND(numND)(
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
 
@@ -72,7 +72,6 @@ class RasterFunctionsTest extends FunSpec
       val df = Seq((one, two)).toDF("one", "two")
 
       val maybeThree = df.select(local_add($"one", $"two")).as[ProjectedRasterTile]
-      maybeThree.show(false)
       assertEqual(maybeThree.first(), three)
 
       assertEqual(df.selectExpr("rf_local_add(one, two)").as[ProjectedRasterTile].first(), three)
@@ -356,7 +355,7 @@ class RasterFunctionsTest extends FunSpec
 
   describe("aggregate statistics") {
     it("should count data cells") {
-      val df = randNDTilesWithNull.toDF("tile")
+      val df = randNDTilesWithNull.filter(_ != null).toDF("tile")
       df.select(agg_data_cells($"tile")).first() should be (expectedRandData)
       df.selectExpr("rf_agg_data_cells(tile)").as[Long].first() should be (expectedRandData)
 
@@ -373,9 +372,6 @@ class RasterFunctionsTest extends FunSpec
       val df = randNDTilesWithNull.toDF("tile")
 
       df
-        .select(agg_stats(ExtractTile($"tile")), agg_stats(ExtractTile($"tile"))).printSchema()
-
-      df
         .select(agg_stats($"tile") as "stats")
         .select("stats.data_cells", "stats.no_data_cells")
         .as[(Long, Long)]
@@ -390,8 +386,9 @@ class RasterFunctionsTest extends FunSpec
 
     it("should compute a aggregate histogram") {
       val df = randNDTilesWithNull.toDF("tile")
-      df.select(agg_histogram($"tile")).show(false)
-
+      df.select(agg_histogram($"tile") as "hist", agg_stats($"tile") as "stats")
+        //.select($"hist.stats", $"stats").show(false)
+        .select($"hist.stats" === $"stats").as[Boolean].first() should be(true)
       checkDocs("rf_agg_histogram")
     }
   }
@@ -413,22 +410,72 @@ class RasterFunctionsTest extends FunSpec
     }
 
     it("should mask one tile against another") {
-      val df = Seq(randTile).toDF("tile")
-      // create an artificial mask for values > 25000; masking value will be 4
-      val mask_value = 4
+      val df = Seq[Tile](randTile).toDF("tile")
 
-      val rf1 = df.select($"tile",
-        local_multiply(convert_cell_type(
-          local_greater($"tile", 0.1),
-          "uint8"), lit(mask_value)) as "mask")
-      val rf2 = rf1.select($"tile",
-        mask_by_value($"tile", $"mask", lit(mask_value)) as "masked")
+      val withMask = df.withColumn("mask",
+        convert_cell_type(
+          local_greater($"tile", 50),
+          "uint8")
+      )
 
-      val result = rf2.agg(agg_no_data_cells($"tile") < agg_no_data_cells($"masked"))
+      val withMasked = withMask.withColumn("masked",
+        mask($"tile", $"mask"))
 
-      result.show(false)
+      val result = withMasked.agg(agg_no_data_cells($"tile") < agg_no_data_cells($"masked")).as[Boolean]
+
+      result.first() should be(true)
 
       checkDocs("rf_mask")
+    }
+
+
+    it("should inverse mask one tile against another") {
+      val df = Seq[Tile](randTile).toDF("tile")
+
+      val baseND = df.select(agg_no_data_cells($"tile")).first()
+
+      val withMask = df.withColumn("mask",
+        convert_cell_type(
+          local_greater($"tile", 50),
+          "uint8"
+        )
+      )
+
+      val withMasked = withMask
+        .withColumn("masked", mask($"tile", $"mask"))
+        .withColumn("inv_masked", inverse_mask($"tile", $"mask"))
+
+//      withMasked.select(
+//        agg_no_data_cells($"inv_masked"),
+//        agg_no_data_cells($"masked")
+//      ).show(false)
+
+      val result = withMasked.agg(agg_no_data_cells($"masked") + agg_no_data_cells($"inv_masked")).as[Long]
+
+      result.first() should be(tileSize + baseND)
+
+      checkDocs("rf_inverse_mask")
+    }
+
+    it("should mask tile by onother identified by specified value") {
+      val df = Seq[Tile](randTile).toDF("tile")
+      val mask_value = 4
+
+      val withMask = df.withColumn("mask",
+        local_multiply(convert_cell_type(
+          local_greater($"tile", 50),
+          "uint8"),
+          lit(mask_value)
+        )
+      )
+
+      val withMasked = withMask.withColumn("masked",
+        mask_by_value($"tile", $"mask", lit(mask_value)))
+
+      val result = withMasked.agg(agg_no_data_cells($"tile") < agg_no_data_cells($"masked")).as[Boolean]
+
+      result.first() should be(true)
+      checkDocs("rf_mask_by_value")
     }
 
     it("should render ascii art") {
@@ -442,20 +489,9 @@ class RasterFunctionsTest extends FunSpec
     it("should render cells as matrix") {
       val df = Seq(randDoubleNDTile).toDF("tile")
       val r1 = df.select(render_matrix($"tile"))
-      r1.show(false)
       val r2 = df.selectExpr("rf_render_matrix(tile)").as[String]
       r1.first() should be(r2.first())
       checkDocs("rf_render_matrix")
-    }
-
-    it("should inverse mask one tile against another") {
-      checkDocs("rf_inverse_mask")
-      fail("missing test")
-    }
-
-    it("should mask tile by onother identified by specified value") {
-      checkDocs("rf_mask_by_value")
-      fail("missing test")
     }
   }
 }

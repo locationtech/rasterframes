@@ -22,22 +22,23 @@
 package astraea.spark.rasterframes.expressions.transformers
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.DynamicExtractors._
-import astraea.spark.rasterframes.expressions.{TrinaryExpression, row}
+import astraea.spark.rasterframes.expressions.row
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.local.{Defined, InverseMask => gtInverseMask, Mask => gtMask}
-import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal, TernaryExpression}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.{Column, TypedColumn}
 
 abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, inverse: Boolean)
-  extends TrinaryExpression with CodegenFallback with LazyLogging {
-  private val TileType = new TileUDT()
+  extends TernaryExpression with CodegenFallback with Serializable with LazyLogging {
+
+  override def children: Seq[Expression] = Seq(left, middle, right)
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(left.dataType)) {
@@ -48,8 +49,9 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
       TypeCheckFailure(s"Input type '${right.dataType}' isn't an integral type.")
     } else TypeCheckSuccess
   }
-  override def dataType: DataType = TileType
-  protected def nullSafeEval(leftInput: Any, middleInput: Any, rightInput: Any): Any = {
+  override def dataType: DataType = left.dataType
+
+  override protected def nullSafeEval(leftInput: Any, middleInput: Any, rightInput: Any): Any = {
     implicit val tileSer = TileUDT.tileSerializer
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(leftInput))
     val (rightTile, rightCtx) = tileExtractor(middle.dataType)(row(middleInput))

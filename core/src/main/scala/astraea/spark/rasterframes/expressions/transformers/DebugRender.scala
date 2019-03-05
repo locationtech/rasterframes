@@ -32,7 +32,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
 
 abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterOp
-   with CodegenFallback {
+   with CodegenFallback with Serializable {
    override def dataType: DataType = StringType
 
    override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {

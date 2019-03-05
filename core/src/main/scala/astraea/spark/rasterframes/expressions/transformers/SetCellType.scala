@@ -24,6 +24,7 @@ package astraea.spark.rasterframes.expressions.transformers
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders._
+import astraea.spark.rasterframes.expressions.DynamicExtractors.tileExtractor
 import astraea.spark.rasterframes.expressions.row
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
@@ -47,17 +48,17 @@ case class SetCellType(tile: Expression, cellType: Expression)
   def left = tile
   def right = cellType
   override def nodeName: String = "set_cell_type"
-  override def dataType: DataType = new TileUDT()
+  override def dataType: DataType = left.dataType
 
   private val ctSchema = CatalystSerializer[CellType].schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!left.dataType.isInstanceOf[TileUDT])
-      TypeCheckFailure(s"Expected 'TileUDT' but received '${left.dataType.simpleString}'")
+    if (!tileExtractor.isDefinedAt(left.dataType))
+      TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     else
       right.dataType match {
         case StringType => TypeCheckSuccess
-        case st: StructType if st == ctSchema => TypeCheckSuccess
+        case t if t.conformsTo(ctSchema) => TypeCheckSuccess
         case _ =>
           TypeCheckFailure(s"Expected CellType but received '${right.dataType.simpleString}'")
       }
@@ -68,24 +69,28 @@ case class SetCellType(tile: Expression, cellType: Expression)
       case StringType =>
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st: StructType if st == ctSchema =>
+      case st if st.conformsTo(ctSchema) =>
         row(datum).to[CellType]
     }
   }
 
-  override protected def nullSafeEval(left: Any, right: Any): InternalRow = {
-    implicit val ser = TileUDT.tileSerializer
-    val t = row(left).to[Tile]
-    val ct = toCellType(right)
-    t.convert(ct).toInternalRow
+  override protected def nullSafeEval(tileInput: Any, ctInput: Any): InternalRow = {
+    implicit val tileSer = TileUDT.tileSerializer
+
+    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
+    val ct = toCellType(ctInput)
+    val result = tile.convert(ct)
+
+    ctx match {
+      case Some(c) => c.toProjectRasterTile(result).toInternalRow
+      case None => result.toInternalRow
+    }
   }
 }
 
 object SetCellType {
-
   def apply(tile: Column, cellType: CellType): TypedColumn[Any, Tile] =
     new Column(new SetCellType(tile.expr, lit(cellType.name).expr)).as[Tile]
   def apply(tile: Column, cellType: String): TypedColumn[Any, Tile] =
     new Column(new SetCellType(tile.expr, lit(cellType).expr)).as[Tile]
-
 }

@@ -20,7 +20,6 @@ import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Geometry
 import geotrellis.raster.mapalgebra.local._
-import geotrellis.raster.render.ascii.AsciiArtEncoder
 import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.SQLContext

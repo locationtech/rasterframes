@@ -23,6 +23,7 @@ package astraea.spark.rasterframes.expressions.aggstats
 
 import java.nio.ByteBuffer
 
+import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.functions.safeEval
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster.Tile
@@ -66,7 +67,12 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
   override def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = marshall(StreamingHistogram(numBuckets))
 
-  private val safeMerge = safeEval((h1: Histogram[Double], h2: Histogram[Double]) ⇒ h1 merge h2)
+  private val safeMerge = (h1: Histogram[Double], h2: Histogram[Double]) ⇒ (h1, h2) match {
+    case (null, null) => null
+    case (l, null) => l
+    case (null, r) => r
+    case (l, r) => l merge r
+  }
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val tile = input.getAs[Tile](0)
@@ -110,7 +116,7 @@ object HistogramAggregate {
   )
   class HistogramAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
     extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(child), new HistogramAggregate()), Complete, false, NamedExpression.newExprId)
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new HistogramAggregate()), Complete, false, NamedExpression.newExprId)
     override def nodeName: String = "agg_histogram"
   }
   object HistogramAggregateUDAF {

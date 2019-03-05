@@ -24,8 +24,9 @@ package astraea.spark.rasterframes.expressions.accessors
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
+import astraea.spark.rasterframes.tiles.InternalRowTile
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile.ConcreteProjectedRasterTile
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.rf.TileUDT
@@ -37,10 +38,11 @@ case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFall
   override def dataType: DataType = new TileUDT()
 
   override def nodeName: String = "extract_tile"
-
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): InternalRow = {
-    implicit val tileSer = TileUDT.tileSerializer
-    tile.toInternalRow
+  implicit val tileSer = TileUDT.tileSerializer
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
+    case irt: InternalRowTile => irt.mem
+    case tile: ConcreteProjectedRasterTile => tile.t.toInternalRow
+    case tile: Tile => tile.toInternalRow
   }
 }
 

@@ -26,6 +26,7 @@ import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.raster.{CellGrid, Tile}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.rf.{TileUDT, _}
 import org.apache.spark.sql.types._
@@ -39,6 +40,16 @@ object DynamicExtractors {
         (row.to[Tile](TileUDT.tileSerializer), None)
     case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
       (row: InternalRow) => {
+        val prt = row.to[ProjectedRasterTile]
+        (prt, Some(TileContext(prt)))
+      }
+  }
+
+  lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
+    case _: TileUDT =>
+      (row: Row) =>  (row.to[Tile](TileUDT.tileSerializer), None)
+    case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
+      (row: Row) => {
         val prt = row.to[ProjectedRasterTile]
         (prt, Some(TileContext(prt)))
       }

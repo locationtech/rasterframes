@@ -116,10 +116,10 @@ trait RasterFunctions {
   def agg_mean(col: Column) = CellMeanAggregate(col)
 
   /** Computes the number of non-NoData cells in a column. */
-  def agg_data_cells(col: Column) = CellCountAggregate.DataCells(col)
+  def agg_data_cells(col: Column): TypedColumn[Any, Long] = CellCountAggregate.DataCells(col)
 
   /** Computes the number of NoData cells in a column. */
-  def agg_no_data_cells(col: Column) = CellCountAggregate.NoDataCells(col)
+  def agg_no_data_cells(col: Column): TypedColumn[Any, Long] = CellCountAggregate.NoDataCells(col)
 
   /** Compute the Tile-wise mean */
   def tile_mean(col: Column): TypedColumn[Any, Double] =

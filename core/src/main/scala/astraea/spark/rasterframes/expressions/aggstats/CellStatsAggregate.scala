@@ -21,8 +21,11 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
+import astraea.spark.rasterframes.expressions.DynamicExtractors._
+import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.stats.CellStatistics
 import geotrellis.raster.{Tile, _}
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
 import org.apache.spark.sql.{Column, Row, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
@@ -145,12 +148,13 @@ object CellStatsAggregate {
   )
   class CellStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
     extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(child), new CellStatsAggregate()), Complete, false, NamedExpression.newExprId)
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new CellStatsAggregate()), Complete, false, NamedExpression.newExprId)
     override def nodeName: String = "agg_stats"
   }
   object CellStatsAggregateUDAF {
     def apply(child: Expression): CellStatsAggregateUDAF = new CellStatsAggregateUDAF(child)
   }
+  //private def Extract(child: Expression) = (r: InternalRow) => tileExtractor(child.dataType)(r)._1
 
   /**  Column index values. */
   private object C {

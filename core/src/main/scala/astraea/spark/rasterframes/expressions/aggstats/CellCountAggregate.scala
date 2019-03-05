@@ -21,16 +21,16 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
+import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import astraea.spark.rasterframes.expressions.tilestats.{DataCells, NoDataCells}
 import astraea.spark.rasterframes.expressions.udfexpr
-import astraea.spark.rasterframes.functions
-import astraea.spark.rasterframes.functions.safeEval
+import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{LongType, Metadata}
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.apache.spark.sql.{Column, Row, TypedColumn}
 
 /**
  * Cell count (data or NoData) aggregate function.
@@ -41,10 +41,6 @@ import org.apache.spark.sql.{Column, TypedColumn}
 abstract class CellCountAggregate(isData: Boolean) extends DeclarativeAggregate {
   def child: Expression
 
-  override def nodeName: String =
-    if (isData) "agg_data_cells"
-    else "agg_no_data_cells"
-
   private lazy val count =
     AttributeReference("count", LongType, false, Metadata.empty)()
 
@@ -54,9 +50,14 @@ abstract class CellCountAggregate(isData: Boolean) extends DeclarativeAggregate 
     Literal(0L)
   )
 
-  private val CellTest =
-    if (isData) udfexpr(safeEval(DataCells.op))
-    else udfexpr(safeEval(NoDataCells.op))
+  private def Extract = (a: Any) => a match {
+    case t: Tile => t
+    case r: Row => rowTileExtractor(child.dataType)(r)._1
+  }
+
+  private def CellTest =
+    if (isData) udfexpr((a: Any) => DataCells.op(Extract(a)))
+    else udfexpr((a: Any) => NoDataCells.op(Extract(a)))
 
   val updateExpressions = Seq(
     If(IsNull(child), count, Add(count, CellTest(child)))
@@ -90,7 +91,9 @@ object CellCountAggregate {
     > SELECT _FUNC_(tile);
        92384753"""
   )
-  case class DataCells(child: Expression) extends CellCountAggregate(true)
+  case class DataCells(child: Expression) extends CellCountAggregate(true) {
+    override def nodeName: String = "agg_data_cells"
+  }
   object DataCells {
     def apply(tile: Column): TypedColumn[Any, Long] =
       new Column(DataCells(tile.expr).toAggregateExpression()).as[Long]
@@ -105,7 +108,9 @@ object CellCountAggregate {
     > SELECT _FUNC_(tile);
        23584"""
   )
-  case class NoDataCells(child: Expression) extends CellCountAggregate(false)
+  case class NoDataCells(child: Expression) extends CellCountAggregate(false) {
+    override def nodeName: String = "agg_no_data_cells"
+  }
   object NoDataCells {
     def apply(tile: Column): TypedColumn[Any, Long] =
       new Column(NoDataCells(tile.expr).toAggregateExpression()).as[Long]
