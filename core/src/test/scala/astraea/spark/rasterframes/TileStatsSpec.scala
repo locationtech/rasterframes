@@ -235,7 +235,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .map(injectND(2)) :+ null).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
-      val agg = ds.select(local_agg_stats($"tiles") as "stats")
+      val agg = ds.select(agg_local_stats($"tiles") as "stats")
       val stats = agg.select("stats.*")
 
       //printStatsRows(stats)
@@ -250,7 +250,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val varg = agg.select($"stats.mean".as[Tile]).map(t => ave(t.toArrayDouble())).first
       assert(varg < 1.1)
 
-      val sqlStats = sql("SELECT stats.* from (SELECT rf_local_agg_stats(tiles) as stats from tmp)")
+      val sqlStats = sql("SELECT stats.* from (SELECT rf_agg_local_stats(tiles) as stats from tmp)")
 
       val tiles = stats.collect().flatMap(_.toSeq).map(_.asInstanceOf[Tile])
       val dsTiles = sqlStats.collect().flatMap(_.toSeq).map(_.asInstanceOf[Tile])

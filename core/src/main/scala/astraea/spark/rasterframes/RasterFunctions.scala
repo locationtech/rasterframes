@@ -157,10 +157,8 @@ trait RasterFunctions {
     IsNoDataTile(tile)
 
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
-  def local_agg_stats(col: Column): Column =
-  withAlias("local_agg_stats", col)(
-    F.localAggStats(col)
-  )
+  def agg_local_stats(col: Column) =
+    LocalStatsAggregate(col)
 
   /** Compute the cell-wise/local max operation between Tiles in a column. */
   def local_agg_max(col: Column): TypedColumn[Any, Tile] =

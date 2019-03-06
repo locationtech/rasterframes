@@ -168,10 +168,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggStats(col: Column): Column =
-    withAlias("localAggStats", col)(
-      F.localAggStats(col)
-    )
+    def localAggStats(col: Column): Column = delegate.agg_local_stats(col)
 
     /** Compute the cell-wise/local max operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -374,12 +371,12 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_tileHistogram", ub(TileHistogram.apply))
     registry.registerFunc("rf_aggStats", ub(CellStatsAggregate.CellStatsAggregateUDAF.apply))
     registry.registerFunc("rf_aggHistogram", ub(HistogramAggregate.HistogramAggregateUDAF.apply))
+    registry.registerFunc("rf_localAggStats", ub(LocalStatsAggregate.LocalStatsAggregateUDAF.apply))
     registry.registerFunc("rf_renderAscii", ub(DebugRender.RenderMatrix.apply))
 
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
-    sqlContext.udf.register("rf_localAggStats", F.localAggStats)
     sqlContext.udf.register("rf_localAggMax", F.localAggMax)
     sqlContext.udf.register("rf_localAggMin", F.localAggMin)
     sqlContext.udf.register("rf_localAggMean", F.localAggMean)

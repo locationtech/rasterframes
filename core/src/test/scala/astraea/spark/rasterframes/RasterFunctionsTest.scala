@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes
 import astraea.spark.rasterframes.TestData.injectND
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
-import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
 import geotrellis.raster
@@ -393,6 +393,18 @@ class RasterFunctionsTest extends FunSpec
         .first()
       hist1 should be (hist2)
       checkDocs("rf_agg_approx_histogram")
+    }
+
+    it("should compute local statistics") {
+      val df = randNDTilesWithNull.toDF("tile")
+      val stats1 = df.select(agg_local_stats($"tile"))
+        .first()
+      val stats2 = df.selectExpr("rf_agg_local_stats(tile) as stats")
+          .select($"stats".as[LocalCellStatistics])
+          .first()
+
+      stats1 should be (stats2)
+      checkDocs("rf_agg_local_stats")
     }
   }
 

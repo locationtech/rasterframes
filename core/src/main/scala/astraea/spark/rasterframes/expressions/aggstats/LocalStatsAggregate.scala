@@ -21,11 +21,18 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
+import astraea.spark.rasterframes.encoders.StandardEncoders
+import astraea.spark.rasterframes.expressions.accessors.ExtractTile
+import astraea.spark.rasterframes.expressions.aggstats.HistogramAggregate.HistogramAggregateUDAF
 import astraea.spark.rasterframes.functions.safeBinaryOp
+import astraea.spark.rasterframes.stats.{CellHistogram, LocalCellStatistics}
 import astraea.spark.rasterframes.util.DataBiasedOp.{BiasedAdd, BiasedMax, BiasedMin}
 import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster.{DoubleConstantNoDataCellType, IntConstantNoDataCellType, IntUserDefinedNoDataCellType, Tile}
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
+import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.execution.aggregate.ScalaUDAF
+import org.apache.spark.sql.{Column, Encoders, Row, TypedColumn}
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
@@ -141,6 +148,32 @@ class LocalStatsAggregate() extends UserDefinedAggregateFunction {
 }
 
 object LocalStatsAggregate {
+
+  def apply(col: Column): TypedColumn[Any, LocalCellStatistics] =
+    new Column(LocalStatsAggregateUDAF(col.expr))
+      .as(s"agg_local_stats($col)")
+      .as[LocalCellStatistics]
+
+  /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Compute cell-local aggregate descriptive statistics for a column of tiles.",
+    arguments = """
+  Arguments:
+    * tile - tile column to analyze""",
+    examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+      ..."""
+  )
+  class LocalStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
+    extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalStatsAggregate()), Complete, false, NamedExpression.newExprId)
+    override def nodeName: String = "agg_local_stats"
+  }
+  object LocalStatsAggregateUDAF {
+    def apply(child: Expression): LocalStatsAggregateUDAF = new LocalStatsAggregateUDAF(child)
+  }
+
   /**  Column index values. */
   private object C {
     val COUNT = 0

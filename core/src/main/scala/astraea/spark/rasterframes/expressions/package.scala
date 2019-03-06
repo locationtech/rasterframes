@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.expressions.accessors._
-import astraea.spark.rasterframes.expressions.aggstats.{CellCountAggregate, CellStatsAggregate, HistogramAggregate}
+import astraea.spark.rasterframes.expressions.aggstats.{CellCountAggregate, CellStatsAggregate, HistogramAggregate, LocalStatsAggregate}
 import astraea.spark.rasterframes.expressions.generators._
 import astraea.spark.rasterframes.expressions.localops._
 import astraea.spark.rasterframes.expressions.tilestats._
@@ -91,6 +91,8 @@ package object expressions {
     registry.registerExpression[CellCountAggregate.NoDataCells]("rf_agg_no_data_cells")
     registry.registerExpression[CellStatsAggregate.CellStatsAggregateUDAF]("rf_agg_stats")
     registry.registerExpression[HistogramAggregate.HistogramAggregateUDAF]("rf_agg_approx_histogram")
+    registry.registerExpression[LocalStatsAggregate.LocalStatsAggregateUDAF]("rf_agg_local_stats")
+
     registry.registerExpression[Mask.MaskByDefined]("rf_mask")
     registry.registerExpression[Mask.MaskByValue]("rf_mask_by_value")
     registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")

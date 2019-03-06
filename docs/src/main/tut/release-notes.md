@@ -10,8 +10,9 @@
 * _Breaking_: In Scala and SQL, `..._scalar` functions (e.g. `local_add_scalar`) have been removed. Non-scalar forms now dynamically detect type of right hand side.
 * _Breaking_: `tileToArray` has been replaced with `tile_to_array_double` and `tile_to_array_int`. 
 * Added `render_matrix` debugging function.
-* _Breaking_: renamed `agg_histogram` to `agg_approx_histogram`
+* _Breaking_: renamed `agg_histogram` to `agg_approx_histogram`, `local_agg_stats` to `agg_local_stats`
 * _Breaking_: `CellHistogram` no longer carries along approximate statistics, due to confusing behavior. Use `agg_stats` instead.
+* Introduced `LocalCellStatistics` class to wrap together results from `LocalStatsAggregate`.
    
 ## 0.7.x
 
