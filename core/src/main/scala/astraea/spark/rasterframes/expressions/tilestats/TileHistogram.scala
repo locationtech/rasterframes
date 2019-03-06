@@ -48,6 +48,7 @@ case class TileHistogram(child: Expression) extends UnaryRasterOp
     TileHistogram.converter(TileHistogram.op(tile))
   override def dataType: DataType = CellHistogram.schema
 }
+
 object TileHistogram {
   def apply(tile: Column): TypedColumn[Any, CellHistogram] =
     new Column(TileHistogram(tile.expr)).as[CellHistogram]

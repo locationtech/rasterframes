@@ -105,7 +105,7 @@ trait RasterFunctions {
   ).as[Tile]
 
   /**  Compute the full column aggregate floating point histogram. */
-  def agg_histogram(col: Column): TypedColumn[Any, CellHistogram] =
+  def agg_approx_histogram(col: Column): TypedColumn[Any, CellHistogram] =
     HistogramAggregate(col)
 
   /** Compute the full column aggregate floating point statistics. */

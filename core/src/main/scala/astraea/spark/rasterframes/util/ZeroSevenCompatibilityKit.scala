@@ -112,7 +112,7 @@ object ZeroSevenCompatibilityKit {
 
     /**  Compute the full column aggregate floating point histogram. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.agg_histogram(col)
+    def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.agg_approx_histogram(col)
 
     /** Compute the full column aggregate floating point statistics. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")

@@ -153,7 +153,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       write(r1)
       val r2 = sql("select hist.* from (select rf_tile_histogram(tiles) as hist from tmp)").as[CellHistogram]
       write(r2)
-      assert(r1.first.mean === r2.first.mean)
+      assert(r1.first === r2.first)
     }
 
     it("should compute mean and total count") {
@@ -178,7 +178,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType))
         .toDF("tiles")
       ds.createOrReplaceTempView("tmp")
-      val agg = ds.select(agg_histogram($"tiles"))
+      val agg = ds.select(agg_approx_histogram($"tiles"))
 
       val histArray = agg.collect()
       histArray.length should be (1)
@@ -188,15 +188,11 @@ class TileStatsSpec extends TestEnvironment with TestData {
       assert(hist.totalCount === rows * tileSize * tileSize)
       assert(hist.bins.map(_.count).sum === rows * tileSize * tileSize)
 
-      val stats = agg.map(_.stats).as("stats")
-      //stats.select("stats.*").show(false)
-      assert(stats.first().stddev === 1.0 +- 0.3)
-
-      val hist2 = sql("select hist.* from (select rf_agg_histogram(tiles) as hist from tmp)").as[CellHistogram]
+      val hist2 = sql("select hist.* from (select rf_agg_approx_histogram(tiles) as hist from tmp)").as[CellHistogram]
 
       hist2.first.totalCount should be (rows * tileSize * tileSize)
 
-      checkDocs("rf_agg_histogram")
+      checkDocs("rf_agg_approx_histogram")
     }
 
     it("should compute aggregate mean") {

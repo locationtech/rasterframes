@@ -117,7 +117,7 @@ class RasterFunctionsTest(unittest.TestCase):
             agg_data_cells(self.tileCol),
             agg_no_data_cells(self.tileCol),
             agg_stats(self.tileCol),
-            agg_histogram(self.tileCol)
+            agg_approx_histogram(self.tileCol)
         )
         aggs.show()
         row = aggs.first()

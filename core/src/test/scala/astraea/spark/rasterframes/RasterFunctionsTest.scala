@@ -22,6 +22,7 @@
 package astraea.spark.rasterframes
 import astraea.spark.rasterframes.TestData.injectND
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
+import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
 import geotrellis.raster
@@ -317,6 +318,11 @@ class RasterFunctionsTest extends FunSpec
       val stats = df.select(tile_stats($"rand")).first()
       stats.mean should be (mean +- 0.00001)
 
+      val stats2 = df.selectExpr("rf_tile_stats(rand) as stats")
+        .select($"stats".as[CellStatistics])
+        .first()
+      stats2 should be (stats)
+
       df.select(tile_stats($"rand") as "stats")
         .select($"stats.mean").as[Double]
         .first() should be(mean +- 0.00001)
@@ -335,19 +341,14 @@ class RasterFunctionsTest extends FunSpec
     }
 
     it("should compute the tile histogram") {
-      val values = randNDTile.toArray().filter(c => raster.isData(c))
-      val mean = values.sum.toDouble / values.length
       val df = Seq(randNDTile).toDF("rand")
-      val hist = df.select(tile_histogram($"rand")).first()
+      val h1 = df.select(tile_histogram($"rand")).first()
 
-      hist.stats.mean should be (mean +- 0.00001)
+      val h2 = df.selectExpr("rf_tile_histogram(rand) as hist")
+        .select($"hist".as[CellHistogram])
+        .first()
 
-      df.select(tile_histogram($"rand") as "hist")
-        .select($"hist.stats.mean").as[Double]
-        .first() should be(mean +- 0.00001)
-      df.selectExpr("rf_tile_histogram(rand) as hist")
-        .select($"hist.stats.no_data_cells").as[Long]
-        .first() should be >= numND.toLong
+      h1 should be (h2)
 
       checkDocs("rf_tile_histogram")
     }
@@ -386,10 +387,12 @@ class RasterFunctionsTest extends FunSpec
 
     it("should compute a aggregate histogram") {
       val df = randNDTilesWithNull.toDF("tile")
-      df.select(agg_histogram($"tile") as "hist", agg_stats($"tile") as "stats")
-        //.select($"hist.stats", $"stats").show(false)
-        .select($"hist.stats" === $"stats").as[Boolean].first() should be(true)
-      checkDocs("rf_agg_histogram")
+      val hist1 = df.select(agg_approx_histogram($"tile")).first()
+      val hist2 = df.selectExpr("rf_agg_approx_histogram(tile) as hist")
+        .select($"hist".as[CellHistogram])
+        .first()
+      hist1 should be (hist2)
+      checkDocs("rf_agg_approx_histogram")
     }
   }
 

@@ -31,11 +31,9 @@ import scala.collection.mutable.{ListBuffer => MutableListBuffer}
  *
  * @since 4/3/18
  */
-case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
-  def labels = bins.map(_.value)
-  def mean = stats.mean
-  def totalCount = stats.data_cells
-  def asciiStats = stats.asciiStats
+case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
+  lazy val labels: Seq[Double] = bins.map(_.value)
+  lazy val totalCount = bins.foldLeft(0L)(_ + _.count)
   def asciiHistogram(width: Int = 80)= {
     val counts = bins.map(_.count)
     val maxCount = counts.max.toFloat
@@ -156,33 +154,23 @@ object CellHistogram {
   case class Bin(value: Double, count: Long)
 
   def apply(tile: Tile): CellHistogram = {
-    val (bins, stats) = if (tile.cellType.isFloatingPoint) {
+    val bins = if (tile.cellType.isFloatingPoint) {
       val h = tile.histogramDouble
-      val bins = h.binCounts().map(p ⇒ Bin(p._1, p._2))
-      (bins, h.statistics().map(CellStatistics.apply).orNull)
+      h.binCounts().map(p ⇒ Bin(p._1, p._2))
     }
     else {
       val h = tile.histogram
-      val bins = h.binCounts().map(p ⇒ Bin(p._1, p._2))
-      (bins, h.statistics().map(CellStatistics.apply).orNull)
+      h.binCounts().map(p ⇒ Bin(p._1, p._2))
     }
-    val updatedStats = stats.copy(no_data_cells = tile.size - stats.data_cells)
-    CellHistogram(updatedStats, bins)
+    CellHistogram(bins)
   }
 
   def apply(hist: GTHistogram[Int]): CellHistogram = {
-    val stats = hist.statistics().map(CellStatistics.apply).getOrElse(CellStatistics.empty)
-    // TODO: stats will be missing a no-data count
-    CellHistogram(stats, hist.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2)))
+    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1, p._2)))
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
-    val stats = hist.statistics().map(CellStatistics.apply).getOrElse(CellStatistics.empty)
-    // TODO: stats will be missing a no-data count
-    val bins = hist.binCounts().map(p ⇒ Bin(p._1, p._2))
-    CellHistogram(stats, bins)
+    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1, p._2)))
   }
 
-
   lazy val schema: StructType = StandardEncoders.cellHistEncoder.schema
-
 }

@@ -62,7 +62,7 @@ class StatsComputeBench extends SparkEnv {
 
   @Benchmark
   def computeHistogram(): Array[CellHistogram] = {
-    tiles.select(agg_histogram($"tile")).collect()
+    tiles.select(agg_approx_histogram($"tile")).collect()
   }
 
 //  @Benchmark
