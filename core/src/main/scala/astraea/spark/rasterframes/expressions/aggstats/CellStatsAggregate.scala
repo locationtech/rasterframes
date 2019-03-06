@@ -154,7 +154,6 @@ object CellStatsAggregate {
   object CellStatsAggregateUDAF {
     def apply(child: Expression): CellStatsAggregateUDAF = new CellStatsAggregateUDAF(child)
   }
-  //private def Extract(child: Expression) = (r: InternalRow) => tileExtractor(child.dataType)(r)._1
 
   /**  Column index values. */
   private object C {

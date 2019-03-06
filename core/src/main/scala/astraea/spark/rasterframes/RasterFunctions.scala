@@ -161,32 +161,26 @@ trait RasterFunctions {
     LocalStatsAggregate(col)
 
   /** Compute the cell-wise/local max operation between Tiles in a column. */
-  def local_agg_max(col: Column): TypedColumn[Any, Tile] =
-  withAlias("local_agg_max", col)(
-    F.localAggMax(col)
-  ).as[Tile]
+  def agg_local_max(col: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMaxUDAF(col)
 
   /** Compute the cellwise/local min operation between Tiles in a column. */
-  def local_agg_min(col: Column): TypedColumn[Any, Tile] =
-  withAlias("local_agg_min", col)(
-    F.localAggMin(col)
-  ).as[Tile]
+  def agg_local_min(col: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMinUDAF(col)
 
   /** Compute the cellwise/local mean operation between Tiles in a column. */
-  def local_agg_mean(col: Column): TypedColumn[Any, Tile] =
-  withAlias("local_agg_mean", col)(
+  def agg_local_mean(col: Column): TypedColumn[Any, Tile] =
+  withAlias("agg_local_mean", col)(
     F.localAggMean(col)
   ).as[Tile]
 
   /** Compute the cellwise/local count of non-NoData cells for all Tiles in a column. */
-  def local_agg_data_cells(col: Column): TypedColumn[Any, Tile] =
-  withAlias("local_agg_data_cells", col)(
+  def agg_local_data_cells(col: Column): TypedColumn[Any, Tile] =
+  withAlias("agg_local_data_cells", col)(
     F.localAggCount(col)
   ).as[Tile]
 
   /** Compute the cellwise/local count of NoData cells for all Tiles in a column. */
-  def local_agg_no_data_cells(col: Column): TypedColumn[Any, Tile] =
-  withAlias("local_agg_no_data_cells", col)(
+  def agg_local_no_data_cells(col: Column): TypedColumn[Any, Tile] =
+  withAlias("agg_local_no_data_cells", col)(
     F.localAggNodataCount(col)
   ).as[Tile]
 

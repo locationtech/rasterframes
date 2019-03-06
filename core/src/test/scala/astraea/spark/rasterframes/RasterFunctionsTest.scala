@@ -406,6 +406,20 @@ class RasterFunctionsTest extends FunSpec
       stats1 should be (stats2)
       checkDocs("rf_agg_local_stats")
     }
+
+    it("should compute local min") {
+      val df = Seq(two, three, one, six).toDF("tile")
+      df.select(agg_local_min($"tile")).first() should be(one.toArrayTile())
+      df.selectExpr("rf_agg_local_min(tile)").as[Tile].first() should be(one.toArrayTile())
+      checkDocs("rf_agg_local_min")
+    }
+
+    it("should compute local max") {
+      val df = Seq(two, three, one, six).toDF("tile")
+      df.select(agg_local_max($"tile")).first() should be(six.toArrayTile())
+      df.selectExpr("rf_agg_local_max(tile)").as[Tile].first() should be(six.toArrayTile())
+      checkDocs("rf_agg_local_max")
+    }
   }
 
   describe("analytical transformations") {
@@ -443,7 +457,6 @@ class RasterFunctionsTest extends FunSpec
       checkDocs("rf_mask")
     }
 
-
     it("should inverse mask one tile against another") {
       val df = Seq[Tile](randTile).toDF("tile")
 
@@ -459,11 +472,6 @@ class RasterFunctionsTest extends FunSpec
       val withMasked = withMask
         .withColumn("masked", mask($"tile", $"mask"))
         .withColumn("inv_masked", inverse_mask($"tile", $"mask"))
-
-//      withMasked.select(
-//        agg_no_data_cells($"inv_masked"),
-//        agg_no_data_cells($"masked")
-//      ).show(false)
 
       val result = withMasked.agg(agg_no_data_cells($"masked") + agg_no_data_cells($"inv_masked")).as[Long]
 

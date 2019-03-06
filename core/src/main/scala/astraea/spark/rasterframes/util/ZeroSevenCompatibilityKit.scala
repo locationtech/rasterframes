@@ -172,17 +172,11 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute the cell-wise/local max operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggMax(col: Column): TypedColumn[Any, Tile] =
-    withAlias("localAggMax", col)(
-      F.localAggMax(col)
-    ).as[Tile]
+    def localAggMax(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_max(col)
 
     /** Compute the cellwise/local min operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggMin(col: Column): TypedColumn[Any, Tile] =
-    withAlias("localAggMin", col)(
-      F.localAggMin(col)
-    ).as[Tile]
+    def localAggMin(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_min(col)
 
     /** Compute the cellwise/local mean operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -373,12 +367,12 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_aggHistogram", ub(HistogramAggregate.HistogramAggregateUDAF.apply))
     registry.registerFunc("rf_localAggStats", ub(LocalStatsAggregate.LocalStatsAggregateUDAF.apply))
     registry.registerFunc("rf_renderAscii", ub(DebugRender.RenderMatrix.apply))
+    registry.registerFunc("rf_localAggMax", ub(LocalTileOpAggregate.LocalMaxUDAF.apply))
+    registry.registerFunc("rf_localAggMin", ub(LocalTileOpAggregate.LocalMinUDAF.apply))
 
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
-    sqlContext.udf.register("rf_localAggMax", F.localAggMax)
-    sqlContext.udf.register("rf_localAggMin", F.localAggMin)
     sqlContext.udf.register("rf_localAggMean", F.localAggMean)
     sqlContext.udf.register("rf_localAggCount", F.localAggCount)
     sqlContext.udf.register("rf_cellTypes", F.cellTypes)

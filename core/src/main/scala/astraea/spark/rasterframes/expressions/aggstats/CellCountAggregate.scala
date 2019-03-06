@@ -21,16 +21,12 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
-import astraea.spark.rasterframes.expressions.DynamicExtractors._
+import astraea.spark.rasterframes.expressions.UnaryRasterAggregate
 import astraea.spark.rasterframes.expressions.tilestats.{DataCells, NoDataCells}
-import astraea.spark.rasterframes.expressions.udfexpr
-import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.dsl.expressions._
-import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{LongType, Metadata}
-import org.apache.spark.sql.{Column, Row, TypedColumn}
+import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
  * Cell count (data or NoData) aggregate function.
@@ -38,9 +34,7 @@ import org.apache.spark.sql.{Column, Row, TypedColumn}
  * @since 10/5/17
  * @param isData true if count should be of non-NoData cells, false if count should be of NoData cells.
  */
-abstract class CellCountAggregate(isData: Boolean) extends DeclarativeAggregate {
-  def child: Expression
-
+abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate {
   private lazy val count =
     AttributeReference("count", LongType, false, Metadata.empty)()
 
@@ -50,14 +44,9 @@ abstract class CellCountAggregate(isData: Boolean) extends DeclarativeAggregate 
     Literal(0L)
   )
 
-  private def Extract = (a: Any) => a match {
-    case t: Tile => t
-    case r: Row => rowTileExtractor(child.dataType)(r)._1
-  }
-
   private def CellTest =
-    if (isData) udfexpr((a: Any) => DataCells.op(Extract(a)))
-    else udfexpr((a: Any) => NoDataCells.op(Extract(a)))
+    if (isData) tileOpAsExpression(DataCells.op)
+    else tileOpAsExpression(NoDataCells.op)
 
   val updateExpressions = Seq(
     If(IsNull(child), count, Add(count, CellTest(child)))
@@ -69,13 +58,7 @@ abstract class CellCountAggregate(isData: Boolean) extends DeclarativeAggregate 
 
   val evaluateExpression = count
 
-  def inputTypes = Seq(TileUDT)
-
-  def nullable = true
-
   def dataType = LongType
-
-  def children = Seq(child)
 }
 
 object CellCountAggregate {

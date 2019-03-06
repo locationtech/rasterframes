@@ -21,10 +21,15 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
+import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.functions.safeBinaryOp
 import geotrellis.raster.Tile
+import geotrellis.raster.mapalgebra.local
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Column, Row, TypedColumn}
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
+import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
@@ -66,4 +71,33 @@ class LocalTileOpAggregate(op: LocalTileBinaryOp) extends UserDefinedAggregateFu
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = update(buffer1, buffer2)
 
   override def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
+}
+
+object LocalTileOpAggregate {
+  import astraea.spark.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
+
+
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Compute cell-wise minimum value from a tile column."
+  )
+  class LocalMinUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(local.Min)), Complete, false, NamedExpression.newExprId)
+    override def nodeName: String = "agg_local_min"
+  }
+  object LocalMinUDAF {
+    def apply(child: Expression): LocalMinUDAF = new LocalMinUDAF(child)
+    def apply(tile: Column): TypedColumn[Any, Tile] = new Column(new LocalMinUDAF(tile.expr)).as[Tile]
+  }
+
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Compute cell-wise maximum value from a tile column."
+  )
+  class LocalMaxUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(local.Max)), Complete, false, NamedExpression.newExprId)
+    override def nodeName: String = "agg_local_max"
+  }
+  object LocalMaxUDAF {
+    def apply(child: Expression): LocalMaxUDAF = new LocalMaxUDAF(child)
+    def apply(tile: Column): TypedColumn[Any, Tile] = new Column(new LocalMaxUDAF(tile.expr)).as[Tile]
+  }
 }

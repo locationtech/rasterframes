@@ -69,12 +69,6 @@ package object functions {
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
-  /** Compute the cell-wise max across tiles. */
-  private[rasterframes] val localAggMax = new LocalTileOpAggregate(Max)
-
-  /** Compute the cell-wise min across tiles. */
-  private[rasterframes] val localAggMin = new LocalTileOpAggregate(Min)
-
   /** Compute the cell-wise main across tiles. */
   private[rasterframes] val localAggMean = new LocalMeanAggregate()
 
@@ -155,8 +149,6 @@ package object functions {
     sqlContext.udf.register("rf_tile_zeros", tileZeros)
     sqlContext.udf.register("rf_tile_ones", tileOnes)
 
-    sqlContext.udf.register("rf_local_agg_max", localAggMax)
-    sqlContext.udf.register("rf_local_agg_min", localAggMin)
     sqlContext.udf.register("rf_local_agg_mean", localAggMean)
     sqlContext.udf.register("rf_local_agg_count", localAggCount)
 

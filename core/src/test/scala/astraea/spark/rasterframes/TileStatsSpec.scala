@@ -100,7 +100,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       ds.createOrReplaceTempView("tmp")
 
       withClue("max") {
-        val max = ds.agg(local_agg_max($"tiles"))
+        val max = ds.agg(agg_local_max($"tiles"))
         val expected = Max(byteArrayTile, byteConstantTile)
         write(max)
         assert(max.as[Tile].first() === expected)
@@ -111,7 +111,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       }
 
       withClue("min") {
-        val min = ds.agg(local_agg_min($"tiles"))
+        val min = ds.agg(agg_local_min($"tiles"))
         val expected = Min(byteArrayTile, byteConstantTile)
         write(min)
         assert(min.as[Tile].first() === Min(byteArrayTile, byteConstantTile))
@@ -268,28 +268,28 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val dsNd = (Seq.fill(20)(completeTile) :+ incompleteTile :+ null).toDF("tiles")
 
       // counted everything properly
-      val countTile = ds.select(local_agg_data_cells($"tiles")).first()
+      val countTile = ds.select(agg_local_data_cells($"tiles")).first()
       forAll(countTile.toArray())(i => assert(i === 20))
 
-      val countArray = dsNd.select(local_agg_data_cells($"tiles")).first().toArray()
+      val countArray = dsNd.select(agg_local_data_cells($"tiles")).first().toArray()
       val expectedCount =
         (completeTile.localDefined().toArray zip incompleteTile.localDefined().toArray()).toSeq.map(
             pr => pr._1 * 20 + pr._2)
       assert(countArray === expectedCount)
 
-      val countNodataArray = dsNd.select(local_agg_no_data_cells($"tiles")).first().toArray
+      val countNodataArray = dsNd.select(agg_local_no_data_cells($"tiles")).first().toArray
       assert(countNodataArray === incompleteTile.localUndefined().toArray)
 
       // GeoTrellis docs do not say how NODATA is treated, but NODATA values are ignored
-      val meanTile = dsNd.select(local_agg_mean($"tiles")).first()
+      val meanTile = dsNd.select(agg_local_mean($"tiles")).first()
       assert(meanTile.toArray() === completeTile.toArray())
 
       // GeoTrellis docs state that Min(1.0, NODATA) = NODATA
-      val minTile = dsNd.select(local_agg_min($"tiles")).first()
+      val minTile = dsNd.select(agg_local_min($"tiles")).first()
       assert(minTile.toArray() === incompleteTile.toArray())
 
       // GeoTrellis docs state that Max(1.0, NODATA) = NODATA
-      val maxTile = dsNd.select(local_agg_max($"tiles")).first()
+      val maxTile = dsNd.select(agg_local_max($"tiles")).first()
       assert(maxTile.toArray() === incompleteTile.toArray())
     }
   }
