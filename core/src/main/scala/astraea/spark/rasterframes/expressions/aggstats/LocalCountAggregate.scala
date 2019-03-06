@@ -21,13 +21,17 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
+import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.functions.safeBinaryOp
 import geotrellis.raster.mapalgebra.local.{Add, Defined, Undefined}
 import geotrellis.raster.{IntConstantNoDataCellType, Tile}
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
+import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.{Column, Row, TypedColumn}
 
 /**
  * Catalyst aggregate function that counts `NoData` values in a cell-wise fashion.
@@ -77,4 +81,37 @@ class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction 
   }
 
   override def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
+}
+object LocalCountAggregate {
+  import astraea.spark.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Compute cell-wise count of non-no-data values."
+  )
+  class LocalDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(true)), Complete, false, NamedExpression.newExprId)
+    override def nodeName: String = "agg_local_data_cells"
+  }
+  object LocalDataCellsUDAF {
+    def apply(child: Expression): LocalDataCellsUDAF = new LocalDataCellsUDAF(child)
+    def apply(tile: Column): TypedColumn[Any, Tile] =
+      new Column(new LocalDataCellsUDAF(tile.expr))
+        .as(s"agg_local_data_cells($tile)")
+        .as[Tile]
+  }
+
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Compute cell-wise count of no-data values."
+  )
+  class LocalNoDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(false)), Complete, false, NamedExpression.newExprId)
+    override def nodeName: String = "agg_local_no_data_cells"
+  }
+  object LocalNoDataCellsUDAF {
+    def apply(child: Expression): LocalNoDataCellsUDAF = new LocalNoDataCellsUDAF(child)
+    def apply(tile: Column): TypedColumn[Any, Tile] =
+      new Column(new LocalNoDataCellsUDAF(tile.expr))
+        .as(s"agg_local_no_data_cells($tile)")
+        .as[Tile]
+  }
+
 }

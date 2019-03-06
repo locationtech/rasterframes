@@ -33,7 +33,7 @@ import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.scalatest.{FunSpec, Matchers}
 
-class RasterFunctionsTest extends FunSpec
+class RasterFunctionsSpec extends FunSpec
   with TestEnvironment with Matchers with RasterMatchers {
   import spark.implicits._
 
@@ -62,11 +62,8 @@ class RasterFunctionsTest extends FunSpec
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
 
-
-
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-
 
   describe("arithmetic tile operations") {
     it("should local_add") {
@@ -419,6 +416,24 @@ class RasterFunctionsTest extends FunSpec
       df.select(agg_local_max($"tile")).first() should be(six.toArrayTile())
       df.selectExpr("rf_agg_local_max(tile)").as[Tile].first() should be(six.toArrayTile())
       checkDocs("rf_agg_local_max")
+    }
+
+    it("should compute local data cell counts") {
+      val df = Seq(two, randNDTile, nd).toDF("tile")
+      val t1 = df.select(agg_local_data_cells($"tile")).first()
+      val t2 = df.selectExpr("rf_agg_local_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
+      t1 should be (t2)
+      checkDocs("rf_agg_local_data_cells")
+    }
+
+    it("should compute local no-data cell counts") {
+      val df = Seq(two, randNDTile, nd).toDF("tile")
+      val t1 = df.select(agg_local_no_data_cells($"tile")).first()
+      val t2 = df.selectExpr("rf_agg_local_no_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
+      t1 should be (t2)
+      val t3 = df.select(local_add(agg_local_data_cells($"tile"), agg_local_no_data_cells($"tile"))).first()
+      t3 should be(three.toArrayTile())
+      checkDocs("rf_agg_local_no_data_cells")
     }
   }
 

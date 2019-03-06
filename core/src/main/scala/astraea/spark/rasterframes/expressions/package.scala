@@ -95,6 +95,8 @@ package object expressions {
     registry.registerExpression[LocalTileOpAggregate.LocalMinUDAF]("rf_agg_local_min")
     registry.registerExpression[LocalTileOpAggregate.LocalMaxUDAF]("rf_agg_local_max")
 
+    registry.registerExpression[LocalCountAggregate.LocalDataCellsUDAF]("rf_agg_local_data_cells")
+    registry.registerExpression[LocalCountAggregate.LocalNoDataCellsUDAF]("rf_agg_local_no_data_cells")
 
     registry.registerExpression[Mask.MaskByDefined]("rf_mask")
     registry.registerExpression[Mask.MaskByValue]("rf_mask_by_value")

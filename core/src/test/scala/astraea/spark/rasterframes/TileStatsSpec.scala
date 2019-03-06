@@ -105,7 +105,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         write(max)
         assert(max.as[Tile].first() === expected)
 
-        val sqlMax = sql("select rf_local_agg_max(tiles) from tmp")
+        val sqlMax = sql("select rf_agg_local_max(tiles) from tmp")
         assert(sqlMax.as[Tile].first() === expected)
 
       }
@@ -116,7 +116,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         write(min)
         assert(min.as[Tile].first() === Min(byteArrayTile, byteConstantTile))
 
-        val sqlMin = sql("select rf_local_agg_min(tiles) from tmp")
+        val sqlMin = sql("select rf_agg_local_min(tiles) from tmp")
         assert(sqlMin.as[Tile].first() === expected)
       }
     }

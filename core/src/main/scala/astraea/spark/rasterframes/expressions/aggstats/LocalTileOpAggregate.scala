@@ -76,7 +76,6 @@ class LocalTileOpAggregate(op: LocalTileBinaryOp) extends UserDefinedAggregateFu
 object LocalTileOpAggregate {
   import astraea.spark.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
 
-
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise minimum value from a tile column."
   )

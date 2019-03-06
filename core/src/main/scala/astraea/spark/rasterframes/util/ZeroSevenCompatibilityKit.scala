@@ -148,8 +148,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute TileHistogram of Tile values. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileHistogram(col: Column): TypedColumn[Any, CellHistogram] =
-      delegate.tile_histogram(col)
+    def tileHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.tile_histogram(col)
 
     /** Compute statistics of Tile values. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -187,17 +186,11 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute the cellwise/local count of non-NoData cells for all Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggDataCells(col: Column): TypedColumn[Any, Tile] =
-    withAlias("localCount", col)(
-      F.localAggCount(col)
-    ).as[Tile]
+    def localAggDataCells(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_data_cells(col)
 
     /** Compute the cellwise/local count of NoData cells for all Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggNoDataCells(col: Column): TypedColumn[Any, Tile] =
-    withAlias("localNodataCount", col)(
-      F.localAggNodataCount(col)
-    ).as[Tile]
+    def localAggNoDataCells(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_no_data_cells(col)
 
     /** Cellwise addition between two Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -369,12 +362,12 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_renderAscii", ub(DebugRender.RenderMatrix.apply))
     registry.registerFunc("rf_localAggMax", ub(LocalTileOpAggregate.LocalMaxUDAF.apply))
     registry.registerFunc("rf_localAggMin", ub(LocalTileOpAggregate.LocalMinUDAF.apply))
+    registry.registerFunc("rf_localAggCount", ub(LocalCountAggregate.LocalDataCellsUDAF.apply))
 
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
     sqlContext.udf.register("rf_localAggMean", F.localAggMean)
-    sqlContext.udf.register("rf_localAggCount", F.localAggCount)
     sqlContext.udf.register("rf_cellTypes", F.cellTypes)
     sqlContext.udf.register("rf_reprojectGeometry", F.reprojectGeometryCRSName)
   }
