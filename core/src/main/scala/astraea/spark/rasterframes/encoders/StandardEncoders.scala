@@ -22,6 +22,7 @@ package astraea.spark.rasterframes.encoders
 import java.net.URI
 import java.sql.Timestamp
 
+import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
@@ -59,6 +60,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def cellStatsEncoder: ExpressionEncoder[CellStatistics] = ExpressionEncoder()
   implicit def cellHistEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
   implicit def localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
+  implicit def tileContextEncoder: ExpressionEncoder[TileContext] = CatalystSerializerEncoder[TileContext](true)
 }
 
 object StandardEncoders extends StandardEncoders

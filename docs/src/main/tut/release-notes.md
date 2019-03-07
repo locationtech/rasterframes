@@ -13,6 +13,7 @@
 * _Breaking_: renamed `agg_histogram` to `agg_approx_histogram`, `local_agg_stats` to `agg_local_stats`, `local_agg_max` to `agg_local_max`, `local_agg_min` to `agg_local_min`, `local_agg_mean` to `agg_local_mean`, `local_agg_data_cells` to `agg_local_data_cells`, `local_agg_no_data_cells` to `agg_local_no_data_cells`.
 * _Breaking_: `CellHistogram` no longer carries along approximate statistics, due to confusing behavior. Use `agg_stats` instead.
 * Introduced `LocalCellStatistics` class to wrap together results from `LocalStatsAggregate`.
+* _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `astraea.spark.rasterframes.model`.
    
 ## 0.7.x
 
