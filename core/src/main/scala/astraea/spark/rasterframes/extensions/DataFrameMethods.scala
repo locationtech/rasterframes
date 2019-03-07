@@ -29,7 +29,7 @@ import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
 import spray.json.JsonFormat
-
+import astraea.spark.rasterframes.encoders.StandardEncoders._
 import scala.util.Try
 
 /**

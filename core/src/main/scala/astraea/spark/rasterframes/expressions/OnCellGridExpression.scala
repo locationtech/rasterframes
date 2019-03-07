@@ -21,16 +21,12 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
-import geotrellis.raster.{CellGrid, Grid, Tile}
+import astraea.spark.rasterframes.expressions.DynamicExtractors._
+import geotrellis.raster.CellGrid
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.DataType
 
 /**
  * Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and RasterRefs
@@ -39,19 +35,8 @@ import org.apache.spark.sql.types.DataType
  * @since 11/4/18
  */
 trait OnCellGridExpression extends UnaryExpression {
-  // TODO: DRY w.r.t. OnProjectedRasterExpression....
-
-  private val toGrid: PartialFunction[DataType, InternalRow ⇒ CellGrid] = {
-    case _: TileUDT ⇒
-      (row: InternalRow) ⇒ row.to[Tile]
-    case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource]
-    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
-      (row: InternalRow) ⇒ row.to[RasterRef]
-  }
-
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!toGrid.isDefinedAt(child.dataType)) {
+    if (!gridExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `Grid`.")
     }
     else TypeCheckSuccess
@@ -60,7 +45,7 @@ trait OnCellGridExpression extends UnaryExpression {
   final override protected def nullSafeEval(input: Any): Any = {
     input match {
       case row: InternalRow ⇒
-        val g = toGrid(child.dataType)(row)
+        val g = gridExtractor(child.dataType)(row)
         eval(g)
       case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
     }

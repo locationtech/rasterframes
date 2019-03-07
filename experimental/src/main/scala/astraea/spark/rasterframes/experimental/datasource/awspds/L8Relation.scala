@@ -24,7 +24,7 @@ import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
-import astraea.spark.rasterframes.expressions.{RasterSourceToRasterRefs, URIToRasterSource}
+import astraea.spark.rasterframes.expressions.transformers.{RasterSourceToRasterRefs, URIToRasterSource}
 import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.rules.SpatialFilters.{Contains, Intersects}

@@ -1,0 +1,1124 @@
+[
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "uint8",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 0.750756701914575,
+            "scoreError" : 0.03489921840300597,
+            "scoreConfidence" : [
+                0.715857483511569,
+                0.785655920317581
+            ],
+            "scorePercentiles" : {
+                "0.0" : 0.7386746014362018,
+                "50.0" : 0.752125418246387,
+                "90.0" : 0.7593754045781637,
+                "95.0" : 0.7593754045781637,
+                "99.0" : 0.7593754045781637,
+                "99.9" : 0.7593754045781637,
+                "99.99" : 0.7593754045781637,
+                "99.999" : 0.7593754045781637,
+                "99.9999" : 0.7593754045781637,
+                "100.0" : 0.7593754045781637
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    0.7386746014362018,
+                    0.7590235001754141,
+                    0.7593754045781637,
+                    0.7445845851367084,
+                    0.752125418246387
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "uint8",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 38.38058292433662,
+            "scoreError" : 0.5766293256970553,
+            "scoreConfidence" : [
+                37.803953598639566,
+                38.95721225003368
+            ],
+            "scorePercentiles" : {
+                "0.0" : 38.17950849889709,
+                "50.0" : 38.483487036965805,
+                "90.0" : 38.49375297517132,
+                "95.0" : 38.49375297517132,
+                "99.0" : 38.49375297517132,
+                "99.9" : 38.49375297517132,
+                "99.99" : 38.49375297517132,
+                "99.999" : 38.49375297517132,
+                "99.9999" : 38.49375297517132,
+                "100.0" : 38.49375297517132
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    38.17950849889709,
+                    38.25959587406489,
+                    38.483487036965805,
+                    38.49375297517132,
+                    38.48657023658396
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "int32",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 6.859730529387528,
+            "scoreError" : 0.15015114495123957,
+            "scoreConfidence" : [
+                6.709579384436289,
+                7.009881674338768
+            ],
+            "scorePercentiles" : {
+                "0.0" : 6.807625212637563,
+                "50.0" : 6.851807420817827,
+                "90.0" : 6.912795585073158,
+                "95.0" : 6.912795585073158,
+                "99.0" : 6.912795585073158,
+                "99.9" : 6.912795585073158,
+                "99.99" : 6.912795585073158,
+                "99.999" : 6.912795585073158,
+                "99.9999" : 6.912795585073158,
+                "100.0" : 6.912795585073158
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    6.851807420817827,
+                    6.847977811681636,
+                    6.912795585073158,
+                    6.807625212637563,
+                    6.878446616727458
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "int32",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 480.9422408208602,
+            "scoreError" : 5.771651213055483,
+            "scoreConfidence" : [
+                475.17058960780474,
+                486.71389203391567
+            ],
+            "scorePercentiles" : {
+                "0.0" : 478.50027097977335,
+                "50.0" : 481.1490574795575,
+                "90.0" : 482.35979851501855,
+                "95.0" : 482.35979851501855,
+                "99.0" : 482.35979851501855,
+                "99.9" : 482.35979851501855,
+                "99.99" : 482.35979851501855,
+                "99.999" : 482.35979851501855,
+                "99.9999" : 482.35979851501855,
+                "100.0" : 482.35979851501855
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    478.50027097977335,
+                    481.91533816448384,
+                    481.1490574795575,
+                    482.35979851501855,
+                    480.7867389654676
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float32",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 6.818078360307711,
+            "scoreError" : 0.08318892187153049,
+            "scoreConfidence" : [
+                6.734889438436181,
+                6.901267282179241
+            ],
+            "scorePercentiles" : {
+                "0.0" : 6.7948532935574955,
+                "50.0" : 6.811025113390723,
+                "90.0" : 6.846424033994792,
+                "95.0" : 6.846424033994792,
+                "99.0" : 6.846424033994792,
+                "99.9" : 6.846424033994792,
+                "99.99" : 6.846424033994792,
+                "99.999" : 6.846424033994792,
+                "99.9999" : 6.846424033994792,
+                "100.0" : 6.846424033994792
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    6.803675604268625,
+                    6.811025113390723,
+                    6.7948532935574955,
+                    6.834413756326912,
+                    6.846424033994792
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float32",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 493.1200339402855,
+            "scoreError" : 5.741953611582008,
+            "scoreConfidence" : [
+                487.3780803287035,
+                498.8619875518675
+            ],
+            "scorePercentiles" : {
+                "0.0" : 490.7129639878324,
+                "50.0" : 493.6863954119388,
+                "90.0" : 494.3884258252619,
+                "95.0" : 494.3884258252619,
+                "99.0" : 494.3884258252619,
+                "99.9" : 494.3884258252619,
+                "99.99" : 494.3884258252619,
+                "99.999" : 494.3884258252619,
+                "99.9999" : 494.3884258252619,
+                "100.0" : 494.3884258252619
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    493.6863954119388,
+                    492.6966235971648,
+                    490.7129639878324,
+                    494.3884258252619,
+                    494.1157608792294
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float64",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 14.642728171265563,
+            "scoreError" : 0.3786592031928636,
+            "scoreConfidence" : [
+                14.2640689680727,
+                15.021387374458428
+            ],
+            "scorePercentiles" : {
+                "0.0" : 14.547127458647054,
+                "50.0" : 14.617635183386758,
+                "90.0" : 14.792616763059605,
+                "95.0" : 14.792616763059605,
+                "99.0" : 14.792616763059605,
+                "99.9" : 14.792616763059605,
+                "99.99" : 14.792616763059605,
+                "99.999" : 14.792616763059605,
+                "99.9999" : 14.792616763059605,
+                "100.0" : 14.792616763059605
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    14.547127458647054,
+                    14.617635183386758,
+                    14.573274428428881,
+                    14.792616763059605,
+                    14.682987022805511
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float64",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 1080.8359386830703,
+            "scoreError" : 35.03166838916621,
+            "scoreConfidence" : [
+                1045.804270293904,
+                1115.8676070722365
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1071.5023248018847,
+                "50.0" : 1078.4063772364734,
+                "90.0" : 1092.8710304751503,
+                "95.0" : 1092.8710304751503,
+                "99.0" : 1092.8710304751503,
+                "99.9" : 1092.8710304751503,
+                "99.99" : 1092.8710304751503,
+                "99.999" : 1092.8710304751503,
+                "99.9999" : 1092.8710304751503,
+                "100.0" : 1092.8710304751503
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    1071.5023248018847,
+                    1073.8747796864934,
+                    1092.8710304751503,
+                    1087.5251812153494,
+                    1078.4063772364734
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "rasterRef",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 12.188313148621546,
+            "scoreError" : 7.365297251370428,
+            "scoreConfidence" : [
+                4.823015897251119,
+                19.553610399991975
+            ],
+            "scorePercentiles" : {
+                "0.0" : 11.186523380550728,
+                "50.0" : 11.374585349686248,
+                "90.0" : 15.606331373536978,
+                "95.0" : 15.606331373536978,
+                "99.0" : 15.606331373536978,
+                "99.9" : 15.606331373536978,
+                "99.99" : 15.606331373536978,
+                "99.999" : 15.606331373536978,
+                "99.9999" : 15.606331373536978,
+                "100.0" : 15.606331373536978
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    11.186523380550728,
+                    11.357274436209732,
+                    11.374585349686248,
+                    11.416851203124038,
+                    15.606331373536978
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.encode",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "rasterRef",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 11.16416039038066,
+            "scoreError" : 0.6904470565404526,
+            "scoreConfidence" : [
+                10.473713333840207,
+                11.854607446921113
+            ],
+            "scorePercentiles" : {
+                "0.0" : 10.958926899271512,
+                "50.0" : 11.144335208904712,
+                "90.0" : 11.379572838567773,
+                "95.0" : 11.379572838567773,
+                "99.0" : 11.379572838567773,
+                "99.9" : 11.379572838567773,
+                "99.99" : 11.379572838567773,
+                "99.999" : 11.379572838567773,
+                "99.9999" : 11.379572838567773,
+                "100.0" : 11.379572838567773
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    11.30976879591712,
+                    11.379572838567773,
+                    11.144335208904712,
+                    11.02819820924218,
+                    10.958926899271512
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "uint8",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 4.762673330888573,
+            "scoreError" : 0.3629765650696548,
+            "scoreConfidence" : [
+                4.399696765818918,
+                5.125649895958228
+            ],
+            "scorePercentiles" : {
+                "0.0" : 4.654367944695545,
+                "50.0" : 4.771804106710553,
+                "90.0" : 4.888312020456609,
+                "95.0" : 4.888312020456609,
+                "99.0" : 4.888312020456609,
+                "99.9" : 4.888312020456609,
+                "99.99" : 4.888312020456609,
+                "99.999" : 4.888312020456609,
+                "99.9999" : 4.888312020456609,
+                "100.0" : 4.888312020456609
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    4.888312020456609,
+                    4.771804106710553,
+                    4.654367944695545,
+                    4.811061175897903,
+                    4.687821406682261
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "uint8",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 125.38841234041345,
+            "scoreError" : 12.251197281994925,
+            "scoreConfidence" : [
+                113.13721505841853,
+                137.6396096224084
+            ],
+            "scorePercentiles" : {
+                "0.0" : 121.32589970894979,
+                "50.0" : 126.16043763634758,
+                "90.0" : 129.26154882555105,
+                "95.0" : 129.26154882555105,
+                "99.0" : 129.26154882555105,
+                "99.9" : 129.26154882555105,
+                "99.99" : 129.26154882555105,
+                "99.999" : 129.26154882555105,
+                "99.9999" : 129.26154882555105,
+                "100.0" : 129.26154882555105
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    126.16043763634758,
+                    127.1243125222386,
+                    129.26154882555105,
+                    123.06986300898019,
+                    121.32589970894979
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "int32",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 18.333069815973175,
+            "scoreError" : 0.3341581136847717,
+            "scoreConfidence" : [
+                17.998911702288403,
+                18.667227929657948
+            ],
+            "scorePercentiles" : {
+                "0.0" : 18.226296598017225,
+                "50.0" : 18.31079228696827,
+                "90.0" : 18.426784947207096,
+                "95.0" : 18.426784947207096,
+                "99.0" : 18.426784947207096,
+                "99.9" : 18.426784947207096,
+                "99.99" : 18.426784947207096,
+                "99.999" : 18.426784947207096,
+                "99.9999" : 18.426784947207096,
+                "100.0" : 18.426784947207096
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    18.31079228696827,
+                    18.284332434448437,
+                    18.426784947207096,
+                    18.226296598017225,
+                    18.417142813224846
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "int32",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 1211.7797319906595,
+            "scoreError" : 49.26483544063887,
+            "scoreConfidence" : [
+                1162.5148965500207,
+                1261.0445674312982
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1195.925568730576,
+                "50.0" : 1210.8324462729913,
+                "90.0" : 1226.1002647058824,
+                "95.0" : 1226.1002647058824,
+                "99.0" : 1226.1002647058824,
+                "99.9" : 1226.1002647058824,
+                "99.99" : 1226.1002647058824,
+                "99.999" : 1226.1002647058824,
+                "99.9999" : 1226.1002647058824,
+                "100.0" : 1226.1002647058824
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    1210.8324462729913,
+                    1195.925568730576,
+                    1222.877439173493,
+                    1226.1002647058824,
+                    1203.1629410703547
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float32",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 20.739003038529034,
+            "scoreError" : 9.965728861183356,
+            "scoreConfidence" : [
+                10.773274177345678,
+                30.704731899712392
+            ],
+            "scorePercentiles" : {
+                "0.0" : 18.961133792379307,
+                "50.0" : 19.19435088399221,
+                "90.0" : 24.96128293474057,
+                "95.0" : 24.96128293474057,
+                "99.0" : 24.96128293474057,
+                "99.9" : 24.96128293474057,
+                "99.99" : 24.96128293474057,
+                "99.999" : 24.96128293474057,
+                "99.9999" : 24.96128293474057,
+                "100.0" : 24.96128293474057
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    19.061690043075515,
+                    19.19435088399221,
+                    18.961133792379307,
+                    21.516557538457565,
+                    24.96128293474057
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float32",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 1224.738164769416,
+            "scoreError" : 126.4638940057822,
+            "scoreConfidence" : [
+                1098.274270763634,
+                1351.202058775198
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1181.9325521805933,
+                "50.0" : 1229.8881532030002,
+                "90.0" : 1268.8545514967022,
+                "95.0" : 1268.8545514967022,
+                "99.0" : 1268.8545514967022,
+                "99.9" : 1268.8545514967022,
+                "99.99" : 1268.8545514967022,
+                "99.999" : 1268.8545514967022,
+                "99.9999" : 1268.8545514967022,
+                "100.0" : 1268.8545514967022
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    1268.8545514967022,
+                    1237.1361243971808,
+                    1205.8794425696035,
+                    1229.8881532030002,
+                    1181.9325521805933
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float64",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 41.35522075338555,
+            "scoreError" : 1.5888146686882507,
+            "scoreConfidence" : [
+                39.7664060846973,
+                42.9440354220738
+            ],
+            "scorePercentiles" : {
+                "0.0" : 40.89423389193166,
+                "50.0" : 41.27828040884876,
+                "90.0" : 42.01334043026831,
+                "95.0" : 42.01334043026831,
+                "99.0" : 42.01334043026831,
+                "99.9" : 42.01334043026831,
+                "99.99" : 42.01334043026831,
+                "99.999" : 42.01334043026831,
+                "99.9999" : 42.01334043026831,
+                "100.0" : 42.01334043026831
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    40.89423389193166,
+                    41.189732083674706,
+                    42.01334043026831,
+                    41.27828040884876,
+                    41.40051695220435
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "float64",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 3401.0174112275795,
+            "scoreError" : 497.2925126951152,
+            "scoreConfidence" : [
+                2903.724898532464,
+                3898.309923922695
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3234.1288173884936,
+                "50.0" : 3398.0858393887947,
+                "90.0" : 3570.2330531573316,
+                "95.0" : 3570.2330531573316,
+                "99.0" : 3570.2330531573316,
+                "99.9" : 3570.2330531573316,
+                "99.99" : 3570.2330531573316,
+                "99.999" : 3570.2330531573316,
+                "99.9999" : 3570.2330531573316,
+                "100.0" : 3570.2330531573316
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    3472.802212426241,
+                    3570.2330531573316,
+                    3398.0858393887947,
+                    3234.1288173884936,
+                    3329.837133777038
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "rasterRef",
+            "tileSize" : "64"
+        },
+        "primaryMetric" : {
+            "score" : 27.695579291790057,
+            "scoreError" : 1.727793688261407,
+            "scoreConfidence" : [
+                25.96778560352865,
+                29.423372980051465
+            ],
+            "scorePercentiles" : {
+                "0.0" : 27.169023039660257,
+                "50.0" : 27.78487872459196,
+                "90.0" : 28.259312501235915,
+                "95.0" : 28.259312501235915,
+                "99.0" : 28.259312501235915,
+                "99.9" : 28.259312501235915,
+                "99.99" : 28.259312501235915,
+                "99.999" : 28.259312501235915,
+                "99.9999" : 28.259312501235915,
+                "100.0" : 28.259312501235915
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    27.78487872459196,
+                    28.259312501235915,
+                    27.320646766780545,
+                    27.169023039660257,
+                    27.9440354266816
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "astraea.spark.rasterframes.bench.TileEncodeBench.roundTrip",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "cellTypeName" : "rasterRef",
+            "tileSize" : "512"
+        },
+        "primaryMetric" : {
+            "score" : 28.004859122985067,
+            "scoreError" : 0.7553941535592298,
+            "scoreConfidence" : [
+                27.249464969425837,
+                28.760253276544297
+            ],
+            "scorePercentiles" : {
+                "0.0" : 27.752906370782245,
+                "50.0" : 27.946522581888676,
+                "90.0" : 28.21079035273483,
+                "95.0" : 28.21079035273483,
+                "99.0" : 28.21079035273483,
+                "99.9" : 28.21079035273483,
+                "99.99" : 28.21079035273483,
+                "99.999" : 28.21079035273483,
+                "99.9999" : 28.21079035273483,
+                "100.0" : 28.21079035273483
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    28.21079035273483,
+                    27.917038521558283,
+                    28.19703778796129,
+                    27.946522581888676,
+                    27.752906370782245
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+

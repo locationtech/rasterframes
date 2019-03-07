@@ -12,7 +12,12 @@ lazy val deployment = project
   .dependsOn(root)
   .disablePlugins(SparkPackagePlugin)
 
+lazy val IntegrationTest = config("it") extend Test
+
 lazy val core = project
+  .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(Defaults.testSettings))
+  .settings(Defaults.itSettings)
   .disablePlugins(SparkPackagePlugin)
 
 lazy val pyrasterframes = project

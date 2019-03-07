@@ -22,8 +22,10 @@ import java.net.URI
 import java.nio.file.Paths
 import java.time.ZonedDateTime
 
+import astraea.spark.rasterframes.expressions.tilestats.NoDataCells
+import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import astraea.spark.rasterframes.{functions ⇒ F}
+import astraea.spark.rasterframes.{functions => F}
 import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster
@@ -179,9 +181,9 @@ object TestData extends TestData {
           ) (
             z ⇒ if (isNoData(z)) rnd.nextGaussian() else z
           )
-        } while (F.noDataCells(result) != 0L)
+        } while (NoDataCells.op(result) != 0L)
 
-        assert(F.noDataCells(result) == 0L,
+        assert(NoDataCells.op(result) == 0L,
           s"Should not have any NoData cells for $cellType:\n${result.asciiDraw()}")
         result
     }
@@ -205,7 +207,7 @@ object TestData extends TestData {
 
   def projectedRasterTile[N: Numeric](
     cols: Int, rows: Int,
-    cellValue: N,
+    cellValue: => N,
     extent: Extent, crs: CRS = LatLng,
     cellType: CellType = ByteConstantNoDataCellType): ProjectedRasterTile = {
     val num = implicitly[Numeric[N]]
@@ -237,11 +239,18 @@ object TestData extends TestData {
     val targeted = rnd.shuffle(indexes).take(num)
     def filter(c: Int, r: Int) = targeted.contains(r * t.cols + c)
 
-    if(t.cellType.isFloatingPoint) {
+    val injected = if(t.cellType.isFloatingPoint) {
       t.mapDouble((c, r, v) ⇒ (if(filter(c,r)) raster.doubleNODATA else v): Double)
     }
     else {
       t.map((c, r, v) ⇒ if(filter(c, r)) raster.NODATA else v)
     }
+
+//    t match {
+//      case TileContext(ext, crs) => ProjectedRasterTile(injected, ext, crs)
+//      case _ => injected
+//    }
+
+    injected
   }
 }
