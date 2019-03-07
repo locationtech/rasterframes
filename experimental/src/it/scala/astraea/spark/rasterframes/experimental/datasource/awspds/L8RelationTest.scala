@@ -50,10 +50,6 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
     scenes = sql(query).cache()
   }
 
-  after {
-    spark.sparkContext.register()
-  }
-
   describe("Read L8 on PDS as a DataSource") {
     it("should count scenes") {
       assert(scenes.schema.size === 4)
