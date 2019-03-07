@@ -46,7 +46,6 @@ import org.apache.spark.sql.{Column, SQLContext, TypedColumn, rf}
  */
 object ZeroSevenCompatibilityKit {
   import astraea.spark.rasterframes.encoders.StandardEncoders._
-  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 
   trait RasterFunctions {
     private val delegate = new astraea.spark.rasterframes.RasterFunctions {}
@@ -179,10 +178,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute the cellwise/local mean operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggMean(col: Column): TypedColumn[Any, Tile] =
-    withAlias("localAggMean", col)(
-      F.localAggMean(col)
-    ).as[Tile]
+    def localAggMean(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_mean(col)
 
     /** Compute the cellwise/local count of non-NoData cells for all Tiles in a column. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -363,11 +359,11 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_localAggMax", ub(LocalTileOpAggregate.LocalMaxUDAF.apply))
     registry.registerFunc("rf_localAggMin", ub(LocalTileOpAggregate.LocalMinUDAF.apply))
     registry.registerFunc("rf_localAggCount", ub(LocalCountAggregate.LocalDataCellsUDAF.apply))
+    registry.registerFunc("rf_localAggMean", ub(LocalMeanAggregate.apply))
 
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
-    sqlContext.udf.register("rf_localAggMean", F.localAggMean)
     sqlContext.udf.register("rf_cellTypes", F.cellTypes)
     sqlContext.udf.register("rf_reprojectGeometry", F.reprojectGeometryCRSName)
   }

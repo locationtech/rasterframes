@@ -69,9 +69,6 @@ package object functions {
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
-  /** Compute the cell-wise main across tiles. */
-  private[rasterframes] val localAggMean = new LocalMeanAggregate()
-
   /** Constructor for constant tiles */
   private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {
     val cellType = CellType.fromName(cellTypeName)
@@ -142,8 +139,6 @@ package object functions {
     sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
     sqlContext.udf.register("rf_tile_zeros", tileZeros)
     sqlContext.udf.register("rf_tile_ones", tileOnes)
-
-    sqlContext.udf.register("rf_local_agg_mean", localAggMean)
 
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)

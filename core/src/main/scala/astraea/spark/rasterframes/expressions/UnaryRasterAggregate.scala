@@ -31,14 +31,14 @@ import scala.reflect.runtime.universe._
 trait UnaryRasterAggregate extends DeclarativeAggregate {
   def child: Expression
 
-  def nullable = child.nullable
+  def nullable: Boolean = child.nullable
 
   def children = Seq(child)
 
-  protected def tileOpAsExpression[R: TypeTag](op: Tile => R): Expression => ScalaUDF =
-    udfexpr[R, Any]((a: Any) => op(extractTileFromAny(a)))
+  protected def tileOpAsExpression[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
+    udfexpr[R, Any](name, (a: Any) => op(extractTileFromAny(a)))
 
-  protected def extractTileFromAny = (a: Any) => a match {
+  protected val extractTileFromAny = (a: Any) => a match {
     case t: Tile => t
     case r: Row => rowTileExtractor(child.dataType)(r)._1
   }

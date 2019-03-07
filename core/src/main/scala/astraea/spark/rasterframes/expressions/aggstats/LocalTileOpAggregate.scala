@@ -23,6 +23,7 @@ package astraea.spark.rasterframes.expressions.aggstats
 
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.functions.safeBinaryOp
+import astraea.spark.rasterframes.util.DataBiasedOp.{BiasedMax, BiasedMin}
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.local
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -80,7 +81,7 @@ object LocalTileOpAggregate {
     usage = "_FUNC_(tile) - Compute cell-wise minimum value from a tile column."
   )
   class LocalMinUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(local.Min)), Complete, false, NamedExpression.newExprId)
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMin)), Complete, false, NamedExpression.newExprId)
     override def nodeName: String = "agg_local_min"
   }
   object LocalMinUDAF {
@@ -92,7 +93,7 @@ object LocalTileOpAggregate {
     usage = "_FUNC_(tile) - Compute cell-wise maximum value from a tile column."
   )
   class LocalMaxUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(local.Max)), Complete, false, NamedExpression.newExprId)
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMax)), Complete, false, NamedExpression.newExprId)
     override def nodeName: String = "agg_local_max"
   }
   object LocalMaxUDAF {

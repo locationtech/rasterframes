@@ -22,8 +22,12 @@
 package astraea.spark.rasterframes.expressions.localops
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
+import astraea.spark.rasterframes.expressions.DynamicExtractors.tileExtractor
+import astraea.spark.rasterframes.expressions.{BinaryLocalRasterOp, DynamicExtractors}
+import astraea.spark.rasterframes.util.DataBiasedOp.BiasedAdd
 import geotrellis.raster.Tile
+import org.apache.spark.sql.rf._
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
@@ -42,11 +46,25 @@ import org.apache.spark.sql.{Column, TypedColumn}
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
+case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
+  with CodegenFallback {
   override val nodeName: String = "local_add"
-  override protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localAdd(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
+  override protected def op(left: Tile, right: Tile): Tile = BiasedAdd(left, right)
+  override protected def op(left: Tile, right: Double): Tile = BiasedAdd(left, right)
+  override protected def op(left: Tile, right: Int): Tile = BiasedAdd(left, right)
+
+  override def eval(input: InternalRow): Any = {
+    if(input == null) null
+    else {
+      val l = left.eval(input)
+      val r = right.eval(input)
+      if (l == null && r == null) null
+      else if (l == null) r
+      else if (r == null && tileExtractor.isDefinedAt(right.dataType)) l
+      else if (r == null) null
+      else nullSafeEval(l, r)
+    }
+  }
 }
 object Add {
   def apply(left: Column, right: Column): TypedColumn[Any, Tile] =

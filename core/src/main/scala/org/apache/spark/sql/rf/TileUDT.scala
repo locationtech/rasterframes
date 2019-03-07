@@ -78,7 +78,7 @@ case object TileUDT  {
 
     override def schema: StructType = StructType(Seq(
       StructField("cell_context", CatalystSerializer[TileDataContext].schema, false),
-      StructField("cell_cata", CatalystSerializer[Cells].schema, false)
+      StructField("cell_data", CatalystSerializer[Cells].schema, false)
     ))
 
     override def to[R](t: Tile, io: CatalystIO[R]): R = io.create(

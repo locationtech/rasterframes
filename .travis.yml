@@ -20,7 +20,7 @@ addons:
 sbt_args: -no-colors
 
 script:
-  - sbt -Dfile.encoding=UTF8 clean core/test datasource/test
+  - sbt -Dfile.encoding=UTF8 clean test it:test
   #  - sbt -Dfile.encoding=UTF8 clean coverage test coverageReport
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm

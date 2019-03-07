@@ -21,21 +21,19 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
-import astraea.spark.rasterframes.encoders.StandardEncoders
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
-import astraea.spark.rasterframes.expressions.aggstats.HistogramAggregate.HistogramAggregateUDAF
 import astraea.spark.rasterframes.functions.safeBinaryOp
-import astraea.spark.rasterframes.stats.{CellHistogram, LocalCellStatistics}
+import astraea.spark.rasterframes.stats.LocalCellStatistics
 import astraea.spark.rasterframes.util.DataBiasedOp.{BiasedAdd, BiasedMax, BiasedMin}
 import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster.{DoubleConstantNoDataCellType, IntConstantNoDataCellType, IntUserDefinedNoDataCellType, Tile}
-import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
-import org.apache.spark.sql.{Column, Encoders, Row, TypedColumn}
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Column, Row, TypedColumn}
 
 
 /**

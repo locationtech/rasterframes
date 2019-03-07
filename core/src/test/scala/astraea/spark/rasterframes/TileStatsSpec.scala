@@ -21,6 +21,7 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.TestData.randomTile
 import astraea.spark.rasterframes.TestData.fracTile
+import astraea.spark.rasterframes.expressions.aggstats.LocalMeanAggregate
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
 import geotrellis.spark._
@@ -280,17 +281,14 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val countNodataArray = dsNd.select(agg_local_no_data_cells($"tiles")).first().toArray
       assert(countNodataArray === incompleteTile.localUndefined().toArray)
 
-      // GeoTrellis docs do not say how NODATA is treated, but NODATA values are ignored
+      val minTile = dsNd.select(agg_local_min($"tiles")).first()
+      assert(minTile.toArray() === completeTile.toArray())
+
+            val maxTile = dsNd.select(agg_local_max($"tiles")).first()
+      assert(maxTile.toArray() === completeTile.toArray())
+
       val meanTile = dsNd.select(agg_local_mean($"tiles")).first()
       assert(meanTile.toArray() === completeTile.toArray())
-
-      // GeoTrellis docs state that Min(1.0, NODATA) = NODATA
-      val minTile = dsNd.select(agg_local_min($"tiles")).first()
-      assert(minTile.toArray() === incompleteTile.toArray())
-
-      // GeoTrellis docs state that Max(1.0, NODATA) = NODATA
-      val maxTile = dsNd.select(agg_local_max($"tiles")).first()
-      assert(maxTile.toArray() === incompleteTile.toArray())
     }
   }
   describe("NoData handling") {

@@ -21,8 +21,8 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
+import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult

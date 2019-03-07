@@ -21,18 +21,16 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
-import astraea.spark.rasterframes.expressions.DynamicExtractors._
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.stats.CellStatistics
 import geotrellis.raster.{Tile, _}
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
-import org.apache.spark.sql.{Column, Row, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, _}
+import org.apache.spark.sql.{Column, Row, TypedColumn}
 
 /**
  * Statistics aggregation function for a full column of tiles.

@@ -48,10 +48,10 @@ package object expressions {
 
   /** As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function. */
   private[expressions]
-  def udfexpr[RT: TypeTag, A1: TypeTag](f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
+  def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
     val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
     val inputTypes = Try(ScalaReflection.schemaFor(typeTag[A1]).dataType :: Nil).toOption
-    ScalaUDF(f, dataType, Seq(child),  inputTypes.getOrElse(Nil), nullable = nullable)
+    ScalaUDF(f, dataType, Seq(child),  inputTypes.getOrElse(Nil), nullable = nullable, udfName = Some(name))
   }
 
   def register(sqlContext: SQLContext): Unit = {
@@ -94,9 +94,9 @@ package object expressions {
     registry.registerExpression[LocalStatsAggregate.LocalStatsAggregateUDAF]("rf_agg_local_stats")
     registry.registerExpression[LocalTileOpAggregate.LocalMinUDAF]("rf_agg_local_min")
     registry.registerExpression[LocalTileOpAggregate.LocalMaxUDAF]("rf_agg_local_max")
-
     registry.registerExpression[LocalCountAggregate.LocalDataCellsUDAF]("rf_agg_local_data_cells")
     registry.registerExpression[LocalCountAggregate.LocalNoDataCellsUDAF]("rf_agg_local_no_data_cells")
+    registry.registerExpression[LocalMeanAggregate]("rf_agg_local_mean")
 
     registry.registerExpression[Mask.MaskByDefined]("rf_mask")
     registry.registerExpression[Mask.MaskByValue]("rf_mask_by_value")

@@ -21,16 +21,10 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
-import astraea.spark.rasterframes.expressions
+import astraea.spark.rasterframes.expressions.UnaryRasterAggregate
 import astraea.spark.rasterframes.expressions.tilestats.{DataCells, Sum}
-import astraea.spark.rasterframes.expressions.udfexpr
-import astraea.spark.rasterframes.functions._
-import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.dsl.expressions._
-import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
 import org.apache.spark.sql.{Column, TypedColumn}
 
@@ -46,8 +40,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
       > SELECT _FUNC_(tile);
          ....
   """)
-case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
-  private val TileType = new TileUDT()
+case class CellMeanAggregate(child: Expression) extends UnaryRasterAggregate {
   override def nodeName: String = "agg_mean"
 
   private lazy val sum =
@@ -57,7 +50,7 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
 
   override lazy val aggBufferAttributes = Seq(sum, count)
 
-  val initialValues = Seq(
+  override val initialValues = Seq(
     Literal(0.0),
     Literal(0L)
   )
@@ -65,30 +58,24 @@ case class CellMeanAggregate(child: Expression) extends DeclarativeAggregate {
   // Cant' figure out why we can't just use the Expression directly
   // this is necessary to properly handle null rows. For example,
   // if we use `tilestats.Sum` directly, we get an NPE when the stage is executed.
-  private val DataCellCounts = udfexpr(DataCells.op)
-  private val SumCells = udfexpr(Sum.op)
+  private val DataCellCounts = tileOpAsExpression("data_cells", DataCells.op)
+  private val SumCells = tileOpAsExpression("sum_cells", Sum.op)
 
-  val updateExpressions = Seq(
+  override val updateExpressions = Seq(
     // TODO: Figure out why this doesn't work. See above.
     //If(IsNull(child), sum , Add(sum, Sum(child))),
     If(IsNull(child), sum , Add(sum, SumCells(child))),
     If(IsNull(child), count, Add(count, DataCellCounts(child)))
   )
 
-  val mergeExpressions = Seq(
+  override val mergeExpressions = Seq(
     sum.left + sum.right,
     count.left + count.right
   )
 
-  val evaluateExpression = sum / new Cast(count, DoubleType)
+  override val evaluateExpression = sum / new Cast(count, DoubleType)
 
-  def inputTypes = Seq(TileType)
-
-  def nullable = child.nullable
-
-  def dataType = DoubleType
-
-  def children = Seq(child)
+  override def dataType = DoubleType
 }
 
 object CellMeanAggregate {

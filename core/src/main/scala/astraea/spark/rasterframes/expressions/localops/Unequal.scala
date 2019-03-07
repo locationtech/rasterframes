@@ -43,7 +43,6 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class Unequal(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
   override val nodeName: String = "local_unequal"
   override protected def op(left: Tile, right: Tile): Tile = left.localUnequal(right)
-
   override protected def op(left: Tile, right: Double): Tile = left.localUnequal(right)
   override protected def op(left: Tile, right: Int): Tile = left.localUnequal(right)
 }

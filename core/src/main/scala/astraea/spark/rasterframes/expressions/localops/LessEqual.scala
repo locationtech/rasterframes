@@ -43,7 +43,6 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class LessEqual(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
   override val nodeName: String = "local_less_equal"
   override protected def op(left: Tile, right: Tile): Tile = left.localLessOrEqual(right)
-
   override protected def op(left: Tile, right: Double): Tile = left.localLessOrEqual(right)
   override protected def op(left: Tile, right: Int): Tile = left.localLessOrEqual(right)
 }

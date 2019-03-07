@@ -38,15 +38,17 @@ abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate 
   private lazy val count =
     AttributeReference("count", LongType, false, Metadata.empty)()
 
-  override lazy val aggBufferAttributes = count :: Nil
+  override lazy val aggBufferAttributes = Seq(
+    count
+  )
 
   val initialValues = Seq(
     Literal(0L)
   )
 
   private def CellTest =
-    if (isData) tileOpAsExpression(DataCells.op)
-    else tileOpAsExpression(NoDataCells.op)
+    if (isData) tileOpAsExpression("data_cells", DataCells.op)
+    else tileOpAsExpression("no_data_cells", NoDataCells.op)
 
   val updateExpressions = Seq(
     If(IsNull(child), count, Add(count, CellTest(child)))

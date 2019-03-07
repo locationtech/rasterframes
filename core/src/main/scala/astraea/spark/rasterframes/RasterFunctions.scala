@@ -167,10 +167,7 @@ trait RasterFunctions {
   def agg_local_min(col: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMinUDAF(col)
 
   /** Compute the cellwise/local mean operation between Tiles in a column. */
-  def agg_local_mean(col: Column): TypedColumn[Any, Tile] =
-  withAlias("agg_local_mean", col)(
-    F.localAggMean(col)
-  ).as[Tile]
+  def agg_local_mean(col: Column): TypedColumn[Any, Tile] = LocalMeanAggregate(col)
 
   /** Compute the cellwise/local count of non-NoData cells for all Tiles in a column. */
   def agg_local_data_cells(col: Column): TypedColumn[Any, Tile] = LocalCountAggregate.LocalDataCellsUDAF(col)
