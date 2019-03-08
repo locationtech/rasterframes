@@ -117,12 +117,12 @@ workflows:
           filters:
             branches:
               only:
-                - /feature\/.*-its/
+                - /astraea\/feature\/.*-its/
       - publish:
           filters:
             branches:
               only:
-                - feature/astraea
+                - astraea/develop
   nightlyReleaseAstraea:
     triggers:
       - schedule:
@@ -130,7 +130,7 @@ workflows:
           filters:
             branches:
               only:
-                - feature/astraea
+                - astraea/develop
     jobs:
       - it
       - staticAnalysis
