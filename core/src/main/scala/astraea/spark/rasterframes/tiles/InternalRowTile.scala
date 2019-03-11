@@ -64,7 +64,7 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
 
 
   /** Retrieve the cell type from the internal encoding. */
-  override def cellType: CellType = cellContext.cellType
+  override def cellType: CellType = cellContext.cell_type
 
   /** Retrieve the number of columns from the internal encoding. */
   override def cols: Int = cellContext.dimensions.cols
