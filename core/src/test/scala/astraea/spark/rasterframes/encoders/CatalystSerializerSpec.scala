@@ -24,6 +24,7 @@ import java.time.ZonedDateTime
 
 import astraea.spark.rasterframes.encoders.StandardEncoders._
 import astraea.spark.rasterframes.model.{CellContext, TileContext, TileDataContext, TileDimensions}
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.proj4._
 import geotrellis.raster.{CellSize, CellType, TileLayout, UShortUserDefinedNoDataCellType}
@@ -94,8 +95,17 @@ class CatalystSerializerSpec extends TestEnvironment with TestData {
     }
 
     it("should serialize ProjectedRasterTile") {
-      val tile = TestData.projectedRasterTile(20, 30, -1.2, extent)
-      assertContract(tile)
+      // TODO: Decide if ProjectedRasterTile should be encoded 'flat', non-'flat', or depends
+      val value = TestData.projectedRasterTile(20, 30, -1.2, extent)
+      assertConsistent(value)
+      assertInvertable(value)
+    }
+
+    it("should serialize RasterRef") {
+      val src = RasterSource(remoteCOGSingleband1)
+      val value = RasterRef(src, Some(src.extent.buffer(-3.0)))
+      assertConsistent(value)
+      assertInvertable(value)
     }
 
     it("should serialize CellType") {

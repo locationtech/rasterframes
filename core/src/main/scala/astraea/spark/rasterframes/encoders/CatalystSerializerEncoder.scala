@@ -25,7 +25,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, ExprCode}
 import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
-import org.apache.spark.sql.types.{DataType, ObjectType}
+import org.apache.spark.sql.types.{DataType, ObjectType, StructField, StructType}
 
 import scala.reflect.runtime.universe.TypeTag
 
@@ -60,10 +60,14 @@ object CatalystSerializerEncoder {
       nullSafeCodeGen(ctx, ev, input => s"${ev.value} = ($objType) $cs.fromInternalRow($input);")
     }
   }
-  def apply[T: TypeTag: CatalystSerializer](flat: Boolean = true): ExpressionEncoder[T] = {
+  def apply[T: TypeTag: CatalystSerializer](flat: Boolean = false): ExpressionEncoder[T] = {
     val serde = CatalystSerializer[T]
 
-    val schema = serde.schema
+    val schema = if (flat)
+      StructType(Seq(
+        StructField("value", serde.schema, true)
+      ))
+    else serde.schema
 
     val parentType: DataType = ScalaReflection.dataTypeFor[T]
 

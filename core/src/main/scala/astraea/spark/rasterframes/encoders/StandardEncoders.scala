@@ -46,7 +46,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = ExpressionEncoder()
   implicit def layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = ExpressionEncoder()
   implicit def stkBoundsEncoder: ExpressionEncoder[KeyBounds[SpaceTimeKey]] = ExpressionEncoder()
-  implicit def extentEncoder: ExpressionEncoder[Extent] = CatalystSerializerEncoder[Extent]()
+  implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder[Extent]()
   implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
   implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
   implicit def crsEncoder: ExpressionEncoder[CRS] = CRSEncoder()
