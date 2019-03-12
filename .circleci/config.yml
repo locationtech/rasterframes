@@ -68,7 +68,7 @@ jobs:
       - restore_cache:
           <<: *restore_cache
 
-      - run: sudo apt-get install python-pip && pip install setuptools # required for pyrasterframes testing
+      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
       - run: cat /dev/null | sbt test
 
       - run: *unsetenv
@@ -77,12 +77,14 @@ jobs:
 
   publish:
     <<: *defaults
+    resource_class: large
     steps:
       - checkout
       - run: *setenv
       - restore_cache:
           <<: *restore_cache
 
+      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
       - run: cat /dev/null | sbt test
       - run: cat /dev/null | sbt publish
 
@@ -117,12 +119,12 @@ workflows:
           filters:
             branches:
               only:
-                - /feature\/.*-its/
+                - /astraea\/feature\/.*-its/
       - publish:
           filters:
             branches:
               only:
-                - feature/astraea
+                - astraea/develop
   nightlyReleaseAstraea:
     triggers:
       - schedule:
@@ -130,7 +132,7 @@ workflows:
           filters:
             branches:
               only:
-                - feature/astraea
+                - astraea/develop
     jobs:
       - it
       - staticAnalysis
