@@ -495,7 +495,7 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_inverse_mask")
     }
 
-    it("should mask tile by onother identified by specified value") {
+    it("should mask tile by another identified by specified value") {
       val df = Seq[Tile](randTile).toDF("tile")
       val mask_value = 4
 
@@ -530,6 +530,25 @@ class RasterFunctionsSpec extends FunSpec
       val r2 = df.selectExpr("rf_render_matrix(tile)").as[String]
       r1.first() should be(r2.first())
       checkDocs("rf_render_matrix")
+    }
+
+    it("should round tile cell values") {
+
+      val three_plus = TestData.projectedRasterTile(cols, rows, 3.12, extent, crs, DoubleConstantNoDataCellType)
+      val three_less = TestData.projectedRasterTile(cols, rows, 2.92, extent, crs, DoubleConstantNoDataCellType)
+      val three_double = TestData.projectedRasterTile(cols, rows, 3.0, extent, crs, DoubleConstantNoDataCellType)
+
+      val df = Seq((three_plus, three_less, three)).toDF("three_plus", "three_less", "three")
+
+      assertEqual(df.select(round($"three_plus")).as[Tile].first(), three_double)
+      assertEqual(df.select(round($"three_less")).as[Tile].first(), three_double)
+      assertEqual(df.select(round($"three")).as[Tile].first(), three)
+
+      assertEqual(df.selectExpr("rf_round(three_plus)").as[ProjectedRasterTile].first(), three_double)
+      assertEqual(df.selectExpr("rf_round(three_less)").as[ProjectedRasterTile].first(), three_double)
+      assertEqual(df.selectExpr("rf_round(three)").as[ProjectedRasterTile].first(), three)
+
+      checkDocs("rf_round")
     }
   }
 }
