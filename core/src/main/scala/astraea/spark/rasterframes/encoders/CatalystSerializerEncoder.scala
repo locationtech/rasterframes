@@ -60,7 +60,7 @@ object CatalystSerializerEncoder {
       nullSafeCodeGen(ctx, ev, input => s"${ev.value} = ($objType) $cs.fromInternalRow($input);")
     }
   }
-  def apply[T: TypeTag: CatalystSerializer](flat: Boolean): ExpressionEncoder[T] = {
+  def apply[T: TypeTag: CatalystSerializer](flat: Boolean = false): ExpressionEncoder[T] = {
     val serde = CatalystSerializer[T]
 
     val schema = if (flat)

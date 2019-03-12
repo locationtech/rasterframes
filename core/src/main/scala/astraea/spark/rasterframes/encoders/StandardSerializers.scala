@@ -24,9 +24,11 @@ import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
 import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Envelope
 import geotrellis.proj4.CRS
-import geotrellis.raster.CellType
-import geotrellis.vector.Extent
-import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
+import geotrellis.raster._
+import geotrellis.spark._
+import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.vector._
+import org.apache.spark.sql.types._
 
 /** Collection of CatalystSerializers for third-party types. */
 trait StandardSerializers {
@@ -88,5 +90,162 @@ trait StandardSerializers {
     override def from[R](row: R, io: CatalystIO[R]): CellType =
       CellType.fromName(io.getString(row, 0))
   }
+
+  implicit val projectedExtentSerializer: CatalystSerializer[ProjectedExtent] = new CatalystSerializer[ProjectedExtent] {
+    override def schema: StructType = StructType(Seq(
+      StructField("extent", CatalystSerializer[Extent].schema, false),
+      StructField("crs", CatalystSerializer[CRS].schema, false)
+    ))
+
+    override protected def to[R](t: ProjectedExtent, io: CatalystSerializer.CatalystIO[R]): R = io.create(
+      io.to(t.extent),
+      io.to(t.crs)
+    )
+
+    override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): ProjectedExtent = ProjectedExtent(
+      io.get[Extent](t, 0),
+      io.get[CRS](t, 1)
+    )
+  }
+
+  implicit val spatialKeySerializer: CatalystSerializer[SpatialKey] = new CatalystSerializer[SpatialKey] {
+    override def schema: StructType = StructType(Seq(
+      StructField("col", IntegerType, false),
+      StructField("row", IntegerType, false)
+    ))
+
+    override protected def to[R](t: SpatialKey, io: CatalystIO[R]): R = io.create(
+      t.col,
+      t.row
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): SpatialKey = SpatialKey(
+      io.getInt(t, 0),
+      io.getInt(t, 1)
+    )
+  }
+
+  implicit val spacetimeKeySerializer: CatalystSerializer[SpaceTimeKey] = new CatalystSerializer[SpaceTimeKey] {
+    override def schema: StructType = StructType(Seq(
+      StructField("col", IntegerType, false),
+      StructField("row", IntegerType, false),
+      StructField("instant", LongType, false)
+    ))
+
+    override protected def to[R](t: SpaceTimeKey, io: CatalystIO[R]): R = io.create(
+      t.col,
+      t.row,
+      t.instant
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): SpaceTimeKey = SpaceTimeKey(
+      io.getInt(t, 0),
+      io.getInt(t, 1),
+      io.getLong(t, 2)
+    )
+  }
+
+  implicit val cellSizeSerializer: CatalystSerializer[CellSize] = new CatalystSerializer[CellSize] {
+    override def schema: StructType = StructType(Seq(
+      StructField("width", DoubleType, false),
+      StructField("height", DoubleType, false)
+    ))
+
+    override protected def to[R](t: CellSize, io: CatalystIO[R]): R = io.create(
+      t.width,
+      t.height
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): CellSize = CellSize(
+      io.getDouble(t, 0),
+      io.getDouble(t, 1)
+    )
+  }
+
+  implicit val tileLayoutSerializer: CatalystSerializer[TileLayout] = new CatalystSerializer[TileLayout] {
+    override def schema: StructType = StructType(Seq(
+      StructField("layoutCols", IntegerType, false),
+      StructField("layoutRows", IntegerType, false),
+      StructField("tileCols", IntegerType, false),
+      StructField("tileRows", IntegerType, false)
+    ))
+
+    override protected def to[R](t: TileLayout, io: CatalystIO[R]): R = io.create(
+      t.layoutCols,
+      t.layoutRows,
+      t.tileCols,
+      t.tileRows
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): TileLayout = TileLayout(
+      io.getInt(t, 0),
+      io.getInt(t, 1),
+      io.getInt(t, 2),
+      io.getInt(t, 3)
+    )
+  }
+
+  implicit val layoutDefinitionSerializer = new CatalystSerializer[LayoutDefinition] {
+    override def schema: StructType = StructType(Seq(
+      StructField("extent", CatalystSerializer[Extent].schema, true),
+      StructField("tileLayout", CatalystSerializer[TileLayout].schema, true)
+    ))
+
+    override protected def to[R](t: LayoutDefinition, io: CatalystIO[R]): R = io.create(
+      io.to(t.extent),
+      io.to(t.tileLayout)
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): LayoutDefinition = LayoutDefinition(
+      io.get[Extent](t, 0),
+      io.get[TileLayout](t, 1)
+    )
+  }
+
+  implicit def boundsSerializer[T: CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
+    override def schema: StructType = StructType(Seq(
+      StructField("minKey", CatalystSerializer[T].schema, true),
+      StructField("maxKey", CatalystSerializer[T].schema, true)
+    ))
+
+    override protected def to[R](t: KeyBounds[T], io: CatalystIO[R]): R = io.create(
+      io.to(t.get.minKey),
+      io.to(t.get.maxKey)
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): KeyBounds[T] = KeyBounds(
+      io.get[T](t, 0),
+      io.get[T](t, 1)
+    )
+  }
+
+  def tileLayerMetadataSerializer[T: CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
+    override def schema: StructType = StructType(Seq(
+      StructField("cellType", CatalystSerializer[CellType].schema, false),
+      StructField("layout", CatalystSerializer[LayoutDefinition].schema, false),
+      StructField("extent", CatalystSerializer[Extent].schema, false),
+      StructField("crs", CatalystSerializer[CRS].schema, false),
+      StructField("bounds", CatalystSerializer[KeyBounds[T]].schema, false)
+    ))
+
+    override protected def to[R](t: TileLayerMetadata[T], io: CatalystIO[R]): R = io.create(
+      io.to(t.cellType),
+      io.to(t.layout),
+      io.to(t.extent),
+      io.to(t.crs),
+      io.to(t.bounds.head)
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): TileLayerMetadata[T] = TileLayerMetadata(
+      io.get[CellType](t, 0),
+      io.get[LayoutDefinition](t, 1),
+      io.get[Extent](t, 2),
+      io.get[CRS](t, 3),
+      io.get[KeyBounds[T]](t, 4)
+    )
+  }
+
+  implicit val spatialKeyTLMSerializer = tileLayerMetadataSerializer[SpatialKey]
+  implicit val spaceTimeKeyTLMSerializer = tileLayerMetadataSerializer[SpaceTimeKey]
 
 }

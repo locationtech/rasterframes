@@ -28,8 +28,6 @@ import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-
 /**
  * Typeclass for converting to/from JVM object to catalyst encoding. The reason this exists is that
  * instantiating and binding `ExpressionEncoder[T]` is *very* expensive, and not suitable for

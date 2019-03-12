@@ -31,6 +31,7 @@ import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.raster.{CellType, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.Encoder
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{StructField, StructType}
 
@@ -62,10 +63,11 @@ object ProjectedRasterTile {
   }
 
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
-      override def schema: StructType = StructType(Seq(
-        StructField("tile_context", CatalystSerializer[TileContext].schema, false),
-        StructField("tile", new TileUDT(), false))
-      )
+    val TileType =  new TileUDT()
+    override def schema: StructType = StructType(Seq(
+      StructField("tile_context", CatalystSerializer[TileContext].schema, false),
+      StructField("tile", TileType, false))
+    )
 
     override protected def to[R](t: ProjectedRasterTile, io: CatalystIO[R]): R = io.create(
       io.to(TileContext(t.extent, t.crs)),
@@ -87,5 +89,5 @@ object ProjectedRasterTile {
     }
   }
 
-  implicit val prtEncoder: Encoder[ProjectedRasterTile] = CatalystSerializerEncoder[ProjectedRasterTile](true)
+  implicit val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = CatalystSerializerEncoder[ProjectedRasterTile](true)
 }

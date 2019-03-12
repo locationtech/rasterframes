@@ -20,10 +20,11 @@
  */
 
 package astraea.spark.rasterframes.model
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.ref.RasterRef
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.raster.{ArrayTile, Tile}
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{BinaryType, StructField, StructType}
 
 /** Represents the union of binary cell datas or a reference to the data.*/
@@ -32,7 +33,7 @@ case class Cells(data: Either[Array[Byte], RasterRef]) {
   /** Convert cells into either a RasterRefTile or an ArrayTile. */
   def toTile(ctx: TileDataContext): Tile = {
     data.fold(
-      bytes => ArrayTile.fromBytes(bytes, ctx.cellType, ctx.dimensions.cols, ctx.dimensions.rows),
+      bytes => ArrayTile.fromBytes(bytes, ctx.cell_type, ctx.dimensions.cols, ctx.dimensions.rows),
       ref => RasterRefTile(ref)
     )
   }
@@ -66,4 +67,6 @@ object Cells {
       else throw new IllegalArgumentException("must be eithe cell data or a ref, but not null")
     }
   }
+
+  implicit def encoder: ExpressionEncoder[Cells] = CatalystSerializerEncoder[Cells]()
 }

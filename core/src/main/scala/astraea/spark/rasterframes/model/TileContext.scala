@@ -20,11 +20,12 @@
  */
 
 package astraea.spark.rasterframes.model
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.CRS
 import geotrellis.raster.Tile
 import geotrellis.vector.Extent
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
 
 case class TileContext(extent: Extent, crs: CRS) {
@@ -50,4 +51,5 @@ object TileContext {
       io.get[CRS](t, 1)
     )
   }
+  implicit def encoder: ExpressionEncoder[TileContext] = CatalystSerializerEncoder[TileContext]()
 }

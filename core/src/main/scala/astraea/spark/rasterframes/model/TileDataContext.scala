@@ -20,14 +20,16 @@
  */
 
 package astraea.spark.rasterframes.model
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import geotrellis.raster.{CellType, Tile}
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
 
 /** Encapsulates all information about a tile aside from actual cell values. */
-case class TileDataContext(cellType: CellType, dimensions: TileDimensions)
+case class TileDataContext(cell_type: CellType, dimensions: TileDimensions)
 object TileDataContext {
+
   /** Extracts the TileDataContext from a Tile. */
   def apply(t: Tile): TileDataContext = {
     require(t.cols <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.cols}")
@@ -44,7 +46,7 @@ object TileDataContext {
     ))
 
     override protected def to[R](t: TileDataContext, io: CatalystIO[R]): R = io.create(
-      io.to(t.cellType),
+      io.to(t.cell_type),
       io.to(t.dimensions)
     )
     override protected def from[R](t: R, io: CatalystIO[R]): TileDataContext = TileDataContext(
@@ -52,4 +54,6 @@ object TileDataContext {
       io.get[TileDimensions](t, 1)
     )
   }
+
+  implicit def encoder: ExpressionEncoder[TileDataContext] = CatalystSerializerEncoder[TileDataContext]()
 }

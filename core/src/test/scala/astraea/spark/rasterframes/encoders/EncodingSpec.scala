@@ -31,7 +31,7 @@ import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
 import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.sql.{Encoder, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf.TileUDT
 
