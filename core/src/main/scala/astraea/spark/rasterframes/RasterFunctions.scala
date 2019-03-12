@@ -334,6 +334,6 @@ trait RasterFunctions {
 
   /** Natural logarithm of one plus cell values. */
   def log1p(tileCol: Column): TypedColumn[Any, Tile] =
-    Log(local_add(tileCol, 1.))
+    Log(local_add(tileCol, 1.0))
 
 }

@@ -31,7 +31,7 @@ import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 
-/** Operation combining two tiles or a tile and a scalar into a new tile. */
+/** Operation on a tile returning a tile. */
 trait UnaryLocalRasterOp extends UnaryExpression with LazyLogging {
 
   override def dataType: DataType = child.dataType
