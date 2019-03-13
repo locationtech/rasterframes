@@ -284,6 +284,7 @@ object RasterSource extends LazyLogging {
           math.min(cols, MAX_SIZE),
           math.min(rows, MAX_SIZE)))
     }
+    override def tags: Option[Tags] = Some(Tags(gdal.dataset.getMetadata_Dict, List.empty))
   }
 
   object GDALRasterSource {
