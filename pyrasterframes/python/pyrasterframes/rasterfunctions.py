@@ -201,6 +201,7 @@ _rf_column_functions = {
     'tile_to_array_int': 'Flattens Tile into an array of integers.',
     'tile_to_array_double': 'Flattens Tile into an array of doubles.',
     'cell_type': 'Extract the Tile\'s cell type',
+    'is_no_data_tile': 'Report if the Tile is entirely NODDATA cells',
     'agg_approx_histogram': 'Compute the full column aggregate floating point histogram',
     'agg_stats': 'Compute the full column aggregate floating point statistics',
     'agg_mean': 'Computes the column aggregate mean',
