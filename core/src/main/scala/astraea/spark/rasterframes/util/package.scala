@@ -19,6 +19,7 @@
 
 package astraea.spark.rasterframes
 
+import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster
 import geotrellis.raster.{CellGrid, Tile, isNoData}
@@ -30,7 +31,7 @@ import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
-import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
+import geotrellis.util.{ByteReader, GetComponent}
 import org.apache.spark.sql.catalyst.expressions.{Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
