@@ -2,11 +2,13 @@ enablePlugins(BuildInfoPlugin)
 
 moduleName := "rasterframes"
 
+resolvers += "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis"
+
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",
   "org.locationtech.geomesa" %% "geomesa-z3" % rfGeoMesaVersion.value,
   "org.locationtech.geomesa" %% "geomesa-spark-jts" % rfGeoMesaVersion.value exclude("jgridshift", "jgridshift"),
-  "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.7.4-local.1",
+  "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.9.0",
   spark("core").value % Provided,
   spark("mllib").value % Provided,
   spark("sql").value % Provided,
