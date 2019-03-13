@@ -21,7 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 
 /**
  * Module support.

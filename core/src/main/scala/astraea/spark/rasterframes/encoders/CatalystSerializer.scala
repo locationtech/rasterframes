@@ -22,15 +22,9 @@
 package astraea.spark.rasterframes.encoders
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
-import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
-import astraea.spark.rasterframes.util.CRSParser
-import com.vividsolutions.jts.geom.Envelope
-import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, Tile}
-import geotrellis.vector.Extent
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
+import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
@@ -53,7 +47,7 @@ trait CatalystSerializer[T] extends Serializable {
   final def fromInternalRow(row: InternalRow): T = from(row, CatalystIO[InternalRow])
 }
 
-object CatalystSerializer {
+object CatalystSerializer extends StandardSerializers {
   def apply[T: CatalystSerializer]: CatalystSerializer[T] = implicitly
 
   /**
@@ -66,6 +60,9 @@ object CatalystSerializer {
   trait CatalystIO[R] extends Serializable {
     def create(values: Any*): R
     def to[T: CatalystSerializer](t: T): R = CatalystSerializer[T].to(t, this)
+    def toSeq[T: CatalystSerializer](t: Seq[T]): AnyRef
+    def get[T: CatalystSerializer](d: R, ordinal: Int): T
+    def getSeq[T: CatalystSerializer](d: R, ordinal: Int): Seq[T]
     def isNullAt(d: R, ordinal: Int): Boolean
     def getBoolean(d: R, ordinal: Int): Boolean
     def getByte(d: R, ordinal: Int): Byte
@@ -76,7 +73,6 @@ object CatalystSerializer {
     def getDouble(d: R, ordinal: Int): Double
     def getString(d: R, ordinal: Int): String
     def getByteArray(d: R, ordinal: Int): Array[Byte]
-    def get[T: CatalystSerializer](d: R, ordinal: Int): T
     def encode(str: String): AnyRef
   }
 
@@ -93,11 +89,17 @@ object CatalystSerializer {
       override def getFloat(d: R, ordinal: Int): Float =  d.getFloat(ordinal)
       override def getDouble(d: R, ordinal: Int): Double = d.getDouble(ordinal)
       override def getString(d: R, ordinal: Int): String = d.getString(ordinal)
-      override def getByteArray(d: R, ordinal: Int): Array[Byte] = d.get(ordinal).asInstanceOf[Array[Byte]]
+      override def getByteArray(d: R, ordinal: Int): Array[Byte] =
+        d.get(ordinal).asInstanceOf[Array[Byte]]
       override def get[T: CatalystSerializer](d: R, ordinal: Int): T = {
-        val struct = d.getStruct(ordinal)
-        struct.to[T]
+        d.getAs[Any](ordinal) match {
+          case r: Row => r.to[T]
+          case o => o.asInstanceOf[T]
+        }
       }
+      override def toSeq[T: CatalystSerializer](t: Seq[T]): AnyRef = t.map(_.toRow)
+      override def getSeq[T: CatalystSerializer](d: R, ordinal: Int): Seq[T] =
+        d.getSeq[Row](ordinal).map(_.to[T])
       override def encode(str: String): String = str
     }
 
@@ -122,91 +124,21 @@ object CatalystSerializer {
         struct.to[T]
       }
       override def create(values: Any*): InternalRow = InternalRow(values: _*)
+      override def toSeq[T: CatalystSerializer](t: Seq[T]): ArrayData =
+        ArrayData.toArrayData(t.map(_.toInternalRow).toArray)
+
+      override def getSeq[T: CatalystSerializer](d: InternalRow, ordinal: Int): Seq[T] = {
+        val ad = d.getArray(ordinal)
+        val result = Array.ofDim[Any](ad.numElements()).asInstanceOf[Array[T]]
+        ad.foreach(
+          CatalystSerializer[T].schema,
+          (i, v) => result(i) = v.asInstanceOf[InternalRow].to[T]
+        )
+        result.toSeq
+      }
       override def encode(str: String): UTF8String = UTF8String.fromString(str)
     }
   }
-
-  implicit val envelopeSerializer: CatalystSerializer[Envelope] = new CatalystSerializer[Envelope] {
-    override def schema: StructType = StructType(Seq(
-      StructField("minX", DoubleType, false),
-      StructField("maxX", DoubleType, false),
-      StructField("minY", DoubleType, false),
-      StructField("maxY", DoubleType, false)
-    ))
-
-    override protected def to[R](t: Envelope, io: CatalystIO[R]): R = io.create(
-      t.getMinX, t.getMaxX, t.getMinY, t.getMaxX
-    )
-
-    override protected def from[R](t: R, io: CatalystIO[R]): Envelope = new Envelope(
-      io.getDouble(t, 0), io.getDouble(t, 1), io.getDouble(t, 2), io.getDouble(t, 3)
-    )
-  }
-
-  implicit val extentSerializer: CatalystSerializer[Extent] = new CatalystSerializer[Extent] {
-    override def schema: StructType = StructType(Seq(
-      StructField("xmin", DoubleType, false),
-      StructField("ymin", DoubleType, false),
-      StructField("xmax", DoubleType, false),
-      StructField("ymax", DoubleType, false)
-    ))
-    override def to[R](t: Extent, io: CatalystIO[R]): R = io.create(
-      t.xmin, t.ymin, t.xmax, t.ymax
-    )
-    override def from[R](row: R, io: CatalystIO[R]): Extent = Extent(
-      io.getDouble(row, 0), io.getDouble(row, 1), io.getDouble(row, 2), io.getDouble(row, 3)
-    )
-  }
-
-  implicit val crsSerializer: CatalystSerializer[CRS] = new CatalystSerializer[CRS] {
-    override def schema: StructType = StructType(Seq(
-      StructField("crsProj4", StringType, false)
-    ))
-    override def to[R](t: CRS, io: CatalystIO[R]): R = io.create(
-      io.encode(
-        // Don't do this... it's 1000x slower to decode.
-        //t.epsgCode.map(c => "EPSG:" + c).getOrElse(t.toProj4String)
-        t.toProj4String
-      )
-    )
-    override def from[R](row: R, io: CatalystIO[R]): CRS =
-      CRSParser(io.getString(row, 0))
-  }
-
-  implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
-    override def schema: StructType = StructType(Seq(
-      StructField("cellTypeName", StringType, false)
-    ))
-    override def to[R](t: CellType, io: CatalystIO[R]): R = io.create(
-      io.encode(t.toString())
-    )
-    override def from[R](row: R, io: CatalystIO[R]): CellType =
-      CellType.fromName(io.getString(row, 0))
-  }
-
-  implicit val rasterRefSerializer: CatalystSerializer[RasterRef] = new CatalystSerializer[RasterRef] {
-    val rsType = new RasterSourceUDT()
-    override def schema: StructType = StructType(Seq(
-      StructField("source", rsType, false),
-      StructField("subextent", apply[Extent].schema, true)
-    ))
-
-    override def to[R](t: RasterRef, io: CatalystIO[R]): R = io.create(
-      io.to(t.source),
-      t.subextent.map(io.to[Extent]).orNull
-    )
-
-    override def from[R](row: R, io: CatalystIO[R]): RasterRef = RasterRef(
-      io.get[RasterSource](row, 0),
-      if (io.isNullAt(row, 1)) None
-      else Option(io.get[Extent](row, 1))
-    )
-  }
-
-  private[rasterframes]
-  implicit def tileSerializer: CatalystSerializer[Tile] = TileUDT.tileSerializer
-  private[rasterframes]
-  implicit def rasterSourceSerializer: CatalystSerializer[RasterSource] = RasterSourceUDT.rasterSourceSerializer
 
   implicit class WithToRow[T: CatalystSerializer](t: T) {
     def toInternalRow: InternalRow = CatalystSerializer[T].toInternalRow(t)

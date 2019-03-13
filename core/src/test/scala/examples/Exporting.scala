@@ -54,7 +54,7 @@ object Exporting extends App {
   //  The @scaladoc[`tile_to_array`][tile_to_array] column function requires a type parameter to indicate the array element
   //  type you would like used. The following types may be used: `Int`, `Double`, `Byte`, `Short`, `Float`
 
-  val withArrays = rf.withColumn("tileData", tile_to_array[Short]($"tile")).drop("tile")
+  val withArrays = rf.withColumn("tileData", tile_to_array_int($"tile")).drop("tile")
   withArrays.show(5, 40)
 
   //  You can convert the data back to an array, but you have to specify the target tile dimensions.

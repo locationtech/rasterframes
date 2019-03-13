@@ -33,7 +33,8 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{Metadata, TimestampType}
 import spray.json._
-
+import astraea.spark.rasterframes.encoders.StandardEncoders._
+import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 import scala.reflect.runtime.universe._
 
 /**
@@ -43,10 +44,6 @@ import scala.reflect.runtime.universe._
 trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   with RFSpatialColumnMethods with MetadataKeys with LazyLogging {
   import Implicits.{WithDataFrameMethods, WithRasterFrameMethods}
-
-  private val _stableDF = self
-  import _stableDF.sqlContext.implicits._
-
 
   /**
    * A convenience over `DataFrame.withColumnRenamed` whereby the `RasterFrame` type is maintained.
@@ -190,6 +187,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
 
     def updateBounds[T: SpatialComponent: Boundable: JsonFormat: TypeTag](tlm: TileLayerMetadata[T],
                                                                           keys: Dataset[T]): DataFrame = {
+      implicit val enc = Encoders.product[KeyBounds[T]]
       val keyBounds = keys
         .map(k ⇒ KeyBounds(k, k))
         .reduce(_ combine _)
@@ -238,6 +236,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   def toMultibandTileLayerRDD(tileCols: Column*): Either[MultibandTileLayerRDD[SpatialKey], MultibandTileLayerRDD[SpaceTimeKey]] =
     tileLayerMetadata.fold(
       tlm ⇒ {
+        implicit val genEnc = expressionEncoder[(SpatialKey, Array[Tile])]
         val rdd = self
           .select(self.spatialKeyColumn, array(tileCols: _*)).as[(SpatialKey, Array[Tile])]
           .rdd
@@ -247,6 +246,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
         Left(ContextRDD(rdd, tlm))
       },
       tlm ⇒ {
+        implicit val genEnc = expressionEncoder[(SpatialKey, TemporalKey, Array[Tile])]
         val rdd = self
           .select(self.spatialKeyColumn, self.temporalKeyColumn.get, array(tileCols: _*)).as[(SpatialKey, TemporalKey, Array[Tile])]
           .rdd
@@ -258,48 +258,6 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   /** Extract metadata value. */
   private[rasterframes] def extract[M: JsonFormat](metadataKey: String)(md: Metadata) =
     md.getMetadata(metadataKey).json.parseJson.convertTo[M]
-
-  // TODO: Take care of DRY below
-//  private def rasterize[T <: CellGrid: TypeTag](
-//    tileCols: Seq[Column],
-//    rasterCols: Int,
-//    rasterRows: Int,
-//    resampler: ResampleMethod): ProjectedRaster[T] = {
-//
-//    val clipped = clipLayerExtent
-//
-//    val md = clipped.tileLayerMetadata.widen
-//    val newLayout = LayoutDefinition(md.extent, TileLayout(1, 1, rasterCols, rasterRows))
-//
-//    val trans = md.mapTransform
-//
-//    //val cell_type = rdd.first()._2.cell_type
-//    val keyBounds = Bounds(SpatialKey(0, 0), SpatialKey(0, 0))
-//    val newLayerMetadata =
-//      md.copy(layout = newLayout, bounds = keyBounds)
-//
-//
-//    val newLayer = typeOf[T] match {
-//      case tpe if tpe <:< typeOf[Tile] ⇒
-//        val r = clipped.toTileLayerRDD(tileCols.head)
-//          .fold(identity, _.map { case (stk, t) ⇒ (stk.spatialKey, t) }) // <-- Drops the temporal key outright
-//          .map { case (key, tile) ⇒ (ProjectedExtent(trans(key), md.crs), tile) }
-//        ContextRDD(r, md)
-//          .tileToLayout(newLayerMetadata, Tiler.Options(resampler))
-//      case tpe if tpe <:< typeOf[MultibandTile] ⇒
-//        val r = clipped.toMultibandTileLayerRDD(tileCols: _*)
-//          .fold(identity, _.map { case (stk, t) ⇒ (stk.spatialKey, t) }) // <-- Drops the temporal key outright
-//          .map { case (key, tile) ⇒ (ProjectedExtent(trans(key), md.crs), tile) }
-//        ContextRDD(r, md)
-//          .tileToLayout(newLayerMetadata, Tiler.Options(resampler))
-//    }
-//
-//    val stitchedTile = newLayer.stitch()
-//
-//    val croppedTile = stitchedTile.crop(rasterCols, rasterRows)
-//
-//    ProjectedRaster(croppedTile, md.extent, md.crs)
-//  }
 
   /** Convert the tiles in the RasterFrame into a single raster. For RasterFrames keyed with temporal keys, they
     * will be merge undeterministically. */

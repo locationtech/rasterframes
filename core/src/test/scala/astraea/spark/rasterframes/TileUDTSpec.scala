@@ -39,6 +39,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
   spark.version
   val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
   val TileType = new TileUDT()
+  implicit val ser = TileUDT.tileSerializer
 
   describe("TileUDT") {
     val tileSizes = Seq(2, 64, 128, 222, 511)
