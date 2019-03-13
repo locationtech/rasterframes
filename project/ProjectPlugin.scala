@@ -41,14 +41,7 @@ object ProjectPlugin extends AutoPlugin {
     rfGeoTrellisVersion in ThisBuild := "2.1.0",
     rfGeoMesaVersion in ThisBuild := "2.1.0",
 
-    credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
-    publishTo := {
-      val base = "https://s22s.mycloudrepo.io/repositories"
-      if (isSnapshot.value)
-        Some("Astraea Internal Snapshots" at s"$base/snapshots/")
-      else
-        Some("Astraea Internal Releases" at s"$base/releases/")
-    },
+    publishTo := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
