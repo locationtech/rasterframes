@@ -316,24 +316,16 @@ trait RasterFunctions {
   def log(tileCol: Column): TypedColumn[Any, Tile] =
     Log(tileCol)
 
-  /** Take logarithm of cell values with specified base. */
-  def log[T: Numeric](tileCol: Column, base: T): TypedColumn[Any, Tile] =
-    Log(tileCol, base)
-
-  /** Take logarithm of cell values with specified base. */
-  def log(tileCol: Column, base: Column): TypedColumn[Any, Tile] =
-    Log(tileCol, base)
-
   /** Take base 10 logarithm of cell values. */
   def log10(tileCol: Column): TypedColumn[Any, Tile] =
-    Log(tileCol, lit(10.0))
+    Log10(tileCol)
 
   /** Take base 2 logarithm of cell values. */
   def log2(tileCol: Column): TypedColumn[Any, Tile] =
-    Log(tileCol, 2.0)
+    Log2(tileCol)
 
   /** Natural logarithm of one plus cell values. */
   def log1p(tileCol: Column): TypedColumn[Any, Tile] =
-    Log(local_add(tileCol, 1.0))
+      Log1p(tileCol)
 
 }

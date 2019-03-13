@@ -29,7 +29,7 @@ import geotrellis.raster
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{BitCellType, ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, ShortConstantNoDataCellType, Tile, UByteConstantNoDataCellType}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.{AnalysisException, Encoders}
 import org.apache.spark.sql.functions._
 import org.scalatest.{FunSpec, Matchers}
 
@@ -45,6 +45,7 @@ class RasterFunctionsSpec extends FunSpec
   val tileSize = cols * rows
   val tileCount = 10
   val numND = 4
+  lazy val zero = TestData.projectedRasterTile(cols, rows, 0, extent, crs, ct)
   lazy val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
   lazy val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)
   lazy val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
@@ -55,6 +56,7 @@ class RasterFunctionsSpec extends FunSpec
 
   lazy val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
   lazy val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
+  lazy val randPositiveDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextDouble() + 1e-6, extent, crs, DoubleConstantNoDataCellType)
 
   val expectedRandNoData: Long = numND * tileCount
   val expectedRandData: Long = cols * rows * tileCount - expectedRandNoData
@@ -112,6 +114,9 @@ class RasterFunctionsSpec extends FunSpec
       assertEqual(maybeThree.first(), three)
 
       assertEqual(df.selectExpr("rf_local_divide(six, two)").as[ProjectedRasterTile].first(), three)
+
+      assertEqual(df.selectExpr("rf_local_multiply(rf_local_divide(six, 2.0), two)")
+        .as[ProjectedRasterTile].first(), six)
 
       val maybeThreeTile =
         df.select(local_divide(ExtractTile($"six"), ExtractTile($"two"))).as[Tile]
@@ -540,40 +545,67 @@ class RasterFunctionsSpec extends FunSpec
 
       val df = Seq((three_plus, three_less, three)).toDF("three_plus", "three_less", "three")
 
-      assertEqual(df.select(round($"three_plus")).as[Tile].first(), three_double)
-      assertEqual(df.select(round($"three_less")).as[Tile].first(), three_double)
-      assertEqual(df.select(round($"three")).as[Tile].first(), three)
+      assertEqual(df.select(round($"three")).as[ProjectedRasterTile].first(), three)
+      assertEqual(df.select(round($"three_plus")).as[ProjectedRasterTile].first(), three_double)
+      assertEqual(df.select(round($"three_less")).as[ProjectedRasterTile].first(), three_double)
 
+      assertEqual(df.selectExpr("rf_round(three)").as[ProjectedRasterTile].first(), three)
       assertEqual(df.selectExpr("rf_round(three_plus)").as[ProjectedRasterTile].first(), three_double)
       assertEqual(df.selectExpr("rf_round(three_less)").as[ProjectedRasterTile].first(), three_double)
-      assertEqual(df.selectExpr("rf_round(three)").as[ProjectedRasterTile].first(), three)
 
       checkDocs("rf_round")
     }
 
-    it("should take logarithms"){
-      // tile zeros ==> nodata
-      val zeros = TestData.projectedRasterTile(cols, rows, 0, extent, crs, ct)
-      val nd_float = TestData.projectedRasterTile(cols, rows, Double.NaN, extent, crs, DoubleConstantNoDataCellType)
-      val df_0 = Seq(zeros).toDF("tile")
-      assertEqual(df_0.select(log($"tile")).as[Tile].first(), nd_float)
-
+    it("should take logarithms positive cell values"){
       // log10 1000 == 3
-      val one_k = TestData.projectedRasterTile(cols, rows, 1000, extent, crs, ShortConstantNoDataCellType)
-      val threes_dbl = TestData.projectedRasterTile(cols, rows, 3.0, extent, crs, DoubleConstantNoDataCellType)
+      val thousand = TestData.projectedRasterTile(cols, rows, 1000, extent, crs, ShortConstantNoDataCellType)
+      val threesDouble = TestData.projectedRasterTile(cols, rows, 3.0, extent, crs, DoubleConstantNoDataCellType)
+      val zerosDouble = TestData.projectedRasterTile(cols, rows, 0.0, extent, crs, DoubleConstantNoDataCellType)
 
-      val df_1 = Seq(one_k).toDF("tile")
-      assertEqual(df_1.select(log10($"tile")).as[Tile].first(), threes_dbl)
+      val df1 = Seq(thousand).toDF("tile")
+      assertEqual(df1.select(log10($"tile")).as[ProjectedRasterTile].first(), threesDouble)
 
-      // ln random tile == log10 random tile / log10(e)
-      val df_2 = Seq(randDoubleTile).toDF("tile")
+      // ln random tile == log10 random tile / log10(e); random tile square to ensure all positive cell values
+      val df2 = Seq(randPositiveDoubleTile).toDF("tile")
       val log10e = math.log10(math.E)
-      assertEqual(df_2.select(log($"tile")).as[Tile].first(), df_2.select(log10($"tile")).as[Tile].first / log10e)
+      assertEqual(df2.select(log($"tile")).as[ProjectedRasterTile].first(),
+                  df2.select(log10($"tile")).as[ProjectedRasterTile].first() / log10e)
 
-      val maybe_all = df_2.selectExpr(s"rf_local_equal(rf_log(tile), rf_local_divide(rf_log10(tile), ${log10e})").as[Tile].first()
-      assertEqual(maybe_all, TestData.projectedRasterTile(cols, rows, 1, extent, crs, BitCellType))
+      lazy val maybeZeros = df2
+        .selectExpr(s"rf_local_subtract(rf_log(tile), rf_local_divide(rf_log10(tile), ${log10e}))")
+        .as[ProjectedRasterTile].first()
+      assertEqual(maybeZeros, zerosDouble)
+
+      // log1p for zeros should be ln(1)
+      val ln1 = math.log1p(0.0)
+      val df3 = Seq(zero).toDF("tile")
+      val maybeLn1 = df3.selectExpr(s"rf_log1p(tile)").as[ProjectedRasterTile].first()
+      assert(maybeLn1.toArrayDouble().forall(_ == ln1))
 
       checkDocs("rf_log")
+      checkDocs("rf_log2")
+      checkDocs("rf_log10")
+      checkDocs("rf_log1p")
+    }
+
+    it("should take logarithms with non-positive cell values") {
+      val ni_float = TestData.projectedRasterTile(cols, rows, Double.NegativeInfinity, extent, crs, DoubleConstantNoDataCellType)
+      val zero_float =TestData.projectedRasterTile(cols, rows, 0.0, extent, crs, DoubleConstantNoDataCellType)
+
+      // tile zeros ==> -Infinity
+      val df_0 = Seq(zero).toDF("tile")
+      assertEqual(df_0.select(log($"tile")).as[ProjectedRasterTile].first(), ni_float)
+      assertEqual(df_0.select(log10($"tile")).as[ProjectedRasterTile].first(), ni_float)
+      assertEqual(df_0.select(log2($"tile")).as[ProjectedRasterTile].first(), ni_float)
+      // log1p of zeros should be 0.
+      assertEqual(df_0.select(log1p($"tile")).as[ProjectedRasterTile].first(), zero_float)
+
+      // tile negative values ==> NaN
+      assert(df_0.selectExpr("rf_log(rf_local_subtract(tile, 42))").as[ProjectedRasterTile].first().isNoDataTile)
+      assert(df_0.selectExpr("rf_log2(rf_local_subtract(tile, 42))").as[ProjectedRasterTile].first().isNoDataTile)
+      assert(df_0.select(log1p(local_subtract($"tile", 42))).as[ProjectedRasterTile].first().isNoDataTile)
+      assert(df_0.select(log10(local_subtract($"tile", lit(0.01)))).as[ProjectedRasterTile].first().isNoDataTile)
+
     }
   }
 }

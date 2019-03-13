@@ -22,41 +22,95 @@
 package astraea.spark.rasterframes.expressions.localops
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.UnaryRasterOp
-import astraea.spark.rasterframes.model.TileContext
+import astraea.spark.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription, UnaryExpression}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
+
 @ExpressionDescription(
-  usage = "_FUNC_(tile, base) - Performs cell-wise logarithm.",
+  usage = "_FUNC_(tile) - Performs cell-wise natural logarithm.",
   arguments = """
   Arguments:
-    * tile - input tile
-    * base  - base for which to compute logarithm """,
+    * tile - input tile""",
   examples = """
   Examples:
     > SELECT _FUNC_(tile);
-       ...
-    > SELECT _FUNC_(tile, 10);
        ..."""
 )
-case class Log(left: Expression, right: Expression) extends BinaryExpression with CodegenFallback {
+case class Log(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "log"
-  protected def op(left: Tile, right: Double): Tile = left.localLog() / math.log(right)
-  protected def op(left: Tile, right: Int): Tile = op(left, right.toDouble)
 
-  override def dataType: DataType = left.dataType
+  override protected def op(tile: Tile): Tile = fpTile(tile).localLog()
+
+  override def dataType: DataType = child.dataType
 }
 object Log {
   def apply(tile: Column): TypedColumn[Any, Tile] =
-    new Column(Log(tile.expr, lit(math.E).expr)).as[Tile]
-  def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(Log(tile.expr, lit(value).expr)).as[Tile]
-  def apply(tile: Column, value: Column): TypedColumn[Any, Tile] =
-    new Column(Log(tile.expr, value.expr)).as[Tile]
+    new Column(Log(tile.expr)).as[Tile]
 }
 
+@ExpressionDescription(
+  usage = "_FUNC_(tile) - Performs cell-wise logarithm with base 10.",
+  arguments = """
+  Arguments:
+    * tile - input tile""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+       ..."""
+)
+case class Log10(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+  override val nodeName: String = "log10"
+
+  override protected def op(tile: Tile): Tile = fpTile(tile).localLog10()
+
+  override def dataType: DataType = child.dataType
+}
+object Log10 {
+  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Log10(tile.expr)).as[Tile]
+}
+
+@ExpressionDescription(
+  usage = "_FUNC_(tile) - Performs cell-wise logarithm with base 2.",
+  arguments = """
+  Arguments:
+    * tile - input tile""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+       ..."""
+)
+case class Log2(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+  override val nodeName: String = "log2"
+
+  override protected def op(tile: Tile): Tile = fpTile(tile).localLog() / math.log(2.0)
+
+  override def dataType: DataType = child.dataType
+}
+object Log2{
+  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Log2(tile.expr)).as[Tile]
+}
+
+@ExpressionDescription(
+  usage = "_FUNC_(tile) - Performs natural logarithm of cell values plus one.",
+  arguments = """
+  Arguments:
+    * tile - input tile""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(tile);
+       ..."""
+)
+case class Log1p(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+  override val nodeName: String = "log1p"
+
+  override protected def op(tile: Tile): Tile = fpTile(tile).localAdd(1.0).localLog()
+
+  override def dataType: DataType = child.dataType
+}
+object Log1p{
+  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Log1p(tile.expr)).as[Tile]
+}
