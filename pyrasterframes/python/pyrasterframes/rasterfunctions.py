@@ -239,7 +239,11 @@ _rf_column_functions = {
     'log': 'Performs cell-wise natural logarithm',
     'log10': 'Performs cell-wise logartithm with base 10',
     'log2': 'Performs cell-wise logartithm with base 2',
-    'log1p': 'Performs natural logarithm of cell values plus one'
+    'log1p': 'Performs natural logarithm of cell values plus one',
+    'exp': 'Performs cell-wise exponential',
+    'exp2': 'Compute 2 to the power of cell values',
+    'exp10': 'Compute 10 to the power of cell values',
+    'exp1m': 'Performs cell-wise exponential, then subtract one',
     
     # ------- JTS functions -------
     # spatial constructors

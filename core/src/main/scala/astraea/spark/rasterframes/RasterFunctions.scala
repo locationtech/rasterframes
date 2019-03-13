@@ -328,4 +328,20 @@ trait RasterFunctions {
   def log1p(tileCol: Column): TypedColumn[Any, Tile] =
       Log1p(tileCol)
 
+  /** Exponential of cell values */
+  def exp(tileCol: Column): TypedColumn[Any, Tile] =
+    Exp(tileCol)
+
+  /** Ten to the power of cell values */
+  def exp10(tileCol: Column): TypedColumn[Any, Tile] =
+    Exp10(tileCol)
+
+  /** Two to the power of cell values */
+  def exp2(tileCol: Column): TypedColumn[Any, Tile] =
+    Exp2(tileCol)
+
+  /** Exponential of cell values, less one*/
+  def expm1(tileCol: Column): TypedColumn[Any, Tile] =
+    ExpM1(tileCol)
+
 }

@@ -607,5 +607,56 @@ class RasterFunctionsSpec extends FunSpec
       assert(df_0.select(log10(local_subtract($"tile", lit(0.01)))).as[ProjectedRasterTile].first().isNoDataTile)
 
     }
+
+    it("should take exponential") {
+      val df = Seq(six).toDF("tile")
+
+      // exp inverses log
+      assertEqual(
+        df.select(exp(log($"tile"))).as[ProjectedRasterTile].first(),
+        six
+      )
+
+      // base 2
+      assertEqual(
+        df.select(exp2(log2($"tile"))).as[ProjectedRasterTile].first(),
+        six)
+
+      // base 10
+      assertEqual(
+        df.select(exp10(log10($"tile"))).as[ProjectedRasterTile].first(),
+        six)
+
+      // plus/minus 1
+      assertEqual(
+        df.select(expm1(log1p($"tile"))).as[ProjectedRasterTile].first(),
+        six)
+
+      // SQL
+      assertEqual(
+        df.selectExpr("rf_exp(rf_log(tile))").as[ProjectedRasterTile].first(),
+        six)
+
+      // SQL base 10
+      assertEqual(
+        df.selectExpr("rf_exp10(rf_log10(tile))").as[ProjectedRasterTile].first(),
+        six)
+
+      // SQL base 2
+      assertEqual(
+        df.selectExpr("rf_exp2(rf_log2(tile))").as[ProjectedRasterTile].first(),
+        six)
+
+      // SQL expm1
+      assertEqual(
+        df.selectExpr("rf_expm1(rf_log1p(tile))").as[ProjectedRasterTile].first(),
+        six)
+
+      checkDocs("rf_exp")
+      checkDocs("rf_exp10")
+      checkDocs("rf_exp2")
+      checkDocs("rf_expm1")
+
+    }
   }
 }
