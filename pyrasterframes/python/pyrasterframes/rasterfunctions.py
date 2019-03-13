@@ -235,6 +235,12 @@ _rf_column_functions = {
     'local_greater_equal': 'Cellwise greater than or equal to comparison between two tiles',
     'local_equal': 'Cellwise equality comparison between two tiles',
     'local_unequal': 'Cellwise inequality comparison between two tiles',
+    'round': 'Round cell values to the nearest integer without changing the cell type',
+    'log': 'Performs cell-wise natural logarithm',
+    'log10': 'Performs cell-wise logartithm with base 10',
+    'log2': 'Performs cell-wise logartithm with base 2',
+    'log1p': 'Performs natural logarithm of cell values plus one'
+    
     # ------- JTS functions -------
     # spatial constructors
     'st_geomFromGeoHash': '',
