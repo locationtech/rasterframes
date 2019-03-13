@@ -21,13 +21,13 @@ package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.expressions.SpatialRelation.RelationPredicate
 import com.vividsolutions.jts.geom._
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
+import org.apache.spark.sql.jts.AbstractGeometryUDT
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
-
-
 
 /**
  * Determine if two spatial constructs intersect each other.
@@ -35,7 +35,18 @@ import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
  * @since 12/28/17
  */
 abstract class SpatialRelation extends BinaryExpression
-  with CodegenFallback with GeomDeserializerSupport  {
+  with CodegenFallback {
+
+  def extractGeometry(expr: Expression, input: Any): Geometry = {
+    input match {
+      case g: Geometry ⇒ g
+      case r: InternalRow ⇒
+        expr.dataType match {
+          case udt: AbstractGeometryUDT[_] ⇒ udt.deserialize(r)
+        }
+    }
+  }
+  // TODO: replace with serializer.
   lazy val jtsPointEncoder = ExpressionEncoder[Point]()
 
   override def toString: String = s"$nodeName($left, $right)"

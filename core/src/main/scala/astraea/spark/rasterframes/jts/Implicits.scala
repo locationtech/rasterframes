@@ -29,14 +29,13 @@ import geotrellis.vector.{Point ⇒ gtPoint}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.functions._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions.SpatialConstructors
+import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 
 /**
  * Extension methods on typed columns allowing for DSL-like queries over JTS types.
  * @since 1/10/18
  */
 trait Implicits extends SpatialConstructors {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
-
   implicit class ExtentColumnMethods[T <: Geometry](val self: TypedColumn[Any, T])
     extends MethodExtensions[TypedColumn[Any, T]] {
 

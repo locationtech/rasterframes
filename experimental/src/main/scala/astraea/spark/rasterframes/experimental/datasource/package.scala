@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.experimental
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
-import org.apache.spark.sql.rf.VersionShims
+import org.apache.spark.sql.rf.VersionShims._
 
 
 /**
@@ -42,6 +42,6 @@ package object datasource {
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
     val registry: FunctionRegistry = rf.registry(sqlContext)
-    VersionShims.registerExpression(registry, "rf_read_tiles", ReadTilesExpression.apply)
+    registry.registerExpression[ReadTilesExpression]("rf_read_tiles")
   }
 }

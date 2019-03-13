@@ -63,7 +63,7 @@ case class DownloadExpression(override val child: Expression, colPrefix: String)
 }
 
 object DownloadExpression {
-  import astraea.spark.rasterframes.encoders.SparkDefaultEncoders._
+  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.arrayEnc
 
   def apply(urlColumn: Column): TypedColumn[Any, Array[Byte]] =
     new Column(

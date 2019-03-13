@@ -19,11 +19,21 @@
 
 package astraea.spark.rasterframes
 
-import org.apache.spark.sql.catalyst.InternalRow
+import astraea.spark.rasterframes.expressions.accessors._
+import astraea.spark.rasterframes.expressions.aggstats._
+import astraea.spark.rasterframes.expressions.generators._
+import astraea.spark.rasterframes.expressions.localops._
+import astraea.spark.rasterframes.expressions.tilestats._
+import astraea.spark.rasterframes.expressions.transformers._
+import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
+import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
-import org.apache.spark.sql.rf.VersionShims
+import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
+import org.apache.spark.sql.rf.VersionShims._
 import org.apache.spark.sql.{SQLContext, rf}
 
+import scala.util.Try
+import scala.reflect.runtime.universe._
 /**
  * Module of Catalyst expressions for efficiently working with tiles.
  *
@@ -31,20 +41,68 @@ import org.apache.spark.sql.{SQLContext, rf}
  */
 package object expressions {
   private[expressions] def row(input: Any) = input.asInstanceOf[InternalRow]
+  /** Convert the tile to a floating point type as needed for scalar operations. */
+  @inline
+  private[expressions]
+  def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-  /** Unary expression builder builder. */
-  private def ub[A, B](f: A ⇒ B)(a: Seq[A]): B = f(a.head)
-  /** Binary expression builder builder. */
-  private def bb[A, B](f: (A, A) ⇒ B)(a: Seq[A]): B = f(a.head, a.last)
+  /** As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function. */
+  private[expressions]
+  def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
+    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
+    val inputTypes = Try(ScalaReflection.schemaFor(typeTag[A1]).dataType :: Nil).toOption
+    ScalaUDF(f, dataType, Seq(child),  inputTypes.getOrElse(Nil), nullable = nullable, udfName = Some(name))
+  }
 
   def register(sqlContext: SQLContext): Unit = {
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
     val registry: FunctionRegistry = rf.registry(sqlContext)
-    VersionShims.registerExpression(registry, "rf_explode_tiles", ExplodeTiles.apply(1.0, None, _))
-    VersionShims.registerExpression(registry, "rf_cell_type", ub(GetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_convert_cell_type", bb(SetCellType.apply))
-    VersionShims.registerExpression(registry, "rf_tile_dimensions", ub(GetDimensions.apply))
-    VersionShims.registerExpression(registry, "rf_bounds_geometry", ub(BoundsToGeometry.apply))
+
+    registry.registerExpression[Add]("rf_local_add")
+    registry.registerExpression[Subtract]("rf_local_subtract")
+    registry.registerExpression[ExplodeTiles]("rf_explode_tiles")
+    registry.registerExpression[GetCellType]("rf_cell_type")
+    registry.registerExpression[SetCellType]("rf_convert_cell_type")
+    registry.registerExpression[GetDimensions]("rf_tile_dimensions")
+    registry.registerExpression[BoundsToGeometry]("rf_bounds_geometry")
+    registry.registerExpression[Subtract]("rf_local_subtract")
+    registry.registerExpression[Multiply]("rf_local_multiply")
+    registry.registerExpression[Divide]("rf_local_divide")
+    registry.registerExpression[NormalizedDifference]("rf_normalized_difference")
+    registry.registerExpression[Less]("rf_local_less")
+    registry.registerExpression[Greater]("rf_local_greater")
+    registry.registerExpression[LessEqual]("rf_local_less_equal")
+    registry.registerExpression[GreaterEqual]("rf_local_greater_equal")
+    registry.registerExpression[Equal]("rf_local_equal")
+    registry.registerExpression[Unequal]("rf_local_unequal")
+    registry.registerExpression[Sum]("rf_tile_sum")
+    registry.registerExpression[TileToArrayDouble]("rf_tile_to_array_double")
+    registry.registerExpression[TileToArrayInt]("rf_tile_to_array_int")
+    registry.registerExpression[DataCells]("rf_data_cells")
+    registry.registerExpression[NoDataCells]("rf_no_data_cells")
+    registry.registerExpression[IsNoDataTile]("rf_is_no_data_tile")
+    registry.registerExpression[TileMin]("rf_tile_min")
+    registry.registerExpression[TileMax]("rf_tile_max")
+    registry.registerExpression[TileMean]("rf_tile_mean")
+    registry.registerExpression[TileStats]("rf_tile_stats")
+    registry.registerExpression[TileHistogram]("rf_tile_histogram")
+    registry.registerExpression[CellCountAggregate.DataCells]("rf_agg_data_cells")
+    registry.registerExpression[CellCountAggregate.NoDataCells]("rf_agg_no_data_cells")
+    registry.registerExpression[CellStatsAggregate.CellStatsAggregateUDAF]("rf_agg_stats")
+    registry.registerExpression[HistogramAggregate.HistogramAggregateUDAF]("rf_agg_approx_histogram")
+    registry.registerExpression[LocalStatsAggregate.LocalStatsAggregateUDAF]("rf_agg_local_stats")
+    registry.registerExpression[LocalTileOpAggregate.LocalMinUDAF]("rf_agg_local_min")
+    registry.registerExpression[LocalTileOpAggregate.LocalMaxUDAF]("rf_agg_local_max")
+    registry.registerExpression[LocalCountAggregate.LocalDataCellsUDAF]("rf_agg_local_data_cells")
+    registry.registerExpression[LocalCountAggregate.LocalNoDataCellsUDAF]("rf_agg_local_no_data_cells")
+    registry.registerExpression[LocalMeanAggregate]("rf_agg_local_mean")
+
+    registry.registerExpression[Mask.MaskByDefined]("rf_mask")
+    registry.registerExpression[Mask.MaskByValue]("rf_mask_by_value")
+    registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")
+
+    registry.registerExpression[DebugRender.RenderAscii]("rf_render_ascii")
+    registry.registerExpression[DebugRender.RenderMatrix]("rf_render_matrix")
   }
 }

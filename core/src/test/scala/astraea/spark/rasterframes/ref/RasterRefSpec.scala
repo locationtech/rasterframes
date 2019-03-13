@@ -23,7 +23,8 @@ package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions._
+import astraea.spark.rasterframes.expressions.transformers._
+import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.raster.Tile
 import geotrellis.vector.Extent
@@ -184,7 +185,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         import spark.implicits._
         val df = Seq(src).toDF("src")
-        val refs = df.select(RasterSourceToRasterRefs($"src"))
+        val refs = df.select(RasterSourceToRasterRefs(true, $"src"))
         assert(refs.count() > 1)
       }
     }
