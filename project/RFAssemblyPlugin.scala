@@ -19,14 +19,55 @@
  *
  */
 
-import sbt.Keys._
 import sbt._
-import sbtassembly.AssemblyPlugin.autoImport._
+import sbt.Keys._
+import sbtassembly.AssemblyPlugin
+import sbtassembly.AssemblyPlugin.autoImport.{ShadeRule, _}
 
+import scala.util.matching.Regex
+
+/**
+  * Standard support for creating assembly jars.
+  */
 object RFAssemblyPlugin extends AutoPlugin {
-  override def trigger: PluginTrigger = noTrigger
+  override def requires = AssemblyPlugin
+
+  implicit class RichRegex(val self: Regex) extends AnyVal {
+    def =~(s: String) = self.pattern.matcher(s).matches
+  }
+
+  object autoImport {
+    val assemblyExcludedJarPatterns = settingKey[Seq[Regex]](
+      "List of regular expressions identifying jar file names that will be force-excluded from assembly"
+    )
+  }
+
   override def projectSettings = Seq(
     test in assembly := {},
+    autoImport.assemblyExcludedJarPatterns := Seq(
+      "scalatest.*".r
+    ),
+    assemblyShadeRules in assembly := {
+      val shadePrefixes = Seq(
+        "shapeless",
+        "com.amazonaws",
+        "org.apache.avro",
+        "org.apache.http",
+        "com.google.guava"
+      )
+      shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"aee.shaded.$p.@1").inAll)
+    },
+    assemblyOption in assembly :=
+      (assemblyOption in assembly).value.copy(includeScala = false),
+    assemblyJarName in assembly := s"${normalizedName.value}-assembly-${version.value}.jar",
+    assemblyExcludedJars in assembly := {
+      val cp = (fullClasspath in assembly).value
+      val excludedJarPatterns = autoImport.assemblyExcludedJarPatterns.value
+      cp filter { jar ⇒
+        excludedJarPatterns
+          .exists(_ =~ jar.data.getName)
+      }
+    },
     assemblyMergeStrategy in assembly := {
       case "logback.xml" ⇒ MergeStrategy.singleOrError
       case "git.properties" ⇒ MergeStrategy.discard
@@ -34,7 +75,7 @@ object RFAssemblyPlugin extends AutoPlugin {
       case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) ⇒
         MergeStrategy.rename
       case PathList("META-INF", xs @ _*) ⇒
-        xs map {_.toLowerCase} match {
+        xs map { _.toLowerCase } match {
           case "manifest.mf" :: Nil | "index.list" :: Nil | "dependencies" :: Nil ⇒
             MergeStrategy.discard
           case ps @ x :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") ⇒

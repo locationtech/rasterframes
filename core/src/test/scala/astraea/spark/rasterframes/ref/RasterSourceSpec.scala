@@ -24,11 +24,13 @@ package astraea.spark.rasterframes.ref
 import java.net.URI
 
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
-import astraea.spark.rasterframes.ref.RasterSource.FileGeoTiffRasterSource
+import astraea.spark.rasterframes.ref.RasterSource.{FileGeoTiffRasterSource, GDALRasterSource}
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
+
+import scala.language.reflectiveCalls
 
 /**
  *
@@ -106,22 +108,21 @@ class RasterSourceSpec extends TestEnvironment with TestData {
 
     it("should cache headers")(new Fixture {
       val e = src.extent
-      assert(counter.reads === 1)
+      val startReads = counter.reads
 
       val c = src.crs
       val e2 = src.extent
       val ct = src.cellType
-      assert(counter.reads === 1)
+      counter.reads should be(startReads)
     })
 
     it("should Spark serialize caching")(new Fixture {
 
       import spark.implicits._
 
-      assert(src.isInstanceOf[FileGeoTiffRasterSource])
+      val origType = src.getClass
 
       val e = src.extent
-      assert(counter.reads === 1)
 
       val df = Seq(src, src, src).toDS.repartition(3)
       val src2 = df.collect()(1)
@@ -130,8 +131,10 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val ct = src2.cellType
 
       src2 match {
-        case fs: FileGeoTiffRasterSource ⇒
-          fs.callback match {
+        case _: GDALRasterSource => ()
+        case s if s.getClass == origType ⇒
+          val t = s.asInstanceOf[RasterSource { def callback: Option[ReadMonitor] }]
+          t.callback match {
             case Some(cb: ReadMonitor) ⇒ assert(cb.reads === 1)
             case o ⇒ fail(s"Expected '$o' to be a ReadMonitor")
           }
