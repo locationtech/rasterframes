@@ -20,7 +20,7 @@
 
 package astraea.spark.rasterframes.rules
 
-import com.vividsolutions.jts.geom.Geometry
+import org.locationtech.jts.geom.Geometry
 import org.apache.spark.sql.sources.Filter
 
 /**

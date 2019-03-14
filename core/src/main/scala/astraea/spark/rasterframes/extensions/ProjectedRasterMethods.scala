@@ -92,7 +92,7 @@ abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithProto
    */
   def toTileLayerRDD(tileCols: Int,
                      tileRows: Int)(implicit spark: SparkSession): XTileLayerRDD[SpatialKey] = {
-    val layout = LayoutDefinition(self.rasterExtent, tileCols, tileRows)
+    val layout = LayoutDefinition(self.raster.rasterExtent, tileCols, tileRows)
     val kb = KeyBounds(SpatialKey(0, 0), SpatialKey(layout.layoutCols - 1, layout.layoutRows - 1))
     val tlm = TileLayerMetadata(self.tile.cellType, layout, self.extent, self.crs, kb)
 
@@ -115,7 +115,7 @@ abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithProto
    * @param spark [[SparkSession]] in which to create RDD
    */
   def toTileLayerRDD(tileCols: Int, tileRows: Int, timestamp: ZonedDateTime)(implicit spark: SparkSession): XTileLayerRDD[SpaceTimeKey] = {
-    val layout = LayoutDefinition(self.rasterExtent, tileCols, tileRows)
+    val layout = LayoutDefinition(self.raster.rasterExtent, tileCols, tileRows)
     val kb = KeyBounds(SpaceTimeKey(0, 0, timestamp), SpaceTimeKey(layout.layoutCols - 1, layout.layoutRows - 1, timestamp))
     val tlm = TileLayerMetadata(self.tile.cellType, layout, self.extent, self.crs, kb)
 

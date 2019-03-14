@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.encoders
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
 import astraea.spark.rasterframes.util.CRSParser
-import com.vividsolutions.jts.geom.Envelope
+import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.spark._

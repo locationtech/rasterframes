@@ -24,7 +24,6 @@ object RFProjectPlugin extends AutoPlugin {
 
     val scalaTest = "org.scalatest" %% "scalatest" % "3.0.3" % Test
   }
-  import autoImport._
 
   override def projectSettings = Seq(
     organization := "org.locationtech.rasterframes",
@@ -36,9 +35,6 @@ object RFProjectPlugin extends AutoPlugin {
     description := "RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis",
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion := "2.11.12",
-    rfSparkVersion in ThisBuild := "2.3.2" ,
-    rfGeoTrellisVersion in ThisBuild := "2.1.0",
-    rfGeoMesaVersion in ThisBuild := "2.1.1",
     scalacOptions ++= Seq("-feature", "-deprecation"),
     scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
@@ -48,7 +44,6 @@ object RFProjectPlugin extends AutoPlugin {
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
       "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
     ),
-    // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     publishTo := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,

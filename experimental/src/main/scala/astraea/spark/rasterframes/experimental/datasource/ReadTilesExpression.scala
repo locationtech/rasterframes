@@ -146,7 +146,7 @@ case class ReadTilesExpression(children: Seq[Expression]) extends Expression
     rowMajor.map(row ⇒ {
       val serializedTiles = row.map {
         case null ⇒ null
-        case t ⇒ TileType.serialize(t)
+        case t ⇒ TileType.serialize(t.tile)
       }
 
       val firstBandExt = row
