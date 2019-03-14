@@ -54,7 +54,7 @@ case class RasterRef(source: RasterSource, subextent: Option[Extent])
   protected lazy val realizedTile: Tile = {
     require(source.bandCount == 1, "Expected singleband tile")
     RasterRef.log.trace(s"Fetching $srcExtent from $source")
-    source.read(srcExtent).left.get.tile
+    source.read(srcExtent).tile.band(0)
   }
 
   /** Splits this tile into smaller tiles based on the reported

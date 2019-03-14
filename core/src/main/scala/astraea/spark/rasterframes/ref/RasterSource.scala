@@ -26,14 +26,13 @@ import java.time.format.DateTimeFormatter
 
 import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
 import astraea.spark.rasterframes.model.TileContext
-import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
+import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, Tags}
 import geotrellis.raster.split.Split
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
@@ -46,6 +45,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
+
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -68,40 +68,9 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def tags: Option[Tags]
 
-  def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
+  def read(extent: Extent): Raster[MultibandTile]
 
-  /** Reads the given extent as a single multiband raster. */
-  def readMultiband(extent: Extent): Raster[MultibandTile] =
-    read(extent).fold(r => {
-      r.copy(tile = MultibandTile(r.tile))
-    }, identity)
-
-  def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]]
-  def readAllMultiband(): Seq[Raster[MultibandTile]] =
-    readAll().fold(_.map(r => {
-      r.copy(tile = MultibandTile(r.tile))
-    }), identity)
-
-  def readAllLazy(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
-    val extents = nativeTiling
-    if (bandCount == 1) {
-      val rasters = for {
-        extent <- extents
-        rr = RasterRef(this, Some(extent))
-        tile: Tile = RasterRefTile(rr)
-      } yield Raster(tile, extent)
-      Left(rasters)
-    } else {
-      // Need to figure this out.
-      RasterSource._logger.warn(
-        "Lazy reading is not available for multiband images. Performing eager read.")
-      val rasters = for {
-        extent <- extents
-        raster = this.read(extent).right.get
-      } yield raster
-      Right(rasters)
-    }
-  }
+  def readAll(): Seq[Raster[MultibandTile]]
 
   def nativeLayout: Option[TileLayout]
 
@@ -204,9 +173,8 @@ object RasterSource extends LazyLogging {
 
     override def tags: Option[Tags] = None
 
-    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = Left(
-      Raster(tile.crop(rasterExtent.gridBoundsFor(extent, false)), extent)
-    )
+    override def read(extent: Extent): Raster[MultibandTile] =
+      Raster(MultibandTile(tile.crop(rasterExtent.gridBoundsFor(extent, false))), extent)
 
     override def nativeLayout: Option[TileLayout] = Some(
       TileLayout(
@@ -216,9 +184,8 @@ object RasterSource extends LazyLogging {
         tileRows = NOMINAL_TILE_SIZE)
     )
 
-    def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
-      Left(Raster(tile, extent).split(nativeLayout.get, Split.Options(false, false)).toSeq)
-    }
+    def readAll(): Seq[Raster[MultibandTile]] =
+      Raster(MultibandTile(tile), extent).split(nativeLayout.get, Split.Options(false, false)).toSeq
   }
 
   case class GDALRasterSource(source: URI, callback: Option[ReadCallback])
@@ -255,20 +222,15 @@ object RasterSource extends LazyLogging {
 
     override def rows: Int = gdal.rows
 
-    override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
-
+    override def read(extent: Extent): Raster[MultibandTile] = {
       callback.foreach { cb =>
         val grid = rasterExtent.gridBoundsFor(extent, clamp = false)
         cb.readRange(this, 0, grid.size.toInt * cellType.bytes * bandCount)
       }
-
-      if (bandCount == 1)
-        Left(gdal.read(extent, Seq(0)).get.mapTile(_.band(0)))
-      else
-        Right(gdal.read(extent).get)
+      gdal.read(extent).get
     }
 
-    override def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
+    override def readAll(): Seq[Raster[MultibandTile]] = {
       val grid = gdal.gridBounds
 
       callback.foreach { cb =>
@@ -277,10 +239,7 @@ object RasterSource extends LazyLogging {
 
       val tiled = grid.split(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE).toTraversable
 
-      if (bandCount == 1)
-        Left(gdal.readBounds(tiled, Seq(0)).map(_.mapTile(_.band(0))).toSeq)
-      else
-        Right(gdal.readBounds(tiled).toSeq)
+      gdal.readBounds(tiled).toSeq
     }
 
     override def nativeLayout: Option[TileLayout] = {
@@ -339,61 +298,36 @@ object RasterSource extends LazyLogging {
       else None
     }
 
-    def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = {
+    def read(extent: Extent): Raster[MultibandTile] = {
       val info = realInfo
-      if (bandCount == 1) {
-        val geoTiffTile = GeoTiffReader.geoTiffSinglebandTile(info)
-        val gt = new SinglebandGeoTiff(
-          geoTiffTile,
-          info.extent,
-          info.crs,
-          info.tags,
-          info.options,
-          List.empty
-        )
-        Left(gt.crop(extent).raster)
-      } else {
-        val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
-        val gt = new MultibandGeoTiff(
-          geoTiffTile,
-          info.extent,
-          info.crs,
-          info.tags,
-          info.options,
-          List.empty
-        )
-        Right(gt.crop(extent).raster)
-      }
+      val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
+      val gt = new MultibandGeoTiff(
+        geoTiffTile,
+        info.extent,
+        info.crs,
+        info.tags,
+        info.options,
+        List.empty
+      )
+      gt.crop(extent).raster
     }
 
-    def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
+    def readAll(): Seq[Raster[MultibandTile]] = {
       val info = realInfo
 
       // Thanks to @pomadchin for showing us how to do this :-)
       val windows = info.segmentLayout.listWindows(NOMINAL_TILE_SIZE)
       val re = info.rasterExtent
 
-      if (info.bandCount == 1) {
-        val geotile = GeoTiffReader.geoTiffSinglebandTile(info)
+      val geotile = GeoTiffReader.geoTiffMultibandTile(info)
 
-        val rows = windows.map(gb => {
-          val tile = geotile.crop(gb)
-          val extent = re.extentFor(gb, clamp = false)
-          Raster(tile, extent)
-        })
+      val rows = windows.map(gb => {
+        val tile = geotile.crop(gb)
+        val extent = re.extentFor(gb, clamp = false)
+        Raster(tile, extent)
+      })
 
-        Left(rows.toSeq)
-      } else {
-        val geotile = GeoTiffReader.geoTiffMultibandTile(info)
-
-        val rows = windows.map(gb => {
-          val tile = geotile.crop(gb)
-          val extent = re.extentFor(gb, clamp = false)
-          Raster(tile, extent)
-        })
-
-        Right(rows.toSeq)
-      }
+      rows.toSeq
     }
   }
 

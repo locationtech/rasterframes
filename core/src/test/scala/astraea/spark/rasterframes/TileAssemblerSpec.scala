@@ -134,9 +134,9 @@ object TileAssemblerSpec extends  LazyLogging {
   implicit class WithToDF(val rs: RasterSource) {
     def toDF(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
-      rs.readAll().left.get
+      rs.readAll()
         .zipWithIndex
-        .map { case (r, i) ⇒ (i, r.extent, r.tile) }
+        .map { case (r, i) ⇒ (i, r.extent, r.tile.band(0)) }
         .toDF("spatial_index", "extent", "tile")
         .repartition($"spatial_index")
         .forceCache

@@ -50,10 +50,10 @@ class RasterSourceIT extends TestEnvironment with TestData {
         val bURI = new URI(
           "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B2.TIF")
         val red = time("read B4") {
-          RasterSource(rURI).readAll().left.get
+          RasterSource(rURI).readAll()
         }
         val blue = time("read B2") {
-          RasterSource(bURI).readAll().left.get
+          RasterSource(bURI).readAll()
         }
         time("test empty") {
           red should not be empty

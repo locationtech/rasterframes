@@ -3,9 +3,9 @@ addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("console", "datasource/console")
 
 // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-rfSparkVersion in ThisBuild := "2.3.2"
-rfGeoTrellisVersion in ThisBuild := "2.2.0"
-rfGeoMesaVersion in ThisBuild := "2.2.1"
+ThisBuild / rfSparkVersion := "2.3.2"
+ThisBuild / rfGeoTrellisVersion := "2.2.0"
+ThisBuild / rfGeoMesaVersion := "2.2.1"
 
 lazy val root = project
   .in(file("."))
