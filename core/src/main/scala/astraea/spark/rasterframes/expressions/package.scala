@@ -86,6 +86,7 @@ package object expressions {
     registry.registerExpression[Exp10]("rf_exp10")
     registry.registerExpression[Exp2]("rf_exp2")
     registry.registerExpression[ExpM1]("rf_expm1")
+    registry.registerExpression[Resample]("rf_resample")
     registry.registerExpression[TileToArrayDouble]("rf_tile_to_array_double")
     registry.registerExpression[TileToArrayInt]("rf_tile_to_array_int")
     registry.registerExpression[DataCells]("rf_data_cells")

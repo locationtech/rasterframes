@@ -27,7 +27,7 @@ import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster.testkit.RasterMatchers
-import geotrellis.raster.{BitCellType, ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, ShortConstantNoDataCellType, Tile, UByteConstantNoDataCellType}
+import geotrellis.raster.{ArrayTile, BitCellType, ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, ShortConstantNoDataCellType, Tile, UByteConstantNoDataCellType}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.{AnalysisException, Encoders}
 import org.apache.spark.sql.functions._
@@ -658,5 +658,38 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_expm1")
 
     }
+  }
+  it("should resample") {
+    def lowRes = {
+      def base = ArrayTile(Array(1,2,3,4), 2, 2)
+      ProjectedRasterTile(base.convert(ct), extent, crs)
+    }
+    def upsampled = {
+      def base = ArrayTile(Array(
+        1,1,2,2,
+        1,1,2,2,
+        3,3,4,4,
+        3,3,4,4
+      ), 4, 4)
+      ProjectedRasterTile(base.convert(ct), extent, crs)
+    }
+    // a 4, 4 tile to upsample by shape
+    def fourByFour = TestData.projectedRasterTile(4, 4, 0, extent, crs, ct)
+
+    def df = Seq(lowRes).toDF("tile")
+
+    val maybeUp = df.select(resample($"tile", lit(2))).as[ProjectedRasterTile].first()
+    assertEqual(maybeUp, upsampled)
+
+    def df2 = Seq((lowRes, fourByFour)).toDF("tile1", "tile2")
+    val maybeUpShape = df2.select(resample($"tile1", $"tile2")).as[ProjectedRasterTile].first()
+    assertEqual(maybeUpShape, upsampled)
+
+    // Downsample by double argument < 1
+    def df3 = Seq(upsampled).toDF("tile").withColumn("factor", lit(0.5))
+    assertEqual(df3.selectExpr("rf_resample(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
+    assertEqual(df3.selectExpr("rf_resample(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
+
+    checkDocs("rf_resample")
   }
 }

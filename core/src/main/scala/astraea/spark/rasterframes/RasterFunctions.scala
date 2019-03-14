@@ -344,4 +344,10 @@ trait RasterFunctions {
   def expm1(tileCol: Column): TypedColumn[Any, Tile] =
     ExpM1(tileCol)
 
+  /** Resample tile using nearest-neighbor */
+  def resample[T: Numeric](tileCol: Column, value: T) = Resample(tileCol, value)
+
+  /** Resample tile using nearest-neighbor */
+  def resample(tileCol: Column, column2: Column) = Resample(tileCol, column2)
+
 }
