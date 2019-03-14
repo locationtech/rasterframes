@@ -23,12 +23,10 @@ package astraea.spark.rasterframes.ref
 
 import java.net.URI
 
-import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
-import astraea.spark.rasterframes.ref.RasterSource.FileGeoTiffRasterSource
+import astraea.spark.rasterframes
+import astraea.spark.rasterframes.util.time
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
-import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.vector.Extent
-import org.apache.spark.sql.rf.RasterSourceUDT
 
 /**
  *
@@ -45,17 +43,28 @@ class RasterSourceIT extends TestEnvironment with TestData {
 
   describe("RasterSource.readAll") {
     it("should return consistently ordered tiles across bands for a given scene") {
-      // These specific scenes exhibit the problem where we see different subtile segment ordering across the bands of a given scene.
-      val rURI = new URI("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B4.TIF")
-      val bURI = new URI("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B2.TIF")
-
-      val red = RasterSource(rURI).readAll().left.get
-      val blue = RasterSource(bURI).readAll().left.get
-
-      red should not be empty
-      red.size should equal(blue.size)
-
-      red.map(_.dimensions) should contain theSameElementsAs blue.map(_.dimensions)
+      time(s"two band comparison prefer-gdal=${ rasterframes.rfConfig.getBoolean("prefer-gdal")}") {
+        // These specific scenes exhibit the problem where we see different subtile segment ordering across the bands of a given scene.
+        val rURI = new URI(
+          "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B4.TIF")
+        val bURI = new URI(
+          "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B2.TIF")
+        val red = time("read B4") {
+          RasterSource(rURI).readAll().left.get
+        }
+        val blue = time("read B2") {
+          RasterSource(bURI).readAll().left.get
+        }
+        time("test empty") {
+          red should not be empty
+        }
+        time("compare sizes") {
+          red.size should equal(blue.size)
+        }
+        time("compare dimensions") {
+          red.map(_.dimensions) should contain theSameElementsAs blue.map(_.dimensions)
+        }
+      }
     }
   }
 }

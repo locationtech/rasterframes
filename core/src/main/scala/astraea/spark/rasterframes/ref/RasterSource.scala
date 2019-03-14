@@ -223,7 +223,6 @@ object RasterSource extends LazyLogging {
 
   case class GDALRasterSource(source: URI, callback: Option[ReadCallback])
       extends RasterSource with URIRasterSource {
-    import GDALRasterSource.MAX_SIZE
     import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
 
     @transient
@@ -276,7 +275,7 @@ object RasterSource extends LazyLogging {
         cb.readRange(this, 0, grid.size.toInt * cellType.bytes * bandCount)
       }
 
-      val tiled = grid.split(MAX_SIZE, MAX_SIZE).toTraversable
+      val tiled = grid.split(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE).toTraversable
 
       if (bandCount == 1)
         Left(gdal.readBounds(tiled, Seq(0)).map(_.mapTile(_.band(0))).toSeq)
@@ -287,16 +286,16 @@ object RasterSource extends LazyLogging {
     override def nativeLayout: Option[TileLayout] = {
       Some(
         TileLayout(
-          cols / MAX_SIZE + 1,
-          rows / MAX_SIZE + 1,
-          math.min(cols, MAX_SIZE),
-          math.min(rows, MAX_SIZE)))
+          cols / NOMINAL_TILE_SIZE + 1,
+          rows / NOMINAL_TILE_SIZE + 1,
+          math.min(cols, NOMINAL_TILE_SIZE),
+          math.min(rows, NOMINAL_TILE_SIZE)))
     }
     override def tags: Option[Tags] = Some(Tags(metadata, List.empty))
   }
 
   object GDALRasterSource {
-    final val MAX_SIZE = 256
+    private val preferGdal: Boolean = astraea.spark.rasterframes.rfConfig.getBoolean("prefer-gdal")
     @transient
     lazy val hasGDAL: Boolean = try {
       org.gdal.gdal.gdal.AllRegister()
@@ -307,7 +306,7 @@ object RasterSource extends LazyLogging {
         logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader.")
         false
     }
-    def unapply(scheme: String): Boolean = scheme.startsWith("gdal+") && hasGDAL
+    def unapply(scheme: String): Boolean = (preferGdal || scheme.startsWith("gdal+")) && hasGDAL
   }
 
   trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport with LazyLogging {
