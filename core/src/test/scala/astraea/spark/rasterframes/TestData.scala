@@ -26,7 +26,7 @@ import astraea.spark.rasterframes.expressions.tilestats.NoDataCells
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.{functions => F}
-import com.vividsolutions.jts.geom.{Coordinate, GeometryFactory}
+import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster
 import geotrellis.raster._

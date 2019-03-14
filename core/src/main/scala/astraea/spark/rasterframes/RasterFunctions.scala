@@ -28,7 +28,7 @@ import astraea.spark.rasterframes.expressions.tilestats._
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions => F}
-import com.vividsolutions.jts.geom.{Envelope, Geometry}
+import org.locationtech.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}

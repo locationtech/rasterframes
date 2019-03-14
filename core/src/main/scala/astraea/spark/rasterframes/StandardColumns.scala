@@ -5,7 +5,7 @@ import java.sql.Timestamp
 import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{SpatialKey, TemporalKey}
 import org.apache.spark.sql.functions.col
-import com.vividsolutions.jts.geom.{Point => jtsPoint, Polygon => jtsPolygon}
+import org.locationtech.jts.geom.{Point => jtsPoint, Polygon => jtsPolygon}
 import geotrellis.proj4.CRS
 import geotrellis.vector.Extent
 import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._

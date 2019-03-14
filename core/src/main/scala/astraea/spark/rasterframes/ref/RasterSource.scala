@@ -46,7 +46,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
-
+import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**
@@ -148,6 +148,9 @@ object RasterSource extends LazyLogging {
       case "s3" =>
         val client = () => S3Client.DEFAULT
         S3GeoTiffRasterSource(source, client, callback)
+      case s if s.startsWith("gdal+") =>
+        val cleaned = new URI(source.toASCIIString.replace("gdal+", ""))
+        apply(cleaned, callback)
       case s => throw new UnsupportedOperationException(s"Scheme '$s' not supported")
     }
 
@@ -233,11 +236,16 @@ object RasterSource extends LazyLogging {
 
     override def extent: Extent = gdal.extent
 
+    private def metadata = gdal.dataset
+      .GetMetadata_Dict()
+      .asInstanceOf[java.util.Dictionary[String, String]]
+      .asScala
+      .toMap
+
     // TODO: See if dates are available in gdal.
     // Maybe useful: gdal.dataset.getMetadata_Dict
     override def timestamp: Option[ZonedDateTime] = {
-      val meta = gdal.dataset.getMetadata_Dict
-      dateFromMetadata(meta)
+      dateFromMetadata(metadata)
     }
 
     override def cellType: CellType = gdal.cellType
@@ -284,12 +292,22 @@ object RasterSource extends LazyLogging {
           math.min(cols, MAX_SIZE),
           math.min(rows, MAX_SIZE)))
     }
-    override def tags: Option[Tags] = Some(Tags(gdal.dataset.getMetadata_Dict, List.empty))
+    override def tags: Option[Tags] = Some(Tags(metadata, List.empty))
   }
 
   object GDALRasterSource {
     final val MAX_SIZE = 256
-    def unapply(scheme: String): Boolean = scheme.startsWith("gdal+")
+    @transient
+    lazy val hasGDAL: Boolean = try {
+      org.gdal.gdal.gdal.AllRegister()
+      true
+    }
+    catch {
+      case _: UnsatisfiedLinkError =>
+        logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader.")
+        false
+    }
+    def unapply(scheme: String): Boolean = scheme.startsWith("gdal+") && hasGDAL
   }
 
   trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport with LazyLogging {

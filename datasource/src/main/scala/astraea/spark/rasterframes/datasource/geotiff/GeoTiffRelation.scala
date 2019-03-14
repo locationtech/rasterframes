@@ -24,6 +24,7 @@ import java.net.URI
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.util._
+import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.spark._
 import geotrellis.spark.io._

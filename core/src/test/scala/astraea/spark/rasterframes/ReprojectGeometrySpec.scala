@@ -21,7 +21,7 @@
 
 package astraea.spark.rasterframes
 
-import com.vividsolutions.jts.geom._
+import org.locationtech.jts.geom._
 import geotrellis.proj4.{CRS, LatLng, Sinusoidal, WebMercator}
 import org.apache.spark.sql.Encoders
 import org.scalatest.{FunSpec, Matchers}

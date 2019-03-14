@@ -4,11 +4,13 @@
 
 ### 0.8.0
 
+* Upgraded to the following core dependencies: Spark 2.3.2, GeoTrellis 2.2.0, GeoMesa 2.2.1, JTS 1.16.0.
+* _Breaking_: With the upgrade to JTS 1.16.0, all imports of `com.vividsolutions.jts` need to be changed to `org.locationtech.jts`.
 * Introduced at the source level the concept of a `RasterSource` and `RasterRef`, enabling lazy/delayed read of sub-scene tiles.
 * _Deprecation_: Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow `snake_case` conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.
 * Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
 * _Breaking_: In Scala and SQL, `..._scalar` functions (e.g. `local_add_scalar`) have been removed. Non-scalar forms now dynamically detect type of right hand side.
-* _Breaking_: `tileToArray` has been replaced with `tile_to_array_double` and `tile_to_array_int`. 
+* _Breaking_: `tileToArray` has been replaced with `tile_to_array_double` and `tile_to_array_int`.
 * Added `render_matrix` debugging function.
 * _Breaking_: renamed `agg_histogram` to `agg_approx_histogram`, `local_agg_stats` to `agg_local_stats`, `local_agg_max` to `agg_local_max`, `local_agg_min` to `agg_local_min`, `local_agg_mean` to `agg_local_mean`, `local_agg_data_cells` to `agg_local_data_cells`, `local_agg_no_data_cells` to `agg_local_no_data_cells`.
 * _Breaking_: `CellHistogram` no longer carries along approximate statistics, due to confusing behavior. Use `agg_stats` instead.

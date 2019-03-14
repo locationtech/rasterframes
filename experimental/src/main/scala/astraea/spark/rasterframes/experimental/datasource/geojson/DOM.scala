@@ -20,8 +20,8 @@
 
 package astraea.spark.rasterframes.experimental.datasource.geojson
 
-import com.vividsolutions.jts.geom.{Envelope, Geometry}
-import com.vividsolutions.jts.io.geojson.{GeoJsonReader, GeoJsonWriter}
+import org.locationtech.jts.geom.{Envelope, Geometry}
+import org.locationtech.jts.io.geojson.{GeoJsonReader, GeoJsonWriter}
 import geotrellis.vector.Extent
 import spray.json._
 import spray.json.DefaultJsonProtocol._

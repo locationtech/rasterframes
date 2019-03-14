@@ -21,7 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource.geojson
 
 import astraea.spark.rasterframes.experimental.datasource.geojson.DOM._
-import com.vividsolutions.jts.geom.Geometry
+import org.locationtech.jts.geom.Geometry
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.jts.JTSTypes

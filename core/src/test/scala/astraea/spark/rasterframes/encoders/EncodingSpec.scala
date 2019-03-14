@@ -26,7 +26,7 @@ import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import com.vividsolutions.jts.geom.Envelope
+import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
 import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}

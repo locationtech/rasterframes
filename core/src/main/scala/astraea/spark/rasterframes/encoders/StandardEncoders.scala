@@ -24,7 +24,7 @@ import java.sql.Timestamp
 
 import astraea.spark.rasterframes.model._
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
-import com.vividsolutions.jts.geom.Envelope
+import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellSize, CellType, Tile, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition

@@ -23,7 +23,7 @@ import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, ZonedDateTime}
 
 import astraea.spark.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
-import com.vividsolutions.jts.geom._
+import org.locationtech.jts.geom._
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.{Point ⇒ gtPoint}
 import org.apache.spark.sql.{Column, TypedColumn}

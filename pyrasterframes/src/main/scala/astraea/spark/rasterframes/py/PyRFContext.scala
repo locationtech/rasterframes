@@ -20,7 +20,7 @@ package astraea.spark.rasterframes.py
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util.CRSParser
-import com.vividsolutions.jts.geom.Geometry
+import org.locationtech.jts.geom.Geometry
 import geotrellis.raster.{ArrayTile, CellType, MultibandTile}
 import geotrellis.spark.io._
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
@@ -171,11 +171,11 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   // return toRaster, get just the tile, and make an array out of it
   def toIntRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Int] = {
-    df.asRF.toRaster(df.col(colname), cols, rows).toArray()
+    df.asRF.toRaster(df.col(colname), cols, rows).tile.toArray()
   }
 
   def toDoubleRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Double] = {
-    df.asRF.toRaster(df.col(colname), cols, rows).toArrayDouble()
+    df.asRF.toRaster(df.col(colname), cols, rows).tile.toArrayDouble()
   }
 
   def tileLayerMetadata(df: DataFrame): String =

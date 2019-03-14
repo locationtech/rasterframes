@@ -29,7 +29,7 @@ import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.proj4._
 import geotrellis.raster.{CellSize, CellType, TileLayout, UShortUserDefinedNoDataCellType}
 import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.spark.{Bounds, KeyBounds, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.scalatest.Assertion

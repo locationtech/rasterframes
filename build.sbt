@@ -2,6 +2,11 @@ import sbt.Keys.resolvers
 addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("console", "datasource/console")
 
+// NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
+rfSparkVersion in ThisBuild := "2.3.2"
+rfGeoTrellisVersion in ThisBuild := "2.2.0"
+rfGeoMesaVersion in ThisBuild := "2.2.1"
+
 lazy val root = project
   .in(file("."))
   .withId("RasterFrames")
@@ -26,10 +31,10 @@ lazy val core = project
     resolvers += "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
     libraryDependencies ++= Seq(
       "com.chuusai" %% "shapeless" % "2.3.2",
+      "org.locationtech.jts" % "jts-core" % "1.16.0",
       "org.locationtech.geomesa" %% "geomesa-z3" % rfGeoMesaVersion.value,
       "org.locationtech.geomesa" %% "geomesa-spark-jts" % rfGeoMesaVersion.value exclude("jgridshift", "jgridshift"),
-      //"com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.9.0",
-      "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.7.4-local.1",
+      "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.9.0",
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,
@@ -42,7 +47,6 @@ lazy val core = project
       ),
       scalaTest
     ),
-
     buildInfoKeys ++= Seq[BuildInfoKey](
       name, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),
@@ -69,7 +73,7 @@ lazy val datasource = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
-    initialCommands in console := (initialCommands in console).value + 
+    initialCommands in console := (initialCommands in console).value +
       """
         |import astraea.spark.rasterframes.datasource.geotrellis._
         |import astraea.spark.rasterframes.datasource.geotiff._

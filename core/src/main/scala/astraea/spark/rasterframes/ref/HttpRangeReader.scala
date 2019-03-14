@@ -22,9 +22,11 @@
 package astraea.spark.rasterframes.ref
 
 
-import geotrellis.util.{LazyLogging, RangeReader}
+import geotrellis.util.RangeReader
 import scalaj.http.{Http, HttpResponse}
 import java.net.{URI, URL}
+
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Try
 
