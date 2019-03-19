@@ -100,7 +100,7 @@ _Python_:
     
 _SQL_: `rf_cell_type`
 
-Get the cell type of the `tile`. Available cell types can be retrieved with the @ref:[cell_types](reference.mdcell-types) function.
+Get the cell type of the `tile`. Available cell types can be retrieved with the @ref:[cell_types](reference.md#cell-types) function.
 
 #### convert_cell_type
 
@@ -150,7 +150,7 @@ Tile tile_ones(Int tile_columns, Int tile_rows, String cell_type_name)
 
 _SQL_: `rf_tile_ones`
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the specified cell type. See function @ref:[`cell_types`](reference.mdcell-types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell-types) for valid values. All arguments are literal values and not column expressions.
 
 #### make_constant_tile
 
@@ -160,7 +160,7 @@ _Python_:
     
 _SQL_: `rf_make_constant_tile`
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with the specified cell type. See function @ref:[`cell_types`](reference.mdcell-types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell-types) for valid values. All arguments are literal values and not column expressions.
 
 
 #### rasterize
@@ -219,7 +219,7 @@ _Python_:
 
     Tile assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, String cellType)
     
-Python only. Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode-tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  The `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.mdcell-types).
+Python only. Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode-tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  The `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.md#cell-types).
 
 ### Masking and Nodata
 
