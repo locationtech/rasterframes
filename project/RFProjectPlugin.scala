@@ -44,7 +44,7 @@ object RFProjectPlugin extends AutoPlugin {
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
       "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
     ),
-    publishTo := sonatypePublishTo.value,
+    publishTo in ThisBuild := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
