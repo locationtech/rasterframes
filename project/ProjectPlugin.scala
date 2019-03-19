@@ -40,7 +40,7 @@ object ProjectPlugin extends AutoPlugin {
     rfSparkVersion in ThisBuild := "2.3.2" ,
     rfGeoTrellisVersion in ThisBuild := "2.1.0",
     rfGeoMesaVersion in ThisBuild := "2.1.0",
-    publishTo := sonatypePublishTo.value,
+    publishTo in ThisBuild := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
