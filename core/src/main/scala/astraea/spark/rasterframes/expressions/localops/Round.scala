@@ -45,7 +45,6 @@ case class Round(child: Expression) extends UnaryLocalRasterOp
   override protected def op(child: Tile): Tile = child.localRound()
 }
 object Round{
-//  import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
 
   def apply(tile: Column): TypedColumn[Any, Tile] =
     new Column(Round(tile.expr)).as[Tile]
