@@ -64,6 +64,19 @@ class ExplodeSpec extends TestEnvironment with TestData {
       assert(exploded.count() < 9)
     }
 
+    it("should explode tiles with random sampling in SQL API") {
+      val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
+      val exploded = df.selectExpr("rf_explode_tiles_sample(0.5, tile1, tile2)")
+      logger.info("rf_explode_tiles schema with double frac arg attempt" + exploded.schema.treeString)
+      assert(exploded.columns.length === 4)
+      assert(exploded.count() < 9)
+
+      val explodedSeed = df.selectExpr("rf_explode_tiles_sample(0.5, 784505, tile1, tile2)")
+      assert(explodedSeed.columns.length === 4)
+      logger.info(s"Count with seed 784505: ${explodedSeed.count().toString}")
+      assert(explodedSeed.count() < 9)
+    }
+
     it("should handle null tiles") {
       val df = Seq[Tile](null, byteArrayTile, null, byteArrayTile, null).toDF("tile1")
       val exploded = df.select(explode_tiles($"tile1"))
