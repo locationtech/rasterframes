@@ -196,7 +196,9 @@ _Python_:
 
     Tile array_to_tile(Array arrayCol, Int numCols, Int numRows)
     
-Python only. Create a `tile` from a Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), filling values in row-major order.
+_SQL_: `rf_array_to_tile`
+    
+Create a `tile` from a Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), filling values in row-major order. Inverse of @ref:[`tile_to_int_array`](reference.md#tile_to_int_array) or @ref:[`tile_to_double_array`](reference.md#tile_to_double_array).
 
 #### assemble_tile
 
@@ -780,10 +782,9 @@ _Python_:
 
     Array tile_to_int_array(Tile tile)
     
-_SQL_: `rf_tile_to_int_array`
+_SQL_: `rf_tile_to_array_int`  
 
-
-Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
+Note slightly different naming between Python and SQL. Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
 
 
 #### tile_to_double_array
@@ -792,9 +793,9 @@ _Python_:
 
     Array tile_to_double_arry(Tile tile)
     
-_SQL_: `rf_tile_to_double_array`
+_SQL_: `rf_tile_to_array_double`
 
-Convert tile column to Spark [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
+Note slightly different naming between Python and SQL. Convert tile column to Spark [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
 
 
 #### render_ascii

@@ -108,7 +108,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
     }
 
     it("should convert an array into a tile") {
-      val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
+      val tile = TestData.randomTile(10, 10, FloatCellType)
       val df = Seq[Tile](tile, null).toDF("tile")
       val arrayDF = df.withColumn("tileArray", tile_to_array_double($"tile"))
 
@@ -117,6 +117,11 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val result = back.select($"backToTile".as[Tile]).first
 
       assert(result.toArrayDouble() === tile.toArrayDouble())
+
+      // Same round trip, but with SQL expression for rf_array_to_tile
+      val resultSql = arrayDF.selectExpr("rf_array_to_tile(tileArray, 10, 10) as backToTile").as[Tile].first
+
+      assert(resultSql.toArrayDouble() === tile.toArrayDouble())
 
       val hasNoData = back.withColumn("with_no_data", with_no_data($"backToTile", 0))
 
