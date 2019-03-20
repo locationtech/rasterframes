@@ -205,8 +205,12 @@ Create a `tile` from a Spark SQL [Array](http://spark.apache.org/docs/latest/api
 _Python_:
 
     Tile assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, String cellType)
-    
-Python only. Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode-tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  The `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.md#cell_types).
+
+_SQL_: `Tile rf_assemble_tile(colIndex, rowIndex, cellData, numCols, numRows)`
+
+Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode_tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  In Python, the `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.md#cell_types).
+
+With the SQL API, a default cell type will be assigned based on the data type of the `cellData` column. You can call @ref:[`rf_convert_cell_type`](reference.md#convert_cell_type) on the resulting `tile` to guarantee the exact cell type and nodata specification. In the SQL API all arguments can be column expressions.
 
 ### Masking and Nodata
 

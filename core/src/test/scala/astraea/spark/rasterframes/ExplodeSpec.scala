@@ -131,18 +131,55 @@ class ExplodeSpec extends TestEnvironment with TestData {
     }
 
     it("should reassemble single exploded tile") {
-      val df = Seq[Tile](byteArrayTile).toDF("tile")
+      val tile = TestData.injectND(2)(byteArrayTile)
+      val df = Seq[Tile](tile).toDF("tile")
         .select(explode_tiles($"tile"))
 
       val assembled = df.agg(assemble_tile(
         COLUMN_INDEX_COLUMN,
         ROW_INDEX_COLUMN,
         TILE_COLUMN,
-        3, 3, byteArrayTile.cellType
+        3, 3, tile.cellType
       )).as[Tile]
 
       val result = assembled.first()
-      assert(result === byteArrayTile)
+      assert(result === tile)
+
+      // and with SQL API
+      logger.info(df.schema.treeString)
+
+      val assembledSqlExpr = df.selectExpr("rf_assemble_tile(column_index, row_index, tile, 3, 3)")
+
+      val resultSql = assembledSqlExpr.as[Tile].first()
+      assert(resultSql === tile)
+
+      checkDocs("rf_assemble_tile")
+    }
+
+    it("should reassemble single exploded tile with user-defined nodata") {
+      val ct = FloatUserDefinedNoDataCellType(-99)
+      val tile = TestData.injectND(3)(TestData.randomTile(5, 5, ct))
+      val df = Seq[Tile](tile).toDF("tile")
+        .select(explode_tiles($"tile"))
+
+      val assembled = df.agg(assemble_tile(
+        COLUMN_INDEX_COLUMN,
+        ROW_INDEX_COLUMN,
+        TILE_COLUMN,
+        5, 5, ct
+      )).as[Tile]
+
+      val result = assembled.first()
+      assert(result === tile)
+
+      // and with SQL API
+      logger.info(df.schema.treeString)
+
+      val assembledSqlExpr = df.selectExpr(s"rf_convert_cell_type(rf_assemble_tile(column_index, row_index, tile, 5, 5), '${ct.toString()}') as tile")
+
+      val resultSql = assembledSqlExpr.as[Tile].first()
+      assert(resultSql === tile)
+      assert(resultSql.cellType === ct)
     }
 
     it("should reassemble multiple exploded tiles") {
@@ -150,8 +187,6 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val tinyTiles = image.projectedRaster.toRF(10, 10)
 
       val exploded = tinyTiles.select(tinyTiles.spatialKeyColumn, explode_tiles(tinyTiles.tileColumns.head))
-
-      //exploded.printSchema()
 
       val assembled = exploded.groupBy(tinyTiles.spatialKeyColumn)
         .agg(assemble_tile(
