@@ -98,7 +98,10 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('sum', tile_sum(self.tileCol)) \
             .withColumn('stats', tile_stats(self.tileCol)) \
             .withColumn('envelope', envelope('bounds')) \
-            .withColumn('ascii', render_ascii(self.tileCol))
+            .withColumn('ascii', render_ascii(self.tileCol)) \
+            .withColumn('log', log(self.tileCol)) \
+            .withColumn('exp', exp(self.tileCol)) \
+            .withColumn('round', round(self.tileCol))
 
         df.show()
 
@@ -201,6 +204,17 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(result)
 
 
+    def test_resample(self):
+        from pyspark.sql.functions import lit
+        result = self.rf.select(
+            tile_min(local_equal(
+                resample(resample(self.rf.tile, lit(2)), lit(0.5)),
+                self.rf.tile))
+        ).collect()[0][0]
+
+        self.assertTrue(result == 1)  # short hand for all values are true
+
+
 def suite():
     functionTests = unittest.TestSuite()
     functionTests.addTest(RasterFunctionsTest('test_identify_columns'))
@@ -212,6 +226,7 @@ def suite():
     functionTests.addTest(RasterFunctionsTest('test_explode'))
     functionTests.addTest(RasterFunctionsTest('test_sql'))
     functionTests.addTest(RasterFunctionsTest('test_maskByValue'))
+    functionTests.addTest(RasterFunctionsTest('test_resample'))
     return functionTests
 
 

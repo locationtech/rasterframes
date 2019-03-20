@@ -307,4 +307,47 @@ trait RasterFunctions {
   /** Cellwise inequality comparison between a tile and a scalar. */
   def local_unequal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
     Unequal(tileCol, value)
+
+  /** Round cell values to nearest integer without chaning cell type. */
+  def round(tileCol: Column): TypedColumn[Any, Tile] =
+    Round(tileCol)
+
+  /** Take natural logarithm of cell values. */
+  def log(tileCol: Column): TypedColumn[Any, Tile] =
+    Log(tileCol)
+
+  /** Take base 10 logarithm of cell values. */
+  def log10(tileCol: Column): TypedColumn[Any, Tile] =
+    Log10(tileCol)
+
+  /** Take base 2 logarithm of cell values. */
+  def log2(tileCol: Column): TypedColumn[Any, Tile] =
+    Log2(tileCol)
+
+  /** Natural logarithm of one plus cell values. */
+  def log1p(tileCol: Column): TypedColumn[Any, Tile] =
+      Log1p(tileCol)
+
+  /** Exponential of cell values */
+  def exp(tileCol: Column): TypedColumn[Any, Tile] =
+    Exp(tileCol)
+
+  /** Ten to the power of cell values */
+  def exp10(tileCol: Column): TypedColumn[Any, Tile] =
+    Exp10(tileCol)
+
+  /** Two to the power of cell values */
+  def exp2(tileCol: Column): TypedColumn[Any, Tile] =
+    Exp2(tileCol)
+
+  /** Exponential of cell values, less one*/
+  def expm1(tileCol: Column): TypedColumn[Any, Tile] =
+    ExpM1(tileCol)
+
+  /** Resample tile using nearest-neighbor */
+  def resample[T: Numeric](tileCol: Column, value: T) = Resample(tileCol, value)
+
+  /** Resample tile using nearest-neighbor */
+  def resample(tileCol: Column, column2: Column) = Resample(tileCol, column2)
+
 }
