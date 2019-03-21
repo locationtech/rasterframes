@@ -43,11 +43,11 @@ Python only. Extracts the bounding box (envelope) of the geometry.
 
 See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#st-envelope) which returns a Geometry type.
 
+### Tile Metadata and Mutation
 
 Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See below section on @ref:[masking and nodata](reference.md#masking-and-nodata) for additional discussion of cell types.
 
 #### cell_types
-
 
 _Python_:
 
