@@ -74,6 +74,12 @@ object ProjectPlugin extends AutoPlugin {
         name = "Ben Guseman",
         email = "bguseman@astraea.io",
         url = url("http://www.astraea.io")
+      ),
+      Developer(
+        id = "vpipkt",
+        name = "Jason Brown",
+        email = "jbrown@astraea.io",
+        url = url("http://www.astraea.io")
       )
     ),
     initialCommands in console :=
