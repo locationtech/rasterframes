@@ -906,26 +906,26 @@ df.select(df.id, explode_tiles(df.tile1, df.tile2, df.tile3)) \
 df.select(df.id, explode_tiles_sample(0.05, 8675309, df.tile1, df.tile2, df.tile3)) \
 ```
 
-#### tile_to_int_array
+#### tile_to_array_int
 
 _Python_:
 
-    Array tile_to_int_array(Tile tile)
+    Array tile_to_array_int(Tile tile)
     
 _SQL_: `rf_tile_to_array_int`  
 
-Note slightly different naming between Python and SQL. Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
+Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
 
 
-#### tile_to_double_array
+#### tile_to_array_double
 
 _Python_:
 
-    Array tile_to_double_arry(Tile tile)
+    Array tile_to_array_double(Tile tile)
     
 _SQL_: `rf_tile_to_array_double`
 
-Note slightly different naming between Python and SQL. Convert tile column to Spark [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
+Convert tile column to Spark [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
 
 
 #### render_ascii
