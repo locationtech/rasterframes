@@ -201,6 +201,7 @@ _rf_column_functions = {
     'tile_to_array_int': 'Flattens Tile into an array of integers.',
     'tile_to_array_double': 'Flattens Tile into an array of doubles.',
     'cell_type': 'Extract the Tile\'s cell type',
+    'is_no_data_tile': 'Report if the Tile is entirely NODDATA cells',
     'agg_approx_histogram': 'Compute the full column aggregate floating point histogram',
     'agg_stats': 'Compute the full column aggregate floating point statistics',
     'agg_mean': 'Computes the column aggregate mean',
@@ -234,6 +235,17 @@ _rf_column_functions = {
     'local_greater_equal': 'Cellwise greater than or equal to comparison between two tiles',
     'local_equal': 'Cellwise equality comparison between two tiles',
     'local_unequal': 'Cellwise inequality comparison between two tiles',
+    'round': 'Round cell values to the nearest integer without changing the cell type',
+    'log': 'Performs cell-wise natural logarithm',
+    'log10': 'Performs cell-wise logartithm with base 10',
+    'log2': 'Performs cell-wise logartithm with base 2',
+    'log1p': 'Performs natural logarithm of cell values plus one',
+    'exp': 'Performs cell-wise exponential',
+    'exp2': 'Compute 2 to the power of cell values',
+    'exp10': 'Compute 10 to the power of cell values',
+    'exp1m': 'Performs cell-wise exponential, then subtract one',
+    'resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
+
     # ------- JTS functions -------
     # spatial constructors
     'st_geomFromGeoHash': '',

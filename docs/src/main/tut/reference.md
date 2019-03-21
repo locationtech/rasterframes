@@ -1,4 +1,4 @@
-# Reference
+# Function Reference
 
 For the most up to date list of User Defined Functions using Tiles, look at API documentation for @scaladoc[`RasterFunctions`][RasterFunctions]. 
 
@@ -44,9 +44,7 @@ Python only. Extracts the bounding box (envelope) of the geometry.
 See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#st-envelope) which returns a Geometry type.
 
 
-### Tile Metadata
-
-Functions to access the particulars of a cell: its shape and the data type of its cells. See below section on masking and nodata for additional discussion of cell types.
+Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See below section on @ref:[masking and nodata](reference.md#masking-and-nodata) for additional discussion of cell types.
 
 #### cell_types
 
@@ -55,12 +53,11 @@ _Python_:
 
     Array[String] cell_types()
     
-    
 _SQL_: `rf_cell_types`
 
 Print an array of possible cell type names, as below. These names are used in other functions. See @ref:[discussion on nodata](reference.md#masking-and-nodata) for additional details.
  
-|cellTypes |
+|cell_types |
 |----------|
 |bool      |
 |int8raw   |
@@ -109,6 +106,18 @@ _SQL_: `rf_convert_cell_type`
 
 Convert `tileCol` to a different cell type.
 
+#### resample
+
+_Python_: 
+
+    Tile resample(Tile tile, Double factor)
+    Tile resample(Tile tile, Int factor)
+    Tile resample(Tile tile, Tile shape_tile)
+    
+_SQL_: `rf_resample`
+
+Change the tile dimension. Passing a numeric `factor` will scale the number of columns and rows in the tile: 1.0 is the same number of columns and row; less than one downsamples the tile; and greater than one upsamples the tile. Passing a `shape_tile` as the second argument outputs `tile` having the same number of columns and rows as `shape_tile`. All resampling is by nearest neighbor method. 
+
 ### Tile Creation
 
 Functions to create a new Tile column, either from scratch or from existing data not yet in a `tile`.
@@ -123,7 +132,7 @@ Tile tile_zeros(Int tile_columns, Int tile_rows, String cell_type_name)
 
 _SQL_: `rf_tile_zeros`
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of zeros, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell_types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of zeros, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell-types) for valid values. All arguments are literal values and not column expressions.
 
 #### tile_ones
 
@@ -135,7 +144,7 @@ Tile tile_ones(Int tile_columns, Int tile_rows, String cell_type_name)
 
 _SQL_: `rf_tile_ones`
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell_types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell-types) for valid values. All arguments are literal values and not column expressions.
 
 #### make_constant_tile
 
@@ -145,7 +154,7 @@ _Python_:
     
 _SQL_: `rf_make_constant_tile`
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell_types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with the specified cell type. See function @ref:[`cell_types`](reference.md#cell-types) for valid values. All arguments are literal values and not column expressions.
 
 
 #### rasterize
@@ -220,9 +229,11 @@ See also statistical summaries to get the count of data and nodata values per `t
 
 It is important to note that not all cell types support the nodata representation: these are `bool` and when the cell type string ends in `raw`.
 
-For integral valued cell types, the nodata is marked by a special sentinel value. This can be a default, typically zero or the minimum value for the underlying data type. The nodata value can also be a user-defined value. For example if the value 4 is to be interpreted as nodata, the cell type will read 'int32ud4'. More discussion in the [GeoTrellis documentation](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#working-with-cell-values).
+For integral valued cell types, the nodata is marked by a special sentinel value. This can be a default, typically zero or the minimum value for the underlying data type. The nodata value can also be a user-defined value. For example if the value 4 is to be interpreted as nodata, the cell type will read 'int32ud4'. 
 
-For float cell types, the nodata can either be NaN or a user-defined vale; for example `'float32ud-999.9'` would mean the value -999.9 is interpreted as a nodata.
+For float cell types, the nodata can either be NaN or a user-defined value; for example `'float32ud-999.9'` would mean the value -999.9 is interpreted as a nodata.
+
+For more reading about cell types and ndodata, see the [GeoTrellis documentation](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#working-with-cell-values).
 
 #### mask
 
@@ -232,7 +243,7 @@ _Python_:
     
 _SQL_: `rf_mask`
 
-Where the `mask` contains nodata, replace values in the `tile` with nodata. See [GeoTrellis]
+Where the `mask` contains nodata, replace values in the `tile` with nodata.
 
 Returned `tile` cell type will be coerced to one supporting nodata if it does not already.
  
@@ -258,13 +269,15 @@ _SQL_: `rf_mask_by_value`
 Generate a `tile` with the values from `data_tile`, with nodata in cells where the `mask_tile` is equal to `mask_value`. 
 
 
-#### rf_is_no_data_tile
+#### is_no_data_tile
 
-_SQL_:
+_Python_:
 
-    Boolean rf_is_no_data_tile(tile)
+    Boolean is_no_data_tile(tile)
 
-SQL only. Returns true if `tile` contains only nodata. By definition returns false if cell type does not support nodata.
+_SQL_: `rf_is_no_data_tile`
+ 
+Returns true if `tile` contains only nodata. By definition returns false if cell type does not support nodata.
 
 #### with_no_data
 
@@ -282,24 +295,27 @@ If input `tile` had a nodata value already, the behaviour depends on if its cell
 
 [Map algebra](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#map-algebra) raster operations are element-wise operations between a `tile` and a scalar, between two `tile`s, or among many `tile`s. 
 
-Many of these functions have similar variations:
+Some of these functions have similar variations in the Python API:
 
- - `local_op`: applies `op` to two `tile` columns
+ - `local_op`: applies `op` to two columns; the right hand side can be a `tile` or a numeric column.
  - `local_op_scalar`: applies `op` to a `tile` and a literal scalar, coercing the `tile` to a floating point type
  - `local_op_scalar_int`: applies `op` to a `tile` and a literal scalar, without coercing the `tile` to a floating point type
  
 We will provide all these variations for `local_add` and then suppress the rest in this document.
 
+The SQL API does not require the `local_op_scalar` or `local_op_scalar_int` forms.
 
 #### local_add
 
 _Python_: 
     
-    Tile local_add(Tile tile1, Tile tile2)
+    Tile local_add(Tile tile1, Tile rhs)
+    Tile local_add(Tile tile1, Int rhs)
+    Tile local_add(Tile tile1, Double rhs)
     
 _SQL_: `rf_local_add`
 
-Returns a `tile` column containing the element-wise sum of `tile1` and `tile2`.
+Returns a `tile` column containing the element-wise sum of `tile1` and `rhs`.
 
 #### local_add_scalar
 
@@ -326,33 +342,39 @@ Returns a `tile` column containing the element-wise sum of `tile` and `scalar`. 
 
 _Python_: 
     
-    Tile local_subtract(Tile tile1, Tile tile2)
+    Tile local_subtract(Tile tile1, Tile rhs)
+    Tile local_subtract(Tile tile1, Int rhs)
+    Tile local_subtract(Tile tile1, Double rhs)
     
 _SQL_: `rf_local_subtract`
 
-Returns a `tile` column containing the element-wise difference of `tile1` and `tile2`.
+Returns a `tile` column containing the element-wise difference of `tile1` and `rhs`.
 
 
 #### local_multiply
 
 _Python_: 
     
-    Tile local_multiply(Tile tile1, Tile tile2)
+    Tile local_multiply(Tile tile1, Tile rhs)
+    Tile local_multiply(Tile tile1, Int rhs)
+    Tile local_multiply(Tile tile1, Double rhs)
     
 _SQL_: `rf_local_multiply`
 
-Returns a `tile` column containing the element-wise product of `tile1` and `tile2`. This is **not** the matrix multiplication of `tile1` and `tile2`.
+Returns a `tile` column containing the element-wise product of `tile1` and `rhs`. This is **not** the matrix multiplication of `tile1` and `rhs`.
 
 
 #### local_divide
 
 _Python_: 
     
-    Tile local_divide(Tile tile1, Tile tile2)
+    Tile local_divide(Tile tile1, Tile rhs)
+    Tile local_divide(Tile tile1, Int rhs)
+    Tile local_divide(Tile tile1, Double rhs)
     
 _SQL_: `rf_local_divide`
 
-Returns a `tile` column containing the element-wise quotient of `tile1` and `tile2`. 
+Returns a `tile` column containing the element-wise quotient of `tile1` and `rhs`. 
 
 
 #### normalized_difference 
@@ -365,66 +387,167 @@ _SQL_: `rf_normalized_difference`
 
 Compute the normalized difference of the the two `tile`s: `(tile1 - tile2) / (tile1 + tile2)`. Result is always floating point cell type. This function has no scalar variant. 
 
-
 #### local_less
 
 _Python_: 
     
-    Tile local_less(Tile tile1, Tile tile2)
+    Tile local_less(Tile tile1, Tile rhs)
+    Tile local_less(Tile tile1, Int rhs)
+    Tile local_less(Tile tile1, Double rhs)
     
 _SQL_: `rf_less`
 
-Returns a `tile` column containing the element-wise evaluation of `tile1` is less than `tile2`. 
+Returns a `tile` column containing the element-wise evaluation of `tile1` is less than `rhs`. 
 
 #### local_less_equal
 
 _Python_: 
     
-    Tile local_less_equal(Tile tile1, Tile tile2)
+    Tile local_less_equal(Tile tile1, Tile rhs)
+    Tile local_less_equal(Tile tile1, Int rhs)
+    Tile local_less_equal(Tile tile1, Double rhs)
     
 _SQL_: `rf_less_equal`
 
-Returns a `tile` column containing the element-wise evaluation of `tile1` is less than or equal to `tile2`. 
+Returns a `tile` column containing the element-wise evaluation of `tile1` is less than or equal to `rhs`. 
 
 #### local_greater
 
 _Python_: 
     
-    Tile local_greater(Tile tile1, Tile tile2)
+    Tile local_greater(Tile tile1, Tile rhs)
+    Tile local_greater(Tile tile1, Int rhs)
+    Tile local_greater(Tile tile1, Double rhs)
     
 _SQL_: `rf_greater`
 
-Returns a `tile` column containing the element-wise evaluation of `tile1` is greater than `tile2`. 
+Returns a `tile` column containing the element-wise evaluation of `tile1` is greater than `rhs`. 
 
 #### local_greater_equal
 
 _Python_: 
     
-    Tile local_greater_equal(Tile tile1, Tile tile2)
+    Tile local_greater_equal(Tile tile1, Tile rhs)
+    Tile local_greater_equal(Tile tile1, Int rhs)
+    Tile local_greater_equal(Tile tile1, Double rhs)
     
 _SQL_: `rf_greater_equal`
 
-Returns a `tile` column containing the element-wise evaluation of `tile1` is greater than or equal to `tile2`. 
+Returns a `tile` column containing the element-wise evaluation of `tile1` is greater than or equal to `rhs`. 
 
 #### local_equal
 
 _Python_: 
     
-    Tile local_equal(Tile tile1, Tile tile2)
+    Tile local_equal(Tile tile1, Tile rhs)
+    Tile local_equal(Tile tile1, Int rhs)
+    Tile local_equal(Tile tile1, Double rhs)
     
 _SQL_: `rf_equal`
 
-Returns a `tile` column containing the element-wise equality of `tile1` and `tile2`. 
+Returns a `tile` column containing the element-wise equality of `tile1` and `rhs`. 
 
 #### local_unequal
 
 _Python_: 
     
-    Tile local_unequal(Tile tile1, Tile tile2)
+    Tile local_unequal(Tile tile1, Tile rhs)
+    Tile local_unequal(Tile tile1, Int rhs)
+    Tile local_unequal(Tile tile1, Double rhs)
     
 _SQL_: `rf_unequal`
 
-Returns a `tile` column containing the element-wise inequality of `tile1` and `tile2`. 
+Returns a `tile` column containing the element-wise inequality of `tile1` and `rhs`. 
+
+#### round
+
+_Python_:
+
+    Tile round(Tile tile)
+
+_SQL_: `rf_round`
+
+Round cell values to the nearest integer without changing the cell type.
+
+#### exp
+
+_Python_:
+
+    Tile exp(Tile tile)
+
+_SQL_: `rf_exp`
+
+Performs cell-wise exponential.
+
+#### exp10
+
+_Python_:
+
+    Tile exp10(Tile tile)
+
+_SQL_: `rf_exp10`
+
+Compute 10 to the power of cell values.
+
+#### exp2
+
+_Python_:
+
+    Tile exp2(Tile tile)
+
+_SQL_: `rf_exp2`
+
+Compute 2 to the power of cell values.
+
+#### expm1
+
+_Python_:
+
+    Tile expm1(Tile tile)
+
+_SQL_: `rf_expm1`
+
+Performs cell-wise exponential, then subtract one. Inverse of @ref:[`log1p`](reference.md#log1p).
+
+#### log
+
+_Python_:
+
+    Tile log(Tile tile)
+
+_SQL_: `rf_log`
+
+Performs cell-wise natural logarithm.
+
+#### log10
+
+_Python_:
+
+    Tile log10(Tile tile)
+
+_SQL_: `rf_log10`
+
+Performs cell-wise logarithm with base 10.
+
+#### log2
+
+_Python_: 
+
+    Tile log2(Tile tile)
+
+_SQL_: `rf_log2`
+
+Performs cell-wise logarithm with base 2.
+
+#### log1p
+
+_Python_: 
+
+    Tile log1p(Tile tile)
+
+_SQL_: `rf_log1p`
+
+Performs natural logarithm of cell values plus one. Invers of @ref:[`expm1`](reference.md#expm1).
 
 ### Tile Statistics
 
@@ -435,7 +558,7 @@ import pyspark.functions as F
 spark.sql("""
  SELECT 1 as id, rf_tile_ones(5, 5, 'float32') as t 
  UNION
- SELECT 2 as id, rf_local_multiply_scalar(rf_tile_ones(5, 5, 'float32'), 3) as t 
+ SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, 'float32'), 3) as t 
  """).select(F.col('id'), tile_sum(F.col('t'))).show()
 
 
@@ -530,7 +653,7 @@ _Python_:
     
 _SQL_:  `rf_tile_histogram`
 
-Computes a statistical summary of cell values within each row of `tile`. Resulting column has the below schema. Note that several of the other `tile` statistics functions are convenience methods to extract parts of this result. Related is the @ref:[`agg_histogram`](reference.md#agg-histogram) which computes the statistics across all rows in a group.
+Computes a statistical summary of cell values within each row of `tile`. Resulting column has the below schema. Note that several of the other `tile` statistics functions are convenience methods to extract parts of this result. Related is the @ref:[`agg_approx_histogram`](reference.md#agg-approx-histogram) which computes the statistics across all rows in a group.
 
 ```
  |-- tile_histogram: struct (nullable = true)
@@ -593,7 +716,7 @@ _Python_:
     
 _SQL_: @ref:[`rf_agg_stats`](reference.md#agg-stats)`(tile).dataCells`
 
-Aggregates over the `tile` and return the count of data cells. Equivalent to @ref:[`agg_stats`](reference.md#agg-stats)`.dataCells`. C.F. @ref:[`data_cells`](reference.md#data-cells); equivalent code:
+Aggregates over the `tile` and return the count of data cells. Equivalent to @ref:[`agg_stats`](reference.md#agg-stats)`.dataCells`. C.F. @ref:[`data_cells`](reference.md#data_cells); equivalent code:
 
 ```python
 rf.select(agg_data_cells(rf.tile).alias('agg_data_cell')).show()
@@ -619,22 +742,22 @@ _Python_:
     
 _SQL_:  `rf_agg_stats`
 
-Aggregates over the `tile` and returns statistical summaries of cell values: number of data cells, number of nodata cells, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance ignore the presence of nodata. Equivalent to @ref:[`agg_histogram`](reference.md#agg-histogram)`(tile).stats`.
+Aggregates over the `tile` and returns statistical summaries of cell values: number of data cells, number of nodata cells, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance ignore the presence of nodata. 
 
-#### agg_histogram
+#### agg_approx_histogram
 
 _Python_:
 
-    Struct[Struct[Long, Long, Double, Double, Double, Double], Array[Struct[Double, Long]]] agg_histogram(Tile tile)
+    Struct[Struct[Long, Long, Double, Double, Double, Double], Array[Struct[Double, Long]]] agg_approx_histogram(Tile tile)
     
-_SQL_: `rf_agg_histogram`
+_SQL_: `rf_agg_approx_histogram`
 
 Aggregates over the `tile` return statistical summaries of the cell values, including a histogram, in the below schema. The `bins` array is of tuples of histogram values and counts. Typically values are plotted on the x-axis and counts on the y-axis. 
 
 Note that several of the other cell value statistics functions are convenience methods to extract parts of this result. Related is the @ref:[`tile_histogram`](reference.md#tile-histogram) function which operates on a single row at a time.
 
 ```
- |-- agg_histogram: struct (nullable = true)
+ |-- agg_approx_histogram: struct (nullable = true)
  |    |-- stats: struct (nullable = true)
  |    |    |-- dataCells: long (nullable = false)
  |    |    |-- noDataCells: long (nullable = false)
@@ -652,7 +775,7 @@ Note that several of the other cell value statistics functions are convenience m
 
 Local statistics compute the element-wise statistics across a DataFrame or group of `tile`s, resulting in a `tile` that has the same dimension. 
 
-Consider again our example for Tile Statistics and Aggregate Tile Statistics, this time apply @ref:[`local_agg_mean`](reference.md#local-agg-mean). We see that it is computing the element-wise mean across the two rows. In this case it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
+Consider again our example for Tile Statistics and Aggregate Tile Statistics, this time apply @ref:[`agg_local_mean`](reference.md#agg-local-mean). We see that it is computing the element-wise mean across the two rows. In this case it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
 
 
 ```python
@@ -660,7 +783,7 @@ import pyspark.functions as F
 lam = spark.sql("""
 SELECT 1 as id, rf_tile_ones(5, 5, 'float32') as t 
 UNION
-SELECT 2 as id, rf_local_multiply_scalar(rf_tile_ones(5, 5, 'float32'), 3) as t 
+SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, 'float32'), 3) as t 
 """).agg(local_agg_mean(F.col('t')).alias('l')) \
 
 ## local_agg_mean returns a tile
@@ -693,67 +816,70 @@ only showing top 10 rows
 ```
 
 
-#### local_agg_max 
+#### agg_local_max 
 
 _Python_:
 
-    Tile local_agg_max(Tile tile)
+    Tile agg_local_max(Tile tile)
     
-_SQL_: `rf_local_agg_max`
+_SQL_: `rf_agg_local_max`
 
 Compute the cell-local maximum operation over Tiles in a column. 
 
-#### local_agg_min 
+#### agg_local_min 
 
 _Python_:
 
-    Tile local_agg_min(Tile tile)
+    Tile agg_local_min(Tile tile)
     
-_SQL_: `rf_local_agg_min`
+_SQL_: `rf_agg_local_min`
 
 Compute the cell-local minimum operation over Tiles in a column. 
 
-#### local_agg_mean 
+#### agg_local_mean 
 
 _Python_:
 
-    Tile local_agg_mean(Tile tile)
+    Tile agg_local_mean(Tile tile)
     
-_SQL_: `rf_local_agg_mean`
+_SQL_: `rf_agg_local_mean`
 
 Compute the cell-local mean operation over Tiles in a column. 
 
-#### local_agg_data_cells 
+#### agg_local_data_cells 
 
 _Python_:
 
-    Tile local_agg_data_cells(Tile tile)
+    Tile agg_local_data_cells(Tile tile)
     
-_SQL_: `rf_local_agg_count`
+_SQL_: `rf_agg_local_data_cells`
 
 Compute the cell-local count of data cells over Tiles in a column. Returned `tile` has a cell type of `int32`.
 
-#### local_agg_no_data_cells
+#### agg_local_no_data_cells
 
 _Python_:
 
-    Tile local_agg_no_data_cells(Tile tile)
+    Tile agg_local_no_data_cells(Tile tile)
     
- Compute the cell-local count of nodata cells over Tiles in a column. Returned `tile` has a cell type of `int32`.
- Python only.
+_SQL_: `rf_agg_local_no_data_cells`
 
-#### local_agg_stats 
+Compute the cell-local count of nodata cells over Tiles in a column. Returned `tile` has a cell type of `int32`.
+
+#### agg_local_stats 
 
 _Python_:
 
-    Struct[Tile, Tile, Tile, Tile, Tile] local_agg_stats(Tile tile)
+    Struct[Tile, Tile, Tile, Tile, Tile] agg_local_stats(Tile tile)
     
-_SQL_: `rf_local_agg_stats`
+_SQL_: `rf_agg_local_stats`
 
 Compute cell-local aggregate count, minimum, maximum, mean, and variance for a column of Tiles. Returns a struct of five `tile`s.
 
 
-### Converting Tiles to Other Types
+### Converting Tiles 
+
+RasterFrames provides several ways to convert a `tile` into other data structures. See also functions for @ref:[creating tiles](reference.md#tile-creation).
 
 #### explode_tiles
 
@@ -816,5 +942,4 @@ Pretty print the tile values as plain text.
 
 [RasterFunctions]: astraea.spark.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
-
 
