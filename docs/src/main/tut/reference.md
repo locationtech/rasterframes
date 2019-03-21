@@ -208,7 +208,7 @@ _Python_:
 
 _SQL_: `Tile rf_assemble_tile(colIndex, rowIndex, cellData, numCols, numRows)`
 
-Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode_tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  In Python, the `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.md#cell_types).
+Create a Tile from columns of cell data and zero-based location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode_tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  In Python, the `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.md#cell_types).
 
 With the SQL API, a default cell type will be assigned based on the data type of the `cellData` column. You can call @ref:[`rf_convert_cell_type`](reference.md#convert_cell_type) on the resulting `tile` to guarantee the exact cell type and nodata specification. In the SQL API all arguments can be column expressions.
 
@@ -763,7 +763,7 @@ _Python_:
     
 _SQL_: `rf_explode_tiles`
 
-Create a row for each cell in `tile` columns. Many `tile` columns can be passed in, and the returned DataFrame will have one numeric column per input.  There will also be columns for `column_index` and `row_index`. Inverse of @ref:[`assemble_tile`](reference.md#assemble-tile). When using this function, be sure to have a unique identifier for rows in order to successfully invert the operation.
+Create a row for each cell in `tile` columns. Many `tile` columns can be passed in, and the returned DataFrame will have one numeric column per input.  There will also be columns for `column_index` and `row_index`. Inverse of @ref:[`assemble_tile`](reference.md#assemble_tile). When using this function, be sure to have a unique identifier for rows in order to successfully invert the operation.
 
 #### explode_tiles_sample
 
