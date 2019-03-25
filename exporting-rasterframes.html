@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -66,7 +66,7 @@ gtag('config', 'UA-106630615-1');
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="active page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="reference.html" class="page">Reference</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -121,7 +121,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="active page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="reference.html" class="page">Reference</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -149,22 +149,19 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <p>While the goal of RasterFrames is to make it as easy as possible to do your geospatial analysis with a single construct, it is helpful to be able to transform it into other representations for various use cases.</p>
 <h2><a href="#converting-to-array" name="converting-to-array" class="anchor"><span class="anchor-link"></span></a>Converting to Array</h2>
 <p>The cell values within a <code>Tile</code> are encoded internally as an array. There may be use cases where the additional context provided by the <code>Tile</code> construct is no longer needed and one would prefer to work with the underlying array data.</p>
-<p>The <a href="http://rasterframes.io/latest/api/astraea/spark/rasterframes/ColumnFunctions.html#tileToArray"><code>tileToArray</code></a> column function requires a type parameter to indicate the array element type you would like used. The following types may be used: <code>Int</code>, <code>Double</code>, <code>Byte</code>, <code>Short</code>, <code>Float</code></p>
-<pre class="prettyprint"><code class="language-scala">scala&gt; val withArrays = rf.withColumn(&quot;tileData&quot;, tileToArray[Short]($&quot;tile&quot;)).drop(&quot;tile&quot;)
-&lt;console&gt;:36: warning: method tileToArray in trait RasterFunctions is deprecated: Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use &quot;snake_case&quot; variant instead.
-       val withArrays = rf.withColumn(&quot;tileData&quot;, tileToArray[Short]($&quot;tile&quot;)).drop(&quot;tile&quot;)
-                                                  ^
-withArrays: org.apache.spark.sql.DataFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tileData: array&lt;smallint&gt;]
+<p>The <a href="http://rasterframes.io/latest/api/astraea/spark/rasterframes/ColumnFunctions.html#tile_to_array_int"><code>tile_to_array_int</code></a> column function requires a type parameter to indicate the array element type you would like used. The following types may be used: <code>Int</code>, <code>Double</code>, <code>Byte</code>, <code>Short</code>, <code>Float</code></p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; val withArrays = rf.withColumn(&quot;tileData&quot;, tile_to_array_int($&quot;tile&quot;)).drop(&quot;tile&quot;)
+withArrays: org.apache.spark.sql.DataFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tileData: array&lt;double&gt;]
 
 scala&gt; withArrays.show(5, 40)
 +-----------+----------------------------------------+
 |spatial_key|                                tileData|
 +-----------+----------------------------------------+
-|     [6, 3]|[11576, 12488, 9070, 9614, 10561, 112...|
-|     [4, 0]|[10155, 9839, 9296, 9495, 9921, 9962,...|
-|     [0, 0]|[14294, 14277, 13939, 13604, 14182, 1...|
-|     [4, 2]|[10844, 10802, 11270, 10893, 8469, 77...|
-|     [0, 2]|[8896, 9062, 9143, 9285, 9345, 9341, ...|
+|     [6, 3]|[11576.0, 12488.0, 9070.0, 9614.0, 10...|
+|     [4, 0]|[10155.0, 9839.0, 9296.0, 9495.0, 992...|
+|     [0, 0]|[14294.0, 14277.0, 13939.0, 13604.0, ...|
+|     [4, 2]|[10844.0, 10802.0, 11270.0, 10893.0, ...|
+|     [0, 2]|[8896.0, 9062.0, 9143.0, 9285.0, 9345...|
 +-----------+----------------------------------------+
 only showing top 5 rows
 
@@ -174,18 +171,18 @@ only showing top 5 rows
 &lt;console&gt;:36: warning: method arrayToTile in trait RasterFunctions is deprecated: Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use &quot;snake_case&quot; variant instead.
        val tileBack = withArrays.withColumn(&quot;tileAgain&quot;, arrayToTile($&quot;tileData&quot;, 128, 128))
                                                          ^
-tileBack: org.apache.spark.sql.DataFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tileData: array&lt;smallint&gt; ... 1 more field]
+tileBack: org.apache.spark.sql.DataFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tileData: array&lt;double&gt; ... 1 more field]
 
 scala&gt; tileBack.drop(&quot;tileData&quot;).show(5, 40)
-+-----------+--------------------------------------+
-|spatial_key|                             tileAgain|
-+-----------+--------------------------------------+
-|     [6, 3]|ShortRawArrayTile([S@1891c805,128,128)|
-|     [4, 0]|ShortRawArrayTile([S@4a4b2764,128,128)|
-|     [0, 0]|ShortRawArrayTile([S@71a35acb,128,128)|
-|     [4, 2]|ShortRawArrayTile([S@61ea139a,128,128)|
-|     [0, 2]|ShortRawArrayTile([S@109554ca,128,128)|
-+-----------+--------------------------------------+
++-----------+---------------------------------------+
+|spatial_key|                              tileAgain|
++-----------+---------------------------------------+
+|     [6, 3]|DoubleRawArrayTile([D@66051dcf,128,128)|
+|     [4, 0]|DoubleRawArrayTile([D@67744d8a,128,128)|
+|     [0, 0]|DoubleRawArrayTile([D@6bde6570,128,128)|
+|     [4, 2]|DoubleRawArrayTile([D@6c68b28b,128,128)|
+|     [0, 2]|DoubleRawArrayTile([D@6d367aea,128,128)|
++-----------+---------------------------------------+
 only showing top 5 rows
 
 </code></pre>
@@ -197,17 +194,17 @@ only showing top 5 rows
 &lt;console&gt;:36: warning: method arrayToTile in trait RasterFunctions is deprecated: Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use &quot;snake_case&quot; variant instead.
        val tileBackAgain = withArrays.withColumn(&quot;tileAgain&quot;, withNoData(arrayToTile($&quot;tileData&quot;, 128, 128), 3))
                                                                          ^
-tileBackAgain: org.apache.spark.sql.DataFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tileData: array&lt;smallint&gt; ... 1 more field]
+tileBackAgain: org.apache.spark.sql.DataFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tileData: array&lt;double&gt; ... 1 more field]
 
 scala&gt; tileBackAgain.drop(&quot;tileData&quot;).show(5, 50)
 +-----------+--------------------------------------------------+
 |spatial_key|                                         tileAgain|
 +-----------+--------------------------------------------------+
-|     [6, 3]|ShortUserDefinedNoDataArrayTile([S@2e3fb995,128...|
-|     [4, 0]|ShortUserDefinedNoDataArrayTile([S@77281c91,128...|
-|     [0, 0]|ShortUserDefinedNoDataArrayTile([S@394b1b99,128...|
-|     [4, 2]|ShortUserDefinedNoDataArrayTile([S@268f7bd7,128...|
-|     [0, 2]|ShortUserDefinedNoDataArrayTile([S@7b103c55,128...|
+|     [6, 3]|DoubleUserDefinedNoDataArrayTile([D@5f8c9544,12...|
+|     [4, 0]|DoubleUserDefinedNoDataArrayTile([D@4f6044fe,12...|
+|     [0, 0]|DoubleUserDefinedNoDataArrayTile([D@7e6d4b03,12...|
+|     [4, 2]|DoubleUserDefinedNoDataArrayTile([D@1e452295,12...|
+|     [0, 2]|DoubleUserDefinedNoDataArrayTile([D@8b56c22,128...|
 +-----------+--------------------------------------------------+
 only showing top 5 rows
 
@@ -232,22 +229,22 @@ scala&gt; equalized.select(aggStats($&quot;tile&quot;)).show(false)
 &lt;console&gt;:40: warning: method aggStats in trait RasterFunctions is deprecated: Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use &quot;snake_case&quot; variant instead.
        equalized.select(aggStats($&quot;tile&quot;)).show(false)
                         ^
-+---------+-----------+------+-------+-----------------+------------------+
-|dataCells|noDataCells|min   |max    |mean             |variance          |
-+---------+-----------+------+-------+-----------------+------------------+
-|387000   |71752      |7209.0|39217.0|10160.48549870801|3315238.5311127007|
-+---------+-----------+------+-------+-----------------+------------------+
++----------+-------------+------+-------+-----------------+------------------+
+|data_cells|no_data_cells|min   |max    |mean             |variance          |
++----------+-------------+------+-------+-----------------+------------------+
+|387000    |71752        |7209.0|39217.0|10160.48549870801|3315238.5311127007|
++----------+-------------+------+-------+-----------------+------------------+
 
 
 scala&gt; equalized.select(aggStats($&quot;equalized&quot;)).show(false)
 &lt;console&gt;:40: warning: method aggStats in trait RasterFunctions is deprecated: Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use &quot;snake_case&quot; variant instead.
        equalized.select(aggStats($&quot;equalized&quot;)).show(false)
                         ^
-+---------+-----------+---+-------+------------------+-------------------+
-|dataCells|noDataCells|min|max    |mean              |variance           |
-+---------+-----------+---+-------+------------------+-------------------+
-|458724   |28         |4.0|65535.0|32763.474431248418|3.025128587936561E8|
-+---------+-----------+---+-------+------------------+-------------------+
++----------+-------------+---+-------+------------------+-------------------+
+|data_cells|no_data_cells|min|max    |mean              |variance           |
++----------+-------------+---+-------+------------------+-------------------+
+|458724    |28           |4.0|65535.0|32763.474431248418|3.025128587936561E8|
++----------+-------------+---+-------+------------------+-------------------+
 
 </code></pre>
 <p>We write it out just like any other DataFrame, including the ability to specify partitioning:</p>
@@ -279,22 +276,22 @@ scala&gt; equalized.select(aggStats($&quot;tile&quot;)).show(false)
 &lt;console&gt;:41: warning: method aggStats in trait RasterFunctions is deprecated: Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use &quot;snake_case&quot; variant instead.
        equalized.select(aggStats($&quot;tile&quot;)).show(false)
                         ^
-+---------+-----------+------+-------+-----------------+------------------+
-|dataCells|noDataCells|min   |max    |mean             |variance          |
-+---------+-----------+------+-------+-----------------+------------------+
-|387000   |71752      |7209.0|39217.0|10160.48549870801|3315238.5311127007|
-+---------+-----------+------+-------+-----------------+------------------+
++----------+-------------+------+-------+-----------------+------------------+
+|data_cells|no_data_cells|min   |max    |mean             |variance          |
++----------+-------------+------+-------+-----------------+------------------+
+|387000    |71752        |7209.0|39217.0|10160.48549870801|3315238.5311127007|
++----------+-------------+------+-------+-----------------+------------------+
 
 
 scala&gt; equalized.select(aggStats($&quot;equalized&quot;)).show(false)
 &lt;console&gt;:41: warning: method aggStats in trait RasterFunctions is deprecated: Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use &quot;snake_case&quot; variant instead.
        equalized.select(aggStats($&quot;equalized&quot;)).show(false)
                         ^
-+---------+-----------+---+-------+------------------+-------------------+
-|dataCells|noDataCells|min|max    |mean              |variance           |
-+---------+-----------+---+-------+------------------+-------------------+
-|458724   |28         |4.0|65535.0|32763.474431248418|3.025128587936561E8|
-+---------+-----------+---+-------+------------------+-------------------+
++----------+-------------+---+-------+------------------+-------------------+
+|data_cells|no_data_cells|min|max    |mean              |variance           |
++----------+-------------+---+-------+------------------+-------------------+
+|458724    |28           |4.0|65535.0|32763.474431248418|3.025128587936561E8|
++----------+-------------+---+-------+------------------+-------------------+
 
 </code></pre>
 <h2><a href="#exporting-a-raster" name="exporting-a-raster" class="anchor"><span class="anchor-link"></span></a>Exporting a Raster</h2>
@@ -387,7 +384,7 @@ org.apache.spark.rdd.RDD[(geotrellis.spark.SpatialKey, geotrellis.raster.Tile)]
 scala.Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]
 </code></pre>
 <div class="nav-next">
-<p><strong>Next:</strong> <a href="reference.html">Reference</a></p>
+<p><strong>Next:</strong> <a href="reference.html">Function Reference</a></p>
 </div>
 </div>
 <div class="large-3 show-for-large column" data-sticky-container>

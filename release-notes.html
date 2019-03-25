@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -66,7 +66,7 @@ gtag('config', 'UA-106630615-1');
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="reference.html" class="page">Reference</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="active page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -121,7 +121,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="ml/classification.html" class="page">Classification</a></li>
   </ul></li>
   <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="reference.html" class="page">Reference</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="active page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -152,6 +152,13 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   <li>Introduced at the source level the concept of a <code>RasterSource</code> and <code>RasterRef</code>, enabling lazy/delayed read of sub-scene tiles.</li>
   <li><em>Deprecation</em>: Tile column functions (in <code>RasterFunctions</code>) and SQL registered names have all been renamed to follow <code>snake_case</code> conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.</li>
   <li>Added <code>withKryoSerialization</code> extension methods on <code>SparkSession.Builder</code> and <code>SparkConf</code>.</li>
+  <li><em>Breaking</em>: In Scala and SQL, <code>..._scalar</code> functions (e.g. <code>local_add_scalar</code>) have been removed. Non-scalar forms now dynamically detect type of right hand side.</li>
+  <li><em>Breaking</em>: <code>tileToArray</code> has been replaced with <code>tile_to_array_double</code> and <code>tile_to_array_int</code>.</li>
+  <li>Added <code>render_matrix</code> debugging function.</li>
+  <li><em>Breaking</em>: renamed <code>agg_histogram</code> to <code>agg_approx_histogram</code>, <code>local_agg_stats</code> to <code>agg_local_stats</code>, <code>local_agg_max</code> to <code>agg_local_max</code>, <code>local_agg_min</code> to <code>agg_local_min</code>, <code>local_agg_mean</code> to <code>agg_local_mean</code>, <code>local_agg_data_cells</code> to <code>agg_local_data_cells</code>, <code>local_agg_no_data_cells</code> to <code>agg_local_no_data_cells</code>.</li>
+  <li><em>Breaking</em>: <code>CellHistogram</code> no longer carries along approximate statistics, due to confusing behavior. Use <code>agg_stats</code> instead.</li>
+  <li>Introduced <code>LocalCellStatistics</code> class to wrap together results from <code>LocalStatsAggregate</code>.</li>
+  <li><em>Breaking</em>: <code>TileDimensions</code> moved from <code>astraea.spark.rasterframes</code> to <code>astraea.spark.rasterframes.model</code>.</li>
 </ul>
 <h2><a href="#0-7-x" name="0-7-x" class="anchor"><span class="anchor-link"></span></a>0.7.x</h2>
 <h3><a href="#0-7-1" name="0-7-1" class="anchor"><span class="anchor-link"></span></a>0.7.1</h3>

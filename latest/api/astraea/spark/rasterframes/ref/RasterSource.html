@@ -52,7 +52,10 @@
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Abstraction over fetching geospatial raster data.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/21/18</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@Experimental</span><span class="args">()</span>
+              
+        </dd><dt>Since</dt><dd><p>8/21/18</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="ProjectedRasterLike.html" class="extype" name="astraea.spark.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a>, <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>, <span class="extype" name="geotrellis.raster.Grid">Grid</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
@@ -251,6 +254,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ref.RasterSource#tags" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="tags:Option[geotrellis.raster.io.geotiff.Tags]"></a>
+      <a id="tags:Option[Tags]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tags</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.io.geotiff.Tags">Tags</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.RasterSource@tags:Option[geotrellis.raster.io.geotiff.Tags]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="astraea.spark.rasterframes.ref.RasterSource#timestamp" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="timestamp:Option[java.time.ZonedDateTime]"></a>
       <a id="timestamp:Option[ZonedDateTime]"></a>
@@ -642,6 +662,40 @@
       </a>
     </span>
       
+    </li><li name="astraea.spark.rasterframes.ref.RasterSource#readAllMultiband" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="readAllMultiband():Seq[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]"></a>
+      <a id="readAllMultiband():Seq[Raster[MultibandTile]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readAllMultiband</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.RasterSource@readAllMultiband():Seq[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.ref.RasterSource#readMultiband" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="readMultiband(extent:geotrellis.vector.Extent):geotrellis.raster.Raster[geotrellis.raster.MultibandTile]"></a>
+      <a id="readMultiband(Extent):Raster[MultibandTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readMultiband</span><span class="params">(<span name="extent">extent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.RasterSource@readMultiband(extent:geotrellis.vector.Extent):geotrellis.raster.Raster[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Reads the given extent as a single multiband raster.</p>
     </li><li name="geotrellis.raster.Grid#size" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="size:Int"></a>
       <a id="size:Int"></a>
@@ -676,6 +730,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ref.RasterSource#tileContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tileContext:astraea.spark.rasterframes.model.TileContext"></a>
+      <a id="tileContext:TileContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileContext</span><span class="result">: <a href="../model/TileContext.html" class="extype" name="astraea.spark.rasterframes.model.TileContext">TileContext</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.RasterSource@tileContext:astraea.spark.rasterframes.model.TileContext" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

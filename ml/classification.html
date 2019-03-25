@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -66,7 +66,7 @@ gtag('config', 'UA-106630615-1');
     <li><a href="../ml/classification.html" class="active page">Classification</a></li>
   </ul></li>
   <li><a href="../exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="../reference.html" class="page">Reference</a></li>
+  <li><a href="../reference.html" class="page">Function Reference</a></li>
   <li><a href="../release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -121,7 +121,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="../ml/classification.html" class="active page">Classification</a></li>
   </ul></li>
   <li><a href="../exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="../reference.html" class="page">Reference</a></li>
+  <li><a href="../reference.html" class="page">Function Reference</a></li>
   <li><a href="../release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -216,11 +216,11 @@ val target = readTiff(filenamePattern.format(&quot;Labels&quot;)).
 </code></pre>
 <p>Take a peek at what kind of label data we have to work with.</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; target.select(agg_stats(target(targetCol))).show
-+---------+-----------+---+---+------------------+------------------+
-|dataCells|noDataCells|min|max|              mean|          variance|
-+---------+-----------+---+---+------------------+------------------+
-|     1626|      30674|0.0|2.0|0.8031980319803198|0.2798421711154381|
-+---------+-----------+---+---+------------------+------------------+
++----------+-------------+---+---+------------------+------------------+
+|data_cells|no_data_cells|min|max|              mean|          variance|
++----------+-------------+---+---+------------------+------------------+
+|      1626|        30674|0.0|2.0|0.8031980319803198|0.2798421711154381|
++----------+-------------+---+---+------------------+------------------+
 
 </code></pre>
 <p>Join the target label RasterFrame with the band tiles to create our analytics base table</p>
@@ -265,7 +265,7 @@ val trainer = new CrossValidator().
 </code></pre>
 <p>Push the &ldquo;go button&rdquo;:</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val model = trainer.fit(abt)
-model: org.apache.spark.ml.tuning.CrossValidatorModel = cv_fe7476a7bd47
+model: org.apache.spark.ml.tuning.CrossValidatorModel = cv_fc7cc9e49394
 </code></pre>
 <h2><a href="#model-evaluation" name="model-evaluation" class="anchor"><span class="anchor-link"></span></a>Model Evaluation</h2>
 <p>To view the model&rsquo;s performance we format the <code>paramGrid</code> settings used for each model and render the parameter/performance association.</p>

@@ -75,7 +75,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="CellHistogram.html"><span class="name">CellHistogram</span></a><span class="params">(<span name="stats">stats: <a href="CellStatistics.html" class="extype" name="astraea.spark.rasterframes.stats.CellStatistics">CellStatistics</a></span>, <span name="bins">bins: <span class="extype" name="scala.Seq">Seq</span>[<a href="CellHistogram$$Bin.html" class="extype" name="astraea.spark.rasterframes.stats.CellHistogram.Bin">Bin</a>]</span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="CellHistogram.html"><span class="name">CellHistogram</span></a><span class="params">(<span name="bins">bins: <span class="extype" name="scala.Seq">Seq</span>[<a href="CellHistogram$$Bin.html" class="extype" name="astraea.spark.rasterframes.stats.CellHistogram.Bin">Bin</a>]</span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#astraea.spark.rasterframes.stats.package@CellHistogramextendsProductwithSerializable" title="Permalink" target="_top">
@@ -93,7 +93,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="CellStatistics.html"><span class="name">CellStatistics</span></a><span class="params">(<span name="dataCells">dataCells: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="noDataCells">noDataCells: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="min">min: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="max">max: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="mean">mean: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="variance">variance: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="CellStatistics.html"><span class="name">CellStatistics</span></a><span class="params">(<span name="data_cells">data_cells: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="no_data_cells">no_data_cells: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="min">min: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="max">max: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="mean">mean: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="variance">variance: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#astraea.spark.rasterframes.stats.package@CellStatisticsextendsProductwithSerializable" title="Permalink" target="_top">
@@ -102,6 +102,23 @@
     </span>
       <p class="shortcomment cmt">Container for computed statistics over cells.</p><div class="fullcomment"><div class="comment cmt"><p>Container for computed statistics over cells.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>4/3/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.stats.LocalCellStatistics" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LocalCellStatisticsextendsProductwithSerializable"></a>
+      <a id="LocalCellStatistics:LocalCellStatistics"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="LocalCellStatistics.html"><span class="name">LocalCellStatistics</span></a><span class="params">(<span name="count">count: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="min">min: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="max">max: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="mean">mean: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="variance">variance: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.stats.package@LocalCellStatisticsextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li></ol>
             </div>
 

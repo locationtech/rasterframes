@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -66,7 +66,7 @@ gtag('config', 'UA-106630615-1');
     <li><a href="../ml/classification.html" class="page">Classification</a></li>
   </ul></li>
   <li><a href="../exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="../reference.html" class="page">Reference</a></li>
+  <li><a href="../reference.html" class="page">Function Reference</a></li>
   <li><a href="../release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC3
+0.8.0-astraea*
 </div>
 </div>
 <div class="nav-toc">
@@ -121,7 +121,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
     <li><a href="../ml/classification.html" class="page">Classification</a></li>
   </ul></li>
   <li><a href="../exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
-  <li><a href="../reference.html" class="page">Reference</a></li>
+  <li><a href="../reference.html" class="page">Function Reference</a></li>
   <li><a href="../release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
 </div>
@@ -153,7 +153,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 import geotrellis.raster.equalization._
 
 scala&gt; val equalizer = udf((t: Tile) =&gt; t.equalize())
-equalizer: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.rf.TileUDT@69438db0,Some(List(org.apache.spark.sql.rf.TileUDT@69438db0)))
+equalizer: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.rf.TileUDT@1c078424,Some(List(org.apache.spark.sql.rf.TileUDT@1c078424)))
 
 scala&gt; val equalized = rf.select(equalizer($&quot;tile&quot;) as &quot;equalized&quot;)
 equalized: org.apache.spark.sql.DataFrame = [equalized: tile]
@@ -173,12 +173,12 @@ only showing top 5 rows
 </code></pre>
 <p>Here&rsquo;s an example downsampling a tile and rendering each tile as a matrix of numerical values.</p>
 <pre class="prettyprint"><code class="language-scala">scala&gt; val downsample = udf((t: Tile) =&gt; t.resample(4, 4))
-downsample: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.rf.TileUDT@69438db0,Some(List(org.apache.spark.sql.rf.TileUDT@69438db0)))
+downsample: org.apache.spark.sql.expressions.UserDefinedFunction = UserDefinedFunction(&lt;function1&gt;,org.apache.spark.sql.rf.TileUDT@1c078424,Some(List(org.apache.spark.sql.rf.TileUDT@1c078424)))
 
 scala&gt; val downsampled = rf.where(no_data_cells($&quot;tile&quot;) === 0).select(downsample($&quot;tile&quot;) as &quot;minime&quot;)
 downsampled: org.apache.spark.sql.DataFrame = [minime: tile]
 
-scala&gt; downsampled.select(tile_to_array[Float]($&quot;minime&quot;) as &quot;cell_values&quot;).limit(2).show(false)
+scala&gt; downsampled.select(tile_to_array_double($&quot;minime&quot;) as &quot;cell_values&quot;).limit(2).show(false)
 +-----------------------------------------------------------------------------------------------------------------------------------------+
 |cell_values                                                                                                                              |
 +-----------------------------------------------------------------------------------------------------------------------------------------+

@@ -47,13 +47,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">CatalystSerializer</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">CatalystSerializer</span><span class="result"> extends <a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -71,7 +71,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="astraea.spark.rasterframes.encoders.CatalystSerializer"><span>CatalystSerializer</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="astraea.spark.rasterframes.encoders.CatalystSerializer"><span>CatalystSerializer</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="astraea.spark.rasterframes.encoders.StandardSerializers"><span>StandardSerializers</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -272,7 +272,41 @@ to the underlying storage construct.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.encoders.CatalystSerializer#cellTypeSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#boundsSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="boundsSerializer[T](implicitevidence$1:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.KeyBounds[T]]"></a>
+      <a id="boundsSerializer[T](CatalystSerializer[T]):CatalystSerializer[KeyBounds[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">boundsSerializer</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers.boundsSerializer.T">T</span>]</span>)</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.KeyBounds">KeyBounds</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers.boundsSerializer.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@boundsSerializer[T](implicitevidence$1:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.KeyBounds[T]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#cellSizeSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="cellSizeSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.raster.CellSize]"></a>
+      <a id="cellSizeSerializer:CatalystSerializer[CellSize]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cellSizeSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.raster.CellSize">CellSize</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@cellSizeSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.raster.CellSize]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#cellTypeSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="cellTypeSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.raster.CellType]"></a>
       <a id="cellTypeSerializer:CatalystSerializer[CellType]"></a>
       <h4 class="signature">
@@ -288,7 +322,7 @@ to the underlying storage construct.
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -312,7 +346,7 @@ to the underlying storage construct.
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.encoders.CatalystSerializer#crsSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#crsSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="crsSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.proj4.CRS]"></a>
       <a id="crsSerializer:CatalystSerializer[CRS]"></a>
       <h4 class="signature">
@@ -328,8 +362,8 @@ to the underlying storage construct.
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="astraea.spark.rasterframes.encoders.CatalystSerializer#envelopeSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#envelopeSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="envelopeSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[com.vividsolutions.jts.geom.Envelope]"></a>
       <a id="envelopeSerializer:CatalystSerializer[Envelope]"></a>
       <h4 class="signature">
@@ -345,7 +379,7 @@ to the underlying storage construct.
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -380,7 +414,7 @@ to the underlying storage construct.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.encoders.CatalystSerializer#extentSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#extentSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="extentSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.vector.Extent]"></a>
       <a id="extentSerializer:CatalystSerializer[Extent]"></a>
       <h4 class="signature">
@@ -396,7 +430,7 @@ to the underlying storage construct.
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -471,6 +505,23 @@ to the underlying storage construct.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#layoutDefinitionSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="layoutDefinitionSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.tiling.LayoutDefinition]"></a>
+      <a id="layoutDefinitionSerializer:CatalystSerializer[LayoutDefinition]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layoutDefinitionSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.tiling.LayoutDefinition">LayoutDefinition</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@layoutDefinitionSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.tiling.LayoutDefinition]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -522,23 +573,91 @@ to the underlying storage construct.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="astraea.spark.rasterframes.encoders.CatalystSerializer#rasterRefSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rasterRefSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[astraea.spark.rasterframes.ref.RasterRef]"></a>
-      <a id="rasterRefSerializer:CatalystSerializer[RasterRef]"></a>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#projectedExtentSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="projectedExtentSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.vector.ProjectedExtent]"></a>
+      <a id="projectedExtentSerializer:CatalystSerializer[ProjectedExtent]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">rasterRefSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<a href="../ref/RasterRef.html" class="extype" name="astraea.spark.rasterframes.ref.RasterRef">RasterRef</a>]</span>
+        <span class="name">projectedExtentSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.vector.ProjectedExtent">ProjectedExtent</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@rasterRefSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[astraea.spark.rasterframes.ref.RasterRef]" title="Permalink" target="_top">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@projectedExtentSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.vector.ProjectedExtent]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#spaceTimeKeyTLMSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spaceTimeKeyTLMSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="spaceTimeKeyTLMSerializer:CatalystSerializer[TileLayerMetadata[SpaceTimeKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spaceTimeKeyTLMSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@spaceTimeKeyTLMSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#spacetimeKeySerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spacetimeKeySerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpaceTimeKey]"></a>
+      <a id="spacetimeKeySerializer:CatalystSerializer[SpaceTimeKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spacetimeKeySerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@spacetimeKeySerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpaceTimeKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#spatialKeySerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialKeySerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpatialKey]"></a>
+      <a id="spatialKeySerializer:CatalystSerializer[SpatialKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialKeySerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@spatialKeySerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#spatialKeyTLMSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialKeyTLMSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]"></a>
+      <a id="spatialKeyTLMSerializer:CatalystSerializer[TileLayerMetadata[SpatialKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialKeyTLMSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@spatialKeyTLMSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -556,6 +675,40 @@ to the underlying storage construct.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#tileLayerMetadataSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileLayerMetadataSerializer[T](implicitevidence$2:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[T]]"></a>
+      <a id="tileLayerMetadataSerializer[T](CatalystSerializer[T]):CatalystSerializer[TileLayerMetadata[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileLayerMetadataSerializer</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers.tileLayerMetadataSerializer.T">T</span>]</span>)</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers.tileLayerMetadataSerializer.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@tileLayerMetadataSerializer[T](implicitevidence$2:astraea.spark.rasterframes.encoders.CatalystSerializer[T]):astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[T]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.encoders.StandardSerializers#tileLayoutSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileLayoutSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.raster.TileLayout]"></a>
+      <a id="tileLayoutSerializer:CatalystSerializer[TileLayout]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileLayoutSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="astraea.spark.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.raster.TileLayout">TileLayout</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.encoders.CatalystSerializer$@tileLayoutSerializer:astraea.spark.rasterframes.encoders.CatalystSerializer[geotrellis.raster.TileLayout]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -655,6 +808,8 @@ to the underlying storage construct.
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="astraea.spark.rasterframes.encoders.StandardSerializers">
+              <h3>Inherited from <a href="StandardSerializers.html" class="extype" name="astraea.spark.rasterframes.encoders.StandardSerializers">StandardSerializers</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
