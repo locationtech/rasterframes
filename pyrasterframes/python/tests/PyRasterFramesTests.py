@@ -101,6 +101,7 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('ascii', render_ascii(self.tileCol)) \
             .withColumn('log', log(self.tileCol)) \
             .withColumn('exp', exp(self.tileCol)) \
+            .withColumn('expm1', expm1(self.tileCol)) \
             .withColumn('round', round(self.tileCol))
 
         df.show()

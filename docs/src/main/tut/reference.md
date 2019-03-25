@@ -547,7 +547,7 @@ _Python_:
 
 _SQL_: `rf_log1p`
 
-Performs natural logarithm of cell values plus one. Invers of @ref:[`expm1`](reference.md#expm1).
+Performs natural logarithm of cell values plus one. Inverse of @ref:[`expm1`](reference.md#expm1).
 
 ### Tile Statistics
 

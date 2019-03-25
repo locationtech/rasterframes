@@ -243,7 +243,7 @@ _rf_column_functions = {
     'exp': 'Performs cell-wise exponential',
     'exp2': 'Compute 2 to the power of cell values',
     'exp10': 'Compute 10 to the power of cell values',
-    'exp1m': 'Performs cell-wise exponential, then subtract one',
+    'expm1': 'Performs cell-wise exponential, then subtract one',
     'resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
 
     # ------- JTS functions -------
