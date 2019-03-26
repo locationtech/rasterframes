@@ -40,15 +40,7 @@ object ProjectPlugin extends AutoPlugin {
     rfSparkVersion in ThisBuild := "2.3.2" ,
     rfGeoTrellisVersion in ThisBuild := "2.1.0",
     rfGeoMesaVersion in ThisBuild := "2.1.0",
-
-    credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
-    publishTo := {
-      val base = "https://s22s.mycloudrepo.io/repositories"
-      if (isSnapshot.value)
-        Some("Astraea Internal Snapshots" at s"$base/snapshots/")
-      else
-        Some("Astraea Internal Releases" at s"$base/releases/")
-    },
+    publishTo := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
@@ -119,17 +111,17 @@ object ProjectPlugin extends AutoPlugin {
           MergeStrategy.rename
         case PathList("META-INF", xs @ _*) ⇒
           xs map {_.toLowerCase} match {
-            case ("manifest.mf" :: Nil) | ("index.list" :: Nil) | ("dependencies" :: Nil) ⇒
+            case "manifest.mf" :: Nil | "index.list" :: Nil | "dependencies" :: Nil ⇒
               MergeStrategy.discard
-            case ps @ (x :: _) if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") ⇒
+            case ps @ _ :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") ⇒
               MergeStrategy.discard
             case "plexus" :: _ ⇒
               MergeStrategy.discard
             case "services" :: _ ⇒
               MergeStrategy.filterDistinctLines
-            case ("spring.schemas" :: Nil) | ("spring.handlers" :: Nil) ⇒
+            case "spring.schemas" :: Nil | "spring.handlers" :: Nil ⇒
               MergeStrategy.filterDistinctLines
-            case ("maven" :: rest ) if rest.lastOption.exists(_.startsWith("pom")) ⇒
+            case "maven" :: rest if rest.lastOption.exists(_.startsWith("pom")) ⇒
               MergeStrategy.discard
             case _ ⇒ MergeStrategy.deduplicate
           }
@@ -139,8 +131,8 @@ object ProjectPlugin extends AutoPlugin {
     )
 
     def releaseSettings: Seq[Def.Setting[_]] = {
-      val buildSite: (State) ⇒ State = releaseStepTask(makeSite in LocalProject("docs"))
-      val publishSite: (State) ⇒ State = releaseStepTask(ghpagesPushSite in LocalProject("docs"))
+      val buildSite: State ⇒ State = releaseStepTask(makeSite in LocalProject("docs"))
+      val publishSite: State ⇒ State = releaseStepTask(ghpagesPushSite in LocalProject("docs"))
       Seq(
         releaseIgnoreUntrackedFiles := true,
         releaseTagName := s"${version.value}",
