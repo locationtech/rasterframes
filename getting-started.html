@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-96d83aa9
+0.8.0-RC4
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-96d83aa9
+0.8.0-RC4
 </div>
 </div>
 <div class="nav-toc">
@@ -155,25 +155,25 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <p>Additional instructions can be found <a href="https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md">here</a>.</p>
 <h2><a href="#general-setup" name="general-setup" class="anchor"><span class="anchor-link"></span></a>General Setup</h2>
 <p><em>RasterFrames</em> is published via <a href="https://search.maven.org/search?q=g:org.locationtech.rasterframes">Maven Central</a> (click link to see latest versions).</p>
-<p>To use RasterFrames, add the following library dependencies:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes" % "0.8.0-96d83aa9"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<p>To use RasterFrames, add the following library dependencies:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes" % "0.8.0-RC4"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;org.locationtech.rasterframes&lt;/groupId&gt;
   &lt;artifactId&gt;rasterframes_2.11&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0-96d83aa9&lt;/version&gt;
+  &lt;version&gt;0.8.0-RC4&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.locationtech.rasterframes', name: 'rasterframes_2.11', version: '0.8.0-96d83aa9'
-}</code></pre></dd></dl><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes-datasource" % "0.8.0-96d83aa9"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+  compile group: 'org.locationtech.rasterframes', name: 'rasterframes_2.11', version: '0.8.0-RC4'
+}</code></pre></dd></dl><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes-datasource" % "0.8.0-RC4"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;org.locationtech.rasterframes&lt;/groupId&gt;
   &lt;artifactId&gt;rasterframes-datasource_2.11&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0-96d83aa9&lt;/version&gt;
+  &lt;version&gt;0.8.0-RC4&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.locationtech.rasterframes', name: 'rasterframes-datasource_2.11', version: '0.8.0-96d83aa9'
+  compile group: 'org.locationtech.rasterframes', name: 'rasterframes-datasource_2.11', version: '0.8.0-RC4'
 }</code></pre></dd></dl>
-<p>Optional:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes-experimental" % "0.8.0-96d83aa9"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<p>Optional:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes-experimental" % "0.8.0-RC4"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;org.locationtech.rasterframes&lt;/groupId&gt;
   &lt;artifactId&gt;rasterframes-experimental_2.11&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0-96d83aa9&lt;/version&gt;
+  &lt;version&gt;0.8.0-RC4&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.locationtech.rasterframes', name: 'rasterframes-experimental_2.11', version: '0.8.0-96d83aa9'
+  compile group: 'org.locationtech.rasterframes', name: 'rasterframes-experimental_2.11', version: '0.8.0-RC4'
 }</code></pre></dd></dl>
 <p>It assumes that SparkSQL 2.3.x is available in the runtime classpath. Here&rsquo;s how to add it explicitly:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.apache.spark" % "spark-sql" % "2.3.2"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;org.apache.spark&lt;/groupId&gt;
