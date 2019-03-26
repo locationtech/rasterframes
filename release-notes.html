@@ -45,7 +45,7 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-astraea*
+0.8.0-96d83aa9
 </div>
 </div>
 <div class="nav-toc">
@@ -100,7 +100,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-astraea*
+0.8.0-96d83aa9
 </div>
 </div>
 <div class="nav-toc">
@@ -149,6 +149,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
 <h3><a href="#0-8-0" name="0-8-0" class="anchor"><span class="anchor-link"></span></a>0.8.0</h3>
 <ul>
+  <li>Added new tile functions <code>round</code>, <code>log</code>, <code>log10</code>, <code>log2</code>, <code>log1p</code>, <code>exp</code>, <code>exp10</code>, <code>exp2</code>, <code>expm1</code>, <code>resample</code>, <code>resample</code>.</li>
   <li>Introduced at the source level the concept of a <code>RasterSource</code> and <code>RasterRef</code>, enabling lazy/delayed read of sub-scene tiles.</li>
   <li><em>Deprecation</em>: Tile column functions (in <code>RasterFunctions</code>) and SQL registered names have all been renamed to follow <code>snake_case</code> conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.</li>
   <li>Added <code>withKryoSerialization</code> extension methods on <code>SparkSession.Builder</code> and <code>SparkConf</code>.</li>
