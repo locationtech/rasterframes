@@ -216,19 +216,62 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(result == 1)  # short hand for all values are true
 
 
-def suite():
-    functionTests = unittest.TestSuite()
-    functionTests.addTest(RasterFunctionsTest('test_identify_columns'))
-    functionTests.addTest(RasterFunctionsTest('test_tile_operations'))
-    functionTests.addTest(RasterFunctionsTest('test_general'))
-    functionTests.addTest(RasterFunctionsTest('test_rasterize'))
-    functionTests.addTest(RasterFunctionsTest('test_reproject'))
-    functionTests.addTest(RasterFunctionsTest('test_aggregations'))
-    functionTests.addTest(RasterFunctionsTest('test_explode'))
-    functionTests.addTest(RasterFunctionsTest('test_sql'))
-    functionTests.addTest(RasterFunctionsTest('test_maskByValue'))
-    functionTests.addTest(RasterFunctionsTest('test_resample'))
-    return functionTests
+    def test_geomesa_pyspark(self):
+        from pyspark.sql.functions import lit, udf
+        import shapely
+        import pandas as pd
+        import numpy.testing
 
+        pandas_df = pd.DataFrame({
+            'eye': ['a', 'b', 'c', 'd'],
+            'x': [0.0, 1.0, 2.0, 3.0],
+            'y': [-4.0, -3.0, -2.0, -1.0],
+        })
+        df = self.spark.createDataFrame(pandas_df)
+        df = df.withColumn("point_geom",
+                           st_point(df.x, df.y)
+                           )
+        df = df.withColumn("poly_geom", st_bufferPoint(df.point_geom, lit(1250.0)))
+
+        # Use python shapely UDT in a UDF
+        @udf("double")
+        def area_fn(g):
+            return g.area
+
+        @udf("double")
+        def length_fn(g):
+            return g.length
+
+        df = df.withColumn("poly_area", area_fn(df.poly_geom))
+        df = df.withColumn("poly_len", length_fn(df.poly_geom))
+
+
+        # Collect to python driver in shapely UDT
+        pandas_df_out = df.toPandas()
+
+        # Confirm we get a shapely type back from st_* function
+        assert(type(pandas_df_out.poly_geom.iloc[0]) is shapely.geometry.Polygon)
+
+        # And our spark-side manipulations were correct
+        xs_correct = pandas_df_out.point_geom.apply(lambda g: g.coords[0][0]) == pandas_df.x
+        self.assertTrue(all(xs_correct))
+        centroid_ys = pandas_df_out.poly_geom.apply(lambda g:
+                                                      g.centroid.coords[0][1]).tolist()
+        numpy.testing.assert_almost_equal(centroid_ys, pandas_df.y.tolist())
+
+        # Including from UDF's
+        numpy.testing.assert_almost_equal(
+            pandas_df_out.poly_geom.apply(lambda g: g.area).values,
+            pandas_df_out.poly_area.values
+        )
+        numpy.testing.assert_almost_equal(
+            pandas_df_out.poly_geom.apply(lambda g: g.length).values,
+            pandas_df_out.poly_len.values
+        )
+
+
+def suite():
+    function_tests = unittest.TestSuite()
+    return function_tests
 
 unittest.TextTestRunner().run(suite())

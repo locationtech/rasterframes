@@ -118,6 +118,8 @@ setup_args = dict(
     license='Apache 2',
     setup_requires=['pytest-runner', pyspark_ver, 'pathlib'],
     install_requires=[
+        'pytz', 'shapely',
+        # 'geomesa-pyspark'
         # pyspark_ver,
         # 'pathlib'
     ],
@@ -125,7 +127,8 @@ setup_args = dict(
         pyspark_ver,
         'pytest==3.4.2',
         'pypandoc',
-        'numpy>=1.7'
+        'numpy>=1.7',
+        'pandas',
     ],
     test_suite="pytest-runner",
     packages=find_packages(exclude=['tests', 'examples']),
