@@ -119,7 +119,6 @@ setup_args = dict(
     setup_requires=['pytest-runner', pyspark_ver, 'pathlib'],
     install_requires=[
         'pytz', 'shapely',
-        # 'geomesa-pyspark'
         # pyspark_ver,
         # 'pathlib'
     ],

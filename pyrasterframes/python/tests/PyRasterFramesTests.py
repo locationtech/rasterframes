@@ -3,6 +3,7 @@ from pyspark.sql import SparkSession, Column
 from pyspark.sql.functions import *
 from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
+from geomesa_pyspark.types import *
 from pathlib import Path
 import os
 import unittest
@@ -217,7 +218,7 @@ class RasterFunctionsTest(unittest.TestCase):
 
 
     def test_geomesa_pyspark(self):
-        from pyspark.sql.functions import lit, udf
+        from pyspark.sql.functions import lit, udf, sum
         import shapely
         import pandas as pd
         import numpy.testing
@@ -245,16 +246,31 @@ class RasterFunctionsTest(unittest.TestCase):
         df = df.withColumn("poly_area", area_fn(df.poly_geom))
         df = df.withColumn("poly_len", length_fn(df.poly_geom))
 
+        # Return UDT in a UDF!
+        def some_point(g):
+            return g.representative_point()
+
+        some_point_udf = udf(some_point, PointUDT())
+
+        df = df.withColumn("any_point", some_point_udf(df.poly_geom))
+        # spark-side UDF/UDT are correct
+        intersect_total = df.agg(sum(
+            st_intersects(df.poly_geom, df.any_point).astype('double')
+        ).alias('s')).collect()[0].s
+        self.assertTrue(intersect_total == df.count())
+
 
         # Collect to python driver in shapely UDT
         pandas_df_out = df.toPandas()
 
-        # Confirm we get a shapely type back from st_* function
-        assert(type(pandas_df_out.poly_geom.iloc[0]) is shapely.geometry.Polygon)
+        # Confirm we get a shapely type back from st_* function and UDF
+        self.assertIsInstance(pandas_df_out.poly_geom.iloc[0], shapely.geometry.Polygon)
+        self.assertIsInstance(pandas_df_out.any_point.iloc[0], shapely.geometry.Point)
 
         # And our spark-side manipulations were correct
         xs_correct = pandas_df_out.point_geom.apply(lambda g: g.coords[0][0]) == pandas_df.x
         self.assertTrue(all(xs_correct))
+
         centroid_ys = pandas_df_out.poly_geom.apply(lambda g:
                                                       g.centroid.coords[0][1]).tolist()
         numpy.testing.assert_almost_equal(centroid_ys, pandas_df.y.tolist())
