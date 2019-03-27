@@ -14,12 +14,6 @@ ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
 
 ## List of Available SQL and Python Functions
 
-The convention in this document will be to define the function signature as below, with its return type, the function name, and named arguments with their types.
-
-```
-ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
-```
-
 @@toc { depth=3 }
 
 ### Vector Operations
@@ -31,6 +25,7 @@ RasterFrames provides two additional functions for vector geometry.
 #### reproject_geometry
 
 _Python_:
+
     Geometry reproject_geometry(Geometry geom, String origin_crs, String destination_crs)
 
 _SQL_: `rf_reproject_geometry`
@@ -53,7 +48,6 @@ See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/
 Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See below section on @ref:[masking and nodata](reference.md#masking-and-nodata) for additional discussion of cell types.
 
 #### cell_types
-
 
 _Python_:
 
@@ -100,7 +94,7 @@ _Python_:
     
 _SQL_: `rf_cell_type`
 
-Get the cell type of the `tile`. Available cell types can be retrieved with the @ref:[cell_types](reference.md#cell-types) function.
+Get the cell type of the `tile`. Available cell types can be retrieved with the @ref:[cell_types](reference.md#cell_types) function.
 
 #### convert_cell_type
 
@@ -211,15 +205,21 @@ _Python_:
 
     Tile array_to_tile(Array arrayCol, Int numCols, Int numRows)
     
-Python only. Create a `tile` from a Spark SQL [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), filling values in row-major order.
+_SQL_: `rf_array_to_tile`
+    
+Create a `tile` from a Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), filling values in row-major order. Inverse of @ref:[`tile_to_int_array`](reference.md#tile_to_int_array) or @ref:[`tile_to_double_array`](reference.md#tile_to_double_array).
 
 #### assemble_tile
 
 _Python_:
 
     Tile assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, String cellType)
-    
-Python only. Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode-tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  The `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.md#cell-types).
+
+_SQL_: `Tile rf_assemble_tile(colIndex, rowIndex, cellData, numCols, numRows)`
+
+Create a Tile from columns of cell data and zero-based location indices. This function is the inverse of @ref:[`explode_tiles`](reference.md#explode_tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  In Python, the `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`cell_types`](reference.md#cell_types).
+
+With the SQL API, a default cell type will be assigned based on the data type of the `cellData` column. You can call @ref:[`rf_convert_cell_type`](reference.md#convert_cell_type) on the resulting `tile` to guarantee the exact cell type and nodata specification. In the SQL API all arguments can be column expressions.
 
 ### Masking and Nodata
 
@@ -293,7 +293,7 @@ If input `tile` had a nodata value already, the behaviour depends on if its cell
 
 ### Map Algebra
 
-[Map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations between a `tile` and a scalar, between two `tile`s, or among many `tile`s. 
+[Map algebra](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#map-algebra) raster operations are element-wise operations between a `tile` and a scalar, between two `tile`s, or among many `tile`s. 
 
 Some of these functions have similar variations in the Python API:
 
@@ -716,7 +716,7 @@ _Python_:
     
 _SQL_: @ref:[`rf_agg_stats`](reference.md#agg-stats)`(tile).dataCells`
 
-Aggregates over the `tile` and return the count of data cells. Equivalent to @ref:[`agg_stats`](reference.md#agg-stats)`.dataCells`. C.F. `data_cells`; equivalent code:
+Aggregates over the `tile` and return the count of data cells. Equivalent to @ref:[`agg_stats`](reference.md#agg-stats)`.dataCells`. C.F. @ref:[`data_cells`](reference.md#data_cells); equivalent code:
 
 ```python
 rf.select(agg_data_cells(rf.tile).alias('agg_data_cell')).show()
@@ -889,7 +889,7 @@ _Python_:
     
 _SQL_: `rf_explode_tiles`
 
-Create a row for each cell in `tile` columns. Many `tile` columns can be passed in, and the returned DataFrame will have one numeric column per input.  There will also be columns for `column_index` and `row_index`. Inverse of @ref:[`assemble_tile`](reference.md#assemble-tile). When using this function, be sure to have a unique identifier for rows in order to successfully invert the operation.
+Create a row for each cell in `tile` columns. Many `tile` columns can be passed in, and the returned DataFrame will have one numeric column per input.  There will also be columns for `column_index` and `row_index`. Inverse of @ref:[`assemble_tile`](reference.md#assemble_tile). When using this function, be sure to have a unique identifier for rows in order to successfully invert the operation.
 
 #### explode_tiles_sample
 
@@ -906,27 +906,26 @@ df.select(df.id, explode_tiles(df.tile1, df.tile2, df.tile3)) \
 df.select(df.id, explode_tiles_sample(0.05, 8675309, df.tile1, df.tile2, df.tile3)) \
 ```
 
-#### tile_to_int_array
+#### tile_to_array_int
 
 _Python_:
 
-    Array tile_to_int_array(Tile tile)
+    Array tile_to_array_int(Tile tile)
     
-_SQL_: `rf_tile_to_int_array`
+_SQL_: `rf_tile_to_array_int`  
+
+Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
 
 
-Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
-
-
-#### tile_to_double_array
+#### tile_to_array_double
 
 _Python_:
 
-    Array tile_to_double_arry(Tile tile)
+    Array tile_to_array_double(Tile tile)
     
-_SQL_: `rf_tile_to_double_array`
+_SQL_: `rf_tile_to_array_double`
 
-Convert tile column to Spark [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
+Convert tile column to Spark [Array](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
 
 
 #### render_ascii
