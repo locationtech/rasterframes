@@ -60,8 +60,6 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def extent: Extent
 
-  def timestamp: Option[ZonedDateTime]
-
   def cellType: CellType
 
   def bandCount: Int
@@ -165,8 +163,6 @@ object RasterSource extends LazyLogging {
 
     override def cols: Int = tile.cols
 
-    override def timestamp: Option[ZonedDateTime] = None
-
     override def cellType: CellType = tile.cellType
 
     override def bandCount: Int = 1
@@ -207,12 +203,6 @@ object RasterSource extends LazyLogging {
       .asInstanceOf[java.util.Dictionary[String, String]]
       .asScala
       .toMap
-
-    // TODO: See if dates are available in gdal.
-    // Maybe useful: gdal.dataset.getMetadata_Dict
-    override def timestamp: Option[ZonedDateTime] = {
-      dateFromMetadata(metadata)
-    }
 
     override def cellType: CellType = gdal.cellType
 

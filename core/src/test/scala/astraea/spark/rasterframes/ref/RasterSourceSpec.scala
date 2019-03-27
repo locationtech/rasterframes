@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
-import astraea.spark.rasterframes.ref.RasterSource.{FileGeoTiffRasterSource, GDALRasterSource}
+import astraea.spark.rasterframes.ref.RasterSource.GDALRasterSource
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.vector.Extent
