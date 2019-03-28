@@ -9,15 +9,17 @@
    http://www.opensource.org/licenses/apache2.0.php.
 + ***********************************************************************/"""
 
-from pyspark.sql.types import UserDefinedType
-from pyspark.sql import Row
-from pyspark.sql.types import *
-from pyrasterframes.context import RFContext
+from pyspark.sql.types import UserDefinedType, StructField, BinaryType, StructType
+from shapely import wkb
+from shapely.geometry import LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon
+from shapely.geometry.base import BaseGeometry
+from shapely.geometry.collection import GeometryCollection
 
-class GeometryUDT(UserDefinedType):
+
+class ShapelyGeometryUDT(UserDefinedType):
+
     @classmethod
-    def sqlType(self):
-        #    return StructField("wkb", BinaryType(), False)
+    def sqlType(cls):
         return StructType([StructField("wkb", BinaryType(), True)])
 
     @classmethod
@@ -29,40 +31,64 @@ class GeometryUDT(UserDefinedType):
         return 'org.apache.spark.sql.jts.' + cls.__name__
 
     def serialize(self, obj):
-        if (obj is None): return None
-        return Row(obj.toBytes)
+        return [_serialize_to_wkb(obj)]
 
     def deserialize(self, datum):
-        return RFContext._jvm_mirror().generate_geometry(datum[0])
+        return _deserialize_from_wkb(datum[0])
 
 
-class PointUDT(GeometryUDT):
+class PointUDT(ShapelyGeometryUDT):
     pass
 
 
-class LineStringUDT(GeometryUDT):
+class LineStringUDT(ShapelyGeometryUDT):
     pass
 
 
-class PolygonUDT(GeometryUDT):
+class PolygonUDT(ShapelyGeometryUDT):
     pass
 
 
-class MultiPointUDT(GeometryUDT):
+class MultiPointUDT(ShapelyGeometryUDT):
     pass
 
 
-class MultiLineStringUDT(GeometryUDT):
+class MultiLineStringUDT(ShapelyGeometryUDT):
     pass
 
 
-class MultiPolygonUDT(GeometryUDT):
+class MultiPolygonUDT(ShapelyGeometryUDT):
     pass
 
 
-class GeometryUDT(GeometryUDT):
+class GeometryUDT(ShapelyGeometryUDT):
     pass
 
 
-class GeometryCollectionUDT(GeometryUDT):
+class GeometryCollectionUDT(ShapelyGeometryUDT):
     pass
+
+
+def _serialize_to_wkb(data):
+    if isinstance(data, BaseGeometry):
+        return bytearray(data.wkb)  # bytearray(...) needed for Python 2 compat.
+    return None
+
+
+def _deserialize_from_wkb(data):
+    if data is None:
+        return None
+    return wkb.loads(bytes(data))  # bytes(...) needed for Python 2 compat.
+
+
+_deserialize_from_wkb.__safe_for_unpickling__ = True
+
+# inject some PySpark constructs into Shapely's geometry types
+Point.__UDT__ = PointUDT()
+MultiPoint.__UDT__ = MultiPointUDT()
+LineString.__UDT__ = LineStringUDT()
+MultiLineString.__UDT__ = MultiLineStringUDT()
+Polygon.__UDT__ = PolygonUDT()
+MultiPolygon.__UDT__ = MultiPolygonUDT()
+BaseGeometry.__UDT__ = GeometryUDT()
+GeometryCollection.__UDT__ = GeometryCollectionUDT()
