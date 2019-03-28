@@ -19,7 +19,11 @@
  */
 
 package astraea.spark.rasterframes.stats
-import geotrellis.raster.histogram.{StreamingHistogram, Histogram ⇒ GTHistogram}
+import astraea.spark.rasterframes.encoders.StandardEncoders
+import geotrellis.raster.Tile
+import geotrellis.raster.histogram.{Histogram => GTHistogram}
+import org.apache.spark.sql.types._
+
 import scala.collection.mutable.{ListBuffer => MutableListBuffer}
 
 /**
@@ -27,12 +31,9 @@ import scala.collection.mutable.{ListBuffer => MutableListBuffer}
  *
  * @since 4/3/18
  */
-case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
-
-  def labels = bins.map(_.value)
-  def mean = stats.mean
-  def totalCount = stats.dataCells
-  def asciiStats = stats.asciiStats
+case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
+  lazy val labels: Seq[Double] = bins.map(_.value)
+  lazy val totalCount = bins.foldLeft(0L)(_ + _.count)
   def asciiHistogram(width: Int = 80)= {
     val counts = bins.map(_.count)
     val maxCount = counts.max.toFloat
@@ -68,7 +69,7 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
     }
   }
 
-  private def cdfIntervals(): Iterator[((Double, Double), (Double, Double))] = {
+  private def cdfIntervals: Iterator[((Double, Double), (Double, Double))] = {
     if(bins.size < 2) {
       Iterator.empty
     } else {
@@ -151,15 +152,25 @@ case class CellHistogram(stats: CellStatistics, bins: Seq[CellHistogram.Bin]) {
 
 object CellHistogram {
   case class Bin(value: Double, count: Long)
+
+  def apply(tile: Tile): CellHistogram = {
+    val bins = if (tile.cellType.isFloatingPoint) {
+      val h = tile.histogramDouble
+      h.binCounts().map(p ⇒ Bin(p._1, p._2))
+    }
+    else {
+      val h = tile.histogram
+      h.binCounts().map(p ⇒ Bin(p._1, p._2))
+    }
+    CellHistogram(bins)
+  }
+
   def apply(hist: GTHistogram[Int]): CellHistogram = {
-    val stats = CellStatistics(hist.statistics().get)
-    CellHistogram(stats, hist.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2)))
+    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1, p._2)))
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
-    val stats = hist.statistics().map(CellStatistics.apply).getOrElse(CellStatistics.empty)
-    // Code should be this, but can't due to geotrellis#2664:
-    // val bins = hist.binCounts().map(p ⇒ Bin(p._1, p._2))
-    val bins = hist.asInstanceOf[StreamingHistogram].buckets().map(b ⇒ Bin(b.label, b.count))
-    CellHistogram(stats, bins)
+    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1, p._2)))
   }
+
+  lazy val schema: StructType = StandardEncoders.cellHistEncoder.schema
 }

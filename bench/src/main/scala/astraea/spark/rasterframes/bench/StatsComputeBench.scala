@@ -22,6 +22,7 @@ package astraea.spark.rasterframes.bench
 import java.util.concurrent.TimeUnit
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.stats.CellHistogram
 import org.apache.spark.sql._
 import org.openjdk.jmh.annotations._
 
@@ -54,25 +55,28 @@ class StatsComputeBench extends SparkEnv {
       .toDF("tile").repartition(10)
   }
 
-  @Benchmark
-  def computeStats() = {
-    tiles.select(agg_stats($"tile")).collect()
-  }
+//  @Benchmark
+//  def computeStats(): Array[CellStatistics] = {
+//    tiles.select(agg_stats($"tile")).collect()
+//  }
 
   @Benchmark
-  def extractMean() = {
-    tiles.select(agg_stats($"tile").getField("mean")).map(_.getDouble(0)).collect()
+  def computeHistogram(): Array[CellHistogram] = {
+    tiles.select(agg_approx_histogram($"tile")).collect()
   }
 
-  @Benchmark
-  def directMean() = {
-    tiles.repartition(10).select(agg_mean($"tile")).collect()
-  }
+//  @Benchmark
+//  def extractMean(): Array[Double] = {
+//    tiles.select(agg_stats($"tile").getField("mean")).map(_.getDouble(0)).collect()
+//  }
+//
+//  @Benchmark
+//  def directMean(): Array[Double] = {
+//    tiles.repartition(10).select(agg_mean($"tile")).collect()
+//  }
 
 //  @Benchmark
 //  def computeCounts() = {
 //    tiles.toDF("tile").select(data_cells($"tile") as "counts").agg(sum($"counts")).collect()
 //  }
-
-
 }

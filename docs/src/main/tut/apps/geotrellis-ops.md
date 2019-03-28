@@ -34,7 +34,7 @@ Here's an example downsampling a tile and rendering each tile as a matrix of num
 ```tut  
 val downsample = udf((t: Tile) => t.resample(4, 4))
 val downsampled = rf.where(no_data_cells($"tile") === 0).select(downsample($"tile") as "minime")
-downsampled.select(tile_to_array[Float]($"minime") as "cell_values").limit(2).show(false)
+downsampled.select(tile_to_array_double($"minime") as "cell_values").limit(2).show(false)
 ```
 
 

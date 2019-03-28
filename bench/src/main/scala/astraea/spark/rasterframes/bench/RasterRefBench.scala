@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 
 import astraea.spark.rasterframes
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.RasterSourceToTiles
+import astraea.spark.rasterframes.expressions.transformers.RasterSourceToTiles
 import astraea.spark.rasterframes.ref.RasterSource
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import com.typesafe.scalalogging.LazyLogging

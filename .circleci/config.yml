@@ -1,0 +1,138 @@
+version: 2
+
+_defaults: &defaults
+  working_directory: ~/repo
+  environment:
+    TERM: dumb
+  docker:
+    - image: circleci/openjdk:8-jdk
+
+_setenv: &setenv
+  name: set CloudRepo credentials
+  command: |-
+    [ -d $HOME/.sbt ] || mkdir $HOME/.sbt
+    printf "realm=s22s.mycloudrepo.io\nhost=s22s.mycloudrepo.io\nuser=$CLOUDREPO_USER\npassword=$CLOUDREPO_PASSWORD\n" > $HOME/.sbt/.credentials
+
+_delenv: &unsetenv
+  name: delete CloudRepo credential
+  command: rm -rf  $HOME/.sbt/.credentials || true
+
+_restore_cache: &restore_cache
+  keys:
+    - v2-dependencies-{{ checksum "build.sbt" }}
+    - v2-dependencies-
+
+_save_cache: &save_cache
+  key: v2-dependencies--{{ checksum "build.sbt" }}
+  paths:
+    - ~/.ivy2/cache
+    - ~/.sbt
+    - ~/.rf_cache
+
+jobs:
+  staticAnalysis:
+    <<: *defaults
+
+    steps:
+      - checkout
+      - run: *setenv
+      - restore_cache:
+          <<: *restore_cache
+
+      - run: cat /dev/null | sbt dependencyCheck
+      - run: cat /dev/null | sbt --debug dumpLicenseReport
+
+      - run: *unsetenv
+
+      - save_cache:
+          <<: *save_cache
+      - store_artifacts:
+          path: datasource/target/scala-2.11/dependency-check-report.html
+          destination: dependency-check-report-datasource.html
+      - store_artifacts:
+          path: experimental/target/scala-2.11/dependency-check-report.html
+          destination: dependency-check-report-experimental.html
+      - store_artifacts:
+          path: core/target/scala-2.11/dependency-check-report.html
+          destination: dependency-check-report-core.html
+      - store_artifacts:
+          path: pyrasterframes/target/scala-2.11/dependency-check-report.html
+          destination: dependency-check-report-pyrasterframes.html
+
+  test:
+    <<: *defaults
+    resource_class: large
+    steps:
+      - checkout
+      - run: *setenv
+      - restore_cache:
+          <<: *restore_cache
+
+      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
+      - run: cat /dev/null | sbt test
+
+      - run: *unsetenv
+      - save_cache:
+          <<: *save_cache
+
+  publish:
+    <<: *defaults
+    resource_class: large
+    steps:
+      - checkout
+      - run: *setenv
+      - restore_cache:
+          <<: *restore_cache
+
+      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
+      - run: cat /dev/null | sbt test
+      - run: cat /dev/null | sbt publish
+
+      - run: *unsetenv
+      - save_cache:
+          <<: *save_cache
+
+  it:
+    <<: *defaults
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run: *setenv
+
+      - restore_cache:
+          <<: *restore_cache
+
+      - run:
+          command: cat /dev/null | sbt it:test
+          no_output_timeout: 30m
+      - run: *unsetenv
+
+      - save_cache:
+          <<: *save_cache
+
+workflows:
+  version: 2
+  all:
+    jobs:
+      - test
+      - it:
+          filters:
+            branches:
+              only:
+                - /astraea\/feature\/.*-its/
+      - publish:
+          filters:
+            branches:
+              only:
+                - astraea/develop
+  nightlyReleaseAstraea:
+    triggers:
+      - schedule:
+          cron: "0 8 * * *"
+          filters:
+            branches:
+              only:
+                - astraea/develop
+    jobs:
+      - it
+      - staticAnalysis

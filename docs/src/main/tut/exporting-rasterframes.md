@@ -27,11 +27,11 @@ The cell values within a `Tile` are encoded internally as an array. There may be
 where the additional context provided by the `Tile` construct is no longer needed and one would
 prefer to work with the underlying array data.
 
-The @scaladoc[`tileToArray`][tileToArray] column function requires a type parameter to indicate the array element
+The @scaladoc[`tile_to_array_int`][tile_to_array_int] column function requires a type parameter to indicate the array element
 type you would like used. The following types may be used: `Int`, `Double`, `Byte`, `Short`, `Float`
 
 ```tut
-val withArrays = rf.withColumn("tileData", tileToArray[Short]($"tile")).drop("tile")
+val withArrays = rf.withColumn("tileData", tile_to_array_int($"tile")).drop("tile")
 withArrays.show(5, 40)
 ```
 
@@ -186,5 +186,5 @@ spark.stop()
 [rfInit]: astraea.spark.rasterframes.package#rfInit%28SQLContext%29:Unit
 [rdd]: org.apache.spark.sql.Dataset#frdd:org.apache.spark.rdd.RDD[T]
 [toTileLayerRDD]: astraea.spark.rasterframes.RasterFrameMethods#toTileLayerRDD%28tileCol:RasterFrameMethods.this.TileColumn%29:Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]
-[tileToArray]: astraea.spark.rasterframes.ColumnFunctions#tileToArray
+[tile_to_array_int]: astraea.spark.rasterframes.ColumnFunctions#tile_to_array_int
 

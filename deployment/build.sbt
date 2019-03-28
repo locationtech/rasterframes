@@ -11,13 +11,13 @@ val Python = config("python")
 lazy val rfDockerImageName = settingKey[String]("Name to tag Docker image with.")
 rfDockerImageName := "s22s/rasterframes-notebooks"
 
-lazy val rfNotebookContainer = taskKey[Unit]("Build Jupyter Notebook Docker image with RasterFrames support.")
-rfNotebookContainer := (Docker / packageBin).value
+lazy val rfDocker = taskKey[Unit]("Build Jupyter Notebook Docker image with RasterFrames support.")
+rfDocker := (Docker / packageBin).value
 
 lazy val runRFNotebook = taskKey[String]("Run RasterFrames Jupyter Notebook image")
 runRFNotebook := {
   val imageName = rfDockerImageName.value
-  val _ = rfNotebookContainer.value
+  val _ = rfDocker.value
   Process(s"docker run -p 8888:8888 -p 4040:4040 $imageName").run()
   imageName
 }

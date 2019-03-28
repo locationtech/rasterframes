@@ -1,6 +1,5 @@
 <img src="docs/src/main/paradox/_template/images/RasterFramesLogo.png" width="300px"/><sup style="vertical-align: top;">&trade;</sup>
 
-[![Build Status](https://travis-ci.org/locationtech/rasterframes.svg?branch=master)](https://travis-ci.org/s22s/raster-frames)
  [![Join the chat at https://gitter.im/s22s/raster-frames](https://badges.gitter.im/s22s/raster-frames.svg)](https://gitter.im/s22s/raster-frames?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 _RasterFrames™_ brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of [GeoTrellis](https://geotrellis.io/).

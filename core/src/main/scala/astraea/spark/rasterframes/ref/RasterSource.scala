@@ -24,15 +24,16 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
+import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
-import astraea.spark.rasterframes.NOMINAL_TILE_SIZE
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
+import geotrellis.raster._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, MultibandGeoTiff, SinglebandGeoTiff, Tags}
-import geotrellis.raster._
 import geotrellis.raster.split.Split
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
@@ -42,6 +43,9 @@ import geotrellis.util.{FileRangeReader, RangeReader}
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
+import org.apache.spark.annotation.Experimental
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.rf.RasterSourceUDT
 
 import scala.util.Try
 
@@ -50,6 +54,7 @@ import scala.util.Try
  *
  * @since 8/21/18
  */
+@Experimental
 sealed trait RasterSource extends ProjectedRasterLike with Serializable {
   def crs: CRS
 
@@ -61,9 +66,21 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def bandCount: Int
 
+  def tags: Option[Tags]
+
   def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]]
 
+  /** Reads the given extent as a single multiband raster. */
+  def readMultiband(extent: Extent): Raster[MultibandTile] =
+    read(extent).fold(r => {
+      r.copy(tile = MultibandTile(r.tile))
+    }, identity)
+
   def readAll(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]]
+  def readAllMultiband(): Seq[Raster[MultibandTile]] =
+    readAll().fold(_.map(r => {
+      r.copy(tile = MultibandTile(r.tile))
+    }), identity)
 
   def readAllLazy(): Either[Seq[Raster[Tile]], Seq[Raster[MultibandTile]]] = {
     val extents = nativeTiling
@@ -94,6 +111,8 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def gridExtent = GridExtent(extent, cellSize)
 
+  def tileContext: TileContext = TileContext(extent, crs)
+
   def nativeTiling: Seq[Extent] = {
     nativeLayout.map { tileLayout ⇒
       val layout = LayoutDefinition(extent, tileLayout)
@@ -108,7 +127,10 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 }
 
 object RasterSource extends LazyLogging {
-
+  implicit def rsEncoder: ExpressionEncoder[RasterSource] = {
+    RasterSourceUDT // Makes sure UDT is registered first
+    ExpressionEncoder()
+  }
 
   private def _logger = logger
 
@@ -168,6 +190,8 @@ object RasterSource extends LazyLogging {
 
     override def bandCount: Int = 1
 
+    override def tags: Option[Tags] = None
+
     override def read(extent: Extent): Either[Raster[Tile], Raster[MultibandTile]] = Left(
       Raster(tile.crop(rasterExtent.gridBoundsFor(extent, false)), extent)
     )
@@ -206,6 +230,8 @@ object RasterSource extends LazyLogging {
     def cellType: CellType = tiffInfo.cellType
 
     def bandCount: Int = tiffInfo.bandCount
+
+    override def tags: Option[Tags] = Option(tiffInfo.tags)
 
     def nativeLayout: Option[TileLayout] = {
       if (tiffInfo.segmentLayout.isTiled)

@@ -19,17 +19,20 @@
  */
 
 package astraea.spark.rasterframes.stats
+import astraea.spark.rasterframes.encoders.StandardEncoders
+import geotrellis.raster.Tile
+import org.apache.spark.sql.types.StructType
 
 /**
  * Container for computed statistics over cells.
  *
  * @since 4/3/18
  */
-case class CellStatistics(dataCells: Long, noDataCells: Long, min: Double, max: Double, mean: Double, variance: Double) {
+case class CellStatistics(data_cells: Long, no_data_cells: Long, min: Double, max: Double, mean: Double, variance: Double) {
   def stddev: Double = math.sqrt(variance)
   def asciiStats = Seq(
-    "data_cells: " + dataCells,
-    "no_data_cells: " + noDataCells,
+    "data_cells: " + data_cells,
+    "no_data_cells: " + no_data_cells,
     "min: " + min,
     "max: " + max,
     "mean: " + mean,
@@ -47,11 +50,21 @@ case class CellStatistics(dataCells: Long, noDataCells: Long, min: Double, max: 
 }
 object CellStatistics {
   // Convert GeoTrellis stats object into our simplified one.
+  private[stats]
   def apply(stats: geotrellis.raster.summary.Statistics[Double]) =
     new CellStatistics(stats.dataCells, -1, stats.zmin, stats.zmax, stats.mean, stats.stddev * stats.stddev)
 
+  private[stats]
   def apply(stats: geotrellis.raster.summary.Statistics[Int])(implicit d: DummyImplicit) =
     new CellStatistics(stats.dataCells, -1, stats.zmin.toDouble, stats.zmax.toDouble, stats.mean, stats.stddev * stats.stddev)
 
+  def apply(tile: Tile): Option[CellStatistics] = {
+    val base = if (tile.cellType.isFloatingPoint) tile.statisticsDouble.map(CellStatistics.apply)
+    else tile.statistics.map(CellStatistics.apply)
+    base.map(s => s.copy(no_data_cells = tile.size - s.data_cells))
+  }
+
   def empty = new CellStatistics(0, 0, Double.NaN, Double.NaN, Double.NaN, Double.NaN)
+
+  lazy val schema: StructType = StandardEncoders.cellStatsEncoder.schema
 }

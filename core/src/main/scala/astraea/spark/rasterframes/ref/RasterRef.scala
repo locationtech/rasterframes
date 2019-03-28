@@ -21,12 +21,17 @@
 
 package astraea.spark.rasterframes.ref
 
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
+import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, GridBounds, Tile, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.{Extent, ProjectedExtent}
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.rf.RasterSourceUDT
+import org.apache.spark.sql.types.{StructField, StructType}
 
 /**
  * A delayed-read projected raster implementation.
@@ -64,6 +69,8 @@ case class RasterRef(source: RasterSource, subextent: Option[Extent])
 
 object RasterRef extends LazyLogging {
   private val log = logger
+
+
   /** Constructor for when data extent cover whole raster. */
   def apply(source: RasterSource): RasterRef = RasterRef(source, None)
 
@@ -86,4 +93,25 @@ object RasterRef extends LazyLogging {
     override def convert(ct: CellType): ProjectedRasterTile =
       ProjectedRasterTile(rr.realizedTile.convert(ct), extent, crs)
   }
+
+  implicit val rasterRefSerializer: CatalystSerializer[RasterRef] = new CatalystSerializer[RasterRef] {
+    val rsType = new RasterSourceUDT()
+    override def schema: StructType = StructType(Seq(
+      StructField("source", rsType, false),
+      StructField("subextent", CatalystSerializer[Extent].schema, true)
+    ))
+
+    override def to[R](t: RasterRef, io: CatalystIO[R]): R = io.create(
+      io.to(t.source)(RasterSourceUDT.rasterSourceSerializer),
+      t.subextent.map(io.to[Extent]).orNull
+    )
+
+    override def from[R](row: R, io: CatalystIO[R]): RasterRef = RasterRef(
+      io.get[RasterSource](row, 0)(RasterSourceUDT.rasterSourceSerializer),
+      if (io.isNullAt(row, 1)) None
+      else Option(io.get[Extent](row, 1))
+    )
+  }
+
+  implicit def rrEncoder: ExpressionEncoder[RasterRef] = CatalystSerializerEncoder[RasterRef](true)
 }

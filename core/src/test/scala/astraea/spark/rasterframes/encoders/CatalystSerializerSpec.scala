@@ -20,30 +20,138 @@
  */
 
 package astraea.spark.rasterframes.encoders
+import java.time.ZonedDateTime
+
+import astraea.spark.rasterframes.encoders.StandardEncoders._
+import astraea.spark.rasterframes.model.{CellContext, TileContext, TileDataContext, TileDimensions}
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.proj4._
+import geotrellis.raster.{CellSize, CellType, TileLayout, UShortUserDefinedNoDataCellType}
+import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.spark.{Bounds, KeyBounds, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.scalatest.Assertion
 
 class CatalystSerializerSpec extends TestEnvironment with TestData {
+  val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), TileDimensions(12, 23))
+  val tc = TileContext(Extent(1, 2, 3, 4), WebMercator)
+  val cc = CellContext(tc, dc, 34, 45)
+  val ext = Extent(1.2, 2.3, 3.4, 4.5)
+  val tl = TileLayout(10, 10, 20, 20)
+  val ct: CellType = UShortUserDefinedNoDataCellType(5.toShort)
+  val ld = LayoutDefinition(ext, tl)
+  val skb = KeyBounds[SpatialKey](SpatialKey(1, 2), SpatialKey(3, 4))
 
-  import sqlContext.implicits._
+
+  def assertSerializerMatchesEncoder[T: CatalystSerializer: ExpressionEncoder](value: T): Assertion = {
+    val enc = implicitly[ExpressionEncoder[T]]
+    val ser = CatalystSerializer[T]
+    ser.schema should be (enc.schema)
+  }
+  def assertConsistent[T: CatalystSerializer](value: T): Assertion = {
+    val ser = CatalystSerializer[T]
+    ser.toRow(value) should be(ser.toRow(value))
+  }
+  def assertInvertable[T: CatalystSerializer](value: T): Assertion = {
+    val ser = CatalystSerializer[T]
+    ser.fromRow(ser.toRow(value)) should be(value)
+  }
+
+  def assertContract[T: CatalystSerializer: ExpressionEncoder](value: T): Assertion = {
+    assertConsistent(value)
+    assertInvertable(value)
+    assertSerializerMatchesEncoder(value)
+  }
+
   describe("Specialized serialization on specific types") {
-    it("should support encoding") {
-      import sqlContext.implicits._
-
-      implicit val enc: ExpressionEncoder[CRS] = CatalystSerializerEncoder[CRS]
-
-      val values = Seq[CRS](LatLng, Sinusoidal, ConusAlbers, WebMercator)
-      val df = spark.createDataset(values)(enc)
-      //df.show(false)
-      val results = df.collect()
-      results should contain allElementsOf values
-    }
+//    it("should support encoding") {
+//      implicit val enc: ExpressionEncoder[CRS] = CatalystSerializerEncoder[CRS]()
+//
+//      //println(enc.deserializer.genCode(new CodegenContext))
+//      val values = Seq[CRS](LatLng, Sinusoidal, ConusAlbers, WebMercator)
+//      val df = spark.createDataset(values)(enc)
+//      //df.show(false)
+//      val results = df.collect()
+//      results should contain allElementsOf values
+//    }
 
     it("should serialize CRS") {
-      val ser = CatalystSerializer[CRS]
-      ser.fromRow(ser.toRow(LatLng)) should be(LatLng)
-      ser.fromRow(ser.toRow(Sinusoidal)) should be(Sinusoidal)
+      val v: CRS = LatLng
+      assertContract(v)
+    }
+
+    it("should serialize TileDataContext") {
+      assertContract(dc)
+    }
+
+    it("should serialize TileContext") {
+      assertContract(tc)
+    }
+
+    it("should serialize CellContext") {
+      assertContract(cc)
+    }
+
+    it("should serialize ProjectedRasterTile") {
+      // TODO: Decide if ProjectedRasterTile should be encoded 'flat', non-'flat', or depends
+      val value = TestData.projectedRasterTile(20, 30, -1.2, extent)
+      assertConsistent(value)
+      assertInvertable(value)
+    }
+
+    it("should serialize RasterRef") {
+      val src = RasterSource(remoteCOGSingleband1)
+      val value = RasterRef(src, Some(src.extent.buffer(-3.0)))
+      assertConsistent(value)
+      assertInvertable(value)
+    }
+
+    it("should serialize CellType") {
+      assertContract(ct)
+    }
+
+    it("should serialize Extent") {
+      assertContract(ext)
+    }
+
+    it("should eserialize ProjectedExtent") {
+      val pe = ProjectedExtent(ext, ConusAlbers)
+      assertContract(pe)
+    }
+
+    it("should eserialize SpatialKey") {
+      val v = SpatialKey(2, 3)
+      assertContract(v)
+    }
+
+    it("should eserialize SpaceTimeKey") {
+      val v = SpaceTimeKey(2, 3, ZonedDateTime.now())
+      assertContract(v)
+    }
+
+    it("should serialize CellSize") {
+      val v = CellSize(extent, 50, 60)
+      assertContract(v)
+    }
+
+    it("should serialize TileLayout") {
+      assertContract(tl)
+    }
+
+    it("should serialize LayoutDefinition") {
+      assertContract(ld)
+    }
+
+    it("should serialize Bounds[SpatialKey]") {
+      implicit val skbEnc = ExpressionEncoder[KeyBounds[SpatialKey]]()
+      assertContract(skb)
+    }
+
+    it("should serialize TileLayerMetata[SpatialKey]") {
+      val tlm = TileLayerMetadata(ct, ld, ext, ConusAlbers, skb)
+      assertContract(tlm)
     }
   }
 }

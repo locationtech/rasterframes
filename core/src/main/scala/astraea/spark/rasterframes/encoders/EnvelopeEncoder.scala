@@ -8,7 +8,7 @@ import org.apache.spark.sql.catalyst.expressions.objects.NewInstance
 import org.apache.spark.sql.catalyst.expressions.{BoundReference, CreateNamedStruct, Literal}
 import org.apache.spark.sql.rf.VersionShims.InvokeSafely
 import org.apache.spark.sql.types._
-import CatalystSerializer._
+
 import scala.reflect.classTag
 
 /**

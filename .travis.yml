@@ -5,7 +5,8 @@ language: scala
 cache:
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/
+    - $HOME/.sbt/boot
+    - $HOME/.rf_cache
 
 scala:
   - 2.11.11
@@ -14,13 +15,19 @@ jdk:
   - oraclejdk8
 
 addons:
-  apt_packages:
-    - pandoc
+  apt:
+    packages:
+      - pandoc
+      - python-pip
+
+install:
+  - pip install setuptools
 
 sbt_args: -no-colors
 
 script:
-  - sbt -Dfile.encoding=UTF8 clean core/test datasource/test
+  - sbt test
+  - sbt it:test
   #  - sbt -Dfile.encoding=UTF8 clean coverage test coverageReport
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm

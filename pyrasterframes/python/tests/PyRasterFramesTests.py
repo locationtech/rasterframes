@@ -98,7 +98,11 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('sum', tile_sum(self.tileCol)) \
             .withColumn('stats', tile_stats(self.tileCol)) \
             .withColumn('envelope', envelope('bounds')) \
-            .withColumn('ascii', render_ascii(self.tileCol))
+            .withColumn('ascii', render_ascii(self.tileCol)) \
+            .withColumn('log', log(self.tileCol)) \
+            .withColumn('exp', exp(self.tileCol)) \
+            .withColumn('expm1', expm1(self.tileCol)) \
+            .withColumn('round', round(self.tileCol))
 
         df.show()
 
@@ -117,7 +121,7 @@ class RasterFunctionsTest(unittest.TestCase):
             agg_data_cells(self.tileCol),
             agg_no_data_cells(self.tileCol),
             agg_stats(self.tileCol),
-            agg_histogram(self.tileCol)
+            agg_approx_histogram(self.tileCol)
         )
         aggs.show()
         row = aggs.first()
@@ -126,7 +130,7 @@ class RasterFunctionsTest(unittest.TestCase):
         print(row['agg_data_cells(tile)'])
         self.assertEqual(row['agg_data_cells(tile)'], 387000)
         self.assertEqual(row['agg_no_data_cells(tile)'], 1000)
-        self.assertEqual(row['agg_stats(tile)'].dataCells, row['agg_data_cells(tile)'])
+        self.assertEqual(row['agg_stats(tile)'].data_cells, row['agg_data_cells(tile)'])
 
 
     def test_sql(self):
@@ -190,15 +194,26 @@ class RasterFunctionsTest(unittest.TestCase):
         mask_value = 4
 
         rf1 = self.rf.select(self.rf.tile,
-                             local_multiply_scalar_int(
+                             local_multiply(
                                  convert_cell_type(
                                      local_greater_scalar_int(self.rf.tile, 25000),
                                      "uint8"),
-                                  mask_value).alias('mask'))
+                                  lit(mask_value)).alias('mask'))
         rf2 = rf1.select(rf1.tile, mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
         result = rf2.agg(agg_no_data_cells(rf2.tile) < agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]
         self.assertTrue(result)
+
+
+    def test_resample(self):
+        from pyspark.sql.functions import lit
+        result = self.rf.select(
+            tile_min(local_equal(
+                resample(resample(self.rf.tile, lit(2)), lit(0.5)),
+                self.rf.tile))
+        ).collect()[0][0]
+
+        self.assertTrue(result == 1)  # short hand for all values are true
 
 
 def suite():
@@ -212,6 +227,7 @@ def suite():
     functionTests.addTest(RasterFunctionsTest('test_explode'))
     functionTests.addTest(RasterFunctionsTest('test_sql'))
     functionTests.addTest(RasterFunctionsTest('test_maskByValue'))
+    functionTests.addTest(RasterFunctionsTest('test_resample'))
     return functionTests
 
 

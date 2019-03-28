@@ -2,15 +2,20 @@ package org.apache.spark.sql.rf
 
 import java.lang.reflect.{Constructor, Method}
 
+import org.apache.spark.sql.catalyst.FunctionIdentifier
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistry.{FunctionBuilder, expressionInfo}
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
-import org.apache.spark.sql.{DataFrame, Dataset, SQLContext}
-import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, ScalaUDF}
+import org.apache.spark.sql.{AnalysisException, DataFrame, Dataset, SQLContext}
+import org.apache.spark.sql.catalyst.expressions.{AttributeReference, BinaryExpression, Expression, ExpressionDescription, ExpressionInfo, RuntimeReplaceable, ScalaUDF}
 import org.apache.spark.sql.catalyst.expressions.objects.{Invoke, InvokeLike}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.sources.BaseRelation
 import org.apache.spark.sql.types.DataType
+
+import scala.reflect._
+import scala.util.{Failure, Success, Try}
 
 /**
  * Collection of Spark version compatibility adapters.
@@ -102,24 +107,91 @@ object VersionShims {
     }
   }
 
-  def registerExpression(registry: FunctionRegistry, name: String, builder: FunctionRegistry.FunctionBuilder): Unit = {
-    // Spark 2.3 introduced a new way of specifying Functions
-    val spark23FI = "org.apache.spark.sql.catalyst.FunctionIdentifier"
-    registry.getClass.getDeclaredMethods
-      .filter(m ⇒ m.getName == "registerFunction" && m.getParameterCount == 2)
-      .foreach { m ⇒
-        val firstParam = m.getParameterTypes()(0)
-        if(firstParam == classOf[String])
-          m.invoke(registry, name, builder)
-        else if(firstParam.getName == spark23FI) {
-          val fic = Class.forName(spark23FI)
-          val ctor = fic.getConstructor(classOf[String], classOf[Option[_]])
-          val fi = ctor.newInstance(name, None).asInstanceOf[Object]
-          m.invoke(registry, fi, builder)
+  implicit class RichFunctionRegistry(registry: FunctionRegistry) {
+
+    def registerFunc(name: String, builder: FunctionRegistry.FunctionBuilder): Unit = {
+      // Spark 2.3 introduced a new way of specifying Functions
+      val spark23FI = "org.apache.spark.sql.catalyst.FunctionIdentifier"
+      registry.getClass.getDeclaredMethods
+        .filter(m ⇒ m.getName == "registerFunction" && m.getParameterCount == 2)
+        .foreach { m ⇒
+          val firstParam = m.getParameterTypes()(0)
+          if(firstParam == classOf[String])
+            m.invoke(registry, name, builder)
+          else if(firstParam.getName == spark23FI) {
+            val fic = Class.forName(spark23FI)
+            val ctor = fic.getConstructor(classOf[String], classOf[Option[_]])
+            val fi = ctor.newInstance(name, None).asInstanceOf[Object]
+            m.invoke(registry, fi, builder)
+          }
+          else {
+            throw new NotImplementedError("Unexpected FunctionRegistry API: " + m.toGenericString)
+          }
         }
-        else {
-          throw new NotImplementedError("Unexpected FunctionRegistry API: " + m.toGenericString)
+    }
+
+    // Much of the code herein is copied from org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+    def registerExpression[T <: Expression: ClassTag](name: String): Unit = {
+      val clazz = classTag[T].runtimeClass
+
+      def expressionInfo: ExpressionInfo = {
+        val df = clazz.getAnnotation(classOf[ExpressionDescription])
+        if (df != null) {
+          if (df.extended().isEmpty) {
+            new ExpressionInfo(clazz.getCanonicalName, null, name, df.usage(), df.arguments(), df.examples(), df.note(), df.since())
+          } else {
+            // This exists for the backward compatibility with old `ExpressionDescription`s defining
+            // the extended description in `extended()`.
+            new ExpressionInfo(clazz.getCanonicalName, null, name, df.usage(), df.extended())
+          }
+        } else {
+          new ExpressionInfo(clazz.getCanonicalName, name)
         }
       }
+      def findBuilder: FunctionBuilder = {
+        val constructors = clazz.getConstructors
+        // See if we can find a constructor that accepts Seq[Expression]
+        val varargCtor = constructors.find(_.getParameterTypes.toSeq == Seq(classOf[Seq[_]]))
+        val builder = (expressions: Seq[Expression]) => {
+          if (varargCtor.isDefined) {
+            // If there is an apply method that accepts Seq[Expression], use that one.
+            Try(varargCtor.get.newInstance(expressions).asInstanceOf[Expression]) match {
+              case Success(e) => e
+              case Failure(e) =>
+                // the exception is an invocation exception. To get a meaningful message, we need the
+                // cause.
+                throw new AnalysisException(e.getCause.getMessage)
+            }
+          } else {
+            // Otherwise, find a constructor method that matches the number of arguments, and use that.
+            val params = Seq.fill(expressions.size)(classOf[Expression])
+            val f = constructors.find(_.getParameterTypes.toSeq == params).getOrElse {
+              val validParametersCount = constructors
+                .filter(_.getParameterTypes.forall(_ == classOf[Expression]))
+                .map(_.getParameterCount).distinct.sorted
+              val expectedNumberOfParameters = if (validParametersCount.length == 1) {
+                validParametersCount.head.toString
+              } else {
+                validParametersCount.init.mkString("one of ", ", ", " and ") +
+                  validParametersCount.last
+              }
+              throw new AnalysisException(s"Invalid number of arguments for function ${clazz.getSimpleName}. " +
+                s"Expected: $expectedNumberOfParameters; Found: ${params.length}")
+            }
+            Try(f.newInstance(expressions : _*).asInstanceOf[Expression]) match {
+              case Success(e) => e
+              case Failure(e) =>
+                // the exception is an invocation exception. To get a meaningful message, we need the
+                // cause.
+                throw new AnalysisException(e.getCause.getMessage)
+            }
+          }
+        }
+
+        builder
+      }
+
+      registry.registerFunction(FunctionIdentifier(name), expressionInfo, findBuilder)
+    }
   }
 }

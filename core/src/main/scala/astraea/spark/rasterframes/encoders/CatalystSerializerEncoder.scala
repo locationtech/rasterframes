@@ -21,47 +21,62 @@
 
 package astraea.spark.rasterframes.encoders
 import org.apache.spark.sql.catalyst.analysis.GetColumnByOrdinal
-import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
-import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions._
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, ExprCode}
+import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
+import org.apache.spark.sql.types.{DataType, ObjectType, StructField, StructType}
 
 import scala.reflect.runtime.universe.TypeTag
 
 object CatalystSerializerEncoder {
 
   case class CatSerializeToRow[T](child: Expression, serde: CatalystSerializer[T])
-    extends UnaryExpression with CodegenFallback {
+    extends UnaryExpression {
     override def dataType: DataType = serde.schema
     override protected def nullSafeEval(input: Any): Any = {
       val value = input.asInstanceOf[T]
       serde.toInternalRow(value)
     }
+    override protected def doGenCode(ctx: CodegenContext, ev: ExprCode): ExprCode = {
+      val cs = ctx.addReferenceObj("serde", serde, serde.getClass.getName)
+      nullSafeCodeGen(ctx, ev, input => s"${ev.value} = $cs.toInternalRow($input);")
+    }
   }
   case class CatDeserializeFromRow[T](child: Expression, serde: CatalystSerializer[T], outputType: DataType)
-    extends UnaryExpression with CodegenFallback {
+    extends UnaryExpression {
     override def dataType: DataType = outputType
+
+    private def objType = outputType match {
+      case ot: ObjectType => ot.cls.getName
+      case o => s"java.lang.Object /* $o */" // not sure what to do here... hopefully shouldn't happen
+    }
     override protected def nullSafeEval(input: Any): Any = {
       val row = input.asInstanceOf[InternalRow]
       serde.fromInternalRow(row)
     }
+    override protected def doGenCode(ctx: CodegenContext, ev: ExprCode): ExprCode = {
+      val cs = ctx.addReferenceObj("serde", serde, classOf[CatalystSerializer[_]].getName)
+      nullSafeCodeGen(ctx, ev, input => s"${ev.value} = ($objType) $cs.fromInternalRow($input);")
+    }
   }
-  def apply[T: TypeTag: CatalystSerializer]: ExpressionEncoder[T] = {
+  def apply[T: TypeTag: CatalystSerializer](flat: Boolean = false): ExpressionEncoder[T] = {
     val serde = CatalystSerializer[T]
 
-    val schema = StructType(Seq(
-      StructField("value", serde.schema)
-    ))
+    val schema = if (flat)
+      StructType(Seq(
+        StructField("value", serde.schema, true)
+      ))
+    else serde.schema
 
     val parentType: DataType = ScalaReflection.dataTypeFor[T]
 
-    val inputObject = BoundReference(0, parentType, nullable = false)
+    val inputObject = BoundReference(0, parentType, nullable = true)
 
     val serializer = CatSerializeToRow(inputObject, serde)
 
     val deserializer: Expression = CatDeserializeFromRow(GetColumnByOrdinal(0, schema), serde, parentType)
 
-    ExpressionEncoder(schema, flat = false, Seq(serializer), deserializer, typeToClassTag[T])
+    ExpressionEncoder(schema, flat = flat, Seq(serializer), deserializer, typeToClassTag[T])
   }
 }

@@ -81,7 +81,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
         .select($"tile".as[Double])
         .collect()
 
-      assert(cells.count(_.isNaN) === 1)
+      cells.count(_.isNaN) should be(1)
     }
 
     it("should handle user-defined NoData values in tile sampler") {
@@ -90,7 +90,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
         .select(explode_tiles($"tile"))
         .select($"tile".as[Double])
         .collect()
-      assert(cells.count(_.isNaN) === tiles.size)
+      cells.count(_.isNaN) should be(tiles.size)
     }
 
     it("should convert tile into array") {
@@ -99,18 +99,18 @@ class ExplodeSpec extends TestEnvironment with TestData {
           |  rf_make_constant_tile(1, 10, 10, 'int8raw')
           |) as intArray
           |""".stripMargin)
-      assert(query.as[Array[Int]].first.sum === 100)
+      query.as[Array[Int]].first.sum should be (100)
 
       val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
       val df = Seq[Tile](tile).toDF("tile")
-      val arrayDF = df.select(tile_to_array[Float]($"tile").as[Array[Float]])
-      assert(arrayDF.first().sum === 110.0f +- 0.0001f)
+      val arrayDF = df.select(tile_to_array_double($"tile").as[Array[Double]])
+      arrayDF.first().sum should be (110.0 +- 0.0001)
     }
 
     it("should convert an array into a tile") {
       val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
       val df = Seq[Tile](tile, null).toDF("tile")
-      val arrayDF = df.withColumn("tileArray", tile_to_array[Float]($"tile"))
+      val arrayDF = df.withColumn("tileArray", tile_to_array_double($"tile"))
 
       val back = arrayDF.withColumn("backToTile", array_to_tile($"tileArray", 10, 10))
 

@@ -56,7 +56,7 @@ class TileExplodeBench extends SparkEnv {
 
   @Benchmark
   def arrayExplode() = {
-    tiles.select(posexplode(tile_to_array[Double]($"tile"))).count()
+    tiles.select(posexplode(tile_to_array_double($"tile"))).count()
   }
 
   @Benchmark
