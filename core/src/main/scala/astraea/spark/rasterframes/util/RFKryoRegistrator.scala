@@ -36,7 +36,6 @@ import com.esotericsoftware.kryo.Kryo
 class RFKryoRegistrator extends geotrellis.spark.io.kryo.KryoRegistrator {
   override def registerClasses(kryo: Kryo): Unit = {
     super.registerClasses(kryo)
-    kryo.register(classOf[ReadCallback])
     kryo.register(classOf[RasterSource])
     kryo.register(classOf[RasterRef])
     kryo.register(classOf[RasterRefTile])

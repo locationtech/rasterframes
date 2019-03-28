@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.ref
 
-import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.expressions.transformers._
@@ -45,8 +44,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
   }
 
   trait Fixture {
-    val counter = new ReadMonitor(false)
-    val src = RasterSource(remoteCOGSingleband1, Some(counter))
+    val src = RasterSource(remoteCOGSingleband1)
     val fullRaster = RasterRef(src)
     val subExtent = sub(src.extent)
     val subRaster = RasterRef(src, Option(subExtent))
@@ -134,22 +132,18 @@ class RasterRefSpec extends TestEnvironment with TestData {
     it("should delay reading") {
       new Fixture {
         assert(subRaster.cellType === src.cellType)
-        assert(counter.reads === 0)
       }
     }
     it("should support subextents") {
       new Fixture {
         assert(subRaster.cols.toDouble === src.cols * 0.01 +- 2.0)
         assert(subRaster.rows.toDouble === src.rows * 0.01 +- 2.0)
-        assert(counter.reads === 0)
         //subRaster.tile.rescale(0, 255).renderPng().write("target/foo1.png")
       }
     }
     it("should be realizable") {
       new Fixture {
-        assert(counter.reads === 0)
         assert(subRaster.tile.statistics.map(_.dataCells) === Some(subRaster.cols * subRaster.rows))
-         assert(counter.reads > 0)
       }
     }
 
@@ -187,6 +181,5 @@ class RasterRefSpec extends TestEnvironment with TestData {
         assert(refs.count() > 1)
       }
     }
-
   }
 }

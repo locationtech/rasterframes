@@ -43,7 +43,6 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
   override protected def beforeAll(): Unit = {
     val l8 = spark.read
       .format(L8DataSource.SHORT_NAME)
-      .option(L8DataSource.ACCUMULATORS, true)
       .load()
     l8.createOrReplaceTempView("l8")
     scenes = sql(query).cache()
@@ -58,7 +57,6 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
     it("should count tiles") {
       val l8 = spark.read
         .format(L8DataSource.SHORT_NAME)
-        .option(L8DataSource.ACCUMULATORS, true)
         .option(L8DataSource.USE_TILING, true)
         .load()
       l8.createOrReplaceTempView("l82")
