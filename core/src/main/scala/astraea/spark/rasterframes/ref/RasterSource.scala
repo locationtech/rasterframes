@@ -28,15 +28,16 @@ import astraea.spark.rasterframes.ref.RasterSource.SINGLEBAND
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
 import com.typesafe.scalalogging.LazyLogging
+import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
+import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
+import geotrellis.contrib.vlm.{RasterSource => GTRasterSource}
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, Tags}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
-import geotrellis.spark.io.s3.S3Client
-import geotrellis.spark.io.s3.util.S3RangeReader
 import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.util.{FileRangeReader, RangeReader}
+import geotrellis.util.RangeReader
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
@@ -61,7 +62,7 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def bandCount: Int
 
-  def tags: Option[Tags]
+  def tags: Tags
 
   def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
     readBounds(Seq(bounds), bands).next()
@@ -69,9 +70,8 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
   def read(extent: Extent, bands: Seq[Int] = SINGLEBAND): Raster[MultibandTile] =
     read(rasterExtent.gridBoundsFor(extent, clamp = true), bands)
 
-  def readAll(
-    dims: TileDimensions = NOMINAL_TILE_DIMS,
-    bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] = layoutBounds(dims).map(read(_, bands))
+  def readAll(dims: TileDimensions = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
+    layoutBounds(dims).map(read(_, bands))
 
   protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
 
@@ -110,29 +110,27 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
 object RasterSource extends LazyLogging {
   final val SINGLEBAND = Seq(0)
+  final val EMPTY_TAGS = Tags(Map.empty, List.empty)
+
   implicit def rsEncoder: ExpressionEncoder[RasterSource] = {
     RasterSourceUDT // Makes sure UDT is registered first
     ExpressionEncoder()
   }
 
-  def apply(source: URI): RasterSource =
-    source.getScheme match {
-      case GDALRasterSource()                        => GDALRasterSource(source)
-      case "http" | "https"                          => HttpGeoTiffRasterSource(source)
-      case "file"                                    => FileGeoTiffRasterSource(source)
-      case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" =>
-        // TODO: How can we get the active hadoop configuration
-        // TODO: without having to pass it through?
-        val config = () => new Configuration()
-        HadoopGeoTiffRasterSource(source, config)
-      case "s3" =>
-        val client = () => S3Client.DEFAULT
-        S3GeoTiffRasterSource(source, client)
-      case s if s.startsWith("gdal+") =>
-        val cleaned = new URI(source.toASCIIString.replace("gdal+", ""))
-        apply(cleaned)
-      case s => throw new UnsupportedOperationException(s"Scheme '$s' not supported")
-    }
+  def apply(source: URI): RasterSource = source.getScheme match {
+    case GDALRasterSource()                        => GDALRasterSource(source)
+    case "file" | "http" | "https" | "s3"          =>
+      DelegatingRasterSource(source, GeoTiffRasterSource(source.toASCIIString))
+    case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" =>
+      // TODO: How can we get the active hadoop configuration
+      // TODO: without having to pass it through?
+      val config = () => new Configuration()
+      HadoopGeoTiffRasterSource(source, config)
+    case s if s.startsWith("gdal+") =>
+      val cleaned = new URI(source.toASCIIString.replace("gdal+", ""))
+      apply(cleaned)
+    case s => throw new UnsupportedOperationException(s"Scheme '$s' not supported")
+  }
 
   case class SimpleGeoTiffInfo(
     cellType: CellType,
@@ -166,6 +164,28 @@ object RasterSource extends LazyLogging {
     }
   }
 
+  /** A RasterFrames RasterSource which delegates most operations to a geotrellis-contrib RasterSource */
+  case class DelegatingRasterSource(source: URI, delegate: GTRasterSource) extends RasterSource with URIRasterSource {
+    override def cols: Int = delegate.cols
+    override def rows: Int = delegate.rows
+    override def crs: CRS = delegate.crs
+    override def extent: Extent = delegate.extent
+    override def cellType: CellType = delegate.cellType
+    override def bandCount: Int = delegate.bandCount
+    override def tags: Tags = delegate match {
+      case rs: GeoTiffRasterSource => rs.tiff.tags
+      case _                       => EMPTY_TAGS
+    }
+    override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
+      delegate.readBounds(bounds, bands)
+    override def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
+      delegate.read(bounds, bands)
+        .getOrElse(throw new IllegalArgumentException(s"Bounds '$bounds' outside of source"))
+    override def read(extent: Extent, bands: Seq[Int]): Raster[MultibandTile] =
+      delegate.read(extent, bands)
+        .getOrElse(throw new IllegalArgumentException(s"Extent '$extent' outside of source"))
+  }
+
   case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
     def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
 
@@ -177,27 +197,29 @@ object RasterSource extends LazyLogging {
 
     override def bandCount: Int = 1
 
-    override def tags: Option[Tags] = None
+    override def tags: Tags = EMPTY_TAGS
 
-    override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
-      bounds.map(b => {
-        val subext = rasterExtent.extentFor(b)
-        Raster(MultibandTile(tile.crop(b)), subext)
-      }).toIterator
+    override protected def readBounds(
+      bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+      bounds
+        .map(b => {
+          val subext = rasterExtent.extentFor(b)
+          Raster(MultibandTile(tile.crop(b)), subext)
+        })
+        .toIterator
     }
   }
 
-  case class GDALRasterSource(source: URI)
-      extends RasterSource with URIRasterSource {
-    import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
+  case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSource {
 
     @transient
     private lazy val gdal = {
       val cleaned = source.toASCIIString.replace("gdal+", "")
-      // VSIPath doesn't like "file:/path..."
-      val tweaked = if (cleaned.matches("^file:/[^/].*"))
-        cleaned.replace("file:", "")
-      else cleaned
+      // VSIPath doesn't like single slash "file:/path..."
+      val tweaked =
+        if (cleaned.matches("^file:/[^/].*"))
+          cleaned.replace("file:", "")
+        else cleaned
 
       VLMRasterSource(tweaked)
     }
@@ -206,11 +228,12 @@ object RasterSource extends LazyLogging {
 
     override def extent: Extent = gdal.extent
 
-    private def metadata = gdal.dataset
-      .GetMetadata_Dict()
-      .asInstanceOf[java.util.Dictionary[String, String]]
-      .asScala
-      .toMap
+    private def metadata =
+      gdal.dataset
+        .GetMetadata_Dict()
+        .asInstanceOf[java.util.Dictionary[String, String]]
+        .asScala
+        .toMap
 
     override def cellType: CellType = gdal.cellType
 
@@ -220,24 +243,27 @@ object RasterSource extends LazyLogging {
 
     override def rows: Int = gdal.rows
 
-    override def tags: Option[Tags] = Some(Tags(metadata, List.empty))
-    override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+    override def tags: Tags = Tags(metadata, List.empty)
+
+    override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
       gdal.readBounds(bounds, bands)
-    }
   }
 
   object GDALRasterSource {
+
+    /** Determine if we should prefer GDAL for all types. */
     private val preferGdal: Boolean = astraea.spark.rasterframes.rfConfig.getBoolean("prefer-gdal")
     @transient
     lazy val hasGDAL: Boolean = try {
       org.gdal.gdal.gdal.AllRegister()
       true
-    }
-    catch {
+    } catch {
       case _: UnsatisfiedLinkError =>
         logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader.")
         false
     }
+
+    /** Extractor for determining if a scheme indicates GDAL preference.  */
     def unapply(scheme: String): Boolean = (preferGdal || scheme.startsWith("gdal+")) && hasGDAL
   }
 
@@ -261,50 +287,23 @@ object RasterSource extends LazyLogging {
 
     def bandCount: Int = tiffInfo.bandCount
 
-    override def tags: Option[Tags] = Option(tiffInfo.tags)
+    override def tags: Tags = tiffInfo.tags
 
-    def nativeLayout: Option[TileLayout] = {
-      if (tiffInfo.segmentLayout.isTiled)
-        Some(tiffInfo.segmentLayout.tileLayout)
-      else None
-    }
-
-    override protected def readBounds(bounds: Traversable[GridBounds],
-      bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+    override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
       val info = realInfo
       val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
       val intersectingBounds = bounds.flatMap(_.intersection(this)).toSeq
-      geoTiffTile.crop(intersectingBounds, bands.toArray).map { case (gb, tile) =>
-        Raster(tile, rasterExtent.extentFor(gb, clamp = true))
+      geoTiffTile.crop(intersectingBounds, bands.toArray).map {
+        case (gb, tile) =>
+          Raster(tile, rasterExtent.extentFor(gb, clamp = true))
       }
     }
   }
 
-  case class FileGeoTiffRasterSource(source: URI)
-      extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>
-    @transient
-    protected lazy val rangeReader = FileRangeReader(source.getPath)
-  }
-
-  case class HadoopGeoTiffRasterSource(
-    source: URI, config: () => Configuration)
+  case class HadoopGeoTiffRasterSource(source: URI, config: () => Configuration)
       extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>
     @transient
     protected lazy val rangeReader = HdfsRangeReader(new Path(source.getPath), config())
-  }
-
-  case class S3GeoTiffRasterSource(
-    source: URI, client: () => S3Client)
-      extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>
-    @transient
-    protected lazy val rangeReader = S3RangeReader(source, client())
-  }
-
-  case class HttpGeoTiffRasterSource(source: URI)
-      extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>
-
-    @transient
-    protected lazy val rangeReader = HttpRangeReader(source)
   }
 
   trait URIRasterSourceDebugString { _: RangeReaderRasterSource with URIRasterSource with Product =>

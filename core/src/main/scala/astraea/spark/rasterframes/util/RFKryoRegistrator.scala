@@ -39,10 +39,11 @@ class RFKryoRegistrator extends geotrellis.spark.io.kryo.KryoRegistrator {
     kryo.register(classOf[RasterSource])
     kryo.register(classOf[RasterRef])
     kryo.register(classOf[RasterRefTile])
-    kryo.register(classOf[FileGeoTiffRasterSource])
+    kryo.register(classOf[DelegatingRasterSource])
+    kryo.register(classOf[InMemoryRasterSource])
     kryo.register(classOf[HadoopGeoTiffRasterSource])
-    kryo.register(classOf[S3GeoTiffRasterSource])
-    kryo.register(classOf[HttpGeoTiffRasterSource])
+    kryo.register(classOf[GDALRasterSource])
+    kryo.register(classOf[SimpleGeoTiffInfo])
     kryo.register(classOf[geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo])
   }
 }
