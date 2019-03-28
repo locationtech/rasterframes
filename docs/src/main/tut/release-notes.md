@@ -4,7 +4,9 @@
 
 ### 0.8.0
 
-* Added new tile functions `round`, `log`, `log10`, `log2`, `log1p`, `exp`, `exp10`, `exp2`, `expm1`, `resample`, `resample`.
+* Added new tile functions `round`, `log`, `log10`, `log2`, `log1p`, `exp`, `exp10`, `exp2`, `expm1`, `resample`.
+* Support python-side `shapely` geometry User-Defined Type.
+* SQL API support for: `rf_assemble_tile`, `rf_array_to_tile`.
 * Introduced at the source level the concept of a `RasterSource` and `RasterRef`, enabling lazy/delayed read of sub-scene tiles.
 * _Deprecation_: Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow `snake_case` conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.
 * Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
