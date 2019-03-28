@@ -61,11 +61,6 @@ case class RasterSourceToTiles(children: Seq[Expression], applyTiling: Boolean) 
         val tiles = if (applyTiling) src.readAll() else {
           Seq(src.read(src.extent))
         }
-
-        tiles.headOption.foreach(r => {
-          require(r.tile.bandCount <= 1, "Multiband tiles are not yet supported")
-        })
-
         tiles.map(_.mapTile(_.band(0)))
       }
       refs.transpose.map(ts ⇒ InternalRow(ts.map(r ⇒ r.tile.toInternalRow): _*))

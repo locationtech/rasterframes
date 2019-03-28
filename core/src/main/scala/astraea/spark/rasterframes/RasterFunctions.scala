@@ -28,13 +28,13 @@ import astraea.spark.rasterframes.expressions.tilestats._
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions => F}
-import org.locationtech.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import org.locationtech.jts.geom.{Envelope, Geometry}
 
 /**
  * UDFs for working with Tiles in Spark DataFrames.
@@ -43,7 +43,6 @@ import org.apache.spark.sql.functions._
  */
 trait RasterFunctions {
   import util._
-  import PrimitiveEncoders._
 
   // format: off
   /** Create a row for each cell in Tile. */

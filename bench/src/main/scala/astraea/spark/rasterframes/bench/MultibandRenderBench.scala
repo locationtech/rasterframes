@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 
 import astraea.spark.rasterframes.util.MultibandRender.Landsat8NaturalColor
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.{GeoTiff, MultibandGeoTiff}
+import geotrellis.raster.io.geotiff.MultibandGeoTiff
 import org.apache.commons.io.IOUtils
 import org.openjdk.jmh.annotations._
 

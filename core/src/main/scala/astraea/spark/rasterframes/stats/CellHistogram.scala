@@ -160,13 +160,13 @@ object CellHistogram {
     }
     else {
       val h = tile.histogram
-      h.binCounts().map(p ⇒ Bin(p._1, p._2))
+      h.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2))
     }
     CellHistogram(bins)
   }
 
   def apply(hist: GTHistogram[Int]): CellHistogram = {
-    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1, p._2)))
+    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2)))
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
     CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1, p._2)))

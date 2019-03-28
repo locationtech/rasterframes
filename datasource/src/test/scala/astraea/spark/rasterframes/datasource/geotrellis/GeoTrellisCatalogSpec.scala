@@ -21,7 +21,7 @@ package astraea.spark.rasterframes.datasource.geotrellis
 import java.io.File
 
 import astraea.spark.rasterframes._
-import geotrellis.proj4.{CRS, LatLng, Sinusoidal}
+import geotrellis.proj4.LatLng
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.io.index.ZCurveKeyIndexMethod

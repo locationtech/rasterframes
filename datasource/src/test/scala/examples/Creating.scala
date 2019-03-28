@@ -22,8 +22,6 @@ package examples
 import java.io.File
 import java.nio.file.Files
 
-import geotrellis.raster.{Raster, Tile}
-
 /**
  * Examples of creating RasterFrames
  *
@@ -58,7 +56,6 @@ And, ss is standard Spark SQL practice, we import additional DataFrame support:
 */
 
 // tut:silent
-import spark.implicits._
 // tut:invisible
 spark.sparkContext.setLogLevel("ERROR")
 

@@ -21,7 +21,7 @@ import astraea.spark.rasterframes.StandardColumns._
 import astraea.spark.rasterframes.extensions.Implicits._
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.{PairRDDConverter, RasterFrame}
-import geotrellis.raster.{CellGrid, Tile}
+import geotrellis.raster.{CellGrid}
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.util.MethodExtensions
@@ -47,7 +47,7 @@ abstract class SpatialContextRDDMethods[T <: CellGrid](implicit spark: SparkSess
 }
 
 /**
- * Extension method on `ContextRDD`-shaped [[Tile]] RDDs keyed with [[SpaceTimeKey]], with appropriate context bounds to create a RasterFrame.
+ * Extension method on `ContextRDD`-shaped `Tile` RDDs keyed with [[SpaceTimeKey]], with appropriate context bounds to create a RasterFrame.
  * @since 9/11/17
  */
 abstract class SpatioTemporalContextRDDMethods[T <: CellGrid](

@@ -24,7 +24,6 @@ import astraea.spark.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
 import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
-import org.apache.hadoop.conf.{Configuration => HadoopConfiguration}
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._

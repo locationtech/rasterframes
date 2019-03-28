@@ -2,7 +2,7 @@ package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.util._
 import geotrellis.raster.{MultibandTile, Tile, TileFeature}
-import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalKey}
+import geotrellis.spark.{SpaceTimeKey, SpatialKey}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.rf.TileUDT

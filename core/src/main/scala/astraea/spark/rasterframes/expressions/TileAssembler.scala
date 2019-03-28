@@ -118,7 +118,7 @@ case class TileAssembler(
     val cells = Array.ofDim[Double](length)
     result.get(cells)
     val (tileCols, tileRows) = buffer.tileSize
-    val tile = ArrayTile(cells, tileCols, tileRows)
+    val tile = ArrayTile(cells, tileCols.toInt, tileRows.toInt)
     TileType.serialize(tile)
   }
 

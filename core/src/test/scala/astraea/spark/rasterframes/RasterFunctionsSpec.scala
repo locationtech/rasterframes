@@ -27,9 +27,9 @@ import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster.testkit.RasterMatchers
-import geotrellis.raster.{ArrayTile, BitCellType, ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, ShortConstantNoDataCellType, Tile, UByteConstantNoDataCellType}
+import geotrellis.raster.{ArrayTile, ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, ShortConstantNoDataCellType, Tile, UByteConstantNoDataCellType}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.{AnalysisException, Encoders}
+import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.scalatest.{FunSpec, Matchers}
 
@@ -58,7 +58,7 @@ class RasterFunctionsSpec extends FunSpec
   lazy val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
   lazy val randPositiveDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextDouble() + 1e-6, extent, crs, DoubleConstantNoDataCellType)
 
-  val expectedRandNoData: Long = numND * tileCount
+  val expectedRandNoData: Long = numND * tileCount.toLong
   val expectedRandData: Long = cols * rows * tileCount - expectedRandNoData
   lazy val randNDTilesWithNull = Seq.fill[Tile](tileCount)(injectND(numND)(
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)

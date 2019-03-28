@@ -19,13 +19,11 @@
 
 package astraea.spark.rasterframes
 
-import astraea.spark.rasterframes.TestData.randomTile
-import astraea.spark.rasterframes.TestData.fracTile
-import astraea.spark.rasterframes.expressions.aggstats.LocalMeanAggregate
+import astraea.spark.rasterframes.TestData.{fracTile, randomTile}
 import astraea.spark.rasterframes.stats.CellHistogram
 import geotrellis.raster._
-import geotrellis.spark._
 import geotrellis.raster.mapalgebra.local.{Max, Min}
+import geotrellis.spark._
 import org.apache.spark.sql.functions._
 
 /**
@@ -35,8 +33,8 @@ import org.apache.spark.sql.functions._
  * @since 9/18/17
  */
 class TileStatsSpec extends TestEnvironment with TestData {
-  import sqlContext.implicits._
   import TestData.injectND
+  import sqlContext.implicits._
 
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._

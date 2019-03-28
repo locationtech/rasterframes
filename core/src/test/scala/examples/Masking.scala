@@ -2,11 +2,10 @@ package examples
 
 import astraea.spark.rasterframes._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import org.apache.spark.sql._
-import geotrellis.raster.{mask => _, _}
 import geotrellis.raster.render._
+import geotrellis.raster.{mask => _, _}
+import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import astraea.spark.rasterframes.stats.{CellHistogram=>CH}
 
 object Masking extends App {
 

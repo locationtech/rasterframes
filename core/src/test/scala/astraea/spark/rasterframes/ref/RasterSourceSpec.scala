@@ -22,9 +22,9 @@
 package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
+import astraea.spark.rasterframes.model.TileDimensions
 import astraea.spark.rasterframes.ref.RasterSource.GDALRasterSource
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
-import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
 
@@ -46,6 +46,22 @@ class RasterSourceSpec extends TestEnvironment with TestData {
   describe("General RasterSource") {
     it("should identify as UDT") {
       assert(new RasterSourceUDT() === new RasterSourceUDT())
+    }
+    val rs = RasterSource(getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI)
+    it("should provide a tile layout") {
+      val layout = rs.tileLayout(TileDimensions(64, 64))
+      layout.totalCols shouldBe >= (rs.cols.toLong)
+      layout.totalRows shouldBe >= (rs.rows.toLong)
+    }
+    it("should compute nominal tile layout bounds") {
+      val bounds = rs.layoutBounds(TileDimensions(64, 64))
+      val agg = bounds.reduce(_ combine _)
+      agg should be (rs.gridBounds)
+    }
+    it("should compute nominal tile layout extents") {
+      val extents = rs.layoutExtents(TileDimensions(64, 64))
+      val agg = extents.reduce(_ combine _)
+      agg should be (rs.extent)
     }
   }
 
@@ -158,10 +174,10 @@ class RasterSourceSpec extends TestEnvironment with TestData {
 
       assert(totalCells === src.size)
 
-      subrasters.zipWithIndex.foreach{case (r, i) ⇒
-        // TODO: how to test?
-        GeoTiff(r, src.crs).write(s"target/$i.tiff")
-      }
+//      subrasters.zipWithIndex.foreach{case (r, i) ⇒
+//        // TODO: how to test?
+//        GeoTiff(r, src.crs).write(s"target/$i.tiff")
+//      }
     }
   }
 }

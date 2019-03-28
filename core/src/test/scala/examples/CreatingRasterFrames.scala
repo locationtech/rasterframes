@@ -35,11 +35,9 @@ object CreatingRasterFrames extends App {
 
   import astraea.spark.rasterframes._
   import geotrellis.raster._
-  import geotrellis.raster.render._
-  import geotrellis.spark.io._
   import geotrellis.raster.io.geotiff.SinglebandGeoTiff
+  import geotrellis.spark.io._
   import org.apache.spark.sql._
-  import org.apache.spark.sql.functions._
 
 //  Next, initialize the `SparkSession`, and call the `withRasterFrames` method on it:
 
@@ -47,8 +45,6 @@ object CreatingRasterFrames extends App {
     master("local[*]").appName("RasterFrames").
     getOrCreate().
     withRasterFrames
-
-  import spark.implicits._
   spark.sparkContext.setLogLevel("ERROR")
 
 //  ## From `ProjectedExtent`

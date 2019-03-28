@@ -40,7 +40,7 @@ import geotrellis.vector._
 import org.apache.avro.generic._
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.apache.hadoop.fs.FileUtil
-import org.apache.spark.sql.functions.{udf ⇒ sparkUdf}
+import org.apache.spark.sql.functions.{udf => sparkUdf}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 import org.scalatest.{BeforeAndAfterAll, Inspectors}

@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes.extensions
 
 import geotrellis.util.MethodExtensions
-import org.apache.spark.sql.{SQLContext, rf}
+import org.apache.spark.sql.SQLContext
 
 
 /**

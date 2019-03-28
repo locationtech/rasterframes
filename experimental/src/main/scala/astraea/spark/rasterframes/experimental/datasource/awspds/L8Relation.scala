@@ -22,7 +22,6 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
 import astraea.spark.rasterframes.expressions.transformers.{RasterSourceToRasterRefs, URIToRasterSource}
 import astraea.spark.rasterframes.ref.RasterRef

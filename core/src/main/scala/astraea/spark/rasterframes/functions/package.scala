@@ -15,14 +15,12 @@
  */
 package astraea.spark.rasterframes
 
-import astraea.spark.rasterframes.expressions.aggstats._
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
 import astraea.spark.rasterframes.util.CRSParser
-import org.locationtech.jts.geom.Geometry
-import geotrellis.raster.mapalgebra.local._
 import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.SQLContext
+import org.locationtech.jts.geom.Geometry
 
 /**
  * Module utils.

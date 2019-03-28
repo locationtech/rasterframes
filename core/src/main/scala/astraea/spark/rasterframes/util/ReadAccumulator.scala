@@ -35,7 +35,7 @@ import org.apache.spark.util.LongAccumulator
 case class ReadAccumulator(reads: () ⇒ LongAccumulator, bytes: () ⇒ LongAccumulator) extends ReadCallback {
   override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
     reads().add(1)
-    bytes().add(length)
+    bytes().add(length.toLong)
   }
   override def toString: String =
     s"${productPrefix}(reads=${reads().value}, bytes=${bytes().value})"
