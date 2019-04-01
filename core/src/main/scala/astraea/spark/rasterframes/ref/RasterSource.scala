@@ -117,19 +117,55 @@ object RasterSource extends LazyLogging {
     ExpressionEncoder()
   }
 
-  def apply(source: URI): RasterSource = source.getScheme match {
-    case GDALRasterSource()                        => GDALRasterSource(source)
-    case "file" | "http" | "https" | "s3"          =>
-      DelegatingRasterSource(source, GeoTiffRasterSource(source.toASCIIString))
-    case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" =>
+  def apply(source: URI): RasterSource = source match {
+    case IsGDAL()                        => GDALRasterSource(source)
+    case IsHadoopGeoTiff() =>
       // TODO: How can we get the active hadoop configuration
       // TODO: without having to pass it through?
       val config = () => new Configuration()
       HadoopGeoTiffRasterSource(source, config)
-    case s if s.startsWith("gdal+") =>
-      val cleaned = new URI(source.toASCIIString.replace("gdal+", ""))
-      apply(cleaned)
-    case s => throw new UnsupportedOperationException(s"Scheme '$s' not supported")
+    case IsDefaultGeoTiff() =>
+      DelegatingRasterSource(source, GeoTiffRasterSource(source.toASCIIString))
+    case s => throw new UnsupportedOperationException(s"Reading '$s' not supported")
+  }
+
+  object IsGDAL {
+    /** Determine if we should prefer GDAL for all types. */
+    private val preferGdal: Boolean = astraea.spark.rasterframes.rfConfig.getBoolean("prefer-gdal")
+    @transient
+    lazy val hasGDAL: Boolean = try {
+      org.gdal.gdal.gdal.AllRegister()
+      true
+    } catch {
+      case _: UnsatisfiedLinkError =>
+        logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader.")
+        false
+    }
+
+    val gdalOnlyExtensions = Seq(".jp2")
+    def gdalOnly(source: URI): Boolean =
+      if(gdalOnlyExtensions.exists(source.getPath.endsWith)) {
+        require(hasGDAL, s"Can only read $source if GDAL is available")
+        true
+      } else false
+
+    /** Extractor for determining if a scheme indicates GDAL preference.  */
+    def unapply(source: URI): Boolean =
+      gdalOnly(source) || ((preferGdal || source.getScheme.startsWith("gdal+")) && hasGDAL)
+  }
+
+  object IsDefaultGeoTiff {
+    def unapply(source: URI): Boolean = source.getScheme match {
+      case "file" | "http" | "https" | "s3" => true
+      case _                                => false
+    }
+  }
+
+  object IsHadoopGeoTiff {
+    def unapply(source: URI): Boolean = source.getScheme match {
+      case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" => true
+      case _                                         => false
+    }
   }
 
   case class SimpleGeoTiffInfo(
@@ -247,24 +283,6 @@ object RasterSource extends LazyLogging {
 
     override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
       gdal.readBounds(bounds, bands)
-  }
-
-  object GDALRasterSource {
-
-    /** Determine if we should prefer GDAL for all types. */
-    private val preferGdal: Boolean = astraea.spark.rasterframes.rfConfig.getBoolean("prefer-gdal")
-    @transient
-    lazy val hasGDAL: Boolean = try {
-      org.gdal.gdal.gdal.AllRegister()
-      true
-    } catch {
-      case _: UnsatisfiedLinkError =>
-        logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader.")
-        false
-    }
-
-    /** Extractor for determining if a scheme indicates GDAL preference.  */
-    def unapply(scheme: String): Boolean = (preferGdal || scheme.startsWith("gdal+")) && hasGDAL
   }
 
   trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport with LazyLogging {

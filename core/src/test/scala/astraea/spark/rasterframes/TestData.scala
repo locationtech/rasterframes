@@ -18,7 +18,7 @@
 
 package astraea.spark.rasterframes
 
-import java.net.URI
+import java.net.{URI, URL}
 import java.nio.file.Paths
 import java.time.ZonedDateTime
 
@@ -122,12 +122,13 @@ trait TestData {
   }
 
   private val baseCOG = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_%s.TIF"
-  lazy val remoteCOGSingleband1 = URI.create(baseCOG.format("B1"))
-  lazy val remoteCOGSingleband2 = URI.create(baseCOG.format("B2"))
+  lazy val remoteCOGSingleband1: URI = URI.create(baseCOG.format("B1"))
+  lazy val remoteCOGSingleband2: URI = URI.create(baseCOG.format("B2"))
 
-  lazy val remoteCOGMultiband =  URI.create("https://s3-us-west-2.amazonaws.com/radiant-nasa-iserv/2014/02/14/IP0201402141023382027S03100E/IP0201402141023382027S03100E-COG.tif")
+  lazy val remoteCOGMultiband: URI =  URI.create("https://s3-us-west-2.amazonaws.com/radiant-nasa-iserv/2014/02/14/IP0201402141023382027S03100E/IP0201402141023382027S03100E-COG.tif")
 
-  lazy val remoteMODIS = URI.create("https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF")
+  lazy val remoteMODIS: URI = URI.create("https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF")
+  lazy val localSentinel: URL = getClass.getResource("/B01.jp2")
 
   object JTS {
     val fact = new GeometryFactory()

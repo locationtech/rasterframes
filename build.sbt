@@ -34,7 +34,7 @@ lazy val core = project
       "org.locationtech.jts" % "jts-core" % "1.16.0",
       "org.locationtech.geomesa" %% "geomesa-z3" % rfGeoMesaVersion.value,
       "org.locationtech.geomesa" %% "geomesa-spark-jts" % rfGeoMesaVersion.value exclude("jgridshift", "jgridshift"),
-      "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.9.0",
+      "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.10.0",
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,
