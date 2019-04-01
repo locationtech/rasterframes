@@ -133,7 +133,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
   }
 
   describe("GDAL support") {
-    it("should read JPG2000 scene") {
+    it("should read JPEG2000 scene") {
       val src = RasterSource(localSentinel.toURI)
       src.readAll().flatMap(_.tile.statisticsDouble).size should be (64)
     }
