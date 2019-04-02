@@ -169,12 +169,13 @@ object RasterSource extends LazyLogging {
   }
 
   case class SimpleGeoTiffInfo(
+    cols: Int,
+    rows: Int,
     cellType: CellType,
     extent: Extent,
     rasterExtent: RasterExtent,
     crs: CRS,
     tags: Tags,
-    segmentLayout: GeoTiffSegmentLayout,
     bandCount: Int,
     noDataValue: Option[Double]
   )
@@ -182,12 +183,13 @@ object RasterSource extends LazyLogging {
   object SimpleGeoTiffInfo {
     def apply(info: GeoTiffReader.GeoTiffInfo): SimpleGeoTiffInfo =
       SimpleGeoTiffInfo(
+        info.segmentLayout.totalCols,
+        info.segmentLayout.totalRows,
         info.cellType,
         info.extent,
         info.rasterExtent,
         info.crs,
         info.tags,
-        info.segmentLayout,
         info.bandCount,
         info.noDataValue)
   }
@@ -202,16 +204,32 @@ object RasterSource extends LazyLogging {
 
   /** A RasterFrames RasterSource which delegates most operations to a geotrellis-contrib RasterSource */
   case class DelegatingRasterSource(source: URI, delegate: GTRasterSource) extends RasterSource with URIRasterSource {
-    override def cols: Int = delegate.cols
-    override def rows: Int = delegate.rows
-    override def crs: CRS = delegate.crs
-    override def extent: Extent = delegate.extent
-    override def cellType: CellType = delegate.cellType
-    override def bandCount: Int = delegate.bandCount
-    override def tags: Tags = delegate match {
+    // This helps reduce header reads between serializations
+    lazy val info: SimpleGeoTiffInfo = {
+      SimpleGeoTiffInfo(
+        delegate.cols,
+        delegate.rows,
+        delegate.cellType,
+        delegate.extent,
+        delegate.rasterExtent,
+        delegate.crs,
+        fetchTags,
+        delegate.bandCount,
+        None
+      )
+    }
+
+    override def cols: Int = info.cols
+    override def rows: Int = info.rows
+    override def crs: CRS = info.crs
+    override def extent: Extent = info.extent
+    override def cellType: CellType = info.cellType
+    override def bandCount: Int = info.bandCount
+    private def fetchTags: Tags = delegate match {
       case rs: GeoTiffRasterSource => rs.tiff.tags
       case _                       => EMPTY_TAGS
     }
+    override def tags: Tags = info.tags
     override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
       delegate.readBounds(bounds, bands)
     override def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
