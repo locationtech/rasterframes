@@ -21,7 +21,7 @@
 
 package astraea.spark.rasterframes.encoders
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
-import astraea.spark.rasterframes.util.CRSParser
+import astraea.spark.rasterframes.model.LazyCRS
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster._
@@ -77,7 +77,7 @@ trait StandardSerializers {
       )
     )
     override def from[R](row: R, io: CatalystIO[R]): CRS =
-      CRSParser(io.getString(row, 0))
+      LazyCRS(io.getString(row, 0))
   }
 
   implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {

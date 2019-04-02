@@ -33,8 +33,8 @@ import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
 import geotrellis.contrib.vlm.{RasterSource => GTRasterSource}
 import geotrellis.proj4.CRS
 import geotrellis.raster._
+import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.{GeoTiffSegmentLayout, Tags}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.RangeReader

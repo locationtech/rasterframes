@@ -20,7 +20,6 @@
 package astraea.spark.rasterframes
 
 import com.typesafe.scalalogging.Logger
-import geotrellis.proj4.CRS
 import geotrellis.raster.crop.TileCropMethods
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
@@ -92,16 +91,7 @@ package object util {
   def opName(op: LocalTileBinaryOp) =
     op.getClass.getSimpleName.replace("$", "").toLowerCase
 
-  object CRSParser {
-    def apply(value: String): CRS = {
-      value match {
-        case e if e.toUpperCase().startsWith("EPSG") => CRS.fromName(e)  //not case-sensitive
-        case p if p.startsWith("+proj") => CRS.fromString(p)  // case sensitive
-        case w if w.toUpperCase().startsWith("GEOGCS") => CRS.fromWKT(w)  //only case-sensitive inside double quotes
-        case _ ⇒ throw new IllegalArgumentException("crs string must be either EPSG code, +proj string, or OGC WKT")
-      }
-    }
-  }
+
 
   implicit class WithCombine[T](left: Option[T]) {
     def combine[A, R >: A](a: A)(f: (T, A) ⇒ R): R = left.map(f(_, a)).getOrElse(a)

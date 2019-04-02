@@ -16,7 +16,7 @@
 package astraea.spark.rasterframes
 
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
-import astraea.spark.rasterframes.util.CRSParser
+import astraea.spark.rasterframes.model.LazyCRS
 import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.SQLContext
@@ -126,8 +126,8 @@ package object functions {
   /** Reporjects a geometry column from one CRS to another, where CRS are defined in Proj4 format. */
   private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
     (sourceGeom, srcName, dstName) ⇒ {
-      val src = CRSParser(srcName)
-      val dst = CRSParser(dstName)
+      val src = LazyCRS(srcName)
+      val dst = LazyCRS(dstName)
       val trans = new ReprojectionTransformer(src, dst)
       trans.transform(sourceGeom)
     }
