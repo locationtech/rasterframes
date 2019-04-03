@@ -27,6 +27,7 @@ import astraea.spark.rasterframes.model.{TileContext, TileDimensions}
 import astraea.spark.rasterframes.ref.RasterSource.SINGLEBAND
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util.GeoTiffInfoSupport
+import com.azavea.gdal.GDALWarp
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
 import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
@@ -44,8 +45,6 @@ import org.apache.hadoop.fs.Path
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
-
-import scala.collection.JavaConverters._
 
 /**
  * Abstraction over fetching geospatial raster data.
@@ -125,7 +124,7 @@ object RasterSource extends LazyLogging {
       val config = () => new Configuration()
       HadoopGeoTiffRasterSource(source, config)
     case IsDefaultGeoTiff() =>
-      DelegatingRasterSource(source, GeoTiffRasterSource(source.toASCIIString))
+      DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))
     case s => throw new UnsupportedOperationException(s"Reading '$s' not supported")
   }
 
@@ -134,7 +133,7 @@ object RasterSource extends LazyLogging {
     private val preferGdal: Boolean = astraea.spark.rasterframes.rfConfig.getBoolean("prefer-gdal")
     @transient
     lazy val hasGDAL: Boolean = try {
-      org.gdal.gdal.gdal.AllRegister()
+      val _ = new GDALWarp()
       true
     } catch {
       case _: UnsatisfiedLinkError =>
@@ -142,9 +141,9 @@ object RasterSource extends LazyLogging {
         false
     }
 
-    val gdalOnlyExtensions = Seq(".jp2")
+    val gdalOnlyExtensions = Seq(".jp2", ".mrf", ".hdf")
     def gdalOnly(source: URI): Boolean =
-      if(gdalOnlyExtensions.exists(source.getPath.endsWith)) {
+      if(gdalOnlyExtensions.exists(source.getPath.toLowerCase.endsWith)) {
         require(hasGDAL, s"Can only read $source if GDAL is available")
         true
       } else false
@@ -203,7 +202,17 @@ object RasterSource extends LazyLogging {
   }
 
   /** A RasterFrames RasterSource which delegates most operations to a geotrellis-contrib RasterSource */
-  case class DelegatingRasterSource(source: URI, delegate: GTRasterSource) extends RasterSource with URIRasterSource {
+  case class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRasterSource) extends RasterSource with URIRasterSource {
+    @transient
+    lazy val delegate = delegateBuilder()
+
+    // Bad, bad, bad?
+    override def equals(obj: Any): Boolean = obj match {
+      case drs: DelegatingRasterSource => drs.source == source
+      case _ => false
+    }
+    override def hashCode(): Int = source.hashCode()
+
     // This helps reduce header reads between serializations
     lazy val info: SimpleGeoTiffInfo = {
       SimpleGeoTiffInfo(
@@ -282,12 +291,7 @@ object RasterSource extends LazyLogging {
 
     override def extent: Extent = gdal.extent
 
-    private def metadata =
-      gdal.dataset
-        .GetMetadata_Dict()
-        .asInstanceOf[java.util.Dictionary[String, String]]
-        .asScala
-        .toMap
+    private def metadata = Map.empty[String, String]
 
     override def cellType: CellType = gdal.cellType
 

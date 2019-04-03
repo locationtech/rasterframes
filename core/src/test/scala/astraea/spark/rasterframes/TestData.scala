@@ -128,6 +128,7 @@ trait TestData {
   lazy val remoteCOGMultiband: URI =  URI.create("https://s3-us-west-2.amazonaws.com/radiant-nasa-iserv/2014/02/14/IP0201402141023382027S03100E/IP0201402141023382027S03100E-COG.tif")
 
   lazy val remoteMODIS: URI = URI.create("https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF")
+  lazy val remoteL8: URI = URI.create("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/017/033/LC08_L1TP_017033_20181010_20181030_01_T1/LC08_L1TP_017033_20181010_20181030_01_T1_B4.TIF")
   lazy val localSentinel: URL = getClass.getResource("/B01.jp2")
 
   object JTS {
