@@ -15,6 +15,43 @@ Please see the [Getting Started](http://rasterframes.io/getting-started.html) se
 * [List of available UDFs](http://rasterframes.io/latest/api/index.html#astraea.spark.rasterframes.RasterFunctions)
 * [RasterFrames Jupyter Notebook Docker Image](https://hub.docker.com/r/s22s/rasterframes-notebooks/) 
 
+## Build instruction
+
+First, you will need [sbt](https://www.scala-sbt.org/).
+
+Download the source from GitHub.
+
+```bash
+git clone https://github.com/locationtech/rasterframes.git
+cd rasterframes
+```
+
+To publish to hyou Ivy local repository:
+
+```bash
+sbt publishLocal
+```
+
+You can run tests with
+
+```bash
+sbt test
+```
+
+and integration tests
+
+```bash
+sbt it:test
+```
+
+The documentation may be built with
+
+```bash
+sbt makeSite
+```
+
+The `pyrasteframes` build instructions are located [pyrasterframes/python/README.rst](pyrasterframes/python/README.rst)
+
 ## Copyright and License
 
 RasterFrames is released under the Apache 2.0 License, copyright Astraea, Inc. 2017-2018.
