@@ -26,7 +26,7 @@ import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.expressions.accessors._
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
-import geotrellis.raster.Tile
+import geotrellis.raster.{GridBounds, Tile}
 import geotrellis.vector.Extent
 
 /**
@@ -36,6 +36,7 @@ import geotrellis.vector.Extent
  */
 //noinspection TypeAnnotation
 class RasterRefSpec extends TestEnvironment with TestData {
+
   def sub(e: Extent) = {
     val c = e.center
     val w = e.width
@@ -44,7 +45,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
   }
 
   trait Fixture {
-    val counter = new ReadMonitor
+    val counter = new ReadMonitor(false)
     val src = RasterSource(remoteCOGSingleband1, Some(counter))
     val fullRaster = RasterRef(src)
     val subExtent = sub(src.extent)
@@ -94,7 +95,6 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         val ds = Seq((1, RasterRefTile(fullRaster): Tile)).toDF("index", "ref")
         val dims = ds.select(GetDimensions($"ref"))
-        println(counter)
         assert(dims.count() === 1)
         assert(dims.first() !== null)
       }
@@ -103,7 +103,6 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         val ds = Seq((1, RasterRefTile(subRaster): Tile)).toDF("index", "ref")
         val dims = ds.select(GetDimensions($"ref"))
-        println(counter)
         assert(dims.count() === 1)
         assert(dims.first() !== null)
       }
@@ -150,8 +149,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         assert(counter.reads === 0)
         assert(subRaster.tile.statistics.map(_.dataCells) === Some(subRaster.cols * subRaster.rows))
-        assert(counter.reads > 0)
-        println(counter)
+         assert(counter.reads > 0)
       }
     }
 

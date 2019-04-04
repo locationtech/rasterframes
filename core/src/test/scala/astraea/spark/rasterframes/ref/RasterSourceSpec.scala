@@ -21,8 +21,6 @@
 
 package astraea.spark.rasterframes.ref
 
-import java.net.URI
-
 import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
 import astraea.spark.rasterframes.ref.RasterSource.FileGeoTiffRasterSource
 import astraea.spark.rasterframes.{TestData, TestEnvironment}

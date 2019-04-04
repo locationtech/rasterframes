@@ -32,7 +32,7 @@ import scala.reflect.runtime.universe._
 
 /**
  *  Module providing support for RasterFrames.
- * `import astraea.spark.rasterframes._`., and then call `rfInit(SQLContext)`.
+ * `import astraea.spark.rasterframes._`.
  *
  * @since 7/18/17
  */
@@ -45,9 +45,13 @@ package object rasterframes extends StandardColumns
   with DataFrameFunctions.Library
   with LazyLogging {
 
+  @transient
+  private[rasterframes]
+  val rfConfig = ConfigFactory.load().getConfig("rasterframes")
+
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
   @transient
-  final val NOMINAL_TILE_SIZE: Int = ConfigFactory.load().getInt("rasterframes.nominal-tile-size")
+  final val NOMINAL_TILE_SIZE: Int = rfConfig.getInt("nominal-tile-size")
 
   /**
    * Initialization injection point. Must be called before any RasterFrame
@@ -123,5 +127,4 @@ package object rasterframes extends StandardColumns
       override val selfType: TypeTag[SpaceTimeKey] = implicitly
     }
   }
-
 }

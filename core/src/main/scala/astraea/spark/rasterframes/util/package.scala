@@ -19,24 +19,25 @@
 
 package astraea.spark.rasterframes
 
+import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
-import geotrellis.raster
-import geotrellis.raster.{CellGrid, Tile, isNoData}
 import geotrellis.raster.crop.TileCropMethods
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
+import geotrellis.raster.{CellGrid, Tile, isNoData}
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
-import geotrellis.util.{ByteReader, GetComponent, LazyLogging}
+import geotrellis.util.{ByteReader, GetComponent}
 import org.apache.spark.sql.catalyst.expressions.{Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Column, DataFrame, SQLContext}
+import org.slf4j.LoggerFactory
 import spire.syntax.cfor._
 
 import scala.Boolean.box
@@ -46,7 +47,10 @@ import scala.Boolean.box
  *
  * @since 12/18/17
  */
-package object util extends LazyLogging {
+package object util {
+  @transient
+  protected lazy val logger: Logger =
+    Logger(LoggerFactory.getLogger("astraea.spark.rasterframes"))
 
   import reflect.ClassTag
   import reflect.runtime.universe._

@@ -21,7 +21,7 @@ package astraea.spark.rasterframes.extensions
 
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.{RasterFrame, StandardColumns}
-import com.vividsolutions.jts.geom.{Point, Polygon}
+import org.locationtech.jts.geom.{Point, Polygon}
 import geotrellis.proj4.LatLng
 import geotrellis.spark.SpatialKey
 import geotrellis.spark.tiling.MapKeyTransform

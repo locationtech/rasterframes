@@ -20,8 +20,8 @@
 
 package astraea.spark.rasterframes.jts
 
-import com.vividsolutions.jts.geom.{CoordinateSequence, Geometry}
-import com.vividsolutions.jts.geom.util.GeometryTransformer
+import org.locationtech.jts.geom.{CoordinateSequence, Geometry}
+import org.locationtech.jts.geom.util.GeometryTransformer
 import geotrellis.proj4.CRS
 
 /**

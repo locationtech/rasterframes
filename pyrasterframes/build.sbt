@@ -2,8 +2,6 @@ import scala.sys.process.Process
 import sbt.Keys.`package`
 import sbt.Tests.Summary
 
-enablePlugins(SparkPackagePlugin, AssemblyPlugin)
-
 lazy val assemblyHasGeoTrellis = settingKey[Boolean]("If false, GeoTrellis libraries are excluded from assembly.")
 assemblyHasGeoTrellis := true
 
