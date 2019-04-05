@@ -44,7 +44,7 @@ class GeometryOperationsSpec extends TestEnvironment with TestData {
   describe("Geometery operations") {
     import spark.implicits._
     it("should rasterize geometry") {
-      val rf = l8Sample(1).projectedRaster.toRF.withBounds()
+      val rf = l8Sample(1).projectedRaster.toRF.withGeometry()
 
       val features = geoJson.parseGeoJson[JsonFeatureCollection].getAllPolygonFeatures[JsObject]()
       val df = features.map(f ⇒ (

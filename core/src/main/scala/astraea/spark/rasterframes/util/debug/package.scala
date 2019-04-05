@@ -46,7 +46,7 @@ package object debug {
       import spray.json.DefaultJsonProtocol._
 
       val features = self
-        .select(BOUNDS_COLUMN, SPATIAL_KEY_COLUMN)
+        .select(GEOMETRY_COLUMN, SPATIAL_KEY_COLUMN)
         .collect()
         .map{ case (p, s) ⇒ Feature(Geometry(p).reproject(self.crs, LatLng), Map("col" -> s.col, "row" -> s.row)) }
 

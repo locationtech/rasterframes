@@ -21,13 +21,14 @@ package astraea.spark.rasterframes.extensions
 
 import astraea.spark.rasterframes.util._
 import astraea.spark.rasterframes.{RasterFrame, StandardColumns}
-import org.locationtech.jts.geom.{Point, Polygon}
+import org.locationtech.jts.geom.Point
 import geotrellis.proj4.LatLng
 import geotrellis.spark.SpatialKey
 import geotrellis.spark.tiling.MapKeyTransform
 import geotrellis.util.MethodExtensions
+import geotrellis.vector.Extent
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.functions.{asc, udf ⇒ sparkUdf}
+import org.apache.spark.sql.functions.{asc, udf => sparkUdf}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
 import org.locationtech.geomesa.curve.Z2SFC
 
@@ -43,28 +44,39 @@ trait RFSpatialColumnMethods extends MethodExtensions[RasterFrame] with Standard
   /** Returns the key-space to map-space coordinate transform. */
   def mapTransform: MapKeyTransform = self.tileLayerMetadata.merge.mapTransform
 
-  private def keyCol2Bounds: Row ⇒ Polygon = {
+  private def keyCol2Extent: Row ⇒ Extent = {
     val transform = self.sparkSession.sparkContext.broadcast(mapTransform)
-    (r: Row) ⇒ transform.value.keyToExtent(SpatialKey(r.getInt(0), r.getInt(1))).jtsGeom
+    r ⇒ transform.value.keyToExtent(SpatialKey(r.getInt(0), r.getInt(1)))
   }
 
   private def keyCol2LatLng: Row ⇒ (Double, Double) = {
     val transform = self.sparkSession.sparkContext.broadcast(mapTransform)
     val crs = self.tileLayerMetadata.merge.crs
-    (r: Row) ⇒ {
+    r ⇒ {
       val center = transform.value.keyToExtent(SpatialKey(r.getInt(0), r.getInt(1))).center.reproject(crs, LatLng)
       (center.x, center.y)
     }
   }
 
   /**
+    * Append a column containing the extent of the row's spatial key.
+    * Coordinates are in native CRS.
+    * @param colName name of column to append. Defaults to "extent"
+    * @return updated RasterFrame
+    */
+  def withExtent(colName: String = EXTENT_COLUMN.columnName): RasterFrame = {
+    val key2Extent = sparkUdf(keyCol2Extent)
+    self.withColumn(colName, key2Extent(self.spatialKeyColumn)).certify
+  }
+
+  /**
    * Append a column containing the bounds of the row's spatial key.
    * Coordinates are in native CRS.
-   * @param colName name of column to append. Defaults to "bounds"
+   * @param colName name of column to append. Defaults to "geometry"
    * @return updated RasterFrame
    */
-  def withBounds(colName: String = BOUNDS_COLUMN.columnName): RasterFrame = {
-    val key2Bounds = sparkUdf(keyCol2Bounds)
+  def withGeometry(colName: String = GEOMETRY_COLUMN.columnName): RasterFrame = {
+    val key2Bounds = sparkUdf(keyCol2Extent andThen (_.jtsGeom))
     self.withColumn(colName, key2Bounds(self.spatialKeyColumn)).certify
   }
 
@@ -75,7 +87,7 @@ trait RFSpatialColumnMethods extends MethodExtensions[RasterFrame] with Standard
    * @return updated RasterFrame
    */
   def withCenter(colName: String = CENTER_COLUMN.columnName): RasterFrame = {
-    val key2Center = sparkUdf(keyCol2Bounds andThen (_.getCentroid))
+    val key2Center = sparkUdf(keyCol2Extent andThen (_.center.jtsGeom))
     self.withColumn(colName, key2Center(self.spatialKeyColumn).as[Point]).certify
   }
 

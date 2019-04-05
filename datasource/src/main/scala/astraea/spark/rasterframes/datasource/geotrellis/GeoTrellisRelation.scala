@@ -349,6 +349,6 @@ object GeoTrellisRelation {
     lazy val TS = TIMESTAMP_COLUMN.columnName
     lazy val TL = TILE_COLUMN.columnName
     lazy val TF = TILE_FEATURE_DATA_COLUMN.columnName
-    lazy val EX = BOUNDS_COLUMN.columnName
+    lazy val EX = GEOMETRY_COLUMN.columnName
   }
 }
