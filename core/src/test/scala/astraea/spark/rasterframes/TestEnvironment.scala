@@ -23,9 +23,9 @@ import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.st
 import astraea.spark.rasterframes.ref.RasterSource
 import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
-import com.vividsolutions.jts.geom.Geometry
+import com.typesafe.scalalogging.LazyLogging
+import org.locationtech.jts.geom.Geometry
 import geotrellis.spark.testkit.{TestEnvironment => GeoTrellisTestEnvironment}
-import geotrellis.util.LazyLogging
 import org.apache.spark.SparkContext
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col

@@ -20,7 +20,7 @@
 package astraea.spark.rasterframes.expressions
 
 import astraea.spark.rasterframes.expressions.SpatialRelation.RelationPredicate
-import com.vividsolutions.jts.geom._
+import org.locationtech.jts.geom._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback

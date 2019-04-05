@@ -26,7 +26,7 @@ import geotrellis.raster.{MultibandTile, ProjectedRaster, Tile, TileLayout}
 import geotrellis.spark._
 import geotrellis.spark.io._
 import geotrellis.spark.tiling.{LayoutDefinition, Tiler}
-import geotrellis.util.{LazyLogging, MethodExtensions}
+import geotrellis.util.MethodExtensions
 import geotrellis.vector.ProjectedExtent
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
@@ -35,6 +35,8 @@ import org.apache.spark.sql.types.{Metadata, TimestampType}
 import spray.json._
 import astraea.spark.rasterframes.encoders.StandardEncoders._
 import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.reflect.runtime.universe._
 
 /**

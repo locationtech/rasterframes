@@ -19,7 +19,7 @@
 
 package astraea.spark.rasterframes
 
-import com.vividsolutions.jts.geom.Polygon
+import org.locationtech.jts.geom.Polygon
 import geotrellis.proj4.LatLng
 import geotrellis.vector.Point
 import org.locationtech.geomesa.curve.Z2SFC

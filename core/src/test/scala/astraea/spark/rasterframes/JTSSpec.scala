@@ -19,7 +19,7 @@
 
 package astraea.spark.rasterframes
 
-import com.vividsolutions.jts.geom._
+import org.locationtech.jts.geom._
 import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
 import geotrellis.vector.{Point ⇒ GTPoint}
 

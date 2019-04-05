@@ -22,7 +22,7 @@
 package astraea.spark.rasterframes.expressions.accessors
 
 import astraea.spark.rasterframes.encoders.EnvelopeEncoder
-import com.vividsolutions.jts.geom.{Envelope, Geometry}
+import org.locationtech.jts.geom.{Envelope, Geometry}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}

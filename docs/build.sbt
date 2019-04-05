@@ -9,7 +9,6 @@ libraryDependencies ++= Seq(
   spark("sql").value % Tut
 )
 
-git.remoteRepo := "git@github.com:locationtech/rasterframes.git"
 apiURL := Some(url("http://rasterframes.io/latest/api"))
 autoAPIMappings := true
 ghpagesNoJekyll := true

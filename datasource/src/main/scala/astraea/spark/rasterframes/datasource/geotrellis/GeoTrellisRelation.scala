@@ -28,18 +28,19 @@ import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
 import astraea.spark.rasterframes.datasource.geotrellis.TileFeatureSupport._
 import astraea.spark.rasterframes.rules.splitFilters
-import astraea.spark.rasterframes.rules.SpatialFilters.{Contains ⇒ sfContains, Intersects ⇒ sfIntersects}
+import astraea.spark.rasterframes.rules.SpatialFilters.{Contains => sfContains, Intersects => sfIntersects}
 import astraea.spark.rasterframes.rules.SpatialRelationReceiver
 import astraea.spark.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
 import astraea.spark.rasterframes.util.SubdivideSupport._
 import astraea.spark.rasterframes.util._
-import com.vividsolutions.jts.geom
+import com.typesafe.scalalogging.LazyLogging
+import org.locationtech.jts.geom
 import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileFeature}
 import geotrellis.spark.io._
 import geotrellis.spark.io.avro.AvroRecordCodec
 import geotrellis.spark.util.KryoWrapper
 import geotrellis.spark.{LayerId, Metadata, SpatialKey, TileLayerMetadata, _}
-import geotrellis.util.{LazyLogging, _}
+import geotrellis.util._
 import geotrellis.vector._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord

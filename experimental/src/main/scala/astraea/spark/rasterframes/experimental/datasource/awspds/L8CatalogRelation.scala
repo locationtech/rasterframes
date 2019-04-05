@@ -21,7 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import com.typesafe.scalalogging.LazyLogging
-import com.vividsolutions.jts.geom.Envelope
+import org.locationtech.jts.geom.Envelope
 import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
