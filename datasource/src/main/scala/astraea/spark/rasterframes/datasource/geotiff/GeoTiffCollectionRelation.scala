@@ -85,7 +85,7 @@ object GeoTiffCollectionRelation {
   object Cols {
     lazy val PATH = "path"
     lazy val CRS = "crs"
-    lazy val EX = BOUNDS_COLUMN.columnName
+    lazy val EX = GEOMETRY_COLUMN.columnName
     lazy val TL = TILE_COLUMN.columnName
   }
 }

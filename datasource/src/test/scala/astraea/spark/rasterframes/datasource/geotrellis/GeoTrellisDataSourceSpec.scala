@@ -151,7 +151,7 @@ class GeoTrellisDataSourceSpec
     }
 
     it("should invoke Encoder[Extent]") {
-      val df = layerReader.loadRF(layer).withBounds()
+      val df = layerReader.loadRF(layer).withGeometry()
       assert(df.count > 0)
       assert(df.first.length === 5)
       assert(df.first.getAs[Extent](2) !== null)
@@ -285,7 +285,7 @@ class GeoTrellisDataSourceSpec
     it("should support extent against a geometry literal") {
       val df: DataFrame = layerReader
         .loadRF(layer)
-        .where(BOUNDS_COLUMN intersects pt1)
+        .where(GEOMETRY_COLUMN intersects pt1)
 
       assert(numFilters(df) === 1)
 
@@ -296,7 +296,7 @@ class GeoTrellisDataSourceSpec
     it("should support query with multiple geometry types") {
       // Mostly just testing that these evaluate without catalyst type errors.
       forEvery(JTS.all) { g ⇒
-        val query = layerReader.loadRF(layer).where(BOUNDS_COLUMN.intersects(g))
+        val query = layerReader.loadRF(layer).where(GEOMETRY_COLUMN.intersects(g))
           .persist(StorageLevel.OFF_HEAP)
         assert(query.count() === 0)
       }
@@ -309,7 +309,7 @@ class GeoTrellisDataSourceSpec
 
       val df = layerReader
         .loadRF(layer)
-        .where(st_intersects(BOUNDS_COLUMN, mkPtFcn(SPATIAL_KEY_COLUMN)))
+        .where(st_intersects(GEOMETRY_COLUMN, mkPtFcn(SPATIAL_KEY_COLUMN)))
 
       assert(numFilters(df) === 0)
 
@@ -360,8 +360,8 @@ class GeoTrellisDataSourceSpec
         val df = layerReader
           .loadRF(layer)
           .where(
-            ((BOUNDS_COLUMN intersects pt1) ||
-              (BOUNDS_COLUMN intersects pt2)) &&
+            ((GEOMETRY_COLUMN intersects pt1) ||
+              (GEOMETRY_COLUMN intersects pt2)) &&
               (TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
           )
 
@@ -374,7 +374,7 @@ class GeoTrellisDataSourceSpec
       withClue("partially nested") {
         val df = layerReader
           .loadRF(layer)
-          .where((BOUNDS_COLUMN intersects pt1) || (BOUNDS_COLUMN intersects pt2))
+          .where((GEOMETRY_COLUMN intersects pt1) || (GEOMETRY_COLUMN intersects pt2))
           .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
 
         assert(numFilters(df) === 1)
@@ -388,7 +388,7 @@ class GeoTrellisDataSourceSpec
       withClue("intersects first") {
         val df = layerReader
           .loadRF(layer)
-          .where(BOUNDS_COLUMN intersects pt1)
+          .where(GEOMETRY_COLUMN intersects pt1)
           .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
 
         assert(numFilters(df) == 1)
@@ -397,7 +397,7 @@ class GeoTrellisDataSourceSpec
         val df = layerReader
           .loadRF(layer)
           .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
-          .where(BOUNDS_COLUMN intersects pt1)
+          .where(GEOMETRY_COLUMN intersects pt1)
 
         assert(numFilters(df) == 1)
       }
@@ -418,8 +418,8 @@ class GeoTrellisDataSourceSpec
     it("should handle renamed spatial filter columns") {
       val df = layerReader
         .loadRF(layer)
-        .where(BOUNDS_COLUMN intersects region.jtsGeom)
-        .withColumnRenamed(BOUNDS_COLUMN.columnName, "foobar")
+        .where(GEOMETRY_COLUMN intersects region.jtsGeom)
+        .withColumnRenamed(GEOMETRY_COLUMN.columnName, "foobar")
 
       assert(numFilters(df) === 1)
       assert(df.count > 0, df.printSchema)
@@ -428,8 +428,8 @@ class GeoTrellisDataSourceSpec
     it("should handle dropped spatial filter columns") {
       val df = layerReader
         .loadRF(layer)
-        .where(BOUNDS_COLUMN intersects region.jtsGeom)
-        .drop(BOUNDS_COLUMN)
+        .where(GEOMETRY_COLUMN intersects region.jtsGeom)
+        .drop(GEOMETRY_COLUMN)
 
       assert(numFilters(df) === 1)
     }

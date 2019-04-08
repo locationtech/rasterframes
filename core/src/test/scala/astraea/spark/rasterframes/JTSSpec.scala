@@ -30,7 +30,7 @@ import geotrellis.vector.{Point ⇒ GTPoint}
  */
 class JTSSpec extends TestEnvironment with TestData with StandardColumns {
   describe("JTS interop") {
-    val rf = l8Sample(1).projectedRaster.toRF(10, 10).withBounds()
+    val rf = l8Sample(1).projectedRaster.toRF(10, 10).withGeometry()
     it("should allow joining and filtering of tiles based on points") {
       import spark.implicits._
 
@@ -43,27 +43,27 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
 
       val locs = coords.toDF("id", "point")
       withClue("join with point column") {
-        assert(rf.join(locs, st_contains(BOUNDS_COLUMN, $"point")).count === coords.length)
-        assert(rf.join(locs, st_intersects(BOUNDS_COLUMN, $"point")).count === coords.length)
+        assert(rf.join(locs, st_contains(GEOMETRY_COLUMN, $"point")).count === coords.length)
+        assert(rf.join(locs, st_intersects(GEOMETRY_COLUMN, $"point")).count === coords.length)
       }
 
       withClue("point literal") {
         val point = coords.head._2
-        assert(rf.filter(st_contains(BOUNDS_COLUMN, geomLit(point))).count === 1)
-        assert(rf.filter(st_intersects(BOUNDS_COLUMN, geomLit(point))).count === 1)
-        assert(rf.filter(BOUNDS_COLUMN intersects point).count === 1)
-        assert(rf.filter(BOUNDS_COLUMN intersects GTPoint(point)).count === 1)
-        assert(rf.filter(BOUNDS_COLUMN containsGeom point).count === 1)
+        assert(rf.filter(st_contains(GEOMETRY_COLUMN, geomLit(point))).count === 1)
+        assert(rf.filter(st_intersects(GEOMETRY_COLUMN, geomLit(point))).count === 1)
+        assert(rf.filter(GEOMETRY_COLUMN intersects point).count === 1)
+        assert(rf.filter(GEOMETRY_COLUMN intersects GTPoint(point)).count === 1)
+        assert(rf.filter(GEOMETRY_COLUMN containsGeom point).count === 1)
       }
 
       withClue("exercise predicates") {
         val point = geomLit(coords.head._2)
-        assert(rf.filter(st_covers(BOUNDS_COLUMN, point)).count === 1)
-        assert(rf.filter(st_crosses(BOUNDS_COLUMN, point)).count === 0)
-        assert(rf.filter(st_disjoint(BOUNDS_COLUMN, point)).count === rf.count - 1)
-        assert(rf.filter(st_overlaps(BOUNDS_COLUMN, point)).count === 0)
-        assert(rf.filter(st_touches(BOUNDS_COLUMN, point)).count === 0)
-        assert(rf.filter(st_within(BOUNDS_COLUMN, point)).count === 0)
+        assert(rf.filter(st_covers(GEOMETRY_COLUMN, point)).count === 1)
+        assert(rf.filter(st_crosses(GEOMETRY_COLUMN, point)).count === 0)
+        assert(rf.filter(st_disjoint(GEOMETRY_COLUMN, point)).count === rf.count - 1)
+        assert(rf.filter(st_overlaps(GEOMETRY_COLUMN, point)).count === 0)
+        assert(rf.filter(st_touches(GEOMETRY_COLUMN, point)).count === 0)
+        assert(rf.filter(st_within(GEOMETRY_COLUMN, point)).count === 0)
       }
     }
 
@@ -80,7 +80,7 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
 
     it("should provide a means of getting a bounding box") {
       import spark.implicits._
-      val boxed = rf.select(BOUNDS_COLUMN, envelope(BOUNDS_COLUMN) as "env")
+      val boxed = rf.select(GEOMETRY_COLUMN, envelope(GEOMETRY_COLUMN) as "env")
       assert(boxed.select($"env".as[Envelope]).first.getArea > 0)
       assert(boxed.toDF("bounds", "bbox").select("bbox.*").schema.length === 4)
     }

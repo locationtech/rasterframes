@@ -184,7 +184,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = df.asRF.spatialJoin(right.asRF)
 
-  def withBounds(df: DataFrame): RasterFrame = df.asRF.withBounds()
+  def withBounds(df: DataFrame): RasterFrame = df.asRF.withGeometry()
 
   def withCenter(df: DataFrame): RasterFrame = df.asRF.withCenter()
 

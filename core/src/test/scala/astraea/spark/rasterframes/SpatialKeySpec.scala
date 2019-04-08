@@ -41,7 +41,7 @@ class SpatialKeySpec extends TestEnvironment with TestData {
 
     it("should add an extent column") {
       val expected = raster.extent.jtsGeom
-      val result = rf.withBounds().select($"bounds".as[Polygon]).first
+      val result = rf.withGeometry().select($"bounds".as[Polygon]).first
       assert(result === expected)
     }
 

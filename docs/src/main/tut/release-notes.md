@@ -19,6 +19,8 @@
 * _Breaking_: `CellHistogram` no longer carries along approximate statistics, due to confusing behavior. Use `agg_stats` instead.
 * Introduced `LocalCellStatistics` class to wrap together results from `LocalStatsAggregate`.
 * _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `astraea.spark.rasterframes.model`.
+* _Breaking_: Renamed `RasterFrame.withBounds` to `RasterFrame.withGeometry` for consistency with DataSource schemas.
+* Added `RasterFrame.withExtent` extension method.
    
 ## 0.7.x
 
