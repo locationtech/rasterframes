@@ -408,7 +408,7 @@ class GeoTrellisDataSourceSpec
           .loadRF(layer)
           .where($"timestamp" >= Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
           .where($"timestamp" <= Timestamp.valueOf(now.plusDays(1).toLocalDateTime))
-          .where(st_intersects($"bounds", geomLit(pt1.jtsGeom)))
+          .where(st_intersects(GEOMETRY_COLUMN, geomLit(pt1.jtsGeom)))
 
         assert(numFilters(df) == 1)
       }

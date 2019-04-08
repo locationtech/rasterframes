@@ -32,10 +32,10 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
   private var scenes: DataFrame = _
 
   val query =  """
-            |SELECT bounds, timestamp, B1, B2
+            |SELECT geometry, timestamp, B1, B2
             |FROM l8
             |WHERE
-            |  st_intersects(bounds, st_geomFromText('LINESTRING (-39.551 -7.1881, -72.2461 -45.7062)')) AND
+            |  st_intersects(geometry, st_geomFromText('LINESTRING (-39.551 -7.1881, -72.2461 -45.7062)')) AND
             |  timestamp > to_timestamp('2017-11-01') AND
             |  timestamp <= to_timestamp('2017-11-03')
           """.stripMargin
