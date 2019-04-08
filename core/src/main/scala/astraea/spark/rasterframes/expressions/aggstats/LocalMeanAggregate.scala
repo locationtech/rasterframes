@@ -27,16 +27,15 @@ import astraea.spark.rasterframes.expressions.transformers.SetCellType
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.local
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, ExpressionDescription, If, IsNull, Literal}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import astraea.spark.rasterframes.TileType
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Computes a new tile contining the mean cell values across all tiles in column.",
   note = "All tiles in the column must be the same size."
 )
 case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
-  private val TileType = new TileUDT()
 
   override def dataType: DataType = TileType
   override def nodeName: String = "agg_local_mean"

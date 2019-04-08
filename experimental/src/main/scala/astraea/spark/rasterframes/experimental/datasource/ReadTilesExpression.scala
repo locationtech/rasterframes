@@ -42,6 +42,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, Generator, Literal}
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
+import astraea.spark.rasterframes.TileType
 
 /**
  * Catalyst generator to convert a geotiff download URL into a series of rows containing the internal
@@ -51,8 +52,6 @@ import org.apache.spark.sql.types._
  */
 case class ReadTilesExpression(children: Seq[Expression]) extends Expression
   with Generator with CodegenFallback with DownloadSupport with LazyLogging {
-
-  private val TileType = new TileUDT()
 
   override def nodeName: String = "download_tiles"
 

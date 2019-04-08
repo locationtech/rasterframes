@@ -29,9 +29,9 @@ import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression,
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, Row, TypedColumn}
+import astraea.spark.rasterframes.TileType
 
 /**
  * Catalyst aggregate function that counts `NoData` values in a cell-wise fashion.
@@ -46,8 +46,6 @@ class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction 
     else safeBinaryOp((t1: Tile, t2: Tile) ⇒ Add(t1, Undefined(t2)))
 
   private val add = safeBinaryOp(Add.apply(_: Tile, _: Tile))
-
-  private val TileType = new TileUDT()
 
   override def dataType: DataType = TileType
 

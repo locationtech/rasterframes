@@ -34,10 +34,10 @@ import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
  * Spark SQL data source over GeoTIFF files.
  * @since 1/14/18
  */
-class DefaultSource extends DataSourceRegister
+class GeoTiffDataSource extends DataSourceRegister
   with RelationProvider with CreatableRelationProvider
   with DataSourceOptions with LazyLogging {
-  def shortName() = DefaultSource.SHORT_NAME
+  def shortName() = GeoTiffDataSource.SHORT_NAME
 
   def path(parameters: Map[String, String]) =
     uriParam(PATH_PARAM, parameters)
@@ -50,7 +50,7 @@ class DefaultSource extends DataSourceRegister
     val p = pathO.get
 
     if(p.getPath.contains("*")) {
-      val bandCount = parameters.get(DefaultSource.BAND_COUNT_PARAM).map(_.toInt).getOrElse(1)
+      val bandCount = parameters.get(GeoTiffDataSource.BAND_COUNT_PARAM).map(_.toInt).getOrElse(1)
       GeoTiffCollectionRelation(sqlContext, p, bandCount)
     }
     else GeoTiffRelation(sqlContext, p)
@@ -90,8 +90,8 @@ class DefaultSource extends DataSourceRegister
       (c, r)
     }
 
-    val cols = numParam(DefaultSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(fullResCols)
-    val rows = numParam(DefaultSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(fullResRows)
+    val cols = numParam(GeoTiffDataSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(fullResCols)
+    val rows = numParam(GeoTiffDataSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(fullResRows)
 
     require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a GeoTIFF of size $cols x $rows. (Too big!)")
 
@@ -108,7 +108,7 @@ class DefaultSource extends DataSourceRegister
       case _ ⇒ ColorSpace.BlackIsZero
     }
 
-    val compress = parameters.get(DefaultSource.COMPRESS_PARAM).map(_.toBoolean).getOrElse(false)
+    val compress = parameters.get(GeoTiffDataSource.COMPRESS_PARAM).map(_.toBoolean).getOrElse(false)
     val options = GeoTiffOptions(Tiled, if (compress) DeflateCompression else NoCompression, colorSpace)
     val tags = Tags(
       RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
@@ -122,7 +122,7 @@ class DefaultSource extends DataSourceRegister
   }
 }
 
-object DefaultSource {
+object GeoTiffDataSource {
   final val SHORT_NAME = "geotiff"
   final val PATH_PARAM = "path"
   final val IMAGE_WIDTH_PARAM = "imageWidth"

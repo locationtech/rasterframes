@@ -57,6 +57,9 @@ trait StandardColumns {
 
   /** Default teil column index column for the cells of exploded tiles. */
   val ROW_INDEX_COLUMN = col("row_index").as[Int]
+
+  /** URI/URL/S3 path to raster. */
+  val PATH_COLUMN = col("path").as[String]
 }
 
 object StandardColumns extends StandardColumns

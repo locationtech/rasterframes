@@ -33,9 +33,9 @@ import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression,
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, TypedColumn}
+import astraea.spark.rasterframes.TileType
 
 /**
  * Histogram aggregation function for a full column of tiles.
@@ -45,7 +45,6 @@ import org.apache.spark.sql.{Column, Row, TypedColumn}
 case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunction {
   def this() = this(StreamingHistogram.DEFAULT_NUM_BUCKETS)
   // TODO: rewrite as TypedAggregateExpression or similar.
-  private val TileType = new TileUDT()
 
   override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 

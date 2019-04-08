@@ -36,20 +36,12 @@ import org.apache.spark.sql.sources.{BaseRelation, PrunedScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SQLContext}
 
-/**
- *
- *
- * @since 7/31/18
- */
 case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount: Int) extends BaseRelation with PrunedScan {
 
   override def schema: StructType = StructType(Seq(
     StructField(Cols.PATH, StringType, false),
     StructField(EXTENT_COLUMN.columnName, CatalystSerializer[Extent].schema, nullable = true),
     StructField(CRS_COLUMN.columnName, CatalystSerializer[CRS].schema, false)
-//    StructField(METADATA_COLUMN.columnName,
-//      DataTypes.createMapType(StringType, StringType, false)
-//    )
   ) ++ (
     if(bandCount == 1) Seq(StructField(Cols.TL, new TileUDT, false))
     else for(b ← 1 to bandCount) yield StructField(Cols.TL + "_" + b, new TileUDT, nullable = true)
@@ -61,8 +53,6 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
     implicit val sc = sqlContext.sparkContext
 
     val columnIndexes = requiredColumns.map(schema.fieldIndex)
-
-
 
     HadoopGeoTiffRDD.multiband(new Path(uri.toASCIIString), keyer, HadoopGeoTiffRDD.Options.DEFAULT)
       .map { case ((path, pe), mbt) ⇒
@@ -77,7 +67,6 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
         }
         Row(entries: _*)
       }
-
   }
 }
 

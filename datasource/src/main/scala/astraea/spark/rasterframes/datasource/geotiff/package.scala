@@ -40,11 +40,11 @@ package object geotiff {
   /** Adds `geotiff` format specifier to `DataFrameReader`. */
   implicit class DataFrameReaderHasGeoTiffFormat(val reader: DataFrameReader) {
     def geotiff: GeoTiffRasterFrameReader =
-      tag[GeoTiffRasterFrameReaderTag][DataFrameReader](reader.format(DefaultSource.SHORT_NAME))
+      tag[GeoTiffRasterFrameReaderTag][DataFrameReader](reader.format(GeoTiffDataSource.SHORT_NAME))
   }
 
   implicit class DataFrameWriterHasGeoTiffFormat[T](val writer: DataFrameWriter[T]) {
-    def geotiff: DataFrameWriter[T] = writer.format(DefaultSource.SHORT_NAME)
+    def geotiff: DataFrameWriter[T] = writer.format(GeoTiffDataSource.SHORT_NAME)
   }
 
   /** Adds `loadRF` to appropriately tagged `DataFrameReader` */

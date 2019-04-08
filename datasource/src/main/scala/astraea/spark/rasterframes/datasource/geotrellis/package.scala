@@ -21,7 +21,7 @@ package astraea.spark.rasterframes.datasource
 import java.net.URI
 
 import _root_.geotrellis.spark.LayerId
-import astraea.spark.rasterframes.datasource.geotrellis.DefaultSource._
+import astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisLayerDataSource._
 import astraea.spark.rasterframes.{RasterFrame, _}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col

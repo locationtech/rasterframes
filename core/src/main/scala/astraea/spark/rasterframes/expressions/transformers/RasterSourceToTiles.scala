@@ -32,6 +32,7 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 
 import scala.util.control.NonFatal
+import astraea.spark.rasterframes.TileType
 
 /**
  * Accepts RasterRef and generates one or more RasterRef instances representing the
@@ -43,8 +44,6 @@ case class RasterSourceToTiles(children: Seq[Expression], applyTiling: Boolean) 
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
   private val RasterSourceType = new RasterSourceUDT()
-  private val TileType = new TileUDT()
-
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
   override def nodeName: String = "raster_source_to_tile"
 

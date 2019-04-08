@@ -29,10 +29,10 @@ import geotrellis.raster.{DataType => _, _}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.aggregate.{ImperativeAggregate, TypedImperativeAggregate}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 import spire.syntax.cfor._
+import astraea.spark.rasterframes.TileType
 
 /**
  * Aggregator for reassembling tiles from from exploded form
@@ -52,8 +52,6 @@ case class TileAssembler(
   override def children: Seq[Expression] = Seq(colIndex, rowIndex, cellValue, tileCols, tileRows)
 
   override def inputTypes = Seq(ShortType, ShortType, DoubleType, ShortType, ShortType)
-
-  private val TileType = new TileUDT()
 
   override def prettyName: String = "assemble_tiles"
 
