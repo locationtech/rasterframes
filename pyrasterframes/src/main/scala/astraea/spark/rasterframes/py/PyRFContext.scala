@@ -21,7 +21,7 @@ package astraea.spark.rasterframes.py
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.util.CRSParser
 import com.vividsolutions.jts.geom.Geometry
-import geotrellis.raster.{ArrayTile, CellType, MultibandTile}
+import geotrellis.raster.{ArrayTile, CellType, MultibandTile, Tile}
 import geotrellis.spark.io._
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql._
@@ -100,6 +100,19 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     */
   def cell_types = {
     astraea.spark.rasterframes.functions.cellTypes().asJava
+  }
+
+  def list_to_bytearray(l: java.util.ArrayList[Double], c: Int, r: Int): Array[Byte] = {
+    geotrellis.raster.ArrayTile(l.asScala.toArray, c, r).toBytes()
+  }
+
+  def bytearray_to_list(bytes: Array[Byte], cell_type_name: String, cols: Int, rows: Int): java.util.List[Double] = {
+    geotrellis.raster.ArrayTile.fromBytes(
+      bytes,
+      geotrellis.raster.CellType.fromName(cell_type_name),
+      cols,
+      rows
+    ).toListDouble.asJava
   }
 
   /** DESERIALIZATION **/

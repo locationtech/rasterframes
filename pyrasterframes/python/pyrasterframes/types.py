@@ -12,13 +12,14 @@ from pyspark.sql.types import *
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from .context import RFContext
+import numpy
 
 __all__ = ['RasterFrame', 'TileUDT', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
 
 class RasterFrame(DataFrame):
     def __init__(self, jdf, spark_session):
-        DataFrame.__init__(self, jdf, spark_session)
+        DataFrame.__init__(self, jdf, spark_session._wrapped)
         self._jrfctx = spark_session.rasterframes._jrfctx
 
     def tileColumns(self):
@@ -130,27 +131,44 @@ class RasterSourceUDT(UserDefinedType):
         return 'org.apache.spark.sql.rf.RasterSourceUDT'
 
     def serialize(self, obj):
-        if (obj is None): return None
+        # Not yet implemented. Kryo serialized bytes?
         return None
 
     def deserialize(self, datum):
-        return None
+        bytes(datum[0])
+
 
 class TileUDT(UserDefinedType):
     @classmethod
-    def sqlType(self):
+    def sqlType(cls):
+        """
+        Mirrors `schema` in scala companion object org.apache.spark.sql.rf.TileUDT
+        """
         return StructType([
-            StructField("cell_type", StringType(), False),
-            StructField("cols", ShortType(), False),
-            StructField("rows", ShortType(), False),
-            StructField("cells", BinaryType(), True),
-            StructField("ref", StructType([
-              StructField("source", RasterSourceUDT(), False),
-              StructField("subextent", StructType([
-                  StructField("xmin", DoubleType(), False),
-                  StructField("ymin", DoubleType(), False),
-                  StructField("xmax", DoubleType(), False),
-                  StructField("ymax", DoubleType(), False)]), True)]), True)])
+            StructField("cell_context", StructType([
+                StructField("cell_type", StructType([
+                    StructField("cellTypeName", StringType(), False)
+                    ]), False),
+                # ], False),  # life wood be ez if string dough
+                StructField("dimensions", StructType([
+                    StructField("cols", ShortType(), False),
+                    StructField("rows", ShortType(), False)
+                ]), False),
+            ]), False),
+            StructField("cell_data", StructType([
+                StructField("cells", BinaryType(), True),
+                StructField("ref", StructType([
+                    StructField("source", RasterSourceUDT(), False),
+                    StructField("subextent", StructType([
+                      StructField("xmin", DoubleType(), False),
+                      StructField("ymin", DoubleType(), False),
+                      StructField("xmax", DoubleType(), False),
+                      StructField("ymax", DoubleType(), False)
+
+                    ]), True)
+                ]), True)
+            ]), False)
+        ])
 
     @classmethod
     def module(cls):
@@ -160,16 +178,46 @@ class TileUDT(UserDefinedType):
     def scalaUDT(cls):
         return 'org.apache.spark.sql.rf.TileUDT'
 
-    # NB: These will need implementations if UDFs are to be supported,
-    # preferably in numpy arrays.
-    def serialize(self, obj):
-        if (obj is None): return None
-        return None
+    def serialize(self, masked_array):
+        return_val = [
+            # cell_context
+            [
+                [masked_array.dtype.name],
+                [masked_array.shape[1], masked_array.shape[0]]
+            ],
+            # cell_data
+            [
+                    # cells
+                    RFContext.call('list_to_bytearray', masked_array.flatten().tolist(), masked_array.shape[1], masked_array.shape[0]),
+                    # ref -- TODO implement
+                    None
+            ]
+        ]
+        return return_val
 
     def deserialize(self, datum):
-        return None
+        """
+
+        :param datum:
+        :return: A Tile object from row data.
+        """
+        cell_type = datum.cell_context.cell_type.cellTypeName
+        cols = datum.cell_context.dimensions.cols
+        rows = datum.cell_context.dimensions.rows
+        cell_data_bytes = bytes(datum.cell_data.cells)
+        cell_value_list = list(RFContext.call('bytearray_to_list', cell_data_bytes, cell_type, cols, rows))
+
+        ma = MaskedArray(
+            numpy.reshape(cell_value_list, (rows, cols), order='C').astype(cell_type),
+            numpy.zeros((rows, cols))
+        )
+        return ma
+
+    deserialize.__safe_for_unpickling__ = True
 
 
+from numpy.ma import MaskedArray
+MaskedArray.__UDT__ = TileUDT()
 
 class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """

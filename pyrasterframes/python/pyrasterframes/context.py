@@ -28,13 +28,18 @@ class RFContext(object):
     @staticmethod
     def active():
         """
-        Get the active Pythono RFContext and throw an error if it is not enabled for RasterFrames.
+        Get the active Python RFContext and throw an error if it is not enabled for RasterFrames.
         """
         sc = SparkContext._active_spark_context
         if not hasattr(sc, '_rf_context'):
             raise AttributeError(
                 "RasterFrames have not been enabled for the active session. Call 'SparkSession.withRasterFrames()'.")
         return sc._rf_context
+
+    @staticmethod
+    def call(name, *args):
+        f = RFContext.active().lookup(name)
+        return f(*args)
 
     @staticmethod
     def _jvm_mirror():

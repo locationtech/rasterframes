@@ -1,5 +1,5 @@
 
-from pyspark.sql import SparkSession, Column
+from pyspark.sql import SparkSession, Column, SQLContext
 from pyspark.sql.functions import *
 from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
@@ -138,7 +138,7 @@ class RasterFunctionsTest(unittest.TestCase):
 
         self.rf.createOrReplaceTempView("rf")
 
-        dims = self.rf.withColumn('dims',  tile_dimensions(self.tileCol)).first().dims
+        dims = self.rf.withColumn('dims', tile_dimensions(self.tileCol)).first().dims
         dims_str = """{}, {}""".format(dims.cols, dims.rows)
 
         self.spark.sql("""SELECT tile, rf_make_constant_tile(1, {}, 'uint16') AS One, 
@@ -285,9 +285,54 @@ class RasterFunctionsTest(unittest.TestCase):
             pandas_df_out.poly_len.values
         )
 
+    def test_tile_udt(self):
+        import pandas as pd
+        import numpy as np
+        from numpy.ma import MaskedArray
+        self.assertIsInstance(self.rf.sql_ctx, SQLContext)
+
+        # Try to create a tile from numpy.ma.MaskedArray
+        to_spark = pd.DataFrame({
+            't': [MaskedArray(np.random.randn(10, 10), np.zeros((10, 10))) for _ in range(3)],
+            'b': ['a', 'b', 'c'],
+            'c': [1, 2, 4],
+        })
+        rf_maybe = self.spark.createDataFrame(to_spark)
+        print("Type of dataframe: ", type(rf_maybe))
+        rf_maybe.printSchema()
+        print(rf_maybe.toPandas())
+
+        # Try to do something with it.
+        sums = to_spark.t.apply(lambda a: a.sum()).tolist()
+        maybe_sums = rf_maybe.select(tile_sum(rf_maybe.t).alias('tsum'))
+        print("Schema of tile sum")
+        maybe_sums.printSchema()
+
+        maybe_sums = [r.tsum for r in maybe_sums.collect()]
+        np.testing.assert_almost_equal(maybe_sums, sums, 12)
+
+
+        # Test round trip for an array
+        simple_array = MaskedArray(np.array([[1, 2], [3, 4]]).astype('float64'), np.zeros((2, 2)))
+        to_spark_2 = pd.DataFrame({
+            't': [simple_array]
+        })
+
+        rf_maybe_2 = self.spark.createDataFrame(to_spark_2)
+        print("RasterFrame `show`:")
+        rf_maybe_2.select(render_matrix(rf_maybe_2.t).alias('t')).show(truncate=False)
+
+        pd_2 = rf_maybe_2.toPandas()
+        array_back_2 = pd_2.iloc[0].t
+        print("Array collected from toPandas output", array_back_2, sep='\n')
+
+        self.assertIsInstance(array_back_2, MaskedArray)
+        np.testing.assert_equal(array_back_2, simple_array)
+
 
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
+
 
 unittest.TextTestRunner().run(suite())

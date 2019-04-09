@@ -14,14 +14,9 @@ from .context import RFContext
 THIS_MODULE = 'pyrasterframes'
 
 
-def _context_call(name, *args):
-    f = RFContext.active().lookup(name)
-    return f(*args)
-
-
 def _celltype(cellTypeStr):
     """ Convert the string cell type to the expected CellType object."""
-    return _context_call('cell_type', cellTypeStr)
+    return RFContext.call('cell_type', cellTypeStr)
 
 
 def _create_assembleTile():
@@ -154,7 +149,7 @@ def _create_maskByValue():
 _rf_unique_functions = {
     'array_to_tile': _create_arrayToTile(),
     'assemble_tile': _create_assembleTile(),
-    'cell_types': lambda: _context_call('cell_types'),
+    'cell_types': lambda: RFContext.call('cell_types'),
     'convert_cell_type': _create_convertCellType(),
     'explode_tiles': _create_explode_tiles(),
     'explode_tiles_sample': _create_explode_tiles_sample(),
@@ -235,6 +230,7 @@ _rf_column_functions = {
     'local_greater_equal': 'Cellwise greater than or equal to comparison between two tiles',
     'local_equal': 'Cellwise equality comparison between two tiles',
     'local_unequal': 'Cellwise inequality comparison between two tiles',
+    'render_matrix': 'Render matrix as a formatted string',
     'round': 'Round cell values to the nearest integer without changing the cell type',
     'log': 'Performs cell-wise natural logarithm',
     'log10': 'Performs cell-wise logartithm with base 10',
