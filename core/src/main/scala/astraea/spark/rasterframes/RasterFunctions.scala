@@ -101,7 +101,7 @@ trait RasterFunctions {
     SetCellType(col, cellTypeName)
 
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
-  def bounds_geometry(bounds: Column): TypedColumn[Any, Geometry] = BoundsToGeometry(bounds)
+  def extent_geometry(bounds: Column): TypedColumn[Any, Geometry] = ExtentToGeometry(bounds)
 
   /** Assign a `NoData` value to the Tiles. */
   def with_no_data(col: Column, nodata: Double): TypedColumn[Any, Tile] = withAlias("with_no_data", col)(

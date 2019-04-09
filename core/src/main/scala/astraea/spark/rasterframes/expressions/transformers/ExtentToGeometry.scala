@@ -40,8 +40,8 @@ import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
  *
  * @since 8/24/18
  */
-case class BoundsToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
-    override def nodeName: String = "bounds_geometry"
+case class ExtentToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
+    override def nodeName: String = "extent_geometry"
 
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
 
@@ -71,7 +71,7 @@ case class BoundsToGeometry(child: Expression) extends UnaryExpression with Code
   }
 }
 
-object BoundsToGeometry extends SpatialEncoders {
+object ExtentToGeometry extends SpatialEncoders {
   def apply(bounds: Column): TypedColumn[Any, Geometry] =
-    new Column(new BoundsToGeometry(bounds.expr)).as[Geometry]
+    new Column(new ExtentToGeometry(bounds.expr)).as[Geometry]
 }
