@@ -21,7 +21,8 @@ package astraea.spark.rasterframes
 
 import org.locationtech.jts.geom._
 import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
-import geotrellis.vector.{Point ⇒ GTPoint}
+import geotrellis.vector.{Extent, Point => GTPoint}
+import org.apache.spark.sql.Column
 
 /**
  * Test rig for operations providing interop with JTS types.
@@ -80,8 +81,8 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
 
     it("should provide a means of getting a bounding box") {
       import spark.implicits._
-      val boxed = rf.select(GEOMETRY_COLUMN, envelope(GEOMETRY_COLUMN) as "env")
-      assert(boxed.select($"env".as[Envelope]).first.getArea > 0)
+      val boxed = rf.select(GEOMETRY_COLUMN, st_extent(GEOMETRY_COLUMN) as "extent")
+      assert(boxed.select($"extent".as[Extent]).first.area > 0)
       assert(boxed.toDF("bounds", "bbox").select("bbox.*").schema.length === 4)
     }
 

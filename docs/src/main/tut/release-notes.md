@@ -21,6 +21,7 @@
 * _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `astraea.spark.rasterframes.model`.
 * _Breaking_: Renamed `RasterFrame.withBounds` to `RasterFrame.withGeometry` for consistency with DataSource schemas.
 * Added `RasterFrame.withExtent` extension method.
+* Added `st_extent` and deprecated `envelope`.
    
 ## 0.7.x
 

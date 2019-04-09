@@ -245,6 +245,7 @@ _rf_column_functions = {
     'exp10': 'Compute 10 to the power of cell values',
     'expm1': 'Performs cell-wise exponential, then subtract one',
     'resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
+    'st_extent': 'Compute the extent/bbox of a Geometry',
 
     # ------- JTS functions -------
     # spatial constructors

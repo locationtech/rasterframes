@@ -133,7 +133,6 @@ package object functions {
     }
 
   def register(sqlContext: SQLContext): Unit = {
-
     sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
     sqlContext.udf.register("rf_tile_zeros", tileZeros)
     sqlContext.udf.register("rf_tile_ones", tileOnes)
