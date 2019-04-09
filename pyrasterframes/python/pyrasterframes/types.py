@@ -188,7 +188,7 @@ class TileUDT(UserDefinedType):
             # cell_data
             [
                     # cells
-                    RFContext.call('list_to_bytearray', masked_array.flatten().tolist(), masked_array.shape[1], masked_array.shape[0]),
+                    bytearray(RFContext.call('list_to_bytearray', masked_array.flatten().tolist(), masked_array.shape[1], masked_array.shape[0])),
                     # ref -- TODO implement
                     None
             ]
@@ -204,7 +204,7 @@ class TileUDT(UserDefinedType):
         cell_type = datum.cell_context.cell_type.cellTypeName
         cols = datum.cell_context.dimensions.cols
         rows = datum.cell_context.dimensions.rows
-        cell_data_bytes = bytes(datum.cell_data.cells)
+        cell_data_bytes = datum.cell_data.cells
         cell_value_list = list(RFContext.call('bytearray_to_list', cell_data_bytes, cell_type, cols, rows))
 
         ma = MaskedArray(

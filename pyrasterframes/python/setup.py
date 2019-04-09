@@ -118,16 +118,16 @@ setup_args = dict(
     license='Apache 2',
     setup_requires=['pytest-runner', pyspark_ver, 'pathlib'],
     install_requires=[
-        'pytz', 'shapely',
-        # pyspark_ver,
-        # 'pathlib'
+        'pytz',
+        'shapely',
+        'numpy>=1.7',
     ],
     tests_require=[
         pyspark_ver,
         'pytest==3.4.2',
         'pypandoc',
-        'numpy>=1.7',
         'pandas',
+        # 'numpy>=1.7',
     ],
     test_suite="pytest-runner",
     packages=find_packages(exclude=['tests', 'examples']),
