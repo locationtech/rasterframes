@@ -324,7 +324,7 @@ class RasterFunctionsTest(unittest.TestCase):
 
         pd_2 = rf_maybe_2.toPandas()
         array_back_2 = pd_2.iloc[0].t
-        print("Array collected from toPandas output", array_back_2, sep='\n')
+        print("Array collected from toPandas output\n", array_back_2)
 
         self.assertIsInstance(array_back_2, MaskedArray)
         np.testing.assert_equal(array_back_2, simple_array)
