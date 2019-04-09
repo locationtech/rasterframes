@@ -36,7 +36,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  *
  * @since 2/22/18
  */
-@deprecated("Replace usages of this with GeometryToBounds", "11/4/2018")
+@deprecated("Replace usages of this with GeometryToExtent", "11/4/2018")
 case class GetEnvelope(child: Expression) extends UnaryExpression with CodegenFallback {
 
   override def nodeName: String = "envelope"

@@ -37,7 +37,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  *
  * @since 8/24/18
  */
-case class GeometryToBounds(child: Expression) extends UnaryExpression with CodegenFallback {
+case class GeometryToExtent(child: Expression) extends UnaryExpression with CodegenFallback {
   override def nodeName: String = "geometry_bounds"
 
   override def dataType: DataType = CatalystSerializer[Extent].schema
@@ -58,9 +58,9 @@ case class GeometryToBounds(child: Expression) extends UnaryExpression with Code
   }
 }
 
-object GeometryToBounds {
+object GeometryToExtent {
   import astraea.spark.rasterframes.encoders.StandardEncoders._
 
   def apply(bounds: Column): TypedColumn[Any, Extent] =
-    new Column(new GeometryToBounds(bounds.expr)).as[Extent]
+    new Column(new GeometryToExtent(bounds.expr)).as[Extent]
 }
