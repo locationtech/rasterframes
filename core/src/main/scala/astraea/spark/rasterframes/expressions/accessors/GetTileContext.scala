@@ -20,7 +20,6 @@
  */
 
 package astraea.spark.rasterframes.expressions.accessors
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.UnaryRasterOp
 import astraea.spark.rasterframes.model.TileContext
@@ -31,7 +30,7 @@ import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 
 case class GetTileContext(child: Expression) extends UnaryRasterOp with CodegenFallback {
-  override def dataType: DataType = CatalystSerializer[TileContext].schema
+  override def dataType: DataType = schemaOf[TileContext]
 
   override def nodeName: String = "get_tile_context"
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =

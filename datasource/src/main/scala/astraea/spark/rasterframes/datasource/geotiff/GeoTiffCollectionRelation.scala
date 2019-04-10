@@ -24,7 +24,7 @@ import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotiff.GeoTiffCollectionRelation.Cols
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.util._
 import geotrellis.proj4.CRS
 import geotrellis.spark.io.hadoop.HadoopGeoTiffRDD
@@ -40,8 +40,8 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
 
   override def schema: StructType = StructType(Seq(
     StructField(Cols.PATH, StringType, false),
-    StructField(EXTENT_COLUMN.columnName, CatalystSerializer[Extent].schema, nullable = true),
-    StructField(CRS_COLUMN.columnName, CatalystSerializer[CRS].schema, false)
+    StructField(EXTENT_COLUMN.columnName, schemaOf[Extent], nullable = true),
+    StructField(CRS_COLUMN.columnName, schemaOf[CRS], false)
   ) ++ (
     if(bandCount == 1) Seq(StructField(Cols.TL, new TileUDT, false))
     else for(b ← 1 to bandCount) yield StructField(Cols.TL + "_" + b, new TileUDT, nullable = true)
@@ -58,8 +58,8 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
       .map { case ((path, pe), mbt) ⇒
         val entries = columnIndexes.map {
           case 0 ⇒ path
-          case 1 ⇒ CatalystSerializer[Extent].toRow(pe.extent)
-          case 2 ⇒ CatalystSerializer[CRS].toRow(pe.crs)
+          case 1 ⇒ pe.extent.toRow
+          case 2 ⇒ pe.crs.toRow
           case i if i > 2 ⇒ {
             if(bandCount == 1 && mbt.bandCount > 2) mbt.color()
             else mbt.band(i - 3)

@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.expressions.transformers
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders._
 import astraea.spark.rasterframes.expressions.DynamicExtractors.tileExtractor
@@ -50,7 +49,7 @@ case class SetCellType(tile: Expression, cellType: Expression)
   override def nodeName: String = "set_cell_type"
   override def dataType: DataType = left.dataType
 
-  private val ctSchema = CatalystSerializer[CellType].schema
+  private val ctSchema = schemaOf[CellType]
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(left.dataType))

@@ -26,6 +26,7 @@ import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.raster.{ArrayTile, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{BinaryType, StructField, StructType}
+import CatalystSerializer._
 
 /** Represents the union of binary cell datas or a reference to the data.*/
 case class Cells(data: Either[Array[Byte], RasterRef]) {
@@ -53,7 +54,7 @@ object Cells {
   implicit def cellsSerializer: CatalystSerializer[Cells] = new CatalystSerializer[Cells] {
     override def schema: StructType = StructType(Seq(
       StructField("cells", BinaryType, true),
-      StructField("ref", CatalystSerializer[RasterRef].schema, true)
+      StructField("ref", schemaOf[RasterRef], true)
     ))
     override protected def to[R](t: Cells, io: CatalystSerializer.CatalystIO[R]): R = io.create(
       t.data.left.getOrElse(null),

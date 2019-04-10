@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.expressions.transformers
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.row
 import org.locationtech.jts.geom.{Envelope, Geometry}
@@ -45,8 +44,8 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
 
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
 
-  private val envSchema = CatalystSerializer[Envelope].schema
-  private val extSchema = CatalystSerializer[Extent].schema
+  private val envSchema = schemaOf[Envelope]
+  private val extSchema = schemaOf[Extent]
 
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {

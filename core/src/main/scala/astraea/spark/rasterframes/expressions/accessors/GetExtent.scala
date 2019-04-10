@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.expressions.accessors
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders.extentEncoder
 import astraea.spark.rasterframes.expressions.OnTileContextExpression
@@ -39,7 +38,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 9/10/18
  */
 case class GetExtent(child: Expression) extends OnTileContextExpression with CodegenFallback {
-  override def dataType: DataType = CatalystSerializer[Extent].schema
+  override def dataType: DataType = schemaOf[Extent]
   override def nodeName: String = "extent"
   override def eval(ctx: TileContext): InternalRow = ctx.extent.toInternalRow
 }

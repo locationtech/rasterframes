@@ -44,7 +44,7 @@ class TileUDT extends UserDefinedType[Tile] {
 
   def userClass: Class[Tile] = classOf[Tile]
 
-  def sqlType: StructType = CatalystSerializer[Tile].schema
+  def sqlType: StructType = schemaOf[Tile]
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
@@ -76,8 +76,8 @@ case object TileUDT  {
   implicit def tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
 
     override def schema: StructType = StructType(Seq(
-      StructField("cell_context", CatalystSerializer[TileDataContext].schema, false),
-      StructField("cell_data", CatalystSerializer[Cells].schema, false)
+      StructField("cell_context", schemaOf[TileDataContext], false),
+      StructField("cell_data", schemaOf[Cells], false)
     ))
 
     override def to[R](t: Tile, io: CatalystIO[R]): R = io.create(

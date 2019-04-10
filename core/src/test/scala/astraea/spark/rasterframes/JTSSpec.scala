@@ -22,7 +22,6 @@ package astraea.spark.rasterframes
 import org.locationtech.jts.geom._
 import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
 import geotrellis.vector.{Extent, Point => GTPoint}
-import org.apache.spark.sql.Column
 
 /**
  * Test rig for operations providing interop with JTS types.

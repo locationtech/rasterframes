@@ -21,7 +21,8 @@
 
 package astraea.spark.rasterframes.tiles
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
+import astraea.spark.rasterframes.TileType
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.ProjectedRasterLike
@@ -33,7 +34,6 @@ import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{StructField, StructType}
-import astraea.spark.rasterframes.TileType
 
 /**
  * A Tile that's also like a ProjectedRaster, with delayed evaluation support.
@@ -64,7 +64,7 @@ object ProjectedRasterTile {
 
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
     override def schema: StructType = StructType(Seq(
-      StructField("tile_context", CatalystSerializer[TileContext].schema, false),
+      StructField("tile_context", schemaOf[TileContext], false),
       StructField("tile", TileType, false))
     )
 

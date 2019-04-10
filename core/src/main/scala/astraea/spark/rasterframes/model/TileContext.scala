@@ -27,6 +27,7 @@ import geotrellis.raster.Tile
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
+import CatalystSerializer._
 
 case class TileContext(extent: Extent, crs: CRS) {
   def toProjectRasterTile(t: Tile): ProjectedRasterTile = ProjectedRasterTile(t, extent, crs)
@@ -39,8 +40,8 @@ object TileContext {
   }
   implicit val serializer: CatalystSerializer[TileContext] = new CatalystSerializer[TileContext] {
     override def schema: StructType = StructType(Seq(
-      StructField("extent", CatalystSerializer[Extent].schema, false),
-      StructField("crs", CatalystSerializer[CRS].schema, false)
+      StructField("extent", schemaOf[Extent], false),
+      StructField("crs", schemaOf[CRS], false)
     ))
     override protected def to[R](t: TileContext, io: CatalystSerializer.CatalystIO[R]): R = io.create(
       io.to(t.extent),

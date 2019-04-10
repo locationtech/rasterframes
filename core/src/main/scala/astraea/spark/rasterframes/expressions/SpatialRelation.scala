@@ -19,7 +19,6 @@
 
 package astraea.spark.rasterframes.expressions
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.SpatialRelation.RelationPredicate
 import geotrellis.vector.Extent
@@ -47,7 +46,7 @@ abstract class SpatialRelation extends BinaryExpression
       case r: InternalRow ⇒
         expr.dataType match {
           case udt: AbstractGeometryUDT[_] ⇒ udt.deserialize(r)
-          case dt if dt.conformsTo(CatalystSerializer[Extent].schema) =>
+          case dt if dt.conformsTo(schemaOf[Extent]) =>
             val extent = r.to[Extent]
             extent.jtsGeom
         }

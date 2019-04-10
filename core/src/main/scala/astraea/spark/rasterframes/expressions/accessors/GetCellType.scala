@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.expressions.accessors
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.OnCellGridExpression
 import geotrellis.raster.{CellGrid, CellType}
@@ -38,7 +37,7 @@ case class GetCellType(child: Expression) extends OnCellGridExpression with Code
 
   override def nodeName: String = "cell_type"
 
-  def dataType: DataType = CatalystSerializer[CellType].schema
+  def dataType: DataType = schemaOf[CellType]
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
   override def eval(cg: CellGrid): Any = cg.cellType.toInternalRow
 }

@@ -50,6 +50,8 @@ trait CatalystSerializer[T] extends Serializable {
 object CatalystSerializer extends StandardSerializers {
   def apply[T: CatalystSerializer]: CatalystSerializer[T] = implicitly
 
+  def schemaOf[T: CatalystSerializer]: StructType = apply[T].schema
+
   /**
    * For some reason `Row` and `InternalRow` share no common base type. Instead of using
    * structural types (which use reflection), this typeclass is used to normalize access

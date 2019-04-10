@@ -22,7 +22,7 @@ package astraea.spark.rasterframes.datasource.geotiff
 import java.net.URI
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
@@ -67,8 +67,8 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
 
     StructType(Seq(
       StructField(SPATIAL_KEY_COLUMN.columnName, skSchema, nullable = false, skMetadata),
-      StructField(EXTENT_COLUMN.columnName, CatalystSerializer[Extent].schema, nullable = true),
-      StructField(CRS_COLUMN.columnName, CatalystSerializer[CRS].schema, nullable = true),
+      StructField(EXTENT_COLUMN.columnName, schemaOf[Extent], nullable = true),
+      StructField(CRS_COLUMN.columnName, schemaOf[CRS], nullable = true),
       StructField(METADATA_COLUMN.columnName,
         DataTypes.createMapType(StringType, StringType, false)
       )
@@ -86,8 +86,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     val trans = tlm.mapTransform
     val metadata = info.tags.headTags
 
-    val extSer = CatalystSerializer[Extent]
-    val encodedCRS = CatalystSerializer[CRS].toRow(tlm.crs)
+    val encodedCRS = tlm.crs.toRow
 
     if(info.segmentLayout.isTiled) {
       // TODO: Figure out how to do tile filtering via the range reader.
@@ -99,7 +98,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
           val gb = trans.extentToBounds(pe.extent)
           val entries = columnIndexes.map {
             case 0 => SpatialKey(gb.colMin, gb.rowMin)
-            case 1 => extSer.toRow(pe.extent)
+            case 1 => pe.extent.toRow
             case 2 => encodedCRS
             case 3 => metadata
             case n => tiles.band(n - 4)
@@ -112,12 +111,11 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
       val geotiff = HadoopGeoTiffReader.readMultiband(new Path(uri))
       val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, Shims.toArrayTile(geotiff.tile))))
 
-
       rdd.tileToLayout(tlm)
         .map { case (sk, tiles) ⇒
           val entries = columnIndexes.map {
             case 0 => sk
-            case 1 => extSer.toRow(trans.keyToExtent(sk))
+            case 1 => trans.keyToExtent(sk).toRow
             case 2 => encodedCRS
             case 3 => metadata
             case n => tiles.band(n - 4)

@@ -22,13 +22,13 @@ package astraea.spark.rasterframes.experimental.datasource
 
 import java.net.URI
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.TileType
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.HttpRangeReader
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
-import geotrellis.raster.{ProjectedRaster, Tile}
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
+import geotrellis.raster.{ProjectedRaster, Tile}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
@@ -40,9 +40,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, Generator, Literal}
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
-import astraea.spark.rasterframes.TileType
 
 /**
  * Catalyst generator to convert a geotiff download URL into a series of rows containing the internal
@@ -58,8 +56,8 @@ case class ReadTilesExpression(children: Seq[Expression]) extends Expression
   def inputTypes = Seq.fill(children.length)(StringType)
 
   override def elementSchema: StructType = StructType(Seq(
-    StructField("crs", CatalystSerializer[CRS].schema, true),
-    StructField("extent", CatalystSerializer[Extent].schema, true)
+    StructField("crs", schemaOf[CRS], true),
+    StructField("extent", schemaOf[Extent], true)
   ) ++
     children
       .zipWithIndex

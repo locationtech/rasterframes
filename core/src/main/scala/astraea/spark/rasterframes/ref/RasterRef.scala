@@ -31,6 +31,7 @@ import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
 import org.apache.spark.sql.types.{StructField, StructType}
+import CatalystSerializer._
 
 /**
  * A delayed-read projected raster implementation.
@@ -82,7 +83,7 @@ object RasterRef extends LazyLogging {
     val rsType = new RasterSourceUDT()
     override def schema: StructType = StructType(Seq(
       StructField("source", rsType, false),
-      StructField("subextent", CatalystSerializer[Extent].schema, true)
+      StructField("subextent", schemaOf[Extent], true)
     ))
 
     override def to[R](t: RasterRef, io: CatalystIO[R]): R = io.create(
