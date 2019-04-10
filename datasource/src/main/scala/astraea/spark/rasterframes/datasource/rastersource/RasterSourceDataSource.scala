@@ -20,20 +20,18 @@
  */
 
 package astraea.spark.rasterframes.datasource.rastersource
+import astraea.spark.rasterframes.model.TileDimensions
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 
 class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
-  override def shortName(): String = RasterSourceDataSource.SHORT_NAME
+  import RasterSourceDataSource._
+  override def shortName(): String = SHORT_NAME
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val bandCount = parameters
-      .get(RasterSourceDataSource.BAND_COUNT_PARAM)
-      .map(_.toInt)
-      .getOrElse(1)
-
-    val files = RasterSourceDataSource.filePaths(parameters)
-
-    RasterSourceRelation(sqlContext, files, bandCount)
+    val bandCount = parameters.bandCount
+    val files = parameters.filePaths
+    val tiling = parameters.tileDims
+    RasterSourceRelation(sqlContext, files, bandCount, tiling)
   }
 }
 object RasterSourceDataSource {
@@ -41,12 +39,13 @@ object RasterSourceDataSource {
   final val PATH_PARAM = "path"
   final val PATHS_PARAM = "paths"
   final val BAND_COUNT_PARAM = "bandCount"
+  final val TILE_DIMS_PARAM = "tileDimensions"
 
   private[rastersource]
-  def filePaths(parameters: Map[String, String]): Seq[String] =
-    (
+  implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
+    def filePaths: Seq[String] = (
       parameters
-        .get(RasterSourceDataSource.PATHS_PARAM)
+        .get(PATHS_PARAM)
         .toSeq
         .flatMap(_.split(Array('\n','\r'))) ++
         parameters
@@ -55,4 +54,14 @@ object RasterSourceDataSource {
       )
       .filter(_.nonEmpty)
 
+    def tileDims: Option[TileDimensions] =
+      parameters.get(TILE_DIMS_PARAM)
+      .map(_.split(',').map(_.trim.toInt))
+      .map { case Array(cols, rows) => TileDimensions(cols, rows)}
+
+    def bandCount: Int = parameters
+      .get(BAND_COUNT_PARAM)
+      .map(_.toInt)
+      .getOrElse(1)
+  }
 }

@@ -21,12 +21,11 @@
 
 package astraea.spark.rasterframes.expressions.transformers
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.row
 import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
@@ -43,19 +42,18 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
 
   override def nodeName: String = "raster_ref_to_tile"
 
-  override def inputTypes = Seq(CatalystSerializer[RasterRef].schema)
+  override def inputTypes = Seq(schemaOf[RasterRef])
 
-  override def dataType: DataType = new TileUDT
+  override def dataType: DataType = schemaOf[ProjectedRasterTile]
 
   override protected def nullSafeEval(input: Any): Any = {
     implicit val ser = TileUDT.tileSerializer
     val ref = row(input).to[RasterRef]
-    (ref.tile: Tile).toInternalRow
+    ref.tile.toInternalRow
   }
 }
 
 object RasterRefToTile {
-  import astraea.spark.rasterframes.encoders.StandardEncoders._
-  def apply(rr: Column): TypedColumn[Any, Tile] =
-    new Column(RasterRefToTile(rr.expr)).as[Tile]
+  def apply(rr: Column): TypedColumn[Any, ProjectedRasterTile] =
+  new Column(RasterRefToTile(rr.expr)).as[ProjectedRasterTile]
 }

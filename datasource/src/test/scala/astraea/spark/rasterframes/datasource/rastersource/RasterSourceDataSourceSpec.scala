@@ -20,30 +20,38 @@
  */
 
 package astraea.spark.rasterframes.datasource.rastersource
-import astraea.spark.rasterframes.datasource.rastersource.RasterSourceDataSource.{PATHS_PARAM, PATH_PARAM}
+import astraea.spark.rasterframes.datasource.rastersource.RasterSourceDataSource._
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.model.TileDimensions
 import astraea.spark.rasterframes.util._
 
 class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
+  import spark.implicits._
+
   describe("DataSource parameter processing") {
     it("should handle single `path`") {
       val p = Map(PATH_PARAM -> "/usr/local/foo/bar.tif")
-      RasterSourceDataSource.filePaths(p) should be (p.values.toSeq)
+      p.filePaths should be (p.values.toSeq)
     }
+
     it("should handle single `paths`") {
       val p = Map(PATHS_PARAM -> "/usr/local/foo/bar.tif")
-      RasterSourceDataSource.filePaths(p) should be (p.values.toSeq)
+      p.filePaths should be (p.values.toSeq)
     }
     it("should handle multiple `paths`") {
       val expected = Seq("/usr/local/foo/bar.tif", "/usr/local/bar/foo.tif")
       val p = Map(PATHS_PARAM -> expected.mkString("\n\r", "\n\n", "\r"))
-      RasterSourceDataSource.filePaths(p) should be (expected)
+      p.filePaths should be (expected)
     }
     it("should handle both `path` and `paths`") {
       val expected1 = Seq("/usr/local/foo/bar.tif", "/usr/local/bar/foo.tif")
       val expected2 = "/usr/local/barf/baz.tif"
       val p = Map(PATHS_PARAM -> expected1.mkString("\n"), PATH_PARAM -> expected2)
-      RasterSourceDataSource.filePaths(p) should be (expected1 :+ expected2)
+      p.filePaths should be (expected1 :+ expected2)
+    }
+    it("should parse tile dimensions") {
+      val p = Map(TILE_DIMS_PARAM -> "4, 5")
+      p.tileDims should be (Some(TileDimensions(4, 5)))
     }
   }
 
@@ -64,19 +72,20 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       tcols.map(_.columnName) should contain allElementsOf Seq("tile_1", "tile_2", "tile_3")
     }
     it("should read a single file") {
-      val df = spark.read.rastersource.load(l8samplePath.toASCIIString)
-      df.printSchema()
-      df.show(false)
-      fail()
+      val df = spark.read.rastersource
+        .withTileDimensions(128, 128)
+        .load(l8samplePath.toASCIIString)
+      df.count() should be(4)
+      df.select(tile_dimensions($"tile")).show(false)
+      df.select("path").distinct().count() should be(1)
     }
     it("should read a multiple files with one band") {
       val df = spark.read.rastersource
         .from(Seq(cogPath, l8samplePath, nonCogPath))
+        .withTileDimensions(128, 128)
         .load()
       df.printSchema()
       df.show(false)
-      fail()
     }
-
   }
 }

@@ -177,7 +177,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         import spark.implicits._
         val df = Seq(src).toDF("src")
-        val refs = df.select(RasterSourceToRasterRefs(true, $"src"))
+        val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), $"src"))
         assert(refs.count() > 1)
       }
     }

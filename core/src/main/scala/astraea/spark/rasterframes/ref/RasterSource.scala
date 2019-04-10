@@ -37,7 +37,6 @@ import geotrellis.raster._
 import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.spark.io.hadoop.HdfsRangeReader
-import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.util.RangeReader
 import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
@@ -82,24 +81,9 @@ sealed trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def tileContext: TileContext = TileContext(extent, crs)
 
-  def tileLayout(dims: TileDimensions): TileLayout = {
-    require(dims.cols > 0 && dims.rows > 0, "Non-zero tile sizes")
-    TileLayout(
-      layoutCols = math.ceil(this.cols.toDouble / dims.cols).toInt,
-      layoutRows = math.ceil(this.rows.toDouble / dims.rows).toInt,
-      tileCols = dims.cols,
-      tileRows = dims.rows
-    )
-  }
-
   def layoutExtents(dims: TileDimensions): Seq[Extent] = {
-    val tl = tileLayout(dims)
-    val layout = LayoutDefinition(extent, tl)
-    val transform = layout.mapTransform
-    for {
-      col <- 0 until tl.layoutCols
-      row <- 0 until tl.layoutRows
-    } yield transform(col, row)
+    val re = rasterExtent
+    layoutBounds(dims).map(re.rasterExtentFor).map(_.extent)
   }
 
   def layoutBounds(dims: TileDimensions): Seq[GridBounds] = {

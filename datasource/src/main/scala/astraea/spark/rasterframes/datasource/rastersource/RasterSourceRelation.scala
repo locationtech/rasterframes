@@ -22,18 +22,17 @@
 package astraea.spark.rasterframes.datasource.rastersource
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.expressions.accessors.{GetCRS, GetExtent}
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
+import astraea.spark.rasterframes.model.TileDimensions
+import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import astraea.spark.rasterframes.util._
-import geotrellis.proj4.CRS
-import geotrellis.vector.Extent
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SQLContext}
 
-case class RasterSourceRelation(sqlContext: SQLContext, paths: Seq[String], bandCount: Int) extends BaseRelation with TableScan {
+case class RasterSourceRelation(sqlContext: SQLContext, paths: Seq[String], bandCount: Int, subtileDims: Option[TileDimensions]) extends BaseRelation with TableScan {
   override def schema: StructType = if (bandCount == 1) RasterSourceRelation.schema
   else {
     val fields = RasterSourceRelation.schema.fields
@@ -47,11 +46,9 @@ case class RasterSourceRelation(sqlContext: SQLContext, paths: Seq[String], band
   override def buildScan(): RDD[Row] = {
     import sqlContext.implicits._
     paths.toDF("path")
-      .withColumn("__rr", RasterSourceToRasterRefs(URIToRasterSource($"path")))
+      .withColumn("__rr", RasterSourceToRasterRefs(subtileDims, URIToRasterSource($"path")))
       .select(
         PATH_COLUMN,
-        GetExtent($"__rr") as EXTENT_COLUMN.columnName,
-        GetCRS($"__rr") as CRS_COLUMN.columnName,
         RasterRefToTile($"__rr") as TILE_COLUMN.columnName
       )
       .rdd
@@ -60,8 +57,6 @@ case class RasterSourceRelation(sqlContext: SQLContext, paths: Seq[String], band
 object RasterSourceRelation {
   def schema: StructType = StructType(Seq(
     StructField(PATH_COLUMN.columnName, StringType, false),
-    StructField(EXTENT_COLUMN.columnName, CatalystSerializer[Extent].schema, nullable = true),
-    StructField(CRS_COLUMN.columnName, CatalystSerializer[CRS].schema, false),
-    StructField(TILE_COLUMN.columnName, TileType, true)
+    StructField(TILE_COLUMN.columnName, schemaOf[ProjectedRasterTile], true)
   ))
 }

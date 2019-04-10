@@ -44,10 +44,18 @@ package object rastersource {
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
         reader.option(RasterSourceDataSource.BAND_COUNT_PARAM, bandCount))
 
-    def from(paths: Seq[String]): RasterSourceDataFrameReader =
+    def withTileDimensions(cols: Int, rows: Int): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.PATHS_PARAM, paths.mkString("\n"))
+        reader.option(RasterSourceDataSource.TILE_DIMS_PARAM, s"$cols,$rows")
       )
+
+    def from(newlineDelimPaths: String): RasterSourceDataFrameReader =
+      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
+        reader.option(RasterSourceDataSource.PATHS_PARAM, newlineDelimPaths)
+      )
+
+    def from(paths: Seq[String]): RasterSourceDataFrameReader =
+      from(paths.mkString("\n"))
 
     def from(uris: Seq[URI])(implicit d: DummyImplicit): RasterSourceDataFrameReader =
       from(uris.map(_.toASCIIString))
