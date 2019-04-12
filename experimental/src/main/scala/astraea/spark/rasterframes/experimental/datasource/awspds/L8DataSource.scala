@@ -20,7 +20,6 @@
 
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
-import astraea.spark.rasterframes.util.ReadAccumulator
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 
@@ -34,16 +33,11 @@ class L8DataSource extends DataSourceRegister with RelationProvider {
 
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val useTiling = parameters.get(L8DataSource.USE_TILING).exists(_.toBoolean)
-    val accumulators = parameters
-      .get(L8DataSource.ACCUMULATORS)
-      .filter(_.toBoolean)
-      .map(_ ⇒ ReadAccumulator(sqlContext.sparkContext, L8DataSource.SHORT_NAME))
-    L8Relation(sqlContext, useTiling, accumulators)
+    L8Relation(sqlContext, useTiling)
   }
 }
 
 object L8DataSource {
   final val SHORT_NAME = "awsl8"
   final val USE_TILING = "useTiling"
-  final val ACCUMULATORS = "accumulators"
 }

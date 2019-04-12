@@ -20,8 +20,6 @@ package astraea.spark.rasterframes
 import java.nio.file.{Files, Paths}
 
 import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.stringEnc
-import astraea.spark.rasterframes.ref.RasterSource
-import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.util.toParquetFriendlyColumnName
 import com.typesafe.scalalogging.LazyLogging
 import org.locationtech.jts.geom.Geometry
@@ -95,16 +93,5 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
 }
 
 object TestEnvironment {
-  case class ReadMonitor(ignoreHeader: Boolean = true) extends ReadCallback with LazyLogging {
-    var reads: Int = 0
-    var total: Long = 0
-    override def readRange(source: RasterSource, start: Long, length: Int): Unit = {
-      logger.trace(s"Reading $length at $start from $source")
-      // Ignore header reads
-      if(!ignoreHeader || start > 0) reads += 1
-      total += length
-    }
 
-    override def toString: String = s"$productPrefix(reads=$reads, total=$total)"
-  }
 }

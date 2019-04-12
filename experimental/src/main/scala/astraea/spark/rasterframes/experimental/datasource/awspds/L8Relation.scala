@@ -22,11 +22,9 @@ package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
-import astraea.spark.rasterframes.expressions.transformers.{RasterSourceToRasterRefs, URIToRasterSource}
+import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.ref.RasterRef
-import astraea.spark.rasterframes.ref.RasterSource.ReadCallback
 import astraea.spark.rasterframes.rules.SpatialFilters.{Contains, Intersects}
 import astraea.spark.rasterframes.rules._
 import astraea.spark.rasterframes.util._
@@ -42,7 +40,7 @@ import org.apache.spark.sql.{Column, Row, SQLContext}
  *
  * @since 8/21/18
  */
-case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: Option[ReadCallback], filters: Seq[Filter] = Seq.empty)
+case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[Filter] = Seq.empty)
   extends BaseRelation with PrunedFilteredScan with SpatialRelationReceiver[L8Relation] with LazyLogging {
   override def schema: StructType = L8Relation.schema
 
@@ -90,7 +88,7 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
       .format(L8CatalogDataSource.SHORT_NAME)
       .load()
       .withColumnRenamed(PDSFields.ACQUISITION_DATE.name, PDSFields.TIMESTAMP.name)
-      .withColumn(PDSFields.BOUNDS.name, bounds_geometry(col(PDSFields.BOUNDS_WGS84.name)))
+      .withColumn(PDSFields.BOUNDS.name, extent_geometry(col(PDSFields.BOUNDS_WGS84.name)))
       .drop(PDSFields.BOUNDS_WGS84.name)
 
     val filtered = aggFilters
@@ -102,7 +100,7 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, accumulator: O
 
     val df = {
       // NB: We assume that `nativeTiling` preserves the band names.
-      val expanded = RasterSourceToRasterRefs(useTiling, bands.map(b ⇒ URIToRasterSource(l8_band_url(b), accumulator).as(b)): _*)
+      val expanded = RasterSourceToRasterRefs(useTiling, bands.map(b ⇒ URIToRasterSource(l8_band_url(b)).as(b)): _*)
       filtered.select(nonTile :+ expanded: _*)
     }
 

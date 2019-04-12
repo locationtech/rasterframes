@@ -40,7 +40,7 @@ import geotrellis.vector._
 import org.apache.avro.generic._
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.apache.hadoop.fs.FileUtil
-import org.apache.spark.sql.functions.{udf ⇒ sparkUdf}
+import org.apache.spark.sql.functions.{udf => sparkUdf}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.storage.StorageLevel
 import org.scalatest.{BeforeAndAfterAll, Inspectors}
@@ -408,7 +408,7 @@ class GeoTrellisDataSourceSpec
           .loadRF(layer)
           .where($"timestamp" >= Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
           .where($"timestamp" <= Timestamp.valueOf(now.plusDays(1).toLocalDateTime))
-          .where(st_intersects($"bounds", geomLit(pt1.jtsGeom)))
+          .where(st_intersects(GEOMETRY_COLUMN, geomLit(pt1.jtsGeom)))
 
         assert(numFilters(df) == 1)
       }

@@ -19,7 +19,6 @@
 
 package astraea.spark.rasterframes
 
-import org.locationtech.jts.geom.Polygon
 import geotrellis.proj4.LatLng
 import geotrellis.vector.Point
 import org.locationtech.geomesa.curve.Z2SFC
@@ -41,7 +40,7 @@ class SpatialKeySpec extends TestEnvironment with TestData {
 
     it("should add an extent column") {
       val expected = raster.extent.jtsGeom
-      val result = rf.withGeometry().select($"bounds".as[Polygon]).first
+      val result = rf.withGeometry().select(GEOMETRY_COLUMN).first
       assert(result === expected)
     }
 
@@ -64,6 +63,4 @@ class SpatialKeySpec extends TestEnvironment with TestData {
       assert(result === expected)
     }
   }
-  // This is to avoid an IntelliJ error
-  protected def withFixture(test: Any) = ???
 }

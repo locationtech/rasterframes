@@ -31,7 +31,6 @@ import geotrellis.spark.io.hadoop.HadoopGeoTiffRDD
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources.{BaseRelation, PrunedScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}

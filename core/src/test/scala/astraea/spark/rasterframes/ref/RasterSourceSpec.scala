@@ -21,10 +21,8 @@
 
 package astraea.spark.rasterframes.ref
 
-import astraea.spark.rasterframes.TestEnvironment.ReadMonitor
-import astraea.spark.rasterframes.ref.RasterSource.FileGeoTiffRasterSource
+import astraea.spark.rasterframes.model.TileDimensions
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
-import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
 
@@ -45,6 +43,22 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     it("should identify as UDT") {
       assert(new RasterSourceUDT() === new RasterSourceUDT())
     }
+    val rs = RasterSource(getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI)
+    it("should provide a tile layout") {
+      val layout = rs.tileLayout(TileDimensions(62, 61))
+      layout.totalCols shouldBe >= (rs.cols.toLong)
+      layout.totalRows shouldBe >= (rs.rows.toLong)
+    }
+    it("should compute nominal tile layout bounds") {
+      val bounds = rs.layoutBounds(TileDimensions(65, 60))
+      val agg = bounds.reduce(_ combine _)
+      agg should be (rs.gridBounds)
+    }
+    it("should compute nominal tile layout extents") {
+      val extents = rs.layoutExtents(TileDimensions(63, 63))
+      val agg = extents.reduce(_ combine _)
+      agg should be (rs.extent)
+    }
   }
 
   describe("HTTP RasterSource") {
@@ -61,13 +75,13 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     it("should read sub-tile") {
       withClue("remoteCOGSingleband") {
         val src = RasterSource(remoteCOGSingleband1)
-        val Left(raster) = src.read(sub(src.extent))
+        val raster = src.read(sub(src.extent))
         assert(raster.size > 0 && raster.size < src.size)
       }
       withClue("remoteCOGMultiband") {
         val src = RasterSource(remoteCOGMultiband)
         //println("CoG size", src.size, src.dimensions)
-        val Right(raster) = src.read(sub(src.extent))
+        val raster = src.read(sub(src.extent))
         //println("Subtile size", raster.size, raster.dimensions)
         assert(raster.size > 0 && raster.size < src.size)
       }
@@ -94,55 +108,11 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
   }
 
-  describe("Caching") {
-    val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toUri
-
-    trait Fixture {
-      val counter = ReadMonitor(false)
-      val src = RasterSource(localSrc, Some(counter))
-    }
-
-    it("should cache headers")(new Fixture {
-      val e = src.extent
-      assert(counter.reads === 1)
-
-      val c = src.crs
-      val e2 = src.extent
-      val ct = src.cellType
-      assert(counter.reads === 1)
-    })
-
-    it("should Spark serialize caching")(new Fixture {
-
-      import spark.implicits._
-
-      assert(src.isInstanceOf[FileGeoTiffRasterSource])
-
-      val e = src.extent
-      assert(counter.reads === 1)
-
-      val df = Seq(src, src, src).toDS.repartition(3)
-      val src2 = df.collect()(1)
-
-      val e2 = src2.extent
-      val ct = src2.cellType
-
-      src2 match {
-        case fs: FileGeoTiffRasterSource ⇒
-          fs.callback match {
-            case Some(cb: ReadMonitor) ⇒ assert(cb.reads === 1)
-            case o ⇒ fail(s"Expected '$o' to be a ReadMonitor")
-          }
-        case o ⇒ fail(s"Expected '$o' to be FileGeoTiffRasterSource")
-      }
-    })
-  }
-
   describe("RasterSourceToTiles Expression") {
     it("should read all tiles") {
       val src = RasterSource(remoteMODIS)
 
-      val subrasters = src.readAll().left.get
+      val subrasters = src.readAll()
 
       val collected = subrasters.map(_.extent).reduceLeft(_.combine(_))
 
@@ -155,10 +125,10 @@ class RasterSourceSpec extends TestEnvironment with TestData {
 
       assert(totalCells === src.size)
 
-      subrasters.zipWithIndex.foreach{case (r, i) ⇒
-        // TODO: how to test?
-        GeoTiff(r, src.crs).write(s"target/$i.tiff")
-      }
+//      subrasters.zipWithIndex.foreach{case (r, i) ⇒
+//        // TODO: how to test?
+//        GeoTiff(r, src.crs).write(s"target/$i.tiff")
+//      }
     }
   }
 }

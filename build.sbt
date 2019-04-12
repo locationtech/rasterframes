@@ -3,9 +3,9 @@ addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("console", "datasource/console")
 
 // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-rfSparkVersion in ThisBuild := "2.3.2"
-rfGeoTrellisVersion in ThisBuild := "2.2.0"
-rfGeoMesaVersion in ThisBuild := "2.2.1"
+ThisBuild / rfSparkVersion := "2.3.2"
+ThisBuild / rfGeoTrellisVersion := "2.2.0"
+ThisBuild / rfGeoMesaVersion := "2.2.1"
 
 lazy val root = project
   .in(file("."))
@@ -34,7 +34,8 @@ lazy val core = project
       "org.locationtech.jts" % "jts-core" % "1.16.0",
       "org.locationtech.geomesa" %% "geomesa-z3" % rfGeoMesaVersion.value,
       "org.locationtech.geomesa" %% "geomesa-spark-jts" % rfGeoMesaVersion.value exclude("jgridshift", "jgridshift"),
-      "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.9.0",
+      "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "0.10.2",
+      "com.azavea.geotrellis" %% "geotrellis-contrib-gdal" % "0.10.2",
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,

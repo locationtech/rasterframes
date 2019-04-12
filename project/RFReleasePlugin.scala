@@ -24,11 +24,13 @@ import sbt.Keys._
 import sbt._
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 import sbtrelease.ReleasePlugin.autoImport._
-import com.servicerocket.sbt.release.git.flow.Steps._
 import com.typesafe.sbt.sbtghpages.GhpagesPlugin
 import com.typesafe.sbt.sbtghpages.GhpagesPlugin.autoImport.ghpagesPushSite
 import com.typesafe.sbt.site.SitePlugin
 import com.typesafe.sbt.site.SitePlugin.autoImport.makeSite
+import scala.sys.process.{Process => SProcess}
+
+/** Release process support. */
 object RFReleasePlugin extends AutoPlugin {
   override def trigger: PluginTrigger = noTrigger
   override def requires = RFProjectPlugin && SitePlugin && GhpagesPlugin
@@ -42,18 +44,20 @@ object RFReleasePlugin extends AutoPlugin {
         checkSnapshotDependencies,
         checkGitFlowExists,
         inquireVersions,
+        runClean,
         runTest,
         gitFlowReleaseStart,
         setReleaseVersion,
         buildSite,
-        publishSite,
         commitReleaseVersion,
         tagRelease,
         releaseStepCommand("publishSigned"),
         releaseStepCommand("sonatypeReleaseAll"),
+        publishSite,
         gitFlowReleaseFinish,
         setNextVersion,
-        commitNextVersion
+        commitNextVersion,
+        remindMeToPush
       ),
       commands += Command.command("bumpVersion"){ st ⇒
         val extracted = Project.extract(st)
@@ -68,4 +72,36 @@ object RFReleasePlugin extends AutoPlugin {
       }
     )
   }
+
+  def releaseVersion(state: State): String =
+    state.get(ReleaseKeys.versions).map(_._1).getOrElse {
+      sys.error("No versions are set! Was this release part executed before inquireVersions?")
+    }
+
+  val gitFlowReleaseStart = ReleaseStep(state ⇒ {
+    val version = releaseVersion(state)
+    SProcess(Seq("git", "flow", "release", "start", version)).!
+    state
+  })
+
+  val gitFlowReleaseFinish = ReleaseStep(state ⇒ {
+    val version = releaseVersion(state)
+    SProcess(Seq("git", "flow", "release", "finish", "-n", s"$version")).!
+    state
+  })
+
+  val remindMeToPush = ReleaseStep(state ⇒ {
+    state.log.warn("Don't forget to git push master AND develop!")
+    state
+  })
+
+  val checkGitFlowExists = ReleaseStep(state => {
+    SProcess(Seq("command", "-v", "git-flow")).!! match {
+      case "" => sys.error("git-flow is required for release. See https://github.com/nvie/gitflow for installation instructions.")
+      case _ => SProcess(Seq("git", "flow", "init", "-d")).! match {
+        case 0 => state
+        case e => sys.error(s"git-flow init failed with error code $e")
+      }
+    }
+  })
 }

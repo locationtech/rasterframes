@@ -22,11 +22,10 @@
 package astraea.spark.rasterframes.expressions.localops
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.DynamicExtractors.tileExtractor
 import astraea.spark.rasterframes.expressions.BinaryLocalRasterOp
+import astraea.spark.rasterframes.expressions.DynamicExtractors.tileExtractor
 import geotrellis.raster.Tile
 import geotrellis.raster.resample.NearestNeighbor
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}

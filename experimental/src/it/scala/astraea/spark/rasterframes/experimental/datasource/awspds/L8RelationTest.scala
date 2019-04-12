@@ -21,7 +21,6 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.util.ReadAccumulator
 import org.apache.spark.sql.DataFrame
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
@@ -33,10 +32,10 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
   private var scenes: DataFrame = _
 
   val query =  """
-            |SELECT bounds, timestamp, B1, B2
+            |SELECT geometry, timestamp, B1, B2
             |FROM l8
             |WHERE
-            |  st_intersects(bounds, st_geomFromText('LINESTRING (-39.551 -7.1881, -72.2461 -45.7062)')) AND
+            |  st_intersects(geometry, st_geomFromText('LINESTRING (-39.551 -7.1881, -72.2461 -45.7062)')) AND
             |  timestamp > to_timestamp('2017-11-01') AND
             |  timestamp <= to_timestamp('2017-11-03')
           """.stripMargin
@@ -44,7 +43,6 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
   override protected def beforeAll(): Unit = {
     val l8 = spark.read
       .format(L8DataSource.SHORT_NAME)
-      .option(L8DataSource.ACCUMULATORS, true)
       .load()
     l8.createOrReplaceTempView("l8")
     scenes = sql(query).cache()
@@ -59,7 +57,6 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
     it("should count tiles") {
       val l8 = spark.read
         .format(L8DataSource.SHORT_NAME)
-        .option(L8DataSource.ACCUMULATORS, true)
         .option(L8DataSource.USE_TILING, true)
         .load()
       l8.createOrReplaceTempView("l82")

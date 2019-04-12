@@ -28,13 +28,14 @@ import astraea.spark.rasterframes.expressions.tilestats._
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.stats.{CellHistogram, CellStatistics}
 import astraea.spark.rasterframes.{functions => F}
-import org.locationtech.jts.geom.{Envelope, Geometry}
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.{CellType, Tile}
+import geotrellis.vector.Extent
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import org.locationtech.jts.geom.{Envelope, Geometry}
 
 /**
  * UDFs for working with Tiles in Spark DataFrames.
@@ -43,7 +44,6 @@ import org.apache.spark.sql.functions._
  */
 trait RasterFunctions {
   import util._
-  import PrimitiveEncoders._
 
   // format: off
   /** Create a row for each cell in Tile. */
@@ -61,7 +61,11 @@ trait RasterFunctions {
   def tile_dimensions(col: Column): Column = GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as a JTS envelope. */
+  @deprecated("Replace usages of this with `st_extent`", "11/4/2018")
   def envelope(col: Column): TypedColumn[Any, Envelope] = GetEnvelope(col)
+
+  /** Extracts the bounding box of a geometry as an Extent */
+  def st_extent(col: Column): TypedColumn[Any, Extent] = GeometryToExtent(col)
 
   /** Flattens Tile into a double array. */
   def tile_to_array_double(col: Column): TypedColumn[Any, Array[Double]] =
@@ -97,7 +101,7 @@ trait RasterFunctions {
     SetCellType(col, cellTypeName)
 
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
-  def bounds_geometry(bounds: Column): TypedColumn[Any, Geometry] = BoundsToGeometry(bounds)
+  def extent_geometry(bounds: Column): TypedColumn[Any, Geometry] = ExtentToGeometry(bounds)
 
   /** Assign a `NoData` value to the Tiles. */
   def with_no_data(col: Column, nodata: Double): TypedColumn[Any, Tile] = withAlias("with_no_data", col)(

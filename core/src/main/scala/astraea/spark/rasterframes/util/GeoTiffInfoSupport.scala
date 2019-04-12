@@ -37,7 +37,7 @@ trait GeoTiffInfoSupport {
   val MAX_SIZE = 256
   private def defaultLayout(cols: Int, rows: Int): TileLayout = {
     def divs(cells: Int) = {
-      val layoutDivs = math.ceil(cells / MAX_SIZE.toFloat)
+      val layoutDivs = math.ceil(cells / MAX_SIZE.toDouble)
       val tileDivs = math.ceil(cells / layoutDivs)
       (layoutDivs.toInt, tileDivs.toInt)
     }

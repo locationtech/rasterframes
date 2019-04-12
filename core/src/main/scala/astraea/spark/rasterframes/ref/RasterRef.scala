@@ -21,13 +21,12 @@
 
 package astraea.spark.rasterframes.ref
 
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.tiles.ProjectedRasterTile
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, GridBounds, Tile, TileLayout}
-import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.raster.{CellType, GridBounds, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
@@ -54,16 +53,7 @@ case class RasterRef(source: RasterSource, subextent: Option[Extent])
   protected lazy val realizedTile: Tile = {
     require(source.bandCount == 1, "Expected singleband tile")
     RasterRef.log.trace(s"Fetching $srcExtent from $source")
-    source.read(srcExtent).left.get.tile
-  }
-
-  /** Splits this tile into smaller tiles based on the reported
-   * internal structure of the backing format. May return a single item.*/
-  def tileToNative: Seq[RasterRef] = {
-    val ex = this.extent
-    this.source.nativeTiling
-      .filter(_ intersects ex)
-      .map(e ⇒ RasterRef(this.source, Option(e)))
+    source.read(srcExtent).tile.band(0)
   }
 }
 
@@ -73,12 +63,6 @@ object RasterRef extends LazyLogging {
 
   /** Constructor for when data extent cover whole raster. */
   def apply(source: RasterSource): RasterRef = RasterRef(source, None)
-
-  private[rasterframes]
-  def defaultLayout(rr: RasterRef): LayoutDefinition =
-    LayoutDefinition(rr.extent, rr.source.nativeLayout
-      .getOrElse(TileLayout(1, 1, rr.cols, rr.rows))
-    )
 
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
     val extent: Extent = rr.extent

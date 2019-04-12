@@ -20,8 +20,6 @@
 package examples
 
 import astraea.spark.rasterframes._
-import geotrellis.spark.io.kryo.KryoRegistrator
-import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.sql._
 
 /**
@@ -33,14 +31,11 @@ object Scratch extends App {
   implicit val spark = SparkSession.builder()
     .master("local[*]")
     .appName(getClass.getName)
-    .config("spark.serializer", classOf[KryoSerializer].getName)
-    .config("spark.kryoserializer.buffer.max", "500m")
-    .config("spark.kryo.registrationRequired", "false")
-    .config("spark.kryo.registrator", classOf[KryoRegistrator].getName)
+    .withKryoSerialization
     .getOrCreate()
     .withRasterFrames
 
-  import spark.implicits._
+  // import spark.implicits._
 
   // Your Spark code here.....
 

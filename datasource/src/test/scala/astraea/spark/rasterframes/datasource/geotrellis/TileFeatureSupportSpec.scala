@@ -151,8 +151,6 @@ class TileFeatureSupportSpec extends TestEnvironment
 
 object TileFeatureSupportSpec {
 
-  import scala.language.implicitConversions
-
   implicit class RichRandom(val rnd: scala.util.Random) extends AnyVal {
     def nextDouble(max: Double): Double = (rnd.nextInt * max) / Int.MaxValue.toDouble
     def nextOrderedPair(max:Double): (Double,Double) = (nextDouble(max),nextDouble(max)) match {

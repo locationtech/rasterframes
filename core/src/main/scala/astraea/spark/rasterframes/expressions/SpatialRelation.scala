@@ -19,13 +19,17 @@
 
 package astraea.spark.rasterframes.expressions
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.SpatialRelation.RelationPredicate
+import geotrellis.vector.Extent
 import org.locationtech.jts.geom._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
 import org.apache.spark.sql.jts.AbstractGeometryUDT
+import org.apache.spark.sql.rf.WithTypeConformity
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
 
@@ -43,6 +47,9 @@ abstract class SpatialRelation extends BinaryExpression
       case r: InternalRow ⇒
         expr.dataType match {
           case udt: AbstractGeometryUDT[_] ⇒ udt.deserialize(r)
+          case dt if dt.conformsTo(CatalystSerializer[Extent].schema) =>
+            val extent = r.to[Extent]
+            extent.jtsGeom
         }
     }
   }

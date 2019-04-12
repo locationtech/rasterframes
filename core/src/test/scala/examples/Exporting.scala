@@ -22,11 +22,9 @@ import java.nio.file.Files
 
 import astraea.spark.rasterframes._
 import geotrellis.raster._
+import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.raster.render._
-import geotrellis.raster.io.geotiff.{GeoTiff, SinglebandGeoTiff}
 import geotrellis.spark.{LayerId, SpatialKey}
-import geotrellis.spark.io.LayerWriter
-import geotrellis.spark.io.file.{FileAttributeStore, FileLayerWriter}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import spray.json.JsValue
@@ -76,8 +74,6 @@ object Exporting extends App {
   //
   //
   //    Let's assume we have a RasterFrame we've done some fancy processing on:
-
-  import geotrellis.raster.equalization._
   val equalizer = udf((t: Tile) => t.equalize())
   val equalized = rf.withColumn("equalized", equalizer($"tile")).asRF
 

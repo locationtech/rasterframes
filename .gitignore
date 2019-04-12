@@ -25,3 +25,5 @@ metastore_db
 tour/jars
 tour/*.tiff
 scoverage-report*
+
+zz-*

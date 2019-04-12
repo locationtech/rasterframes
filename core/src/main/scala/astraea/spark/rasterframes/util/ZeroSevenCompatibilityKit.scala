@@ -101,7 +101,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] = BoundsToGeometry(bounds)
+    def boundsGeometry(bounds: Column): TypedColumn[Any, Geometry] = ExtentToGeometry(bounds)
 
     /** Assign a `NoData` value to the Tiles. */
     @deprecated("Part of 0.7.x compatility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -331,7 +331,7 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_cellType", ub(GetCellType.apply))
     registry.registerFunc("rf_convertCellType", bb(SetCellType.apply))
     registry.registerFunc("rf_tileDimensions", ub(GetDimensions.apply))
-    registry.registerFunc("rf_boundsGeometry", ub(BoundsToGeometry.apply))
+    registry.registerFunc("rf_boundsGeometry", ub(ExtentToGeometry.apply))
     registry.registerFunc("rf_localAdd", bb(Add.apply))
     registry.registerFunc("rf_localSubtract", bb(Subtract.apply))
     registry.registerFunc("rf_localMultiply", bb(Multiply.apply))

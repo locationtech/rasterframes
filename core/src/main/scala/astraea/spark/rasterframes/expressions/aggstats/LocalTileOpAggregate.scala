@@ -25,15 +25,14 @@ import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.functions.safeBinaryOp
 import astraea.spark.rasterframes.util.DataBiasedOp.{BiasedMax, BiasedMin}
 import geotrellis.raster.Tile
-import geotrellis.raster.mapalgebra.local
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
-import org.apache.spark.sql.{Column, Row, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
+import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Column, Row, TypedColumn}
 
 /**
  * Aggregation function for applying a [[LocalTileBinaryOp]] pairwise across all tiles. Assumes Monoid algebra.

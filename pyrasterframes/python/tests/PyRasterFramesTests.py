@@ -98,7 +98,7 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('mean', tile_mean(self.tileCol)) \
             .withColumn('sum', tile_sum(self.tileCol)) \
             .withColumn('stats', tile_stats(self.tileCol)) \
-            .withColumn('envelope', envelope('bounds')) \
+            .withColumn('envelope', envelope('geometry')) \
             .withColumn('ascii', render_ascii(self.tileCol)) \
             .withColumn('log', log(self.tileCol)) \
             .withColumn('exp', exp(self.tileCol)) \
@@ -109,7 +109,7 @@ class RasterFunctionsTest(unittest.TestCase):
 
     def test_rasterize(self):
         # NB: This test just makes sure rasterize runs, not that the results are correct.
-        withRaster = self.rf.withColumn('rasterize', rasterize('bounds', 'bounds', lit(42), 10, 10))
+        withRaster = self.rf.withColumn('rasterize', rasterize('geometry', 'geometry', lit(42), 10, 10))
         withRaster.show()
 
     def test_reproject(self):

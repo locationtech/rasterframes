@@ -21,8 +21,8 @@
 
 package astraea.spark.rasterframes.model
 
+import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import geotrellis.raster.Grid
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
@@ -49,8 +49,8 @@ object TileDimensions {
     )
 
     override protected def from[R](t: R, io: CatalystIO[R]): TileDimensions = TileDimensions(
-      io.getShort(t, 0),
-      io.getShort(t, 1)
+      io.getShort(t, 0).toInt,
+      io.getShort(t, 1).toInt
     )
   }
 

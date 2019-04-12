@@ -15,14 +15,12 @@
  */
 package astraea.spark.rasterframes
 
-import astraea.spark.rasterframes.expressions.aggstats._
 import astraea.spark.rasterframes.jts.ReprojectionTransformer
-import astraea.spark.rasterframes.util.CRSParser
-import org.locationtech.jts.geom.Geometry
-import geotrellis.raster.mapalgebra.local._
+import astraea.spark.rasterframes.model.LazyCRS
 import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.SQLContext
+import org.locationtech.jts.geom.Geometry
 
 /**
  * Module utils.
@@ -128,14 +126,13 @@ package object functions {
   /** Reporjects a geometry column from one CRS to another, where CRS are defined in Proj4 format. */
   private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
     (sourceGeom, srcName, dstName) ⇒ {
-      val src = CRSParser(srcName)
-      val dst = CRSParser(dstName)
+      val src = LazyCRS(srcName)
+      val dst = LazyCRS(dstName)
       val trans = new ReprojectionTransformer(src, dst)
       trans.transform(sourceGeom)
     }
 
   def register(sqlContext: SQLContext): Unit = {
-
     sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
     sqlContext.udf.register("rf_tile_zeros", tileZeros)
     sqlContext.udf.register("rf_tile_ones", tileOnes)

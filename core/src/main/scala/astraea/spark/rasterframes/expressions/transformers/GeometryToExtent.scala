@@ -23,55 +23,44 @@ package astraea.spark.rasterframes.expressions.transformers
 
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.expressions.row
-import org.locationtech.jts.geom.{Envelope, Geometry}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
-import org.apache.spark.sql.jts.JTSTypes
+import org.apache.spark.sql.jts.{AbstractGeometryUDT, JTSTypes}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 
 /**
- * Catalyst Expression for converting a bounding box structure into a JTS Geometry type.
+ * Catalyst Expression for getting the extent of a geometry.
  *
  * @since 8/24/18
  */
-case class BoundsToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
-    override def nodeName: String = "bounds_geometry"
+case class GeometryToExtent(child: Expression) extends UnaryExpression with CodegenFallback {
+  override def nodeName: String = "geometry_bounds"
 
-  override def dataType: DataType = JTSTypes.GeometryTypeInstance
-
-  private val envSchema = CatalystSerializer[Envelope].schema
-  private val extSchema = CatalystSerializer[Extent].schema
+  override def dataType: DataType = CatalystSerializer[Extent].schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {
-      case dt if dt == envSchema || dt == extSchema ⇒ TypeCheckSuccess
+      case _: AbstractGeometryUDT[_] ⇒ TypeCheckSuccess
       case o ⇒ TypeCheckFailure(
-        s"Expected bounding box of form '${envSchema}' but received '${o.simpleString}'."
+        s"Expected geometry but received '${o.simpleString}'."
       )
     }
   }
 
   override protected def nullSafeEval(input: Any): Any = {
-    val r = row(input)
-    val extent = if(child.dataType == envSchema) {
-      val env = r.to[Envelope]
-      Extent(env)
-    }
-    else {
-      r.to[Extent]
-    }
-    val geom = extent.jtsGeom
-    JTSTypes.GeometryTypeInstance.serialize(geom)
+    val geom = JTSTypes.GeometryTypeInstance.deserialize(input)
+    val extent = Extent(geom.getEnvelopeInternal)
+    CatalystSerializer[Extent].toInternalRow(extent)
   }
 }
 
-object BoundsToGeometry extends SpatialEncoders {
-  def apply(bounds: Column): TypedColumn[Any, Geometry] =
-    new Column(new BoundsToGeometry(bounds.expr)).as[Geometry]
+object GeometryToExtent {
+  import astraea.spark.rasterframes.encoders.StandardEncoders._
+
+  def apply(bounds: Column): TypedColumn[Any, Extent] =
+    new Column(new GeometryToExtent(bounds.expr)).as[Extent]
 }

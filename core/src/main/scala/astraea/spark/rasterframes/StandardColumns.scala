@@ -2,13 +2,13 @@ package astraea.spark.rasterframes
 
 import java.sql.Timestamp
 
-import geotrellis.raster.{Tile, TileFeature}
+import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
+import geotrellis.proj4.CRS
+import geotrellis.raster.Tile
 import geotrellis.spark.{SpatialKey, TemporalKey}
+import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.col
 import org.locationtech.jts.geom.{Point => jtsPoint, Polygon => jtsPolygon}
-import geotrellis.proj4.CRS
-import geotrellis.vector.Extent
-import astraea.spark.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 
 /**
  * Constants identifying column in most RasterFrames.
@@ -46,7 +46,7 @@ trait StandardColumns {
   // This is a `def` because `TileUDT` needs to be initialized first.
   def TILE_COLUMN = col("tile").as[Tile]
 
-  /** Default RasterFrame [[TileFeature.data]] column name. */
+  /** Default RasterFrame `TileFeature.data` column name. */
   val TILE_FEATURE_DATA_COLUMN = col("tile_data")
 
   /** Default GeoTiff tags column. */

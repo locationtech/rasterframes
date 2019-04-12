@@ -79,12 +79,12 @@ package object geotrellis extends DataSourceOptions {
   implicit class GeoTrellisReaderWithRF(val reader: GeoTrellisRasterFrameReader) {
     def withTileSubdivisions(divs: Int): GeoTrellisRasterFrameReader =
       tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](
-        reader.option(TILE_SUBDIVISIONS_PARAM, divs)
+        reader.option(TILE_SUBDIVISIONS_PARAM, divs.toLong)
       )
 
     def withNumPartitions(partitions: Int): GeoTrellisRasterFrameReader =
       tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](
-        reader.option(NUM_PARTITIONS_PARAM, partitions)
+        reader.option(NUM_PARTITIONS_PARAM, partitions.toLong)
       )
 
     def loadRF(uri: URI, id: LayerId): RasterFrame =

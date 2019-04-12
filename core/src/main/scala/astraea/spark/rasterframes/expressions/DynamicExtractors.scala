@@ -106,7 +106,7 @@ object DynamicExtractors {
   lazy val intArgExtractor: PartialFunction[DataType, Any => IntegerArg] = {
     case _: IntegerType | _: ByteType | _: ShortType => {
       case i: Int   => IntegerArg(i)
-      case b: Byte  => IntegerArg(b)
+      case b: Byte  => IntegerArg(b.toInt)
       case s: Short => IntegerArg(s.toInt)
       case c: Char  => IntegerArg(c.toInt)
     }

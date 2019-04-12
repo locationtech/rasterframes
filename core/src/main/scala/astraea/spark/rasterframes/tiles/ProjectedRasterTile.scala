@@ -21,8 +21,8 @@
 
 package astraea.spark.rasterframes.tiles
 
-import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
+import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.ProjectedRasterLike
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
@@ -30,7 +30,6 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.raster.{CellType, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.sql.Encoder
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{StructField, StructType}

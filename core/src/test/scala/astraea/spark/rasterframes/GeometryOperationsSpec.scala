@@ -50,7 +50,7 @@ class GeometryOperationsSpec extends TestEnvironment with TestData {
       val df = features.map(f ⇒ (
         f.geom.reproject(LatLng, rf.crs).jtsGeom,
         f.data.fields("id").asInstanceOf[JsNumber].value.intValue()
-      )).toDF("geom", "id")
+      )).toDF("geom", "__fid__")
 
       val toRasterize = rf.crossJoin(df)
 
@@ -58,7 +58,7 @@ class GeometryOperationsSpec extends TestEnvironment with TestData {
 
       val (cols, rows) = tlm.layout.tileLayout.tileDimensions
 
-      val rasterized = toRasterize.withColumn("rasterized", rasterize($"geom", $"bounds", $"id", cols, rows))
+      val rasterized = toRasterize.withColumn("rasterized", rasterize($"geom", GEOMETRY_COLUMN, $"__fid__", cols, rows))
 
       assert(rasterized.count() === df.count() * rf.count())
       assert(rasterized.select(tile_dimensions($"rasterized")).distinct().count() === 1)
@@ -67,7 +67,7 @@ class GeometryOperationsSpec extends TestEnvironment with TestData {
 
 
       toRasterize.createOrReplaceTempView("stuff")
-      val viaSQL = sql(s"select rf_rasterize(geom, bounds, id, $cols, $rows) as rasterized from stuff")
+      val viaSQL = sql(s"select rf_rasterize(geom, geometry, __fid__, $cols, $rows) as rasterized from stuff")
       assert(viaSQL.select(agg_data_cells($"rasterized")).first === pixelCount)
 
       //rasterized.select($"rasterized".as[Tile]).foreach(t ⇒ t.renderPng(ColorMaps.IGBP).write("target/" + t.hashCode() + ".png"))

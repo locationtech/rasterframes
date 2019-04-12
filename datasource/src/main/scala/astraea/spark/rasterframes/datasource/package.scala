@@ -21,8 +21,6 @@ package astraea.spark.rasterframes
 
 import java.net.URI
 
-import org.apache.spark.sql.sources.{And, Filter}
-
 import scala.util.Try
 
 /**

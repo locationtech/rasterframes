@@ -19,16 +19,14 @@
 
 package astraea.spark.rasterframes.encoders
 
-import java.time.ZonedDateTime
-
 import astraea.spark.rasterframes._
 import geotrellis.spark.TemporalProjectedExtent
-import geotrellis.vector.ProjectedExtent
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 /**
- * Custom encoder for [[ProjectedExtent]]. Necessary because [[geotrellis.proj4.CRS]] within [[ProjectedExtent]] isn't a case class, and [[ZonedDateTime]] doesn't have a natural encoder.
+ * Custom encoder for `TemporalProjectedExtent`. Necessary because `geotrellis.proj4.CRS` within
+ * `ProjectedExtent` isn't a case class, and `ZonedDateTime` doesn't have a natural encoder.
  *
  * @since 8/2/17
  */

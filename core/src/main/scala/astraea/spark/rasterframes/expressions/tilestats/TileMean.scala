@@ -22,7 +22,6 @@
 package astraea.spark.rasterframes.expressions.tilestats
 
 import astraea.spark.rasterframes.expressions.{NullToValue, UnaryRasterOp}
-import astraea.spark.rasterframes.functions.safeEval
 import astraea.spark.rasterframes.model.TileContext
 import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback

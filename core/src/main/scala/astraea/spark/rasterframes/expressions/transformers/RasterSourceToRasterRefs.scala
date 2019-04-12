@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions.transformers
 
+import astraea.spark.rasterframes.NOMINAL_TILE_DIMS
 import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.ref.RasterRef
@@ -58,7 +59,10 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
     try {
       val refs = children.map { child ⇒
         val src = RasterSourceType.deserialize(child.eval(input))
-        if (applyTiling) src.nativeTiling.map(e ⇒ RasterRef(src, Some(e))) else Seq(RasterRef(src))
+        if (applyTiling) src
+          .layoutExtents(NOMINAL_TILE_DIMS)
+          .map(e ⇒ RasterRef(src, Some(e)))
+        else Seq(RasterRef(src))
       }
       refs.transpose.map(ts ⇒ InternalRow(ts.map(_.toInternalRow): _*))
     }
