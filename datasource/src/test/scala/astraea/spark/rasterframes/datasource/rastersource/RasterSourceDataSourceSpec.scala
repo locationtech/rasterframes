@@ -65,18 +65,34 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     it("should support a multiband schema") {
       val df = spark.read
         .rastersource
-        .withBandCount(3)
+        .withBandIndexes(0, 1, 2)
         .load(cogPath.toASCIIString)
       val tcols = df.tileColumns
       tcols.length should be(3)
-      tcols.map(_.columnName) should contain allElementsOf Seq("tile_1", "tile_2", "tile_3")
+      tcols.map(_.columnName) should contain allElementsOf Seq("tile_b0", "tile_b1", "tile_b2")
+    }
+    it("should read a multiband file") {
+      val df = spark.read
+        .rastersource
+        .withBandIndexes(0, 1, 2)
+        .load(cogPath.toASCIIString)
+        .cache()
+      df.schema.size should be (4)
+      // Test (roughly) we have three distinct but compabible bands
+      val stats = df.agg(agg_stats($"tile_b0") as "s0", agg_stats($"tile_b1") as "s1", agg_stats($"tile_b2") as "s2")
+      stats.select($"s0.data_cells" === $"s1.data_cells").as[Boolean].first() should be(true)
+      stats.select($"s0.data_cells" === $"s2.data_cells").as[Boolean].first() should be(true)
+      stats.select($"s0.mean" =!= $"s1.mean").as[Boolean].first() should be(true)
+      stats.select($"s0.mean" =!= $"s2.mean").as[Boolean].first() should be(true)
     }
     it("should read a single file") {
       val df = spark.read.rastersource
         .withTileDimensions(128, 128)
         .load(l8samplePath.toASCIIString)
       df.count() should be(4)
-      df.select(tile_dimensions($"tile")).show(false)
+      df.select(tile_dimensions($"tile").as[TileDimensions]).collect() should contain allElementsOf
+        Seq(TileDimensions(128, 128), TileDimensions(59, 128), TileDimensions(128, 42), TileDimensions(59, 42))
+
       df.select("path").distinct().count() should be(1)
     }
     it("should read a multiple files with one band") {
@@ -84,8 +100,24 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .from(Seq(cogPath, l8samplePath, nonCogPath))
         .withTileDimensions(128, 128)
         .load()
-      df.printSchema()
-      df.show(false)
+      df.select("path").distinct().count() should be(3)
+      df.schema.size should be(2)
+    }
+
+    it("should read a multiple files with heterogeneous bands") {
+      val df = spark.read.rastersource
+        .from(Seq(cogPath, l8samplePath, nonCogPath))
+        .withTileDimensions(128, 128)
+        .withBandIndexes(0, 1, 2, 3)
+        .load()
+        .cache()
+      df.select("path").distinct().count() should be(3)
+      df.schema.size should be(5)
+
+      df.select($"tile_b0").count() should be (df.select($"tile_b0").na.drop.count())
+      df.select($"tile_b1").na.drop.count() shouldBe <(df.count())
+      df.select($"tile_b1").na.drop.count() should be (df.select($"tile_b2").na.drop.count())
+      df.select($"tile_b3").na.drop.count() should be (0)
     }
   }
 }

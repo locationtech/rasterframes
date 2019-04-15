@@ -39,10 +39,10 @@ package object rastersource {
 
   /** Adds option methods relevant to RasterSourceDataSource. */
   implicit class RasterSourceDataFrameReaderHasOptions(val reader: RasterSourceDataFrameReader) {
-    /** Set the number of bands to provide columns for. */
-    def withBandCount(bandCount: Int): RasterSourceDataFrameReader =
+    /** Set the zero-based band indexes to read. Defaults to Seq(0). */
+    def withBandIndexes(bandIndexes: Int*): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.BAND_COUNT_PARAM, bandCount))
+        reader.option(RasterSourceDataSource.BAND_INDEXES_PARAM, bandIndexes.mkString(",")))
 
     def withTileDimensions(cols: Int, rows: Int): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](

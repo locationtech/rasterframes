@@ -22,6 +22,7 @@
 package astraea.spark.rasterframes.datasource.rastersource
 
 import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.datasource.rastersource.RasterSourceRelation.bandNames
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
 import astraea.spark.rasterframes.model.TileDimensions
@@ -32,31 +33,42 @@ import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SQLContext}
 
-case class RasterSourceRelation(sqlContext: SQLContext, paths: Seq[String], bandCount: Int, subtileDims: Option[TileDimensions]) extends BaseRelation with TableScan {
-  override def schema: StructType = if (bandCount == 1) RasterSourceRelation.schema
-  else {
-    val fields = RasterSourceRelation.schema.fields
-    StructType(
-      fields.dropRight(1) ++ {
-        val base = fields.last
-        for (b <- 1 to bandCount) yield base.copy(name = base.name + "_" + b)
-      }
-    )
-  }
+/**
+  * Constructs a Spark Relation over one or more RasterSource paths.
+  * @param sqlContext
+  * @param paths list of URIs to fetch rastefrom.
+  * @param bandIndexes band indexes to fetch
+  * @param subtileDims how big to tile/subdivide rasters info
+  */
+case class RasterSourceRelation(sqlContext: SQLContext, paths: Seq[String], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions]) extends BaseRelation with TableScan {
+
+  override def schema: StructType = StructType(Seq(
+    StructField(PATH_COLUMN.columnName, StringType, false)
+  ) ++ {
+    val tileSchema = schemaOf[ProjectedRasterTile]
+    for {
+      name <- bandNames(bandIndexes)
+    } yield StructField(name, tileSchema, true)
+  })
+
   override def buildScan(): RDD[Row] = {
     import sqlContext.implicits._
-    paths.toDF("path")
-      .withColumn("__rr", RasterSourceToRasterRefs(subtileDims, URIToRasterSource($"path")))
-      .select(
-        PATH_COLUMN,
-        RasterRefToTile($"__rr") as TILE_COLUMN.columnName
-      )
-      .rdd
+    val names = bandNames(bandIndexes)
+    val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, URIToRasterSource($"path"))
+    val refsToTiles = names.map(n => RasterRefToTile($"$n") as n)
+
+    val df = paths.toDF("path")
+      .select(PATH_COLUMN, refs as names)
+      .select(PATH_COLUMN +: refsToTiles: _*)
+    df.rdd
   }
 }
 object RasterSourceRelation {
-  def schema: StructType = StructType(Seq(
-    StructField(PATH_COLUMN.columnName, StringType, false),
-    StructField(TILE_COLUMN.columnName, schemaOf[ProjectedRasterTile], true)
-  ))
+  private def bandNames(bandIndexes: Seq[Int]): Seq[String] = bandIndexes match {
+    case Seq() => Seq.empty
+    case Seq(0) => Seq(TILE_COLUMN.columnName)
+    case s =>
+      val basename = TILE_COLUMN.columnName
+      s.map(n => basename + "_b" + n)
+  }
 }

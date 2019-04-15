@@ -202,7 +202,7 @@ trait StandardSerializers {
     )
   }
 
-  implicit def boundsSerializer[T: CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
+  implicit def boundsSerializer[T >: Null: CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
     override def schema: StructType = StructType(Seq(
       StructField("minKey", schemaOf[T], true),
       StructField("maxKey", schemaOf[T], true)
@@ -219,7 +219,7 @@ trait StandardSerializers {
     )
   }
 
-  def tileLayerMetadataSerializer[T: CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
+  def tileLayerMetadataSerializer[T >: Null: CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
     override def schema: StructType = StructType(Seq(
       StructField("cellType", schemaOf[CellType], false),
       StructField("layout", schemaOf[LayoutDefinition], false),

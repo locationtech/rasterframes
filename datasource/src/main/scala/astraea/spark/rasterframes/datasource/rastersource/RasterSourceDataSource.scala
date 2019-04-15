@@ -28,17 +28,17 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   import RasterSourceDataSource._
   override def shortName(): String = SHORT_NAME
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val bandCount = parameters.bandCount
+    val inexes = parameters.bandIndexes
     val files = parameters.filePaths
     val tiling = parameters.tileDims
-    RasterSourceRelation(sqlContext, files, bandCount, tiling)
+    RasterSourceRelation(sqlContext, files, inexes, tiling)
   }
 }
 object RasterSourceDataSource {
   final val SHORT_NAME = "rastersource"
   final val PATH_PARAM = "path"
   final val PATHS_PARAM = "paths"
-  final val BAND_COUNT_PARAM = "bandCount"
+  final val BAND_INDEXES_PARAM = "bandIndexes"
   final val TILE_DIMS_PARAM = "tileDimensions"
 
   private[rastersource]
@@ -59,9 +59,9 @@ object RasterSourceDataSource {
       .map(_.split(',').map(_.trim.toInt))
       .map { case Array(cols, rows) => TileDimensions(cols, rows)}
 
-    def bandCount: Int = parameters
-      .get(BAND_COUNT_PARAM)
-      .map(_.toInt)
-      .getOrElse(1)
+    def bandIndexes: Seq[Int] = parameters
+      .get(BAND_INDEXES_PARAM)
+      .map(_.split(',').map(_.trim.toInt).toSeq)
+      .getOrElse(Seq(0))
   }
 }

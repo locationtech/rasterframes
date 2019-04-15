@@ -27,6 +27,7 @@ import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.raster.Tile
 import geotrellis.vector.Extent
+import org.apache.spark.sql.Encoders
 
 /**
  *
@@ -45,13 +46,14 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   trait Fixture {
     val src = RasterSource(remoteCOGSingleband1)
-    val fullRaster = RasterRef(src)
+    val fullRaster = RasterRef(src, 0, None)
     val subExtent = sub(src.extent)
-    val subRaster = RasterRef(src, Option(subExtent))
+    val subRaster = RasterRef(src, 0, Some(subExtent))
   }
 
   import spark.implicits._
 
+  implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rrEncoder)
   describe("GetCRS Expression") {
     it("should read from RasterRef") {
       new Fixture {
@@ -168,7 +170,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         import spark.implicits._
         val df = Seq(src).toDF("src")
-        val refs = df.select(RasterSourceToRasterRefs($"src"))
+        val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), $"src"))
         assert(refs.count() > 1)
       }
     }
@@ -177,7 +179,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         import spark.implicits._
         val df = Seq(src).toDF("src")
-        val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), $"src"))
+        val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), $"src"))
         assert(refs.count() > 1)
       }
     }

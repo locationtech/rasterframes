@@ -57,21 +57,21 @@ object DynamicExtractors {
   /** Partial function for pulling a ProjectedRasterLike an input row. */
   lazy val projectedRasterLikeExtractor: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
     case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
       (row: InternalRow) => row.to[ProjectedRasterTile]
     case t if t.conformsTo(schemaOf[RasterRef]) =>
-      (row: InternalRow) ⇒ row.to[RasterRef]
+      (row: InternalRow) => row.to[RasterRef]
   }
 
   /** Partial function for pulling a CellGrid from an input row. */
   lazy val gridExtractor: PartialFunction[DataType, InternalRow ⇒ CellGrid] = {
-    case _: TileUDT ⇒
-      (row: InternalRow) ⇒ row.to[Tile](TileUDT.tileSerializer)
-    case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+    case _: TileUDT =>
+      (row: InternalRow) => row.to[Tile](TileUDT.tileSerializer)
+    case _: RasterSourceUDT =>
+      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo(schemaOf[RasterRef]) ⇒
-      (row: InternalRow) ⇒ row.to[RasterRef]
+      (row: InternalRow) => row.to[RasterRef]
     case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
       (row: InternalRow) => row.to[ProjectedRasterTile]
   }

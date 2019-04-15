@@ -63,8 +63,8 @@ object CatalystSerializer extends StandardSerializers {
     def create(values: Any*): R
     def to[T: CatalystSerializer](t: T): R = CatalystSerializer[T].to(t, this)
     def toSeq[T: CatalystSerializer](t: Seq[T]): AnyRef
-    def get[T: CatalystSerializer](d: R, ordinal: Int): T
-    def getSeq[T: CatalystSerializer](d: R, ordinal: Int): Seq[T]
+    def get[T >: Null: CatalystSerializer](d: R, ordinal: Int): T
+    def getSeq[T >: Null: CatalystSerializer](d: R, ordinal: Int): Seq[T]
     def isNullAt(d: R, ordinal: Int): Boolean
     def getBoolean(d: R, ordinal: Int): Boolean
     def getByte(d: R, ordinal: Int): Byte
@@ -93,14 +93,14 @@ object CatalystSerializer extends StandardSerializers {
       override def getString(d: R, ordinal: Int): String = d.getString(ordinal)
       override def getByteArray(d: R, ordinal: Int): Array[Byte] =
         d.get(ordinal).asInstanceOf[Array[Byte]]
-      override def get[T: CatalystSerializer](d: R, ordinal: Int): T = {
+      override def get[T >: Null: CatalystSerializer](d: R, ordinal: Int): T = {
         d.getAs[Any](ordinal) match {
           case r: Row => r.to[T]
           case o => o.asInstanceOf[T]
         }
       }
       override def toSeq[T: CatalystSerializer](t: Seq[T]): AnyRef = t.map(_.toRow)
-      override def getSeq[T: CatalystSerializer](d: R, ordinal: Int): Seq[T] =
+      override def getSeq[T >: Null: CatalystSerializer](d: R, ordinal: Int): Seq[T] =
         d.getSeq[Row](ordinal).map(_.to[T])
       override def encode(str: String): String = str
     }
@@ -120,7 +120,7 @@ object CatalystSerializer extends StandardSerializers {
       override def getDouble(d: InternalRow, ordinal: Int): Double = d.getDouble(ordinal)
       override def getString(d: InternalRow, ordinal: Int): String = d.getString(ordinal)
       override def getByteArray(d: InternalRow, ordinal: Int): Array[Byte] = d.getBinary(ordinal)
-      override def get[T: CatalystSerializer](d: InternalRow, ordinal: Int): T = {
+      override def get[T >: Null: CatalystSerializer](d: InternalRow, ordinal: Int): T = {
         val ser = CatalystSerializer[T]
         val struct = d.getStruct(ordinal, ser.schema.size)
         struct.to[T]
@@ -129,7 +129,7 @@ object CatalystSerializer extends StandardSerializers {
       override def toSeq[T: CatalystSerializer](t: Seq[T]): ArrayData =
         ArrayData.toArrayData(t.map(_.toInternalRow).toArray)
 
-      override def getSeq[T: CatalystSerializer](d: InternalRow, ordinal: Int): Seq[T] = {
+      override def getSeq[T >: Null: CatalystSerializer](d: InternalRow, ordinal: Int): Seq[T] = {
         val ad = d.getArray(ordinal)
         val result = Array.ofDim[Any](ad.numElements()).asInstanceOf[Array[T]]
         ad.foreach(
@@ -143,15 +143,15 @@ object CatalystSerializer extends StandardSerializers {
   }
 
   implicit class WithToRow[T: CatalystSerializer](t: T) {
-    def toInternalRow: InternalRow = CatalystSerializer[T].toInternalRow(t)
-    def toRow: Row = CatalystSerializer[T].toRow(t)
+    def toInternalRow: InternalRow = if (t == null) null else CatalystSerializer[T].toInternalRow(t)
+    def toRow: Row = if (t == null) null else CatalystSerializer[T].toRow(t)
   }
 
   implicit class WithFromInternalRow(val r: InternalRow) extends AnyVal {
-    def to[T: CatalystSerializer]: T = CatalystSerializer[T].fromInternalRow(r)
+    def to[T >: Null: CatalystSerializer]: T = if (r == null) null else CatalystSerializer[T].fromInternalRow(r)
   }
 
   implicit class WithFromRow(val r: Row) extends AnyVal {
-    def to[T: CatalystSerializer]: T = CatalystSerializer[T].fromRow(r)
+    def to[T >: Null: CatalystSerializer]: T = CatalystSerializer[T].fromRow(r)
   }
 }

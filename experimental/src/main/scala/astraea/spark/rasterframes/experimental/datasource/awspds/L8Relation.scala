@@ -99,10 +99,10 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[F
     val nonTile = other.map(col)
 
     val df = {
+      val dims = if (useTiling) Some(NOMINAL_TILE_DIMS) else None
+      val sources = bands.map(b ⇒ URIToRasterSource(l8_band_url(b)).as(b))
       // NB: We assume that `nativeTiling` preserves the band names.
-      val expanded = RasterSourceToRasterRefs(
-        if (useTiling) Some(NOMINAL_TILE_DIMS) else None,
-        bands.map(b ⇒ URIToRasterSource(l8_band_url(b)).as(b)): _*)
+      val expanded = RasterSourceToRasterRefs(dims, Seq(0), sources: _*)
       filtered.select(nonTile :+ expanded: _*)
     }
 

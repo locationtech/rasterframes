@@ -30,7 +30,7 @@ import geotrellis.raster.{CellType, GridBounds, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import CatalystSerializer._
 
 /**
@@ -38,7 +38,7 @@ import CatalystSerializer._
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RasterSource, subextent: Option[Extent])
+case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Extent])
   extends ProjectedRasterLike {
   def crs: CRS = source.crs
   def extent: Extent = subextent.getOrElse(source.extent)
@@ -52,18 +52,13 @@ case class RasterRef(source: RasterSource, subextent: Option[Extent])
   protected def srcExtent: Extent = extent
 
   protected lazy val realizedTile: Tile = {
-    require(source.bandCount == 1, "Expected singleband tile")
-    RasterRef.log.trace(s"Fetching $srcExtent from $source")
-    source.read(srcExtent).tile.band(0)
+    RasterRef.log.trace(s"Fetching $srcExtent from band $bandIndex of $source")
+    source.read(srcExtent, Seq(bandIndex)).tile.band(0)
   }
 }
 
 object RasterRef extends LazyLogging {
   private val log = logger
-
-
-  /** Constructor for when data extent cover whole raster. */
-  def apply(source: RasterSource): RasterRef = RasterRef(source, None)
 
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
     val extent: Extent = rr.extent
@@ -83,18 +78,21 @@ object RasterRef extends LazyLogging {
     val rsType = new RasterSourceUDT()
     override def schema: StructType = StructType(Seq(
       StructField("source", rsType, false),
+      StructField("band_index", IntegerType, false),
       StructField("subextent", schemaOf[Extent], true)
     ))
 
     override def to[R](t: RasterRef, io: CatalystIO[R]): R = io.create(
       io.to(t.source)(RasterSourceUDT.rasterSourceSerializer),
+      t.bandIndex,
       t.subextent.map(io.to[Extent]).orNull
     )
 
     override def from[R](row: R, io: CatalystIO[R]): RasterRef = RasterRef(
       io.get[RasterSource](row, 0)(RasterSourceUDT.rasterSourceSerializer),
-      if (io.isNullAt(row, 1)) None
-      else Option(io.get[Extent](row, 1))
+      io.getInt(row, 1),
+      if (io.isNullAt(row, 2)) None
+      else Option(io.get[Extent](row, 2))
     )
   }
 

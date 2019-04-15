@@ -103,7 +103,7 @@ class CatalystSerializerSpec extends TestEnvironment with TestData {
 
     it("should serialize RasterRef") {
       val src = RasterSource(remoteCOGSingleband1)
-      val value = RasterRef(src, Some(src.extent.buffer(-3.0)))
+      val value = RasterRef(src, 0, Some(src.extent.buffer(-3.0)))
       assertConsistent(value)
       assertInvertable(value)
     }
