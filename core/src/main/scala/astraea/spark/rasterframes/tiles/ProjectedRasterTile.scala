@@ -21,7 +21,8 @@
 
 package astraea.spark.rasterframes.tiles
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
+import astraea.spark.rasterframes.TileType
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.ProjectedRasterLike
@@ -62,9 +63,8 @@ object ProjectedRasterTile {
   }
 
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
-    val TileType =  new TileUDT()
     override def schema: StructType = StructType(Seq(
-      StructField("tile_context", CatalystSerializer[TileContext].schema, false),
+      StructField("tile_context", schemaOf[TileContext], false),
       StructField("tile", TileType, false))
     )
 

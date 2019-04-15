@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.expressions.accessors
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.encoders.StandardEncoders.crsEncoder
 import astraea.spark.rasterframes.expressions.OnTileContextExpression
@@ -39,7 +38,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 9/9/18
  */
 case class GetCRS(child: Expression) extends OnTileContextExpression with CodegenFallback {
-  override def dataType: DataType = CatalystSerializer[CRS].schema
+  override def dataType: DataType = schemaOf[CRS]
   override def nodeName: String = "crs"
   override def eval(ctx: TileContext): InternalRow = ctx.crs.toInternalRow
 }

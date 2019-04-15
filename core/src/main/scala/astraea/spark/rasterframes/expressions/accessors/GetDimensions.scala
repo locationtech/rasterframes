@@ -21,7 +21,6 @@
 
 package astraea.spark.rasterframes.expressions.accessors
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.expressions.OnCellGridExpression
 import astraea.spark.rasterframes.model.TileDimensions
@@ -34,11 +33,10 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
  * Extract a Tile's dimensions
  * @since 12/21/17
  */
-case class GetDimensions(child: Expression) extends OnCellGridExpression
-  with CodegenFallback {
+case class GetDimensions(child: Expression) extends OnCellGridExpression with CodegenFallback {
   override def nodeName: String = "tile_dimensions"
 
-  def dataType = CatalystSerializer[TileDimensions].schema
+  def dataType = schemaOf[TileDimensions]
 
   override def eval(grid: CellGrid): Any = TileDimensions(grid.cols, grid.rows).toInternalRow
 }

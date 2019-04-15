@@ -21,12 +21,12 @@
 
 package astraea.spark.rasterframes.expressions.transformers
 
-import astraea.spark.rasterframes.NOMINAL_TILE_DIMS
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.ref.RasterRef
+import astraea.spark.rasterframes.model.TileDimensions
+import astraea.spark.rasterframes.ref.{RasterRef, RasterSource}
 import astraea.spark.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
+import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -42,29 +42,38 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Boolean) extends Expression
+case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions] = None) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
   private val RasterSourceType = new RasterSourceUDT()
-  private val rasterRefSchema = CatalystSerializer[RasterRef].schema
+  private val rasterRefSchema = schemaOf[RasterRef]
 
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
   override def nodeName: String = "raster_source_to_raster_ref"
 
-  override def elementSchema: StructType = StructType(
-    children.map(e ⇒ StructField(e.name, rasterRefSchema, false))
-  )
+  override def elementSchema: StructType = StructType(for {
+    child <- children
+    band <- bandIndexes
+    name = child.name + (if (bandIndexes.length > 1) "_b" + band else "")
+  } yield StructField(name, rasterRefSchema, true))
+
+  private def band2ref(src: RasterSource, e: Option[Extent])(b: Int): RasterRef =
+    if (b < src.bandCount)
+      RasterRef(src, b, e)
+    else null
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
       val refs = children.map { child ⇒
         val src = RasterSourceType.deserialize(child.eval(input))
-        if (applyTiling) src
-          .layoutExtents(NOMINAL_TILE_DIMS)
-          .map(e ⇒ RasterRef(src, Some(e)))
-        else Seq(RasterRef(src))
+        subtileDims.map(dims =>
+          src
+            .layoutExtents(dims)
+            .map(e ⇒ bandIndexes.map(band2ref(src, Some(e))))
+        )
+        .getOrElse(Seq(bandIndexes.map(band2ref(src, None))))
       }
-      refs.transpose.map(ts ⇒ InternalRow(ts.map(_.toInternalRow): _*))
+      refs.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(_.toInternalRow)): _*))
     }
     catch {
       case NonFatal(ex) ⇒
@@ -75,7 +84,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], applyTiling: Bool
 }
 
 object RasterSourceToRasterRefs {
-  def apply(rrs: Column*): TypedColumn[Any, RasterRef] = apply(true, rrs: _*)
-  def apply(applyTiling: Boolean, rrs: Column*): TypedColumn[Any, RasterRef] =
-    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), applyTiling)).as[RasterRef]
+  def apply(rrs: Column*): TypedColumn[Any, RasterRef] = apply(None, Seq(0), rrs: _*)
+  def apply(subtileDims: Option[TileDimensions], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, RasterRef] =
+    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims)).as[RasterRef]
 }

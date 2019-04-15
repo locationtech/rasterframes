@@ -44,11 +44,6 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       assert(new RasterSourceUDT() === new RasterSourceUDT())
     }
     val rs = RasterSource(getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI)
-    it("should provide a tile layout") {
-      val layout = rs.tileLayout(TileDimensions(62, 61))
-      layout.totalCols shouldBe >= (rs.cols.toLong)
-      layout.totalRows shouldBe >= (rs.rows.toLong)
-    }
     it("should compute nominal tile layout bounds") {
       val bounds = rs.layoutBounds(TileDimensions(65, 60))
       val agg = bounds.reduce(_ combine _)
@@ -58,6 +53,12 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val extents = rs.layoutExtents(TileDimensions(63, 63))
       val agg = extents.reduce(_ combine _)
       agg should be (rs.extent)
+    }
+    it("should reassemble correct grid from extents") {
+      val dims = TileDimensions(63, 63)
+      val ext = rs.layoutExtents(dims).head
+      val bounds = rs.layoutBounds(dims).head
+      rs.rasterExtent.gridBoundsFor(ext, false) should be (bounds)
     }
   }
 

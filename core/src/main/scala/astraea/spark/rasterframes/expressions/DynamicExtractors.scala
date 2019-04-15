@@ -20,7 +20,6 @@
  */
 
 package astraea.spark.rasterframes.expressions
-import astraea.spark.rasterframes.encoders.CatalystSerializer
 import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.model.TileContext
 import astraea.spark.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
@@ -31,14 +30,14 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.rf.{TileUDT, _}
 import org.apache.spark.sql.types._
 
-private[expressions]
+private[rasterframes]
 object DynamicExtractors {
   /** Partial function for pulling a tile and its contesxt from an input row. */
   lazy val tileExtractor: PartialFunction[DataType, InternalRow => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: InternalRow) =>
         (row.to[Tile](TileUDT.tileSerializer), None)
-    case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
+    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
       (row: InternalRow) => {
         val prt = row.to[ProjectedRasterTile]
         (prt, Some(TileContext(prt)))
@@ -48,7 +47,7 @@ object DynamicExtractors {
   lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: Row) =>  (row.to[Tile](TileUDT.tileSerializer), None)
-    case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
+    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
       (row: Row) => {
         val prt = row.to[ProjectedRasterTile]
         (prt, Some(TileContext(prt)))
@@ -58,21 +57,23 @@ object DynamicExtractors {
   /** Partial function for pulling a ProjectedRasterLike an input row. */
   lazy val projectedRasterLikeExtractor: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
     case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo(CatalystSerializer[ProjectedRasterTile].schema) =>
+      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
       (row: InternalRow) => row.to[ProjectedRasterTile]
-    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) =>
-      (row: InternalRow) ⇒ row.to[RasterRef]
+    case t if t.conformsTo(schemaOf[RasterRef]) =>
+      (row: InternalRow) => row.to[RasterRef]
   }
 
   /** Partial function for pulling a CellGrid from an input row. */
   lazy val gridExtractor: PartialFunction[DataType, InternalRow ⇒ CellGrid] = {
-    case _: TileUDT ⇒
-      (row: InternalRow) ⇒ row.to[Tile](TileUDT.tileSerializer)
-    case _: RasterSourceUDT ⇒
-      (row: InternalRow) ⇒ row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo(CatalystSerializer[RasterRef].schema) ⇒
-      (row: InternalRow) ⇒ row.to[RasterRef]
+    case _: TileUDT =>
+      (row: InternalRow) => row.to[Tile](TileUDT.tileSerializer)
+    case _: RasterSourceUDT =>
+      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+    case t if t.conformsTo(schemaOf[RasterRef]) ⇒
+      (row: InternalRow) => row.to[RasterRef]
+    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
+      (row: InternalRow) => row.to[ProjectedRasterTile]
   }
 
   sealed trait TileOrNumberArg

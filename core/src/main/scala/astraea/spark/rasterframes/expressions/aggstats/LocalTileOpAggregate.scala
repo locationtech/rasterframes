@@ -21,6 +21,7 @@
 
 package astraea.spark.rasterframes.expressions.aggstats
 
+import astraea.spark.rasterframes.TileType
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.functions.safeBinaryOp
 import astraea.spark.rasterframes.util.DataBiasedOp.{BiasedMax, BiasedMin}
@@ -30,7 +31,6 @@ import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression,
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, TypedColumn}
 
@@ -42,8 +42,6 @@ import org.apache.spark.sql.{Column, Row, TypedColumn}
 class LocalTileOpAggregate(op: LocalTileBinaryOp) extends UserDefinedAggregateFunction {
 
   private val safeOp = safeBinaryOp(op.apply(_: Tile, _: Tile))
-
-  private val TileType = new TileUDT()
 
   override def inputSchema: StructType = StructType(Seq(
     StructField("value", TileType, true)

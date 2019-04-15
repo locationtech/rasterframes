@@ -24,7 +24,7 @@ import java.net.URI
 
 import astraea.spark.rasterframes._
 import astraea.spark.rasterframes.datasource.geotiff.GeoTiffCollectionRelation.Cols
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.util._
 import geotrellis.proj4.CRS
 import geotrellis.spark.io.hadoop.HadoopGeoTiffRDD
@@ -36,20 +36,12 @@ import org.apache.spark.sql.sources.{BaseRelation, PrunedScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SQLContext}
 
-/**
- *
- *
- * @since 7/31/18
- */
 case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount: Int) extends BaseRelation with PrunedScan {
 
   override def schema: StructType = StructType(Seq(
     StructField(Cols.PATH, StringType, false),
-    StructField(EXTENT_COLUMN.columnName, CatalystSerializer[Extent].schema, nullable = true),
-    StructField(CRS_COLUMN.columnName, CatalystSerializer[CRS].schema, false)
-//    StructField(METADATA_COLUMN.columnName,
-//      DataTypes.createMapType(StringType, StringType, false)
-//    )
+    StructField(EXTENT_COLUMN.columnName, schemaOf[Extent], nullable = true),
+    StructField(CRS_COLUMN.columnName, schemaOf[CRS], false)
   ) ++ (
     if(bandCount == 1) Seq(StructField(Cols.TL, new TileUDT, false))
     else for(b ← 1 to bandCount) yield StructField(Cols.TL + "_" + b, new TileUDT, nullable = true)
@@ -62,14 +54,12 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
 
     val columnIndexes = requiredColumns.map(schema.fieldIndex)
 
-
-
     HadoopGeoTiffRDD.multiband(new Path(uri.toASCIIString), keyer, HadoopGeoTiffRDD.Options.DEFAULT)
       .map { case ((path, pe), mbt) ⇒
         val entries = columnIndexes.map {
           case 0 ⇒ path
-          case 1 ⇒ CatalystSerializer[Extent].toRow(pe.extent)
-          case 2 ⇒ CatalystSerializer[CRS].toRow(pe.crs)
+          case 1 ⇒ pe.extent.toRow
+          case 2 ⇒ pe.crs.toRow
           case i if i > 2 ⇒ {
             if(bandCount == 1 && mbt.bandCount > 2) mbt.color()
             else mbt.band(i - 3)
@@ -77,7 +67,6 @@ case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount
         }
         Row(entries: _*)
       }
-
   }
 }
 

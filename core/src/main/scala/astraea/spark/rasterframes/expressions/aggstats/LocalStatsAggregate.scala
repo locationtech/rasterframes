@@ -31,9 +31,9 @@ import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression,
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, TypedColumn}
+import astraea.spark.rasterframes.TileType
 
 
 /**
@@ -43,8 +43,6 @@ import org.apache.spark.sql.{Column, Row, TypedColumn}
  */
 class LocalStatsAggregate() extends UserDefinedAggregateFunction {
   import LocalStatsAggregate.C
-
-  private val TileType = new TileUDT()
 
   override def inputSchema: StructType = StructType(Seq(
     StructField("value", TileType, true)

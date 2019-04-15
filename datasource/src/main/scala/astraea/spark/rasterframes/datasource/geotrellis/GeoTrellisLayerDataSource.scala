@@ -37,9 +37,9 @@ import scala.util.Try
  * DataSource over a GeoTrellis layer store.
  */
 @Experimental
-class DefaultSource extends DataSourceRegister
+class GeoTrellisLayerDataSource extends DataSourceRegister
   with RelationProvider with CreatableRelationProvider with DataSourceOptions {
-  def shortName(): String = DefaultSource.SHORT_NAME
+  def shortName(): String = GeoTrellisLayerDataSource.SHORT_NAME
 
   /**
    * Create a GeoTrellis data source.
@@ -110,6 +110,6 @@ class DefaultSource extends DataSourceRegister
   }
 }
 
-object DefaultSource {
+object GeoTrellisLayerDataSource {
   final val SHORT_NAME = "geotrellis"
 }

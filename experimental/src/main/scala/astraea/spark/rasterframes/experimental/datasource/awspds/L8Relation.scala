@@ -21,7 +21,7 @@
 package astraea.spark.rasterframes.experimental.datasource.awspds
 
 import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.encoders.CatalystSerializer
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.experimental.datasource.awspds.L8Relation.Bands
 import astraea.spark.rasterframes.expressions.transformers._
 import astraea.spark.rasterframes.ref.RasterRef
@@ -99,8 +99,10 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[F
     val nonTile = other.map(col)
 
     val df = {
+      val dims = if (useTiling) Some(NOMINAL_TILE_DIMS) else None
+      val sources = bands.map(b ⇒ URIToRasterSource(l8_band_url(b)).as(b))
       // NB: We assume that `nativeTiling` preserves the band names.
-      val expanded = RasterSourceToRasterRefs(useTiling, bands.map(b ⇒ URIToRasterSource(l8_band_url(b)).as(b)): _*)
+      val expanded = RasterSourceToRasterRefs(dims, Seq(0), sources: _*)
       filtered.select(nonTile :+ expanded: _*)
     }
 
@@ -126,7 +128,7 @@ object L8Relation extends PDSFields {
         case ACQUISITION_DATE ⇒ ACQUISITION_DATE.copy(name = StandardColumns.TIMESTAMP_COLUMN.columnName)
         case s if s.name == BOUNDS_WGS84.name ⇒ BOUNDS
         case s if s != DOWNLOAD_URL ⇒ s
-      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, CatalystSerializer[RasterRef].schema, true))
+      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, schemaOf[RasterRef], true))
     )
   }
 }

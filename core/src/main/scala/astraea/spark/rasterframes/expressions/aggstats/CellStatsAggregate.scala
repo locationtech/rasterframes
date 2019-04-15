@@ -23,12 +23,12 @@ package astraea.spark.rasterframes.expressions.aggstats
 
 import astraea.spark.rasterframes.expressions.accessors.ExtractTile
 import astraea.spark.rasterframes.stats.CellStatistics
+import astraea.spark.rasterframes.TileType
 import geotrellis.raster.{Tile, _}
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, _}
 import org.apache.spark.sql.{Column, Row, TypedColumn}
 
@@ -40,8 +40,6 @@ import org.apache.spark.sql.{Column, Row, TypedColumn}
 case class CellStatsAggregate() extends UserDefinedAggregateFunction {
   import CellStatsAggregate.C
   // TODO: rewrite as a DeclarativeAggregate
-  private val TileType = new TileUDT()
-
   override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
 
   override def dataType: DataType = StructType(Seq(

@@ -29,10 +29,6 @@ import org.apache.spark.sql.functions._
 class GeoTiffDataSourceSpec
     extends TestEnvironment with TestData {
 
-  val cogPath = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
-  val nonCogPath = getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI
-  val l8samplePath = getClass.getResource("/L8-B1-Elkton-VA.tiff").toURI
-
   describe("GeoTiff reading") {
 
     it("should read sample GeoTiff") {

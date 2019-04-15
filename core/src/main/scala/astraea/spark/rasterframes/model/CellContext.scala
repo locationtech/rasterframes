@@ -23,13 +23,14 @@ package astraea.spark.rasterframes.model
 import astraea.spark.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
+import CatalystSerializer._
 
 case class CellContext(tile_context: TileContext, tile_data_context: TileDataContext, col_index: Short, row_index: Short)
 object CellContext {
   implicit val serializer: CatalystSerializer[CellContext] = new CatalystSerializer[CellContext] {
     override def schema: StructType = StructType(Seq(
-      StructField("tile_context", CatalystSerializer[TileContext].schema, false),
-      StructField("tile_data_context", CatalystSerializer[TileDataContext].schema, false),
+      StructField("tile_context", schemaOf[TileContext], false),
+      StructField("tile_data_context", schemaOf[TileDataContext], false),
       StructField("col_index", ShortType, false),
       StructField("row_index", ShortType, false)
     ))

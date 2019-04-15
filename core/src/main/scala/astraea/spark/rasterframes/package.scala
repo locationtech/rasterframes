@@ -25,6 +25,7 @@ import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
+import org.apache.spark.sql.rf.TileUDT
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import shapeless.tag.@@
 
@@ -83,6 +84,9 @@ package object rasterframes extends StandardColumns
     rasterframes.expressions.register(sqlContext)
     rasterframes.rules.register(sqlContext)
   }
+
+  /** TileUDT type reference. */
+  def TileType = new TileUDT()
 
   /**
    * A RasterFrame is just a DataFrame with certain invariants, enforced via the methods that create and transform them:

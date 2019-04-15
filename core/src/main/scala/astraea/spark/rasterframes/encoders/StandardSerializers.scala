@@ -20,15 +20,15 @@
  */
 
 package astraea.spark.rasterframes.encoders
-import astraea.spark.rasterframes.encoders.CatalystSerializer.CatalystIO
+import astraea.spark.rasterframes.encoders.CatalystSerializer._
 import astraea.spark.rasterframes.model.LazyCRS
-import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.spark._
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector._
 import org.apache.spark.sql.types._
+import org.locationtech.jts.geom.Envelope
 
 /** Collection of CatalystSerializers for third-party types. */
 trait StandardSerializers {
@@ -93,8 +93,8 @@ trait StandardSerializers {
 
   implicit val projectedExtentSerializer: CatalystSerializer[ProjectedExtent] = new CatalystSerializer[ProjectedExtent] {
     override def schema: StructType = StructType(Seq(
-      StructField("extent", CatalystSerializer[Extent].schema, false),
-      StructField("crs", CatalystSerializer[CRS].schema, false)
+      StructField("extent", schemaOf[Extent], false),
+      StructField("crs", schemaOf[CRS], false)
     ))
 
     override protected def to[R](t: ProjectedExtent, io: CatalystSerializer.CatalystIO[R]): R = io.create(
@@ -187,8 +187,8 @@ trait StandardSerializers {
 
   implicit val layoutDefinitionSerializer = new CatalystSerializer[LayoutDefinition] {
     override def schema: StructType = StructType(Seq(
-      StructField("extent", CatalystSerializer[Extent].schema, true),
-      StructField("tileLayout", CatalystSerializer[TileLayout].schema, true)
+      StructField("extent", schemaOf[Extent], true),
+      StructField("tileLayout", schemaOf[TileLayout], true)
     ))
 
     override protected def to[R](t: LayoutDefinition, io: CatalystIO[R]): R = io.create(
@@ -202,10 +202,10 @@ trait StandardSerializers {
     )
   }
 
-  implicit def boundsSerializer[T: CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
+  implicit def boundsSerializer[T >: Null: CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
     override def schema: StructType = StructType(Seq(
-      StructField("minKey", CatalystSerializer[T].schema, true),
-      StructField("maxKey", CatalystSerializer[T].schema, true)
+      StructField("minKey", schemaOf[T], true),
+      StructField("maxKey", schemaOf[T], true)
     ))
 
     override protected def to[R](t: KeyBounds[T], io: CatalystIO[R]): R = io.create(
@@ -219,13 +219,13 @@ trait StandardSerializers {
     )
   }
 
-  def tileLayerMetadataSerializer[T: CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
+  def tileLayerMetadataSerializer[T >: Null: CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
     override def schema: StructType = StructType(Seq(
-      StructField("cellType", CatalystSerializer[CellType].schema, false),
-      StructField("layout", CatalystSerializer[LayoutDefinition].schema, false),
-      StructField("extent", CatalystSerializer[Extent].schema, false),
-      StructField("crs", CatalystSerializer[CRS].schema, false),
-      StructField("bounds", CatalystSerializer[KeyBounds[T]].schema, false)
+      StructField("cellType", schemaOf[CellType], false),
+      StructField("layout", schemaOf[LayoutDefinition], false),
+      StructField("extent", schemaOf[Extent], false),
+      StructField("crs", schemaOf[CRS], false),
+      StructField("bounds", schemaOf[KeyBounds[T]], false)
     ))
 
     override protected def to[R](t: TileLayerMetadata[T], io: CatalystIO[R]): R = io.create(

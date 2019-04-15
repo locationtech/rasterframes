@@ -26,7 +26,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.VersionShims.InvokeSafely
 import org.apache.spark.sql.types.{ObjectType, StringType}
 import org.apache.spark.unsafe.types.UTF8String
-
+import CatalystSerializer._
 import scala.reflect.classTag
 
 /**
@@ -41,7 +41,7 @@ object CellTypeEncoder {
     import org.apache.spark.sql.catalyst.expressions._
     import org.apache.spark.sql.catalyst.expressions.objects._
     val ctType = ScalaReflection.dataTypeFor[DataType]
-    val schema = CatalystSerializer[CellType].schema
+    val schema = schemaOf[CellType]
     val inputObject = BoundReference(0, ctType, nullable = false)
 
     val intermediateType = ObjectType(classOf[String])
