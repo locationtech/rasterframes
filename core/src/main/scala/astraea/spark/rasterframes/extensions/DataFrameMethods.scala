@@ -91,7 +91,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Get the columns that are not of type `Tile` */
   def notTileColumns: Seq[Column] =
     self.schema.fields
-      .filter(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
+      .filter(f => !DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
       .map(f ⇒ col(f.name))
 
   /** Get the spatial column. */

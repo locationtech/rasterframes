@@ -180,7 +180,10 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       // Should use left's key column names
       assert(joined.spatialKeyColumn.columnName === left.spatialKeyColumn.columnName)
       assert(joined.temporalKeyColumn.map(_.columnName) === left.temporalKeyColumn.map(_.columnName))
-
+      assert(joined.tileColumns.size === 2)
+      assert(joined.notTileColumns.size === 2)
+      assert(joined.tileColumns.toSet === joined.tileColumns.toSet)
+      assert(joined.tileColumns.toSet !== joined.notTileColumns.toSet)
     }
 
     it("should convert a GeoTiff to RasterFrame") {
