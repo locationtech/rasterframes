@@ -22,6 +22,7 @@
 package astraea.spark.rasterframes.ref
 
 import astraea.spark.rasterframes.model.TileDimensions
+import astraea.spark.rasterframes.ref.RasterSource.{GDALRasterSource, JVMGeoTiffRasterSource}
 import astraea.spark.rasterframes.{TestData, TestEnvironment}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
@@ -106,6 +107,24 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toUri
       val src = RasterSource(localSrc)
       assert(!src.extent.isEmpty)
+    }
+  }
+  describe("GDAL Rastersource") {
+    val gdal = GDALRasterSource(l8samplePath)
+    val jvm = JVMGeoTiffRasterSource(l8samplePath)
+    it("should compute the same metadata as JVM RasterSource") {
+
+      gdal.cellType should be (jvm.cellType)
+
+    }
+    it("should compute the same dimensions as JVM RasterSource") {
+      val dims = TileDimensions(128, 128)
+      gdal.extent should be (jvm.extent)
+      gdal.rasterExtent should be (jvm.rasterExtent)
+      gdal.cellSize should be (jvm.cellSize)
+      gdal.layoutBounds(dims) should contain allElementsOf jvm.layoutBounds(dims)
+      gdal.layoutExtents(dims) should contain allElementsOf jvm.layoutExtents(dims)
+
     }
   }
 

@@ -27,7 +27,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
 
 /** Encapsulates all information about a tile aside from actual cell values. */
-case class TileDataContext(cell_type: CellType, dimensions: TileDimensions)
+case class TileDataContext(cellType: CellType, dimensions: TileDimensions)
 object TileDataContext {
 
   /** Extracts the TileDataContext from a Tile. */
@@ -41,12 +41,12 @@ object TileDataContext {
 
   implicit val serializer: CatalystSerializer[TileDataContext] = new CatalystSerializer[TileDataContext] {
     override def schema: StructType =  StructType(Seq(
-      StructField("cell_type", schemaOf[CellType], false),
+      StructField("cellType", schemaOf[CellType], false),
       StructField("dimensions", schemaOf[TileDimensions], false)
     ))
 
     override protected def to[R](t: TileDataContext, io: CatalystIO[R]): R = io.create(
-      io.to(t.cell_type),
+      io.to(t.cellType),
       io.to(t.dimensions)
     )
     override protected def from[R](t: R, io: CatalystIO[R]): TileDataContext = TileDataContext(

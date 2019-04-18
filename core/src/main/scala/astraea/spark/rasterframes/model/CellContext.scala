@@ -25,20 +25,20 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 import CatalystSerializer._
 
-case class CellContext(tile_context: TileContext, tile_data_context: TileDataContext, col_index: Short, row_index: Short)
+case class CellContext(tileContext: TileContext, tileDataContext: TileDataContext, colIndex: Short, rowIndex: Short)
 object CellContext {
   implicit val serializer: CatalystSerializer[CellContext] = new CatalystSerializer[CellContext] {
     override def schema: StructType = StructType(Seq(
-      StructField("tile_context", schemaOf[TileContext], false),
-      StructField("tile_data_context", schemaOf[TileDataContext], false),
-      StructField("col_index", ShortType, false),
-      StructField("row_index", ShortType, false)
+      StructField("tileContext", schemaOf[TileContext], false),
+      StructField("tileDataContext", schemaOf[TileDataContext], false),
+      StructField("colIndex", ShortType, false),
+      StructField("rowIndex", ShortType, false)
     ))
     override protected def to[R](t: CellContext, io: CatalystSerializer.CatalystIO[R]): R = io.create(
-      io.to(t.tile_context),
-      io.to(t.tile_data_context),
-      t.col_index,
-      t.row_index
+      io.to(t.tileContext),
+      io.to(t.tileDataContext),
+      t.colIndex,
+      t.rowIndex
     )
     override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): CellContext = CellContext(
       io.get[TileContext](t, 0),

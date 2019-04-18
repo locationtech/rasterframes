@@ -102,6 +102,7 @@ class CatalystSerializerSpec extends TestEnvironment with TestData {
     }
 
     it("should serialize RasterRef") {
+      // TODO: Decide if RasterRef should be encoded 'flat', non-'flat', or depends
       val src = RasterSource(remoteCOGSingleband1)
       val value = RasterRef(src, 0, Some(src.extent.buffer(-3.0)))
       assertConsistent(value)

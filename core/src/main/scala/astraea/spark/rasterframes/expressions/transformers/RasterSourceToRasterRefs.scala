@@ -58,9 +58,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
   } yield StructField(name, rasterRefSchema, true))
 
   private def band2ref(src: RasterSource, e: Option[Extent])(b: Int): RasterRef =
-    if (b < src.bandCount)
-      RasterRef(src, b, e)
-    else null
+    if (b < src.bandCount) RasterRef(src, b, e) else null
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {

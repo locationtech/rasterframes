@@ -78,7 +78,7 @@ object RasterRef extends LazyLogging {
     val rsType = new RasterSourceUDT()
     override def schema: StructType = StructType(Seq(
       StructField("source", rsType, false),
-      StructField("band_index", IntegerType, false),
+      StructField("bandIndex", IntegerType, false),
       StructField("subextent", schemaOf[Extent], true)
     ))
 

@@ -101,18 +101,18 @@ object RasterSource extends LazyLogging {
   }
 
   def apply(source: URI): RasterSource = source match {
-    case IsGDAL()                        => GDALRasterSource(source)
+    case IsGDAL()          => GDALRasterSource(source)
     case IsHadoopGeoTiff() =>
       // TODO: How can we get the active hadoop configuration
       // TODO: without having to pass it through?
       val config = () => new Configuration()
       HadoopGeoTiffRasterSource(source, config)
-    case IsDefaultGeoTiff() =>
-      DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))
-    case s => throw new UnsupportedOperationException(s"Reading '$s' not supported")
+    case IsDefaultGeoTiff() => JVMGeoTiffRasterSource(source)
+    case s                  => throw new UnsupportedOperationException(s"Reading '$s' not supported")
   }
 
   object IsGDAL {
+
     /** Determine if we should prefer GDAL for all types. */
     private val preferGdal: Boolean = astraea.spark.rasterframes.rfConfig.getBoolean("prefer-gdal")
     @transient
@@ -127,7 +127,7 @@ object RasterSource extends LazyLogging {
 
     val gdalOnlyExtensions = Seq(".jp2", ".mrf", ".hdf")
     def gdalOnly(source: URI): Boolean =
-      if(gdalOnlyExtensions.exists(source.getPath.toLowerCase.endsWith)) {
+      if (gdalOnlyExtensions.exists(source.getPath.toLowerCase.endsWith)) {
         require(hasGDAL, s"Can only read $source if GDAL is available")
         true
       } else false
@@ -174,7 +174,8 @@ object RasterSource extends LazyLogging {
         info.crs,
         info.tags,
         info.bandCount,
-        info.noDataValue)
+        info.noDataValue
+      )
   }
 
   trait URIRasterSource { _: RasterSource =>
@@ -186,14 +187,14 @@ object RasterSource extends LazyLogging {
   }
 
   /** A RasterFrames RasterSource which delegates most operations to a geotrellis-contrib RasterSource */
-  case class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRasterSource) extends RasterSource with URIRasterSource {
+  abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRasterSource) extends RasterSource with URIRasterSource {
     @transient
     lazy val delegate = delegateBuilder()
 
     // Bad, bad, bad?
     override def equals(obj: Any): Boolean = obj match {
       case drs: DelegatingRasterSource => drs.source == source
-      case _ => false
+      case _                           => false
     }
     override def hashCode(): Int = source.hashCode()
 
@@ -226,12 +227,16 @@ object RasterSource extends LazyLogging {
     override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
       delegate.readBounds(bounds, bands)
     override def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
-      delegate.read(bounds, bands)
+      delegate
+        .read(bounds, bands)
         .getOrElse(throw new IllegalArgumentException(s"Bounds '$bounds' outside of source"))
     override def read(extent: Extent, bands: Seq[Int]): Raster[MultibandTile] =
-      delegate.read(extent, bands)
+      delegate
+        .read(extent, bands)
         .getOrElse(throw new IllegalArgumentException(s"Extent '$extent' outside of source"))
   }
+
+  case class JVMGeoTiffRasterSource(source: URI) extends DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))
 
   case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
     def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
@@ -246,8 +251,7 @@ object RasterSource extends LazyLogging {
 
     override def tags: Tags = EMPTY_TAGS
 
-    override protected def readBounds(
-      bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+    override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
       bounds
         .map(b => {
           val subext = rasterExtent.extentFor(b)
