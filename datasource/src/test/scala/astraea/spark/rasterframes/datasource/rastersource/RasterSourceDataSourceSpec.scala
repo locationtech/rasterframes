@@ -86,12 +86,16 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       stats.select($"s0.mean" =!= $"s2.mean").as[Boolean].first() should be(true)
     }
     it("should read a single file") {
+      // Image is 1028 x 989 -> 9 x 8 tiles
       val df = spark.read.rastersource
         .withTileDimensions(128, 128)
-        .load(l8samplePath.toASCIIString)
-      df.count() should be(4)
-      df.select(tile_dimensions($"tile").as[TileDimensions]).collect() should contain allElementsOf
-        Seq(TileDimensions(128, 128), TileDimensions(59, 128), TileDimensions(128, 42), TileDimensions(59, 42))
+        .load(cogPath.toASCIIString)
+
+      df.count() should be(math.ceil(1028.0 / 128).toInt * math.ceil(989.0 / 128).toInt)
+
+      val dims = df.select(tile_dimensions($"tile").as[TileDimensions]).distinct().collect()
+      dims should contain allElementsOf
+        Seq(TileDimensions(4,128), TileDimensions(128,128), TileDimensions(128,93), TileDimensions(4,93))
 
       df.select("path").distinct().count() should be(1)
     }

@@ -110,8 +110,8 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
   }
   describe("GDAL Rastersource") {
-    val gdal = GDALRasterSource(l8samplePath)
-    val jvm = JVMGeoTiffRasterSource(l8samplePath)
+    val gdal = GDALRasterSource(cogPath)
+    val jvm = JVMGeoTiffRasterSource(cogPath)
     it("should compute the same metadata as JVM RasterSource") {
 
       gdal.cellType should be (jvm.cellType)

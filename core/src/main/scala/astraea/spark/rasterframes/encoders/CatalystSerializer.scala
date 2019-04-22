@@ -152,6 +152,6 @@ object CatalystSerializer extends StandardSerializers {
   }
 
   implicit class WithFromRow(val r: Row) extends AnyVal {
-    def to[T >: Null: CatalystSerializer]: T = CatalystSerializer[T].fromRow(r)
+    def to[T >: Null: CatalystSerializer]: T = if (r == null) null else CatalystSerializer[T].fromRow(r)
   }
 }
