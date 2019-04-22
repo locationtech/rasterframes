@@ -10,20 +10,6 @@ import xerial.sbt.Sonatype.autoImport._
 object RFProjectPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   override def requires = GitPlugin
-  object autoImport {
-    val rfSparkVersion = settingKey[String]("Apache Spark version")
-    val rfGeoTrellisVersion = settingKey[String]("GeoTrellis version")
-    val rfGeoMesaVersion = settingKey[String]("GeoMesa version")
-
-    def geotrellis(module: String) = Def.setting {
-      "org.locationtech.geotrellis" %% s"geotrellis-$module" % rfGeoTrellisVersion.value
-    }
-    def spark(module: String) = Def.setting {
-      "org.apache.spark" %% s"spark-$module" % rfSparkVersion.value
-    }
-
-    val scalaTest = "org.scalatest" %% "scalatest" % "3.0.3" % Test
-  }
 
   override def projectSettings = Seq(
     organization := "org.locationtech.rasterframes",
