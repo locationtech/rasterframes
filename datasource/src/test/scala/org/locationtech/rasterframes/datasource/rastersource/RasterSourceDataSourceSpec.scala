@@ -53,6 +53,11 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       val p = Map(TILE_DIMS_PARAM -> "4, 5")
       p.tileDims should be (Some(TileDimensions(4, 5)))
     }
+
+    it("should parse path table specificatino") {
+      val p = Map(PATH_TABLE_PARAM -> "pathTable", PATH_TABLE_COL_PARAM -> "path")
+      p.pathTable should be (Some(PathColumn("pathTable", "path")))
+    }
   }
 
   describe("RasterSource as relation reading") {
@@ -102,6 +107,16 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     it("should read a multiple files with one band") {
       val df = spark.read.rastersource
         .from(Seq(cogPath, l8samplePath, nonCogPath))
+        .withTileDimensions(128, 128)
+        .load()
+      df.select("path").distinct().count() should be(3)
+      df.schema.size should be(2)
+    }
+
+    it("should read a multiple files from a table") {
+      Seq(cogPath, l8samplePath, nonCogPath).toDF("path").createOrReplaceTempView("pathsTable")
+      val df = spark.read.rastersource
+        .fromTable("pathsTable", "path")
         .withTileDimensions(128, 128)
         .load()
       df.select("path").distinct().count() should be(3)
