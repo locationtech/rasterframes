@@ -199,6 +199,8 @@ _rf_column_functions = {
     'rf_tile_to_array_double': 'Flattens Tile into an array of doubles.',
     'rf_cell_type': 'Extract the Tile\'s cell type',
     'rf_is_no_data_tile': 'Report if the Tile is entirely NODDATA cells',
+    'rf_exists': 'Returns true if any cells in the tile are true (non-zero and not NoData)',
+    'rf_for_all': 'Returns true if all cells in the tile are true (non-zero and not NoData).',
     'rf_agg_approx_histogram': 'Compute the full column aggregate floating point histogram',
     'rf_agg_stats': 'Compute the full column aggregate floating point statistics',
     'rf_agg_mean': 'Computes the column aggregate mean',

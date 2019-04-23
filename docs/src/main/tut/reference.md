@@ -471,8 +471,19 @@ Return the count of nodata cells in the `tile`.
 
     Long rf_data_cells(Tile tile)
     
-
 Return the count of data cells in the `tile`.
+
+#### rf_exists
+
+    Boolean rf_exists(Tile tile)
+    
+Returns true if any cells in the tile are true (non-zero and not NoData). 
+
+#### rf_for_all
+
+    Boolean rf_for_all(Tile tile)
+
+Returns true if all cells in the tile are true (non-zero and not NoData). 
 
 #### rf_tile_stats
 

@@ -98,6 +98,8 @@ package object expressions {
     registry.registerExpression[DataCells]("rf_data_cells")
     registry.registerExpression[NoDataCells]("rf_no_data_cells")
     registry.registerExpression[IsNoDataTile]("rf_is_no_data_tile")
+    registry.registerExpression[Exists]("rf_exists")
+    registry.registerExpression[ForAll]("rf_for_all")
     registry.registerExpression[TileMin]("rf_tile_min")
     registry.registerExpression[TileMax]("rf_tile_max")
     registry.registerExpression[TileMean]("rf_tile_mean")
