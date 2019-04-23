@@ -29,7 +29,7 @@ import geotrellis.raster.{ArrayTile, CellType, NODATA, Tile, isNoData}
  * @author sfitch 
  * @since 10/4/17
  */
-package object rasterframes {
+package object bench {
   val rnd = new scala.util.Random(42)
 
   /** Construct a tile of given size and cell type populated with random values. */

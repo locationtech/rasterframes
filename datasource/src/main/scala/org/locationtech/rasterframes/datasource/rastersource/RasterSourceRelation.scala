@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.datasource.rastersource
 
-<<<<<<< HEAD:datasource/src/main/scala/org/locationtech/rasterframes/datasource/rastersource/RasterSourceRelation.scala
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.rastersource.RasterSourceRelation.bandNames
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
@@ -30,24 +29,11 @@ import org.locationtech.rasterframes.util._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
-import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.sql.{DataFrame, Row, SQLContext}
+import org.apache.spark.sql.functions._
+import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.PathColumn
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-=======
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.datasource.rastersource.RasterSourceDataSource.PathColumn
-import astraea.spark.rasterframes.datasource.rastersource.RasterSourceRelation.bandNames
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
-import astraea.spark.rasterframes.model.TileDimensions
-import astraea.spark.rasterframes.tiles.ProjectedRasterTile
-import astraea.spark.rasterframes.util._
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.sources.{BaseRelation, TableScan}
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
-import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.apache.spark.sql.functions.col
->>>>>>> Added ability to use a RasterSourceRelation against a table/view of paths.:datasource/src/main/scala/astraea/spark/rasterframes/datasource/rastersource/RasterSourceRelation.scala
 
 /**
   * Constructs a Spark Relation over one or more RasterSource paths.
