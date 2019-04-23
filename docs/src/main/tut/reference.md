@@ -277,7 +277,7 @@ _Python_:
 
 _SQL_: `rf_is_no_data_tile`
  
-Returns true if `tile` contains only nodata. By definition returns false if cell type does not support nodata.
+Returns true if `tile` contains only nodata. By definition returns false if cell type does not support nodata. To count nodata cells or data cells, see @ref:[`no_data_cells`](reference.md#no-data-cells), @ref:[`data_cells`](reference.md#data-cells), @ref:[`agg_no_data_cells`](reference.md#agg-no-data-cells), @ref:[`agg_data_cells`](reference.md#agg-data-cells), @ref:[`agg_local_no_data_cells`](reference.md#agg-local-no-data-cells), and @ref:[`agg_local_data_cells`](reference.md#agg-local-data-cells).
 
 #### with_no_data
 
@@ -669,6 +669,37 @@ Computes a statistical summary of cell values within each row of `tile`. Resulti
  |    |    |    |-- value: double (nullable = false)
  |    |    |    |-- count: long (nullable = false)
 ```
+
+#### for_all
+
+_Python_:
+
+    Boolean for_all(Tile tile)
+    
+_SQL_: `rf_for_all`
+    
+Checks if all cells in the tile are non-zero and not nodata.
+
+#### exists
+
+_Python_:
+
+    Boolean exists(Tile tile)
+    
+_SQL_: `rf_exists`
+    
+Checks if any cells in the tile are non-zero and not nodata. Also available as @ref:[`any`](reference.md#any).
+
+#### any
+
+_Python_:
+
+    Boolean any(Tile tile)
+    
+_SQL_: `rf_any`
+    
+Checks if any cells in the tile are non-zero and not nodata. Also available as @ref:[`exists`](reference.md#exists).
+
 
 ### Aggregate Tile Statistics
 
