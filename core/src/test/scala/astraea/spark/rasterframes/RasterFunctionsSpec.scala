@@ -289,6 +289,25 @@ class RasterFunctionsSpec extends FunSpec
       df2.select(is_no_data_tile($"not_nd")).first() should be(false)
       checkDocs("rf_is_no_data_tile")
     }
+
+    it("should evaluate exists and forall") {
+      val df0 = Seq(zero).toDF("tile")
+      df0.select(exists($"tile")).first() should be(false)
+      df0.select(any($"tile")).first() should be(false)
+      df0.select(for_all($"tile")).first() should be(false)
+
+      Seq(one).toDF("tile").select(exists($"tile")).first() should be(true)
+      Seq(one).toDF("tile").select(any($"tile")).first() should be(true)
+      Seq(one).toDF("tile").select(for_all($"tile")).first() should be(true)
+
+      val dfNd = Seq(injectND(1)(one)).toDF("tile")
+      dfNd.select(exists($"tile")).first() should be(true)
+      dfNd.select(for_all($"tile")).first() should be(false)
+
+      checkDocs("rf_exists")
+      checkDocs("rf_any")
+      checkDocs("rf_for_all")
+    }
     it("should find the minimum cell value") {
       val min = randNDTile.toArray().filter(c => raster.isData(c)).min.toDouble
       val df = Seq(randNDTile).toDF("rand")

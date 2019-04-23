@@ -29,7 +29,7 @@ import org.apache.spark.sql.types.{DataType, DoubleType}
 import org.apache.spark.sql.{Column, TypedColumn}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Computes the sum of all the cells in a tile..",
+  usage = "_FUNC_(tile) - Computes the sum of all the cells in a tile.",
   arguments = """
   Arguments:
     * tile - tile to sum up""",

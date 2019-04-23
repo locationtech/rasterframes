@@ -160,6 +160,15 @@ trait RasterFunctions {
   def is_no_data_tile(tile: Column): TypedColumn[Any, Boolean] =
     IsNoDataTile(tile)
 
+  /** Returns true if any cells in the tile are true (non-zero and not nodata). */
+  def exists(tile: Column): TypedColumn[Any, Boolean] = Exists(tile)
+
+  /** Returns true if any cells in the tile are true (non-zero and not nodata). */
+  def any(tile: Column): TypedColumn[Any, Boolean] = Exists(tile)
+
+  /** Returns true if all cells in the tile are true (non-zero and not nodata). */
+  def for_all(tile: Column): TypedColumn[Any, Boolean] = ForAll(tile)
+
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
   def agg_local_stats(col: Column) =
     LocalStatsAggregate(col)
