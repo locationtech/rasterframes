@@ -109,22 +109,22 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       assert(!src.extent.isEmpty)
     }
   }
-  describe("GDAL Rastersource") {
-    val gdal = GDALRasterSource(cogPath)
-    val jvm = JVMGeoTiffRasterSource(cogPath)
-    it("should compute the same metadata as JVM RasterSource") {
 
-      gdal.cellType should be (jvm.cellType)
-
-    }
-    it("should compute the same dimensions as JVM RasterSource") {
-      val dims = TileDimensions(128, 128)
-      gdal.extent should be (jvm.extent)
-      gdal.rasterExtent should be (jvm.rasterExtent)
-      gdal.cellSize should be (jvm.cellSize)
-      gdal.layoutBounds(dims) should contain allElementsOf jvm.layoutBounds(dims)
-      gdal.layoutExtents(dims) should contain allElementsOf jvm.layoutExtents(dims)
-
+  if(RasterSource.IsGDAL.hasGDAL) {
+    describe("GDAL Rastersource") {
+      val gdal = GDALRasterSource(cogPath)
+      val jvm = JVMGeoTiffRasterSource(cogPath)
+      it("should compute the same metadata as JVM RasterSource") {
+        gdal.cellType should be(jvm.cellType)
+      }
+      it("should compute the same dimensions as JVM RasterSource") {
+        val dims = TileDimensions(128, 128)
+        gdal.extent should be(jvm.extent)
+        gdal.rasterExtent should be(jvm.rasterExtent)
+        gdal.cellSize should be(jvm.cellSize)
+        gdal.layoutBounds(dims) should contain allElementsOf jvm.layoutBounds(dims)
+        gdal.layoutExtents(dims) should contain allElementsOf jvm.layoutExtents(dims)
+      }
     }
   }
 
