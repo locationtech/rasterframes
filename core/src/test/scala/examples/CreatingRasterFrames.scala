@@ -33,7 +33,7 @@ object CreatingRasterFrames extends App {
 //
 //  First, some standard `import`s:
 
-  import astraea.spark.rasterframes._
+  import org.locationtech.rasterframes._
   import geotrellis.raster._
   import geotrellis.raster.io.geotiff.SinglebandGeoTiff
   import geotrellis.spark.io._

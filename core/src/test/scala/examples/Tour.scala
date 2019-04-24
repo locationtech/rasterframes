@@ -23,12 +23,12 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import geotrellis.raster.io.geotiff._
 import geotrellis.raster.{ByteConstantNoDataCellType, Tile}
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.ml.TileExploder
+import org.locationtech.rasterframes._
 import geotrellis.raster.render.{ColorRamps, IndexedColorMap}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.clustering.KMeans
 import org.apache.spark.ml.feature.VectorAssembler
+import org.locationtech.rasterframes.ml.TileExploder
 
 /**
  * Example tour of some general features in RasterFrames

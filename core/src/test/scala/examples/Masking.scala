@@ -1,6 +1,6 @@
 package examples
 
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.raster.render._
 import geotrellis.raster.{mask => _, _}

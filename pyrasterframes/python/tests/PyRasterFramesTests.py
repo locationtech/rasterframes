@@ -38,7 +38,7 @@ class RasterFunctionsTest(unittest.TestCase):
             .config('spark.driver.extraClassPath', jarpath)
             .config('spark.executor.extraClassPath', jarpath)
             .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-            .config("spark.kryo.registrator", "astraea.spark.rasterframes.util.RFKryoRegistrator")
+            .config("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator")
             .config("spark.kryoserializer.buffer.max", "500m")
             .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')

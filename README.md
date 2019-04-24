@@ -12,7 +12,7 @@ Please see the [Getting Started](http://rasterframes.io/getting-started.html) se
 
 * [Users' Manual](http://rasterframes.io/)
 * [API Documentation](http://rasterframes.io/latest/api/index.html) 
-* [List of available UDFs](http://rasterframes.io/latest/api/index.html#astraea.spark.rasterframes.RasterFunctions)
+* [List of available UDFs](http://rasterframes.io/latest/api/index.html#org.locationtech.rasterframes.RasterFunctions)
 * [RasterFrames Jupyter Notebook Docker Image](https://hub.docker.com/r/s22s/rasterframes-notebooks/) 
 
 ## Build instruction

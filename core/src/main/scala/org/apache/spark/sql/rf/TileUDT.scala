@@ -20,14 +20,14 @@
  */
 
 package org.apache.spark.sql.rf
-
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.model.{Cells, TileDataContext}
-import astraea.spark.rasterframes.tiles.InternalRowTile
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.model.TileDataContext
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
+import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.locationtech.rasterframes.model.{Cells, TileDataContext}
+import org.locationtech.rasterframes.tiles.InternalRowTile
 
 
 /**

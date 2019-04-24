@@ -18,10 +18,11 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource.awspds
+package org.locationtech.rasterframes.experimental.datasource.awspds
 
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import org.apache.spark.sql.DataFrame
+import org.locationtech.rasterframes.TestEnvironment
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
 /**

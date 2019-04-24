@@ -19,8 +19,8 @@
 
 package examples
 
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.ml.{NoDataFilter, TileExploder}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.ml.TileExploder
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.render.{ColorRamps, IndexedColorMap}
@@ -30,6 +30,7 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.sql._
+import org.locationtech.rasterframes.ml.{NoDataFilter, TileExploder}
 
 object Classification extends App {
 

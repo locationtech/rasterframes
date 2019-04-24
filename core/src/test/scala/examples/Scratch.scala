@@ -19,7 +19,7 @@
 
 package examples
 
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import org.apache.spark.sql._
 
 /**
