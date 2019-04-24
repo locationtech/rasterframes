@@ -4,7 +4,7 @@
 
 ### 0.8.0
 
-* _Breaking_: Root package changed from `astraea.spark.rasterframes` to `org.locationtech.rasterframes`.
+* _Breaking_: Root package changed from `org.locationtech.rasterframes` to `org.locationtech.rasterframes`.
 * Upgraded to the following core dependencies: Spark 2.3.2, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.
 * Added new tile functions `round`, `log`, `log10`, `log2`, `log1p`, `exp`, `exp10`, `exp2`, `expm1`, `resample`, `resample`.
 * Support python-side [Shapely](https://pypi.org/project/Shapely/) geometry User-Defined Type.
@@ -114,7 +114,7 @@
 ### 0.5.9
 
 * Ported to sbt 1.0.3
-* Added sbt-generated `astraea.spark.rasterframes.RFBuildInfo`
+* Added sbt-generated `org.locationtech.rasterframes.RFBuildInfo`
 * Fixed bug in computing `aggMean` when one or more tiles are `null` 
 * Deprecated `rfIinit` in favor of `SparkSession.withRasterFrames` or `SQLContext.withRasterFrames` extension methods
 
