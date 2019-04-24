@@ -70,7 +70,7 @@ package object expressions {
     registry.registerExpression[SetCellType]("rf_convert_cell_type")
     registry.registerExpression[GetDimensions]("rf_tile_dimensions")
     registry.registerExpression[ExtentToGeometry]("rf_extent_geometry")
-    registry.registerExpression[GeometryToExtent]("st_extent")
+    registry.registerExpression[GeometryToExtent]("rf_extent")
     registry.registerExpression[Subtract]("rf_local_subtract")
     registry.registerExpression[Multiply]("rf_local_multiply")
     registry.registerExpression[Divide]("rf_local_divide")

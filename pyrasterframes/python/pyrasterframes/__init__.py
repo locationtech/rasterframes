@@ -52,6 +52,7 @@ DataFrame.asRF = _convertDF
 # TODO: make sure this supports **options
 DataFrameReader.geotiff = lambda df_reader, path: _reader(df_reader, "geotiff", path)
 DataFrameReader.geotrellis = lambda df_reader, path: _reader(df_reader, "geotrellis", path)
+DataFrameReader.rastersource = lambda df_reader, path: _reader(df_reader, "rastersource", path)
 
 
 

@@ -19,7 +19,7 @@ class RFContext(object):
         self._jrfctx = self._jvm.org.locationtech.rasterframes.py.PyRFContext(jsess)
 
     def list_to_seq(self, py_list):
-        conv = self.lookup('listToSeq')
+        conv = self.lookup('_listToSeq')
         return conv(py_list)
 
     def lookup(self, function_name):

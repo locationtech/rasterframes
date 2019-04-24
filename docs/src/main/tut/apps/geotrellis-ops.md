@@ -26,15 +26,15 @@ Here's an example creating a UDFs to invoke the `equalize` transformation on eac
 import geotrellis.raster.equalization._
 val equalizer = udf((t: Tile) => t.equalize())
 val equalized = rf.select(equalizer($"tile") as "equalized")
-equalized.select(tile_mean($"equalized") as "equalizedMean").show(5, false)
+equalized.select(rf_tile_mean($"equalized") as "equalizedMean").show(5, false)
 ```
 
 Here's an example downsampling a tile and rendering each tile as a matrix of numerical values.
 
 ```tut  
 val downsample = udf((t: Tile) => t.resample(4, 4))
-val downsampled = rf.where(no_data_cells($"tile") === 0).select(downsample($"tile") as "minime")
-downsampled.select(tile_to_array_double($"minime") as "cell_values").limit(2).show(false)
+val downsampled = rf.where(rf_no_data_cells($"tile") === 0).select(downsample($"tile") as "minime")
+downsampled.select(rf_tile_to_array_double($"minime") as "cell_values").limit(2).show(false)
 ```
 
 

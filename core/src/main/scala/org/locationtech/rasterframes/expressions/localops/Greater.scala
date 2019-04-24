@@ -40,7 +40,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
        ..."""
 )
 case class Greater(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
-  override val nodeName: String = "local_greater"
+  override val nodeName: String = "rf_local_greater"
   override protected def op(left: Tile, right: Tile): Tile = left.localGreater(right)
   override protected def op(left: Tile, right: Double): Tile = left.localGreater(right)
   override protected def op(left: Tile, right: Int): Tile = left.localGreater(right)

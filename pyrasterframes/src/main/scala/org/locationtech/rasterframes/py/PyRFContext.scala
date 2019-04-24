@@ -20,14 +20,11 @@
  */
 package org.locationtech.rasterframes.py
 
-import org.locationtech.rasterframes._
-import org.locationtech.jts.geom.Geometry
-import geotrellis.raster.{ArrayTile, CellType, MultibandTile}
+import geotrellis.raster.{CellType, MultibandTile}
 import geotrellis.spark.io._
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql._
-import org.locationtech.geomesa.spark.jts.util.WKBUtils
-import org.locationtech.rasterframes.RasterFunctions
+import org.locationtech.rasterframes.{RasterFunctions, _}
 import org.locationtech.rasterframes.model.LazyCRS
 import spray.json._
 
@@ -95,27 +92,18 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   /**
     * Convenience functions for use in Python
     */
-  def cell_type(name: String): CellType = CellType.fromName(name)
+  def rf_cell_type(name: String): CellType = CellType.fromName(name)
 
   /**
     * Convenience list of valid cell type strings
     * @return Java List of String, which py4j can interpret as a python `list`
     */
-  def cell_types = {
+  def rf_cell_types = {
     org.locationtech.rasterframes.functions.cellTypes().asJava
   }
 
-  /** DESERIALIZATION **/
-
-  def generate_tile(cellType: String, cols: Int, rows: Int, bytes: Array[Byte]): ArrayTile = {
-    ArrayTile.fromBytes(bytes, this.cell_type(cellType), cols, rows)
-  }
-
-  def generate_geometry(obj: Array[Byte]): Geometry =  WKBUtils.read(obj)
-
-  def explode_tiles_sample(sampleFraction: Double, seed: Long, cols: Column*): Column =
-    explode_tiles_sample(sampleFraction, Some(seed), cols: _*)
-
+  def rf_explode_tiles_sample(sampleFraction: Double, seed: Long, cols: Column*): Column =
+    rf_explode_tiles_sample(sampleFraction, Some(seed), cols: _*)
 
   def tileColumns(df: DataFrame): Array[Column] =
     df.asRF.tileColumns.toArray
@@ -126,51 +114,53 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def temporalKeyColumn(df: DataFrame): Column =
     df.asRF.temporalKeyColumn.orNull
 
-  def tile_to_int_array(col: Column): Column = tile_to_array_int(col)
-
-  def tile_to_double_array(col: Column): Column = tile_to_array_double(col)
-
   // All the scalar tile arithmetic functions
 
-  def local_add_scalar(col: Column, scalar: Double): Column = local_add[Double](col, scalar)
+  def rf_local_add_double(col: Column, scalar: Double): Column = rf_local_add[Double](col, scalar)
 
-  def local_add_scalar_int(col: Column, scalar: Int): Column = local_add[Int](col, scalar)
+  def rf_local_add_int(col: Column, scalar: Int): Column = rf_local_add[Int](col, scalar)
 
-  def local_subtract_scalar(col: Column, scalar: Double): Column = local_subtract[Double](col, scalar)
+  def rf_local_subtract_double(col: Column, scalar: Double): Column = rf_local_subtract[Double](col, scalar)
 
-  def local_subtract_scalar_int(col: Column, scalar: Int): Column = local_subtract[Int](col, scalar)
+  def rf_local_subtract_int(col: Column, scalar: Int): Column = rf_local_subtract[Int](col, scalar)
 
-  def local_divide_scalar(col: Column, scalar: Double): Column = local_divide[Double](col, scalar)
+  def rf_local_divide_double(col: Column, scalar: Double): Column = rf_local_divide[Double](col, scalar)
 
-  def local_divide_scalar_int(col: Column, scalar: Int): Column = local_divide[Int](col, scalar)
+  def rf_local_divide_int(col: Column, scalar: Int): Column = rf_local_divide[Int](col, scalar)
 
-  def local_multiply_scalar(col: Column, scalar: Double): Column = local_multiply[Double](col, scalar)
+  def rf_local_multiply_double(col: Column, scalar: Double): Column = rf_local_multiply[Double](col, scalar)
 
-  def local_multiply_scalar_int(col: Column, scalar: Int): Column = local_multiply[Int](col, scalar)
+  def rf_local_multiply_int(col: Column, scalar: Int): Column = rf_local_multiply[Int](col, scalar)
 
-  def local_less_scalar(col: Column, scalar: Double): Column = local_less[Double](col, scalar)
+  def rf_local_less_double(col: Column, scalar: Double): Column = rf_local_less[Double](col, scalar)
 
-  def local_less_scalar_int(col: Column, scalar: Int): Column = local_less[Int](col, scalar)
+  def rf_local_less_int(col: Column, scalar: Int): Column = rf_local_less[Int](col, scalar)
 
-  def local_less_equal_scalar(col: Column, scalar: Double): Column = local_less_equal[Double](col, scalar)
+  def rf_local_less_equal_double(col: Column, scalar: Double): Column = rf_local_less_equal[Double](col, scalar)
 
-  def local_less_equal_scalar_int(col: Column, scalar: Int): Column = local_less_equal[Int](col, scalar)
+  def rf_local_less_equal_int(col: Column, scalar: Int): Column = rf_local_less_equal[Int](col, scalar)
 
-  def local_greater_scalar(col: Column, scalar: Double): Column = local_greater[Double](col, scalar)
+  def rf_local_greater_double(col: Column, scalar: Double): Column = rf_local_greater[Double](col, scalar)
 
-  def local_greater_scalar_int(col: Column, scalar: Int): Column = local_greater[Int](col, scalar)
+  def rf_local_greater_int(col: Column, scalar: Int): Column = rf_local_greater[Int](col, scalar)
 
-  def local_greater_equal_scalar(col: Column, scalar: Double): Column = local_greater_equal[Double](col, scalar)
+  def rf_local_greater_equal_double(col: Column, scalar: Double): Column = rf_local_greater_equal[Double](col, scalar)
 
-  def local_greater_equal_scalar_int(col: Column, scalar: Int): Column = local_greater_equal[Int](col, scalar)
+  def rf_local_greater_equal_int(col: Column, scalar: Int): Column = rf_local_greater_equal[Int](col, scalar)
 
-  def local_equal_scalar(col: Column, scalar: Double): Column = local_equal[Double](col, scalar)
+  def rf_local_equal_double(col: Column, scalar: Double): Column = rf_local_equal[Double](col, scalar)
 
-  def local_equal_scalar_int(col: Column, scalar: Int): Column = local_equal[Int](col, scalar)
+  def rf_local_equal_int(col: Column, scalar: Int): Column = rf_local_equal[Int](col, scalar)
 
-  def local_unequal_scalar(col: Column, scalar: Double): Column = local_unequal[Double](col, scalar)
+  def rf_local_unequal_double(col: Column, scalar: Double): Column = rf_local_unequal[Double](col, scalar)
 
-  def local_unequal_scalar_int(col: Column, scalar: Int): Column = local_unequal[Int](col, scalar)
+  def rf_local_unequal_int(col: Column, scalar: Int): Column = rf_local_unequal[Int](col, scalar)
+
+  def rf_reproject_geometry(geometryCol: Column, srcName: String, dstName: String): Column = {
+    val src = LazyCRS(srcName)
+    val dst = LazyCRS(dstName)
+    rf_reproject_geometry(geometryCol, src, dst)
+  }
 
   // return toRaster, get just the tile, and make an array out of it
   def toIntRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Int] = {
@@ -195,11 +185,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def withSpatialIndex(df: DataFrame): RasterFrame = df.asRF.withSpatialIndex()
 
-  def reproject_geometry(geometryCol: Column, srcName: String, dstName: String): Column = {
-    val src = LazyCRS(srcName)
-    val dst = LazyCRS(dstName)
-    reproject_geometry(geometryCol, src, dst)
-  }
+  //----------------------------Support Routines-----------------------------------------
 
-  def listToSeq(cols: java.util.ArrayList[AnyRef]): Seq[AnyRef] = cols.asScala
+  def _listToSeq(cols: java.util.ArrayList[AnyRef]): Seq[AnyRef] = cols.asScala
 }

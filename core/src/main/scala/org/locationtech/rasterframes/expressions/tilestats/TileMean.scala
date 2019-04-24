@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class TileMean(child: Expression) extends UnaryRasterOp
   with NullToValue with CodegenFallback {
-  override def nodeName: String = "tile_mean"
+  override def nodeName: String = "rf_tile_mean"
   override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMean.op(tile)
   override def dataType: DataType = DoubleType
   override def na: Any = Double.NaN

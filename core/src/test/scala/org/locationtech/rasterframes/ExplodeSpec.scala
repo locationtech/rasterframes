@@ -52,7 +52,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
       assert(query2.columns.length === 4)
 
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
-      val exploded = df.select(explode_tiles($"tile1", $"tile2"))
+      val exploded = df.select(rf_explode_tiles($"tile1", $"tile2"))
       //exploded.printSchema()
       assert(exploded.columns.length === 4)
       assert(exploded.count() === 9)
@@ -61,17 +61,17 @@ class ExplodeSpec extends TestEnvironment with TestData {
 
     it("should explode tiles with random sampling") {
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
-      val exploded = df.select(explode_tiles_sample(0.5, $"tile1", $"tile2"))
+      val exploded = df.select(rf_explode_tiles_sample(0.5, $"tile1", $"tile2"))
       assert(exploded.columns.length === 4)
       assert(exploded.count() < 9)
     }
 
     it("should handle null tiles") {
       val df = Seq[Tile](null, byteArrayTile, null, byteArrayTile, null).toDF("tile1")
-      val exploded = df.select(explode_tiles($"tile1"))
+      val exploded = df.select(rf_explode_tiles($"tile1"))
       assert(exploded.count === byteArrayTile.size * 2)
       val df2 = Seq[(Tile, Tile)]((byteArrayTile, null), (null, byteArrayTile), (byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
-      val exploded2 = df2.select(explode_tiles($"tile1", $"tile2"))
+      val exploded2 = df2.select(rf_explode_tiles($"tile1", $"tile2"))
       assert(exploded2.count === byteArrayTile.size * 3)
     }
 
@@ -79,7 +79,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
       // Create a tile with a single (wierd) no-data value
       val tile: Tile = UShortArrayTile(rangeArray(9, _.toShort), 3, 3, 5.toShort)
       val cells = Seq(tile).toDF("tile")
-        .select(explode_tiles($"tile"))
+        .select(rf_explode_tiles($"tile"))
         .select($"tile".as[Double])
         .collect()
 
@@ -89,7 +89,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
     it("should handle user-defined NoData values in tile sampler") {
       val tiles = allTileTypes.filter(t ⇒ !t.isInstanceOf[BitArrayTile]).map(_.withNoData(Some(3)))
       val cells = tiles.toDF("tile")
-        .select(explode_tiles($"tile"))
+        .select(rf_explode_tiles($"tile"))
         .select($"tile".as[Double])
         .collect()
       cells.count(_.isNaN) should be(tiles.size)
@@ -105,33 +105,34 @@ class ExplodeSpec extends TestEnvironment with TestData {
 
       val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
       val df = Seq[Tile](tile).toDF("tile")
-      val arrayDF = df.select(tile_to_array_double($"tile").as[Array[Double]])
+      val arrayDF = df.select(rf_tile_to_array_double($"tile").as[Array[Double]])
       arrayDF.first().sum should be (110.0 +- 0.0001)
     }
 
     it("should convert an array into a tile") {
       val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
       val df = Seq[Tile](tile, null).toDF("tile")
-      val arrayDF = df.withColumn("tileArray", tile_to_array_double($"tile"))
+      val arrayDF = df.withColumn("tileArray", rf_tile_to_array_double($"tile"))
 
-      val back = arrayDF.withColumn("backToTile", array_to_tile($"tileArray", 10, 10))
+      val back = arrayDF.withColumn("backToTile", rf_array_to_tile($"tileArray", 10, 10))
 
       val result = back.select($"backToTile".as[Tile]).first
 
       assert(result.toArrayDouble() === tile.toArrayDouble())
 
-      val hasNoData = back.withColumn("with_no_data", with_no_data($"backToTile", 0))
+      val hasNoData = back.withColumn("withNoData", rf_with_no_data($"backToTile", 0))
 
-      val result2 = hasNoData.select($"with_no_data".as[Tile]).first
+      val result2 = hasNoData.select($"withNoData".as[Tile]).first
 
       assert(result2.cellType.asInstanceOf[UserDefinedNoData[_]].noDataValue === 0)
     }
 
     it("should reassemble single exploded tile") {
       val df = Seq[Tile](byteArrayTile).toDF("tile")
-        .select(explode_tiles($"tile"))
+        .select(rf_explode_tiles($"tile"))
 
-      val assembled = df.agg(assemble_tile(
+      val assembled = df.agg(
+        rf_assemble_tile(
         COLUMN_INDEX_COLUMN,
         ROW_INDEX_COLUMN,
         TILE_COLUMN,
@@ -146,12 +147,13 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val image = sampleSmallGeoTiff
       val tinyTiles = image.projectedRaster.toRF(10, 10)
 
-      val exploded = tinyTiles.select(tinyTiles.spatialKeyColumn, explode_tiles(tinyTiles.tileColumns.head))
+      val exploded = tinyTiles.select(tinyTiles.spatialKeyColumn, rf_explode_tiles(tinyTiles.tileColumns.head))
 
       //exploded.printSchema()
 
       val assembled = exploded.groupBy(tinyTiles.spatialKeyColumn)
-        .agg(assemble_tile(
+        .agg(
+          rf_assemble_tile(
           COLUMN_INDEX_COLUMN,
           ROW_INDEX_COLUMN,
           TILE_COLUMN,

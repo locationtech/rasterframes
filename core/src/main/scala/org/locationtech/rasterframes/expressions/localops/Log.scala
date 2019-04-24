@@ -63,7 +63,7 @@ object Log {
        ..."""
 )
 case class Log10(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "log10"
+  override val nodeName: String = "rf_log10"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localLog10()
 
@@ -84,7 +84,7 @@ object Log10 {
        ..."""
 )
 case class Log2(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "log2"
+  override val nodeName: String = "rf_log2"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localLog() / math.log(2.0)
 
@@ -105,7 +105,7 @@ object Log2{
        ..."""
 )
 case class Log1p(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "log1p"
+  override val nodeName: String = "rf_log1p"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localAdd(1.0).localLog()
 

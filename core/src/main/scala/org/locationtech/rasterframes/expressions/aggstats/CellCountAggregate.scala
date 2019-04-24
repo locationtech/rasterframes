@@ -47,8 +47,8 @@ abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate 
   )
 
   private def CellTest =
-    if (isData) tileOpAsExpression("data_cells", DataCells.op)
-    else tileOpAsExpression("no_data_cells", NoDataCells.op)
+    if (isData) tileOpAsExpression("rf_data_cells", DataCells.op)
+    else tileOpAsExpression("rf_no_data_cells", NoDataCells.op)
 
   val updateExpressions = Seq(
     If(IsNull(child), count, Add(count, CellTest(child)))
@@ -77,7 +77,7 @@ object CellCountAggregate {
        92384753"""
   )
   case class DataCells(child: Expression) extends CellCountAggregate(true) {
-    override def nodeName: String = "agg_data_cells"
+    override def nodeName: String = "rf_agg_data_cells"
   }
   object DataCells {
     def apply(tile: Column): TypedColumn[Any, Long] =
@@ -94,7 +94,7 @@ object CellCountAggregate {
        23584"""
   )
   case class NoDataCells(child: Expression) extends CellCountAggregate(false) {
-    override def nodeName: String = "agg_no_data_cells"
+    override def nodeName: String = "rf_agg_no_data_cells"
   }
   object NoDataCells {
     def apply(tile: Column): TypedColumn[Any, Long] =

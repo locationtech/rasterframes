@@ -82,7 +82,7 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
 
     it("should provide a means of getting a bounding box") {
       import spark.implicits._
-      val boxed = rf.select(GEOMETRY_COLUMN, st_extent(GEOMETRY_COLUMN) as "extent")
+      val boxed = rf.select(GEOMETRY_COLUMN, rf_extent(GEOMETRY_COLUMN) as "extent")
       assert(boxed.select($"extent".as[Extent]).first.area > 0)
       assert(boxed.toDF("bounds", "bbox").select("bbox.*").schema.length === 4)
     }
@@ -110,9 +110,9 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
       val df = Seq((latLng, webMercator)).toDF("ll", "wm")
 
       val rp = df.select(
-        reproject_geometry($"ll", LatLng, WebMercator) as "wm2",
-        reproject_geometry($"wm", WebMercator, LatLng) as "ll2",
-        reproject_geometry(reproject_geometry($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
+        rf_reproject_geometry($"ll", LatLng, WebMercator) as "wm2",
+        rf_reproject_geometry($"wm", WebMercator, LatLng) as "ll2",
+        rf_reproject_geometry(rf_reproject_geometry($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
       ).as[(Geometry, Geometry, Geometry)]
 
 

@@ -27,11 +27,11 @@ The cell values within a `Tile` are encoded internally as an array. There may be
 where the additional context provided by the `Tile` construct is no longer needed and one would
 prefer to work with the underlying array data.
 
-The @scaladoc[`tile_to_array_int`][tile_to_array_int] column function requires a type parameter to indicate the array element
-type you would like used. The following types may be used: `Int`, `Double`, `Byte`, `Short`, `Float`
+The @scaladoc[`rf_tile_to_array_int`][rf_tile_to_array_int] and @scaladoc[`rf_tile_to_array_double`][rf_tile_to_array_double]
+provide this facility.
 
 ```tut
-val withArrays = rf.withColumn("tileData", tile_to_array_int($"tile")).drop("tile")
+val withArrays = rf.withColumn("tileData", rf_tile_to_array_int($"tile")).drop("tile")
 withArrays.show(5, 40)
 ```
 
@@ -45,7 +45,7 @@ tileBack.drop("tileData").show(5, 40)
 Note that the created tile will not have a `NoData` value associated with it. Here's how you can do that:
 
 ```tut
-val tileBackAgain = withArrays.withColumn("tileAgain", withNoData(arrayToTile($"tileData", 128, 128), 3))
+val tileBackAgain = withArrays.withColumn("tileAgain", rf_with_no_data(rf_array_to_tile($"tileData", 128, 128), 3))
 tileBackAgain.drop("tileData").show(5, 50)
 ```
 

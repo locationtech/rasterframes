@@ -43,7 +43,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     it("should report dimensions") {
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
 
-      val dims = df.select(tile_dimensions($"tile1") as "dims").select("dims.*")
+      val dims = df.select(rf_tile_dimensions($"tile1") as "dims").select("dims.*")
 
       assert(dims.as[(Int, Int)].first() === (3, 3))
       assert(dims.schema.head.name === "cols")
@@ -67,7 +67,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       forEvery(ct) { c =>
         val expected = CellType.fromName(c)
         val tile = randomTile(5, 5, expected)
-        val result = Seq(tile).toDF("tile").select(cell_type($"tile")).first()
+        val result = Seq(tile).toDF("tile").select(rf_cell_type($"tile")).first()
         result should be(expected)
       }
     }
@@ -80,7 +80,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     it("should compute accurate item counts") {
       val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val checkedValues = Seq[Double](0, 4, 7, 13, 26)
-      val result = checkedValues.map(x => ds.select(tile_histogram($"tiles")).first().itemCount(x))
+      val result = checkedValues.map(x => ds.select(rf_tile_histogram($"tiles")).first().itemCount(x))
       forEvery(checkedValues) { x =>
         assert((x == 0 && result.head == 4) || result.contains(x - 1))
       }
@@ -89,7 +89,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     it("Should compute quantiles") {
       val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
       val numBreaks = 5
-      val breaks = ds.select(tile_histogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
+      val breaks = ds.select(rf_tile_histogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
       assert(breaks(1).length === numBreaks)
       assert(breaks(0).apply(2) == 25)
       assert(breaks(1).max <= 3 && breaks.apply(1).min >= -5)
@@ -101,7 +101,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       ds.createOrReplaceTempView("tmp")
 
       withClue("max") {
-        val max = ds.agg(agg_local_max($"tiles"))
+        val max = ds.agg(rf_agg_local_max($"tiles"))
         val expected = Max(byteArrayTile, byteConstantTile)
         write(max)
         assert(max.as[Tile].first() === expected)
@@ -112,7 +112,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       }
 
       withClue("min") {
-        val min = ds.agg(agg_local_min($"tiles"))
+        val min = ds.agg(rf_agg_local_min($"tiles"))
         val expected = Min(byteArrayTile, byteConstantTile)
         write(min)
         assert(min.as[Tile].first() === Min(byteArrayTile, byteConstantTile))
@@ -127,11 +127,11 @@ class TileStatsSpec extends TestEnvironment with TestData {
       withClue("mean") {
 
         val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)).toDS()
-        val means1 = ds.select(tile_stats($"value")).map(_.mean).collect
-        val means2 = ds.select(tile_mean($"value")).collect
+        val means1 = ds.select(rf_tile_stats($"value")).map(_.mean).collect
+        val means2 = ds.select(rf_tile_mean($"value")).collect
         // Compute the mean manually, knowing we're not dealing with no-data values.
         val means =
-          ds.select(tile_to_array_double($"value")).map(a => a.sum / a.length).collect
+          ds.select(rf_tile_to_array_double($"value")).map(a => a.sum / a.length).collect
 
         forAll(means.zip(means1)) { case (l, r) => assert(l === r +- 1e-6) }
         forAll(means.zip(means2)) { case (l, r) => assert(l === r +- 1e-6) }
@@ -139,7 +139,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       withClue("sum") {
         val rf = l8Sample(1).projectedRaster.toRF
         val expected = 309149454 // computed with rasterio
-        val result = rf.agg(sum(tile_sum($"tile"))).collect().head.getDouble(0)
+        val result = rf.agg(sum(rf_tile_sum($"tile"))).collect().head.getDouble(0)
         logger.info(s"L8 sample band 1 grand total: ${result}")
         assert(result === expected)
       }
@@ -149,7 +149,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatCellType)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
-      val r1 = ds.select(tile_histogram($"tiles"))
+      val r1 = ds.select(rf_tile_histogram($"tiles"))
       assert(r1.first.totalCount === 5 * 5)
       write(r1)
       val r2 = sql("select hist.* from (select rf_tile_histogram(tiles) as hist from tmp)").as[CellHistogram]
@@ -179,7 +179,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType))
         .toDF("tiles")
       ds.createOrReplaceTempView("tmp")
-      val agg = ds.select(agg_approx_histogram($"tiles"))
+      val agg = ds.select(rf_agg_approx_histogram($"tiles"))
 
       val histArray = agg.collect()
       histArray.length should be (1)
@@ -198,21 +198,21 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
     it("should compute aggregate mean") {
       val ds = (Seq.fill[Tile](10)(randomTile(5, 5, FloatCellType)) :+ null).toDF("tiles")
-      val agg = ds.select(agg_mean($"tiles"))
-      val stats = ds.select(agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
+      val agg = ds.select(rf_agg_mean($"tiles"))
+      val stats = ds.select(rf_agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
       assert(agg.first() === stats.first())
     }
 
     it("should compute aggregate statistics") {
       val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
 
-      val exploded = ds.select(explode_tiles($"tiles"))
+      val exploded = ds.select(rf_explode_tiles($"tiles"))
       val (mean, vrnc) = exploded.agg(avg($"tiles"), var_pop($"tiles")).as[(Double, Double)].first
 
-      val stats = ds.select(agg_stats($"tiles") as "stats") ///.as[(Long, Double, Double, Double, Double)]
+      val stats = ds.select(rf_agg_stats($"tiles") as "stats") ///.as[(Long, Double, Double, Double, Double)]
       //stats.printSchema()
       noException shouldBe thrownBy {
-        ds.select(agg_stats($"tiles")).collect()
+        ds.select(rf_agg_stats($"tiles")).collect()
       }
 
       val agg = stats.select($"stats.variance".as[Double])
@@ -221,9 +221,9 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
       ds.createOrReplaceTempView("tmp")
       val agg2 = sql("select stats.* from (select rf_agg_stats(tiles) as stats from tmp)")
-      assert(agg2.first().getAs[Long]("data_cells") === 250L)
+      assert(agg2.first().getAs[Long]("rf_data_cells") === 250L)
 
-      val agg3 = ds.agg(agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
+      val agg3 = ds.agg(rf_agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
       assert(mean === agg3.first())
     }
 
@@ -236,7 +236,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         .map(injectND(2)) :+ null).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
-      val agg = ds.select(agg_local_stats($"tiles") as "stats")
+      val agg = ds.select(rf_agg_local_stats($"tiles") as "stats")
       val stats = agg.select("stats.*")
 
       //printStatsRows(stats)
@@ -269,25 +269,25 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val dsNd = (Seq.fill(20)(completeTile) :+ incompleteTile :+ null).toDF("tiles")
 
       // counted everything properly
-      val countTile = ds.select(agg_local_data_cells($"tiles")).first()
+      val countTile = ds.select(rf_agg_local_data_cells($"tiles")).first()
       forAll(countTile.toArray())(i => assert(i === 20))
 
-      val countArray = dsNd.select(agg_local_data_cells($"tiles")).first().toArray()
+      val countArray = dsNd.select(rf_agg_local_data_cells($"tiles")).first().toArray()
       val expectedCount =
         (completeTile.localDefined().toArray zip incompleteTile.localDefined().toArray()).toSeq.map(
             pr => pr._1 * 20 + pr._2)
       assert(countArray === expectedCount)
 
-      val countNodataArray = dsNd.select(agg_local_no_data_cells($"tiles")).first().toArray
+      val countNodataArray = dsNd.select(rf_agg_local_no_data_cells($"tiles")).first().toArray
       assert(countNodataArray === incompleteTile.localUndefined().toArray)
 
-      val minTile = dsNd.select(agg_local_min($"tiles")).first()
+      val minTile = dsNd.select(rf_agg_local_min($"tiles")).first()
       assert(minTile.toArray() === completeTile.toArray())
 
-      val maxTile = dsNd.select(agg_local_max($"tiles")).first()
+      val maxTile = dsNd.select(rf_agg_local_max($"tiles")).first()
       assert(maxTile.toArray() === completeTile.toArray())
 
-      val meanTile = dsNd.select(agg_local_mean($"tiles")).first()
+      val meanTile = dsNd.select(rf_agg_local_mean($"tiles")).first()
       assert(meanTile.toArray() === completeTile.toArray())
     }
   }
@@ -300,20 +300,20 @@ class TileStatsSpec extends TestEnvironment with TestData {
       .map(injectND(nds)) :+ null).toDF("tiles")
 
     it("should count cells by NoData state") {
-      val counts = tiles.select(no_data_cells($"tiles")).collect().dropRight(1)
+      val counts = tiles.select(rf_no_data_cells($"tiles")).collect().dropRight(1)
       forEvery(counts)(c => assert(c === nds))
-      val counts2 = tiles.select(data_cells($"tiles")).collect().dropRight(1)
+      val counts2 = tiles.select(rf_data_cells($"tiles")).collect().dropRight(1)
       forEvery(counts2)(c => assert(c === tsize * tsize - nds))
     }
 
     it("should detect all NoData tiles") {
-      val ndCount = tiles.select("*").where(is_no_data_tile($"tiles")).count()
+      val ndCount = tiles.select("*").where(rf_is_no_data_tile($"tiles")).count()
       ndCount should be(1)
 
       val ndTiles =
         (Seq.fill[Tile](count)(ArrayTile.empty(UByteConstantNoDataCellType, tsize, tsize)) :+ null)
           .toDF("tiles")
-      val ndCount2 = ndTiles.select("*").where(is_no_data_tile($"tiles")).count()
+      val ndCount2 = ndTiles.select("*").where(rf_is_no_data_tile($"tiles")).count()
       ndCount2 should be(count + 1)
     }
   }

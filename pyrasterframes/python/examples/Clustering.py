@@ -72,7 +72,7 @@ tlm = joinedRF.tileLayerMetadata()
 layout = tlm['layoutDefinition']['tileLayout']
 
 retiled = clustered.groupBy('spatial_key').agg(
-    assemble_tile('column_index', 'row_index', 'prediction',
+    rf_assemble_tile('column_index', 'row_index', 'prediction',
         layout['tileCols'], layout['tileRows'], 'int8')
 )
 

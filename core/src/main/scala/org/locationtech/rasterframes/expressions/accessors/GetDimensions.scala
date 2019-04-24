@@ -34,7 +34,7 @@ import org.locationtech.rasterframes.model.TileDimensions
  * @since 12/21/17
  */
 case class GetDimensions(child: Expression) extends OnCellGridExpression with CodegenFallback {
-  override def nodeName: String = "tile_dimensions"
+  override def nodeName: String = "rf_tile_dimensions"
 
   def dataType = schemaOf[TileDimensions]
 

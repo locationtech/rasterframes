@@ -87,7 +87,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       assert(rf.schema.head.metadata.json.contains("tileLayout"))
 
       assert(
-        rf.select(tile_dimensions($"tile"))
+        rf.select(rf_tile_dimensions($"tile"))
           .as[Tuple1[(Int, Int)]]
           .map(_._1)
           .collect()

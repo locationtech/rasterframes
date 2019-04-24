@@ -37,7 +37,7 @@ import org.locationtech.rasterframes.model.TileContext
     * tile - tile to convert"""
 )
 case class TileToArrayDouble(child: Expression) extends UnaryRasterOp with CodegenFallback {
-  override def nodeName: String = "tile_to_array_double"
+  override def nodeName: String = "rf_tile_to_array_double"
   override def dataType: DataType = DataTypes.createArrayType(DoubleType, false)
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     ArrayData.toArrayData(tile.toArrayDouble())

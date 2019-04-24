@@ -32,7 +32,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
   usage = "_FUNC_(tile) - Round cell values to the nearest integer without changing the cell type.",
   arguments = """
   Arguments:
-    * tile - tile column to round""",
+    * tile - tile column to rf_round""",
   examples = """
   Examples:
     > SELECT  _FUNC_(tile);
@@ -40,7 +40,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 )
 case class Round(child: Expression) extends UnaryLocalRasterOp
   with NullToValue with CodegenFallback {
-  override def nodeName: String = "round"
+  override def nodeName: String = "rf_round"
   override def na: Any = null
   override protected def op(child: Tile): Tile = child.localRound()
 }
