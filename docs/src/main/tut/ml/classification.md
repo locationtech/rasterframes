@@ -9,8 +9,8 @@ SparkML.
 First some setup:
 
 ```tut:silent
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.ml.{NoDataFilter, TileExploder}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.ml.{NoDataFilter, TileExploder}
 import geotrellis.raster._
 import geotrellis.raster.render._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff

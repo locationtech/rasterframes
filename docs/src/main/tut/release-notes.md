@@ -4,7 +4,8 @@
 
 ### 0.8.0
 
-* Upgraded to the following core dependencies: Spark 2.3.2, GeoTrellis 2.2.0, GeoMesa 2.2.1, JTS 1.16.0.
+* _Breaking_: Root package changed from `astraea.spark.rasterframes` to `org.locationtech.rasterframes`.
+* Upgraded to the following core dependencies: Spark 2.3.2, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.
 * Added new tile functions `round`, `log`, `log10`, `log2`, `log1p`, `exp`, `exp10`, `exp2`, `expm1`, `resample`, `resample`.
 * Support python-side [Shapely](https://pypi.org/project/Shapely/) geometry User-Defined Type.
 * SQL API support for: `rf_assemble_tile`, `rf_array_to_tile`.
@@ -18,7 +19,7 @@
 * _Breaking_: renamed `agg_histogram` to `agg_approx_histogram`, `local_agg_stats` to `agg_local_stats`, `local_agg_max` to `agg_local_max`, `local_agg_min` to `agg_local_min`, `local_agg_mean` to `agg_local_mean`, `local_agg_data_cells` to `agg_local_data_cells`, `local_agg_no_data_cells` to `agg_local_no_data_cells`.
 * _Breaking_: `CellHistogram` no longer carries along approximate statistics, due to confusing behavior. Use `agg_stats` instead.
 * Introduced `LocalCellStatistics` class to wrap together results from `LocalStatsAggregate`.
-* _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `astraea.spark.rasterframes.model`.
+* _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `org.locationtech.rasterframes.model`.
 * _Breaking_: Renamed `RasterFrame.withBounds` to `RasterFrame.withGeometry` for consistency with DataSource schemas.
 * Added `RasterFrame.withExtent` extension method.
 * Added `st_extent` and deprecated `envelope`. Renamed `bounds_geometry` to `extent_geometry`.
@@ -53,8 +54,8 @@
 * Added [experimental DataSource implementations](https://github.com/locationtech/rasterframes/tree/develop/experimental/src/main/scala/astraea/spark/rasterframes/experimental/datasource/awspds) for [MODIS](https://registry.opendata.aws/modis/) and [Landsat 8](https://registry.opendata.aws/landsat-8/) catalogs on AWS PDS.   
 * _Change_: Default interpoation for `toRaster` and `toMultibandRaster` has been changed from `Bilinear` to `NearestNeighbor`.
 * _Breaking_: Renamed/moved `astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics` to
-`astraea.spark.rasterframes.stats.CellStatistics`.
-* _Breaking_: `HistogramAggregateFunction` now generates the new type `astraea.spark.rasterframes.stats.CellHistogram`.
+`org.locationtech.rasterframes.stats.CellStatistics`.
+* _Breaking_: `HistogramAggregateFunction` now generates the new type `org.locationtech.rasterframes.stats.CellHistogram`.
 * _Breaking_: `box2D` renamed `envelope`.
 
 ## 0.6.x

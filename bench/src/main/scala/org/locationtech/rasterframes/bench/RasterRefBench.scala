@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2019 Astraea, Inc.
+ * Copyright 2018 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,15 +19,16 @@
  *
  */
 
-package org.locationtech.rasterframes.bench
+package astraea.spark.rasterframes.bench
+
 
 import java.util.concurrent.TimeUnit
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.transformers.RasterSourceToTiles
+import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.expressions.transformers.RasterSourceToTiles
+import astraea.spark.rasterframes.ref.RasterSource
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql._
-import org.locationtech.rasterframes.ref.RasterSource
 import org.openjdk.jmh.annotations._
 /**
  *

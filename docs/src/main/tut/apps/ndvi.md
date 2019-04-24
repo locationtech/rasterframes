@@ -1,7 +1,7 @@
 # Computing NDVI
 
 ```tut:invisible
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.raster._
 import geotrellis.raster.render._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff

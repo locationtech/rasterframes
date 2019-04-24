@@ -21,17 +21,16 @@
 
 package org.locationtech.rasterframes.expressions.localops
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.util.DataBiasedOp.BiasedAdd
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
+import org.locationtech.rasterframes.util.DataBiasedOp.BiasedAdd
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, rhs) - Performs cell-wise addition between two tiles or a tile and a scalar.",

@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2019 Astraea, Inc.
+ * Copyright 2018 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 
 import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
 import org.locationtech.rasterframes.model.TileDataContext
-import geotrellis.raster.{DelegatingTile, _}
+import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.locationtech.rasterframes.model.{Cells, TileDataContext}
 
@@ -39,7 +39,7 @@ import org.locationtech.rasterframes.model.{Cells, TileDataContext}
  *
  * @since 11/29/17
  */
-class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
+class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
   import InternalRowTile._
 
   /** @group COPIES */

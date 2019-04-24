@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2019 Astraea, Inc.
+ * Copyright 2018 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,27 +21,26 @@
 
 package org.locationtech.rasterframes.tiles
 
-import org.locationtech.rasterframes.TileType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.CatalystSerializerEncoder
-import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.raster.{CellType, DelegatingTile, ProjectedRaster, Tile}
+import geotrellis.raster.{CellType, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{StructField, StructType}
+import org.locationtech.rasterframes.TileType
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.model.TileContext
 import org.locationtech.rasterframes.ref.ProjectedRasterLike
+import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 
 /**
  * A Tile that's also like a ProjectedRaster, with delayed evaluation support.
  *
  * @since 9/5/18
  */
-trait ProjectedRasterTile extends DelegatingTile with ProjectedRasterLike {
+trait ProjectedRasterTile extends FixedDelegatingTile with ProjectedRasterLike {
   def extent: Extent
   def crs: CRS
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)

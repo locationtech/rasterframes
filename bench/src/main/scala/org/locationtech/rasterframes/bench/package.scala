@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2019 Astraea, Inc.
+ * Copyright 2017 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,8 +14,6 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
- *
- * SPDX-License-Identifier: Apache-2.0
  *
  */
 
@@ -31,7 +29,7 @@ import geotrellis.raster.{ArrayTile, CellType, NODATA, Tile, isNoData}
  * @author sfitch 
  * @since 10/4/17
  */
-package object bench {
+package object rasterframes {
   val rnd = new scala.util.Random(42)
 
   /** Construct a tile of given size and cell type populated with random values. */

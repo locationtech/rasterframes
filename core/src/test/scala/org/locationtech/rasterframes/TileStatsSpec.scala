@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2019 Astraea, Inc.
+ * Copyright 2017 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -284,7 +284,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val minTile = dsNd.select(agg_local_min($"tiles")).first()
       assert(minTile.toArray() === completeTile.toArray())
 
-            val maxTile = dsNd.select(agg_local_max($"tiles")).first()
+      val maxTile = dsNd.select(agg_local_max($"tiles")).first()
       assert(maxTile.toArray() === completeTile.toArray())
 
       val meanTile = dsNd.select(agg_local_mean($"tiles")).first()
