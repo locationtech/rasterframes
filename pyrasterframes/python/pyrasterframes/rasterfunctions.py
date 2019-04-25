@@ -71,9 +71,9 @@ def _create_makeConstantTile():
 def _create_tileZeros():
     """ Create a function mapping to the Scala implementation."""
     def _(cols, rows, cellType = 'float64'):
-        jfcn = RFContext.active().lookup('rf_tile_zeros')
+        jfcn = RFContext.active().lookup('rf_make_zeros_tile')
         return Column(jfcn(cols, rows, cellType))
-    _.__name__ = 'rf_tile_zeros'
+    _.__name__ = 'rf_make_zeros_tile'
     _.__doc__ = "Create column of constant tiles of zero"
     _.__module__ = THIS_MODULE
     return _
@@ -82,7 +82,7 @@ def _create_tileZeros():
 def _create_tileOnes():
     """ Create a function mapping to the Scala implementation."""
     def _(cols, rows, cellType = 'float64'):
-        jfcn = RFContext.active().lookup('rf_tile_ones')
+        jfcn = RFContext.active().lookup('rf_make_ones_tile')
         return Column(jfcn(cols, rows, cellType))
     _.__name__ = 'rf_tile_ones'
     _.__doc__ = "Create column of constant tiles of one"
@@ -162,8 +162,8 @@ _rf_unique_functions = {
     'rf_mask_by_value': _create_maskByValue(),
     'rf_rasterize': _create_rasterize(),
     'rf_reproject_geometry': _create_reproject_geometry(),
-    'rf_tile_ones': _create_tileOnes(),
-    'rf_tile_zeros': _create_tileZeros(),
+    'rf_make_ones_tile': _create_tileOnes(),
+    'rf_make_zeros_tile': _create_tileZeros(),
 }
 
 
@@ -195,9 +195,6 @@ _rf_column_scalar_functions = {
 _rf_column_functions = {
     # ------- RasterFrames functions -------
     'rf_tile_dimensions': 'Query the number of (cols, rows) in a Tile.',
-    'envelope': 'Extracts the bounding box (envelope) of the geometry.',
-    'tile_to_int_array': 'Flattens Tile into an array of integers. Deprecated in favor of `rf_tile_to_array_int`.',
-    'tile_to_double_array': 'Flattens Tile into an array of doubles. Deprecated in favor of `rf_tile_to_array_double`',
     'rf_tile_to_array_int': 'Flattens Tile into an array of integers.',
     'rf_tile_to_array_double': 'Flattens Tile into an array of doubles.',
     'rf_cell_type': 'Extract the Tile\'s cell type',
@@ -221,7 +218,6 @@ _rf_column_functions = {
     'rf_local_multiply': 'Multiply two Tiles',
     'rf_local_divide': 'Divide two Tiles',
     'rf_normalized_difference': 'Compute the normalized difference of two tiles',
-    'local_agg_stats': 'Compute cell-local aggregate descriptive statistics for a column of Tiles.',
     'rf_agg_local_max': 'Compute the cell-wise/local max operation between Tiles in a column.',
     'rf_agg_local_min': 'Compute the cellwise/local min operation between Tiles in a column.',
     'rf_agg_local_mean': 'Compute the cellwise/local mean operation between Tiles in a column.',

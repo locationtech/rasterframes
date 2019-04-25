@@ -30,6 +30,7 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.{ProjectedRaster, Tile}
 import geotrellis.spark.io.hadoop.HdfsRangeReader
+import geotrellis.spark.io.http.util.HttpRangeReader
 import geotrellis.spark.io.s3.S3Client
 import geotrellis.spark.io.s3.util.S3RangeReader
 import geotrellis.util.{ByteReader, FileRangeReader, RangeReader, StreamingByteReader}
@@ -41,7 +42,6 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, Generator, Literal}
 import org.apache.spark.sql.types._
-import org.locationtech.rasterframes.ref.HttpRangeReader
 
 /**
  * Catalyst generator to convert a geotiff download URL into a series of rows containing the internal

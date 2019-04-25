@@ -97,6 +97,14 @@ trait RasterFunctions {
   def rf_convert_cell_type(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
     SetCellType(col, cellTypeName)
 
+  /** Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less
+    * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
+  def rf_resample[T: Numeric](tileCol: Column, factorValue: T) = Resample(tileCol, factorValue)
+
+  /** Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less
+    * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
+  def rf_resample(tileCol: Column, factorCol: Column) = Resample(tileCol, factorCol)
+
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
   def rf_extent_geometry(bounds: Column): TypedColumn[Any, Geometry] = ExtentToGeometry(bounds)
 
@@ -201,27 +209,45 @@ trait RasterFunctions {
   def rf_local_divide[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = Divide(tileCol, value)
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
-  def rf_local_algebra(op: LocalTileBinaryOp, left: Column, right: Column):
-  TypedColumn[Any, Tile] =
-    withAlias(opName(op), left, right)(
-      udf[Tile, Tile, Tile](op.apply).apply(left, right)
-    ).as[Tile]
+  def rf_local_algebra(op: LocalTileBinaryOp, left: Column, right: Column): TypedColumn[Any, Tile] =
+    withTypedAlias(opName(op), left, right)(udf[Tile, Tile, Tile](op.apply).apply(left, right))
 
   /** Compute the normalized difference of two tile columns */
   def rf_normalized_difference(left: Column, right: Column) =
     NormalizedDifference(left, right)
 
-  /** Constructor for constant tile column */
-  def rf_make_constant_tile(value: Number, cols: Int, rows: Int, cellType: String): TypedColumn[Any, Tile] =
-    udf(() => F.makeConstantTile(value, cols, rows, cellType)).apply().as(s"constant_$cellType").as[Tile]
+  /** Constructor for tile column with a single cell value. */
+  def rf_make_constant_tile(value: Number, cols: Int, rows: Int, cellType: CellType): TypedColumn[Any, Tile] =
+    rf_make_constant_tile(value, cols, rows, cellType.name)
 
-  /** Alias for column of constant tiles of zero */
-  def rf_tile_zeros(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
-    udf(() => F.tileZeros(cols, rows, cellType)).apply().as(s"zeros_$cellType").as[Tile]
+  /** Constructor for tile column with a single cell value. */
+  def rf_make_constant_tile(value: Number, cols: Int, rows: Int, cellTypeName: String): TypedColumn[Any, Tile] = {
+    import org.apache.spark.sql.rf.TileUDT.tileSerializer
+    val constTile = encoders.serialized_literal(F.makeConstantTile(value, cols, rows, cellTypeName))
+    withTypedAlias(s"rf_make_constant_tile($value, $cols, $rows, $cellTypeName)")(constTile)
+  }
 
-  /** Alias for column of constant tiles of one */
-  def rf_tile_ones(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
-    udf(() => F.tileOnes(cols, rows, cellType)).apply().as(s"ones_$cellType").as[Tile]
+  /** Create a column constant tiles of zero */
+  def rf_make_zeros_tile(cols: Int, rows: Int, cellType: CellType): TypedColumn[Any, Tile] =
+    rf_make_zeros_tile(cols, rows, cellType.name)
+
+  /** Create a column constant tiles of zero */
+  def rf_make_zeros_tile(cols: Int, rows: Int, cellTypeName: String): TypedColumn[Any, Tile] = {
+    import org.apache.spark.sql.rf.TileUDT.tileSerializer
+    val constTile = encoders.serialized_literal(F.tileZeros(cols, rows, cellTypeName))
+    withTypedAlias(s"rf_make_zeros_tile($cols, $rows, $cellTypeName)")(constTile)
+  }
+
+  /** Creates a column of tiles containing all ones */
+  def rf_make_ones_tile(cols: Int, rows: Int, cellType: CellType): TypedColumn[Any, Tile] =
+    rf_make_ones_tile(cols, rows, cellType.name)
+
+  /** Creates a column of tiles containing all ones */
+  def rf_make_ones_tile(cols: Int, rows: Int, cellTypeName: String): TypedColumn[Any, Tile] = {
+    import org.apache.spark.sql.rf.TileUDT.tileSerializer
+    val constTile = encoders.serialized_literal(F.tileOnes(cols, rows, cellTypeName))
+    withTypedAlias(s"rf_make_ones_tile($cols, $rows, $cellTypeName)")(constTile)
+  }
 
   /** Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA */
   def rf_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
@@ -237,9 +263,9 @@ trait RasterFunctions {
 
   /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rf_rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
-    withAlias("rf_rasterize", geometry)(
+    withTypedAlias("rf_rasterize", geometry)(
       udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)
-    ).as[Tile]
+    )
 
   /** Reproject a column of geometry from one CRS to another. */
   def rf_reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRSCol: Column): TypedColumn[Any, Geometry] =
@@ -345,10 +371,5 @@ trait RasterFunctions {
   def rf_expm1(tileCol: Column): TypedColumn[Any, Tile] =
     ExpM1(tileCol)
 
-  /** Resample tile using nearest-neighbor */
-  def rf_resample[T: Numeric](tileCol: Column, value: T) = Resample(tileCol, value)
-
-  /** Resample tile using nearest-neighbor */
-  def rf_resample(tileCol: Column, column2: Column) = Resample(tileCol, column2)
 
 }

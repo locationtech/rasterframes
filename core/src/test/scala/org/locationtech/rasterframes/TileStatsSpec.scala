@@ -221,7 +221,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
       ds.createOrReplaceTempView("tmp")
       val agg2 = sql("select stats.* from (select rf_agg_stats(tiles) as stats from tmp)")
-      assert(agg2.first().getAs[Long]("rf_data_cells") === 250L)
+      assert(agg2.first().getAs[Long]("data_cells") === 250L)
 
       val agg3 = ds.agg(rf_agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
       assert(mean === agg3.first())

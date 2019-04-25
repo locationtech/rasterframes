@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions.transformers
 
 import java.net.URI
 
-import org.locationtech.rasterframes.ref.RasterRef
+import org.locationtech.rasterframes.RasterSourceType
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
@@ -53,7 +53,7 @@ case class URIToRasterSource(override val child: Expression)
     val uriString = input.asInstanceOf[UTF8String].toString
     val uri = URI.create(uriString)
     val ref = RasterSource(uri)
-    RasterSourceUDT.serialize(ref)
+    RasterSourceType.serialize(ref)
   }
 }
 

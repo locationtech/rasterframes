@@ -556,7 +556,7 @@ The following functions compute a statistical summary per row of a `tile` column
 ```python
 import pyspark.functions as F
 spark.sql("""
- SELECT 1 as id, rf_tile_ones(5, 5, 'float32') as t 
+ SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t 
  UNION
  SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, 'float32'), 3) as t 
  """).select(F.col('id'), tile_sum(F.col('t'))).show()

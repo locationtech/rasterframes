@@ -69,6 +69,11 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertIsNone(col, '`temporalKeyColumn` should be `None`')
         print("Temporal key column: ", col)
 
+    def test_tile_creation(self):
+        base = self.spark.createDataFrame([1, 2, 3, 4], 'integer')
+        tiles = base.select(rf_make_constant_tile(3, 3, 3, "int32"), rf_make_zeros_tile(3, 3, "int32"), rf_make_ones_tile(3, 3, "int32"))
+        tiles.show()
+        self.assertEqual(tiles.count(), 4)
 
     def test_tile_operations(self):
         df1 = self.rf.withColumnRenamed(self.tileCol, 't1').asRF()

@@ -55,8 +55,8 @@
 * Added [experimental DataSource implementations](https://github.com/locationtech/rasterframes/tree/develop/experimental/src/main/scala/astraea/spark/rasterframes/experimental/datasource/awspds) for [MODIS](https://registry.opendata.aws/modis/) and [Landsat 8](https://registry.opendata.aws/landsat-8/) catalogs on AWS PDS.   
 * _Change_: Default interpoation for `toRaster` and `toMultibandRaster` has been changed from `Bilinear` to `NearestNeighbor`.
 * _Breaking_: Renamed/moved `astraea.spark.rasterframes.functions.CellStatsAggregateFunction.Statistics` to
-`org.locationtech.rasterframes.stats.CellStatistics`.
-* _Breaking_: `HistogramAggregateFunction` now generates the new type `org.locationtech.rasterframes.stats.CellHistogram`.
+`astraea.spark.rasterframes.stats.CellStatistics`.
+* _Breaking_: `HistogramAggregateFunction` now generates the new type `astraea.spark.rasterframes.stats.CellHistogram`.
 * _Breaking_: `box2D` renamed `envelope`.
 
 ## 0.6.x
@@ -115,7 +115,7 @@
 ### 0.5.9
 
 * Ported to sbt 1.0.3
-* Added sbt-generated `org.locationtech.rasterframes.RFBuildInfo`
+* Added sbt-generated `astraea.spark.rasterframes.RFBuildInfo`
 * Fixed bug in computing `aggMean` when one or more tiles are `null` 
 * Deprecated `rfIinit` in favor of `SparkSession.withRasterFrames` or `SQLContext.withRasterFrames` extension methods
 

@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.model
 
-import geotrellis.raster.{ArrayTile, Tile}
+import geotrellis.raster.{ArrayTile, ConstantTile, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{BinaryType, StructField, StructType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
@@ -32,6 +32,7 @@ import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 /** Represents the union of binary cell datas or a reference to the data.*/
 case class Cells(data: Either[Array[Byte], RasterRef]) {
   def isRef: Boolean = data.isRight
+
   /** Convert cells into either a RasterRefTile or an ArrayTile. */
   def toTile(ctx: TileDataContext): Tile = {
     data.fold(
@@ -42,21 +43,27 @@ case class Cells(data: Either[Array[Byte], RasterRef]) {
 }
 
 object Cells {
+
   /** Extracts the Cells from a Tile. */
   def apply(t: Tile): Cells = {
     t match {
       case ref: RasterRefTile =>
         Cells(Right(ref.rr))
-      case o                  =>
+      case const: ConstantTile =>
+        // TODO: Create mechanism whereby constant tiles aren't expanded.
+        Cells(Left(const.toArrayTile().toBytes))
+      case o =>
         Cells(Left(o.toBytes))
     }
   }
 
   implicit def cellsSerializer: CatalystSerializer[Cells] = new CatalystSerializer[Cells] {
-    override def schema: StructType = StructType(Seq(
-      StructField("cells", BinaryType, true),
-      StructField("ref", schemaOf[RasterRef], true)
-    ))
+    override def schema: StructType =
+      StructType(
+        Seq(
+          StructField("cells", BinaryType, true),
+          StructField("ref", schemaOf[RasterRef], true)
+        ))
     override protected def to[R](t: Cells, io: CatalystSerializer.CatalystIO[R]): R = io.create(
       t.data.left.getOrElse(null),
       t.data.right.map(rr => io.to(rr)).right.getOrElse(null)

@@ -24,7 +24,7 @@ package org.locationtech.rasterframes
 import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster.testkit.RasterMatchers
-import geotrellis.raster.{ArrayTile, ByteUserDefinedNoDataCellType, DoubleConstantNoDataCellType, ShortConstantNoDataCellType, Tile, UByteConstantNoDataCellType}
+import geotrellis.raster._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
@@ -66,6 +66,33 @@ class RasterFunctionsSpec extends FunSpec
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
+
+  describe("constant tile generation operations") {
+    val dim = 2
+    val rows = 2
+
+    it("should create a ones tile") {
+      val df = (0 until rows).toDF("id")
+        .withColumn("const", rf_make_ones_tile(dim, dim, IntConstantNoDataCellType))
+      val result = df.select(rf_tile_sum($"const") as "ts").agg(sum("ts")).as[Double].first()
+      result should be (dim * dim * rows)
+    }
+
+    it("should create a zeros tile") {
+      val df = (0 until rows).toDF("id")
+        .withColumn("const", rf_make_zeros_tile(dim, dim, FloatConstantNoDataCellType))
+      val result = df.select(rf_tile_sum($"const") as "ts").agg(sum("ts")).as[Double].first()
+      result should be (0)
+    }
+
+    it("should create an arbitrary constant tile") {
+      val value = 4
+      val df = (0 until rows).toDF("id")
+        .withColumn("const", rf_make_constant_tile(value, dim, dim, ByteConstantNoDataCellType))
+      val result = df.select(rf_tile_sum($"const") as "ts").agg(sum("ts")).as[Double].first()
+      result should be (dim * dim * rows * value)
+    }
+  }
 
   describe("arithmetic tile operations") {
     it("should local_add") {
@@ -329,12 +356,12 @@ class RasterFunctionsSpec extends FunSpec
         .select($"stats.mean").as[Double]
         .first() should be(mean +- 0.00001)
       df.selectExpr("rf_tile_stats(rand) as stats")
-        .select($"stats.rf_no_data_cells").as[Long]
+        .select($"stats.no_data_cells").as[Long]
         .first() should be <= (cols * rows - numND).toLong
 
       val df2 = randNDTilesWithNull.toDF("tile")
       df2
-        .select(rf_tile_stats($"tile")("rf_data_cells") as "cells")
+        .select(rf_tile_stats($"tile")("data_cells") as "cells")
         .agg(sum("cells"))
         .as[Long]
         .first() should be (expectedRandData)
@@ -376,11 +403,11 @@ class RasterFunctionsSpec extends FunSpec
 
       df
         .select(rf_agg_stats($"tile") as "stats")
-        .select("stats.rf_data_cells", "stats.rf_no_data_cells")
+        .select("stats.data_cells", "stats.no_data_cells")
         .as[(Long, Long)]
         .first() should be ((expectedRandData, expectedRandNoData))
       df.selectExpr("rf_agg_stats(tile) as stats")
-        .select("stats.rf_data_cells")
+        .select("stats.data_cells")
         .as[Long]
         .first() should be (expectedRandData)
 
