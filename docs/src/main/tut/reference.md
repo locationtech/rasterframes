@@ -941,6 +941,6 @@ Pretty print the tile values as plain text.
 
 
 
-[RasterFunctions]: astraea.spark.rasterframes.RasterFunctions
+[RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
 

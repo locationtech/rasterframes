@@ -18,13 +18,13 @@
  *
  */
 
-package astraea.spark.rasterframes.experimental.datasource.awspds
+package org.locationtech.rasterframes.experimental.datasource.awspds
 
 import java.net.URL
 
-import astraea.spark.rasterframes.TestEnvironment
 import org.apache.spark.sql.functions._
-import astraea.spark.rasterframes.experimental.datasource._
+import org.locationtech.rasterframes.experimental.datasource._
+import org.locationtech.rasterframes.TestEnvironment
 
 /**
  * Test rig for L8 catalog stuff.

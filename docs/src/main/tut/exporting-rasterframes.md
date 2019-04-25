@@ -1,7 +1,7 @@
 # Exporting&nbsp;RasterFrames
 
 ```tut:invisible
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.spark._
 import geotrellis.raster._
 import geotrellis.raster.render._
@@ -183,8 +183,8 @@ showType(rf.toTileLayerRDD($"tile".as[Tile]))
 spark.stop()
 ```
 
-[rfInit]: astraea.spark.rasterframes.package#rfInit%28SQLContext%29:Unit
+[rfInit]: org.locationtech.rasterframes.package#rfInit%28SQLContext%29:Unit
 [rdd]: org.apache.spark.sql.Dataset#frdd:org.apache.spark.rdd.RDD[T]
-[toTileLayerRDD]: astraea.spark.rasterframes.RasterFrameMethods#toTileLayerRDD%28tileCol:RasterFrameMethods.this.TileColumn%29:Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]
-[tile_to_array_int]: astraea.spark.rasterframes.ColumnFunctions#tile_to_array_int
+[toTileLayerRDD]: org.locationtech.rasterframes.RasterFrameMethods#toTileLayerRDD%28tileCol:RasterFrameMethods.this.TileColumn%29:Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]
+[tile_to_array_int]: org.locationtech.rasterframes.ColumnFunctions#tile_to_array_int
 

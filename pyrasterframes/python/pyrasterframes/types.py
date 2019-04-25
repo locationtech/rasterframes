@@ -177,7 +177,7 @@ class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """
     def __init__(self):
         super(TileExploder, self).__init__()
-        self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.TileExploder", self.uid)
+        self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.TileExploder", self.uid)
 
 class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """
@@ -185,6 +185,6 @@ class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """
     def __init__(self):
         super(NoDataFilter, self).__init__()
-        self._java_obj = self._new_java_obj("astraea.spark.rasterframes.ml.NoDataFilter", self.uid)
+        self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.NoDataFilter", self.uid)
     def setInputCols(self, values):
         self._java_obj.setInputCols(values)

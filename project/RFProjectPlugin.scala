@@ -30,11 +30,6 @@ object RFProjectPlugin extends AutoPlugin {
     scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     cancelable in Global := true,
-    resolvers ++= Seq(
-      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
-      "boundless-releases" at "https://repo.boundlessgeo.com/main/",
-      "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
-    ),
     publishTo in ThisBuild := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
@@ -47,26 +42,26 @@ object RFProjectPlugin extends AutoPlugin {
       Developer(
         id = "metasim",
         name = "Simeon H.K. Fitch",
-        email = "fitch@astraea.io",
-        url = url("http://www.astraea.io")
+        email = "fitch@astraea.earth",
+        url = url("http://www.astraea.earth")
       ),
       Developer(
         id = "mteldridge",
         name = "Matt Eldridge",
-        email = "meldridge@astraea.io",
-        url = url("http://www.astraea.io")
+        email = "meldridge@astraea.earth",
+        url = url("http://www.astraea.earth")
       ),
       Developer(
         id = "bguseman",
         name = "Ben Guseman",
-        email = "bguseman@astraea.io",
-        url = url("http://www.astraea.io")
+        email = "bguseman@astraea.earth",
+        url = url("http://www.astraea.earth")
       ),
       Developer(
         id = "vpipkt",
         name = "Jason Brown",
-        email = "jbrown@astraea.io",
-        url = url("http://www.astraea.io")
+        email = "jbrown@astraea.earth",
+        url = url("http://www.astraea.earth")
       )
     ),
     initialCommands in console :=
@@ -76,7 +71,7 @@ object RFProjectPlugin extends AutoPlugin {
         |import org.apache.spark.sql.functions._
         |import geotrellis.raster._
         |import geotrellis.spark._
-        |import astraea.spark.rasterframes._
+        |import org.locationtech.rasterframes._
         |implicit val spark = SparkSession.builder()
         |  .master("local[*]")
         |  .withKryoSerialization

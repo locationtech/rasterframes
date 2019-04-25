@@ -15,7 +15,7 @@ if len(jarpath) > 0:
         .config('spark.executor.extraClassPath', pyJar)
         .config("spark.ui.enabled", "false")
         .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-        .config("spark.kryo.registrator", "astraea.spark.rasterframes.util.RFKryoRegistrator")
+        .config("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator")
         .config("spark.kryoserializer.buffer.max", "500m")
         .getOrCreate())
 

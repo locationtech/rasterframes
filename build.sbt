@@ -44,7 +44,7 @@ lazy val core = project
     buildInfoKeys ++= Seq[BuildInfoKey](
       name, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),
-    buildInfoPackage := "astraea.spark.rasterframes",
+    buildInfoPackage := "org.locationtech.rasterframes",
     buildInfoObject := "RFBuildInfo",
     buildInfoOptions := Seq(
       BuildInfoOption.ToMap,
@@ -69,8 +69,8 @@ lazy val datasource = project
     ),
     initialCommands in console := (initialCommands in console).value +
       """
-        |import astraea.spark.rasterframes.datasource.geotrellis._
-        |import astraea.spark.rasterframes.datasource.geotiff._
+        |import org.locationtech.rasterframes.datasource.geotrellis._
+        |import org.locationtech.rasterframes.datasource.geotiff._
         |""".stripMargin
   )
 

@@ -49,7 +49,13 @@ object RFDependenciesPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectSettings = Seq(
-    resolvers += "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
+    resolvers ++= Seq(
+      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
+      "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
+      "boundless-releases" at "https://repo.boundlessgeo.com/main/",
+      "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
+    ),
+
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "2.3.2",
     rfGeoTrellisVersion := "2.2.0",

@@ -1,4 +1,4 @@
-astraea.spark.rasterframes.datasource.geotiff.GeoTiffDataSource
-astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisLayerDataSource
-astraea.spark.rasterframes.datasource.geotrellis.GeoTrellisCatalog
-astraea.spark.rasterframes.datasource.rastersource.RasterSourceDataSource
+org.locationtech.rasterframes.datasource.geotiff.GeoTiffDataSource
+org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisLayerDataSource
+org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisCatalog
+org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource

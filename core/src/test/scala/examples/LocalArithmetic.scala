@@ -19,7 +19,7 @@
 
 package examples
 
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.spark.io.kryo.KryoRegistrator
 import org.apache.spark.serializer.KryoSerializer
