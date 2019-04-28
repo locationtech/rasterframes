@@ -65,14 +65,14 @@ class TileAssemblerSpec extends TestEnvironment {
       val sceneSize = (260, 257)
       val rs = InMemoryRasterSource(TestData.randomTile(sceneSize._1, sceneSize._2, ByteConstantNoDataCellType), Extent(10, 20, 30, 40), LatLng)
       val df = rs.toDF
-      val exploded = df.select($"spatial_index", $"extent", rf_tile_dimensions($"tile") as "rf_tile_dimensions", rf_explode_tiles($"tile"))
+      val exploded = df.select($"spatial_index", $"extent", rf_tile_dimensions($"tile") as "tile_dimensions", rf_explode_tiles($"tile"))
 
       val assembled = exploded
-        .groupBy($"spatial_index", $"extent", $"rf_tile_dimensions")
+        .groupBy($"spatial_index", $"extent", $"tile_dimensions")
         .agg(
           rf_convert_cell_type(
             rf_assemble_tile(COLUMN_INDEX_COLUMN, ROW_INDEX_COLUMN,
-            $"tile", $"rf_tile_dimensions.cols", $"rf_tile_dimensions.rows"), rs.cellType) as "tile"
+            $"tile", $"tile_dimensions.cols", $"tile_dimensions.rows"), rs.cellType) as "tile"
         )
 
       assert(

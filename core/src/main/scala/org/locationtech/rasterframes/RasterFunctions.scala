@@ -253,11 +253,11 @@ trait RasterFunctions {
   def rf_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
     Mask.MaskByDefined(sourceTile, maskTile)
 
-  /** Where the rf_mask tile equals the rf_mask value, replace values in the source tile with NODATA */
+  /** Where the `maskTile` equals `maskValue`, replace values in the source tile with `NoData` */
   def rf_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
     Mask.MaskByValue(sourceTile, maskTile, maskValue)
 
-  /** Where the rf_mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
+  /** Where the `maskTile` does **not** contain `NoData`, replace values in the source tile with `NoData` */
   def rf_inverse_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
     Mask.InverseMaskByDefined(sourceTile, maskTile)
 

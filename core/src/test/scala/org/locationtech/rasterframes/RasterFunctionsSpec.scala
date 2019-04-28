@@ -485,17 +485,17 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_normalized_difference")
     }
 
-    it("should rf_mask one tile against another") {
+    it("should mask one tile against another") {
       val df = Seq[Tile](randTile).toDF("tile")
 
-      val withMask = df.withColumn("rf_mask",
+      val withMask = df.withColumn("mask",
         rf_convert_cell_type(
           rf_local_greater($"tile", 50),
           "uint8")
       )
 
       val withMasked = withMask.withColumn("masked",
-        rf_mask($"tile", $"rf_mask"))
+        rf_mask($"tile", $"mask"))
 
       val result = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked")).as[Boolean]
 
@@ -504,12 +504,12 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_mask")
     }
 
-    it("should inverse rf_mask one tile against another") {
+    it("should inverse mask one tile against another") {
       val df = Seq[Tile](randTile).toDF("tile")
 
       val baseND = df.select(rf_agg_no_data_cells($"tile")).first()
 
-      val withMask = df.withColumn("rf_mask",
+      val withMask = df.withColumn("mask",
         rf_convert_cell_type(
           rf_local_greater($"tile", 50),
           "uint8"
@@ -517,8 +517,8 @@ class RasterFunctionsSpec extends FunSpec
       )
 
       val withMasked = withMask
-        .withColumn("masked", rf_mask($"tile", $"rf_mask"))
-        .withColumn("inv_masked", rf_inverse_mask($"tile", $"rf_mask"))
+        .withColumn("masked", rf_mask($"tile", $"mask"))
+        .withColumn("inv_masked", rf_inverse_mask($"tile", $"mask"))
 
       val result = withMasked.agg(rf_agg_no_data_cells($"masked") + rf_agg_no_data_cells($"inv_masked")).as[Long]
 
@@ -527,11 +527,11 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_inverse_mask")
     }
 
-    it("should rf_mask tile by another identified by specified value") {
+    it("should mask tile by another identified by specified value") {
       val df = Seq[Tile](randTile).toDF("tile")
       val mask_value = 4
 
-      val withMask = df.withColumn("rf_mask",
+      val withMask = df.withColumn("mask",
         rf_local_multiply(rf_convert_cell_type(
           rf_local_greater($"tile", 50),
           "uint8"),
@@ -540,7 +540,7 @@ class RasterFunctionsSpec extends FunSpec
       )
 
       val withMasked = withMask.withColumn("masked",
-        rf_mask_by_value($"tile", $"rf_mask", lit(mask_value)))
+        rf_mask_by_value($"tile", $"mask", lit(mask_value)))
 
       val result = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked")).as[Boolean]
 

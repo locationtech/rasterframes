@@ -42,7 +42,7 @@ Reproject the vector `geom` from `origin_crs` to `destination_crs`. Both `_crs` 
 
 _Python_:
 
-    Struct[Double xmin, Double xmax, Double ymin, Double ymax] envelope(Geometry geom)
+    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(Geometry geom)
 
 Extracts the bounding box (extent/envelope) of the geometry.
 
@@ -100,7 +100,7 @@ _Python_:
     
 _SQL_: `rf_cell_type`
 
-Get the cell type of the `tile`. Available cell types can be retrieved with the @ref:[rf_cell_types](reference.md#rf_cell-types) function.
+Get the cell type of the `tile`. Available cell types can be retrieved with the @ref:[rf_cell_types](reference.md#rf-cell-types) function.
 
 #### rf_convert_cell_type
 
@@ -299,11 +299,11 @@ Some of these functions have similar variations in the Python API:
 
  - `rf_local_op`: applies `op` to two columns; the right hand side can be a `tile` or a numeric column.
  - `rf_local_op_double`: applies `op` to a `tile` and a literal scalar, coercing the `tile` to a floating point type
- - `local_op_scalar_int`: applies `op` to a `tile` and a literal scalar, without coercing the `tile` to a floating point type
+ - `rf_local_op_int`: applies `op` to a `tile` and a literal scalar, without coercing the `tile` to a floating point type
  
 We will provide all these variations for `rf_local_add` and then suppress the rest in this document.
 
-The SQL API does not require the `rf_local_op_double` or `rf_local_op_scalar_int` forms.
+The SQL API does not require the `rf_local_op_double` or `rf_local_op_int` forms (just `rf_local_op`).
 
 #### rf_local_add
 
@@ -860,7 +860,7 @@ Compute cell-local aggregate count, minimum, maximum, mean, and variance for a c
 
 RasterFrames provides several ways to convert a `tile` into other data structures. See also functions for @ref:[creating tiles](reference.md#tile-creation).
 
-#### rf_xplode_tiles
+#### rf_explode_tiles
 
 _Python_:
 
@@ -908,7 +908,7 @@ _SQL_: `rf_tile_to_array_double`
 Convert tile column to Spark [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
 
 
-#### rf_ender_ascii
+#### rf_render_ascii
 
 _Python_:
 

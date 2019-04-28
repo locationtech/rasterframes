@@ -32,7 +32,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
   usage = "_FUNC_(tile) - Round cell values to the nearest integer without changing the cell type.",
   arguments = """
   Arguments:
-    * tile - tile column to rf_round""",
+    * tile - tile column to round""",
   examples = """
   Examples:
     > SELECT  _FUNC_(tile);

@@ -21,23 +21,22 @@
 
 package org.locationtech.rasterframes
 
+import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
+import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
+import org.apache.spark.sql.rf.VersionShims._
+import org.apache.spark.sql.{SQLContext, rf}
 import org.locationtech.rasterframes.expressions.accessors._
+import org.locationtech.rasterframes.expressions.aggstats.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggstats._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
-import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
-import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
-import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
-import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
-import org.apache.spark.sql.rf.VersionShims._
-import org.apache.spark.sql.{SQLContext, rf}
-import org.locationtech.rasterframes.expressions.aggstats.CellCountAggregate.DataCells
-import org.locationtech.rasterframes.expressions.localops._
 
-import scala.util.Try
 import scala.reflect.runtime.universe._
+import scala.util.Try
 /**
  * Module of Catalyst expressions for efficiently working with tiles.
  *

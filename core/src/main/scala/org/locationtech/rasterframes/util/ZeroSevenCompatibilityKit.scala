@@ -246,12 +246,12 @@ object ZeroSevenCompatibilityKit {
     def tileOnes(cols: Int, rows: Int, cellType: String = "float64"): TypedColumn[Any, Tile] =
       udf(() => F.tileOnes(cols, rows, cellType)).apply().as(s"ones_$cellType").as[Tile]
 
-    /** Where the rf_mask tile equals the rf_mask value, replace values in the source tile with NODATA */
+    /** Where the mask tile equals the mask value, replace values in the source tile with NODATA */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def maskByValue(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
       delegate.rf_mask_by_value(sourceTile, maskTile, maskValue)
 
-    /** Where the rf_mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
+    /** Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def inverseMask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
       delegate.rf_inverse_mask(sourceTile, maskTile)

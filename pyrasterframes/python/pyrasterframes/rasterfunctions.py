@@ -223,6 +223,7 @@ _rf_column_functions = {
     'rf_agg_local_mean': 'Compute the cellwise/local mean operation between Tiles in a column.',
     'rf_agg_local_data_cells': 'Compute the cellwise/local count of non-NoData cells for all Tiles in a column.',
     'rf_agg_local_no_data_cells': 'Compute the cellwise/local count of NoData cells for all Tiles in a column.',
+    'rf_agg_local_stats': 'Compute cell-local aggregate descriptive statistics for a column of Tiles.',
     'rf_mask': 'Where the rf_mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA.',
     'rf_inverse_mask': 'Where the rf_mask (second) tile DOES NOT contain NODATA, replace values in the source (first) tile with NODATA.',
     'rf_local_less': 'Cellwise less than comparison between two tiles',
