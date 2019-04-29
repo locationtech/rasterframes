@@ -45,10 +45,10 @@ object RasterSourceDataSource {
   final val BAND_INDEXES_PARAM = "bandIndexes"
   final val TILE_DIMS_PARAM = "tileDimensions"
   final val PATH_TABLE_PARAM = "pathTable"
-  final val PATH_TABLE_COL_PARAM = "pathTableColumn"
+  final val PATH_TABLE_COL_PARAM = "pathTableColumns"
 
   /** Container for specifying where to select raster paths from. */
-  case class PathColumn(tableName: String, columnName: String)
+  case class RasterSourceTable(tableName: String, columnNames: String*)
 
   private[rastersource]
   implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
@@ -73,10 +73,10 @@ object RasterSourceDataSource {
       .map(_.split(',').map(_.trim.toInt).toSeq)
       .getOrElse(Seq(0))
 
-    def pathTable: Option[PathColumn] = parameters
+    def pathTable: Option[RasterSourceTable] = parameters
       .get(PATH_TABLE_PARAM)
       .zip(parameters.get(PATH_TABLE_COL_PARAM))
-      .map(p => PathColumn(p._1, p._2))
+      .map(p => RasterSourceTable(p._1, p._2.split(','): _*))
       .headOption
   }
 }

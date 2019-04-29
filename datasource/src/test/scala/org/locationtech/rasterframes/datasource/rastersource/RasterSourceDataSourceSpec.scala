@@ -54,15 +54,15 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       p.tileDims should be (Some(TileDimensions(4, 5)))
     }
 
-    it("should parse path table specificatino") {
+    it("should parse path table specification") {
       val p = Map(PATH_TABLE_PARAM -> "pathTable", PATH_TABLE_COL_PARAM -> "path")
-      p.pathTable should be (Some(PathColumn("pathTable", "path")))
+      p.pathTable should be (Some(RasterSourceTable("pathTable", "path")))
     }
   }
 
   describe("RasterSource as relation reading") {
     it("should default to a single band schema") {
-      val df = spark.read.rastersource.load(l8samplePath.toASCIIString)
+      val df = spark.read.rastersource.load(l8B1SamplePath.toASCIIString)
       val tcols = df.tileColumns
       tcols.length should be(1)
       tcols.map(_.columnName) should contain("tile")
@@ -102,41 +102,46 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       dims should contain allElementsOf
         Seq(TileDimensions(4,128), TileDimensions(128,128), TileDimensions(128,93), TileDimensions(4,93))
 
-      df.select("path").distinct().count() should be(1)
+      df.select("tile_path").distinct().count() should be(1)
     }
     it("should read a multiple files with one band") {
       val df = spark.read.rastersource
-        .from(Seq(cogPath, l8samplePath, nonCogPath))
+        .from(Seq(cogPath, l8B1SamplePath, nonCogPath))
         .withTileDimensions(128, 128)
         .load()
-      df.select("path").distinct().count() should be(3)
+      df.select("tile_path").distinct().count() should be(3)
       df.schema.size should be(2)
     }
-
-    it("should read a multiple files from a table") {
-      Seq(cogPath, l8samplePath, nonCogPath).toDF("path").createOrReplaceTempView("pathsTable")
-      val df = spark.read.rastersource
-        .fromTable("pathsTable", "path")
-        .withTileDimensions(128, 128)
-        .load()
-      df.select("path").distinct().count() should be(3)
-      df.schema.size should be(2)
-    }
-
     it("should read a multiple files with heterogeneous bands") {
       val df = spark.read.rastersource
-        .from(Seq(cogPath, l8samplePath, nonCogPath))
+        .from(Seq(cogPath, l8B1SamplePath, nonCogPath))
         .withTileDimensions(128, 128)
         .withBandIndexes(0, 1, 2, 3)
         .load()
         .cache()
-      df.select("path").distinct().count() should be(3)
+      df.select("tile_path").distinct().count() should be(3)
       df.schema.size should be(5)
 
       df.select($"tile_b0").count() should be (df.select($"tile_b0").na.drop.count())
       df.select($"tile_b1").na.drop.count() shouldBe <(df.count())
       df.select($"tile_b1").na.drop.count() should be (df.select($"tile_b2").na.drop.count())
       df.select($"tile_b3").na.drop.count() should be (0)
+    }
+
+
+    it("should read a extent coherent bands from multiple files") {
+      val bandPaths = Seq((l8SamplePath(1).toASCIIString, l8SamplePath(2).toASCIIString, l8SamplePath(3).toASCIIString))
+        .toDF("B1", "B2", "B3")
+
+      bandPaths.createOrReplaceTempView("pathsTable")
+
+      val df = spark.read.rastersource
+        .fromTable("pathsTable", "B1", "B2", "B3")
+        .withTileDimensions(128, 128)
+        .load()
+      df.show(false)
+      df.select("path").distinct().count() should be(3)
+      df.schema.size should be(2)
     }
   }
 }

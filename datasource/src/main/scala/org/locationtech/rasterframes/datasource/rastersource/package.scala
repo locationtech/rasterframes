@@ -50,10 +50,10 @@ package object rastersource {
         reader.option(RasterSourceDataSource.TILE_DIMS_PARAM, s"$cols,$rows")
       )
 
-    def fromTable(tableName: String, columnName: String): RasterSourceDataFrameReader =
+    def fromTable(tableName: String, bandColumnNames: String*): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
         reader.option(RasterSourceDataSource.PATH_TABLE_PARAM, tableName)
-          .option(RasterSourceDataSource.PATH_TABLE_COL_PARAM, columnName)
+          .option(RasterSourceDataSource.PATH_TABLE_COL_PARAM, bandColumnNames.mkString(","))
       )
 
     def from(newlineDelimPaths: String): RasterSourceDataFrameReader =
