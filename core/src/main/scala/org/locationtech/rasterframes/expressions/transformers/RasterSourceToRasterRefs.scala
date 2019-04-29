@@ -32,6 +32,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 
@@ -54,8 +55,8 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
 
   override def elementSchema: StructType = StructType(for {
     child <- children
-    band <- bandIndexes
-    name = child.name + (if (bandIndexes.length > 1) "_b" + band else "")
+    basename = child.name + "_ref"
+    name <- bandNames(basename, bandIndexes)
   } yield StructField(name, rasterRefSchema, true))
 
   private def band2ref(src: RasterSource, e: Option[Extent])(b: Int): RasterRef =
@@ -86,4 +87,10 @@ object RasterSourceToRasterRefs {
   def apply(rrs: Column*): TypedColumn[Any, RasterRef] = apply(None, Seq(0), rrs: _*)
   def apply(subtileDims: Option[TileDimensions], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, RasterRef] =
     new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims)).as[RasterRef]
+
+  private[rasterframes] def bandNames(basename: String, bandIndexes: Seq[Int]): Seq[String] = bandIndexes match {
+    case Seq() => Seq.empty
+    case Seq(0) => Seq(basename)
+    case s => s.map(n => basename + "_b" + n)
+  }
 }

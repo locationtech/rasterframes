@@ -19,14 +19,13 @@
  *
  */
 
-package astraea.spark.rasterframes.bench
-
+package org.locationtech.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.expressions.transformers.RasterSourceToTiles
-import astraea.spark.rasterframes.ref.RasterSource
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.expressions.transformers.RasterSourceToTiles
+import org.locationtech.rasterframes.ref.RasterSource
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql._
 import org.openjdk.jmh.annotations._

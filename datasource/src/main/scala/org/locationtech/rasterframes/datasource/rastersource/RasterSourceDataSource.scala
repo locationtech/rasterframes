@@ -29,10 +29,13 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   import RasterSourceDataSource._
   override def shortName(): String = SHORT_NAME
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val inexes = parameters.bandIndexes
-    val files = parameters.filePaths
+    val bands = parameters.bandIndexes
     val tiling = parameters.tileDims
-    RasterSourceRelation(sqlContext, files, inexes, tiling)
+    val pathTable = parameters.pathTable
+    val files = parameters.filePaths
+    require(!(pathTable.nonEmpty && files.nonEmpty),
+      "Only one of a set of file paths OR a paths table column may be provided.")
+    RasterSourceRelation(sqlContext, files, pathTable, bands, tiling)
   }
 }
 object RasterSourceDataSource {
@@ -41,6 +44,11 @@ object RasterSourceDataSource {
   final val PATHS_PARAM = "paths"
   final val BAND_INDEXES_PARAM = "bandIndexes"
   final val TILE_DIMS_PARAM = "tileDimensions"
+  final val PATH_TABLE_PARAM = "pathTable"
+  final val PATH_TABLE_COL_PARAM = "pathTableColumns"
+
+  /** Container for specifying where to select raster paths from. */
+  case class RasterSourceTable(tableName: String, columnNames: String*)
 
   private[rastersource]
   implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
@@ -64,5 +72,11 @@ object RasterSourceDataSource {
       .get(BAND_INDEXES_PARAM)
       .map(_.split(',').map(_.trim.toInt).toSeq)
       .getOrElse(Seq(0))
+
+    def pathTable: Option[RasterSourceTable] = parameters
+      .get(PATH_TABLE_PARAM)
+      .zip(parameters.get(PATH_TABLE_COL_PARAM))
+      .map(p => RasterSourceTable(p._1, p._2.split(','): _*))
+      .headOption
   }
 }
