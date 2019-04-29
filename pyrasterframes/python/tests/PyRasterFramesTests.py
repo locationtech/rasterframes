@@ -103,13 +103,13 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('mean', rf_tile_mean(self.tileCol)) \
             .withColumn('sum', rf_tile_sum(self.tileCol)) \
             .withColumn('stats', rf_tile_stats(self.tileCol)) \
-            .withColumn('extent', rf_extent('geometry')) \
+            .withColumn('extent', st_extent('geometry')) \
             .withColumn('ascii', rf_render_ascii(self.tileCol)) \
             .withColumn('log', rf_log(self.tileCol)) \
             .withColumn('exp', rf_exp(self.tileCol)) \
             .withColumn('expm1', rf_expm1(self.tileCol)) \
             .withColumn('round', rf_round(self.tileCol))
-
+        # TODO: add test for rf_extent once rastersource connector is integrated.
         df.show()
 
     def test_rasterize(self):

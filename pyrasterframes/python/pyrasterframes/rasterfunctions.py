@@ -242,7 +242,8 @@ _rf_column_functions = {
     'rf_exp10': 'Compute 10 to the power of cell values',
     'rf_expm1': 'Performs cell-wise exponential, then subtract one',
     'rf_resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
-    'rf_extent': 'Compute the extent/bbox of a Geometry',
+    'st_extent': 'Compute the extent/bbox of a Geometry',
+    'rf_extent': 'Get the extent of a RasterSource or ProjectedRasterTile (a tile with embedded extent and CRS)',
     'rf_extent_geometry': 'Convert the given extent/bbox to a polygon',
 
     # ------- JTS functions -------

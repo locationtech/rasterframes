@@ -38,11 +38,11 @@ _SQL_: `rf_reproject_geometry`
 Reproject the vector `geom` from `origin_crs` to `destination_crs`. Both `_crs` arguments are either [proj4](https://proj4.org/usage/quickstart.html) strings, [EPSG codes](https://www.epsg-registry.org/) codes or [OGC WKT](https://www.opengeospatial.org/standards/wkt-crs) for coordinate reference systems. 
 
 
-#### rf_extent
+#### st_extent
 
 _Python_:
 
-    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(Geometry geom)
+    Struct[Double xmin, Double xmax, Double ymin, Double ymax] st_extent(Geometry geom)
 
 Extracts the bounding box (extent/envelope) of the geometry.
 

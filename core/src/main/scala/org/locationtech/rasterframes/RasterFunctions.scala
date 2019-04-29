@@ -62,7 +62,10 @@ trait RasterFunctions {
   def rf_tile_dimensions(col: Column): Column = GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as an Extent */
-  def rf_extent(col: Column): TypedColumn[Any, Extent] = GeometryToExtent(col)
+  def st_extent(col: Column): TypedColumn[Any, Extent] = GeometryToExtent(col)
+
+  /** Extracts the bounding box from a RasterSource or ProjectedRasterTile */
+  def rf_extent(col: Column): TypedColumn[Any, Extent] = GetExtent(col)
 
   /** Flattens Tile into a double array. */
   def rf_tile_to_array_double(col: Column): TypedColumn[Any, Array[Double]] =

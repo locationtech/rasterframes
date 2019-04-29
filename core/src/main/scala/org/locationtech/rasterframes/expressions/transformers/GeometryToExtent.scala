@@ -37,7 +37,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 8/24/18
  */
 case class GeometryToExtent(child: Expression) extends UnaryExpression with CodegenFallback {
-  override def nodeName: String = "rf_extent"
+  override def nodeName: String = "st_extent"
 
   override def dataType: DataType = schemaOf[Extent]
 
