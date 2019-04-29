@@ -31,7 +31,7 @@ import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.RasterSource
 
 
 /**
@@ -45,7 +45,7 @@ case class URIToRasterSource(override val child: Expression)
 
   override def nodeName: String = "uri_to_raster_source"
 
-  override def dataType: DataType = new RasterSourceUDT
+  override def dataType: DataType = RasterSourceType
 
   override def inputTypes = Seq(StringType)
 
@@ -58,6 +58,6 @@ case class URIToRasterSource(override val child: Expression)
 }
 
 object URIToRasterSource {
-  def apply(rasterURI: Column): TypedColumn[Any, RasterRef] =
-    new Column(new URIToRasterSource(rasterURI.expr)).as[RasterRef]
+  def apply(rasterURI: Column): TypedColumn[Any, RasterSource] =
+    new Column(new URIToRasterSource(rasterURI.expr)).as[RasterSource]
 }

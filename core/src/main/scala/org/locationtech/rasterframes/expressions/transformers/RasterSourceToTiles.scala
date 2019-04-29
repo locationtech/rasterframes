@@ -40,6 +40,7 @@ import org.locationtech.rasterframes.TileType
  *
  * @since 9/6/18
  */
+@deprecated("Use RasterSourceToRasterRefs and RasterRef to Tile instread", "4/28/19")
 case class RasterSourceToTiles(children: Seq[Expression], applyTiling: Boolean) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
@@ -74,7 +75,9 @@ case class RasterSourceToTiles(children: Seq[Expression], applyTiling: Boolean) 
 
 
 object RasterSourceToTiles {
+  @deprecated("Use RasterSourceToRasterRefs and RasterRef to Tile instread", "4/28/19")
   def apply(rrs: Column*): Column = apply(true, rrs: _*)
+  @deprecated("Use RasterSourceToRasterRefs and RasterRef to Tile instread", "4/28/19")
   def apply(applyTiling: Boolean, rrs: Column*): Column =
     new Column(new RasterSourceToTiles(rrs.map(_.expr), applyTiling))
 }

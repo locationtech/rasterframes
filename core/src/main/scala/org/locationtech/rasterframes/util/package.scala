@@ -32,7 +32,8 @@ import geotrellis.raster.{CellGrid, Tile, isNoData}
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{ByteReader, GetComponent}
-import org.apache.spark.sql.catalyst.expressions.{Expression, NamedExpression}
+import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
+import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
@@ -106,7 +107,9 @@ package object util {
   implicit class ExpressionWithName(val expr: Expression) extends AnyVal {
     import org.apache.spark.sql.catalyst.expressions.Literal
     def name: String = expr match {
-      case n: NamedExpression ⇒ n.name
+      case n: NamedExpression if n.resolved ⇒ n.name
+      case UnresolvedAttribute(parts) => parts.mkString("_")
+      case Alias(_, name) => name
       case l: Literal if l.dataType == StringType ⇒ String.valueOf(l.value)
       case o ⇒ o.toString
     }
