@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.datasource.rastersource
 
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.datasource.rastersource.RasterSourceRelation.{bandNames}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
 import org.locationtech.rasterframes.util._
@@ -32,6 +31,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.RasterSourceTable
+import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
@@ -56,7 +56,7 @@ case class RasterSourceRelation(sqlContext: SQLContext, discretePaths: Seq[Strin
   def srcColNames = inputColNames
     .map(_ + "_src")
 
-  def refColNames = inputColNames
+  def refColNames = srcColNames
     .flatMap(bandNames(_, bandIndexes))
     .map(_ + "_ref")
 
@@ -96,30 +96,29 @@ case class RasterSourceRelation(sqlContext: SQLContext, discretePaths: Seq[Strin
       (pathColName, srcColName) <- pathColNames.zip(srcColNames)
     } yield URIToRasterSource(col(pathColName)) as srcColName
 
-    // Combines RasterSource + bandIndex into a RasterRef
-    val refs = for {
-      (inputColName, srcColName) <- inputColNames.zip(srcColNames)
-    } yield RasterSourceToRasterRefs(subtileDims, bandIndexes, col(srcColName)) as bandNames(inputColName, bandIndexes)
+    // Expand RasterSource into multiple columns per band, and multiple rows per tile
+    // There's some unintentional fragililty here in that the structure of the expression
+    // is expected to line up with our column structure here.
+    val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, srcs: _*) as refColNames
 
+    // RasterSourceToRasterRef is a generator, which means you have to do the Tile conversion
+    // in a separate select statement (Query planner doesn't know how many columns ahead of time).
     val refsToTiles = for {
-      (tileColName, refColName) <- refColNames.zip(tileColNames)
+      (refColName, tileColName) <- refColNames.zip(tileColNames)
     } yield RasterRefToTile(col(refColName)) as tileColName
 
-    val paths = pathColNames.map(col)
-
-    val df = inputs
+    // Add path columns
+    val withPaths = inputs
       .select(pathsAliasing: _*)
-      .select(paths ++ srcs: _*)
-      .select(paths ++ refs: _*)
+
+    // Path columns have to be manually pulled along through each step. Resolve columns once
+    // and reused with each select.
+    val paths = pathColNames.map(withPaths.apply)
+
+    val df = withPaths
+      .select(paths :+ refs: _*)
       .select(paths ++ refsToTiles: _*)
 
     df.rdd
-  }
-}
-object RasterSourceRelation {
-  private def bandNames(basename: String, bandIndexes: Seq[Int]): Seq[String] = bandIndexes match {
-    case Seq() => Seq.empty
-    case Seq(0) => Seq(basename)
-    case s => s.map(n => basename + "_b" + n)
   }
 }

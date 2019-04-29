@@ -133,15 +133,17 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       val bandPaths = Seq((l8SamplePath(1).toASCIIString, l8SamplePath(2).toASCIIString, l8SamplePath(3).toASCIIString))
         .toDF("B1", "B2", "B3")
 
+      bandPaths.show()
+
       bandPaths.createOrReplaceTempView("pathsTable")
 
       val df = spark.read.rastersource
         .fromTable("pathsTable", "B1", "B2", "B3")
         .withTileDimensions(128, 128)
         .load()
+
       df.show(false)
-      df.select("path").distinct().count() should be(3)
-      df.schema.size should be(2)
+      df.schema.size should be(6)
     }
   }
 }
