@@ -130,10 +130,11 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
 
     it("should read a extent coherent bands from multiple files") {
-      val bandPaths = Seq((l8SamplePath(1).toASCIIString, l8SamplePath(2).toASCIIString, l8SamplePath(3).toASCIIString))
+      val bandPaths = Seq((
+        l8SamplePath(1).toASCIIString,
+        l8SamplePath(2).toASCIIString,
+        l8SamplePath(3).toASCIIString))
         .toDF("B1", "B2", "B3")
-
-      bandPaths.show()
 
       bandPaths.createOrReplaceTempView("pathsTable")
 
@@ -142,8 +143,9 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .withTileDimensions(128, 128)
         .load()
 
-      df.show(false)
       df.schema.size should be(6)
+      df.tileColumns.size should be (3)
+      df.select($"B1_path").distinct().count() should be (1)
     }
   }
 }
