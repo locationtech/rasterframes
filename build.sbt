@@ -41,6 +41,7 @@ lazy val core = project
       ),
       scalatest
     ),
+    fork in Test := false,
     buildInfoKeys ++= Seq[BuildInfoKey](
       name, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),
