@@ -40,8 +40,8 @@ jobs:
       - restore_cache:
           <<: *restore_cache
 
-      - run: cat /dev/null | sbt dependencyCheck
-      - run: cat /dev/null | sbt --debug dumpLicenseReport
+      - run: cat /dev/null | ./sbt dependencyCheck
+      - run: cat /dev/null | ./sbt --debug dumpLicenseReport
 
       - run: *unsetenv
 
@@ -70,7 +70,7 @@ jobs:
           <<: *restore_cache
 
       - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
-      - run: cat /dev/null | sbt test
+      - run: cat /dev/null | ./sbt test
 
       - run: *unsetenv
       - save_cache:
@@ -86,8 +86,8 @@ jobs:
           <<: *restore_cache
 
       - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
-      - run: cat /dev/null | sbt test
-      - run: cat /dev/null | sbt publish
+      - run: cat /dev/null | ./sbt test
+      - run: cat /dev/null | ./sbt publish
 
       - run: *unsetenv
       - save_cache:
@@ -104,7 +104,7 @@ jobs:
           <<: *restore_cache
 
       - run:
-          command: cat /dev/null | sbt it:test
+          command: cat /dev/null | ./sbt it:test
           no_output_timeout: 30m
       - run: *unsetenv
 
