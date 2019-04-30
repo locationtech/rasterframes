@@ -159,7 +159,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def rf_reproject_geometry(geometryCol: Column, srcName: String, dstName: String): Column = {
     val src = LazyCRS(srcName)
     val dst = LazyCRS(dstName)
-    rf_reproject_geometry(geometryCol, src, dst)
+    st_reproject(geometryCol, src, dst)
   }
 
   // return toRaster, get just the tile, and make an array out of it

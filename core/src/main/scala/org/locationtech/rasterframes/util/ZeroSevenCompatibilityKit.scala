@@ -259,7 +259,7 @@ object ZeroSevenCompatibilityKit {
     /** Reproject a column of geometry from one CRS to another. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def reprojectGeometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
-      delegate.rf_reproject_geometry(sourceGeom, srcCRS, dstCRS)
+      delegate.st_reproject(sourceGeom, srcCRS, dstCRS)
 
     /** Render Tile as ASCII string for debugging purposes. */
     @Experimental

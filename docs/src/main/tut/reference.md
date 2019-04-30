@@ -28,12 +28,12 @@ Various LocationTech GeoMesa UDFs to deal with `geomtery` type columns are also 
 
 RasterFrames provides two additional functions for vector geometry.
 
-#### reproject_geometry
+#### st_reproject
 
 _Python_:
-    Geometry reproject_geometry(Geometry geom, String origin_crs, String destination_crs)
+    Geometry st_reproject(Geometry geom, String origin_crs, String destination_crs)
 
-_SQL_: `rf_reproject_geometry`
+_SQL_: `st_reproject`
 
 Reproject the vector `geom` from `origin_crs` to `destination_crs`. Both `_crs` arguments are either [proj4](https://proj4.org/usage/quickstart.html) strings, [EPSG codes](https://www.epsg-registry.org/) codes or [OGC WKT](https://www.opengeospatial.org/standards/wkt-crs) for coordinate reference systems. 
 

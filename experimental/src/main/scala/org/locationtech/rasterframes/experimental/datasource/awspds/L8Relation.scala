@@ -34,14 +34,14 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, SQLContext}
-import org.locationtech.rasterframes.ref.RasterRef
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
  * Spark relation over AWS PDS Landsat 8 collection.
  *
  * @since 8/21/18
  */
-case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[Filter] = Seq.empty)
+case class L8Relation(sqlContext: SQLContext, filters: Seq[Filter] = Seq.empty)
   extends BaseRelation with PrunedFilteredScan with SpatialRelationReceiver[L8Relation] with LazyLogging {
   override def schema: StructType = L8Relation.schema
 
@@ -99,13 +99,15 @@ case class L8Relation(sqlContext: SQLContext, useTiling: Boolean, filters: Seq[F
 
     val nonTile = other.map(col)
 
-    val df = {
-      val dims = if (useTiling) Some(NOMINAL_TILE_DIMS) else None
+    val df = if (bands.nonEmpty) {
       val sources = bands.map(b ⇒ URIToRasterSource(l8_band_url(b)).as(b))
       // NB: We assume that `nativeTiling` preserves the band names.
-      val expanded = RasterSourceToRasterRefs(dims, Seq(0), sources: _*)
-      filtered.select(nonTile :+ expanded: _*)
-    }
+      val expanded = RasterSourceToRasterRefs(None, Seq(0), sources: _*)
+
+      filtered
+        .select(nonTile :+ expanded: _*)
+        .select(nonTile ++ bands.map(b => RasterRefToTile(col(b + "_ref")) as b): _*)
+    } else filtered
 
     // Make sure shape of resulting rows conforms to what was requested
     val selected = requiredColumns.headOption
@@ -129,7 +131,7 @@ object L8Relation extends PDSFields {
         case ACQUISITION_DATE ⇒ ACQUISITION_DATE.copy(name = StandardColumns.TIMESTAMP_COLUMN.columnName)
         case s if s.name == BOUNDS_WGS84.name ⇒ BOUNDS
         case s if s != DOWNLOAD_URL ⇒ s
-      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, schemaOf[RasterRef], true))
+      } ++ L8Relation.Bands.values.toSeq.map(b ⇒ StructField(b.toString, schemaOf[ProjectedRasterTile], true))
     )
   }
 }

@@ -43,7 +43,7 @@ import org.locationtech.rasterframes.jts.ReprojectionTransformer
 case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: Expression) extends Expression
   with CodegenFallback with ExpectsInputTypes {
 
-  override def nodeName: String = "rf_reproject_geometry"
+  override def nodeName: String = "st_reproject"
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
   override def nullable: Boolean = geometry.nullable || srcCRS.nullable || dstCRS.nullable
   override def children: Seq[Expression] = Seq(geometry, srcCRS, dstCRS)

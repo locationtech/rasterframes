@@ -102,11 +102,11 @@ def _create_rasterize():
 
 
 def _create_reproject_geometry():
-    """ Create a function mapping to the Scala rf_reproject_geometry function. """
+    """ Create a function mapping to the Scala st_reproject function. """
     def _(geometryCol, srcCRSName, dstCRSName):
-        jfcn = RFContext.active().lookup('rf_reproject_geometry')
+        jfcn = RFContext.active().lookup('st_reproject')
         return Column(jfcn(_to_java_column(geometryCol), srcCRSName, dstCRSName))
-    _.__name__ = 'rf_reproject_geometry'
+    _.__name__ = 'st_reproject'
     _.__doc__ = """Reproject a column of geometry given the CRS names of the source and destination.
 Currently supported registries are EPSG, ESRI, WORLD, NAD83, & NAD27.
 An example of a valid CRS name is EPSG:3005.
@@ -161,7 +161,7 @@ _rf_unique_functions = {
     'rf_make_constant_tile': _create_makeConstantTile(),
     'rf_mask_by_value': _create_maskByValue(),
     'rf_rasterize': _create_rasterize(),
-    'rf_reproject_geometry': _create_reproject_geometry(),
+    'st_reproject': _create_reproject_geometry(),
     'rf_make_ones_tile': _create_tileOnes(),
     'rf_make_zeros_tile': _create_tileZeros(),
 }

@@ -21,16 +21,12 @@
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
 import org.locationtech.rasterframes._
-import org.apache.spark.sql.DataFrame
-import org.locationtech.rasterframes.TestEnvironment
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
 /**
  * @since 8/21/18
  */
 class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeAndAfter {
-
-  private var scenes: DataFrame = _
 
   val query =  """
             |SELECT geometry, timestamp, B1, B2
@@ -46,28 +42,24 @@ class L8RelationTest extends TestEnvironment with BeforeAndAfterAll with BeforeA
       .format(L8DataSource.SHORT_NAME)
       .load()
     l8.createOrReplaceTempView("l8")
-    scenes = sql(query).cache()
+    sql(query).createOrReplaceTempView("subscenes")
   }
 
   describe("Read L8 on PDS as a DataSource") {
+    import spark.implicits._
     it("should count scenes") {
-      assert(scenes.schema.size === 4)
-      assert(scenes.count() === 7)
+      val scenes = sql("SELECT entity_id FROM l8 DISTINCT")
+      scenes.count() shouldBe >(300400L)
+
+      val subscenes = sqlContext.table("subscenes")
+      subscenes.schema.size should be (4)
+      subscenes.count() should be(7)
     }
 
-    it("should count tiles") {
-      val l8 = spark.read
-        .format(L8DataSource.SHORT_NAME)
-        .option(L8DataSource.USE_TILING, true)
-        .load()
-      l8.createOrReplaceTempView("l82")
-      val scenes2 = sql(query.replaceAll("l8", "l82")).cache()
-      val scenesCount = scenes.count()
-      val scenes2Count = scenes2.count()
-      println(scenesCount, scenes2Count)
-      // Most L8 geotiffs are 16x16 tiles, but some are smaller.
-      // Test against the lower bound.
-      assert(scenes2Count > scenesCount * 15 * 15)
+    it("should compute statistics") {
+      val subscenes = sqlContext.table("subscenes")
+      val stats = subscenes.select(rf_agg_stats($"B1")).first()
+      stats.data_cells shouldBe >(420024000L)
     }
   }
 }

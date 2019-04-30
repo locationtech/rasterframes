@@ -275,15 +275,15 @@ trait RasterFunctions {
     )
 
   /** Reproject a column of geometry from one CRS to another. */
-  def rf_reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRSCol: Column): TypedColumn[Any, Geometry] =
+  def st_reproject(sourceGeom: Column, srcCRS: CRS, dstCRSCol: Column): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRS, dstCRSCol)
 
   /** Reproject a column of geometry from one CRS to another. */
-  def rf_reproject_geometry(sourceGeom: Column, srcCRSCol: Column, dstCRS: CRS): TypedColumn[Any, Geometry] =
+  def st_reproject(sourceGeom: Column, srcCRSCol: Column, dstCRS: CRS): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRSCol, dstCRS)
 
   /** Reproject a column of geometry from one CRS to another. */
-  def rf_reproject_geometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
+  def st_reproject(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRS, dstCRS)
 
   /** Render Tile as ASCII string, for debugging purposes. */
