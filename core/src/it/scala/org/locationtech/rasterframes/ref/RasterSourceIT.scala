@@ -21,13 +21,12 @@
 
 package org.locationtech.rasterframes.ref
 
+import java.lang.Math.ceil
 import java.net.URI
 
-import org.locationtech.rasterframes.util.time
-import org.locationtech.rasterframes.TestData
-import geotrellis.vector.Extent
 import org.locationtech.rasterframes
-import org.locationtech.rasterframes.TestEnvironment
+import org.locationtech.rasterframes.util.time
+import org.locationtech.rasterframes.{NOMINAL_TILE_SIZE, TestData, TestEnvironment}
 
 /**
  *
@@ -35,12 +34,6 @@ import org.locationtech.rasterframes.TestEnvironment
  * @since 8/22/18
  */
 class RasterSourceIT extends TestEnvironment with TestData {
-  def sub(e: Extent) = {
-    val c = e.center
-    val w = e.width
-    val h = e.height
-    Extent(c.x, c.y, c.x + w * 0.1, c.y + h * 0.1)
-  }
 
   describe("RasterSource.readAll") {
     it("should return consistently ordered tiles across bands for a given scene") {
@@ -70,9 +63,34 @@ class RasterSourceIT extends TestEnvironment with TestData {
   }
 
   describe("GDAL support") {
+
     it("should read JPEG2000 scene") {
-      val src = RasterSource(localSentinel.toURI)
+      val src = RasterSource(localSentinel)
       src.readAll().flatMap(_.tile.statisticsDouble).size should be (64)
     }
+
+    it("should read small MRF scene with one band converted from MODIS HDF") {
+      val (expectedTileCount, _) = expectedTileCountAndBands(2400, 2400)
+      RasterSource(modisConvertedMrfPath).readAll().flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+    }
+
+    it("should read remote HTTP MRF scene") {
+      val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
+      RasterSource(remoteHttpMrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+    }
+
+    it("should read remote S3 MRF scene") {
+      val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
+      RasterSource(remoteS3MrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+    }
+
+  }
+
+  private def expectedTileCountAndBands(x:Int, y:Int, bandCount:Int = 1) = {
+    val imageDimensions = Seq(x.toDouble, y.toDouble)
+    val tilesPerBand = imageDimensions.map(x ⇒ ceil(x / NOMINAL_TILE_SIZE)).product
+    val bands = Range(0, bandCount)
+    val expectedTileCount = tilesPerBand * bands.length
+    (expectedTileCount, bands)
   }
 }
