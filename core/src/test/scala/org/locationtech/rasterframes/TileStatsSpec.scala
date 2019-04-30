@@ -43,13 +43,13 @@ class TileStatsSpec extends TestEnvironment with TestData {
     it("should report dimensions") {
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
 
-      val dims = df.select(rf_tile_dimensions($"tile1") as "dims").select("dims.*")
+      val dims = df.select(rf_dimensions($"tile1") as "dims").select("dims.*")
 
       assert(dims.as[(Int, Int)].first() === (3, 3))
       assert(dims.schema.head.name === "cols")
 
       val query = sql("""|select dims.* from (
-           |select rf_tile_dimensions(tiles) as dims from (
+           |select rf_dimensions(tiles) as dims from (
            |select rf_make_constant_tile(1, 10, 10, 'int8raw') as tiles))
            |""".stripMargin)
       write(query)
@@ -57,7 +57,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
       df.repartition(4).createOrReplaceTempView("tmp")
       assert(
-          sql("select dims.* from (select rf_tile_dimensions(tile2) as dims from tmp)")
+          sql("select dims.* from (select rf_dimensions(tile2) as dims from tmp)")
             .as[(Int, Int)]
             .first() === (3, 3))
     }

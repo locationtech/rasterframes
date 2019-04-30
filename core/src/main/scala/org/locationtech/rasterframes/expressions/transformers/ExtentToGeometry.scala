@@ -40,7 +40,7 @@ import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
  * @since 8/24/18
  */
 case class ExtentToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
-    override def nodeName: String = "rf_extent_geometry"
+    override def nodeName: String = "st_geometry"
 
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
 

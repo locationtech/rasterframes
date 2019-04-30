@@ -188,7 +188,7 @@ class GeoTrellisDataSourceSpec
         .withTileSubdivisions(param)
         .loadRF(layer)
 
-      val dims = df.select(rf_tile_dimensions(df.tileColumns.head)("cols"), rf_tile_dimensions(df.tileColumns.head)("rows")).first()
+      val dims = df.select(rf_dimensions(df.tileColumns.head)("cols"), rf_dimensions(df.tileColumns.head)("rows")).first()
       assert(dims.getAs[Int](0) === tileSize / param)
       assert(dims.getAs[Int](1) === tileSize / param)
 
@@ -201,7 +201,7 @@ class GeoTrellisDataSourceSpec
         .withTileSubdivisions(param)
         .loadRF(tfLayer)
 
-      val dims = rf.select(rf_tile_dimensions(rf.tileColumns.head)("cols"), rf_tile_dimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(rf_dimensions(rf.tileColumns.head)("cols"), rf_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / param)
       assert(dims.getAs[Int](1) === tileSize / param)
@@ -223,7 +223,7 @@ class GeoTrellisDataSourceSpec
 
       // is it subdivided?
       assert(rf.count === testRdd.count * subParam * subParam)
-      val dims = rf.select(rf_tile_dimensions(rf.tileColumns.head)("cols"), rf_tile_dimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(rf_dimensions(rf.tileColumns.head)("cols"), rf_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / subParam)
       assert(dims.getAs[Int](1) === tileSize / subParam)
@@ -451,7 +451,7 @@ class GeoTrellisDataSourceSpec
 
       assert(rf.count === testRdd.count * subParam * subParam)
 
-      val dims = rf.select(rf_tile_dimensions(rf.tileColumns.head)("cols"), rf_tile_dimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(rf_dimensions(rf.tileColumns.head)("cols"), rf_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / subParam)
       assert(dims.getAs[Int](1) === tileSize / subParam)
@@ -466,7 +466,7 @@ class GeoTrellisDataSourceSpec
 
       // is it subdivided?
       assert(rf.count === testRdd.count * subParam * subParam)
-      val dims = rf.select(rf_tile_dimensions(rf.tileColumns.head)("cols"), rf_tile_dimensions(rf.tileColumns.head)("rows"))
+      val dims = rf.select(rf_dimensions(rf.tileColumns.head)("cols"), rf_dimensions(rf.tileColumns.head)("rows"))
         .first()
       assert(dims.getAs[Int](0) === tileSize / subParam)
       assert(dims.getAs[Int](1) === tileSize / subParam)

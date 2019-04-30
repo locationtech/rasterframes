@@ -98,7 +98,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
       df.count() should be(math.ceil(1028.0 / 128).toInt * math.ceil(989.0 / 128).toInt)
 
-      val dims = df.select(rf_tile_dimensions($"tile").as[TileDimensions]).distinct().collect()
+      val dims = df.select(rf_dimensions($"tile").as[TileDimensions]).distinct().collect()
       dims should contain allElementsOf
         Seq(TileDimensions(4,128), TileDimensions(128,128), TileDimensions(128,93), TileDimensions(4,93))
 

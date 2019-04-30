@@ -194,7 +194,7 @@ _rf_column_scalar_functions = {
 
 _rf_column_functions = {
     # ------- RasterFrames functions -------
-    'rf_tile_dimensions': 'Query the number of (cols, rows) in a Tile.',
+    'rf_dimensions': 'Query the number of (cols, rows) in a Tile.',
     'rf_tile_to_array_int': 'Flattens Tile into an array of integers.',
     'rf_tile_to_array_double': 'Flattens Tile into an array of doubles.',
     'rf_cell_type': 'Extract the Tile\'s cell type',
@@ -244,7 +244,8 @@ _rf_column_functions = {
     'rf_resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
     'st_extent': 'Compute the extent/bbox of a Geometry',
     'rf_extent': 'Get the extent of a RasterSource or ProjectedRasterTile (a tile with embedded extent and CRS)',
-    'rf_extent_geometry': 'Convert the given extent/bbox to a polygon',
+    'st_geometry': 'Convert the given extent/bbox to a polygon',
+    'rf_geometry': 'Get the extent of a RasterSource or ProjectdRasterTile as a Geometry',
 
     # ------- JTS functions -------
     # spatial constructors

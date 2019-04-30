@@ -82,13 +82,13 @@ Print an array of possible cell type names, as below. These names are used in ot
 |float64   |
 
 
-#### rf_tile_dimensions
+#### rf_dimensions
 
 _Python_:
 
-    Struct[Int, Int] rf_tile_dimensions(Tile tile)
+    Struct[Int, Int] rf_dimensions(Tile tile)
    
-_SQL_: `rf_tile_dimensions`
+_SQL_: `rf_dimensions`
 
 Get number of columns and rows in the `tile`, as a Struct of `cols` and `rows`.
 

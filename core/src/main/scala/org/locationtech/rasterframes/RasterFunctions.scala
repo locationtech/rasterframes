@@ -35,6 +35,7 @@ import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
+import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.{functions => F}
 
@@ -59,7 +60,7 @@ trait RasterFunctions {
     ExplodeTiles(sampleFraction, None, cols)
 
   /** Query the number of (cols, rows) in a Tile. */
-  def rf_tile_dimensions(col: Column): Column = GetDimensions(col)
+  def rf_dimensions(col: Column): TypedColumn[Any, TileDimensions] = GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as an Extent */
   def st_extent(col: Column): TypedColumn[Any, Extent] = GeometryToExtent(col)
@@ -109,12 +110,15 @@ trait RasterFunctions {
   def rf_resample(tileCol: Column, factorCol: Column) = Resample(tileCol, factorCol)
 
   /** Convert a bounding box structure to a Geometry type. Intented to support multiple schemas. */
-  def rf_extent_geometry(bounds: Column): TypedColumn[Any, Geometry] = ExtentToGeometry(bounds)
+  def st_geometry(extent: Column): TypedColumn[Any, Geometry] = ExtentToGeometry(extent)
+
+  /** Extract the extent of a RasterSource or ProjectedRasterTile as a Geometry type. */
+  def rf_geometry(raster: Column): TypedColumn[Any, Geometry] = GetGeometry(raster)
 
   /** Assign a `NoData` value to the Tiles. */
-  def rf_with_no_data(col: Column, nodata: Double): TypedColumn[Any, Tile] = withAlias("rf_with_no_data", col)(
+  def rf_with_no_data(col: Column, nodata: Double): TypedColumn[Any, Tile] = withTypedAlias("rf_with_no_data", col)(
     udf[Tile, Tile](F.withNoData(nodata)).apply(col)
-  ).as[Tile]
+  )
 
   /**  Compute the full column aggregate floating point histogram. */
   def rf_agg_approx_histogram(col: Column): TypedColumn[Any, CellHistogram] =
@@ -373,6 +377,5 @@ trait RasterFunctions {
   /** Exponential of cell values, less one*/
   def rf_expm1(tileCol: Column): TypedColumn[Any, Tile] =
     ExpM1(tileCol)
-
 
 }

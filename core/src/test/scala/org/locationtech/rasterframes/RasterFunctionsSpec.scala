@@ -29,6 +29,7 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
+import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.scalatest.{FunSpec, Matchers}
@@ -281,6 +282,25 @@ class RasterFunctionsSpec extends FunSpec
       df.selectExpr("rf_tile_sum(rf_local_unequal(two, 1.9))").as[Double].first() should be(100.0)
       df.selectExpr("rf_tile_sum(rf_local_unequal(threeA, threeB))").as[Double].first() should be(0.0)
       checkDocs("rf_local_unequal")
+    }
+  }
+
+  describe("raster metadata") {
+    it("should get the TileDimensions of a Tile") {
+      val t = Seq(randTile).toDF("tile").select(rf_dimensions($"tile")).first()
+      t should be (TileDimensions(randTile.dimensions))
+      checkDocs("rf_dimensions")
+    }
+    it("should get the Extent of a ProjectedRasterTile") {
+      val e = Seq(randTile).toDF("tile").select(rf_extent($"tile")).first()
+      e should be (extent)
+      checkDocs("rf_extent")
+    }
+
+    it("should get the Geometry of a ProjectedRasterTile") {
+      val g = Seq(randTile).toDF("tile").select(rf_geometry($"tile")).first()
+      g should be (extent.jtsGeom)
+      checkDocs("rf_geometry")
     }
   }
 

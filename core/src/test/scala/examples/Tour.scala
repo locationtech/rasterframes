@@ -57,7 +57,7 @@ object Tour extends App {
   rf.show(8, false)
 
   // Confirm we have equally sized tiles
-  rf.select(rf_tile_dimensions($"tile")).distinct().show()
+  rf.select(rf_dimensions($"tile")).distinct().show()
 
   // Count the number of no-data cells
   rf.select(rf_agg_no_data_cells($"tile")).show(false)

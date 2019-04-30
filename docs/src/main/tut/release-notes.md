@@ -12,8 +12,11 @@
 * Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
 * Added `rf_render_matrix` debugging function.
 * Added `RasterFrame.withExtent` extension method.
-* Added `st_extent` (for `Geometry` types) and `rf_extent` (for `ProjectedRasterTile` types).
-* _Breaking_ : Removed `envelope`, in lieu of `st_extent`, `rf_extent` or `st_envelope` 
+* Added `st_extent` (for `Geometry` types) and `rf_extent` (for `ProjectedRasterTile` and `RasterSource` columns).
+* Added `st_geometry` (for `Extent` types) and `rf_geometry` (for `ProjectedRasterTile` and `RasterSource` columns).
+* _Breaking_: Removed `envelope`, in lieu of `st_extent`, `rf_extent` or `st_envelope` 
+* _Breaking_: Renamed `rf_extent_geometry` to `st_geometry`
+* _Breaking_: Renamed `rf_tile_dimensions` to `rf_dimensions`
 * _Breaking_: Root package changed from `org.locationtech.rasterframes` to `org.locationtech.rasterframes`.
 * _Breaking_: With the upgrade to JTS 1.16.0, all imports of `com.vividsolutions.jts` need to be changed to `org.locationtech.jts`.
 * _Deprecation_: Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow `snake_case` conventions, with an `rf_` prefix, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.

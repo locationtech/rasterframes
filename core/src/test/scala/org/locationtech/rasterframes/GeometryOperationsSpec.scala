@@ -62,7 +62,7 @@ class GeometryOperationsSpec extends TestEnvironment with TestData {
       val rasterized = toRasterize.withColumn("rasterized", rf_rasterize($"geom", GEOMETRY_COLUMN, $"__fid__", cols, rows))
 
       assert(rasterized.count() === df.count() * rf.count())
-      assert(rasterized.select(rf_tile_dimensions($"rasterized")).distinct().count() === 1)
+      assert(rasterized.select(rf_dimensions($"rasterized")).distinct().count() === 1)
       val pixelCount = rasterized.select(rf_agg_data_cells($"rasterized")).first()
       assert(pixelCount < cols * rows)
 

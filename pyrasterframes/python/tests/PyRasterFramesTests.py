@@ -94,7 +94,7 @@ class RasterFunctionsTest(unittest.TestCase):
     def test_general(self):
         meta = self.rf.tileLayerMetadata()
         self.assertIsNotNone(meta['bounds'])
-        df = self.rf.withColumn('dims',  rf_tile_dimensions(self.tileCol)) \
+        df = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)) \
             .withColumn('type', rf_cell_type(self.tileCol)) \
             .withColumn('dCells', rf_data_cells(self.tileCol)) \
             .withColumn('ndCells', rf_no_data_cells(self.tileCol)) \
@@ -104,12 +104,14 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('sum', rf_tile_sum(self.tileCol)) \
             .withColumn('stats', rf_tile_stats(self.tileCol)) \
             .withColumn('extent', st_extent('geometry')) \
+            .withColumn('extent_geom1', st_geometry('extent')) \
             .withColumn('ascii', rf_render_ascii(self.tileCol)) \
             .withColumn('log', rf_log(self.tileCol)) \
             .withColumn('exp', rf_exp(self.tileCol)) \
             .withColumn('expm1', rf_expm1(self.tileCol)) \
             .withColumn('round', rf_round(self.tileCol))
-        # TODO: add test for rf_extent once rastersource connector is integrated.
+        # TODO: add test for rf_extent and rf_geometry once rastersource connector is integrated and we have
+        #  a source of ProjectedRasterTiles.
         df.show()
 
     def test_rasterize(self):
@@ -143,7 +145,7 @@ class RasterFunctionsTest(unittest.TestCase):
 
         self.rf.createOrReplaceTempView("rf")
 
-        dims = self.rf.withColumn('dims',  rf_tile_dimensions(self.tileCol)).first().dims
+        dims = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)).first().dims
         dims_str = """{}, {}""".format(dims.cols, dims.rows)
 
         self.spark.sql("""SELECT tile, rf_make_constant_tile(1, {}, 'uint16') AS One, 

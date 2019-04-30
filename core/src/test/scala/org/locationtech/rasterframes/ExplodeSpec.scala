@@ -45,7 +45,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
       write(query)
       assert(query.select("cell_0", "cell_1").as[(Double, Double)].collect().forall(_ == ((1.0, 2.0))))
       val query2 = sql(
-        """|select rf_tile_dimensions(tiles) as dims, rf_explode_tiles(tiles) from (
+        """|select rf_dimensions(tiles) as dims, rf_explode_tiles(tiles) from (
            |select rf_make_constant_tile(1, 10, 10, 'int8raw') as tiles)
            |""".stripMargin)
       write(query2)
