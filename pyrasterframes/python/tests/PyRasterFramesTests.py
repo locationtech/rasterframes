@@ -285,6 +285,41 @@ class RasterFunctionsTest(unittest.TestCase):
             pandas_df_out.poly_len.values
         )
 
+    def test_raster_source_reader(self):
+        # much the same as RasterSourceDataSourceSpec here
+        def l8path(b):
+            assert b in range(1, 12)
+            #ok
+            base = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/199/026/LC08_L1TP_199026_20180919_20180928_01_T1/LC08_L1TP_199026_20180919_20180928_01_T1_B{}.TIF"
+            base='s3://s22s-demeter-data-assets-prod/MOD11A1.006/18/06/2018153/MOD11A1.A2018153.h18v06.006.2018154084835_LSTD_B01.TIF'
+            #ok
+            # base = 'file:///Users/jbrown/src/rasterframes/core/target/scala-2.11/test-classes/L8-B{}-Elkton-VA.tiff'
+
+            # not ok base = '/Users/jbrown/src/rasterframes/core/target/scala-2.11/test-classes/L8-B{}-Elkton-VA.tiff'
+            return base.format(b)
+
+        # band_paths = self.spark.createDataFrame([{'B1': l8path(1), 'B2': l8path(2), 'B3': l8path(3)}])
+        # band_paths.createOrReplaceTempView('pathsTable')
+        df = self.spark.read.format('rastersource') \
+                    .options(tileDimensions='32, 32',  #Elkton files are 186 by 169
+                             path=l8path(1),
+                             ) \
+                    .load()
+        #[l8path(b) for b in [1,2,3]]) \
+
+        df.printSchema()
+
+        self.assertTrue(len(df.columns) == 2)  # tile_path and tile
+        tile_size_df = df.select(tile_dimensions(df.tile).rows.alias('r'), tile_dimensions(df.tile).cols.alias('c'))\
+            .groupby(['r','c']).count().toPandas()
+
+        print(tile_size_df)
+        # the most common should be as given in options above.
+        self.assertTrue(tile_size_df.r.value_counts().idxmax() == 32)
+        self.assertTrue(tile_size_df.c.value_counts().idxmax() == 32)  # columns
+        # all rows are from a single source URI
+        self.assertTrue(df.select(df.tile_path).distinct().count() == 1)
+
 
 def suite():
     function_tests = unittest.TestSuite()
