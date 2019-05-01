@@ -337,7 +337,7 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_is_no_data_tile")
     }
 
-    it("should evaluate exists and forall") {
+    it("should evaluate exists and for_all") {
       val df0 = Seq(zero).toDF("tile")
       df0.select(rf_exists($"tile")).first() should be(false)
       df0.select(rf_for_all($"tile")).first() should be(false)

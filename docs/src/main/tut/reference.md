@@ -229,7 +229,7 @@ Generate a `tile` with the values from `data_tile`, with nodata in cells where t
 
     Boolean rf_is_no_data_tile(Tile)
  
-Returns true if `tile` contains only nodata. By definition returns false if cell type does not support nodata.
+Returns true if `tile` contains only nodata. By definition returns false if cell type does not support nodata. To count nodata cells or data cells, see @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), @ref:[`rf_agg_local_no_data_cells`](reference.md#rf-agg-local-no-data-cells), and @ref:[`rf_agg_local_data_cells`](reference.md#rf-agg-local-data-cells). This function is distinguished from @ref:[`rf_for_all`](reference.md#rf-for-all), which tests that values are not nodata and nonzero.
 
 #### rf_with_no_data
 
@@ -477,13 +477,13 @@ Return the count of data cells in the `tile`.
 
     Boolean rf_exists(Tile tile)
     
-Returns true if any cells in the tile are true (non-zero and not NoData). 
+Returns true if any cells in the tile are true (non-zero and not nodata). 
 
 #### rf_for_all
 
     Boolean rf_for_all(Tile tile)
 
-Returns true if all cells in the tile are true (non-zero and not NoData). 
+Returns true if all cells in the tile are true (non-zero and not nodata). See also @ref:[`rf_is_no_data_tile](reference.md#rf-is-no-data-tile), which tests that all cells are nodata.
 
 #### rf_tile_stats
 

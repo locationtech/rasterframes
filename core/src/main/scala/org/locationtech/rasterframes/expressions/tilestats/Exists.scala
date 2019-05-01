@@ -1,12 +1,14 @@
 package org.locationtech.rasterframes.expressions.tilestats
 
-import geotrellis.raster.{Tile, isData}
+import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.isCellTrue
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
+import spire.syntax.cfor.cfor
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Returns true if any cells in the tile are true (non-zero and not nodata).",
@@ -29,26 +31,17 @@ case class Exists(child: Expression) extends UnaryRasterOp with CodegenFallback 
 }
 
 object Exists{
+  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.boolEnc
 
   def apply(tile: Column): TypedColumn[Any, Boolean] = new Column(Exists(tile.expr)).as[Boolean]
 
   def op(tile: Tile): Boolean = {
-
-    def doubleValueIs(d: Double): Boolean =  isData(d) & d != 0.0
-    def intValueIs(i: Int): Boolean =  isData(i) & i != 0
-
-    var (c, r) = (0, 0)
-    while (r < tile.rows) {
-      while(c < tile.cols) {
-        if(tile.cellType.isFloatingPoint) { if(doubleValueIs(tile.getDouble(c, r))) return true }
-        else { if(intValueIs(tile.get(c, r))) return true }
-        c += 1
+    cfor(0)(_ < tile.rows, _ + 1) { r ⇒
+      cfor(0)(_ < tile.cols, _ + 1) { c ⇒
+        if(tile.cellType.isFloatingPoint) { if(isCellTrue(tile.getDouble(c, r))) return true }
+        else { if(isCellTrue(tile.get(c, r))) return true }
       }
-      c = 0; r += 1
     }
-
     false
   }
-
-
 }
