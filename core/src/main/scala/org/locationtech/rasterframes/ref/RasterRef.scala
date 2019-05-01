@@ -30,6 +30,7 @@ import org.apache.spark.sql.rf.RasterSourceUDT
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
+import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
@@ -45,7 +46,7 @@ case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Ext
   def cols: Int = grid.width
   def rows: Int = grid.height
   def cellType: CellType = source.cellType
-  def tile: ProjectedRasterTile = ProjectedRasterTile(realizedTile, extent, crs)
+  def tile: ProjectedRasterTile = ProjectedRasterTile(RasterRefTile(this), extent, crs)
 
   protected lazy val grid: GridBounds = source.rasterExtent.gridBoundsFor(extent)
   protected def srcExtent: Extent = extent

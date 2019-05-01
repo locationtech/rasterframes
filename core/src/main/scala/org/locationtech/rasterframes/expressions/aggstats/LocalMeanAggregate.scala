@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.TileType
 case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
 
   override def dataType: DataType = TileType
-  override def nodeName: String = "agg_local_mean"
+  override def nodeName: String = "rf_agg_local_mean"
 
   private lazy val count =
     AttributeReference("count", TileType, true)()

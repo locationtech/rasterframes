@@ -40,7 +40,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
        ..."""
 )
 case class Less(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
-  override val nodeName: String = "local_less"
+  override val nodeName: String = "rf_local_less"
   override protected def op(left: Tile, right: Tile): Tile = left.localLess(right)
   override protected def op(left: Tile, right: Double): Tile = left.localLess(right)
   override protected def op(left: Tile, right: Int): Tile = left.localLess(right)

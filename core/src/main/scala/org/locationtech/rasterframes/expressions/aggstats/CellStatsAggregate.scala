@@ -124,7 +124,7 @@ object CellStatsAggregate {
 
   def apply(col: Column): TypedColumn[Any, CellStatistics] =
     new Column(new CellStatsAggregateUDAF(col.expr))
-      .as(s"agg_stats($col)") // node renaming in class doesn't seem to propogate
+      .as(s"rf_agg_stats($col)") // node renaming in class doesn't seem to propogate
       .as[CellStatistics]
 
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
@@ -145,7 +145,7 @@ object CellStatsAggregate {
   class CellStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
     extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new CellStatsAggregate()), Complete, false, NamedExpression.newExprId)
-    override def nodeName: String = "agg_stats"
+    override def nodeName: String = "rf_agg_stats"
   }
   object CellStatsAggregateUDAF {
     def apply(child: Expression): CellStatsAggregateUDAF = new CellStatsAggregateUDAF(child)

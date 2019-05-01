@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class TileMax(child: Expression) extends UnaryRasterOp
   with NullToValue with CodegenFallback {
-  override def nodeName: String = "tile_max"
+  override def nodeName: String = "rf_tile_max"
   override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMax.op(tile)
   override def dataType: DataType = DoubleType
   override def na: Any = Double.MinValue

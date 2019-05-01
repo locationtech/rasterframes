@@ -84,7 +84,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .cache()
       df.schema.size should be (4)
       // Test (roughly) we have three distinct but compabible bands
-      val stats = df.agg(agg_stats($"tile_b0") as "s0", agg_stats($"tile_b1") as "s1", agg_stats($"tile_b2") as "s2")
+      val stats = df.agg(rf_agg_stats($"tile_b0") as "s0", rf_agg_stats($"tile_b1") as "s1", rf_agg_stats($"tile_b2") as "s2")
       stats.select($"s0.data_cells" === $"s1.data_cells").as[Boolean].first() should be(true)
       stats.select($"s0.data_cells" === $"s2.data_cells").as[Boolean].first() should be(true)
       stats.select($"s0.mean" =!= $"s1.mean").as[Boolean].first() should be(true)
@@ -98,7 +98,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
       df.count() should be(math.ceil(1028.0 / 128).toInt * math.ceil(989.0 / 128).toInt)
 
-      val dims = df.select(tile_dimensions($"tile").as[TileDimensions]).distinct().collect()
+      val dims = df.select(rf_dimensions($"tile").as[TileDimensions]).distinct().collect()
       dims should contain allElementsOf
         Seq(TileDimensions(4,128), TileDimensions(128,128), TileDimensions(128,93), TileDimensions(4,93))
 

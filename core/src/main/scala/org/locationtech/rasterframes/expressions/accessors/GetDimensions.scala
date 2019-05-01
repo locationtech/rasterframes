@@ -25,16 +25,23 @@ import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.OnCellGridExpression
 import geotrellis.raster.CellGrid
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.locationtech.rasterframes.model.TileDimensions
 
 /**
- * Extract a Tile's dimensions
+ * Extract a raster's dimensions
  * @since 12/21/17
  */
+@ExpressionDescription(
+  usage = "_FUNC_(raster) - Fetches the dimensions (columns & rows) of a Tile, ProjectedRasterTile or RasterSource.",
+  examples = """
+    Examples:
+      > SELECT _FUNC_(raster);
+         ....
+  """)
 case class GetDimensions(child: Expression) extends OnCellGridExpression with CodegenFallback {
-  override def nodeName: String = "tile_dimensions"
+  override def nodeName: String = "rf_dimensions"
 
   def dataType = schemaOf[TileDimensions]
 
@@ -42,6 +49,6 @@ case class GetDimensions(child: Expression) extends OnCellGridExpression with Co
 }
 
 object GetDimensions {
-  def apply(col: Column): Column =
+  def apply(col: Column): TypedColumn[Any, TileDimensions] =
     new Column(new GetDimensions(col.expr)).as[TileDimensions]
 }

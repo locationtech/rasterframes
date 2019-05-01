@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes
 
+import org.apache.spark.sql.rf._
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Literal
 
@@ -43,7 +44,12 @@ package object encoders {
   /** Constructs a catalyst literal expression from anything with a serializer. */
   def SerializedLiteral[T >: Null: CatalystSerializer](t: T): Literal = {
     val ser = CatalystSerializer[T]
-    Literal.create(ser.toInternalRow(t), ser.schema)
+    val schema = ser.schema match {
+      case s if s.conformsTo(TileType.sqlType) => TileType
+      case s if s.conformsTo(RasterSourceType.sqlType) => RasterSourceType
+      case s => s
+    }
+    Literal.create(ser.toInternalRow(t), schema)
   }
 
   /** Constructs a Dataframe literal column from anything with a serializer. */

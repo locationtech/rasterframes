@@ -43,7 +43,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
        ..."""
 )
 case class Multiply(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "local_multiply"
+  override val nodeName: String = "rf_local_multiply"
   override protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
   override protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
   override protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)

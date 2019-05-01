@@ -147,7 +147,7 @@ object LocalStatsAggregate {
 
   def apply(col: Column): TypedColumn[Any, LocalCellStatistics] =
     new Column(LocalStatsAggregateUDAF(col.expr))
-      .as(s"agg_local_stats($col)")
+      .as(s"rf_agg_local_stats($col)")
       .as[LocalCellStatistics]
 
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
@@ -164,7 +164,7 @@ object LocalStatsAggregate {
   class LocalStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
     extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalStatsAggregate()), Complete, false, NamedExpression.newExprId)
-    override def nodeName: String = "agg_local_stats"
+    override def nodeName: String = "rf_agg_local_stats"
   }
   object LocalStatsAggregateUDAF {
     def apply(child: Expression): LocalStatsAggregateUDAF = new LocalStatsAggregateUDAF(child)

@@ -59,26 +59,26 @@ class StatsComputeBench extends SparkEnv {
 
 //  @Benchmark
 //  def computeStats(): Array[CellStatistics] = {
-//    tiles.select(agg_stats($"tile")).collect()
+//    tiles.select(rf_agg_stats($"tile")).collect()
 //  }
 
   @Benchmark
   def computeHistogram(): Array[CellHistogram] = {
-    tiles.select(agg_approx_histogram($"tile")).collect()
+    tiles.select(rf_agg_approx_histogram($"tile")).collect()
   }
 
 //  @Benchmark
 //  def extractMean(): Array[Double] = {
-//    tiles.select(agg_stats($"tile").getField("mean")).map(_.getDouble(0)).collect()
+//    tiles.select(rf_agg_stats($"tile").getField("mean")).map(_.getDouble(0)).collect()
 //  }
 //
 //  @Benchmark
 //  def directMean(): Array[Double] = {
-//    tiles.repartition(10).select(agg_mean($"tile")).collect()
+//    tiles.repartition(10).select(rf_agg_mean($"tile")).collect()
 //  }
 
 //  @Benchmark
 //  def computeCounts() = {
-//    tiles.toDF("tile").select(data_cells($"tile") as "counts").agg(sum($"counts")).collect()
+//    tiles.toDF("tile").select(rf_data_cells($"tile") as "counts").agg(sum($"counts")).collect()
 //  }
 }

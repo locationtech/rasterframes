@@ -47,7 +47,7 @@ import org.locationtech.rasterframes.util.DataBiasedOp.BiasedAdd
 )
 case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
   with CodegenFallback {
-  override val nodeName: String = "local_add"
+  override val nodeName: String = "rf_local_add"
   override protected def op(left: Tile, right: Tile): Tile = BiasedAdd(left, right)
   override protected def op(left: Tile, right: Double): Tile = BiasedAdd(left, right)
   override protected def op(left: Tile, right: Int): Tile = BiasedAdd(left, right)

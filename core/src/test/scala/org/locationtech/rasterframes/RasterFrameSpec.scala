@@ -35,6 +35,7 @@ import geotrellis.spark.tiling._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.locationtech.rasterframes.model.TileDimensions
 
 import scala.util.control.NonFatal
 
@@ -87,11 +88,9 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       assert(rf.schema.head.metadata.json.contains("tileLayout"))
 
       assert(
-        rf.select(tile_dimensions($"tile"))
-          .as[Tuple1[(Int, Int)]]
-          .map(_._1)
+        rf.select(rf_dimensions($"tile"))
           .collect()
-          .forall(_ == (10, 10))
+          .forall(_ == TileDimensions(10, 10))
       )
 
       assert(rf.count() === 4)

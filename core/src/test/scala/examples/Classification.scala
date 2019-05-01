@@ -73,7 +73,7 @@ object Classification extends App {
     .toRF(tileSize, tileSize, targetCol)
 
   // Take a peek at what kind of label data we have to work with.
-  target.select(agg_stats(target(targetCol))).show
+  target.select(rf_agg_stats(target(targetCol))).show
 
   val abt = joinedRF.spatialJoin(target)
 
@@ -141,7 +141,7 @@ object Classification extends App {
   val tlm = joinedRF.tileLayerMetadata.left.get
 
   val retiled = scored.groupBy($"spatial_key").agg(
-    assemble_tile(
+    rf_assemble_tile(
       $"column_index", $"row_index", $"prediction",
       tlm.tileCols, tlm.tileRows, IntConstantNoDataCellType
     )

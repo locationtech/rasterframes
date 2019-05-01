@@ -33,12 +33,10 @@ class L8DataSource extends DataSourceRegister with RelationProvider {
   override def shortName(): String = L8DataSource.SHORT_NAME
 
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    val useTiling = parameters.get(L8DataSource.USE_TILING).exists(_.toBoolean)
-    L8Relation(sqlContext, useTiling)
+    L8Relation(sqlContext)
   }
 }
 
 object L8DataSource {
   final val SHORT_NAME = "awsl8"
-  final val USE_TILING = "useTiling"
 }

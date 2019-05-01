@@ -79,7 +79,7 @@ object LocalTileOpAggregate {
   )
   class LocalMinUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMin)), Complete, false, NamedExpression.newExprId)
-    override def nodeName: String = "agg_local_min"
+    override def nodeName: String = "rf_agg_local_min"
   }
   object LocalMinUDAF {
     def apply(child: Expression): LocalMinUDAF = new LocalMinUDAF(child)
@@ -91,7 +91,7 @@ object LocalTileOpAggregate {
   )
   class LocalMaxUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMax)), Complete, false, NamedExpression.newExprId)
-    override def nodeName: String = "agg_local_max"
+    override def nodeName: String = "rf_agg_local_max"
   }
   object LocalMaxUDAF {
     def apply(child: Expression): LocalMaxUDAF = new LocalMaxUDAF(child)

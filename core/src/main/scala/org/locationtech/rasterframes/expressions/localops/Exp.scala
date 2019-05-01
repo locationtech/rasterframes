@@ -41,7 +41,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
        ..."""
 )
 case class Exp(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "exp"
+  override val nodeName: String = "rf_exp"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E)
 
@@ -63,7 +63,7 @@ object Exp {
        ..."""
 )
 case class Exp10(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "log10"
+  override val nodeName: String = "rf_log10"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(10.0)
 
@@ -84,7 +84,7 @@ object Exp10 {
        ..."""
 )
 case class Exp2(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "exp2"
+  override val nodeName: String = "rf_exp2"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(2.0)
 
@@ -105,7 +105,7 @@ object Exp2{
        ..."""
 )
 case class ExpM1(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "expm1"
+  override val nodeName: String = "rf_expm1"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E).localSubtract(1.0)
 
