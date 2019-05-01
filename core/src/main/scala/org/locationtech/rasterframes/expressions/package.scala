@@ -64,6 +64,7 @@ package object expressions {
 
     registry.registerExpression[Add]("rf_local_add")
     registry.registerExpression[Subtract]("rf_local_subtract")
+    registry.registerExpression[TileAssembler]("rf_assemble_tile")
     registry.registerExpression[ExplodeTiles]("rf_explode_tiles")
     registry.registerExpression[GetCellType]("rf_cell_type")
     registry.registerExpression[SetCellType]("rf_convert_cell_type")

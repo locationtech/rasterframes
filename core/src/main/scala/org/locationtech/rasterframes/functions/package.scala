@@ -68,6 +68,10 @@ package object functions {
     }
   }
 
+  private[rasterframes] val arrayToTile: (Array[_], Int, Int) ⇒ Tile = (a, cols, rows) ⇒ {
+    arrayToTile(cols, rows).apply(a)
+  }
+
   /** Set the tile's no-data value. */
   private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
 
@@ -85,6 +89,8 @@ package object functions {
       case ct: DoubleCells ⇒ DoubleConstantTile(value.doubleValue(), cols, rows, ct)
     }
   }
+
+
 
   /** Alias for constant tiles of zero */
   private[rasterframes] val tileZeros: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
@@ -143,7 +149,8 @@ package object functions {
 
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)
-
     sqlContext.udf.register("st_reproject", reprojectGeometryCRSName)
+    sqlContext.udf.register("rf_array_to_tile", arrayToTile)
+
   }
 }

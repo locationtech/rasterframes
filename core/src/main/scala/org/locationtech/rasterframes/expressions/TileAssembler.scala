@@ -28,7 +28,7 @@ import org.locationtech.rasterframes.util._
 import geotrellis.raster.{DataType => _, _}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.aggregate.{ImperativeAggregate, TypedImperativeAggregate}
-import org.apache.spark.sql.catalyst.expressions.{Expression, ImplicitCastInputTypes}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, ImplicitCastInputTypes}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 import spire.syntax.cfor._
@@ -39,6 +39,24 @@ import org.locationtech.rasterframes.TileType
  *
  * @since 9/24/17
  */
+@ExpressionDescription(
+  usage = "_FUNC_(colIndex, rowIndex, cellValue, tileCols, tileRows) - Assemble tiles from set of column and row indices and cell values.",
+  arguments = """
+  Arguments:
+    * colIndex - column to place the cellValue in the generated tile
+    * rowIndex - row to place the cellValue in the generated tile
+    * cellValue - numeric value to place in the generated tile at colIndex and rowIndex
+    * tileCols - number of columns in the generated tile
+    * tileRows - number of rows in the generated tile""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(column_index, row_index, cell0, 10, 10) as tile;
+       ...
+    > SELECT _FUNC_(column_index, row_index, tile, 10, 10) as tile2
+      FROM (SELECT rf_explode_tiles(rf_make_constant_tile(4, 10, 10, 'int8raw')) as tile)
+      ...
+             """
+)
 case class TileAssembler(
   colIndex: Expression,
   rowIndex: Expression,
@@ -49,11 +67,17 @@ case class TileAssembler(
   inputAggBufferOffset: Int = 0)
     extends TypedImperativeAggregate[TileBuffer] with ImplicitCastInputTypes {
 
+  def this(colIndex: Expression,
+           rowIndex: Expression,
+           cellValue: Expression,
+           tileCols: Expression,
+           tileRows: Expression) = this(colIndex, rowIndex, cellValue, tileCols, tileRows, 0, 0)
+
   override def children: Seq[Expression] = Seq(colIndex, rowIndex, cellValue, tileCols, tileRows)
 
   override def inputTypes = Seq(ShortType, ShortType, DoubleType, ShortType, ShortType)
 
-  override def prettyName: String = "assemble_tiles"
+  override def prettyName: String = "rf_assemble_tiles"
 
   override def withNewMutableAggBufferOffset(newMutableAggBufferOffset: Int): ImperativeAggregate =
     copy(mutableAggBufferOffset = newMutableAggBufferOffset)

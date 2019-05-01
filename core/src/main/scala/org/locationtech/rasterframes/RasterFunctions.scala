@@ -274,15 +274,27 @@ trait RasterFunctions {
       udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)
     )
 
-  /** Reproject a column of geometry from one CRS to another. */
+  /** Reproject a column of geometry from one CRS to another.
+    * @param sourceGeom Geometry column to reproject
+    * @param srcCRS Native CRS of `sourceGeom` as a literal
+    * @param dstCRSCol Destination CRS as a column
+    */
   def st_reproject(sourceGeom: Column, srcCRS: CRS, dstCRSCol: Column): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRS, dstCRSCol)
 
-  /** Reproject a column of geometry from one CRS to another. */
-  def st_reproject(sourceGeom: Column, srcCRSCol: Column, dstCRS: CRS): TypedColumn[Any, Geometry] =
+  /** Reproject a column of geometry from one CRS to another.
+    * @param sourceGeom Geometry column to reproject
+    * @param srcCRSCol Native CRS of `sourceGeom` as a column
+    * @param dstCRS Destination CRS as a literal
+    */
+    def st_reproject(sourceGeom: Column, srcCRSCol: Column, dstCRS: CRS): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRSCol, dstCRS)
 
-  /** Reproject a column of geometry from one CRS to another. */
+  /** Reproject a column of geometry from one CRS to another.
+    * @param sourceGeom Geometry column to reproject
+    * @param srcCRS Native CRS of `sourceGeom` as a literal
+    * @param dstCRS Destination CRS as a literal
+    */
   def st_reproject(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRS, dstCRS)
 

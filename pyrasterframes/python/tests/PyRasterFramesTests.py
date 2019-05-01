@@ -120,7 +120,7 @@ class RasterFunctionsTest(unittest.TestCase):
         withRaster.show()
 
     def test_reproject(self):
-        reprojected = self.rf.withColumn('reprojected', rf_reproject_geometry('center', 'EPSG:4326', 'EPSG:3857'))
+        reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
         reprojected.show()
 
     def test_aggregations(self):

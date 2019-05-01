@@ -69,7 +69,6 @@ jobs:
       - restore_cache:
           <<: *restore_cache
 
-      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
       - run: cat /dev/null | sbt test
 
       - run: *unsetenv
@@ -85,7 +84,6 @@ jobs:
       - restore_cache:
           <<: *restore_cache
 
-      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
       - run: cat /dev/null | sbt test
       - run: cat /dev/null | sbt publish
 
