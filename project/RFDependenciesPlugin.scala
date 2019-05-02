@@ -59,6 +59,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "2.3.2",
     rfGeoTrellisVersion := "2.2.0",
-    rfGeoMesaVersion := "2.2.1"
+    rfGeoMesaVersion := "2.2.1",
+    dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.bf51177"
   )
 }
