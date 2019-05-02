@@ -7,8 +7,8 @@ In this example we will do some simple cell clustering based on multiband imager
 First some setup:
 
 ```tut:silent
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.ml.TileExploder
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.ml.TileExploder
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.raster._
 import geotrellis.raster.render._
@@ -119,7 +119,7 @@ First, we get the DataFrame back into RasterFrame form:
 val tlm = joinedRF.tileLayerMetadata.left.get
 
 val retiled = clustered.groupBy($"spatial_key").agg(
-  assemble_tile(
+  rf_assemble_tile(
     $"column_index", $"row_index", $"prediction",
     tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType
   )

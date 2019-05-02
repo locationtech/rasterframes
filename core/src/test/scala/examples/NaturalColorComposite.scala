@@ -20,11 +20,8 @@
 package examples
 
 
-import java.nio.file.{CopyOption, StandardCopyOption}
-
+import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.raster.{MultibandTile, UByteConstantNoDataCellType}
-import geotrellis.raster.io.geotiff.{GeoTiff, SinglebandGeoTiff}
-import geotrellis.raster.render._
 
 /**
  *

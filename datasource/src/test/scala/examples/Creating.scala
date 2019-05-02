@@ -22,8 +22,6 @@ package examples
 import java.io.File
 import java.nio.file.Files
 
-import geotrellis.raster.{Raster, Tile}
-
 /**
  * Examples of creating RasterFrames
  *
@@ -39,7 +37,7 @@ There are a couple of setup steps necessary anytime you want to work with Raster
 
 */
 // tut:silent
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import org.apache.spark.sql._
 
 
@@ -58,7 +56,6 @@ And, ss is standard Spark SQL practice, we import additional DataFrame support:
 */
 
 // tut:silent
-import spark.implicits._
 // tut:invisible
 spark.sparkContext.setLogLevel("ERROR")
 
@@ -75,7 +72,7 @@ designed for this purpose.
 First add the following import:
 */
 
-import astraea.spark.rasterframes.datasource.geotiff._
+import org.locationtech.rasterframes.datasource.geotiff._
 /*
 (This is what adds the `.geotiff` method to `spark.read` below.)
 
@@ -124,7 +121,7 @@ Before we show how all of this works we need to have a GeoTrellis layer to work 
 constructed above.
 
  */
-import astraea.spark.rasterframes.datasource.geotrellis._
+import org.locationtech.rasterframes.datasource.geotrellis._
 
 val base = Files.createTempDirectory("rf-").toUri
 val layer = Layer(base, "sample", 0)

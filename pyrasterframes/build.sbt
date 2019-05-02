@@ -110,6 +110,8 @@ val pysparkCmd = taskKey[Unit]("Builds pyspark package and emits command string 
 
 lazy val pyTest = taskKey[Int]("Run pyrasterframes tests. Return result code.")
 
+lazy val pyTestQuick = taskKey[Int]("Run pyrasterframes tests, skipping build and assembly. Return result code.")
+
 lazy val pyExamples = taskKey[Unit]("Run pyrasterframes examples.")
 
 lazy val pyWheel = taskKey[Unit]("Creates a Python .whl file")
@@ -153,6 +155,13 @@ ivyPaths in pysparkCmd := ivyPaths.value.withIvyHome(target.value / "ivy")
 pyTest := {
   val _ = assembly.value
   val s = streams.value
+  s.log.info("Running python tests...")
+  val wd = pythonSource.value
+  Process("python setup.py test", wd).!
+}
+
+pyTestQuick := {
+    val s = streams.value
   s.log.info("Running python tests...")
   val wd = pythonSource.value
   Process("python setup.py test", wd).!

@@ -23,12 +23,12 @@ package org.apache.spark.sql.rf
 
 import java.nio.ByteBuffer
 
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.ref.RasterSource
-import astraea.spark.rasterframes.util.KryoSupport
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _}
+import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.locationtech.rasterframes.ref.RasterSource
+import org.locationtech.rasterframes.util.KryoSupport
 
 /**
  * Catalyst representation of a RasterSource.
@@ -44,7 +44,7 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
 
   def userClass: Class[RasterSource] = classOf[RasterSource]
 
-  override def sqlType: DataType = CatalystSerializer[RasterSource].schema
+  override def sqlType: DataType = schemaOf[RasterSource]
 
   override def serialize(obj: RasterSource): InternalRow =
     Option(obj)
@@ -65,7 +65,7 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
   }
 }
 
-object RasterSourceUDT extends RasterSourceUDT {
+object RasterSourceUDT {
   UDTRegistration.register(classOf[RasterSource].getName, classOf[RasterSourceUDT].getName)
 
   implicit val rasterSourceSerializer: CatalystSerializer[RasterSource] = new CatalystSerializer[RasterSource] {

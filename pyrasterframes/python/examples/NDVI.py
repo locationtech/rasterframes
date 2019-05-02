@@ -22,7 +22,7 @@ nirBand = spark.read.geotiff(resource_dir.joinpath('L8-B5-Elkton-VA.tiff').as_ur
 
 #py_ndvi_column
 rf = redBand.asRF().spatialJoin(nirBand.asRF()) \
-    .withColumn("ndvi", normalized_difference('red_band', 'nir_band'))
+    .withColumn("ndvi", rf_normalized_difference('red_band', 'nir_band'))
 rf.printSchema()
 rf.show(20)
 #py_ndvi_column

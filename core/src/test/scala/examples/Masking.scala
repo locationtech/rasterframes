@@ -1,12 +1,11 @@
 package examples
 
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import org.apache.spark.sql._
-import geotrellis.raster.{mask => _, _}
 import geotrellis.raster.render._
+import geotrellis.raster.{mask => _, _}
+import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import astraea.spark.rasterframes.stats.{CellHistogram=>CH}
 
 object Masking extends App {
 
@@ -34,9 +33,9 @@ object Masking extends App {
 
   val withMaskedTile = joinedRF.withColumn("maskTile", threshold(joinedRF("band_1"))).asRF
 
-  withMaskedTile.select(no_data_cells(withMaskedTile("maskTile"))).show()
+  withMaskedTile.select(rf_no_data_cells(withMaskedTile("maskTile"))).show()
 
-  val masked = withMaskedTile.withColumn("masked", mask(joinedRF("band_2"), joinedRF("maskTile"))).asRF
+  val masked = withMaskedTile.withColumn("masked", rf_mask(joinedRF("band_2"), joinedRF("maskTile"))).asRF
 
   val maskRF = masked.toRaster(masked("masked"), 466, 428)
   val b2 = masked.toRaster(masked("band_2"), 466, 428)

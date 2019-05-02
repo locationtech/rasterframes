@@ -7,7 +7,7 @@ There are a couple of setup steps necessary anytime you want to work with Raster
 
 
 ```tut:silent
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import org.apache.spark.sql._
 ```
 
@@ -46,7 +46,7 @@ First add the following import:
 
 
 ```tut:silent
-import astraea.spark.rasterframes.datasource.geotiff._
+import org.locationtech.rasterframes.datasource.geotiff._
 import java.io.File
 ```
 
@@ -95,7 +95,7 @@ Before we show how all of this works we need to have a GeoTrellis layer to work 
 
 
 ```tut:silent
-import astraea.spark.rasterframes.datasource.geotrellis._
+import org.locationtech.rasterframes.datasource.geotrellis._
 import java.nio.file.Files
 
 val base = Files.createTempDirectory("rf-").toUri

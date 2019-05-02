@@ -16,10 +16,10 @@ class RFContext(object):
         self._gateway = spark_session.sparkContext._gateway
         self._jvm = self._gateway.jvm
         jsess = self._spark_session._jsparkSession
-        self._jrfctx = self._jvm.astraea.spark.rasterframes.py.PyRFContext(jsess)
+        self._jrfctx = self._jvm.org.locationtech.rasterframes.py.PyRFContext(jsess)
 
     def list_to_seq(self, py_list):
-        conv = self.lookup('listToSeq')
+        conv = self.lookup('_listToSeq')
         return conv(py_list)
 
     def lookup(self, function_name):

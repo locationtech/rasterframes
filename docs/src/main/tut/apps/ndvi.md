@@ -1,7 +1,7 @@
 # Computing NDVI
 
 ```tut:invisible
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.raster._
 import geotrellis.raster.render._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
@@ -30,7 +30,7 @@ def redBand = SinglebandGeoTiff("../core/src/test/resources/L8-B4-Elkton-VA.tiff
 def nirBand = SinglebandGeoTiff("../core/src/test/resources/L8-B5-Elkton-VA.tiff").projectedRaster.toRF("nir_band")
 
 // We use `asRF` to indicate we know the structure still conforms to RasterFrame constraints
-val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", normalized_difference($"red_band", $"nir_band")).asRF
+val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", rf_normalized_difference($"red_band", $"nir_band")).asRF
 
 val pr = rf.toRaster($"ndvi", 466, 428)
 

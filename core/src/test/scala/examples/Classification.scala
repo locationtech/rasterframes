@@ -19,8 +19,8 @@
 
 package examples
 
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.ml.{NoDataFilter, TileExploder}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.ml.TileExploder
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.render.{ColorRamps, IndexedColorMap}
@@ -30,6 +30,7 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.sql._
+import org.locationtech.rasterframes.ml.{NoDataFilter, TileExploder}
 
 object Classification extends App {
 
@@ -72,7 +73,7 @@ object Classification extends App {
     .toRF(tileSize, tileSize, targetCol)
 
   // Take a peek at what kind of label data we have to work with.
-  target.select(agg_stats(target(targetCol))).show
+  target.select(rf_agg_stats(target(targetCol))).show
 
   val abt = joinedRF.spatialJoin(target)
 
@@ -140,7 +141,7 @@ object Classification extends App {
   val tlm = joinedRF.tileLayerMetadata.left.get
 
   val retiled = scored.groupBy($"spatial_key").agg(
-    assemble_tile(
+    rf_assemble_tile(
       $"column_index", $"row_index", $"prediction",
       tlm.tileCols, tlm.tileRows, IntConstantNoDataCellType
     )

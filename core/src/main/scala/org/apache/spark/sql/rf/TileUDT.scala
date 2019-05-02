@@ -20,14 +20,14 @@
  */
 
 package org.apache.spark.sql.rf
-
-import astraea.spark.rasterframes.encoders.CatalystSerializer
-import astraea.spark.rasterframes.encoders.CatalystSerializer._
-import astraea.spark.rasterframes.model.{Cells, TileDataContext}
-import astraea.spark.rasterframes.tiles.InternalRowTile
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.model.TileDataContext
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
+import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.locationtech.rasterframes.model.{Cells, TileDataContext}
+import org.locationtech.rasterframes.tiles.InternalRowTile
 
 
 /**
@@ -44,7 +44,7 @@ class TileUDT extends UserDefinedType[Tile] {
 
   def userClass: Class[Tile] = classOf[Tile]
 
-  def sqlType: StructType = CatalystSerializer[Tile].schema
+  def sqlType: StructType = schemaOf[Tile]
 
   override def serialize(obj: Tile): InternalRow =
     Option(obj)
@@ -74,11 +74,10 @@ case object TileUDT  {
   final val typeName: String = "tile"
 
   implicit def tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
-    import scala.language.reflectiveCalls
 
     override def schema: StructType = StructType(Seq(
-      StructField("cell_context", CatalystSerializer[TileDataContext].schema, false),
-      StructField("cell_data", CatalystSerializer[Cells].schema, false)
+      StructField("cell_context", schemaOf[TileDataContext], false),
+      StructField("cell_data", schemaOf[Cells], false)
     ))
 
     override def to[R](t: Tile, io: CatalystIO[R]): R = io.create(

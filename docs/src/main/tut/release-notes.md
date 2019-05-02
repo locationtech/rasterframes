@@ -4,17 +4,31 @@
 
 ### 0.8.0
 
-* Added new tile functions `round`, `log`, `log10`, `log2`, `log1p`, `exp`, `exp10`, `exp2`, `expm1`, `resample`, `resample`.
+* Upgraded to the following core dependencies: Spark 2.3.2, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.
+* Added new tile functions `rf_round`, `rf_log`, `rf_log10`, `rf_log2`, `rf_log1p`, `rf_exp`, `rf_exp10`, `rf_exp2`, `rf_expm1`, `rf_resample`.
+* Support python-side [Shapely](https://pypi.org/project/Shapely/) geometry User-Defined Type.
+* SQL API support for: `rf_assemble_tile`, `rf_array_to_tile`.
 * Introduced at the source level the concept of a `RasterSource` and `RasterRef`, enabling lazy/delayed read of sub-scene tiles.
-* _Deprecation_: Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow `snake_case` conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.
 * Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
+* Added `rf_render_matrix` debugging function.
+* Added `RasterFrame.withExtent` extension method.
+* Added `st_extent` (for `Geometry` types) and `rf_extent` (for `ProjectedRasterTile` and `RasterSource` columns).
+* Added `st_geometry` (for `Extent` types) and `rf_geometry` (for `ProjectedRasterTile` and `RasterSource` columns).
+* _Breaking_: Root package changed from `org.locationtech.rasterframes` to `org.locationtech.rasterframes`.
+* _Breaking_: Removed `envelope`, in lieu of `st_extent`, `rf_extent` or `st_envelope` 
+* _Breaking_: Renamed `rf_extent_geometry` to `st_geometry`
+* _Breaking_: Renamed `rf_tile_dimensions` to `rf_dimensions`
+* _Breaking_: Renamed `rf_reproject_geometry` to `st_reproject`
+* _Breaking_: With the upgrade to JTS 1.16.0, all imports of `com.vividsolutions.jts` need to be changed to `org.locationtech.jts`.
+* _Deprecation_: Tile column functions (in `RasterFunctions`) and SQL registered names have all been renamed to follow `snake_case` conventions, with an `rf_` prefix, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.
 * _Breaking_: In Scala and SQL, `..._scalar` functions (e.g. `local_add_scalar`) have been removed. Non-scalar forms now dynamically detect type of right hand side.
-* _Breaking_: `tileToArray` has been replaced with `tile_to_array_double` and `tile_to_array_int`. 
-* Added `render_matrix` debugging function.
-* _Breaking_: renamed `agg_histogram` to `agg_approx_histogram`, `local_agg_stats` to `agg_local_stats`, `local_agg_max` to `agg_local_max`, `local_agg_min` to `agg_local_min`, `local_agg_mean` to `agg_local_mean`, `local_agg_data_cells` to `agg_local_data_cells`, `local_agg_no_data_cells` to `agg_local_no_data_cells`.
-* _Breaking_: `CellHistogram` no longer carries along approximate statistics, due to confusing behavior. Use `agg_stats` instead.
+* _Breaking_: `tileToArray` has been replaced with `_tile_to_array_double` and `_tile_to_array_int`.
+* _Breaking_: Renamed `bounds_geometry` to `rf_extent_geometry`.
+* _Breaking_: renamed `agg_histogram` to `rf_agg_approx_histogram`, `local_agg_stats` to `rf_agg_local_stats`, `local_agg_max` to `rf_agg_local_max`, `local_agg_min` to `rf_agg_local_min`, `local_agg_mean` to `rf_agg_local_mean`, `local_agg_data_cells` to `rf_agg_local_data_cells`, `local_agg_no_data_cells` to `rf_agg_local_no_data_cells`.
+* _Breaking_: `CellHistogram` no longer carries along approximate statistics, due to confusing behavior. Use `rf_agg_stats` instead.
 * Introduced `LocalCellStatistics` class to wrap together results from `LocalStatsAggregate`.
-* _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `astraea.spark.rasterframes.model`.
+* _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `org.locationtech.rasterframes.model`.
+* _Breaking_: Renamed `RasterFrame.withBounds` to `RasterFrame.withGeometry` for consistency with DataSource schemas.
    
 ## 0.7.x
 

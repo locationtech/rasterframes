@@ -1,4 +1,4 @@
-astraea.spark.rasterframes.experimental.datasource.geojson.GeoJsonDataSource
-astraea.spark.rasterframes.experimental.datasource.awspds.L8CatalogDataSource
-astraea.spark.rasterframes.experimental.datasource.awspds.MODISCatalogDataSource
-astraea.spark.rasterframes.experimental.datasource.awspds.L8DataSource
+org.locationtech.rasterframes.experimental.datasource.geojson.GeoJsonDataSource
+org.locationtech.rasterframes.experimental.datasource.awspds.L8CatalogDataSource
+org.locationtech.rasterframes.experimental.datasource.awspds.MODISCatalogDataSource
+org.locationtech.rasterframes.experimental.datasource.awspds.L8DataSource

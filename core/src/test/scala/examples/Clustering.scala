@@ -19,8 +19,7 @@
 
 package examples
 
-import astraea.spark.rasterframes._
-import astraea.spark.rasterframes.ml.TileExploder
+import org.locationtech.rasterframes._
 import geotrellis.raster.ByteConstantNoDataCellType
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.render.{ColorRamps, IndexedColorMap}
@@ -28,6 +27,7 @@ import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.sql._
+import org.locationtech.rasterframes.ml.TileExploder
 
 object Clustering extends App {
 
@@ -89,7 +89,7 @@ object Clustering extends App {
   val tlm = joinedRF.tileLayerMetadata.left.get
 
   val retiled = clustered.groupBy($"spatial_key").agg(
-    assemble_tile(
+    rf_assemble_tile(
       $"column_index", $"row_index", $"prediction",
       tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType)
   )

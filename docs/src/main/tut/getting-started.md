@@ -44,6 +44,13 @@ It assumes that SparkSQL 2.3.x is available in the runtime classpath. Here's how
   version="2.3.2"
 }
 
+
+Until GeoTrellis 3.0 is released, the following artifact resolver needs to be added to your build.
+
+```scala
+resolvers += "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis"
+```
+  
 @@@ note
 Most of the following examples are shown using the Spark DataFrames API. However, many could also be rewritten to use the Spark SQL API instead. We hope to add more examples in that form in the future.
 @@@

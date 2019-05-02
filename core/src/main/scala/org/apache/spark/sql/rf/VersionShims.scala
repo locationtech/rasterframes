@@ -1,18 +1,18 @@
 package org.apache.spark.sql.rf
 
-import java.lang.reflect.{Constructor, Method}
+import java.lang.reflect.Constructor
 
 import org.apache.spark.sql.catalyst.FunctionIdentifier
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
-import org.apache.spark.sql.catalyst.analysis.FunctionRegistry.{FunctionBuilder, expressionInfo}
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistry.FunctionBuilder
 import org.apache.spark.sql.catalyst.catalog.CatalogTable
-import org.apache.spark.sql.{AnalysisException, DataFrame, Dataset, SQLContext}
-import org.apache.spark.sql.catalyst.expressions.{AttributeReference, BinaryExpression, Expression, ExpressionDescription, ExpressionInfo, RuntimeReplaceable, ScalaUDF}
 import org.apache.spark.sql.catalyst.expressions.objects.{Invoke, InvokeLike}
+import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, ExpressionDescription, ExpressionInfo}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.sources.BaseRelation
 import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.{AnalysisException, DataFrame, Dataset, SQLContext}
 
 import scala.reflect._
 import scala.util.{Failure, Success, Try}

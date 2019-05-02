@@ -38,7 +38,7 @@ class RasterFunctionsTest(unittest.TestCase):
             .config('spark.driver.extraClassPath', jarpath)
             .config('spark.executor.extraClassPath', jarpath)
             .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-            .config("spark.kryo.registrator", "astraea.spark.rasterframes.util.RFKryoRegistrator")
+            .config("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator")
             .config("spark.kryoserializer.buffer.max", "500m")
             .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
@@ -52,7 +52,7 @@ class RasterFunctionsTest(unittest.TestCase):
 
         # convert the tile cell type to provide for other operations
         cls.tileCol = 'tile'
-        cls.rf = rf.withColumn('tile2', convert_cell_type(cls.tileCol, 'float32')) \
+        cls.rf = rf.withColumn('tile2', rf_convert_cell_type(cls.tileCol, 'float32')) \
             .drop(cls.tileCol) \
             .withColumnRenamed('tile2', cls.tileCol).asRF()
         #cls.rf.show()
@@ -69,76 +69,83 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertIsNone(col, '`temporalKeyColumn` should be `None`')
         print("Temporal key column: ", col)
 
+    def test_tile_creation(self):
+        base = self.spark.createDataFrame([1, 2, 3, 4], 'integer')
+        tiles = base.select(rf_make_constant_tile(3, 3, 3, "int32"), rf_make_zeros_tile(3, 3, "int32"), rf_make_ones_tile(3, 3, "int32"))
+        tiles.show()
+        self.assertEqual(tiles.count(), 4)
 
     def test_tile_operations(self):
         df1 = self.rf.withColumnRenamed(self.tileCol, 't1').asRF()
         df2 = self.rf.withColumnRenamed(self.tileCol, 't2').asRF()
         df3 = df1.spatialJoin(df2).asRF()
-        df3 = df3.withColumn('norm_diff', normalized_difference('t1', 't2'))
+        df3 = df3.withColumn('norm_diff', rf_normalized_difference('t1', 't2'))
         df3.printSchema()
 
         aggs = df3.agg(
-            agg_mean('norm_diff'),
+            rf_agg_mean('norm_diff'),
         )
         aggs.show()
         row = aggs.first()
 
-        self.assertTrue(_rounded_compare(row['agg_mean(norm_diff)'], 0))
+        self.assertTrue(_rounded_compare(row['rf_agg_mean(norm_diff)'], 0))
 
 
     def test_general(self):
         meta = self.rf.tileLayerMetadata()
         self.assertIsNotNone(meta['bounds'])
-        df = self.rf.withColumn('dims',  tile_dimensions(self.tileCol)) \
-            .withColumn('type', cell_type(self.tileCol)) \
-            .withColumn('dCells', data_cells(self.tileCol)) \
-            .withColumn('ndCells', no_data_cells(self.tileCol)) \
-            .withColumn('min', tile_min(self.tileCol)) \
-            .withColumn('max', tile_max(self.tileCol)) \
-            .withColumn('mean', tile_mean(self.tileCol)) \
-            .withColumn('sum', tile_sum(self.tileCol)) \
-            .withColumn('stats', tile_stats(self.tileCol)) \
-            .withColumn('envelope', envelope('bounds')) \
-            .withColumn('ascii', render_ascii(self.tileCol)) \
-            .withColumn('log', log(self.tileCol)) \
-            .withColumn('exp', exp(self.tileCol)) \
-            .withColumn('expm1', expm1(self.tileCol)) \
-            .withColumn('round', round(self.tileCol))
-
+        df = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)) \
+            .withColumn('type', rf_cell_type(self.tileCol)) \
+            .withColumn('dCells', rf_data_cells(self.tileCol)) \
+            .withColumn('ndCells', rf_no_data_cells(self.tileCol)) \
+            .withColumn('min', rf_tile_min(self.tileCol)) \
+            .withColumn('max', rf_tile_max(self.tileCol)) \
+            .withColumn('mean', rf_tile_mean(self.tileCol)) \
+            .withColumn('sum', rf_tile_sum(self.tileCol)) \
+            .withColumn('stats', rf_tile_stats(self.tileCol)) \
+            .withColumn('extent', st_extent('geometry')) \
+            .withColumn('extent_geom1', st_geometry('extent')) \
+            .withColumn('ascii', rf_render_ascii(self.tileCol)) \
+            .withColumn('log', rf_log(self.tileCol)) \
+            .withColumn('exp', rf_exp(self.tileCol)) \
+            .withColumn('expm1', rf_expm1(self.tileCol)) \
+            .withColumn('round', rf_round(self.tileCol))
+        # TODO: add test for rf_extent and rf_geometry once rastersource connector is integrated and we have
+        #  a source of ProjectedRasterTiles.
         df.show()
 
     def test_rasterize(self):
-        # NB: This test just makes sure rasterize runs, not that the results are correct.
-        withRaster = self.rf.withColumn('rasterize', rasterize('bounds', 'bounds', lit(42), 10, 10))
+        # NB: This test just makes sure rf_rasterize runs, not that the results are correct.
+        withRaster = self.rf.withColumn('rasterized', rf_rasterize('geometry', 'geometry', lit(42), 10, 10))
         withRaster.show()
 
     def test_reproject(self):
-        reprojected = self.rf.withColumn('reprojected', reproject_geometry('center', 'EPSG:4326', 'EPSG:3857'))
+        reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
         reprojected.show()
 
     def test_aggregations(self):
         aggs = self.rf.agg(
-            agg_mean(self.tileCol),
-            agg_data_cells(self.tileCol),
-            agg_no_data_cells(self.tileCol),
-            agg_stats(self.tileCol),
-            agg_approx_histogram(self.tileCol)
+            rf_agg_mean(self.tileCol),
+            rf_agg_data_cells(self.tileCol),
+            rf_agg_no_data_cells(self.tileCol),
+            rf_agg_stats(self.tileCol),
+            rf_agg_approx_histogram(self.tileCol)
         )
         aggs.show()
         row = aggs.first()
 
-        self.assertTrue(_rounded_compare(row['agg_mean(tile)'], 10160))
-        print(row['agg_data_cells(tile)'])
-        self.assertEqual(row['agg_data_cells(tile)'], 387000)
-        self.assertEqual(row['agg_no_data_cells(tile)'], 1000)
-        self.assertEqual(row['agg_stats(tile)'].data_cells, row['agg_data_cells(tile)'])
+        self.assertTrue(_rounded_compare(row['rf_agg_mean(tile)'], 10160))
+        print(row['rf_agg_data_cells(tile)'])
+        self.assertEqual(row['rf_agg_data_cells(tile)'], 387000)
+        self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
+        self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
 
     def test_sql(self):
 
         self.rf.createOrReplaceTempView("rf")
 
-        dims = self.rf.withColumn('dims', tile_dimensions(self.tileCol)).first().dims
+        dims = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)).first().dims
         dims_str = """{}, {}""".format(dims.cols, dims.rows)
 
         self.spark.sql("""SELECT tile, rf_make_constant_tile(1, {}, 'uint16') AS One, 
@@ -152,11 +159,11 @@ class RasterFunctionsTest(unittest.TestCase):
                                 FROM r3""")
 
         ops.printSchema
-        statsRow = ops.select(tile_mean(self.tileCol).alias('base'),
-                           tile_mean("AndOne").alias('plus_one'),
-                           tile_mean("LessOne").alias('minus_one'),
-                           tile_mean("TimesTwo").alias('double'),
-                           tile_mean("OverTwo").alias('half')) \
+        statsRow = ops.select(rf_tile_mean(self.tileCol).alias('base'),
+                           rf_tile_mean("AndOne").alias('plus_one'),
+                           rf_tile_mean("LessOne").alias('minus_one'),
+                           rf_tile_mean("TimesTwo").alias('double'),
+                           rf_tile_mean("OverTwo").alias('half')) \
                         .first()
 
         self.assertTrue(_rounded_compare(statsRow.base, statsRow.plus_one - 1))
@@ -166,12 +173,12 @@ class RasterFunctionsTest(unittest.TestCase):
 
     def test_explode(self):
         import pyspark.sql.functions as F
-        self.rf.select('spatial_key', explode_tiles(self.tileCol)).show()
+        self.rf.select('spatial_key', rf_explode_tiles(self.tileCol)).show()
         # +-----------+------------+---------+-------+
         # |spatial_key|column_index|row_index|tile   |
         # +-----------+------------+---------+-------+
         # |[2,1]      |4           |0        |10150.0|
-        cell = self.rf.select(self.rf.spatialKeyColumn(), explode_tiles(self.rf.tile)) \
+        cell = self.rf.select(self.rf.spatialKeyColumn(), rf_explode_tiles(self.rf.tile)) \
             .where(F.col("spatial_key.col")==2) \
             .where(F.col("spatial_key.row")==1) \
             .where(F.col("column_index")==4) \
@@ -182,7 +189,7 @@ class RasterFunctionsTest(unittest.TestCase):
 
         # Test the sample version
         frac = 0.01
-        sample_count = self.rf.select(explode_tiles_sample(frac, 1872, self.tileCol)).count()
+        sample_count = self.rf.select(rf_explode_tiles_sample(frac, 1872, self.tileCol)).count()
         print('Sample count is {}'.format(sample_count))
         self.assertTrue(sample_count > 0)
         self.assertTrue(sample_count < (frac * 1.1) * 387000)  # give some wiggle room
@@ -195,13 +202,13 @@ class RasterFunctionsTest(unittest.TestCase):
         mask_value = 4
 
         rf1 = self.rf.select(self.rf.tile,
-                             local_multiply(
-                                 convert_cell_type(
-                                     local_greater_scalar_int(self.rf.tile, 25000),
+                             rf_local_multiply(
+                                 rf_convert_cell_type(
+                                     rf_local_greater_int(self.rf.tile, 25000),
                                      "uint8"),
                                   lit(mask_value)).alias('mask'))
-        rf2 = rf1.select(rf1.tile, mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
-        result = rf2.agg(agg_no_data_cells(rf2.tile) < agg_no_data_cells(rf2.masked)) \
+        rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
+        result = rf2.agg(rf_agg_no_data_cells(rf2.tile) < rf_agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]
         self.assertTrue(result)
 
@@ -209,8 +216,8 @@ class RasterFunctionsTest(unittest.TestCase):
     def test_resample(self):
         from pyspark.sql.functions import lit
         result = self.rf.select(
-            tile_min(local_equal(
-                resample(resample(self.rf.tile, lit(2)), lit(0.5)),
+            rf_tile_min(rf_local_equal(
+                rf_resample(rf_resample(self.rf.tile, lit(2)), lit(0.5)),
                 self.rf.tile))
         ).collect()[0][0]
 
@@ -333,6 +340,5 @@ class RasterFunctionsTest(unittest.TestCase):
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
-
 
 unittest.TextTestRunner().run(suite())
