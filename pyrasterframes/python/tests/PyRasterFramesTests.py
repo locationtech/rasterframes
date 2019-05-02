@@ -223,6 +223,19 @@ class RasterFunctionsTest(unittest.TestCase):
 
         self.assertTrue(result == 1)  # short hand for all values are true
 
+    def test_exists_for_all(self):
+        df = self.rf.withColumn('should_exist', rf_make_ones_tile(5, 5, 'int8')) \
+            .withColumn('should_not_exist', rf_make_zeros_tile(5, 5, 'int8'))
+
+        should_exist = df.select(rf_exists(df.should_exist).alias('se')).take(1)[0].se
+        self.assertTrue(should_exist)
+
+        should_not_exist = df.select(rf_exists(df.should_not_exist).alias('se')).take(1)[0].se
+        self.assertTrue(not should_not_exist)
+
+        self.assertTrue(df.select(rf_for_all(df.should_exist).alias('se')).take(1)[0].se)
+        self.assertTrue(not df.select(rf_for_all(df.should_not_exist).alias('se')).take(1)[0].se)
+
 
     def test_geomesa_pyspark(self):
         from pyspark.sql.functions import lit, udf, sum

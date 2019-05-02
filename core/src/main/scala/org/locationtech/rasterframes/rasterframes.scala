@@ -22,6 +22,7 @@
 package org.locationtech
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
+import geotrellis.raster.isData
 import geotrellis.raster.{Tile, TileFeature}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
@@ -134,4 +135,9 @@ package object rasterframes extends StandardColumns
       override val selfType: TypeTag[SpaceTimeKey] = implicitly
     }
   }
+
+  /** Test if a cell value evaluates to true: it is not NoData and it is non-zero */
+  def isCellTrue(v: Double): Boolean =  isData(v) & v != 0.0
+  /** Test if a cell value evaluates to true: it is not NoData and it is non-zero */
+  def isCellTrue(v: Int): Boolean =  isData(v) & v != 0
 }
