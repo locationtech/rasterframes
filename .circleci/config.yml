@@ -5,7 +5,8 @@ _defaults: &defaults
   environment:
     TERM: dumb
   docker:
-    - image: circleci/openjdk:8-jdk
+#    - image: circleci/openjdk:8-jdk
+    - image: s22s/rasterframes-circleci:latest
       
 _setenv: &setenv
   name: set CloudRepo credentials
