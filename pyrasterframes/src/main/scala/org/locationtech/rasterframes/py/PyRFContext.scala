@@ -156,7 +156,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def rf_local_unequal_int(col: Column, scalar: Int): Column = rf_local_unequal[Int](col, scalar)
 
-  def rf_reproject_geometry(geometryCol: Column, srcName: String, dstName: String): Column = {
+  def st_reproject(geometryCol: Column, srcName: String, dstName: String): Column = {
     val src = LazyCRS(srcName)
     val dst = LazyCRS(dstName)
     st_reproject(geometryCol, src, dst)

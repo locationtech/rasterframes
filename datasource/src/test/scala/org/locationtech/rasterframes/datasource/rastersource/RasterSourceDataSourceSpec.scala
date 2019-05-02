@@ -140,7 +140,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
       val df = spark.read.rastersource
         .fromTable("pathsTable", "B1", "B2", "B3")
-//        .withTileDimensions(128, 128)
+        .withTileDimensions(128, 128)
         .load()
 
       df.schema.size should be(6)
