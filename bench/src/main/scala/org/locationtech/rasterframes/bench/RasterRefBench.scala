@@ -23,17 +23,14 @@ package org.locationtech.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.transformers.RasterSourceToTiles
-import org.locationtech.rasterframes.ref.RasterSource
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs}
+import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.ref.RasterSource
 import org.openjdk.jmh.annotations._
-/**
- *
- *
- * @since 11/1/18
- */
+
 @BenchmarkMode(Array(Mode.AverageTime))
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -47,17 +44,18 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
   def setupData(): Unit = {
     val r1 = RasterSource(remoteCOGSingleband1)
     val r2 = RasterSource(remoteCOGSingleband2)
+
     singleDF = Seq((r1, r2)).toDF("B1", "B2")
-      .select(RasterSourceToTiles(false, $"B1", $"B2"))
+      .select(RasterRefToTile(RasterSourceToRasterRefs(Some(TileDimensions(r1.dimensions)), Seq(0), $"B1", $"B2")))
 
     expandedDF = Seq((r1, r2)).toDF("B1", "B2")
-      .select(RasterSourceToTiles(true, $"B1", $"B2"))
+      .select(RasterRefToTile(RasterSourceToRasterRefs($"B1", $"B2")))
   }
 
   @Benchmark
   def computeDifferenceExpanded() = {
     expandedDF
-      .select(normalized_difference($"B1", $"B2"))
+      .select(rf_normalized_difference($"B1", $"B2"))
       .cache()
       .count()
   }
@@ -65,24 +63,24 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
   @Benchmark
   def computeDifferenceSingle() = {
     singleDF
-      .select(normalized_difference($"B1", $"B2"))
+      .select(rf_normalized_difference($"B1", $"B2"))
       .cache()
       .count()
   }
 
   @Benchmark
   def computeStatsSingle() = {
-    singleDF.select(agg_stats($"B1")).collect()
+    singleDF.select(rf_agg_stats($"B1")).collect()
   }
 
   @Benchmark
   def computeStatsExpanded() = {
-    expandedDF.select(agg_stats($"B1")).collect()
+    expandedDF.select(rf_agg_stats($"B1")).collect()
   }
 
   @Benchmark
   def computeDifferenceStats() = {
-    singleDF.select(agg_stats(normalized_difference($"B1", $"B2"))).collect()
+    singleDF.select(rf_agg_stats(rf_normalized_difference($"B1", $"B2"))).collect()
   }
 
 }

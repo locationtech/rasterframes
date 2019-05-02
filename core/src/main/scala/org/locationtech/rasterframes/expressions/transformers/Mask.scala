@@ -97,7 +97,7 @@ object Mask {
   )
   case class MaskByDefined(target: Expression, mask: Expression)
     extends Mask(target, mask, Literal(0), false) {
-    override def nodeName: String = "mask"
+    override def nodeName: String = "rf_mask"
   }
   object MaskByDefined {
     def apply(targetTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
@@ -117,7 +117,7 @@ object Mask {
   )
   case class InverseMaskByDefined(leftTile: Expression, rightTile: Expression)
     extends Mask(leftTile, rightTile, Literal(0), true) {
-    override def nodeName: String = "inverse_mask"
+    override def nodeName: String = "rf_inverse_mask"
   }
   object InverseMaskByDefined {
     def apply(srcTile: Column, maskingTile: Column): TypedColumn[Any, Tile] =
@@ -137,7 +137,7 @@ object Mask {
   )
   case class MaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression)
     extends Mask(leftTile, rightTile, maskValue, false) {
-    override def nodeName: String = "mask_by_value"
+    override def nodeName: String = "rf_mask_by_value"
   }
   object MaskByValue {
     def apply(srcTile: Column, maskingTile: Column, maskValue: Column): TypedColumn[Any, Tile] =

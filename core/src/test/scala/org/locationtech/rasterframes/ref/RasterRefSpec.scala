@@ -110,12 +110,12 @@ class RasterRefSpec extends TestEnvironment with TestData {
     }
   }
 
-  describe("GetExtent Expression") {
+  describe("rf_extent") {
     it("should read from RasterRef") {
       import spark.implicits._
       new Fixture {
         val ds = Seq((1, fullRaster)).toDF("index", "ref")
-        val extent = ds.select(GetExtent($"ref"))
+        val extent = ds.select(rf_extent($"ref"))
         assert(extent.count() === 1)
         assert(extent.first() !== null)
       }
@@ -124,7 +124,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       import spark.implicits._
       new Fixture {
         val ds = Seq((1, subRaster)).toDF("index", "ref")
-        val extent = ds.select(GetExtent($"ref"))
+        val extent = ds.select(rf_extent($"ref"))
         assert(extent.count() === 1)
         assert(extent.first() !== null)
       }

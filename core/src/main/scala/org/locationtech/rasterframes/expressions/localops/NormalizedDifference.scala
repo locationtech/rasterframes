@@ -42,7 +42,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
        ..."""
 )
 case class NormalizedDifference(left: Expression, right: Expression) extends BinaryRasterOp with CodegenFallback {
-  override val nodeName: String = "normalized_difference"
+  override val nodeName: String = "rf_normalized_difference"
   override protected def op(left: Tile, right: Tile): Tile = {
     val diff = fpTile(left.localSubtract(right))
     val sum = fpTile(left.localAdd(right))

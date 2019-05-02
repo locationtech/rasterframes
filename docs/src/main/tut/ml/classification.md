@@ -78,7 +78,7 @@ val target = readTiff(filenamePattern.format("Labels")).
 Take a peek at what kind of label data we have to work with.
 
 ```tut
-target.select(agg_stats(target(targetCol))).show
+target.select(rf_agg_stats(target(targetCol))).show
 ```
 
 Join the target label RasterFrame with the band tiles to create our analytics base table
@@ -186,7 +186,7 @@ First, we get the DataFrame back into RasterFrame form:
 val tlm = joinedRF.tileLayerMetadata.left.get
 
 val retiled = scored.groupBy($"spatial_key").agg(
-  assemble_tile(
+  rf_assemble_tile(
     $"column_index", $"row_index", $"prediction",
     tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType
   )

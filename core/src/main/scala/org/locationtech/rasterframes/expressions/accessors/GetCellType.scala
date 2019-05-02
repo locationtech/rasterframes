@@ -35,7 +35,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  */
 case class GetCellType(child: Expression) extends OnCellGridExpression with CodegenFallback {
 
-  override def nodeName: String = "cell_type"
+  override def nodeName: String = "rf_cell_type"
 
   def dataType: DataType = schemaOf[CellType]
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */

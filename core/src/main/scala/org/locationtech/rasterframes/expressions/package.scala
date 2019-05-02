@@ -21,23 +21,22 @@
 
 package org.locationtech.rasterframes
 
+import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
+import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
+import org.apache.spark.sql.rf.VersionShims._
+import org.apache.spark.sql.{SQLContext, rf}
 import org.locationtech.rasterframes.expressions.accessors._
+import org.locationtech.rasterframes.expressions.aggstats.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggstats._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
-import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
-import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
-import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
-import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
-import org.apache.spark.sql.rf.VersionShims._
-import org.apache.spark.sql.{SQLContext, rf}
-import org.locationtech.rasterframes.expressions.aggstats.CellCountAggregate.DataCells
-import org.locationtech.rasterframes.expressions.localops._
 
-import scala.util.Try
 import scala.reflect.runtime.universe._
+import scala.util.Try
 /**
  * Module of Catalyst expressions for efficiently working with tiles.
  *
@@ -68,9 +67,11 @@ package object expressions {
     registry.registerExpression[ExplodeTiles]("rf_explode_tiles")
     registry.registerExpression[GetCellType]("rf_cell_type")
     registry.registerExpression[SetCellType]("rf_convert_cell_type")
-    registry.registerExpression[GetDimensions]("rf_tile_dimensions")
-    registry.registerExpression[ExtentToGeometry]("rf_extent_geometry")
+    registry.registerExpression[GetDimensions]("rf_dimensions")
+    registry.registerExpression[ExtentToGeometry]("st_geometry")
+    registry.registerExpression[GetGeometry]("rf_geometry")
     registry.registerExpression[GeometryToExtent]("st_extent")
+    registry.registerExpression[GetExtent]("rf_extent")
     registry.registerExpression[Subtract]("rf_local_subtract")
     registry.registerExpression[Multiply]("rf_local_multiply")
     registry.registerExpression[Divide]("rf_local_divide")

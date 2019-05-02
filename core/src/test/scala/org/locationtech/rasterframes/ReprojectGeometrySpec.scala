@@ -60,9 +60,9 @@ class ReprojectGeometrySpec extends FunSpec
         val df = Seq((latLng, webMercator)).toDF("ll", "wm")
 
         val rp = df.select(
-          reproject_geometry($"ll", LatLng, WebMercator) as "wm2",
-          reproject_geometry($"wm", WebMercator, LatLng) as "ll2",
-          reproject_geometry(reproject_geometry($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
+          st_reproject($"ll", LatLng, WebMercator) as "wm2",
+          st_reproject($"wm", WebMercator, LatLng) as "ll2",
+          st_reproject(st_reproject($"ll", LatLng, Sinusoidal), Sinusoidal, WebMercator) as "wm3"
         ).as[(Geometry, Geometry, Geometry)]
 
 
@@ -79,9 +79,9 @@ class ReprojectGeometrySpec extends FunSpec
         val df = Seq((latLng, webMercator, LatLng: CRS)).toDF("ll", "wm", "llCRS")
 
         val rp = df.select(
-          reproject_geometry($"ll", $"llCRS", WebMercator) as "wm2",
-          reproject_geometry($"wm", WebMercator, $"llCRS") as "ll2",
-          reproject_geometry(reproject_geometry($"ll", $"llCRS", Sinusoidal), Sinusoidal, WebMercator) as "wm3"
+          st_reproject($"ll", $"llCRS", WebMercator) as "wm2",
+          st_reproject($"wm", WebMercator, $"llCRS") as "ll2",
+          st_reproject(st_reproject($"ll", $"llCRS", Sinusoidal), Sinusoidal, WebMercator) as "wm3"
         ).as[(Geometry, Geometry, Geometry)]
 
 

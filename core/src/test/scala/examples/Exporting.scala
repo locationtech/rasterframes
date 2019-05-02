@@ -52,17 +52,17 @@ object Exporting extends App {
   //  The @scaladoc[`tile_to_array`][tile_to_array] column function requires a type parameter to indicate the array element
   //  type you would like used. The following types may be used: `Int`, `Double`, `Byte`, `Short`, `Float`
 
-  val withArrays = rf.withColumn("tileData", tile_to_array_int($"tile")).drop("tile")
+  val withArrays = rf.withColumn("tileData", rf_tile_to_array_int($"tile")).drop("tile")
   withArrays.show(5, 40)
 
   //  You can convert the data back to an array, but you have to specify the target tile dimensions.
 
-  val tileBack = withArrays.withColumn("tileAgain", array_to_tile($"tileData", 128, 128))
+  val tileBack = withArrays.withColumn("tileAgain", rf_array_to_tile($"tileData", 128, 128))
   tileBack.drop("tileData").show(5, 40)
 
   //  Note that the created tile will not have a `NoData` value associated with it. Here's how you can do that:
 
-  val tileBackAgain = withArrays.withColumn("tileAgain", with_no_data(array_to_tile($"tileData", 128, 128), 3))
+  val tileBackAgain = withArrays.withColumn("tileAgain", rf_with_no_data(rf_array_to_tile($"tileData", 128, 128), 3))
   tileBackAgain.drop("tileData").show(5, 50)
 
   //  ## Writing to Parquet
@@ -78,8 +78,8 @@ object Exporting extends App {
   val equalized = rf.withColumn("equalized", equalizer($"tile")).asRF
 
   equalized.printSchema
-  equalized.select(agg_stats($"tile")).show(false)
-  equalized.select(agg_stats($"equalized")).show(false)
+  equalized.select(rf_agg_stats($"tile")).show(false)
+  equalized.select(rf_agg_stats($"equalized")).show(false)
 
 
   //  We write it out just like any other DataFrame, including the ability to specify partitioning:
@@ -98,8 +98,8 @@ object Exporting extends App {
   val rf2 = spark.read.parquet(filePath)
 
   rf2.printSchema
-  equalized.select(agg_stats($"tile")).show(false)
-  equalized.select(agg_stats($"equalized")).show(false)
+  equalized.select(rf_agg_stats($"tile")).show(false)
+  equalized.select(rf_agg_stats($"equalized")).show(false)
 
   //  ## Converting to `RDD` and `TileLayerRDD`
   //

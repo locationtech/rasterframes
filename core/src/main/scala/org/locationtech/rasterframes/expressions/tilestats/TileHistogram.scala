@@ -44,7 +44,7 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class TileHistogram(child: Expression) extends UnaryRasterOp
   with CodegenFallback {
-  override def nodeName: String = "tile_histogram"
+  override def nodeName: String = "rf_tile_histogram"
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     TileHistogram.converter(TileHistogram.op(tile))
   override def dataType: DataType = CellHistogram.schema

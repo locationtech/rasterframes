@@ -41,7 +41,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
          ....
   """)
 case class CellMeanAggregate(child: Expression) extends UnaryRasterAggregate {
-  override def nodeName: String = "agg_mean"
+  override def nodeName: String = "rf_agg_mean"
 
   private lazy val sum =
     AttributeReference("sum", DoubleType, false, Metadata.empty)()
@@ -58,7 +58,7 @@ case class CellMeanAggregate(child: Expression) extends UnaryRasterAggregate {
   // Cant' figure out why we can't just use the Expression directly
   // this is necessary to properly handle null rows. For example,
   // if we use `tilestats.Sum` directly, we get an NPE when the stage is executed.
-  private val DataCellCounts = tileOpAsExpression("data_cells", DataCells.op)
+  private val DataCellCounts = tileOpAsExpression("rf_data_cells", DataCells.op)
   private val SumCells = tileOpAsExpression("sum_cells", Sum.op)
 
   override val updateExpressions = Seq(

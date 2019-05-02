@@ -99,7 +99,7 @@ object HistogramAggregate {
 
   def apply(col: Column): TypedColumn[Any, CellHistogram] =
     new Column(new HistogramAggregateUDAF(col.expr))
-      .as(s"agg_approx_histogram($col)") // node renaming in class doesn't seem to propogate
+      .as(s"rf_agg_approx_histogram($col)") // node renaming in class doesn't seem to propogate
       .as[CellHistogram]
 
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
@@ -116,7 +116,7 @@ object HistogramAggregate {
   class HistogramAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
     extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new HistogramAggregate()), Complete, false, NamedExpression.newExprId)
-    override def nodeName: String = "agg_approx_histogram"
+    override def nodeName: String = "rf_agg_approx_histogram"
   }
   object HistogramAggregateUDAF {
     def apply(child: Expression): HistogramAggregateUDAF = new HistogramAggregateUDAF(child)

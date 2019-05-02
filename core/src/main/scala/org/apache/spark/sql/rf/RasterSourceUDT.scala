@@ -65,7 +65,7 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
   }
 }
 
-object RasterSourceUDT extends RasterSourceUDT {
+object RasterSourceUDT {
   UDTRegistration.register(classOf[RasterSource].getName, classOf[RasterSourceUDT].getName)
 
   implicit val rasterSourceSerializer: CatalystSerializer[RasterSource] = new CatalystSerializer[RasterSource] {

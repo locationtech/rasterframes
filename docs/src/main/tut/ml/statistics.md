@@ -28,7 +28,7 @@ RasterFrames has a number of extension methods and columnar functions for perfor
 Get the nominal tile dimensions. Depending on the tiling there may be some tiles with different sizes on the edges.
 
 ```tut
-rf.select(rf.spatialKeyColumn, tile_dimensions($"tile")).show(3)
+rf.select(rf.spatialKeyColumn, rf_tile_dimensions($"tile")).show(3)
 ```
 
 ### Descriptive Statistics
@@ -38,16 +38,15 @@ rf.select(rf.spatialKeyColumn, tile_dimensions($"tile")).show(3)
 Count the numer of `NoData` and non-`NoData` cells in each tile.
 
 ```tut
-rf.select(rf.spatialKeyColumn, no_data_cells($"tile"), data_cells($"tile")).show(3)
+rf.select(rf.spatialKeyColumn, rf_no_data_cells($"tile"), rf_data_cells($"tile")).show(3)
 ```
 
 #### Tile Mean
 
-Compute the mean value in each tile. Use `tileMean` for integral cell types, and `tileMeanDouble` for floating point
-cell types.
+Compute the mean value in each tile.
  
 ```tut
-rf.select(rf.spatialKeyColumn, tile_mean($"tile")).show(3)
+rf.select(rf.spatialKeyColumn, rf_tile_mean($"tile")).show(3)
 ```
 
 #### Tile Summary Statistics
@@ -56,7 +55,7 @@ Compute a suite of summary statistics for each tile. Use `tile_stats` for integr
 for floating point cell types.
 
 ```tut
-rf.withColumn("stats", tile_stats($"tile")).select(rf.spatialKeyColumn, $"stats.*").show(3)
+rf.withColumn("stats", rf_tile_stats($"tile")).select(rf.spatialKeyColumn, $"stats.*").show(3)
 ```
 
 ### Histogram
@@ -66,22 +65,22 @@ The `tile_histogram` function computes a histogram over the data in each tile.
 In this example we compute quantile breaks.
 
 ```tut
-rf.select(tile_histogram($"tile")).map(_.quantileBreaks(5)).show(5, false)
+rf.select(rf_tile_histogram($"tile")).map(_.quantileBreaks(5)).show(5, false)
 ```
 
 ## Aggregate Statistics
 
-The `agg_stats` function computes the same summary statistics as `tile_stats`, but aggregates them over the whole 
+The `rf_agg_stats` function computes the same summary statistics as `rf_tile_stats`, but aggregates them over the whole 
 RasterFrame.
 
 ```tut
-rf.select(agg_stats($"tile")).show()
+rf.select(rf_agg_stats($"tile")).show()
 ```
 
 A more involved example: extract bin counts from a computed `Histogram`.
 
 ```tut
-rf.select(agg_approx_histogram($"tile")).
+rf.select(rf_agg_approx_histogram($"tile")).
   map(h => for(v <- h.labels) yield(v, h.itemCount(v))).
   select(explode($"value") as "counts").
   select("counts._1", "counts._2").

@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class DataCells(child: Expression) extends UnaryRasterOp
   with CodegenFallback with NullToValue {
-  override def nodeName: String = "data_cells"
+  override def nodeName: String = "rf_data_cells"
   override def dataType: DataType = LongType
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = DataCells.op(tile)
   override def na: Any = 0L

@@ -21,22 +21,22 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
-import org.locationtech.rasterframes.expressions.OnTileContextExpression
-import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.rasterframes.encoders.StandardEncoders.jtsGeometryEncoder
+import org.locationtech.rasterframes.expressions.OnTileContextExpression
 import org.locationtech.rasterframes.model.TileContext
 
 /**
- * Expression to extract the Extent out of a RasterSource or ProjectedRasterTile column.
- *
- * @since 9/10/18
- */
+  * Expression to extract the Extent out of a RasterSource or ProjectedRasterTile column.
+  *
+  * @since 9/10/18
+  */
 @ExpressionDescription(
   usage = "_FUNC_(raster) - Fetches the extent (bounding box or envelope) of a ProjectedRasterTile or RasterSource.",
   examples = """
@@ -44,13 +44,14 @@ import org.locationtech.rasterframes.model.TileContext
       > SELECT _FUNC_(raster);
          ....
   """)
-case class GetExtent(child: Expression) extends OnTileContextExpression with CodegenFallback {
-  override def dataType: DataType = schemaOf[Extent]
-  override def nodeName: String = "rf_extent"
-  override def eval(ctx: TileContext): InternalRow = ctx.extent.toInternalRow
+case class GetGeometry(child: Expression) extends OnTileContextExpression with CodegenFallback {
+  override def dataType: DataType = JTSTypes.GeometryTypeInstance
+  override def nodeName: String = "rf_geometry"
+  override def eval(ctx: TileContext): InternalRow =
+    JTSTypes.GeometryTypeInstance.serialize(ctx.extent.jtsGeom)
 }
 
-object GetExtent {
-  def apply(col: Column): TypedColumn[Any, Extent] =
-    new Column(new GetExtent(col.expr)).as[Extent]
+object GetGeometry {
+  def apply(col: Column): TypedColumn[Any, Geometry] =
+    new Column(GetGeometry(col.expr)).as[Geometry]
 }

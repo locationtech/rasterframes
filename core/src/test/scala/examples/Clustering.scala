@@ -89,7 +89,7 @@ object Clustering extends App {
   val tlm = joinedRF.tileLayerMetadata.left.get
 
   val retiled = clustered.groupBy($"spatial_key").agg(
-    assemble_tile(
+    rf_assemble_tile(
       $"column_index", $"row_index", $"prediction",
       tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType)
   )

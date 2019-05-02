@@ -47,7 +47,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 )
 case class Resample(left: Expression, right: Expression) extends BinaryLocalRasterOp
   with CodegenFallback {
-  override val nodeName: String = "resample"
+  override val nodeName: String = "rf_resample"
   override protected def op(left: Tile, right: Tile): Tile = left.resample(right.cols, right.rows, NearestNeighbor)
   override protected def op(left: Tile, right: Double): Tile = left.resample((left.cols * right).toInt,
                                                                              (left.rows * right).toInt, NearestNeighbor)

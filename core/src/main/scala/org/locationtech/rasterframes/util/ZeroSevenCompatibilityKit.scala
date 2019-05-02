@@ -53,7 +53,7 @@ object ZeroSevenCompatibilityKit {
     // format: off
     /** Create a row for each cell in Tile. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def explodeTiles(cols: Column*): Column = delegate.explode_tiles(cols: _*)
+    def explodeTiles(cols: Column*): Column = delegate.rf_explode_tiles(cols: _*)
 
     /** Create a row for each cell in Tile with random sampling and optional seed. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -72,7 +72,7 @@ object ZeroSevenCompatibilityKit {
     @Experimental
     /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def arrayToTile(arrayCol: Column, cols: Int, rows: Int) = withAlias("array_to_tile", arrayCol)(
+    def arrayToTile(arrayCol: Column, cols: Int, rows: Int) = withAlias("rf_array_to_tile", arrayCol)(
       udf[Tile, AnyRef](F.arrayToTile(cols, rows)).apply(arrayCol)
     )
 
@@ -112,11 +112,11 @@ object ZeroSevenCompatibilityKit {
 
     /**  Compute the full column aggregate floating point histogram. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.agg_approx_histogram(col)
+    def aggHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.rf_agg_approx_histogram(col)
 
     /** Compute the full column aggregate floating point statistics. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggStats(col: Column): TypedColumn[Any, CellStatistics] = delegate.agg_stats(col)
+    def aggStats(col: Column): TypedColumn[Any, CellStatistics] = delegate.rf_agg_stats(col)
 
     /** Computes the column aggregate mean. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -124,101 +124,101 @@ object ZeroSevenCompatibilityKit {
 
     /** Computes the number of non-NoData cells in a column. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggDataCells(col: Column): TypedColumn[Any, Long] = delegate.agg_data_cells(col)
+    def aggDataCells(col: Column): TypedColumn[Any, Long] = delegate.rf_agg_data_cells(col)
 
     /** Computes the number of NoData cells in a column. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def aggNoDataCells(col: Column): TypedColumn[Any, Long] = delegate.agg_no_data_cells(col)
+    def aggNoDataCells(col: Column): TypedColumn[Any, Long] = delegate.rf_agg_no_data_cells(col)
 
     /** Compute the Tile-wise mean */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileMean(col: Column): TypedColumn[Any, Double] = delegate.tile_mean(col)
+    def tileMean(col: Column): TypedColumn[Any, Double] = delegate.rf_tile_mean(col)
 
     /** Compute the Tile-wise sum */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileSum(col: Column): TypedColumn[Any, Double] = delegate.tile_sum(col)
+    def tileSum(col: Column): TypedColumn[Any, Double] = delegate.rf_tile_sum(col)
 
     /** Compute the minimum cell value in tile. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileMin(col: Column): TypedColumn[Any, Double] = delegate.tile_min(col)
+    def tileMin(col: Column): TypedColumn[Any, Double] = delegate.rf_tile_min(col)
 
     /** Compute the maximum cell value in tile. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileMax(col: Column): TypedColumn[Any, Double] = delegate.tile_max(col)
+    def tileMax(col: Column): TypedColumn[Any, Double] = delegate.rf_tile_max(col)
 
     /** Compute TileHistogram of Tile values. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.tile_histogram(col)
+    def tileHistogram(col: Column): TypedColumn[Any, CellHistogram] = delegate.rf_tile_histogram(col)
 
     /** Compute statistics of Tile values. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def tileStats(col: Column): TypedColumn[Any, CellStatistics] = delegate.tile_stats(col)
+    def tileStats(col: Column): TypedColumn[Any, CellStatistics] = delegate.rf_tile_stats(col)
 
     /** Counts the number of non-NoData cells per Tile. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def dataCells(tile: Column): TypedColumn[Any, Long] = delegate.data_cells(tile)
+    def dataCells(tile: Column): TypedColumn[Any, Long] = delegate.rf_data_cells(tile)
 
     /** Counts the number of NoData cells per Tile. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def noDataCells(tile: Column): TypedColumn[Any, Long] = delegate.no_data_cells(tile)
+    def noDataCells(tile: Column): TypedColumn[Any, Long] = delegate.rf_no_data_cells(tile)
 
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def isNoDataTile(tile: Column): TypedColumn[Any, Boolean] = delegate.is_no_data_tile(tile)
+    def isNoDataTile(tile: Column): TypedColumn[Any, Boolean] = delegate.rf_is_no_data_tile(tile)
 
     /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggStats(col: Column): Column = delegate.agg_local_stats(col)
+    def localAggStats(col: Column): Column = delegate.rf_agg_local_stats(col)
 
     /** Compute the cell-wise/local max operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggMax(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_max(col)
+    def localAggMax(col: Column): TypedColumn[Any, Tile] = delegate.rf_agg_local_max(col)
 
     /** Compute the cellwise/local min operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggMin(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_min(col)
+    def localAggMin(col: Column): TypedColumn[Any, Tile] = delegate.rf_agg_local_min(col)
 
     /** Compute the cellwise/local mean operation between Tiles in a column. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggMean(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_mean(col)
+    def localAggMean(col: Column): TypedColumn[Any, Tile] = delegate.rf_agg_local_mean(col)
 
     /** Compute the cellwise/local count of non-NoData cells for all Tiles in a column. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggDataCells(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_data_cells(col)
+    def localAggDataCells(col: Column): TypedColumn[Any, Tile] = delegate.rf_agg_local_data_cells(col)
 
     /** Compute the cellwise/local count of NoData cells for all Tiles in a column. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAggNoDataCells(col: Column): TypedColumn[Any, Tile] = delegate.agg_local_no_data_cells(col)
+    def localAggNoDataCells(col: Column): TypedColumn[Any, Tile] = delegate.rf_agg_local_no_data_cells(col)
 
     /** Cellwise addition between two Tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAdd(left: Column, right: Column): Column = delegate.local_add(left, right)
+    def localAdd(left: Column, right: Column): Column = delegate.rf_local_add(left, right)
 
     /** Cellwise addition of a scalar to a tile. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localAddScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_add(tileCol, value)
+    def localAddScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_add(tileCol, value)
 
     /** Cellwise subtraction between two Tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localSubtract(left: Column, right: Column): Column = delegate.local_subtract(left, right)
+    def localSubtract(left: Column, right: Column): Column = delegate.rf_local_subtract(left, right)
 
     /** Cellwise subtraction of a scalar from a tile. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localSubtractScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_subtract(tileCol, value)
+    def localSubtractScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_subtract(tileCol, value)
     /** Cellwise multiplication between two Tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localMultiply(left: Column, right: Column): Column = delegate.local_multiply(left, right)
+    def localMultiply(left: Column, right: Column): Column = delegate.rf_local_multiply(left, right)
 
     /** Cellwise multiplication of a tile by a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localMultiplyScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_multiply(tileCol, value)
+    def localMultiplyScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_multiply(tileCol, value)
 
     /** Cellwise division between two Tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localDivide(left: Column, right: Column): Column = delegate.local_divide(left, right)
+    def localDivide(left: Column, right: Column): Column = delegate.rf_local_divide(left, right)
 
     /** Cellwise division of a tile by a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localDivideScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_divide(tileCol, value)
+    def localDivideScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_divide(tileCol, value)
     /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def localAlgebra(op: LocalTileBinaryOp, left: Column, right: Column):
@@ -229,7 +229,7 @@ object ZeroSevenCompatibilityKit {
 
     /** Compute the normalized difference of two tile columns */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def normalizedDifference(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.normalized_difference(left, right)
+    def normalizedDifference(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.rf_normalized_difference(left, right)
 
     /** Constructor for constant tile column */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
@@ -249,73 +249,73 @@ object ZeroSevenCompatibilityKit {
     /** Where the mask tile equals the mask value, replace values in the source tile with NODATA */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def maskByValue(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
-      delegate.mask_by_value(sourceTile, maskTile, maskValue)
+      delegate.rf_mask_by_value(sourceTile, maskTile, maskValue)
 
     /** Where the mask tile DOES NOT contain NODATA, replace values in the source tile with NODATA */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def inverseMask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
-      delegate.inverse_mask(sourceTile, maskTile)
+      delegate.rf_inverse_mask(sourceTile, maskTile)
 
     /** Reproject a column of geometry from one CRS to another. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def reprojectGeometry(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
-      delegate.reproject_geometry(sourceGeom, srcCRS, dstCRS)
+      delegate.st_reproject(sourceGeom, srcCRS, dstCRS)
 
     /** Render Tile as ASCII string for debugging purposes. */
     @Experimental
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def renderAscii(col: Column): TypedColumn[Any, String] = delegate.render_ascii(col)
+    def renderAscii(col: Column): TypedColumn[Any, String] = delegate.rf_render_ascii(col)
 
     /** Cellwise less than value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def localLess(left: Column, right: Column): TypedColumn[Any, Tile] =
-      delegate.local_less(left, right)
+      delegate.rf_local_less(left, right)
 
 
     /** Cellwise less than value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localLessScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_less(tileCol, value)
+    def localLessScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_less(tileCol, value)
 
     /** Cellwise less than or equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localLessEqual(left: Column, right: Column): TypedColumn[Any, Tile]  = delegate.local_less_equal(left, right)
+    def localLessEqual(left: Column, right: Column): TypedColumn[Any, Tile]  = delegate.rf_local_less_equal(left, right)
 
     /** Cellwise less than or equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localLessEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_less_equal(tileCol, value)
+    def localLessEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_less_equal(tileCol, value)
 
     /** Cellwise greater than value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
     def localGreater(left: Column, right: Column): TypedColumn[Any, Tile] =
-      delegate.local_greater(left, right)
+      delegate.rf_local_greater(left, right)
 
     /** Cellwise greater than value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localGreaterScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_greater(tileCol, value)
+    def localGreaterScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_greater(tileCol, value)
 
     /** Cellwise greater than or equal to value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localGreaterEqual(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.local_greater_equal(left, right)
+    def localGreaterEqual(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.rf_local_greater_equal(left, right)
 
     /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localGreaterEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_greater_equal(tileCol, value)
+    def localGreaterEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_greater_equal(tileCol, value)
 
     /** Cellwise equal to value comparison between two tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localEqual(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.local_equal(left, right)
+    def localEqual(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.rf_local_equal(left, right)
 
     /** Cellwise equal to value comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_equal(tileCol, value)
+    def localEqualScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_equal(tileCol, value)
 
     /** Cellwise inequality comparison between two tiles. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localUnequal(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.local_unequal(left, right)
+    def localUnequal(left: Column, right: Column): TypedColumn[Any, Tile] = delegate.rf_local_unequal(left, right)
 
     /** Cellwise inequality comparison between a tile and a scalar. */
     @deprecated("Part of 0.7.x compatibility kit, to be removed after 0.8.x. Please use \"snake_case\" variant instead.", "0.8.0")
-    def localUnequalScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.local_unequal(tileCol, value)
+    def localUnequalScalar[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = delegate.rf_local_unequal(tileCol, value)
   }
 
   def register(sqlContext: SQLContext): Unit = {

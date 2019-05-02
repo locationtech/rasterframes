@@ -43,7 +43,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
        ..."""
 )
 case class Subtract(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "local_subtract"
+  override val nodeName: String = "rf_local_subtract"
   override protected def op(left: Tile, right: Tile): Tile = left.localSubtract(right)
   override protected def op(left: Tile, right: Double): Tile = left.localSubtract(right)
   override protected def op(left: Tile, right: Int): Tile = left.localSubtract(right)

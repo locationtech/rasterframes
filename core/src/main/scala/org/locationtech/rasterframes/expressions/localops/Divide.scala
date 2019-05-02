@@ -43,7 +43,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
        ..."""
 )
 case class Divide(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
-  override val nodeName: String = "local_divide"
+  override val nodeName: String = "rf_local_divide"
   override protected def op(left: Tile, right: Tile): Tile = left.localDivide(right)
   override protected def op(left: Tile, right: Double): Tile = left.localDivide(right)
   override protected def op(left: Tile, right: Int): Tile = left.localDivide(right)

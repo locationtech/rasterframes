@@ -43,7 +43,7 @@ case class ExplodeTiles(
   extends Expression with Generator with CodegenFallback {
 
   def this(children: Seq[Expression]) = this(1.0, None, children)
-  override def nodeName: String = "explode_tiles"
+  override def nodeName: String = "rf_explode_tiles"
 
   override def elementSchema: StructType = {
     val names =

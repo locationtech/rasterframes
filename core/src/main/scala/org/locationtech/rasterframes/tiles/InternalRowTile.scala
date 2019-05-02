@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.tiles
 import java.nio.ByteBuffer
 
 import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
-import org.locationtech.rasterframes.model.TileDataContext
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.locationtech.rasterframes.model.{Cells, TileDataContext}
@@ -33,36 +32,22 @@ import org.locationtech.rasterframes.model.{Cells, TileDataContext}
  * Wrapper around a `Tile` encoded in a Catalyst `InternalRow`, for the purpose
  * of providing compatible semantics over common operations.
  *
- * @groupname COPIES Memory Copying
- * @groupdesc COPIES Requires creating an intermediate copy of
- *           the complete `Tile` contents, and should be avoided.
- *
  * @since 11/29/17
  */
 class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
   import InternalRowTile._
 
-  /** @group COPIES */
-  override def toArrayTile(): ArrayTile = realizedTile
+  override def toArrayTile(): ArrayTile = realizedTile.toArrayTile()
 
-  // TODO: We want to reimpliement the delegated methods so that they read directly from tungsten storage
-  protected lazy val realizedTile: ArrayTile = {
-    val data = toBytes
-    if(data.length < cols * rows && cellType.name != "bool") {
-      val ctile = ConstantTile.fromBytes(data, cellType, cols, rows)
-      val atile = ctile.toArrayTile()
-      atile
-    }
-    else
-      ArrayTile.fromBytes(data, cellType, cols, rows)
-  }
+  // TODO: We want to reimplement relevant delegated methods so that they read directly from tungsten storage
+  protected lazy val realizedTile: Tile = cells.toTile(cellContext)
 
-  /** @group COPIES */
   protected override def delegate: Tile = realizedTile
 
-  private lazy val cellContext: TileDataContext =
+  private def cellContext: TileDataContext =
     CatalystIO[InternalRow].get[TileDataContext](mem, 0)
 
+  private def cells: Cells = CatalystIO[InternalRow].get[Cells](mem, 1)
 
   /** Retrieve the cell type from the internal encoding. */
   override def cellType: CellType = cellContext.cellType
@@ -75,13 +60,9 @@ class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
 
   /** Get the internally encoded tile data cells. */
   override lazy val toBytes: Array[Byte] = {
-    val cellData = CatalystIO[InternalRow]
-      .get[Cells](mem, 1)
-      .data
-
-    cellData.left
+    cells.data.left
       .getOrElse(throw new IllegalStateException(
-        "Expected tile cell bytes, but received RasterRef instead: " + cellData.right.get)
+        "Expected tile cell bytes, but received RasterRef instead: " + cells.data.right.get)
       )
   }
 
@@ -99,12 +80,11 @@ class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
   }
 
   /** Reads the cell value at the given index as an Int. */
-  def apply(i: Int): Int = cellReader(i)
+  def apply(i: Int): Int = cellReader.apply(i)
 
   /** Reads the cell value at the given index as a Double. */
   def applyDouble(i: Int): Double = cellReader.applyDouble(i)
 
-  /** @group COPIES */
   def copy = new InternalRowTile(mem.copy)
 
   private lazy val cellReader: CellReader = {

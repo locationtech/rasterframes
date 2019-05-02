@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class IsNoDataTile(child: Expression) extends UnaryRasterOp
   with CodegenFallback with NullToValue {
-  override def nodeName: String = "is_no_data_tile"
+  override def nodeName: String = "rf_is_no_data_tile"
   override def na: Any = true
   override def dataType: DataType = BooleanType
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile.isNoDataTile

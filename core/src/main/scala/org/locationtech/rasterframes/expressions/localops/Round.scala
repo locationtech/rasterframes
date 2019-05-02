@@ -40,7 +40,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 )
 case class Round(child: Expression) extends UnaryLocalRasterOp
   with NullToValue with CodegenFallback {
-  override def nodeName: String = "round"
+  override def nodeName: String = "rf_round"
   override def na: Any = null
   override protected def op(child: Tile): Tile = child.localRound()
 }
