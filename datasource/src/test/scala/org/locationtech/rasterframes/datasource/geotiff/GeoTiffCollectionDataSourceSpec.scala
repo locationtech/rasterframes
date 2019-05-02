@@ -43,7 +43,7 @@ class GeoTiffCollectionDataSourceSpec
 
       assert(df.select("path").distinct().count() === expected)
 
-      df.show(false)
+      // df.show(false)
     }
   }
 }
