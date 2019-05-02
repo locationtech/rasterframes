@@ -60,6 +60,6 @@ object RFDependenciesPlugin extends AutoPlugin {
     rfSparkVersion := "2.3.2",
     rfGeoTrellisVersion := "2.2.0",
     rfGeoMesaVersion := "2.2.1",
-    dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.bf51177"
+    dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.XXX"
   )
 }
