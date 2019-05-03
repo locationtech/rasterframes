@@ -138,6 +138,59 @@ class RasterSourceUDT(UserDefinedType):
         bytes(datum[0])
 
 
+class Tile:
+
+    def __init__(self, array, crs=None, extent=None, band_index=None, ):
+        # this could be more flexible to allow more ways to access TileUDT
+        # do some checking on dtype and shape
+        self.array = array
+        self.crs = crs  # what is a CRS? is it a rasterio.crs.CRS? A pyproj CRS? https://pyproj4.github.io/pyproj/html/api/crs.html#pyproj.crs.CRS.from_string
+        self.extent = extent
+        self.band_index = band_index
+        # here may be okay to carry around the kryo serialized bytes so we can at least go back into the JVM world?:
+
+    def __str__(self):
+        return self.array.__str__()
+
+    @classmethod
+    def numpy_dtype_to_celltype(cls, dtype):
+        from pyrasterframes.rasterfunctions import _celltype
+        # TODO implement something that will work generally
+        # Also here we should convert to a string representation of the celltype
+        return _celltype(str(dtype))
+
+    def get_cell_type(self):
+        return self.numpy_dtype_to_celltype(self.array.dtype)
+
+    def dimensions(self):
+        # list of cols, rows as is conventional in GeoTrellis and RasterFrames
+        return [self.array.shape[1], self.array.shape[0]]
+
+    def to_tile_udt(self):
+        row = [
+            # cell_context
+            [
+                ['float64'],  #TODO !
+                self.dimensions()
+            ],
+            # cell_data
+            [
+                # cells -- still too many copies
+                bytearray(RFContext.call('list_to_bytearray', self.array.flatten().tolist(), *self.dimensions())),
+                # ref
+                [
+                    # cell_data.ref.source
+                    None,
+                    # cell_data.ref.bandIndex
+                    self.band_index,
+                    # cell_data.ref.subextent
+                    self.extent
+                ]
+            ]
+        ]
+        return row
+
+
 class TileUDT(UserDefinedType):
     @classmethod
     def sqlType(cls):
@@ -148,8 +201,7 @@ class TileUDT(UserDefinedType):
             StructField("cell_context", StructType([
                 StructField("cell_type", StructType([
                     StructField("cellTypeName", StringType(), False)
-                    ]), False),
-                # ], False),  # life wood be ez if string dough
+                ]), False),
                 StructField("dimensions", StructType([
                     StructField("cols", ShortType(), False),
                     StructField("rows", ShortType(), False)
@@ -159,11 +211,12 @@ class TileUDT(UserDefinedType):
                 StructField("cells", BinaryType(), True),
                 StructField("ref", StructType([
                     StructField("source", RasterSourceUDT(), False),
+                    StructField("bandIndex", IntegerType(), False),
                     StructField("subextent", StructType([
-                      StructField("xmin", DoubleType(), False),
-                      StructField("ymin", DoubleType(), False),
-                      StructField("xmax", DoubleType(), False),
-                      StructField("ymax", DoubleType(), False)
+                        StructField("xmin", DoubleType(), False),
+                        StructField("ymin", DoubleType(), False),
+                        StructField("xmax", DoubleType(), False),
+                        StructField("ymax", DoubleType(), False)
 
                     ]), True)
                 ]), True)
@@ -178,22 +231,8 @@ class TileUDT(UserDefinedType):
     def scalaUDT(cls):
         return 'org.apache.spark.sql.rf.TileUDT'
 
-    def serialize(self, masked_array):
-        return_val = [
-            # cell_context
-            [
-                [masked_array.dtype.name],
-                [masked_array.shape[1], masked_array.shape[0]]
-            ],
-            # cell_data
-            [
-                    # cells
-                    bytearray(RFContext.call('list_to_bytearray', masked_array.flatten().tolist(), masked_array.shape[1], masked_array.shape[0])),
-                    # ref -- TODO implement
-                    None
-            ]
-        ]
-        return return_val
+    def serialize(self, tile):
+        return tile.to_tile_udt()
 
     def deserialize(self, datum):
         """
@@ -201,23 +240,31 @@ class TileUDT(UserDefinedType):
         :param datum:
         :return: A Tile object from row data.
         """
-        cell_type = datum.cell_context.cell_type.cellTypeName
+        cell_type = datum.cell_context.cellType.cellTypeName
         cols = datum.cell_context.dimensions.cols
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
         cell_value_list = list(RFContext.call('bytearray_to_list', cell_data_bytes, cell_type, cols, rows))
+        extent = datum.cell_data.ref.subextent
 
-        ma = MaskedArray(
+        crs = None
+        band_index = None
+        if 'ref' in datum.cell_data:
+            band_index = datum.cell_data.ref.bandIndex
+            if 'source' in datum.cell_data.ref and datum.cell_data.ref.source is not None:
+                crs = RFContext.call('rastersource_bytearray_to_proj4', datum.cell_data.ref.source)
+
+        t = Tile(
             numpy.reshape(cell_value_list, (rows, cols), order='C').astype(cell_type),
-            numpy.zeros((rows, cols))
+            crs,
+            extent,
+            band_index,
         )
-        return ma
+        return t
 
     deserialize.__safe_for_unpickling__ = True
 
-
-from numpy.ma import MaskedArray
-MaskedArray.__UDT__ = TileUDT()
+Tile.__UDT__ = TileUDT()
 
 class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """

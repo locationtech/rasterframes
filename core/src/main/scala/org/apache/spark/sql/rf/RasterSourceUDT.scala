@@ -68,6 +68,9 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
 object RasterSourceUDT {
   UDTRegistration.register(classOf[RasterSource].getName, classOf[RasterSourceUDT].getName)
 
+  /** Deserialize a byte array, also used inside the Python API */
+  def from(byteArray: Array[Byte]): RasterSource = KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(byteArray))
+
   implicit val rasterSourceSerializer: CatalystSerializer[RasterSource] = new CatalystSerializer[RasterSource] {
 
     override def schema: StructType = StructType(Seq(
@@ -80,7 +83,8 @@ object RasterSourceUDT {
     }
 
     override def from[R](row: R, io: CatalystIO[R]): RasterSource = {
-      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(io.getByteArray(row, 0)))
+      RasterSourceUDT.from(io.getByteArray(row, 0))
     }
+
   }
 }

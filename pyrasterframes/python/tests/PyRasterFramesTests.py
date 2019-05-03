@@ -266,7 +266,6 @@ class RasterFunctionsTest(unittest.TestCase):
         ).alias('s')).collect()[0].s
         self.assertTrue(intersect_total == df.count())
 
-
         # Collect to python driver in shapely UDT
         pandas_df_out = df.toPandas()
 
@@ -297,44 +296,52 @@ class RasterFunctionsTest(unittest.TestCase):
         import numpy as np
         from numpy.ma import MaskedArray
         self.assertIsInstance(self.rf.sql_ctx, SQLContext)
+        from pyrasterframes.types import Tile
 
-        # Try to create a tile from numpy.ma.MaskedArray
+        # Try to create a tile from numpy.
+        a_tile = Tile(np.random.randn(10, 10))  # no extent and crs provided
+
         to_spark = pd.DataFrame({
-            't': [MaskedArray(np.random.randn(10, 10), np.zeros((10, 10))) for _ in range(3)],
+            't': [Tile(np.random.randn(10,12)) for _ in range(3)],
             'b': ['a', 'b', 'c'],
             'c': [1, 2, 4],
         })
         rf_maybe = self.spark.createDataFrame(to_spark)
         print("Type of dataframe: ", type(rf_maybe))
         rf_maybe.printSchema()
-        print(rf_maybe.toPandas())
 
         # Try to do something with it.
-        sums = to_spark.t.apply(lambda a: a.sum()).tolist()
-        maybe_sums = rf_maybe.select(tile_sum(rf_maybe.t).alias('tsum'))
+        sums = to_spark.t.apply(lambda a: a.array.sum()).tolist()
+        maybe_sums = rf_maybe.select(rf_tile_sum(rf_maybe.t).alias('tsum'))
         print("Schema of tile sum")
         maybe_sums.printSchema()
 
         maybe_sums = [r.tsum for r in maybe_sums.collect()]
         np.testing.assert_almost_equal(maybe_sums, sums, 12)
 
+        # Back to python side.
+        print(rf_maybe.toPandas())
 
         # Test round trip for an array
-        simple_array = MaskedArray(np.array([[1, 2], [3, 4]]).astype('float64'), np.zeros((2, 2)))
+        simple_array = Tile(np.array([[1, 2], [3, 4]]).astype('float64'), )
         to_spark_2 = pd.DataFrame({
             't': [simple_array]
         })
 
         rf_maybe_2 = self.spark.createDataFrame(to_spark_2)
         print("RasterFrame `show`:")
-        rf_maybe_2.select(render_matrix(rf_maybe_2.t).alias('t')).show(truncate=False)
+        rf_maybe_2.select(rf_render_matrix(rf_maybe_2.t).alias('t')).show(truncate=False)
 
         pd_2 = rf_maybe_2.toPandas()
         array_back_2 = pd_2.iloc[0].t
         print("Array collected from toPandas output\n", array_back_2)
 
-        self.assertIsInstance(array_back_2, MaskedArray)
-        np.testing.assert_equal(array_back_2, simple_array)
+        self.assertIsInstance(array_back_2, Tile)
+        np.testing.assert_equal(array_back_2.array, simple_array.array)
+
+        # test CRS and extent correctly make round trips
+
+        # test raster source?
 
 
 def suite():
