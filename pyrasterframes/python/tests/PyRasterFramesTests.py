@@ -306,9 +306,14 @@ class RasterFunctionsTest(unittest.TestCase):
     def test_tile_udt(self):
         import pandas as pd
         import numpy as np
-        from numpy.ma import MaskedArray
-        self.assertIsInstance(self.rf.sql_ctx, SQLContext)
         from pyrasterframes.types import Tile
+
+        self.assertIsInstance(self.rf.sql_ctx, SQLContext)
+
+        # Try to collect self.rf which is read from a geotiff
+        rf_collect = self.rf.take(2)
+        self.assertTrue(
+            all([isinstance(row.tile.array, np.ndarray) for row in rf_collect]))
 
         # Try to create a tile from numpy.
         a_tile = Tile(np.random.randn(10, 10))  # no extent and crs provided

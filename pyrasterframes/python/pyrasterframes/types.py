@@ -217,7 +217,6 @@ class TileUDT(UserDefinedType):
                         StructField("ymin", DoubleType(), False),
                         StructField("xmax", DoubleType(), False),
                         StructField("ymax", DoubleType(), False)
-
                     ]), True)
                 ]), True)
             ]), False)
@@ -245,14 +244,16 @@ class TileUDT(UserDefinedType):
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
         cell_value_list = list(RFContext.call('bytearray_to_list', cell_data_bytes, cell_type, cols, rows))
-        extent = datum.cell_data.ref.subextent
 
         crs = None
         band_index = None
-        if 'ref' in datum.cell_data:
+        extent = None
+        if 'ref' in datum.cell_data and datum.cell_data.ref is not None:
             band_index = datum.cell_data.ref.bandIndex
-            if 'source' in datum.cell_data.ref and datum.cell_data.ref.source is not None:
+            if datum.cell_data.ref.source is not None:
                 crs = RFContext.call('rastersource_bytearray_to_proj4', datum.cell_data.ref.source)
+            if datum.cell_data.ref.subextent is not None:
+                extent = datum.cell_data.ref.subextent
 
         t = Tile(
             numpy.reshape(cell_value_list, (rows, cols), order='C').astype(cell_type),
