@@ -59,8 +59,8 @@ class GeoTiffDataSourceSpec
         .geotiff
         .loadRF(nonCogPath)
 
-      println(rf.count())
-      rf.show(false)
+      //println(rf.count())
+      //rf.show(false)
 
       assert(rf.count() > 1)
 

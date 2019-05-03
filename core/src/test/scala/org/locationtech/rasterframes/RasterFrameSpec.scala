@@ -113,7 +113,6 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       }
       catch {
         case NonFatal(ex) ⇒
-          rf.printSchema()
           println(rf.schema.prettyJson)
           throw ex
       }

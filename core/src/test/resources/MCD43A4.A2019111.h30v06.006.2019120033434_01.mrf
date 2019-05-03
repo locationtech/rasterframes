@@ -1,0 +1,12 @@
+<MRF_META>
+  <Raster>
+    <Size x="2400" y="2400" c="1" />
+    <PageSize x="512" y="512" c="1" />
+    <Compression>LERC</Compression>
+    <DataValues NoData="255" />
+  </Raster>
+  <GeoTags>
+    <BoundingBox minx="13343406.23600000" miny="2223901.03933300" maxx="14455356.75566700" maxy="3335851.55900000" />
+    <Projection>PROJCS["unnamed",GEOGCS["Unknown datum based upon the custom spheroid",DATUM["Not specified (based on custom spheroid)",SPHEROID["Custom spheroid",6371007.181,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["longitude_of_center",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]</Projection>
+  </GeoTags>
+</MRF_META>

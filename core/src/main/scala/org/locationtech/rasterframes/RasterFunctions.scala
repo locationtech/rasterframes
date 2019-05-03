@@ -169,8 +169,15 @@ trait RasterFunctions {
   def rf_no_data_cells(tile: Column): TypedColumn[Any, Long] =
     NoDataCells(tile)
 
+  /** Returns true if all cells in the tile are NoData.*/
   def rf_is_no_data_tile(tile: Column): TypedColumn[Any, Boolean] =
     IsNoDataTile(tile)
+
+  /** Returns true if any cells in the tile are true (non-zero and not NoData). */
+  def rf_exists(tile: Column): TypedColumn[Any, Boolean] = Exists(tile)
+
+  /** Returns true if all cells in the tile are true (non-zero and not NoData). */
+  def rf_for_all(tile: Column): TypedColumn[Any, Boolean] = ForAll(tile)
 
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
   def rf_agg_local_stats(col: Column) =

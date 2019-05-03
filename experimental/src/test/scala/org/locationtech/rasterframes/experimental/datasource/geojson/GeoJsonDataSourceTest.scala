@@ -60,8 +60,7 @@ class GeoJsonDataSourceTest extends TestEnvironment {
         .option(GeoJsonDataSource.INFER_SCHEMA, true)
         .load(example2)
 
-      results.show()
+      results.count() should be (8)
     }
   }
-
 }

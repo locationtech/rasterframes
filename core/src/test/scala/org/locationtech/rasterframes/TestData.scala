@@ -21,11 +21,10 @@
 
 package org.locationtech.rasterframes
 
-import java.net.{URI, URL}
+import java.net.URI
 import java.nio.file.Paths
 import java.time.ZonedDateTime
 
-import org.locationtech.rasterframes.expressions.tilestats.NoDataCells
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster
 import geotrellis.raster._
@@ -38,6 +37,7 @@ import org.apache.commons.io.IOUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
+import org.locationtech.rasterframes.expressions.tilestats.NoDataCells
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 import scala.reflect.ClassTag
@@ -138,10 +138,16 @@ trait TestData {
 
   lazy val remoteMODIS: URI = URI.create("https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF")
   lazy val remoteL8: URI = URI.create("https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/017/033/LC08_L1TP_017033_20181010_20181030_01_T1/LC08_L1TP_017033_20181010_20181030_01_T1_B4.TIF")
-  lazy val localSentinel: URL = getClass.getResource("/B01.jp2")
+  lazy val remoteHttpMrfPath: URI = URI.create("https://s3.amazonaws.com/s22s-rasterframes-integration-tests/m_3607526_sw_18_1_20160708.mrf")
+  lazy val remoteS3MrfPath: URI = URI.create("s3://naip-analytic/va/2016/100cm/rgbir/37077/m_3707764_sw_18_1_20160708.mrf")
+
+  lazy val localSentinel: URI = getClass.getResource("/B01.jp2").toURI
   lazy val cogPath: URI = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
   lazy val nonCogPath: URI = getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI
+
   lazy val l8B1SamplePath: URI = l8SamplePath(1)
+  lazy val l8samplePath: URI = getClass.getResource("/L8-B1-Elkton-VA.tiff").toURI
+  lazy val modisConvertedMrfPath: URI = getClass.getResource("/MCD43A4.A2019111.h30v06.006.2019120033434_01.mrf").toURI
 
   object JTS {
     val fact = new GeometryFactory()

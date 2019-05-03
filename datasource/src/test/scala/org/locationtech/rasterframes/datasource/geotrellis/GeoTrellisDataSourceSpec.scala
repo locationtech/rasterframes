@@ -425,7 +425,7 @@ class GeoTrellisDataSourceSpec
         .withColumnRenamed(GEOMETRY_COLUMN.columnName, "foobar")
 
       assert(numFilters(df) === 1)
-      assert(df.count > 0, df.printSchema)
+      assert(df.count > 0, df.schema.treeString)
     }
 
     it("should handle dropped spatial filter columns") {
