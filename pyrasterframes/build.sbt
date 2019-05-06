@@ -143,11 +143,11 @@ Python / packageBin := {
 }
 
 pysparkCmd := {
-  val _ = spPublishLocal.value
-  val id = (projectID in spPublishLocal).value
-  val args = "pyspark" ::  "--packages" :: s"${id.organization}:${id.name}:${id.revision}" :: Nil
+  val pyBin = (Python / packageBin).value
+  val jarBin = (spPackage / assembly).value
+
+  val args = "pyspark" :: "--jars" :: jarBin :: "--py-files" :: pyBin :: Nil
   streams.value.log.info("PySpark Command:\n" + args.mkString(" "))
-  // --conf spark.jars.ivy=(ivyPaths in pysparkCmd).value....
 }
 
 ivyPaths in pysparkCmd := ivyPaths.value.withIvyHome(target.value / "ivy")
