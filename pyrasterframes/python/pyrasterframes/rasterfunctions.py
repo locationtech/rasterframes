@@ -213,7 +213,7 @@ _rf_column_functions = {
     'rf_tile_max': 'Compute the Tile-wise maximum',
     'rf_tile_stats': 'Compute the Tile-wise floating point statistics',
     'rf_render_ascii': 'Render ASCII art of tile',
-    'rf_render_matrix': 'Pretty print a sample of cell values',
+    'rf_render_matrix': 'Render Tile cell values as numeric values, for debugging purposes',
     'rf_no_data_cells': 'Count of NODATA cells',
     'rf_data_cells': 'Count of cells with valid data',
     'rf_local_add': 'Add two Tiles',

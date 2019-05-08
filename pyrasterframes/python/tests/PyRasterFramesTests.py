@@ -36,9 +36,7 @@ class RasterFunctionsTest(unittest.TestCase):
         cls.spark = (SparkSession.builder
             .config('spark.driver.extraClassPath', jarpath)
             .config('spark.executor.extraClassPath', jarpath)
-            .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-            .config("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator")
-            .config("spark.kryoserializer.buffer.max", "500m")
+            .withKryoSerialization()
             .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
         print(cls.spark.version)
@@ -56,6 +54,8 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumnRenamed('tile2', cls.tileCol).asRF()
         #cls.rf.show()
 
+    def test_setup(self):
+        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"), "org.apache.spark.serializer.KryoSerializer")
 
     def test_identify_columns(self):
         cols = self.rf.tileColumns()
@@ -194,7 +194,7 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(sample_count < (frac * 1.1) * 387000)  # give some wiggle room
 
 
-    def test_maskByValue(self):
+    def test_mask_by_value(self):
         from pyspark.sql.functions import lit
 
         # create an artificial mask for values > 25000; masking value will be 4

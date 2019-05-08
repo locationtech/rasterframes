@@ -24,6 +24,15 @@ def _rf_init(spark_session):
 
     return spark_session
 
+def _kryo_init(builder):
+    """Registers Kryo Serializers for better performance."""
+    # NB: These methods need to be kept up-to-date wit those in `org.locationtech.rasterframes.extensions.KryoMethods`
+    builder \
+        .config("spark.serializer",  "org.apache.spark.serializer.KryoSerializer") \
+        .config("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator") \
+        .config("spark.kryoserializer.buffer.max", "500m")
+    return builder
+
 
 def _reader(df_reader, format_key, path, **options):
     """ Loads the file of the given type at the given path."""
@@ -44,6 +53,7 @@ def _convertDF(df, sp_key = None, metadata = None):
 
 # Patch new method on SparkSession to mirror Scala approach
 SparkSession.withRasterFrames = _rf_init
+SparkSession.Builder.withKryoSerialization = _kryo_init
 
 # Add the 'asRF' method to pyspark DataFrame
 DataFrame.asRF = _convertDF
