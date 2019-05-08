@@ -11,6 +11,13 @@ object RFProjectPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   override def requires = GitPlugin
 
+  object autoImport {
+    val Python = config("python")
+  }
+  import autoImport._
+
+  override def projectConfigurations: Seq[Configuration] = Seq(Python)
+
   override def projectSettings = Seq(
     organization := "org.locationtech.rasterframes",
     organizationName := "LocationTech RasterFrames",
