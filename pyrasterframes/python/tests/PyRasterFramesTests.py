@@ -38,7 +38,7 @@ class RasterFunctionsTest(unittest.TestCase):
                      .withKryoSerialization()
                      .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
-        print(cls.spark.version)
+        print("Spark version:", cls.spark.version)
         cls.spark.withRasterFrames()
 
         cls.img_uri = cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()
@@ -111,12 +111,14 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('exp', rf_exp(self.tileCol)) \
             .withColumn('expm1', rf_expm1(self.tileCol)) \
             .withColumn('round', rf_round(self.tileCol))
-        # TODO: add test for rf_extent and rf_geometry once rastersource connector is integrated and we have
-        #  a source of ProjectedRasterTiles.
+
         df.show()
 
     def test_prt_functions(self):
-        df = self.spark.read.rastersource(self.img_uri)
+        df = self.spark.read.rastersource(self.img_uri) \
+            .withColumn('crs', rf_crs(self.tileCol)) \
+            .withColumn('ext', rf_extent(self.tileCol)) \
+            .withColumn('geom', rf_geometry(self.tileCol))
         df.printSchema
         df.show()
 

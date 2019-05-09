@@ -73,6 +73,7 @@ package object expressions {
     registry.registerExpression[GetGeometry]("rf_geometry")
     registry.registerExpression[GeometryToExtent]("st_extent")
     registry.registerExpression[GetExtent]("rf_extent")
+    registry.registerExpression[GetCRS]("rf_crs")
     registry.registerExpression[Subtract]("rf_local_subtract")
     registry.registerExpression[Multiply]("rf_local_multiply")
     registry.registerExpression[Divide]("rf_local_divide")
