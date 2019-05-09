@@ -69,7 +69,7 @@ object RasterSourceUDT {
   UDTRegistration.register(classOf[RasterSource].getName, classOf[RasterSourceUDT].getName)
 
   /** Deserialize a byte array, also used inside the Python API */
-  def from(byteArray: Array[Byte]): RasterSource = KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(byteArray))
+  def from(byteArray: Array[Byte]): RasterSource = CatalystSerializer.CatalystIO.rowIO.create(byteArray).to[RasterSource]
 
   implicit val rasterSourceSerializer: CatalystSerializer[RasterSource] = new CatalystSerializer[RasterSource] {
 
@@ -83,8 +83,7 @@ object RasterSourceUDT {
     }
 
     override def from[R](row: R, io: CatalystIO[R]): RasterSource = {
-      RasterSourceUDT.from(io.getByteArray(row, 0))
+      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(io.getByteArray(row, 0)))
     }
-
   }
 }

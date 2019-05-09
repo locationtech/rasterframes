@@ -138,57 +138,45 @@ class RasterSourceUDT(UserDefinedType):
         bytes(datum[0])
 
 
-class Tile:
-
-    def __init__(self, array, crs=None, extent=None, band_index=None, ):
-        # this could be more flexible to allow more ways to access TileUDT
-        # do some checking on dtype and shape
-        self.array = array
-        self.crs = crs  # what is a CRS? is it a rasterio.crs.CRS? A pyproj CRS? https://pyproj4.github.io/pyproj/html/api/crs.html#pyproj.crs.CRS.from_string
-        self.extent = extent
-        self.band_index = band_index
-        # here may be okay to carry around the kryo serialized bytes so we can at least go back into the JVM world?:
-
-    def __str__(self):
-        return self.array.__str__()
+class GTCellType:
+    def __init__(self, cell_type_name):
+        self.cell_type_name = cell_type_name
 
     @classmethod
-    def numpy_dtype_to_celltype(cls, dtype):
-        from pyrasterframes.rasterfunctions import _celltype
-        # TODO implement something that will work generally
-        # Also here we should convert to a string representation of the celltype
-        return _celltype(str(dtype))
+    def from_numpy_dtype(cls, np_dtype):
+        return GTCellType(str(np_dtype))
 
-    def get_cell_type(self):
-        return self.numpy_dtype_to_celltype(self.array.dtype)
+    def to_numpy_dtype(self):
+        import numpy as np
+        if self.cell_type_name.endswith("raw"):
+            return GTCellType(self.cell_type_name[:-3]).to_numpy_dtype()
+        elif "ud" in self.cell_type_name:
+            raise Exception("Cell types with user-defined NoData values are not yet implemented.")
+        else:
+            # The remaining cell types should be compatible with numpy
+            return np.dtype(self.cell_type_name)
+
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return self.cell_type_name == other.cell_type_name
+        else:
+            return False
+
+    def __str__(self):
+        return self.cell_type_name
+
+
+class Tile:
+    def __init__(self, cells):
+        self.cells = cells
+        self.cell_type = GTCellType.from_numpy_dtype(cells.dtype)
+
+    def __str__(self):
+        return self.cells.__str__()
 
     def dimensions(self):
         # list of cols, rows as is conventional in GeoTrellis and RasterFrames
-        return [self.array.shape[1], self.array.shape[0]]
-
-    def to_tile_udt(self):
-        row = [
-            # cell_context
-            [
-                ['float64'],  #TODO !
-                self.dimensions()
-            ],
-            # cell_data
-            [
-                # cells -- still too many copies
-                bytearray(RFContext.call('list_to_bytearray', self.array.flatten().tolist(), *self.dimensions())),
-                # ref
-                [
-                    # cell_data.ref.source
-                    None,
-                    # cell_data.ref.bandIndex
-                    self.band_index,
-                    # cell_data.ref.subextent
-                    self.extent
-                ]
-            ]
-        ]
-        return row
+        return [self.cells.shape[1], self.cells.shape[0]]
 
 
 class TileUDT(UserDefinedType):
@@ -231,41 +219,43 @@ class TileUDT(UserDefinedType):
         return 'org.apache.spark.sql.rf.TileUDT'
 
     def serialize(self, tile):
-        return tile.to_tile_udt()
+        row = [
+            # cell_context
+            [
+                [tile.cell_type.cell_type_name],
+                tile.dimensions()
+            ],
+            # cell_data
+            [
+                # cells
+                bytearray(RFContext.call('_list_to_bytearray', tile.cells.flatten().tolist(), *tile.dimensions())),
+                None
+            ]
+        ]
+        return row
 
     def deserialize(self, datum):
         """
-
+        Convert catalyst representation of Tile to Python version. NB: This is expensive.
         :param datum:
         :return: A Tile object from row data.
         """
-        cell_type = datum.cell_context.cellType.cellTypeName
+        cell_type = GTCellType(datum.cell_context.cellType.cellTypeName)
         cols = datum.cell_context.dimensions.cols
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
-        cell_value_list = list(RFContext.call('bytearray_to_list', cell_data_bytes, cell_type, cols, rows))
 
-        crs = None
-        band_index = None
-        extent = None
-        if 'ref' in datum.cell_data and datum.cell_data.ref is not None:
-            band_index = datum.cell_data.ref.bandIndex
-            if datum.cell_data.ref.source is not None:
-                crs = RFContext.call('rastersource_bytearray_to_proj4', datum.cell_data.ref.source)
-            if datum.cell_data.ref.subextent is not None:
-                extent = datum.cell_data.ref.subextent
-
-        t = Tile(
-            numpy.reshape(cell_value_list, (rows, cols), order='C').astype(cell_type),
-            crs,
-            extent,
-            band_index,
-        )
+        # This is incurring a back-and-forth of the data across the gateway... need to fix.
+        cell_value_list = list(RFContext.call('_bytearray_to_list', cell_data_bytes, cell_type.cell_type_name, cols, rows))
+        as_numpy = numpy.reshape(cell_value_list, (rows, cols), order='C').astype(cell_type.to_numpy_dtype())
+        t = Tile(as_numpy)
         return t
 
     deserialize.__safe_for_unpickling__ = True
 
+
 Tile.__UDT__ = TileUDT()
+
 
 class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """
@@ -275,6 +265,7 @@ class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
         super(TileExploder, self).__init__()
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.TileExploder", self.uid)
 
+
 class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """
     Python wrapper for NoDataFilter.scala
@@ -282,5 +273,6 @@ class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
     def __init__(self):
         super(NoDataFilter, self).__init__()
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.NoDataFilter", self.uid)
+
     def setInputCols(self, values):
         self._java_obj.setInputCols(values)

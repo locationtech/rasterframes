@@ -139,7 +139,6 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
-
     def test_sql(self):
 
         self.rf.createOrReplaceTempView("rf")
@@ -210,7 +209,6 @@ class RasterFunctionsTest(unittest.TestCase):
         result = rf2.agg(rf_agg_no_data_cells(rf2.tile) < rf_agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]
         self.assertTrue(result)
-
 
     def test_resample(self):
         from pyspark.sql.functions import lit
@@ -303,6 +301,18 @@ class RasterFunctionsTest(unittest.TestCase):
             pandas_df_out.poly_len.values
         )
 
+    def test_cell_type(self):
+        from pyrasterframes.types import GTCellType
+        for ct in rf_cell_types():
+            wrapped = GTCellType(ct)
+            self.assertEqual(wrapped.to_numpy_dtype(),
+                             GTCellType.from_numpy_dtype(wrapped.to_numpy_dtype()).to_numpy_dtype(),
+                             "dtype comparison for " + ct)
+            if "raw" not in ct:
+                self.assertEqual(wrapped,
+                                 GTCellType.from_numpy_dtype(wrapped.to_numpy_dtype()),
+                                 "GTCellType comparison for " + ct)
+
     def test_tile_udt(self):
         import pandas as pd
         import numpy as np
@@ -313,7 +323,7 @@ class RasterFunctionsTest(unittest.TestCase):
         # Try to collect self.rf which is read from a geotiff
         rf_collect = self.rf.take(2)
         self.assertTrue(
-            all([isinstance(row.tile.array, np.ndarray) for row in rf_collect]))
+            all([isinstance(row.tile.cells, np.ndarray) for row in rf_collect]))
 
         # Try to create a tile from numpy.
         a_tile = Tile(np.random.randn(10, 10))  # no extent and crs provided
@@ -328,7 +338,7 @@ class RasterFunctionsTest(unittest.TestCase):
         rf_maybe.printSchema()
 
         # Try to do something with it.
-        sums = to_spark.t.apply(lambda a: a.array.sum()).tolist()
+        sums = to_spark.t.apply(lambda a: a.cells.sum()).tolist()
         maybe_sums = rf_maybe.select(rf_tile_sum(rf_maybe.t).alias('tsum'))
         print("Schema of tile sum")
         maybe_sums.printSchema()
@@ -354,7 +364,7 @@ class RasterFunctionsTest(unittest.TestCase):
         print("Array collected from toPandas output\n", array_back_2)
 
         self.assertIsInstance(array_back_2, Tile)
-        np.testing.assert_equal(array_back_2.array, simple_array.array)
+        np.testing.assert_equal(array_back_2.cells, simple_array.cells)
 
         # test CRS and extent correctly make round trips
 
