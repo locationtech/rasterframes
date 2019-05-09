@@ -20,7 +20,7 @@
  */
 package org.locationtech.rasterframes.py
 
-import geotrellis.raster.{ArrayTile, CellType, MultibandTile}
+import geotrellis.raster.{CellType, MultibandTile}
 import geotrellis.spark.io._
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql._
@@ -104,23 +104,6 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def rf_explode_tiles_sample(sampleFraction: Double, seed: Long, cols: Column*): Column =
     rf_explode_tiles_sample(sampleFraction, Some(seed), cols: _*)
-
-  def _list_to_bytearray(l: java.util.ArrayList[Double], c: Int, r: Int): Array[Byte] = {
-    geotrellis.raster.ArrayTile(l.asScala.toArray, c, r).toBytes()
-  }
-
-  def _bytearray_to_list(bytes: Array[Byte], cell_type_name: String, cols: Int, rows: Int): java.util.List[Double] = {
-    geotrellis.raster.ArrayTile.fromBytes(
-      bytes,
-      geotrellis.raster.CellType.fromName(cell_type_name),
-      cols,
-      rows
-    ).toListDouble.asJava
-  }
-
-  def generate_tile(cellType: String, cols: Int, rows: Int, bytes: Array[Byte]): ArrayTile = {
-    ArrayTile.fromBytes(bytes, this.rf_cell_type(cellType), cols, rows)
-  }
 
   def tileColumns(df: DataFrame): Array[Column] =
     df.asRF.tileColumns.toArray

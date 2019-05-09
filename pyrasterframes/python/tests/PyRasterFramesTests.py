@@ -7,6 +7,8 @@ from geomesa_pyspark.types import *
 from pathlib import Path
 import os
 import unittest
+from pyrasterframes.types import Tile
+import numpy as np
 
 # version-conditional imports
 import sys
@@ -302,21 +304,30 @@ class RasterFunctionsTest(unittest.TestCase):
         )
 
     def test_cell_type(self):
-        from pyrasterframes.types import GTCellType
+        from pyrasterframes.types import CellType
         for ct in rf_cell_types():
-            wrapped = GTCellType(ct)
-            self.assertEqual(wrapped.to_numpy_dtype(),
-                             GTCellType.from_numpy_dtype(wrapped.to_numpy_dtype()).to_numpy_dtype(),
-                             "dtype comparison for " + ct)
-            if "raw" not in ct:
-                self.assertEqual(wrapped,
-                                 GTCellType.from_numpy_dtype(wrapped.to_numpy_dtype()),
-                                 "GTCellType comparison for " + ct)
+            self.assertEqual(ct.to_numpy_dtype(),
+                             CellType.from_numpy_dtype(ct.to_numpy_dtype()).to_numpy_dtype(),
+                             "dtype comparison for " + str(ct))
+            if "raw" not in ct.cell_type_name:
+                self.assertEqual(ct,
+                                 CellType.from_numpy_dtype(ct.to_numpy_dtype()),
+                                 "GTCellType comparison for " + str(ct))
 
-    def test_tile_udt(self):
+
+    def test_tile_udt_serialization(self):
+        from pyrasterframes.types import TileUDT
+        udt = TileUDT()
+
+        cell_types = (ct for ct in rf_cell_types() if not ct.cell_type_name.endswith("raw"))
+        for ct in cell_types:
+            a_tile = Tile(np.random.randn(3, 3).astype(ct.to_numpy_dtype()))
+            round_trip = udt.fromInternal(udt.toInternal(a_tile))
+            self.assertEquals(a_tile, round_trip, "round-trip serialization for " + str(ct))
+
+
+    def test_tile_udt_general(self):
         import pandas as pd
-        import numpy as np
-        from pyrasterframes.types import Tile
 
         self.assertIsInstance(self.rf.sql_ctx, SQLContext)
 
@@ -326,10 +337,10 @@ class RasterFunctionsTest(unittest.TestCase):
             all([isinstance(row.tile.cells, np.ndarray) for row in rf_collect]))
 
         # Try to create a tile from numpy.
-        a_tile = Tile(np.random.randn(10, 10))  # no extent and crs provided
+        a_tile = Tile(np.random.randn(10, 10))
 
         to_spark = pd.DataFrame({
-            't': [Tile(np.random.randn(10,12)) for _ in range(3)],
+            't': [Tile(np.random.randn(10, 12)) for _ in range(3)],
             'b': ['a', 'b', 'c'],
             'c': [1, 2, 4],
         })
@@ -371,7 +382,7 @@ class RasterFunctionsTest(unittest.TestCase):
         # test raster source?
 
 
-    def test_raster_source_reader(self):
+    def test_zraster_source_reader(self):
         import pandas as pd
         # much the same as RasterSourceDataSourceSpec here; but using https PDS. Takes about 30s to run
 

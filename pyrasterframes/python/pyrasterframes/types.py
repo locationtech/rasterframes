@@ -12,7 +12,7 @@ from pyspark.sql.types import *
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from .context import RFContext
-import numpy
+import numpy as np
 
 __all__ = ['RasterFrame', 'TileUDT', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
@@ -138,18 +138,17 @@ class RasterSourceUDT(UserDefinedType):
         bytes(datum[0])
 
 
-class GTCellType:
+class CellType:
     def __init__(self, cell_type_name):
         self.cell_type_name = cell_type_name
 
     @classmethod
     def from_numpy_dtype(cls, np_dtype):
-        return GTCellType(str(np_dtype))
+        return CellType(str(np_dtype))
 
     def to_numpy_dtype(self):
-        import numpy as np
         if self.cell_type_name.endswith("raw"):
-            return GTCellType(self.cell_type_name[:-3]).to_numpy_dtype()
+            return CellType(self.cell_type_name[:-3]).to_numpy_dtype()
         elif "ud" in self.cell_type_name:
             raise Exception("Cell types with user-defined NoData values are not yet implemented.")
         else:
@@ -169,10 +168,16 @@ class GTCellType:
 class Tile:
     def __init__(self, cells):
         self.cells = cells
-        self.cell_type = GTCellType.from_numpy_dtype(cells.dtype)
+        self.cell_type = CellType.from_numpy_dtype(cells.dtype)
+
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return np.array_equal(self.cells, other.cells)
+        else:
+            return False
 
     def __str__(self):
-        return self.cells.__str__()
+        return "Tile(\n  dimensions={}\n  cell_type={}\n  cells={}\n)".format(self.dimensions(), self.cell_type, self.cells)
 
     def dimensions(self):
         # list of cols, rows as is conventional in GeoTrellis and RasterFrames
@@ -187,7 +192,7 @@ class TileUDT(UserDefinedType):
         """
         return StructType([
             StructField("cell_context", StructType([
-                StructField("cell_type", StructType([
+                StructField("cellType", StructType([
                     StructField("cellTypeName", StringType(), False)
                 ]), False),
                 StructField("dimensions", StructType([
@@ -228,7 +233,7 @@ class TileUDT(UserDefinedType):
             # cell_data
             [
                 # cells
-                bytearray(RFContext.call('_list_to_bytearray', tile.cells.flatten().tolist(), *tile.dimensions())),
+                bytearray(tile.cells.flatten().tobytes()),
                 None
             ]
         ]
@@ -240,14 +245,12 @@ class TileUDT(UserDefinedType):
         :param datum:
         :return: A Tile object from row data.
         """
-        cell_type = GTCellType(datum.cell_context.cellType.cellTypeName)
+        cell_type = CellType(datum.cell_context.cellType.cellTypeName)
         cols = datum.cell_context.dimensions.cols
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
 
-        # This is incurring a back-and-forth of the data across the gateway... need to fix.
-        cell_value_list = list(RFContext.call('_bytearray_to_list', cell_data_bytes, cell_type.cell_type_name, cols, rows))
-        as_numpy = numpy.reshape(cell_value_list, (rows, cols), order='C').astype(cell_type.to_numpy_dtype())
+        as_numpy = np.frombuffer(cell_data_bytes, dtype=cell_type.to_numpy_dtype()).reshape((rows, cols))
         t = Tile(as_numpy)
         return t
 
