@@ -83,8 +83,6 @@ cleanFiles ++=
     "pyrasterframes.egg-info"
   ).map(f => pythonSource.value / f)
 
-val Python = config("python")
-
 Python / target := target.value / "python-dist"
 
 lazy val pyZip = taskKey[File]("Build pyrasterframes zip.")

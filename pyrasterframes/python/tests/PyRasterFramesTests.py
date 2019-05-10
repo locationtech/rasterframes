@@ -1,4 +1,3 @@
-
 from pyspark.sql import SparkSession, Column
 from pyspark.sql.functions import *
 from pyrasterframes import *
@@ -10,6 +9,7 @@ import unittest
 
 # version-conditional imports
 import sys
+
 if sys.version_info[0] > 2:
     import builtins
 else:
@@ -25,7 +25,6 @@ class RasterFunctionsTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
         # gather Scala requirements
         jarpath = list(Path('../target/scala-2.11').resolve().glob('pyrasterframes-assembly*.jar'))[0]
 
@@ -34,16 +33,18 @@ class RasterFunctionsTest(unittest.TestCase):
 
         # spark session with RF
         cls.spark = (SparkSession.builder
-            .config('spark.driver.extraClassPath', jarpath)
-            .config('spark.executor.extraClassPath', jarpath)
-            .withKryoSerialization()
-            .getOrCreate())
+                     .config('spark.driver.extraClassPath', jarpath)
+                     .config('spark.executor.extraClassPath', jarpath)
+                     .withKryoSerialization()
+                     .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
-        print(cls.spark.version)
+        print("Spark version:", cls.spark.version)
         cls.spark.withRasterFrames()
 
+        cls.img_uri = cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()
+
         # load something into a rasterframe
-        rf = cls.spark.read.geotiff(cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()) \
+        rf = cls.spark.read.geotiff(cls.img_uri) \
             .withBounds() \
             .withCenter()
 
@@ -52,10 +53,11 @@ class RasterFunctionsTest(unittest.TestCase):
         cls.rf = rf.withColumn('tile2', rf_convert_cell_type(cls.tileCol, 'float32')) \
             .drop(cls.tileCol) \
             .withColumnRenamed('tile2', cls.tileCol).asRF()
-        #cls.rf.show()
+        # cls.rf.show()
 
     def test_setup(self):
-        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"), "org.apache.spark.serializer.KryoSerializer")
+        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
+                         "org.apache.spark.serializer.KryoSerializer")
 
     def test_identify_columns(self):
         cols = self.rf.tileColumns()
@@ -70,7 +72,8 @@ class RasterFunctionsTest(unittest.TestCase):
 
     def test_tile_creation(self):
         base = self.spark.createDataFrame([1, 2, 3, 4], 'integer')
-        tiles = base.select(rf_make_constant_tile(3, 3, 3, "int32"), rf_make_zeros_tile(3, 3, "int32"), rf_make_ones_tile(3, 3, "int32"))
+        tiles = base.select(rf_make_constant_tile(3, 3, 3, "int32"), rf_make_zeros_tile(3, 3, "int32"),
+                            rf_make_ones_tile(3, 3, "int32"))
         tiles.show()
         self.assertEqual(tiles.count(), 4)
 
@@ -89,11 +92,10 @@ class RasterFunctionsTest(unittest.TestCase):
 
         self.assertTrue(_rounded_compare(row['rf_agg_mean(norm_diff)'], 0))
 
-
-    def test_general(self):
+    def test_tile_functions(self):
         meta = self.rf.tileLayerMetadata()
         self.assertIsNotNone(meta['bounds'])
-        df = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)) \
+        df = self.rf.withColumn('dims', rf_dimensions(self.tileCol)) \
             .withColumn('type', rf_cell_type(self.tileCol)) \
             .withColumn('dCells', rf_data_cells(self.tileCol)) \
             .withColumn('ndCells', rf_no_data_cells(self.tileCol)) \
@@ -109,8 +111,15 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('exp', rf_exp(self.tileCol)) \
             .withColumn('expm1', rf_expm1(self.tileCol)) \
             .withColumn('round', rf_round(self.tileCol))
-        # TODO: add test for rf_extent and rf_geometry once rastersource connector is integrated and we have
-        #  a source of ProjectedRasterTiles.
+
+        df.show()
+
+    def test_prt_functions(self):
+        df = self.spark.read.rastersource(self.img_uri) \
+            .withColumn('crs', rf_crs(self.tileCol)) \
+            .withColumn('ext', rf_extent(self.tileCol)) \
+            .withColumn('geom', rf_geometry(self.tileCol))
+        df.printSchema
         df.show()
 
     def test_rasterize(self):
@@ -139,12 +148,10 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
-
     def test_sql(self):
-
         self.rf.createOrReplaceTempView("rf")
 
-        dims = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)).first().dims
+        dims = self.rf.withColumn('dims', rf_dimensions(self.tileCol)).first().dims
         dims_str = """{}, {}""".format(dims.cols, dims.rows)
 
         self.spark.sql("""SELECT tile, rf_make_constant_tile(1, {}, 'uint16') AS One, 
@@ -159,11 +166,11 @@ class RasterFunctionsTest(unittest.TestCase):
 
         ops.printSchema
         statsRow = ops.select(rf_tile_mean(self.tileCol).alias('base'),
-                           rf_tile_mean("AndOne").alias('plus_one'),
-                           rf_tile_mean("LessOne").alias('minus_one'),
-                           rf_tile_mean("TimesTwo").alias('double'),
-                           rf_tile_mean("OverTwo").alias('half')) \
-                        .first()
+                              rf_tile_mean("AndOne").alias('plus_one'),
+                              rf_tile_mean("LessOne").alias('minus_one'),
+                              rf_tile_mean("TimesTwo").alias('double'),
+                              rf_tile_mean("OverTwo").alias('half')) \
+            .first()
 
         self.assertTrue(_rounded_compare(statsRow.base, statsRow.plus_one - 1))
         self.assertTrue(_rounded_compare(statsRow.base, statsRow.minus_one + 1))
@@ -178,10 +185,10 @@ class RasterFunctionsTest(unittest.TestCase):
         # +-----------+------------+---------+-------+
         # |[2,1]      |4           |0        |10150.0|
         cell = self.rf.select(self.rf.spatialKeyColumn(), rf_explode_tiles(self.rf.tile)) \
-            .where(F.col("spatial_key.col")==2) \
-            .where(F.col("spatial_key.row")==1) \
-            .where(F.col("column_index")==4) \
-            .where(F.col("row_index")==0) \
+            .where(F.col("spatial_key.col") == 2) \
+            .where(F.col("spatial_key.row") == 1) \
+            .where(F.col("column_index") == 4) \
+            .where(F.col("row_index") == 0) \
             .select(F.col("tile")) \
             .collect()[0][0]
         self.assertEqual(cell, 10150.0)
@@ -192,7 +199,6 @@ class RasterFunctionsTest(unittest.TestCase):
         print('Sample count is {}'.format(sample_count))
         self.assertTrue(sample_count > 0)
         self.assertTrue(sample_count < (frac * 1.1) * 387000)  # give some wiggle room
-
 
     def test_mask_by_value(self):
         from pyspark.sql.functions import lit
@@ -205,12 +211,11 @@ class RasterFunctionsTest(unittest.TestCase):
                                  rf_convert_cell_type(
                                      rf_local_greater_int(self.rf.tile, 25000),
                                      "uint8"),
-                                  lit(mask_value)).alias('mask'))
+                                 lit(mask_value)).alias('mask'))
         rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
         result = rf2.agg(rf_agg_no_data_cells(rf2.tile) < rf_agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]
         self.assertTrue(result)
-
 
     def test_resample(self):
         from pyspark.sql.functions import lit
@@ -234,7 +239,6 @@ class RasterFunctionsTest(unittest.TestCase):
 
         self.assertTrue(df.select(rf_for_all(df.should_exist).alias('se')).take(1)[0].se)
         self.assertTrue(not df.select(rf_for_all(df.should_not_exist).alias('se')).take(1)[0].se)
-
 
     def test_geomesa_pyspark(self):
         from pyspark.sql.functions import lit, udf, sum
@@ -278,7 +282,6 @@ class RasterFunctionsTest(unittest.TestCase):
         ).alias('s')).collect()[0].s
         self.assertTrue(intersect_total == df.count())
 
-
         # Collect to python driver in shapely UDT
         pandas_df_out = df.toPandas()
 
@@ -291,7 +294,7 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(all(xs_correct))
 
         centroid_ys = pandas_df_out.poly_geom.apply(lambda g:
-                                                      g.centroid.coords[0][1]).tolist()
+                                                    g.centroid.coords[0][1]).tolist()
         numpy.testing.assert_almost_equal(centroid_ys, pandas_df.y.tolist())
 
         # Including from UDF's
@@ -303,7 +306,6 @@ class RasterFunctionsTest(unittest.TestCase):
             pandas_df_out.poly_geom.apply(lambda g: g.length).values,
             pandas_df_out.poly_len.values
         )
-
 
     def test_raster_source_reader(self):
         import pandas as pd
@@ -317,15 +319,15 @@ class RasterFunctionsTest(unittest.TestCase):
         path_param = '\n'.join([l8path(b) for b in [1, 2, 3]])  # "http://foo.com/file1.tif,http://foo.com/file2.tif"
         tile_size = 512
         df = self.spark.read.format('rastersource') \
-                            .options(paths=path_param, tileDimensions='{},{}'.format(tile_size, tile_size)) \
-                            .load()
+            .options(paths=path_param, tileDimensions='{},{}'.format(tile_size, tile_size)) \
+            .load()
 
         # schema is tile_path and tile
         df.printSchema()
         self.assertTrue(len(df.columns) == 2 and 'tile_path' in df.columns and 'tile' in df.columns)
 
         # the most common tile dimensions should be as passed to `options`, showing that options are correctly applied
-        tile_size_df = df.select(rf_dimensions(df.tile).rows.alias('r'), rf_dimensions(df.tile).cols.alias('c'))\
+        tile_size_df = df.select(rf_dimensions(df.tile).rows.alias('r'), rf_dimensions(df.tile).cols.alias('c')) \
             .groupby(['r', 'c']).count().toPandas()
         most_common_size = tile_size_df.loc[tile_size_df['count'].idxmax()]
         self.assertTrue(most_common_size.r == tile_size and most_common_size.c == tile_size)
@@ -360,10 +362,11 @@ class RasterFunctionsTest(unittest.TestCase):
         path_table = self.spark.createDataFrame(path_pandas)
         path_table.createOrReplaceTempView(path_table_hive_name)
 
-        path_df = self.spark.read.format('rastersource') \
-                            .options(pathTable=path_table_hive_name, pathTableColumns=csv_columns,
-                                     tileDimensions='512,512') \
-                            .load()
+        path_df = self.spark.read.rastersource(
+            tile_dimensions=(512, 512),
+            pathTable=path_table_hive_name,
+            pathTableColumns=csv_columns,
+        )
 
         path_df.printSchema()
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}
@@ -376,5 +379,6 @@ class RasterFunctionsTest(unittest.TestCase):
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
+
 
 unittest.TextTestRunner().run(suite())

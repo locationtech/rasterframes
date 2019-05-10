@@ -12,6 +12,7 @@
 * Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
 * Added `rf_render_matrix` debugging function.
 * Added `RasterFrame.withExtent` extension method.
+* Added `rf_crs` for `ProjectedRasterTile` columns.
 * Added `st_extent` (for `Geometry` types) and `rf_extent` (for `ProjectedRasterTile` and `RasterSource` columns).
 * Added `st_geometry` (for `Extent` types) and `rf_geometry` (for `ProjectedRasterTile` and `RasterSource` columns).
 * _Breaking_: Root package changed from `org.locationtech.rasterframes` to `org.locationtech.rasterframes`.
@@ -29,6 +30,7 @@
 * Introduced `LocalCellStatistics` class to wrap together results from `LocalStatsAggregate`.
 * _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `org.locationtech.rasterframes.model`.
 * _Breaking_: Renamed `RasterFrame.withBounds` to `RasterFrame.withGeometry` for consistency with DataSource schemas.
+* Reworked build scripts for RasterFrames Jupyter Notebook. 
    
 ## 0.7.x
 

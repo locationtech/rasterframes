@@ -68,6 +68,9 @@ trait RasterFunctions {
   /** Extracts the bounding box from a RasterSource or ProjectedRasterTile */
   def rf_extent(col: Column): TypedColumn[Any, Extent] = GetExtent(col)
 
+  /** Extracts the CRS from a RasterSource or ProjectedRasterTile */
+  def rf_crs(col: Column): TypedColumn[Any, CRS] = GetCRS(col)
+
   /** Flattens Tile into a double array. */
   def rf_tile_to_array_double(col: Column): TypedColumn[Any, Array[Double]] =
     TileToArrayDouble(col)

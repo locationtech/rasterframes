@@ -40,6 +40,14 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   sparkSession.withRasterFrames
 
+  def buildInfo(): java.util.HashMap[String, String] = {
+    val retval = new java.util.HashMap[String, String]()
+    RFBuildInfo.toMap.foreach {
+      case (k, v) => retval.put(k, String.valueOf(v))
+    }
+    retval
+  }
+
   def toSpatialMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpatialKey] =
     rf.toMultibandTileLayerRDD match {
       case Left(spatial) => spatial
