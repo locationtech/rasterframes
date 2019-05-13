@@ -6,7 +6,7 @@ in the meantime:
 
 * [PyRasterFrames README](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/python/README.rst)
 * [PyRasterFrames Examples](https://github.com/locationtech/rasterframes/tree/develop/pyrasterframes/python/examples)
-* [RasterFrames Jupyter Notebook](https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md)
+* [RasterFrames Jupyter Notebook](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md)
 * @ref:[PyRasterFrames Functions](reference.md)
 
 Most features available in the Scala API are exposed in the Python API, refer to the @ref:[function reference](reference.md). Defining a [udf](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.functions.udf) using a `Tile` column through the Python API is not yet supported. 

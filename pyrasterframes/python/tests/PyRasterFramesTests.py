@@ -2,11 +2,10 @@ from pyspark.sql import SparkSession, Column, SQLContext
 from pyspark.sql.functions import *
 from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
+from pyrasterframes.rf_types import *
 from geomesa_pyspark.types import *
 from pathlib import Path
-import os
 import unittest
-from pyrasterframes.types import Tile
 import numpy as np
 
 # version-conditional imports
@@ -42,7 +41,7 @@ class TestEnvironment(unittest.TestCase):
                      .withKryoSerialization()
                      .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
-        print(cls.spark.version)
+        print("Spark Version: " + cls.spark.version)
         cls.spark.withRasterFrames()
 
         # load something into a rasterframe
@@ -167,7 +166,7 @@ class RasterFunctions(TestEnvironment):
         df2 = self.rf.withColumnRenamed(self.tileCol, 't2').asRF()
         df3 = df1.spatialJoin(df2).asRF()
         df3 = df3.withColumn('norm_diff', rf_normalized_difference('t1', 't2'))
-        df3.printSchema()
+        # df3.printSchema()
 
         aggs = df3.agg(
             rf_agg_mean('norm_diff'),
@@ -233,7 +232,7 @@ class RasterFunctions(TestEnvironment):
                                     rf_local_divide(tile, Two) AS OverTwo 
                                 FROM r3""")
 
-        ops.printSchema
+        # ops.printSchema
         statsRow = ops.select(rf_tile_mean(self.tileCol).alias('base'),
                               rf_tile_mean("AndOne").alias('plus_one'),
                               rf_tile_mean("LessOne").alias('minus_one'),
@@ -309,11 +308,9 @@ class RasterFunctions(TestEnvironment):
         self.assertTrue(df.select(rf_for_all(df.should_exist).alias('se')).take(1)[0].se)
         self.assertTrue(not df.select(rf_for_all(df.should_not_exist).alias('se')).take(1)[0].se)
 
-
 class UDT(TestEnvironment):
 
-    def test_cell_type(self):
-        from pyrasterframes.types import CellType
+    def test_cell_type_conversion(self):
         for ct in rf_cell_types():
             self.assertEqual(ct.to_numpy_dtype(),
                              CellType.from_numpy_dtype(ct.to_numpy_dtype()).to_numpy_dtype(),
@@ -323,8 +320,11 @@ class UDT(TestEnvironment):
                                  CellType.from_numpy_dtype(ct.to_numpy_dtype()),
                                  "GTCellType comparison for " + str(ct))
 
+    def test_cell_type_no_data(self):
+        # self.assertEqual(CellType("float32ud-98").no_data,
+        pass
+
     def test_tile_udt_serialization(self):
-        from pyrasterframes.types import TileUDT
         udt = TileUDT()
 
         cell_types = (ct for ct in rf_cell_types() if not ct.cell_type_name.endswith("raw"))
@@ -344,7 +344,7 @@ class UDT(TestEnvironment):
             all([isinstance(row.tile.cells, np.ndarray) for row in rf_collect]))
 
         # Try to create a tile from numpy.
-        a_tile = Tile(np.random.randn(10, 10))
+        self.assertEqual(Tile(np.random.randn(10, 10)).dimensions(), [10, 10])
 
         to_spark = pd.DataFrame({
             't': [Tile(np.random.randn(10, 12)) for _ in range(3)],
@@ -353,13 +353,12 @@ class UDT(TestEnvironment):
         })
         rf_maybe = self.spark.createDataFrame(to_spark)
         print("Type of dataframe: ", type(rf_maybe))
-        rf_maybe.printSchema()
 
         # Try to do something with it.
         sums = to_spark.t.apply(lambda a: a.cells.sum()).tolist()
         maybe_sums = rf_maybe.select(rf_tile_sum(rf_maybe.t).alias('tsum'))
         print("Schema of tile sum")
-        maybe_sums.printSchema()
+        #maybe_sums.printSchema()
 
         maybe_sums = [r.tsum for r in maybe_sums.collect()]
         np.testing.assert_almost_equal(maybe_sums, sums, 12)
@@ -391,7 +390,7 @@ class UDT(TestEnvironment):
 
 class RasterSource(TestEnvironment):
 
-    def ignore_test_raster_source_reader(self):
+    def test_raster_source_reader(self):
         import pandas as pd
         # much the same as RasterSourceDataSourceSpec here; but using https PDS. Takes about 30s to run
 
@@ -402,12 +401,14 @@ class RasterSource(TestEnvironment):
 
         path_param = '\n'.join([l8path(b) for b in [1, 2, 3]])  # "http://foo.com/file1.tif,http://foo.com/file2.tif"
         tile_size = 512
-        df = self.spark.read.format('rastersource') \
-            .options(paths=path_param, tileDimensions='{},{}'.format(tile_size, tile_size)) \
-            .load()
+
+        df = self.spark.read.rastersource(
+            tile_dimensions=(tile_size, tile_size),
+            paths=path_param
+        )
 
         # schema is tile_path and tile
-        df.printSchema()
+        # df.printSchema()
         self.assertTrue(len(df.columns) == 2 and 'tile_path' in df.columns and 'tile' in df.columns)
 
         # the most common tile dimensions should be as passed to `options`, showing that options are correctly applied
@@ -446,12 +447,13 @@ class RasterSource(TestEnvironment):
         path_table = self.spark.createDataFrame(path_pandas)
         path_table.createOrReplaceTempView(path_table_hive_name)
 
-        path_df = self.spark.read.format('rastersource') \
-            .options(pathTable=path_table_hive_name, pathTableColumns=csv_columns,
-                     tileDimensions='512,512') \
-            .load()
+        path_df = self.spark.read.rastersource(
+            tile_dimensions=(512, 512),
+            pathTable=path_table_hive_name,
+            pathTableColumns=csv_columns,
+        )
 
-        path_df.printSchema()
+        # path_df.printSchema()
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}
         self.assertTrue(path_df.select('b1_path').distinct().count() == 3)  # as per scene_dict
         b1_paths_maybe = path_df.select('b1_path').distinct().collect()

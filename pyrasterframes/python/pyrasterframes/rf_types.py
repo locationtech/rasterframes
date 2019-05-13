@@ -155,6 +155,9 @@ class CellType:
             # The remaining cell types should be compatible with numpy
             return np.dtype(self.cell_type_name)
 
+    def no_data_value(self):
+        pass
+
     def __eq__(self, other):
         if type(other) is type(self):
             return self.cell_type_name == other.cell_type_name

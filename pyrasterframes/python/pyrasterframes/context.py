@@ -25,6 +25,9 @@ class RFContext(object):
     def lookup(self, function_name):
         return getattr(self._jrfctx, function_name)
 
+    def build_info(self):
+        return self._jrfctx.buildInfo()
+
     @staticmethod
     def active():
         """

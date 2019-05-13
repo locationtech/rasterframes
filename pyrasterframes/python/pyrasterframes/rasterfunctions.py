@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from pyspark.sql.types import *
 from pyspark.sql.column import Column, _to_java_column
 from .context import RFContext
-from .types import CellType
+from .rf_types import CellType
 
 THIS_MODULE = 'pyrasterframes'
 
@@ -245,7 +245,8 @@ _rf_column_functions = {
     'rf_exp10': 'Compute 10 to the power of cell values',
     'rf_expm1': 'Performs cell-wise exponential, then subtract one',
     'rf_resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
-    'st_extent': 'Compute the extent/bbox of a Geometry',
+    'rf_crs': 'Get the CRS of a RasterSource or ProjectedRasterTile',
+    'st_extent': 'Compute the extent/bbox of a Geometry (a tile with embedded extent and CRS)',
     'rf_extent': 'Get the extent of a RasterSource or ProjectedRasterTile (a tile with embedded extent and CRS)',
     'st_geometry': 'Convert the given extent/bbox to a polygon',
     'rf_geometry': 'Get the extent of a RasterSource or ProjectdRasterTile as a Geometry',

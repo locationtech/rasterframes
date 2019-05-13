@@ -1,3 +1,4 @@
+
 addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("console", "datasource/console")
 
@@ -8,8 +9,9 @@ lazy val root = project
   .enablePlugins(RFReleasePlugin)
   .settings(publish / skip := true)
 
-lazy val deployment = project
-  .dependsOn(root)
+lazy val `rf-notebook` = project
+  .dependsOn(pyrasterframes)
+  .enablePlugins(RFAssemblyPlugin, DockerPlugin)
   .disablePlugins(SparkPackagePlugin)
 
 lazy val IntegrationTest = config("it") extend Test
@@ -42,13 +44,14 @@ lazy val core = project
       scalatest
     ),
     buildInfoKeys ++= Seq[BuildInfoKey](
-      name, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
+      moduleName, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),
     buildInfoPackage := "org.locationtech.rasterframes",
     buildInfoObject := "RFBuildInfo",
     buildInfoOptions := Seq(
       BuildInfoOption.ToMap,
-      BuildInfoOption.BuildTime
+      BuildInfoOption.BuildTime,
+      BuildInfoOption.ToJson
     )
   )
 
