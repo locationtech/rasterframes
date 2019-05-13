@@ -7,14 +7,13 @@ class here provides the PyRasterFrames entry point.
 
 from pyspark.sql.types import UserDefinedType
 from pyspark import SparkContext
-from pyspark.sql import SparkSession, DataFrame, Column, Row
+from pyspark.sql import DataFrame, Column
 from pyspark.sql.types import *
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
-from .context import RFContext
 import numpy as np
 
-__all__ = ['RasterFrame', 'TileUDT', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RasterFrame', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
 
 class RasterFrame(DataFrame):
@@ -138,7 +137,7 @@ class RasterSourceUDT(UserDefinedType):
         bytes(datum[0])
 
 
-class CellType:
+class CellType(object):
     def __init__(self, cell_type_name):
         self.cell_type_name = cell_type_name
 
@@ -146,17 +145,51 @@ class CellType:
     def from_numpy_dtype(cls, np_dtype):
         return CellType(str(np_dtype))
 
-    def to_numpy_dtype(self):
-        if self.cell_type_name.endswith("raw"):
-            return CellType(self.cell_type_name[:-3]).to_numpy_dtype()
-        elif "ud" in self.cell_type_name:
-            raise Exception("Cell types with user-defined NoData values are not yet implemented.")
+    def is_raw(self):
+        return self.cell_type_name.endswith("raw")
+
+    def is_user_defined_no_data(self):
+        return "ud" in self.cell_type_name
+
+    def is_default_no_data(self):
+        return not (self.is_raw() or self.is_user_defined_no_data())
+
+    def is_floating_point(self):
+        return self.cell_type_name.startswith("float")
+
+    def base_cell_type_name(self):
+        if self.is_raw():
+            return self.cell_type_name[:-3]
+        elif self.is_user_defined_no_data():
+            return self.cell_type_name.split("ud")[0]
         else:
-            # The remaining cell types should be compatible with numpy
-            return np.dtype(self.cell_type_name)
+            return self.cell_type_name
+
+    def to_numpy_dtype(self):
+        return np.dtype(self.base_cell_type_name())
 
     def no_data_value(self):
-        pass
+        if self.is_raw():
+            return None
+        elif self.is_user_defined_no_data():
+            num_str = self.cell_type_name.split("ud")[1]
+            if self.is_floating_point():
+                return float(num_str)
+            else:
+                return int(num_str)
+        else:
+            if self.is_floating_point():
+                return  float('nan')
+            else:
+                n = self.base_cell_type_name()
+                if n is "uint8" or n is "uint16":
+                    return 0
+                elif n is "int8":
+                    return -128
+                elif n is "int16":
+                    return -32768
+                elif n is "int32":
+                    return -2147483648
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -168,7 +201,7 @@ class CellType:
         return self.cell_type_name
 
 
-class Tile:
+class Tile(object):
     def __init__(self, cells):
         self.cells = cells
         self.cell_type = CellType.from_numpy_dtype(cells.dtype)
@@ -180,7 +213,8 @@ class Tile:
             return False
 
     def __str__(self):
-        return "Tile(\n  dimensions={}\n  cell_type={}\n  cells={}\n)".format(self.dimensions(), self.cell_type, self.cells)
+        return "Tile(\n  dimensions={}\n  cell_type={}\n  cells={}\n)" \
+            .format(self.dimensions(), self.cell_type, self.cells)
 
     def dimensions(self):
         # list of cols, rows as is conventional in GeoTrellis and RasterFrames

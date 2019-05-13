@@ -315,14 +315,32 @@ class UDT(TestEnvironment):
             self.assertEqual(ct.to_numpy_dtype(),
                              CellType.from_numpy_dtype(ct.to_numpy_dtype()).to_numpy_dtype(),
                              "dtype comparison for " + str(ct))
-            if "raw" not in ct.cell_type_name:
+            if not ct.is_raw():
                 self.assertEqual(ct,
                                  CellType.from_numpy_dtype(ct.to_numpy_dtype()),
                                  "GTCellType comparison for " + str(ct))
 
+    def test_is_raw(self):
+        self.assertTrue(CellType("float32raw").is_raw())
+        self.assertFalse(CellType("float64ud1234").is_raw())
+        self.assertFalse(CellType("float32").is_raw())
+        self.assertTrue(CellType("int8raw").is_raw())
+        self.assertFalse(CellType("uint16d12").is_raw())
+        self.assertFalse(CellType("int32").is_raw())
+
+    def test_is_floating_point(self):
+        self.assertTrue(CellType("float32raw").is_floating_point())
+        self.assertTrue(CellType("float64ud1234").is_floating_point())
+        self.assertTrue(CellType("float32").is_floating_point())
+        self.assertFalse(CellType("int8raw").is_floating_point())
+        self.assertFalse(CellType("uint16d12").is_floating_point())
+        self.assertFalse(CellType("int32").is_floating_point())
+
     def test_cell_type_no_data(self):
-        # self.assertEqual(CellType("float32ud-98").no_data,
-        pass
+        import math
+        self.assertEqual(CellType("float32ud-98").no_data_value(), -98.0)
+        self.assertTrue(math.isnan(CellType("float64").no_data_value()))
+        self.assertEqual(CellType("uint8").no_data_value(), 0)
 
     def test_tile_udt_serialization(self):
         udt = TileUDT()
@@ -352,13 +370,10 @@ class UDT(TestEnvironment):
             'c': [1, 2, 4],
         })
         rf_maybe = self.spark.createDataFrame(to_spark)
-        print("Type of dataframe: ", type(rf_maybe))
 
         # Try to do something with it.
         sums = to_spark.t.apply(lambda a: a.cells.sum()).tolist()
         maybe_sums = rf_maybe.select(rf_tile_sum(rf_maybe.t).alias('tsum'))
-        print("Schema of tile sum")
-        #maybe_sums.printSchema()
 
         maybe_sums = [r.tsum for r in maybe_sums.collect()]
         np.testing.assert_almost_equal(maybe_sums, sums, 12)
@@ -382,10 +397,6 @@ class UDT(TestEnvironment):
 
         self.assertIsInstance(array_back_2, Tile)
         np.testing.assert_equal(array_back_2.cells, simple_array.cells)
-
-        # test CRS and extent correctly make round trips
-
-        # test raster source?
 
 
 class RasterSource(TestEnvironment):
