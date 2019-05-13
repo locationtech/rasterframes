@@ -1,4 +1,3 @@
-
 from pyspark.sql import SparkSession, Column, SQLContext
 from pyspark.sql.functions import *
 from pyrasterframes import *
@@ -12,22 +11,24 @@ import numpy as np
 
 # version-conditional imports
 import sys
+
 if sys.version_info[0] > 2:
     import builtins
 else:
     import __builtin__ as builtins
 
 
-def _rounded_compare(val1, val2):
-    print('Comparing {} and {} using round()'.format(val1, val2))
-    return builtins.round(val1) == builtins.round(val2)
+class TestEnvironment(unittest.TestCase):
+    """
+    Base class for tests.
+    """
 
-
-class RasterFunctionsTest(unittest.TestCase):
+    def rounded_compare(self, val1, val2):
+        print('Comparing {} and {} using round()'.format(val1, val2))
+        return builtins.round(val1) == builtins.round(val2)
 
     @classmethod
     def setUpClass(cls):
-
         # gather Scala requirements
         jarpath = list(Path('../target/scala-2.11').resolve().glob('pyrasterframes-assembly*.jar'))[0]
 
@@ -36,10 +37,10 @@ class RasterFunctionsTest(unittest.TestCase):
 
         # spark session with RF
         cls.spark = (SparkSession.builder
-            .config('spark.driver.extraClassPath', jarpath)
-            .config('spark.executor.extraClassPath', jarpath)
-            .withKryoSerialization()
-            .getOrCreate())
+                     .config('spark.driver.extraClassPath', jarpath)
+                     .config('spark.executor.extraClassPath', jarpath)
+                     .withKryoSerialization()
+                     .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
         print(cls.spark.version)
         cls.spark.withRasterFrames()
@@ -54,10 +55,94 @@ class RasterFunctionsTest(unittest.TestCase):
         cls.rf = rf.withColumn('tile2', rf_convert_cell_type(cls.tileCol, 'float32')) \
             .drop(cls.tileCol) \
             .withColumnRenamed('tile2', cls.tileCol).asRF()
-        #cls.rf.show()
+        # cls.rf.show()
 
     def test_setup(self):
-        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"), "org.apache.spark.serializer.KryoSerializer")
+        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
+                         "org.apache.spark.serializer.KryoSerializer")
+
+
+class VectorTypes(TestEnvironment):
+
+    def setUp(self):
+        import pandas as pd
+        self.pandas_df = pd.DataFrame({
+            'eye': ['a', 'b', 'c', 'd'],
+            'x': [0.0, 1.0, 2.0, 3.0],
+            'y': [-4.0, -3.0, -2.0, -1.0],
+        })
+        df = self.spark.createDataFrame(self.pandas_df)
+        df = df.withColumn("point_geom",
+                           st_point(df.x, df.y)
+                           )
+        self.df = df.withColumn("poly_geom", st_bufferPoint(df.point_geom, lit(1250.0)))
+
+    def test_spatial_relations(self):
+        from pyspark.sql.functions import lit, udf, sum
+        import shapely
+        import numpy.testing
+
+        # Use python shapely UDT in a UDF
+        @udf("double")
+        def area_fn(g):
+            return g.area
+
+        @udf("double")
+        def length_fn(g):
+            return g.length
+
+        df = self.df.withColumn("poly_area", area_fn(self.df.poly_geom))
+        df = df.withColumn("poly_len", length_fn(df.poly_geom))
+
+        # Return UDT in a UDF!
+        def some_point(g):
+            return g.representative_point()
+
+        some_point_udf = udf(some_point, PointUDT())
+
+        df = df.withColumn("any_point", some_point_udf(df.poly_geom))
+        # spark-side UDF/UDT are correct
+        intersect_total = df.agg(sum(
+            st_intersects(df.poly_geom, df.any_point).astype('double')
+        ).alias('s')).collect()[0].s
+        self.assertTrue(intersect_total == df.count())
+
+        # Collect to python driver in shapely UDT
+        pandas_df_out = df.toPandas()
+
+        # Confirm we get a shapely type back from st_* function and UDF
+        self.assertIsInstance(pandas_df_out.poly_geom.iloc[0], shapely.geometry.Polygon)
+        self.assertIsInstance(pandas_df_out.any_point.iloc[0], shapely.geometry.Point)
+
+        # And our spark-side manipulations were correct
+        xs_correct = pandas_df_out.point_geom.apply(lambda g: g.coords[0][0]) == self.pandas_df.x
+        self.assertTrue(all(xs_correct))
+
+        centroid_ys = pandas_df_out.poly_geom.apply(lambda g:
+                                                    g.centroid.coords[0][1]).tolist()
+        numpy.testing.assert_almost_equal(centroid_ys, self.pandas_df.y.tolist())
+
+        # Including from UDF's
+        numpy.testing.assert_almost_equal(
+            pandas_df_out.poly_geom.apply(lambda g: g.area).values,
+            pandas_df_out.poly_area.values
+        )
+        numpy.testing.assert_almost_equal(
+            pandas_df_out.poly_geom.apply(lambda g: g.length).values,
+            pandas_df_out.poly_len.values
+        )
+
+    def test_rasterize(self):
+        # NB: This test just makes sure rf_rasterize runs, not that the results are correct.
+        withRaster = self.rf.withColumn('rasterized', rf_rasterize('geometry', 'geometry', lit(42), 10, 10))
+        withRaster.show()
+
+    def test_reproject(self):
+        reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
+        reprojected.show()
+
+
+class RasterFunctions(TestEnvironment):
 
     def test_identify_columns(self):
         cols = self.rf.tileColumns()
@@ -72,11 +157,12 @@ class RasterFunctionsTest(unittest.TestCase):
 
     def test_tile_creation(self):
         base = self.spark.createDataFrame([1, 2, 3, 4], 'integer')
-        tiles = base.select(rf_make_constant_tile(3, 3, 3, "int32"), rf_make_zeros_tile(3, 3, "int32"), rf_make_ones_tile(3, 3, "int32"))
+        tiles = base.select(rf_make_constant_tile(3, 3, 3, "int32"), rf_make_zeros_tile(3, 3, "int32"),
+                            rf_make_ones_tile(3, 3, "int32"))
         tiles.show()
         self.assertEqual(tiles.count(), 4)
 
-    def test_tile_operations(self):
+    def test_multi_column_operations(self):
         df1 = self.rf.withColumnRenamed(self.tileCol, 't1').asRF()
         df2 = self.rf.withColumnRenamed(self.tileCol, 't2').asRF()
         df3 = df1.spatialJoin(df2).asRF()
@@ -89,13 +175,12 @@ class RasterFunctionsTest(unittest.TestCase):
         aggs.show()
         row = aggs.first()
 
-        self.assertTrue(_rounded_compare(row['rf_agg_mean(norm_diff)'], 0))
-
+        self.assertTrue(self.rounded_compare(row['rf_agg_mean(norm_diff)'], 0))
 
     def test_general(self):
         meta = self.rf.tileLayerMetadata()
         self.assertIsNotNone(meta['bounds'])
-        df = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)) \
+        df = self.rf.withColumn('dims', rf_dimensions(self.tileCol)) \
             .withColumn('type', rf_cell_type(self.tileCol)) \
             .withColumn('dCells', rf_data_cells(self.tileCol)) \
             .withColumn('ndCells', rf_no_data_cells(self.tileCol)) \
@@ -115,15 +200,6 @@ class RasterFunctionsTest(unittest.TestCase):
         #  a source of ProjectedRasterTiles.
         df.show()
 
-    def test_rasterize(self):
-        # NB: This test just makes sure rf_rasterize runs, not that the results are correct.
-        withRaster = self.rf.withColumn('rasterized', rf_rasterize('geometry', 'geometry', lit(42), 10, 10))
-        withRaster.show()
-
-    def test_reproject(self):
-        reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
-        reprojected.show()
-
     def test_aggregations(self):
         aggs = self.rf.agg(
             rf_agg_mean(self.tileCol),
@@ -135,17 +211,16 @@ class RasterFunctionsTest(unittest.TestCase):
         aggs.show()
         row = aggs.first()
 
-        self.assertTrue(_rounded_compare(row['rf_agg_mean(tile)'], 10160))
+        self.assertTrue(self.rounded_compare(row['rf_agg_mean(tile)'], 10160))
         print(row['rf_agg_data_cells(tile)'])
         self.assertEqual(row['rf_agg_data_cells(tile)'], 387000)
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
     def test_sql(self):
-
         self.rf.createOrReplaceTempView("rf")
 
-        dims = self.rf.withColumn('dims',  rf_dimensions(self.tileCol)).first().dims
+        dims = self.rf.withColumn('dims', rf_dimensions(self.tileCol)).first().dims
         dims_str = """{}, {}""".format(dims.cols, dims.rows)
 
         self.spark.sql("""SELECT tile, rf_make_constant_tile(1, {}, 'uint16') AS One, 
@@ -160,16 +235,16 @@ class RasterFunctionsTest(unittest.TestCase):
 
         ops.printSchema
         statsRow = ops.select(rf_tile_mean(self.tileCol).alias('base'),
-                           rf_tile_mean("AndOne").alias('plus_one'),
-                           rf_tile_mean("LessOne").alias('minus_one'),
-                           rf_tile_mean("TimesTwo").alias('double'),
-                           rf_tile_mean("OverTwo").alias('half')) \
-                        .first()
+                              rf_tile_mean("AndOne").alias('plus_one'),
+                              rf_tile_mean("LessOne").alias('minus_one'),
+                              rf_tile_mean("TimesTwo").alias('double'),
+                              rf_tile_mean("OverTwo").alias('half')) \
+            .first()
 
-        self.assertTrue(_rounded_compare(statsRow.base, statsRow.plus_one - 1))
-        self.assertTrue(_rounded_compare(statsRow.base, statsRow.minus_one + 1))
-        self.assertTrue(_rounded_compare(statsRow.base, statsRow.double / 2))
-        self.assertTrue(_rounded_compare(statsRow.base, statsRow.half * 2))
+        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.plus_one - 1))
+        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.minus_one + 1))
+        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.double / 2))
+        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.half * 2))
 
     def test_explode(self):
         import pyspark.sql.functions as F
@@ -179,10 +254,10 @@ class RasterFunctionsTest(unittest.TestCase):
         # +-----------+------------+---------+-------+
         # |[2,1]      |4           |0        |10150.0|
         cell = self.rf.select(self.rf.spatialKeyColumn(), rf_explode_tiles(self.rf.tile)) \
-            .where(F.col("spatial_key.col")==2) \
-            .where(F.col("spatial_key.row")==1) \
-            .where(F.col("column_index")==4) \
-            .where(F.col("row_index")==0) \
+            .where(F.col("spatial_key.col") == 2) \
+            .where(F.col("spatial_key.row") == 1) \
+            .where(F.col("column_index") == 4) \
+            .where(F.col("row_index") == 0) \
             .select(F.col("tile")) \
             .collect()[0][0]
         self.assertEqual(cell, 10150.0)
@@ -193,7 +268,6 @@ class RasterFunctionsTest(unittest.TestCase):
         print('Sample count is {}'.format(sample_count))
         self.assertTrue(sample_count > 0)
         self.assertTrue(sample_count < (frac * 1.1) * 387000)  # give some wiggle room
-
 
     def test_mask_by_value(self):
         from pyspark.sql.functions import lit
@@ -206,7 +280,7 @@ class RasterFunctionsTest(unittest.TestCase):
                                  rf_convert_cell_type(
                                      rf_local_greater_int(self.rf.tile, 25000),
                                      "uint8"),
-                                  lit(mask_value)).alias('mask'))
+                                 lit(mask_value)).alias('mask'))
         rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
         result = rf2.agg(rf_agg_no_data_cells(rf2.tile) < rf_agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]
@@ -236,72 +310,7 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(not df.select(rf_for_all(df.should_not_exist).alias('se')).take(1)[0].se)
 
 
-    def test_geomesa_pyspark(self):
-        from pyspark.sql.functions import lit, udf, sum
-        import shapely
-        import pandas as pd
-        import numpy.testing
-
-        pandas_df = pd.DataFrame({
-            'eye': ['a', 'b', 'c', 'd'],
-            'x': [0.0, 1.0, 2.0, 3.0],
-            'y': [-4.0, -3.0, -2.0, -1.0],
-        })
-        df = self.spark.createDataFrame(pandas_df)
-        df = df.withColumn("point_geom",
-                           st_point(df.x, df.y)
-                           )
-        df = df.withColumn("poly_geom", st_bufferPoint(df.point_geom, lit(1250.0)))
-
-        # Use python shapely UDT in a UDF
-        @udf("double")
-        def area_fn(g):
-            return g.area
-
-        @udf("double")
-        def length_fn(g):
-            return g.length
-
-        df = df.withColumn("poly_area", area_fn(df.poly_geom))
-        df = df.withColumn("poly_len", length_fn(df.poly_geom))
-
-        # Return UDT in a UDF!
-        def some_point(g):
-            return g.representative_point()
-
-        some_point_udf = udf(some_point, PointUDT())
-
-        df = df.withColumn("any_point", some_point_udf(df.poly_geom))
-        # spark-side UDF/UDT are correct
-        intersect_total = df.agg(sum(
-            st_intersects(df.poly_geom, df.any_point).astype('double')
-        ).alias('s')).collect()[0].s
-        self.assertTrue(intersect_total == df.count())
-
-        # Collect to python driver in shapely UDT
-        pandas_df_out = df.toPandas()
-
-        # Confirm we get a shapely type back from st_* function and UDF
-        self.assertIsInstance(pandas_df_out.poly_geom.iloc[0], shapely.geometry.Polygon)
-        self.assertIsInstance(pandas_df_out.any_point.iloc[0], shapely.geometry.Point)
-
-        # And our spark-side manipulations were correct
-        xs_correct = pandas_df_out.point_geom.apply(lambda g: g.coords[0][0]) == pandas_df.x
-        self.assertTrue(all(xs_correct))
-
-        centroid_ys = pandas_df_out.poly_geom.apply(lambda g:
-                                                      g.centroid.coords[0][1]).tolist()
-        numpy.testing.assert_almost_equal(centroid_ys, pandas_df.y.tolist())
-
-        # Including from UDF's
-        numpy.testing.assert_almost_equal(
-            pandas_df_out.poly_geom.apply(lambda g: g.area).values,
-            pandas_df_out.poly_area.values
-        )
-        numpy.testing.assert_almost_equal(
-            pandas_df_out.poly_geom.apply(lambda g: g.length).values,
-            pandas_df_out.poly_len.values
-        )
+class UDT(TestEnvironment):
 
     def test_cell_type(self):
         from pyrasterframes.types import CellType
@@ -314,7 +323,6 @@ class RasterFunctionsTest(unittest.TestCase):
                                  CellType.from_numpy_dtype(ct.to_numpy_dtype()),
                                  "GTCellType comparison for " + str(ct))
 
-
     def test_tile_udt_serialization(self):
         from pyrasterframes.types import TileUDT
         udt = TileUDT()
@@ -324,7 +332,6 @@ class RasterFunctionsTest(unittest.TestCase):
             a_tile = Tile(np.random.randn(3, 3).astype(ct.to_numpy_dtype()))
             round_trip = udt.fromInternal(udt.toInternal(a_tile))
             self.assertEquals(a_tile, round_trip, "round-trip serialization for " + str(ct))
-
 
     def test_tile_udt_general(self):
         import pandas as pd
@@ -382,7 +389,9 @@ class RasterFunctionsTest(unittest.TestCase):
         # test raster source?
 
 
-    def test_zraster_source_reader(self):
+class RasterSource(TestEnvironment):
+
+    def ignore_test_raster_source_reader(self):
         import pandas as pd
         # much the same as RasterSourceDataSourceSpec here; but using https PDS. Takes about 30s to run
 
@@ -394,15 +403,15 @@ class RasterFunctionsTest(unittest.TestCase):
         path_param = '\n'.join([l8path(b) for b in [1, 2, 3]])  # "http://foo.com/file1.tif,http://foo.com/file2.tif"
         tile_size = 512
         df = self.spark.read.format('rastersource') \
-                            .options(paths=path_param, tileDimensions='{},{}'.format(tile_size, tile_size)) \
-                            .load()
+            .options(paths=path_param, tileDimensions='{},{}'.format(tile_size, tile_size)) \
+            .load()
 
         # schema is tile_path and tile
         df.printSchema()
         self.assertTrue(len(df.columns) == 2 and 'tile_path' in df.columns and 'tile' in df.columns)
 
         # the most common tile dimensions should be as passed to `options`, showing that options are correctly applied
-        tile_size_df = df.select(rf_dimensions(df.tile).rows.alias('r'), rf_dimensions(df.tile).cols.alias('c'))\
+        tile_size_df = df.select(rf_dimensions(df.tile).rows.alias('r'), rf_dimensions(df.tile).cols.alias('c')) \
             .groupby(['r', 'c']).count().toPandas()
         most_common_size = tile_size_df.loc[tile_size_df['count'].idxmax()]
         self.assertTrue(most_common_size.r == tile_size and most_common_size.c == tile_size)
@@ -438,9 +447,9 @@ class RasterFunctionsTest(unittest.TestCase):
         path_table.createOrReplaceTempView(path_table_hive_name)
 
         path_df = self.spark.read.format('rastersource') \
-                            .options(pathTable=path_table_hive_name, pathTableColumns=csv_columns,
-                                     tileDimensions='512,512') \
-                            .load()
+            .options(pathTable=path_table_hive_name, pathTableColumns=csv_columns,
+                     tileDimensions='512,512') \
+            .load()
 
         path_df.printSchema()
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}
@@ -453,5 +462,6 @@ class RasterFunctionsTest(unittest.TestCase):
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
+
 
 unittest.TextTestRunner().run(suite())
