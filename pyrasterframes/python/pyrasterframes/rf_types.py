@@ -165,8 +165,8 @@ class CellType(object):
         else:
             return self.cell_type_name
 
-    def to_numpy_dtype(self):
-        return np.dtype(self.base_cell_type_name())
+    def has_no_data(self):
+        return not self.is_raw()
 
     def no_data_value(self):
         if self.is_raw():
@@ -179,7 +179,7 @@ class CellType(object):
                 return int(num_str)
         else:
             if self.is_floating_point():
-                return  float('nan')
+                return float('nan')
             else:
                 n = self.base_cell_type_name()
                 if n is "uint8" or n is "uint16":
@@ -191,6 +191,9 @@ class CellType(object):
                 elif n is "int32":
                     return -2147483648
 
+    def to_numpy_dtype(self):
+        return np.dtype(self.base_cell_type_name())
+
     def __eq__(self, other):
         if type(other) is type(self):
             return self.cell_type_name == other.cell_type_name
@@ -198,13 +201,25 @@ class CellType(object):
             return False
 
     def __str__(self):
-        return self.cell_type_name
+        return "CellType({}, {})".format(self.cell_type_name, self.no_data_value())
 
 
 class Tile(object):
-    def __init__(self, cells):
-        self.cells = cells
-        self.cell_type = CellType.from_numpy_dtype(cells.dtype)
+    def __init__(self, cells, cell_type=None):
+        if cell_type is None:
+            self.cell_type = CellType.from_numpy_dtype(cells.dtype)
+        else:
+            self.cell_type = cell_type
+
+        if self.cell_type.has_no_data():
+            if self.cell_type.is_floating_point():
+                self.cells = np.ma.masked_invalid(cells)
+            else:
+                nd_value = self.cell_type.no_data_value()
+                # if the value in the array is `nd_value`, it is masked as nodata
+                self.cells = np.ma.masked_equal(cells, nd_value)
+        else:
+            self.cells = cells
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -288,7 +303,7 @@ class TileUDT(UserDefinedType):
         cell_data_bytes = datum.cell_data.cells
 
         as_numpy = np.frombuffer(cell_data_bytes, dtype=cell_type.to_numpy_dtype()).reshape((rows, cols))
-        t = Tile(as_numpy)
+        t = Tile(as_numpy, cell_type)
         return t
 
     deserialize.__safe_for_unpickling__ = True

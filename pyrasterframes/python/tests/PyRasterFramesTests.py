@@ -342,6 +342,18 @@ class UDT(TestEnvironment):
         self.assertTrue(math.isnan(CellType("float64").no_data_value()))
         self.assertEqual(CellType("uint8").no_data_value(), 0)
 
+    def test_mask_no_data(self):
+        t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
+        self.assertTrue(t1.cells.mask[1][0])
+        self.assertIsNotNone(t1.cells[1][1])
+        self.assertEqual(len(t1.cells.compressed()), 3)
+        t2 = Tile(np.array([[1.0, 2.0], [float('nan'), 4.0]]), CellType("float32"))
+        print(t2)
+        self.assertEqual(len(t2.cells.compressed()), 3)
+        self.assertTrue(t2.cells.mask[1][0])
+        self.assertIsNotNone(t2.cells[1][1])
+
+
     def test_tile_udt_serialization(self):
         udt = TileUDT()
 
