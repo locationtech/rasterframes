@@ -62,11 +62,19 @@ class RasterSourceIT extends TestEnvironment with TestData {
     }
   }
 
-  describe("GDAL support") {
-
-    it("should read JPEG2000 scene") {
-      val src = RasterSource(localSentinel)
-      src.readAll().flatMap(_.tile.statisticsDouble).size should be (64)
+  if (RasterSource.IsGDAL.hasGDAL) {
+    describe("GDAL support") {
+      it("should read JPEG2000 scene") {
+        RasterSource(localSentinel.toURI).readAll().flatMap(_.tile.statisticsDouble).size should be(64)
+      }
+    }
+  } else {
+    describe("GDAL missing error support") {
+      it("should throw exception reading JPEG2000 scene") {
+          intercept[IllegalArgumentException] {
+            RasterSource(localSentinel.toURI)
+          }
+      }
     }
 
     it("should read small MRF scene with one band converted from MODIS HDF") {
@@ -93,4 +101,5 @@ class RasterSourceIT extends TestEnvironment with TestData {
     val expectedTileCount = tilesPerBand * bands.length
     (expectedTileCount, bands)
   }
+
 }
