@@ -39,7 +39,7 @@ class TileUDT extends UserDefinedType[Tile] {
   import TileUDT._
   override def typeName = TileUDT.typeName
 
-  override def pyUDT: String = "pyrasterframes.TileUDT"
+  override def pyUDT: String = "pyrasterframes.rf_types.TileUDT"
 
   def userClass: Class[Tile] = classOf[Tile]
 

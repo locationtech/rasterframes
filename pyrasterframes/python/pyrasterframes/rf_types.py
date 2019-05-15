@@ -179,7 +179,7 @@ class CellType(object):
                 return int(num_str)
         else:
             if self.is_floating_point():
-                return float('nan')
+                return np.nan
             else:
                 n = self.base_cell_type_name()
                 if n is "uint8" or n is "uint16":
@@ -193,6 +193,9 @@ class CellType(object):
 
     def to_numpy_dtype(self):
         return np.dtype(self.base_cell_type_name())
+
+    def with_no_data_value(self, no_data):
+        return CellType(self.base_cell_type_name() + "ud" + str(no_data))
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -212,10 +215,10 @@ class Tile(object):
             self.cell_type = cell_type
 
         if self.cell_type.has_no_data():
-            if self.cell_type.is_floating_point():
+            nd_value = self.cell_type.no_data_value()
+            if np.isnan(nd_value):
                 self.cells = np.ma.masked_invalid(cells)
             else:
-                nd_value = self.cell_type.no_data_value()
                 # if the value in the array is `nd_value`, it is masked as nodata
                 self.cells = np.ma.masked_equal(cells, nd_value)
         else:
@@ -230,6 +233,24 @@ class Tile(object):
     def __str__(self):
         return "Tile(\n  dimensions={}\n  cell_type={}\n  cells={}\n)" \
             .format(self.dimensions(), self.cell_type, self.cells)
+
+    def __add__(self, right):
+        if isinstance(right, Tile):
+            other = right.cells
+        else:
+            other = right
+        result = np.add(self.cells, other)
+        ct = CellType.from_numpy_dtype(result.dtype)
+        if isinstance(result, np.ma.masked_array):
+            ct = ct.with_no_data_value(result.fill_value)
+        return Tile(np.add(self.cells, other), ct)
+
+    def __sub__(self, right):
+        if isinstance(right, Tile):
+            other = right.cells
+        else:
+            other = right
+        return Tile(np.subtract(self.cells, other), self.cell_type)
 
     def dimensions(self):
         # list of cols, rows as is conventional in GeoTrellis and RasterFrames
@@ -269,7 +290,7 @@ class TileUDT(UserDefinedType):
 
     @classmethod
     def module(cls):
-        return 'pyrasterframes.types'
+        return 'pyrasterframes.rf_types'
 
     @classmethod
     def scalaUDT(cls):

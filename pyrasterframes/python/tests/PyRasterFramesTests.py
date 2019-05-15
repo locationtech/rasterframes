@@ -308,6 +308,7 @@ class RasterFunctions(TestEnvironment):
         self.assertTrue(df.select(rf_for_all(df.should_exist).alias('se')).take(1)[0].se)
         self.assertTrue(not df.select(rf_for_all(df.should_not_exist).alias('se')).take(1)[0].se)
 
+
 class UDT(TestEnvironment):
 
     def test_cell_type_conversion(self):
@@ -342,28 +343,68 @@ class UDT(TestEnvironment):
         self.assertTrue(math.isnan(CellType("float64").no_data_value()))
         self.assertEqual(CellType("uint8").no_data_value(), 0)
 
+        ct = CellType.from_numpy_dtype("int8")
+        print(ct)
+        print(ct.to_numpy_dtype())
+        print(ct.no_data_value())
+        print(ct.base_cell_type_name())
+
+        a_tile = Tile(np.random.randn(3, 3).astype(ct.to_numpy_dtype()), ct)
+        print(a_tile)
+
     def test_mask_no_data(self):
         t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
         self.assertTrue(t1.cells.mask[1][0])
         self.assertIsNotNone(t1.cells[1][1])
         self.assertEqual(len(t1.cells.compressed()), 3)
         t2 = Tile(np.array([[1.0, 2.0], [float('nan'), 4.0]]), CellType("float32"))
-        print(t2)
         self.assertEqual(len(t2.cells.compressed()), 3)
         self.assertTrue(t2.cells.mask[1][0])
         self.assertIsNotNone(t2.cells[1][1])
 
-
     def test_tile_udt_serialization(self):
         udt = TileUDT()
-
-        cell_types = (ct for ct in rf_cell_types() if not ct.cell_type_name.endswith("raw"))
+        cell_types = (ct for ct in rf_cell_types() if not ct.is_raw())
         for ct in cell_types:
-            a_tile = Tile(np.random.randn(3, 3).astype(ct.to_numpy_dtype()))
+            cells = (100 + np.random.randn(3, 3) * 100).astype(ct.to_numpy_dtype())
+
+            if ct.is_floating_point():
+                nd = 33.0
+            else:
+                nd = 33
+
+            cells[1][1] = nd
+            a_tile = Tile(cells, ct.with_no_data_value(nd))
+            print(repr(a_tile.cells))
             round_trip = udt.fromInternal(udt.toInternal(a_tile))
             self.assertEquals(a_tile, round_trip, "round-trip serialization for " + str(ct))
 
-    def test_tile_udt_general(self):
+    def test_no_data_udf_handling(self):
+        t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
+        print(t1)
+        schema = StructType([StructField("tile", TileUDT(), False)])
+        df = self.spark.createDataFrame([{"tile": t1}], schema)
+
+        @udf("double")
+        def increment(t: Tile):
+            return t + 1
+
+        print(df.select(increment("tile")).collect())
+
+
+class TileOps(TestEnvironment):
+
+    def test_addition(self):
+        t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
+        e1 = np.ma.masked_equal(np.array([[5, 6], [7, 8]]), 7)
+        self.assertTrue(np.array_equal((t1 + 4).cells, e1))
+
+        t2 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud1"))
+        e2 = np.ma.masked_equal(np.array([[3, 4], [3, 8]]), 3)
+        r2 = (t1 + t2).cells
+        self.assertTrue(np.ma.allequal(r2, e2))
+
+    def test_tile_ops_general(self):
         import pandas as pd
 
         self.assertIsInstance(self.rf.sql_ctx, SQLContext)
@@ -386,7 +427,6 @@ class UDT(TestEnvironment):
         # Try to do something with it.
         sums = to_spark.t.apply(lambda a: a.cells.sum()).tolist()
         maybe_sums = rf_maybe.select(rf_tile_sum(rf_maybe.t).alias('tsum'))
-
         maybe_sums = [r.tsum for r in maybe_sums.collect()]
         np.testing.assert_almost_equal(maybe_sums, sums, 12)
 
