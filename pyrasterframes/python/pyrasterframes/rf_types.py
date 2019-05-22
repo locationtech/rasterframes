@@ -117,7 +117,7 @@ class RasterFrame(DataFrame):
 
 class RasterSourceUDT(UserDefinedType):
     @classmethod
-    def sqlType(self):
+    def sqlType(cls):
         return StructType([
             StructField("raster_source_kryo", BinaryType(), False)])
 
@@ -138,11 +138,11 @@ class RasterSourceUDT(UserDefinedType):
 
 
 class CellType(object):
-    def __init__(self, cell_type_name):
+    def __init__(self, cell_type_name: str):
         self.cell_type_name = cell_type_name
 
     @classmethod
-    def from_numpy_dtype(cls, np_dtype):
+    def from_numpy_dtype(cls, np_dtype: np.dtype):
         return CellType(str(np_dtype))
 
     def is_raw(self):
@@ -182,17 +182,37 @@ class CellType(object):
                 return np.nan
             else:
                 n = self.base_cell_type_name()
-                if n is "uint8" or n is "uint16":
+                if n == "uint8" or n == "uint16":
                     return 0
-                elif n is "int8":
+                elif n == "int8":
                     return -128
-                elif n is "int16":
+                elif n == "int16":
                     return -32768
-                elif n is "int32":
+                elif n == "int32":
                     return -2147483648
+                elif n == "bool":
+                    return None
+        raise Exception("Unable to determine no_data_value from '{}'".format(n))
 
     def to_numpy_dtype(self):
-        return np.dtype(self.base_cell_type_name())
+        n = self.base_cell_type_name()
+        if n == "uint8":
+            return np.uint
+        elif n == "int8":
+            return np.int
+        elif n == "uint16":
+            return np.ushort
+        elif n == "int16":
+            return np.short
+        elif n == "int32":
+            return np.int
+        elif n == "float32":
+            return np.float
+        elif n == "float64":
+            return np.double
+        else:
+            # Shouldn't happen
+            return np.dtype(n)
 
     def with_no_data_value(self, no_data):
         return CellType(self.base_cell_type_name() + "ud" + str(no_data))
@@ -205,6 +225,9 @@ class CellType(object):
 
     def __str__(self):
         return "CellType({}, {})".format(self.cell_type_name, self.no_data_value())
+
+    def __repr__(self):
+        return self.cell_type_name
 
 
 class Tile(object):
@@ -233,6 +256,10 @@ class Tile(object):
     def __str__(self):
         return "Tile(\n  dimensions={}\n  cell_type={}\n  cells={}\n)" \
             .format(self.dimensions(), self.cell_type, self.cells)
+
+    def __repr__(self):
+        return "Tile({}, {})" \
+            .format(repr(self.cell_type), str(self.cells))
 
     def __add__(self, right):
         if isinstance(right, Tile):
@@ -297,6 +324,7 @@ class TileUDT(UserDefinedType):
         return 'org.apache.spark.sql.rf.TileUDT'
 
     def serialize(self, tile):
+        #print("in: ", repr(tile.cells.flatten().tobytes()))
         row = [
             # cell_context
             [
@@ -322,9 +350,23 @@ class TileUDT(UserDefinedType):
         cols = datum.cell_context.dimensions.cols
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
-
-        as_numpy = np.frombuffer(cell_data_bytes, dtype=cell_type.to_numpy_dtype()).reshape((rows, cols))
-        t = Tile(as_numpy, cell_type)
+        #print("out: ", repr(cell_data_bytes))
+        try:
+            as_numpy = np.frombuffer(cell_data_bytes)
+                #.astype(dtype=cell_type.to_numpy_dtype())
+                #.astype(dtype=np.dtype('B')) \
+            reshaped = as_numpy.reshape((rows, cols))
+            t = Tile(reshaped, cell_type)
+        except ValueError as e:
+            raise ValueError({
+                "cell_type": cell_type,
+                "cols": cols,
+                "rows": rows,
+                "cell_data.length": len(cell_data_bytes),
+                "cell_data.type": type(cell_data_bytes),
+                "cell_data.values": repr(cell_data_bytes),
+                "as_numpy.values": repr(as_numpy)
+            }, e)
         return t
 
     deserialize.__safe_for_unpickling__ = True
@@ -337,6 +379,7 @@ class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """
     Python wrapper for TileExploder.scala
     """
+
     def __init__(self):
         super(TileExploder, self).__init__()
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.TileExploder", self.uid)
@@ -346,6 +389,7 @@ class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
     """
     Python wrapper for NoDataFilter.scala
     """
+
     def __init__(self):
         super(NoDataFilter, self).__init__()
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.NoDataFilter", self.uid)

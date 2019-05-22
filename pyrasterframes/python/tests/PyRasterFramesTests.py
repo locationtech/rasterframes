@@ -1,5 +1,7 @@
 from pyspark.sql import SparkSession, Column, SQLContext
 from pyspark.sql.functions import *
+from pyspark.sql.types import *
+
 from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
@@ -55,11 +57,6 @@ class TestEnvironment(unittest.TestCase):
             .drop(cls.tileCol) \
             .withColumnRenamed('tile2', cls.tileCol).asRF()
         # cls.rf.show()
-
-    def test_setup(self):
-        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
-                         "org.apache.spark.serializer.KryoSerializer")
-
 
 class VectorTypes(TestEnvironment):
 
@@ -133,8 +130,8 @@ class VectorTypes(TestEnvironment):
 
     def test_rasterize(self):
         # NB: This test just makes sure rf_rasterize runs, not that the results are correct.
-        withRaster = self.rf.withColumn('rasterized', rf_rasterize('geometry', 'geometry', lit(42), 10, 10))
-        withRaster.show()
+        with_raster = self.rf.withColumn('rasterized', rf_rasterize('geometry', 'geometry', lit(42), 10, 10))
+        with_raster.show()
 
     def test_reproject(self):
         reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
@@ -199,19 +196,20 @@ class RasterFunctions(TestEnvironment):
         #  a source of ProjectedRasterTiles.
         df.show()
 
+    def test_agg_mean(self):
+        mean = self.rf.agg(rf_agg_mean(self.tileCol)).first()['rf_agg_mean(tile)']
+        self.assertTrue(self.rounded_compare(mean, 10160))
+
     def test_aggregations(self):
         aggs = self.rf.agg(
-            rf_agg_mean(self.tileCol),
             rf_agg_data_cells(self.tileCol),
             rf_agg_no_data_cells(self.tileCol),
             rf_agg_stats(self.tileCol),
             rf_agg_approx_histogram(self.tileCol)
         )
-        aggs.show()
         row = aggs.first()
 
-        self.assertTrue(self.rounded_compare(row['rf_agg_mean(tile)'], 10160))
-        print(row['rf_agg_data_cells(tile)'])
+        # print(row['rf_agg_data_cells(tile)'])
         self.assertEqual(row['rf_agg_data_cells(tile)'], 387000)
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
@@ -309,17 +307,7 @@ class RasterFunctions(TestEnvironment):
         self.assertTrue(not df.select(rf_for_all(df.should_not_exist).alias('se')).take(1)[0].se)
 
 
-class UDT(TestEnvironment):
-
-    def test_cell_type_conversion(self):
-        for ct in rf_cell_types():
-            self.assertEqual(ct.to_numpy_dtype(),
-                             CellType.from_numpy_dtype(ct.to_numpy_dtype()).to_numpy_dtype(),
-                             "dtype comparison for " + str(ct))
-            if not ct.is_raw():
-                self.assertEqual(ct,
-                                 CellType.from_numpy_dtype(ct.to_numpy_dtype()),
-                                 "GTCellType comparison for " + str(ct))
+class CellTypeHandling(unittest.TestCase):
 
     def test_is_raw(self):
         self.assertTrue(CellType("float32raw").is_raw())
@@ -339,18 +327,48 @@ class UDT(TestEnvironment):
 
     def test_cell_type_no_data(self):
         import math
+        self.assertIsNone(CellType("bool").no_data_value())
+
+        self.assertTrue(CellType("int8").has_no_data())
+        self.assertEqual(CellType("int8").no_data_value(), -128)
+
+        self.assertTrue(CellType("uint8").has_no_data())
+        self.assertEqual(CellType("uint8").no_data_value(), 0)
+
+        self.assertTrue(CellType("int16").has_no_data())
+        self.assertEqual(CellType("int16").no_data_value(), -32768)
+
+        self.assertTrue(CellType("uint16").has_no_data())
+        self.assertEqual(CellType("uint16").no_data_value(), 0)
+
+        self.assertTrue(CellType("float32").has_no_data())
+        self.assertTrue(np.isnan(CellType("float32").no_data_value()))
+
         self.assertEqual(CellType("float32ud-98").no_data_value(), -98.0)
         self.assertTrue(math.isnan(CellType("float64").no_data_value()))
         self.assertEqual(CellType("uint8").no_data_value(), 0)
 
-        ct = CellType.from_numpy_dtype("int8")
-        print(ct)
-        print(ct.to_numpy_dtype())
-        print(ct.no_data_value())
-        print(ct.base_cell_type_name())
 
-        a_tile = Tile(np.random.randn(3, 3).astype(ct.to_numpy_dtype()), ct)
-        print(a_tile)
+class UDT(TestEnvironment):
+    def test_cell_type_conversion(self):
+        for ct in rf_cell_types():
+            self.assertEqual(ct.to_numpy_dtype(),
+                             CellType.from_numpy_dtype(ct.to_numpy_dtype()).to_numpy_dtype(),
+                             "dtype comparison for " + str(ct))
+            if not ct.is_raw():
+                self.assertEqual(ct,
+                                 CellType.from_numpy_dtype(ct.to_numpy_dtype()),
+                                 "GTCellType comparison for " + str(ct))
+
+    def test_array_flattening(self):
+        #a = np.frombuffer(bytearray([1, 0, 0, 0, 0, 0, 0, 0]))
+
+        a = np.array([[1, 2], [0, 4]], dtype=np.dtype("uint8"))
+        b = np.ma.masked_equal(a, 2)
+        c = builtins.bytearray(b.flatten().tobytes())
+        d = np.frombuffer(c, b.dtype).reshape(2, 2)
+        e = np.ma.masked_equal(d, 2)
+        print(repr(e))
 
     def test_mask_no_data(self):
         t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
@@ -364,7 +382,8 @@ class UDT(TestEnvironment):
 
     def test_tile_udt_serialization(self):
         udt = TileUDT()
-        cell_types = (ct for ct in rf_cell_types() if not ct.is_raw())
+        cell_types = (ct for ct in rf_cell_types() if not (ct.is_raw() or ("bool" in ct.base_cell_type_name())))
+
         for ct in cell_types:
             cells = (100 + np.random.randn(3, 3) * 100).astype(ct.to_numpy_dtype())
 
@@ -375,21 +394,27 @@ class UDT(TestEnvironment):
 
             cells[1][1] = nd
             a_tile = Tile(cells, ct.with_no_data_value(nd))
-            print(repr(a_tile.cells))
             round_trip = udt.fromInternal(udt.toInternal(a_tile))
             self.assertEquals(a_tile, round_trip, "round-trip serialization for " + str(ct))
 
+            schema = StructType([StructField("tile", TileUDT(), False)])
+            df = self.spark.createDataFrame([{"tile": a_tile}], schema)
+
+            long_trip = df.first()["tile"]
+            self.assertEqual(long_trip, a_tile)
+
     def test_no_data_udf_handling(self):
-        t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
-        print(t1)
+        t1 = Tile(np.array([[1, 2], [0, 4]]), CellType("uint8"))
+        e1 = Tile(np.array([[2, 3], [0, 5]]), CellType("uint8"))
         schema = StructType([StructField("tile", TileUDT(), False)])
         df = self.spark.createDataFrame([{"tile": t1}], schema)
 
-        @udf("double")
+        @udf(TileUDT())
         def increment(t: Tile):
             return t + 1
 
-        print(df.select(increment("tile")).collect())
+        r1 = df.select(increment(df.tile).alias("inc")).first()["inc"]
+        self.assertEqual(r1, e1)
 
 
 class TileOps(TestEnvironment):
@@ -452,6 +477,11 @@ class TileOps(TestEnvironment):
 
 
 class RasterSource(TestEnvironment):
+
+    # Putting this here for convenience
+    def test_setup(self):
+        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
+                         "org.apache.spark.serializer.KryoSerializer")
 
     def test_raster_source_reader(self):
         import pandas as pd
