@@ -168,6 +168,9 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     potentialRF
   }
 
+  /** Performs a jeft join on the dataframe `right` to this one, reprojecting tiles. */
+  def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right)
+
   /**
    * Convert DataFrame into a RasterFrame
    *

@@ -30,7 +30,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.expressions.TileAssembler
 import org.locationtech.rasterframes.expressions.accessors._
-import org.locationtech.rasterframes.expressions.aggstats._
+import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
@@ -307,6 +307,14 @@ trait RasterFunctions {
     */
   def st_reproject(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRS, dstCRS)
+
+  /** Reproject a column of geometry from one CRS to another.
+    * @param sourceGeom Geometry column to reproject
+    * @param srcCRSCol Native CRS of `sourceGeom` as a column
+    * @param dstCRSCol Destination CRS as a column
+    */
+  def st_reproject(sourceGeom: Column, srcCRSCol: Column, dstCRSCol: Column): TypedColumn[Any, Geometry] =
+    ReprojectGeometry(sourceGeom, srcCRSCol, dstCRSCol)
 
   /** Render Tile as ASCII string, for debugging purposes. */
   def rf_render_ascii(col: Column): TypedColumn[Any, String] =
