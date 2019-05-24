@@ -4,7 +4,6 @@ from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
 from geomesa_pyspark.types import *
 from pathlib import Path
-import os
 import unittest
 
 # version-conditional imports
@@ -110,7 +109,8 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('log', rf_log(self.tileCol)) \
             .withColumn('exp', rf_exp(self.tileCol)) \
             .withColumn('expm1', rf_expm1(self.tileCol)) \
-            .withColumn('round', rf_round(self.tileCol))
+            .withColumn('round', rf_round(self.tileCol)) \
+            .withColumn('abs', rf_abs(self.tileCol))
 
         df.show()
 
@@ -119,7 +119,6 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('crs', rf_crs(self.tileCol)) \
             .withColumn('ext', rf_extent(self.tileCol)) \
             .withColumn('geom', rf_geometry(self.tileCol))
-        df.printSchema
         df.show()
 
     def test_rasterize(self):

@@ -236,6 +236,7 @@ _rf_column_functions = {
     'rf_local_equal': 'Cellwise equality comparison between two tiles',
     'rf_local_unequal': 'Cellwise inequality comparison between two tiles',
     'rf_round': 'Round cell values to the nearest integer without changing the cell type',
+    'rf_abs': 'Compute the absolute value of each cell',
     'rf_log': 'Performs cell-wise natural logarithm',
     'rf_log10': 'Performs cell-wise logartithm with base 10',
     'rf_log2': 'Performs cell-wise logartithm with base 2',

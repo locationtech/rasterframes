@@ -376,6 +376,10 @@ trait RasterFunctions {
   def rf_round(tileCol: Column): TypedColumn[Any, Tile] =
     Round(tileCol)
 
+  /** Compute the absolute value of each cell. */
+  def rf_abs(tileCol: Column): TypedColumn[Any, Tile] =
+    Abs(tileCol)
+
   /** Take natural logarithm of cell values. */
   def rf_log(tileCol: Column): TypedColumn[Any, Tile] =
     Log(tileCol)

@@ -5,7 +5,7 @@
 ### 0.8.0
 
 * Upgraded to the following core dependencies: Spark 2.3.2, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.
-* Added new tile functions `rf_round`, `rf_log`, `rf_log10`, `rf_log2`, `rf_log1p`, `rf_exp`, `rf_exp10`, `rf_exp2`, `rf_expm1`, `rf_resample`.
+* Added new tile functions `rf_round`, `rf_abs`, `rf_log`, `rf_log10`, `rf_log2`, `rf_log1p`, `rf_exp`, `rf_exp10`, `rf_exp2`, `rf_expm1`, `rf_resample`.
 * Support python-side [Shapely](https://pypi.org/project/Shapely/) geometry User-Defined Type.
 * SQL API support for: `rf_assemble_tile`, `rf_array_to_tile`.
 * Introduced at the source level the concept of a `RasterSource` and `RasterRef`, enabling lazy/delayed read of sub-scene tiles.

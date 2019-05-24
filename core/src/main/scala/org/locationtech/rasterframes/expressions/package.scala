@@ -86,6 +86,7 @@ package object expressions {
     registry.registerExpression[Unequal]("rf_local_unequal")
     registry.registerExpression[Sum]("rf_tile_sum")
     registry.registerExpression[Round]("rf_round")
+    registry.registerExpression[Abs]("rf_abs")
     registry.registerExpression[Log]("rf_log")
     registry.registerExpression[Log10]("rf_log10")
     registry.registerExpression[Log2]("rf_log2")
