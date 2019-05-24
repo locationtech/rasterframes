@@ -50,8 +50,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
   ))
 
   override def bufferSchema: StructType = StructType(Seq(
-    StructField("tile_buffer", TileType),
-    StructField("extent_buffer", schemaOf[Extent])
+    StructField("tile_buffer", TileType)
   ))
 
   override def dataType: DataType = schemaOf[Raster[Tile]]
@@ -71,31 +70,18 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
       val bt = buffer.getAs[MutableArrayTile](0)
       val merged = bt.merge(prd.extent, localExtent, localTile.tile, prd.sampler)
       buffer(0) = merged
-      if (buffer.isNullAt(1))
-        buffer(1) = localExtent.toRow
-      else {
-        val curr = buffer.getAs[Row](1).to[Extent]
-        buffer(1) = curr.combine(localExtent).toRow
-      }
     }
   }
 
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     val leftTile = buffer1.getAs[MutableArrayTile](0)
     val rightTile = buffer2.getAs[MutableArrayTile](0)
-    val leftExtent = buffer1.getAs[Row](1).to[Extent]
-    val rightExtent = buffer2.getAs[Row](1).to[Extent]
     buffer1(0) = leftTile.merge(rightTile)
-    buffer1(1) =
-      if (leftExtent == null) rightExtent
-      else if (rightExtent == null) leftExtent
-      else leftExtent.combine(rightExtent)
   }
 
   override def evaluate(buffer: Row): Raster[Tile] = {
     val t = buffer.getAs[Tile](0)
-    val e = buffer.getAs[Row](1).to[Extent]
-    Raster(t, e)
+    Raster(t, prd.extent)
   }
 }
 

@@ -23,37 +23,15 @@ package org.locationtech.rasterframes.extensions
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.raster.reproject.Reproject
-import geotrellis.raster.resample.ResampleMethod
 import geotrellis.vector.Extent
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.util._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.util._
 
 import scala.util.Random
-/*
-    val crs = input.getAs[Row](0).to[CRS]
-    val extent = input.getAs[Row](1).to[Extent]
-
-    val localExtent = extent.reproject(crs, prd.crs)
-
-    if (prd.extent.intersects(localExtent)) {
-      val localTile = input.getAs[Tile](2).reproject(extent, crs, prd.crs, projOpts)
-      val bt = buffer.getAs[MutableArrayTile](0)
-      val merged = bt.merge(prd.extent, localExtent, localTile.tile, prd.sampler)
-      buffer(0) = merged
-    }
-
-      // NB: Don't be tempted to make this a `val`. Spark will barf if `withRasterFrames` hasn't been called first.
-  private def apply_mask = udf((t: Tile, extentStruct: Row, crsStruct: Row, geom: Seq[Geometry]) ⇒ {
-    val e = extentStruct.to[Extent]
-    val c = crsStruct.to[CRS]
-    val reprojectedGeoms = geom.map(g ⇒ GTGeometry(g).reproject(LatLng, c))
-    t.mask(e, reprojectedGeoms)
-  })
- */
 
 object RasterJoin {
   private val projOpts = Reproject.Options.DEFAULT
@@ -68,10 +46,10 @@ object RasterJoin {
     val rightExtents = rightExtentEnc.map(_.to[Extent])
     val rightCRSs = rightCRSEnc.map(_.to[CRS])
 
-    //is there a GT function to do all this?
     val cellType = tiles.map(_.cellType).reduce(_ union _)
 
     val dest: Tile = ArrayTile.empty(cellType, leftDims.cols, leftDims.rows)
+    //is there a GT function to do all this?
     tiles.zip(rightExtents).zip(rightCRSs).map {
       case ((tile, extent), crs) =>
         tile.reproject(extent, crs, leftCRS, projOpts)

@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.encoders
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.spark._
@@ -29,9 +28,8 @@ import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector._
 import org.apache.spark.sql.types._
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.rasterframes
 import org.locationtech.rasterframes.TileType
-import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
+import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.model.LazyCRS
 
 /** Collection of CatalystSerializers for third-party types. */
