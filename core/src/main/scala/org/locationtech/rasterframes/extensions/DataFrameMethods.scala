@@ -168,8 +168,28 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     potentialRF
   }
 
-  /** Performs a jeft join on the dataframe `right` to this one, reprojecting tiles. */
+  /**
+    * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
+    * The operation is logically a "left outer" join, with the left side also determining the target CRS and extents.
+    * Right side may have multiple Tile columns. Assumes both dataframes use the column names `extent` and `crs` for
+    * the Extent and CRS details for each row.
+    *
+    * @param right Right side of the join.
+    * @return joined dataframe
+    */
   def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right)
+
+  /**
+    *
+    * @param leftExtent this (left) dataframe's Extent column
+    * @param leftCRS this (left) datafrasme's CRS column
+    * @param right right dataframe
+    * @param rightExtent right dataframe's CRS extent
+    * @param rightCRS right dataframe's CRS column
+    * @return joined dataframe
+    */
+  def rasterJoin(leftExtent: Column, leftCRS: Column, right: DataFrame, rightExtent: Column, rightCRS: Column): DataFrame =
+    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS)
 
   /**
    * Convert DataFrame into a RasterFrame
