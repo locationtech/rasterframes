@@ -35,7 +35,7 @@ class LazyCRS(val encoded: EncodedCRS) extends CRS {
 
   override def equals(o: Any): Boolean = o match {
     case l: LazyCRS => encoded == l.encoded || super.equals(o)
-    case o => super.equals(o)
+    case c => delegate.equals(c)
   }
 }
 
@@ -43,13 +43,15 @@ object LazyCRS {
   trait ValidatedCRS
   type EncodedCRS = String with ValidatedCRS
 
-  private val mapper: PartialFunction[String, CRS] = {
+  @transient
+  private lazy val mapper: PartialFunction[String, CRS] = {
     case e if e.toUpperCase().startsWith("EPSG")   => CRS.fromName(e) //not case-sensitive
     case p if p.startsWith("+proj")                => CRS.fromString(p) // case sensitive
     case w if w.toUpperCase().startsWith("GEOGCS") => CRS.fromWKT(w) //only case-sensitive inside double quotes
   }
 
-  private val cache = Scaffeine().build[String, CRS](mapper)
+  @transient
+  private lazy val cache = Scaffeine().build[String, CRS](mapper)
 
   def apply(value: String): CRS = {
     if (mapper.isDefinedAt(value)) {

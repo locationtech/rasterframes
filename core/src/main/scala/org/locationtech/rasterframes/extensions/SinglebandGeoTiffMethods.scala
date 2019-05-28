@@ -21,13 +21,15 @@
 
 package org.locationtech.rasterframes.extensions
 
+import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.util.MethodExtensions
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import geotrellis.vector.Extent
+import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
   def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
@@ -43,10 +45,15 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
       (gridbounds, tile) ← subtiles.toSeq
     } yield {
       val extent = re.extentFor(gridbounds, false)
-      ProjectedRasterTile(tile, extent, crs).toRow
+      Row(extent.toRow, crs.toRow, tile)
     }
 
-    spark.createDataFrame(spark.sparkContext.makeRDD(rows, 1), schemaOf[ProjectedRasterTile])
-      .select("tileContext.extent", "tileContext.crs", "tile")
+    val schema = StructType(Seq(
+      StructField("extent", schemaOf[Extent], false),
+      StructField("crs", schemaOf[CRS], false),
+      StructField("tile", TileType, false)
+    ))
+
+    spark.createDataFrame(spark.sparkContext.makeRDD(rows, 1), schema)
   }
 }
