@@ -25,12 +25,19 @@ import LazyCRS.EncodedCRS
 import geotrellis.proj4.CRS
 import org.locationtech.proj4j.CoordinateReferenceSystem
 
-class LazyCRS(encoded: EncodedCRS) extends CRS {
+class LazyCRS(val encoded: EncodedCRS) extends CRS {
   private lazy val delegate = LazyCRS.mapper(encoded)
   override def proj4jCrs: CoordinateReferenceSystem = delegate.proj4jCrs
   override def toProj4String: String =
     if (encoded.startsWith("+proj")) encoded
     else delegate.toProj4String
+
+  override def hashCode(): Int = super.hashCode()
+
+  override def equals(o: Any): Boolean = o match {
+    case l: LazyCRS => encoded == l.encoded || super.equals(o)
+    case o => super.equals(o)
+  }
 }
 
 object LazyCRS {

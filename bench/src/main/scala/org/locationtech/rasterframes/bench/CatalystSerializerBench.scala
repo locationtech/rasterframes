@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer
 import geotrellis.proj4.{CRS, LatLng, Sinusoidal}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
