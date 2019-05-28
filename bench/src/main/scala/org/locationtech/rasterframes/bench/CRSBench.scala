@@ -31,7 +31,7 @@ import org.openjdk.jmh.annotations._
 @BenchmarkMode(Array(Mode.AverageTime))
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
-class CRSEncodingBench extends SparkEnv {
+class CRSBench extends SparkEnv {
 
   var crs: CRS = _
 

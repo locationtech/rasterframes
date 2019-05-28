@@ -49,7 +49,9 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val joined = r1.rasterJoin(r1.withColumnRenamed("tile", "tile2"))
       joined.count() should be (joined.count())
 
-      val measure = joined.select(rf_tile_mean(rf_local_subtract($"tile", $"tile2")))
+      //val measure = joined.select(rf_tile_mean(rf_local_subtract($"tile", $"tile2")))
+
+      // TODO: test tile comparison
 
     }
 

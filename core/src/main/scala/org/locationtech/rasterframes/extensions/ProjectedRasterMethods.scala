@@ -51,7 +51,8 @@ abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithProto
    *
    * @param spark [[SparkSession]] in which to create [[RasterFrame]]
    */
-  def toRF(implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrame = toRF(TILE_COLUMN.columnName)
+  def toRF(implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrame =
+    toRF(TILE_COLUMN.columnName)
 
   /**
    * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrame]] with a

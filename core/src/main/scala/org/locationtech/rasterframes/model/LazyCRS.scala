@@ -22,17 +22,16 @@
 package org.locationtech.rasterframes.model
 
 import LazyCRS.EncodedCRS
+import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import org.locationtech.proj4j.CoordinateReferenceSystem
 
 class LazyCRS(val encoded: EncodedCRS) extends CRS {
-  private lazy val delegate = LazyCRS.mapper(encoded)
+  private lazy val delegate = LazyCRS.cache.get(encoded)
   override def proj4jCrs: CoordinateReferenceSystem = delegate.proj4jCrs
   override def toProj4String: String =
     if (encoded.startsWith("+proj")) encoded
     else delegate.toProj4String
-
-  override def hashCode(): Int = super.hashCode()
 
   override def equals(o: Any): Boolean = o match {
     case l: LazyCRS => encoded == l.encoded || super.equals(o)
@@ -49,6 +48,8 @@ object LazyCRS {
     case p if p.startsWith("+proj")                => CRS.fromString(p) // case sensitive
     case w if w.toUpperCase().startsWith("GEOGCS") => CRS.fromWKT(w) //only case-sensitive inside double quotes
   }
+
+  private val cache = Scaffeine().build[String, CRS](mapper)
 
   def apply(value: String): CRS = {
     if (mapper.isDefinedAt(value)) {

@@ -41,6 +41,7 @@ lazy val core = project
         ExclusionRule(organization = "org.scalastic"),
         ExclusionRule(organization = "org.scalatest")
       ),
+      scaffeine,
       scalatest
     ),
     buildInfoKeys ++= Seq[BuildInfoKey](

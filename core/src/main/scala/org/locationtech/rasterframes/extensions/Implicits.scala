@@ -24,6 +24,7 @@ package org.locationtech.rasterframes.extensions
 import org.locationtech.rasterframes.RasterFrame
 import org.locationtech.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
+import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
 import org.apache.spark.SparkConf
@@ -50,6 +51,8 @@ trait Implicits {
 
   implicit class WithProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithPrototypeMethods: TypeTag](
     val self: ProjectedRaster[T]) extends ProjectedRasterMethods[T]
+
+  implicit class WithSinglebandGeoTiffMethods(val self: SinglebandGeoTiff) extends SinglebandGeoTiffMethods
 
   implicit class WithDataFrameMethods[D <: DataFrame](val self: D) extends DataFrameMethods[D]
 
