@@ -51,9 +51,25 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val measure = joined.select(
             rf_tile_mean(rf_local_subtract($"tile", $"tile2")) as "diff_mean",
             rf_tile_stats(rf_local_subtract($"tile", $"tile2")).getField("variance") as "diff_var")
+          .as[(Double, Double)]
           .collect()
-      measure.forall(r ⇒ r.getDouble(0) == 0.0) should be (true)
-      measure.forall(r ⇒ r.getDouble(1) == 0.0) should be (true)
+      all (measure) should be ((0.0, 0.0))
+    }
+
+    it("should join same scene in different tile sizes"){
+      val r1prime = s1.toDF(TileDimensions(25, 25)).withColumnRenamed("tile", "tile2")
+      r1prime.select(rf_dimensions($"tile2").getField("rows")).as[Int].first() should be (25)
+      val joined = r1.rasterJoin(r1prime)
+
+      joined.count() should be (r1.count())
+
+      val measure = joined.select(
+        rf_tile_mean(rf_local_subtract($"tile", $"tile2")) as "diff_mean",
+        rf_tile_stats(rf_local_subtract($"tile", $"tile2")).getField("variance") as "diff_var")
+        .as[(Double, Double)]
+        .collect()
+      all (measure) should be ((0.0, 0.0))
+
     }
 
     it("should join same scene in two projections, same tile size") {
