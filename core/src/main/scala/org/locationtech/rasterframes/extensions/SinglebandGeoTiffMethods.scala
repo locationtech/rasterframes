@@ -38,7 +38,7 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
     val re = self.rasterExtent
     val crs = self.crs
 
-    val windows = segmentLayout.listWindows(256)
+    val windows = segmentLayout.listWindows(dims.cols, dims.rows)
     val subtiles = self.crop(windows)
 
     val rows = for {
