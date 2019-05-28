@@ -34,6 +34,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
   import spark.implicits._
   describe("Raster join between two DataFrames") {
     val s1 = readSingleband("L8-B4-Elkton-VA.tiff")
+    // Same data, reprojected to EPSG:4326
     val s2 = readSingleband("L8-B4-Elkton-VA-4326.tiff")
 
     val r1 = s1.toDF(TileDimensions(10, 10))
@@ -44,28 +45,30 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val r1prime = s1.toDF(TileDimensions(10, 10))
         .withColumnRenamed("tile", "tile2")
       val joined = r1.rasterJoin(r1prime)
+
       joined.count() should be (r1.count())
 
-      val measure = joined
-        .select(rf_tile_mean(rf_local_subtract($"tile", $"tile2")) as "mean")
-        .agg(sum($"mean"))
-        .as[Double]
-        .first()
-      measure should be(0.0)
+      val measure = joined.select(
+            rf_tile_mean(rf_local_subtract($"tile", $"tile2")) as "diff_mean",
+            rf_tile_stats(rf_local_subtract($"tile", $"tile2")).getField("variance") as "diff_var")
+          .collect()
+      measure.forall(r ⇒ r.getDouble(0) == 0.0) should be (true)
+      measure.forall(r ⇒ r.getDouble(1) == 0.0) should be (true)
     }
 
     it("should join same scene in two projections, same tile size") {
-      val joined = r1.rasterJoin(r2)
 
+      // r2 source data is gdal warped r1 data; join them together.
+      val joined = r1.rasterJoin(r2)
+      // create a Raster from tile2 which should be almost equal to s1
       val result = joined.agg(TileRasterizerAggregate(
         ProjectedRasterDefinition(s1.cols, s1.rows, s1.cellType, s1.crs, s1.extent, Bilinear),
         $"crs", $"extent", $"tile2") as "raster"
       ).select(col("raster").as[Raster[Tile]]).first()
 
-      //GeoTiff(result, s1.crs).write("target/out.tiff")
       result.extent shouldBe s1.extent
 
-      // Not sure what the right test is... here's... something?
+      // Test the overall local difference of the `result` versus the original
       import geotrellis.raster.mapalgebra.local._
       val sub = s1.extent.buffer(-s1.extent.width * 0.01)
       val diff = Abs(
@@ -74,8 +77,22 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
           s1.raster.crop(sub).tile.convert(IntConstantNoDataCellType)
         )
       )
+      // DN's within arbitrary threshold. N.B. the range of values in the source raster is (6396, 27835)
       diff.statisticsDouble.get.mean should be (0.0 +- 200)
-      //GeoTiff(diff, s1.extent, s1.crs).write("target/diff.tiff")
+      // Overall signal is preserved
+      val s1_stddev = s1.tile.statisticsDouble.get.stddev
+      val rel_diff = diff.statisticsDouble.get.mean / s1_stddev
+      rel_diff should be (0.0 +- 0.15)
+
+      // Use the tile structure of the `joined` dataframe to argue that the structure of the image is similar between `s1` and `joined.tile2`
+      val tile_diffs = joined.select((abs(rf_tile_mean($"tile") - rf_tile_mean($"tile2")) / lit(s1_stddev)).alias("z"))
+
+      // Check the 90%-ile z score; recognize there will be some localized areas of larger error
+      tile_diffs.selectExpr("percentile(z, 0.90)").as[Double].first() should be < 0.10
+      // Check the median z score; it is pretty close to zero
+      tile_diffs.selectExpr("percentile(z, 0.50)").as[Double].first() should be < 0.025
      }
+
+
   }
 }
