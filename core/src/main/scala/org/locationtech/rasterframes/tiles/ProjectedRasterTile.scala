@@ -65,7 +65,7 @@ object ProjectedRasterTile {
 
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
     override def schema: StructType = StructType(Seq(
-      StructField("tileContext", schemaOf[TileContext], false),
+      StructField("tile_context", schemaOf[TileContext], false),
       StructField("tile", TileType, false))
     )
 

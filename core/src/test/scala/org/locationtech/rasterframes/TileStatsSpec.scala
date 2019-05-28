@@ -137,7 +137,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
         forAll(means.zip(means2)) { case (l, r) => assert(l === r +- 1e-6) }
       }
       withClue("sum") {
-        val rf = l8Sample(1).projectedRaster.toRF
+        val rf = l8Sample(1).toDF()
         val expected = 309149454 // computed with rasterio
         val result = rf.agg(sum(rf_tile_sum($"tile"))).collect().head.getDouble(0)
         logger.info(s"L8 sample band 1 grand total: ${result}")

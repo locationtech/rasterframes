@@ -21,13 +21,12 @@
 
 package org.locationtech.rasterframes.expressions
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef}
 import geotrellis.raster.{CellGrid, Tile}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.rf.{TileUDT, _}
 import org.apache.spark.sql.types._
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileContext
 import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile

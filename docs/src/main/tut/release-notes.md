@@ -12,6 +12,8 @@
 * Added `withKryoSerialization` extension methods on `SparkSession.Builder` and `SparkConf`.
 * Added `rf_render_matrix` debugging function.
 * Added `RasterFrame.withExtent` extension method.
+* Added `SinglebandGeoTiff.toDF` extension method.
+* Added `DataFrame.rasterJoin` extension method for merging two dataframes with tiles in disparate CRSs.
 * Added `rf_crs` for `ProjectedRasterTile` columns.
 * Added `st_extent` (for `Geometry` types) and `rf_extent` (for `ProjectedRasterTile` and `RasterSource` columns).
 * Added `st_geometry` (for `Extent` types) and `rf_geometry` (for `ProjectedRasterTile` and `RasterSource` columns).

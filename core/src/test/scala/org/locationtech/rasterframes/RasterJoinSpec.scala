@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes
 
-import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.raster.resample.Bilinear
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{IntConstantNoDataCellType, Raster, Tile}
