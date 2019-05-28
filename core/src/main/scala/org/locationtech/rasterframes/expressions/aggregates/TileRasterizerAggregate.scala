@@ -34,8 +34,9 @@ import geotrellis.raster.reproject.Reproject
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 
 /**
-  * Aggregation function for creating a single raster from tiles.
-  * @param prd settings
+  * Aggregation function for creating a single `geotrellis.raster.Raster[Tile]` from
+  * `Tile`, `CRS` and `Extent` columns.
+  * @param prd aggregation settings
   */
 class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefinedAggregateFunction {
 

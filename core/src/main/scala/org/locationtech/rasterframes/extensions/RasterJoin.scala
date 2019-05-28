@@ -69,11 +69,12 @@ object RasterJoin {
   }
 
   def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
-    apply(left, right, st_intersects(
-      st_geometry(leftExtent),
-      st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
-    ), leftExtent, leftCRS, rightExtent, rightCRS)
+    val leftGeom = st_geometry(leftExtent)
+    val rightGeomReproj = st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
+    val joinExpr = st_intersects(leftGeom, rightGeomReproj)
+    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
   }
+
   def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
     // Unique id for temporary columns
     val id = Random.alphanumeric.take(5).mkString("_", "", "_")
@@ -90,19 +91,34 @@ object RasterJoin {
     // A representative tile from the left
     val leftTile = left.tileColumns.headOption.getOrElse(throw new IllegalArgumentException("Need at least one target tile on LHS"))
 
-
+    // Gathering up various expressions we'll use to construct the result.
+    // After joining We will be doing a groupBy the LHS. We have to define the aggregations to perform after the groupBy.
+    // On the LHS we just want the first thing (subsequent ones should be identical.
     val leftAggCols = left.columns.map(s => first(left(s), true) as s)
+    // On the RHS we collect result as a list.
     val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rightCRS) as rightCRS2)
     val rightAggTiles = right.tileColumns.map(c => collect_list(c) as c.columnName)
     val aggCols = leftAggCols ++ rightAggTiles ++ rightAggCtx
-    val reprojCols = rightAggTiles.map(t => reproject_and_merge(col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), rf_dimensions(leftTile)) as t.columnName)
+
+    // After the aggregation we take all the tiles we've collected and resample + merge into LHS extent/CRS.
+    val reprojCols = rightAggTiles.map(t => reproject_and_merge(
+      col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), rf_dimensions(leftTile)
+    ) as t.columnName)
     val finalCols = leftAggCols.map(c => col(c.columnName)) ++ reprojCols
 
+    // Here's the meat:
     left
+      // 1. Add a unique ID to each LHS row for subequent grouping.
       .withColumn(id, monotonically_increasing_id())
+      // 2. Perform the left-outer join
       .join(right, joinExprs, joinType = "left")
+      // 3. Group by the unique ID, reestablishing the LHS count
       .groupBy(col(id))
+      // 4. Apply aggregation to left and right columns:
+      //    a. LHS just take the first entity
+      //    b. RHS collect all results in a list
       .agg(aggCols.head, aggCols.tail: _*)
+      // 5. Perform merge on RHC tile column collections, pass everything else through.
       .select(finalCols: _*)
   }
 }
