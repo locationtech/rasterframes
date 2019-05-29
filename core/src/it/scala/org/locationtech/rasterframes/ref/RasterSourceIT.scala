@@ -64,34 +64,52 @@ class RasterSourceIT extends TestEnvironment with TestData {
 
   if (RasterSource.IsGDAL.hasGDAL) {
     describe("GDAL support") {
+
       it("should read JPEG2000 scene") {
         RasterSource(localSentinel).readAll().flatMap(_.tile.statisticsDouble).size should be(64)
+      }
+
+      it("should read small MRF scene with one band converted from MODIS HDF") {
+        val (expectedTileCount, _) = expectedTileCountAndBands(2400, 2400)
+        RasterSource(modisConvertedMrfPath).readAll().flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+      }
+
+      it("should read remote HTTP MRF scene") {
+        val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
+        RasterSource(remoteHttpMrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+      }
+
+      it("should read remote S3 MRF scene") {
+        val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
+        RasterSource(remoteS3MrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
       }
     }
   } else {
     describe("GDAL missing error support") {
       it("should throw exception reading JPEG2000 scene") {
-          intercept[IllegalArgumentException] {
-            RasterSource(localSentinel)
-          }
+        intercept[IllegalArgumentException] {
+          RasterSource(localSentinel)
+        }
+      }
+
+      it("should throw exception reading MRF scene with one band converted from MODIS HDF") {
+        intercept[IllegalArgumentException] {
+          RasterSource(modisConvertedMrfPath)
+        }
+      }
+
+      it("should throw exception reading remote HTTP MRF scene") {
+        intercept[IllegalArgumentException] {
+          RasterSource(remoteHttpMrfPath)
+        }
+      }
+
+      it("should throw exception reading remote S3 MRF scene") {
+        intercept[IllegalArgumentException] {
+          RasterSource(remoteS3MrfPath)
+        }
       }
     }
-
-    it("should read small MRF scene with one band converted from MODIS HDF") {
-      val (expectedTileCount, _) = expectedTileCountAndBands(2400, 2400)
-      RasterSource(modisConvertedMrfPath).readAll().flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
-    }
-
-    it("should read remote HTTP MRF scene") {
-      val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
-      RasterSource(remoteHttpMrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
-    }
-
-    it("should read remote S3 MRF scene") {
-      val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
-      RasterSource(remoteS3MrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
-    }
-
   }
 
   private def expectedTileCountAndBands(x:Int, y:Int, bandCount:Int = 1) = {
