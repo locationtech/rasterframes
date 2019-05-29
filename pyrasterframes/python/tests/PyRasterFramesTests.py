@@ -34,7 +34,6 @@ class RasterFunctionsTest(unittest.TestCase):
         cls.spark = (SparkSession.builder
                      .config('spark.driver.extraClassPath', jarpath)
                      .config('spark.executor.extraClassPath', jarpath)
-                     .config('spark.sql.crossJoin.enabled', 'true')
                      .withKryoSerialization()
                      .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
@@ -376,7 +375,9 @@ class RasterFunctionsTest(unittest.TestCase):
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
     def test_raster_join(self):
-        rf_prime = self.rf.withColumnRenamed('tile', 'tile2')
+        # re-read the same source
+        rf_prime = self.spark.read.geotiff(self.img_uri) \
+            .withColumnRenamed('tile', 'tile2').alias('rf_prime')
         rf_joined = self.rf.raster_join(rf_prime)
 
         self.assertTrue(rf_joined.count(), self.rf.count())
