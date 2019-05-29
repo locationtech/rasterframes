@@ -278,6 +278,10 @@ trait RasterFunctions {
   def rf_inverse_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
     Mask.InverseMaskByDefined(sourceTile, maskTile)
 
+  /** Where the `maskTile` does **not** equal `maskValue`, replace values in the source tile with `NoData` */
+  def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
+    Mask.InverseMaskByValue(sourceTile, maskTile, maskValue)
+
   /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rf_rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
     withTypedAlias("rf_rasterize", geometry)(

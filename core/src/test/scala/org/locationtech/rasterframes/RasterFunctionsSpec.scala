@@ -584,6 +584,27 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_mask_by_value")
     }
 
+    it("should inverse mask tile by another identified by specified value") {
+      val df = Seq[Tile](randTile).toDF("tile")
+      val mask_value = 4
+
+      val withMask = df.withColumn("mask",
+        rf_local_multiply(rf_convert_cell_type(
+          rf_local_greater($"tile", 50),
+          "uint8"),
+          lit(mask_value)
+        )
+      )
+
+      val withMasked = withMask.withColumn("masked",
+        rf_inverse_mask_by_value($"tile", $"mask", lit(mask_value)))
+
+      val result = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked")).as[Boolean]
+
+      result.first() should be(true)
+      checkDocs("rf_inverse_mask_by_value")
+    }
+
     it("should render ascii art") {
       val df = Seq[Tile](ProjectedRasterTile(TestData.l8Labels)).toDF("tile")
       val r1 = df.select(rf_render_ascii($"tile"))
