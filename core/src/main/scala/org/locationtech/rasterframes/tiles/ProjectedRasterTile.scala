@@ -45,6 +45,7 @@ trait ProjectedRasterTile extends FixedDelegatingTile with ProjectedRasterLike {
   def crs: CRS
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
   def projectedRaster: ProjectedRaster[Tile] = ProjectedRaster[Tile](this, extent, crs)
+  def mapTile(f: Tile => Tile): ProjectedRasterTile = ProjectedRasterTile(f(this), extent, crs)
 }
 
 object ProjectedRasterTile {
@@ -64,7 +65,7 @@ object ProjectedRasterTile {
 
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
     override def schema: StructType = StructType(Seq(
-      StructField("tileContext", schemaOf[TileContext], false),
+      StructField("tile_context", schemaOf[TileContext], false),
       StructField("tile", TileType, false))
     )
 

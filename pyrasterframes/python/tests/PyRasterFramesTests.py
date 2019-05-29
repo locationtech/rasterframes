@@ -4,7 +4,6 @@ from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
 from geomesa_pyspark.types import *
 from pathlib import Path
-import os
 import unittest
 
 # version-conditional imports
@@ -110,7 +109,8 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('log', rf_log(self.tileCol)) \
             .withColumn('exp', rf_exp(self.tileCol)) \
             .withColumn('expm1', rf_expm1(self.tileCol)) \
-            .withColumn('round', rf_round(self.tileCol))
+            .withColumn('round', rf_round(self.tileCol)) \
+            .withColumn('abs', rf_abs(self.tileCol))
 
         df.show()
 
@@ -119,7 +119,6 @@ class RasterFunctionsTest(unittest.TestCase):
             .withColumn('crs', rf_crs(self.tileCol)) \
             .withColumn('ext', rf_extent(self.tileCol)) \
             .withColumn('geom', rf_geometry(self.tileCol))
-        df.printSchema
         df.show()
 
     def test_rasterize(self):
@@ -216,6 +215,12 @@ class RasterFunctionsTest(unittest.TestCase):
         result = rf2.agg(rf_agg_no_data_cells(rf2.tile) < rf_agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]
         self.assertTrue(result)
+
+        rf3 = rf1.select(rf1.tile, rf_inverse_mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
+        result = rf3.agg(rf_agg_no_data_cells(rf3.tile) < rf_agg_no_data_cells(rf3.masked)) \
+            .collect()[0][0]
+        self.assertTrue(result)
+
 
     def test_resample(self):
         from pyspark.sql.functions import lit
@@ -375,6 +380,30 @@ class RasterFunctionsTest(unittest.TestCase):
         b1_paths = [s.format('1') for s in scene_dict.values()]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
+    def test_raster_join(self):
+        # re-read the same source
+        rf_prime = self.spark.read.geotiff(self.img_uri) \
+            .withColumnRenamed('tile', 'tile2').alias('rf_prime')
+        rf_joined = self.rf.raster_join(rf_prime)
+
+        self.assertTrue(rf_joined.count(), self.rf.count())
+        self.assertTrue(len(rf_joined.columns) == len(self.rf.columns) + 1)
+
+        rf_joined_2 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs, rf_prime.extent, rf_prime.crs)
+        self.assertTrue(rf_joined_2.count(), self.rf.count())
+        self.assertTrue(len(rf_joined_2.columns) == len(self.rf.columns) + 1)
+
+        # this will bring arbitrary additional data into join; garbage result
+        join_expression = self.rf.extent.xmin == rf_prime.extent.xmin
+        rf_joined_3 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs,
+                                          rf_prime.extent, rf_prime.crs,
+                                          join_expression)
+        self.assertTrue(rf_joined_3.count(), self.rf.count())
+        self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + 1)
+
+        # throws if you don't  pass  in all expected columns
+        with self.assertRaises(AssertionError):
+            self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
 
 def suite():
     function_tests = unittest.TestSuite()

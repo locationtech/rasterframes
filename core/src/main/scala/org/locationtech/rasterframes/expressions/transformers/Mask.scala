@@ -143,4 +143,26 @@ object Mask {
     def apply(srcTile: Column, maskingTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
       new Column(MaskByValue(srcTile.expr, maskingTile.expr, maskValue.expr)).as[Tile]
   }
+
+  @ExpressionDescription(
+    usage = "_FUNC_(target, mask, maskValue) - Generate a tile with the values from the data tile, but where cells in the masking tile DO NOT contain the masking value, replace the data value with NODATA.",
+    arguments = """
+  Arguments:
+    * target - tile to mask
+    * mask - masking definition
+    * maskValue - value in the `mask` for which to mark `target` as data cells
+    """,
+    examples = """
+  Examples:
+    > SELECT _FUNC_(target, mask, maskValue);
+       ..."""
+  )
+  case class InverseMaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression)
+    extends Mask(leftTile, rightTile, maskValue, true) {
+    override def nodeName: String = "rf_inverse_mask_by_value"
+  }
+  object InverseMaskByValue {
+    def apply(srcTile: Column, maskingTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
+      new Column(InverseMaskByValue(srcTile.expr, maskingTile.expr, maskValue.expr)).as[Tile]
+  }
 }

@@ -19,7 +19,7 @@
  *
  */
 
-package org.locationtech.rasterframes.expressions.aggstats
+package org.locationtech.rasterframes.expressions.aggregates
 
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.functions.safeBinaryOp

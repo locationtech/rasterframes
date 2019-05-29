@@ -150,6 +150,15 @@ def _create_maskByValue():
     _.__module__ = THIS_MODULE
     return _
 
+def _create_inverseMaskByValue():
+    """ Create a function mapping to Scala rf_inverse_mask_by_value function """
+    def _(data_tile, mask_tile, mask_value):
+        jfcn = RFContext.active().lookup('rf_inverse_mask_by_value')
+        return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
+    _.__name__ = 'rf_inverse_mask_by_value'
+    _.__doc__ = 'Generate a tile with the values from the data tile, but where cells in the masking tile do not contain the masking value, replace the data value with NODATA.'
+    _.__module__ = THIS_MODULE
+    return _
 
 _rf_unique_functions = {
     'rf_array_to_tile': _create_arrayToTile(),
@@ -160,6 +169,7 @@ _rf_unique_functions = {
     'rf_explode_tiles_sample': _create_explode_tiles_sample(),
     'rf_make_constant_tile': _create_makeConstantTile(),
     'rf_mask_by_value': _create_maskByValue(),
+    'rf_inverse_mask_by_value': _create_inverseMaskByValue(),
     'rf_rasterize': _create_rasterize(),
     'st_reproject': _create_reproject_geometry(),
     'rf_make_ones_tile': _create_tileOnes(),
@@ -236,6 +246,7 @@ _rf_column_functions = {
     'rf_local_equal': 'Cellwise equality comparison between two tiles',
     'rf_local_unequal': 'Cellwise inequality comparison between two tiles',
     'rf_round': 'Round cell values to the nearest integer without changing the cell type',
+    'rf_abs': 'Compute the absolute value of each cell',
     'rf_log': 'Performs cell-wise natural logarithm',
     'rf_log10': 'Performs cell-wise logartithm with base 10',
     'rf_log2': 'Performs cell-wise logartithm with base 2',

@@ -23,17 +23,14 @@ package org.locationtech.rasterframes.encoders
 
 import java.time.ZonedDateTime
 
-import org.locationtech.rasterframes.encoders.StandardEncoders._
-import org.locationtech.rasterframes.model.{CellContext, TileDataContext, TileDimensions}
-import org.locationtech.rasterframes.ref.RasterRef
-import org.locationtech.rasterframes.TestData
 import geotrellis.proj4._
 import geotrellis.raster.{CellSize, CellType, TileLayout, UShortUserDefinedNoDataCellType}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.locationtech.rasterframes.TestEnvironment
+import org.locationtech.rasterframes.{TestData, TestEnvironment}
+import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.model.{CellContext, TileContext, TileDataContext, TileDimensions}
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.scalatest.Assertion

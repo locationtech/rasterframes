@@ -28,7 +28,7 @@ import org.locationtech.rasterframes.model._
 import org.locationtech.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, CellType, Tile, TileLayout}
+import geotrellis.raster.{CellSize, CellType, Raster, Tile, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
@@ -51,6 +51,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def stkBoundsEncoder: ExpressionEncoder[KeyBounds[SpaceTimeKey]] = ExpressionEncoder()
   implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder[Extent]()
   implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
+  implicit def rasterEncoder: ExpressionEncoder[Raster[Tile]] = ExpressionEncoder()
   implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
   implicit def crsEncoder: ExpressionEncoder[CRS] = CRSEncoder()
   implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ProjectedExtentEncoder()

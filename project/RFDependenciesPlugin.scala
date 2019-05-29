@@ -45,6 +45,8 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.16.0"
     val `geotrellis-contrib-vlm` = "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "2.11.0"
     val `geotrellis-contrib-gdal` = "com.azavea.geotrellis" %% "geotrellis-contrib-gdal" % "2.11.0"
+
+    val scaffeine = "com.github.blemale" %% "scaffeine" % "2.5.0"
   }
   import autoImport._
 

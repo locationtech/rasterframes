@@ -46,6 +46,25 @@ def _convert_df(df, sp_key=None, metadata=None):
             df._jdf, _to_java_column(sp_key), json.dumps(metadata)), ctx._spark_session)
 
 
+def _raster_join(df, other, left_extent=None, left_crs=None, right_extent=None, right_crs=None, join_exprs=None):
+    ctx = SparkContext._active_spark_context._rf_context
+    if join_exprs is not None:
+        assert left_extent is not None and left_crs is not None and right_extent is not None and right_crs is not None
+        # Note the order of arguments here.
+        cols = [join_exprs, left_extent, left_crs, right_extent, right_crs]
+        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, *[_to_java_column(c) for c in cols])
+
+    elif left_extent is not None:
+        assert left_crs is not None and right_extent is not None and right_crs is not None
+        cols = [left_extent, left_crs, right_extent, right_crs]
+        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, *[_to_java_column(c) for c in cols])
+
+    else:
+        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf)
+
+    return RasterFrame(jdf, ctx._spark_session)
+
+
 def _layer_reader(df_reader, format_key, path, **options):
     """ Loads the file of the given type at the given path."""
     df = df_reader.format(format_key).load(path, **options)
@@ -73,6 +92,9 @@ SparkSession.Builder.withKryoSerialization = _kryo_init
 
 # Add the 'asRF' method to pyspark DataFrame
 DataFrame.asRF = _convert_df
+
+# Add `raster_join` method to pyspark DataFrame
+DataFrame.raster_join = _raster_join
 
 # Add DataSource convenience methods to the DataFrameReader
 DataFrameReader.rastersource = _rastersource_reader

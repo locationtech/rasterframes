@@ -30,7 +30,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.expressions.TileAssembler
 import org.locationtech.rasterframes.expressions.accessors._
-import org.locationtech.rasterframes.expressions.aggstats._
+import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
@@ -278,6 +278,10 @@ trait RasterFunctions {
   def rf_inverse_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
     Mask.InverseMaskByDefined(sourceTile, maskTile)
 
+  /** Where the `maskTile` does **not** equal `maskValue`, replace values in the source tile with `NoData` */
+  def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
+    Mask.InverseMaskByValue(sourceTile, maskTile, maskValue)
+
   /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rf_rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
     withTypedAlias("rf_rasterize", geometry)(
@@ -307,6 +311,14 @@ trait RasterFunctions {
     */
   def st_reproject(sourceGeom: Column, srcCRS: CRS, dstCRS: CRS): TypedColumn[Any, Geometry] =
     ReprojectGeometry(sourceGeom, srcCRS, dstCRS)
+
+  /** Reproject a column of geometry from one CRS to another.
+    * @param sourceGeom Geometry column to reproject
+    * @param srcCRSCol Native CRS of `sourceGeom` as a column
+    * @param dstCRSCol Destination CRS as a column
+    */
+  def st_reproject(sourceGeom: Column, srcCRSCol: Column, dstCRSCol: Column): TypedColumn[Any, Geometry] =
+    ReprojectGeometry(sourceGeom, srcCRSCol, dstCRSCol)
 
   /** Render Tile as ASCII string, for debugging purposes. */
   def rf_render_ascii(col: Column): TypedColumn[Any, String] =
@@ -367,6 +379,10 @@ trait RasterFunctions {
   /** Round cell values to nearest integer without chaning cell type. */
   def rf_round(tileCol: Column): TypedColumn[Any, Tile] =
     Round(tileCol)
+
+  /** Compute the absolute value of each cell. */
+  def rf_abs(tileCol: Column): TypedColumn[Any, Tile] =
+    Abs(tileCol)
 
   /** Take natural logarithm of cell values. */
   def rf_log(tileCol: Column): TypedColumn[Any, Tile] =
