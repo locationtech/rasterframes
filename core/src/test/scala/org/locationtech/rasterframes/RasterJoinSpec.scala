@@ -119,7 +119,6 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       multibandRf.tileColumns.length should be (3)
 
       val multibandJoin = multibandRf.rasterJoin(b4warpedRf)
-      multibandJoin.printSchema()
 
       multibandJoin.tileColumns.length should be (4)
       multibandJoin.count() should be (multibandRf.count())
@@ -163,7 +162,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val left = b4nativeRf.withColumn("left_id", monotonically_increasing_id())
       val right = b4warpedRf.withColumn("right_id", monotonically_increasing_id())
       val joined = left.rasterJoin(right)
-      joined.columns should contain allElementsOf Seq("left_id", "right_id")
+      joined.columns should contain allElementsOf Seq("left_id", "right_id_agg")
     }
   }
 }
