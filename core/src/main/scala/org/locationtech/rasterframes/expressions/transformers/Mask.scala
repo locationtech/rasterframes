@@ -149,7 +149,9 @@ object Mask {
     arguments = """
   Arguments:
     * target - tile to mask
-    * mask - masking definition""",
+    * mask - masking definition
+    * maskValue - value in the `mask` for which to mark `target` as data cells
+    """,
     examples = """
   Examples:
     > SELECT _FUNC_(target, mask, maskValue);
