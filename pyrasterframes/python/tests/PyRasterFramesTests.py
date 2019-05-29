@@ -216,6 +216,12 @@ class RasterFunctionsTest(unittest.TestCase):
             .collect()[0][0]
         self.assertTrue(result)
 
+        rf3 = rf1.select(rf1.tile, rf_inverse_mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
+        result = rf3.agg(rf_agg_no_data_cells(rf3.tile) < rf_agg_no_data_cells(rf3.masked)) \
+            .collect()[0][0]
+        self.assertTrue(result)
+
+
     def test_resample(self):
         from pyspark.sql.functions import lit
         result = self.rf.select(
