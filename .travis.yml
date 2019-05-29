@@ -12,7 +12,7 @@ scala:
   - 2.11.11
 
 jdk:
-  - daunnc/openjdk-gdal:2.4.0
+  - oraclejdk8
 
 addons:
   apt:
