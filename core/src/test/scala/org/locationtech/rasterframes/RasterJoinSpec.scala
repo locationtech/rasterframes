@@ -125,5 +125,39 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       multibandJoin.count() should be (multibandRf.count())
     }
 
+    it("should join with heterogeneous LHS CRS and coverages"){
+
+      val df17 = readSingleband("m_3607824_se_17_1_20160620_subset.tif")
+        .toDF(TileDimensions(50, 50))
+        .withColumn("utm", lit(17))
+      // neighboring and slightly overlapping NAIP scene
+      val df18 = readSingleband("m_3607717_sw_18_1_20160620_subset.tif")
+        .toDF(TileDimensions(60, 60))
+        .withColumn("utm", lit(18))
+
+      df17.count() should be (6 * 6) // file is 300 x 300
+      df18.count() should be (5 * 5) // file is 300 x 300
+
+      val df = df17.union(df18)
+      df.count() should be (6 * 6 + 5 * 5)
+      val expectCrs = Array("+proj=utm +zone=17 +datum=NAD83 +units=m +no_defs ", "+proj=utm +zone=18 +datum=NAD83 +units=m +no_defs ")
+      df.select($"crs".getField("crsProj4")).distinct().as[String].collect() should contain theSameElementsAs expectCrs
+
+      // read a third source to join. burned in box that intersects both above subsets; but more so on the df17
+      val box = readSingleband("m_3607_box.tif").toDF(TileDimensions(4,4)).withColumnRenamed("tile", "burned")
+      val joined = df.rasterJoin(box)
+
+      joined.count() should be (df.count)
+
+      val totals = joined.groupBy($"utm").agg(sum(rf_tile_sum($"burned")).alias("burned_total"))
+      val total18 = totals.where($"utm" === 18).select($"burned_total").as[Double].first()
+      val total17 = totals.where($"utm" === 17).select($"burned_total").as[Double].first()
+
+      total18 should be > 0.0
+      total18 should be < total17
+
+
+    }
+
   }
 }
