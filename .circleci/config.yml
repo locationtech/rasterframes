@@ -142,17 +142,17 @@ workflows:
           filters:
             branches:
               only:
-                - /astraea\/feature\/.*-its/
+                - /feature\/.*-its/
       - itWithoutGdal:
           filters:
             branches:
               only:
-                - /astraea\/feature\/.*-its/
+                - /feature\/.*-its/
       - publish:
           filters:
             branches:
               only:
-                - astraea/develop
+                - develop
   nightlyReleaseAstraea:
     triggers:
       - schedule:
@@ -160,7 +160,7 @@ workflows:
           filters:
             branches:
               only:
-                - astraea/develop
+                - develop
     jobs:
       - it
       - itWithoutGdal
