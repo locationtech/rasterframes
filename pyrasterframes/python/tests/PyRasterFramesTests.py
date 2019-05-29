@@ -373,7 +373,6 @@ class RasterFunctionsTest(unittest.TestCase):
             pathTableColumns=csv_columns,
         )
 
-        path_df.printSchema()
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}
         self.assertTrue(path_df.select('b1_path').distinct().count() == 3)  # as per scene_dict
         b1_paths_maybe = path_df.select('b1_path').distinct().collect()
@@ -384,14 +383,15 @@ class RasterFunctionsTest(unittest.TestCase):
         # re-read the same source
         rf_prime = self.spark.read.geotiff(self.img_uri) \
             .withColumnRenamed('tile', 'tile2').alias('rf_prime')
+
         rf_joined = self.rf.raster_join(rf_prime)
 
         self.assertTrue(rf_joined.count(), self.rf.count())
-        self.assertTrue(len(rf_joined.columns) == len(self.rf.columns) + 1)
+        self.assertTrue(len(rf_joined.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
 
         rf_joined_2 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs, rf_prime.extent, rf_prime.crs)
         self.assertTrue(rf_joined_2.count(), self.rf.count())
-        self.assertTrue(len(rf_joined_2.columns) == len(self.rf.columns) + 1)
+        self.assertTrue(len(rf_joined_2.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
 
         # this will bring arbitrary additional data into join; garbage result
         join_expression = self.rf.extent.xmin == rf_prime.extent.xmin
@@ -399,7 +399,7 @@ class RasterFunctionsTest(unittest.TestCase):
                                           rf_prime.extent, rf_prime.crs,
                                           join_expression)
         self.assertTrue(rf_joined_3.count(), self.rf.count())
-        self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + 1)
+        self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
 
         # throws if you don't  pass  in all expected columns
         with self.assertRaises(AssertionError):

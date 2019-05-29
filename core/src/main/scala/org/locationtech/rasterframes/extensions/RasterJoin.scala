@@ -76,6 +76,9 @@ object RasterJoin {
   }
 
   def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
+    // Convert resolved column into a symbolic one.
+    def unresolved(c: Column): Column = col(c.columnName)
+
     // Unique id for temporary columns
     val id = Random.alphanumeric.take(5).mkString("_", "", "_")
 
@@ -88,8 +91,6 @@ object RasterJoin {
     // Post aggregation right crs. We create a new name.
     val rightCRS2 = id + "crs"
 
-    // A representative tile from the left
-    val leftTile = left.tileColumns.headOption.getOrElse(throw new IllegalArgumentException("Need at least one target tile on LHS"))
 
     // Gathering up various expressions we'll use to construct the result.
     // After joining We will be doing a groupBy the LHS. We have to define the aggregations to perform after the groupBy.
@@ -100,16 +101,17 @@ object RasterJoin {
     val rightAggTiles = right.tileColumns.map(c => collect_list(c) as c.columnName)
     val rightAggOther = right.notTileColumns
       .filter(n => n.columnName != rightExtent.columnName && n.columnName != rightCRS.columnName)
-      .map(c => collect_list(c) as c.columnName)
+      .map(c => collect_list(c) as (c.columnName + "_agg"))
     val aggCols = leftAggCols ++ rightAggTiles ++ rightAggCtx ++ rightAggOther
 
-    // After the aggregation we take all the tiles we've collected and resample + merge into LHS extent/CRS.
+    // After the aggregation we take all the tiles we've collected and resample + merge
+    // into LHS extent/CRS.
+    // Use a representative tile from the left for the tile dimensions
+    val leftTile = left.tileColumns.headOption.getOrElse(throw new IllegalArgumentException("Need at least one target tile on LHS"))
     val reprojCols = rightAggTiles.map(t => reproject_and_merge(
-      col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), rf_dimensions(leftTile)
+      col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), rf_dimensions(unresolved(leftTile))
     ) as t.columnName)
 
-
-    def unresolved(c: Column): Column = col(c.columnName)
     val finalCols = leftAggCols.map(unresolved) ++ reprojCols ++ rightAggOther.map(unresolved)
 
     // Here's the meat:

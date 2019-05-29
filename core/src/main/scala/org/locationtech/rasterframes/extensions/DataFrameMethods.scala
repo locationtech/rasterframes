@@ -92,26 +92,26 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def tileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ col(f.name).as[Tile])
+      .map(f ⇒ self.col(f.name).as[Tile])
 
   /** Get the columns that are not of type `Tile` */
   def notTileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => !DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ col(f.name))
+      .map(f ⇒ self.col(f.name))
 
   /** Get the spatial column. */
   def spatialKeyColumn: Option[TypedColumn[Any, SpatialKey]] = {
     val key = findSpatialKeyField
     key
       .map(_.name)
-      .map(col(_).as[SpatialKey])
+      .map(self.col(_).as[SpatialKey])
   }
 
   /** Get the temporal column, if any. */
   def temporalKeyColumn: Option[TypedColumn[Any, TemporalKey]] = {
     val key = findTemporalKeyField
-    key.map(_.name).map(col(_).as[TemporalKey])
+    key.map(_.name).map(self.col(_).as[TemporalKey])
   }
 
   /** Find the field tagged with the requested `role` */
