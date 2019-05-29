@@ -33,20 +33,21 @@ import org.locationtech.rasterframes.model.TileDimensions
 class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
   import spark.implicits._
   describe("Raster join between two DataFrames") {
-    val s1 = readSingleband("L8-B4-Elkton-VA.tiff")
+    val b4nativeTif = readSingleband("L8-B4-Elkton-VA.tiff")
     // Same data, reprojected to EPSG:4326
-    val s2 = readSingleband("L8-B4-Elkton-VA-4326.tiff")
+    val b4warpedTif = readSingleband("L8-B4-Elkton-VA-4326.tiff")
 
-    val r1 = s1.toDF(TileDimensions(10, 10))
-    val r2 = s2.toDF(TileDimensions(10, 10))
+    val b4nativeRf = b4nativeTif.toDF(TileDimensions(10, 10))
+    val b4warpedRf = b4warpedTif.toDF(TileDimensions(10, 10))
       .withColumnRenamed("tile", "tile2")
 
     it("should join the same scene correctly") {
-      val r1prime = s1.toDF(TileDimensions(10, 10))
-        .withColumnRenamed("tile", "tile2")
-      val joined = r1.rasterJoin(r1prime)
 
-      joined.count() should be (r1.count())
+      val b4nativeRfPrime = b4nativeTif.toDF(TileDimensions(10, 10))
+        .withColumnRenamed("tile", "tile2")
+      val joined = b4nativeRf.rasterJoin(b4nativeRfPrime)
+
+      joined.count() should be (b4nativeRf.count())
 
       val measure = joined.select(
             rf_tile_mean(rf_local_subtract($"tile", $"tile2")) as "diff_mean",
@@ -57,11 +58,11 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should join same scene in different tile sizes"){
-      val r1prime = s1.toDF(TileDimensions(25, 25)).withColumnRenamed("tile", "tile2")
+      val r1prime = b4nativeTif.toDF(TileDimensions(25, 25)).withColumnRenamed("tile", "tile2")
       r1prime.select(rf_dimensions($"tile2").getField("rows")).as[Int].first() should be (25)
-      val joined = r1.rasterJoin(r1prime)
+      val joined = b4nativeRf.rasterJoin(r1prime)
 
-      joined.count() should be (r1.count())
+      joined.count() should be (b4nativeRf.count())
 
       val measure = joined.select(
         rf_tile_mean(rf_local_subtract($"tile", $"tile2")) as "diff_mean",
@@ -74,34 +75,34 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
 
     it("should join same scene in two projections, same tile size") {
 
-      // r2 source data is gdal warped r1 data; join them together.
-      val joined = r1.rasterJoin(r2)
-      // create a Raster from tile2 which should be almost equal to s1
+      // b4warpedRf source data is gdal warped b4nativeRf data; join them together.
+      val joined = b4nativeRf.rasterJoin(b4warpedRf)
+      // create a Raster from tile2 which should be almost equal to b4nativeTif
       val result = joined.agg(TileRasterizerAggregate(
-        ProjectedRasterDefinition(s1.cols, s1.rows, s1.cellType, s1.crs, s1.extent, Bilinear),
+        ProjectedRasterDefinition(b4nativeTif.cols, b4nativeTif.rows, b4nativeTif.cellType, b4nativeTif.crs, b4nativeTif.extent, Bilinear),
         $"crs", $"extent", $"tile2") as "raster"
       ).select(col("raster").as[Raster[Tile]]).first()
 
-      result.extent shouldBe s1.extent
+      result.extent shouldBe b4nativeTif.extent
 
       // Test the overall local difference of the `result` versus the original
       import geotrellis.raster.mapalgebra.local._
-      val sub = s1.extent.buffer(-s1.extent.width * 0.01)
+      val sub = b4nativeTif.extent.buffer(-b4nativeTif.extent.width * 0.01)
       val diff = Abs(
         Subtract(
           result.crop(sub).tile.convert(IntConstantNoDataCellType),
-          s1.raster.crop(sub).tile.convert(IntConstantNoDataCellType)
+          b4nativeTif.raster.crop(sub).tile.convert(IntConstantNoDataCellType)
         )
       )
       // DN's within arbitrary threshold. N.B. the range of values in the source raster is (6396, 27835)
       diff.statisticsDouble.get.mean should be (0.0 +- 200)
       // Overall signal is preserved
-      val s1_stddev = s1.tile.statisticsDouble.get.stddev
-      val rel_diff = diff.statisticsDouble.get.mean / s1_stddev
+      val b4nativeStddev = b4nativeTif.tile.statisticsDouble.get.stddev
+      val rel_diff = diff.statisticsDouble.get.mean /  b4nativeStddev
       rel_diff should be (0.0 +- 0.15)
 
-      // Use the tile structure of the `joined` dataframe to argue that the structure of the image is similar between `s1` and `joined.tile2`
-      val tile_diffs = joined.select((abs(rf_tile_mean($"tile") - rf_tile_mean($"tile2")) / lit(s1_stddev)).alias("z"))
+      // Use the tile structure of the `joined` dataframe to argue that the structure of the image is similar between `b4nativeTif` and `joined.tile2`
+      val tile_diffs = joined.select((abs(rf_tile_mean($"tile") - rf_tile_mean($"tile2")) / lit( b4nativeStddev)).alias("z"))
 
       // Check the 90%-ile z score; recognize there will be some localized areas of larger error
       tile_diffs.selectExpr("percentile(z, 0.90)").as[Double].first() should be < 0.10
@@ -109,6 +110,20 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       tile_diffs.selectExpr("percentile(z, 0.50)").as[Double].first() should be < 0.025
      }
 
+    it("should join multiple RHS tile columns"){
+      // join multiple native CRS bands to the EPSG 4326 RF
+
+      val multibandRf = b4nativeRf
+        .withColumn("t_plus", rf_local_add($"tile", $"tile"))
+        .withColumn("t_mult", rf_local_multiply($"tile", $"tile"))
+      multibandRf.tileColumns.length should be (3)
+
+      val multibandJoin = multibandRf.rasterJoin(b4warpedRf)
+      multibandJoin.printSchema()
+
+      multibandJoin.tileColumns.length should be (4)
+      multibandJoin.count() should be (multibandRf.count())
+    }
 
   }
 }
