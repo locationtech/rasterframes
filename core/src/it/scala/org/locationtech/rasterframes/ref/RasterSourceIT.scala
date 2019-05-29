@@ -64,6 +64,7 @@ class RasterSourceIT extends TestEnvironment with TestData {
 
   if (RasterSource.IsGDAL.hasGDAL) {
     describe("GDAL support") {
+
       it("should read JPEG2000 scene") {
         RasterSource(localSentinel).readAll().flatMap(_.tile.statisticsDouble).size should be(64)
       }
@@ -86,9 +87,27 @@ class RasterSourceIT extends TestEnvironment with TestData {
   } else {
     describe("GDAL missing error support") {
       it("should throw exception reading JPEG2000 scene") {
-          intercept[IllegalArgumentException] {
-            RasterSource(localSentinel)
-          }
+        intercept[IllegalArgumentException] {
+          RasterSource(localSentinel)
+        }
+      }
+
+      it("should throw exception reading MRF scene with one band converted from MODIS HDF") {
+        intercept[IllegalArgumentException] {
+          RasterSource(modisConvertedMrfPath)
+        }
+      }
+
+      it("should throw exception reading remote HTTP MRF scene") {
+        intercept[IllegalArgumentException] {
+          RasterSource(remoteHttpMrfPath)
+        }
+      }
+
+      it("should throw exception reading remote S3 MRF scene") {
+        intercept[IllegalArgumentException] {
+          RasterSource(remoteS3MrfPath)
+        }
       }
     }
   }
