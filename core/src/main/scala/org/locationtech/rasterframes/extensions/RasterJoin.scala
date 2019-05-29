@@ -98,13 +98,19 @@ object RasterJoin {
     // On the RHS we collect result as a list.
     val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rightCRS) as rightCRS2)
     val rightAggTiles = right.tileColumns.map(c => collect_list(c) as c.columnName)
-    val aggCols = leftAggCols ++ rightAggTiles ++ rightAggCtx
+    val rightAggOther = right.notTileColumns
+      .filter(n => n.columnName != rightExtent.columnName && n.columnName != rightCRS.columnName)
+      .map(c => collect_list(c) as c.columnName)
+    val aggCols = leftAggCols ++ rightAggTiles ++ rightAggCtx ++ rightAggOther
 
     // After the aggregation we take all the tiles we've collected and resample + merge into LHS extent/CRS.
     val reprojCols = rightAggTiles.map(t => reproject_and_merge(
       col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), rf_dimensions(leftTile)
     ) as t.columnName)
-    val finalCols = leftAggCols.map(c => col(c.columnName)) ++ reprojCols
+
+
+    def unresolved(c: Column): Column = col(c.columnName)
+    val finalCols = leftAggCols.map(unresolved) ++ reprojCols ++ rightAggOther.map(unresolved)
 
     // Here's the meat:
     left

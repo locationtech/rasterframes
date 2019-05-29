@@ -159,5 +159,11 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
 
     }
 
+    it("should pass through ancillary columns") {
+      val left = b4nativeRf.withColumn("left_id", monotonically_increasing_id())
+      val right = b4warpedRf.withColumn("right_id", monotonically_increasing_id())
+      val joined = left.rasterJoin(right)
+      joined.columns should contain allElementsOf Seq("left_id", "right_id")
+    }
   }
 }
