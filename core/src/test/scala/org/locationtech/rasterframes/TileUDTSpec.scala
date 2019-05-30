@@ -23,7 +23,9 @@ package org.locationtech.rasterframes
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf._
+import org.apache.spark.sql.types.StringType
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.tiles.ShowableTile
 import org.scalatest.Inspectors
 
 /**
@@ -39,7 +41,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
   implicit val ser = TileUDT.tileSerializer
 
   describe("TileUDT") {
-    val tileSizes = Seq(2, 64, 128, 222, 511)
+    val tileSizes = Seq(2, 7, 64, 128, 511)
     val ct = functions.cellTypes().filter(_ != "bool")
 
     def forEveryConfig(test: Tile ⇒ Unit): Unit = {
@@ -88,6 +90,14 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
           assert(wrapper.get(c, r) === tile.get(c, r))
           assert(wrapper.getDouble(c, r) === tile.getDouble(c, r))
         }
+      }
+    }
+
+    it("should provide a pretty-print tile") {
+      import spark.implicits._
+      forEveryConfig { tile =>
+        val stringified = Seq(tile).toDF("tile").select($"tile".cast(StringType)).as[String].first()
+        stringified should be(ShowableTile.show(tile))
       }
     }
   }

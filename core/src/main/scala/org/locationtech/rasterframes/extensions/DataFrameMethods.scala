@@ -29,7 +29,6 @@ import geotrellis.spark.io._
 import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
 import org.apache.spark.sql.catalyst.expressions.Attribute
-import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
 import spray.json.JsonFormat

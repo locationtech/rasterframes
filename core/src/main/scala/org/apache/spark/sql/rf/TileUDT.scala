@@ -56,7 +56,7 @@ class TileUDT extends UserDefinedType[Tile] {
         case ir: InternalRow ⇒ ir.to[Tile]
       }
       .map {
-        case realIRT: InternalRowTile ⇒ realIRT.toArrayTile()
+        case realIRT: InternalRowTile ⇒ realIRT.realizedTile
         case other ⇒ other
       }
       .orNull

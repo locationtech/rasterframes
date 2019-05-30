@@ -25,7 +25,7 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.proj4.CRS
 import geotrellis.raster.resample.ResampleMethod
-import geotrellis.raster.{ArrayTile, CellType, MutableArrayTile, Raster, Tile}
+import geotrellis.raster.{ArrayTile, CellType, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
@@ -68,15 +68,15 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
 
     if (prd.extent.intersects(localExtent)) {
       val localTile = input.getAs[Tile](2).reproject(extent, crs, prd.crs, projOpts)
-      val bt = buffer.getAs[MutableArrayTile](0)
+      val bt = buffer.getAs[Tile](0)
       val merged = bt.merge(prd.extent, localExtent, localTile.tile, prd.sampler)
       buffer(0) = merged
     }
   }
 
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val leftTile = buffer1.getAs[MutableArrayTile](0)
-    val rightTile = buffer2.getAs[MutableArrayTile](0)
+    val leftTile = buffer1.getAs[Tile](0)
+    val rightTile = buffer2.getAs[Tile](0)
     buffer1(0) = leftTile.merge(rightTile)
   }
 

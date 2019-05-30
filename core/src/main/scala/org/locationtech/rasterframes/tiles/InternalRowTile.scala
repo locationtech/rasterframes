@@ -40,7 +40,7 @@ class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
   override def toArrayTile(): ArrayTile = realizedTile.toArrayTile()
 
   // TODO: We want to reimplement relevant delegated methods so that they read directly from tungsten storage
-  protected lazy val realizedTile: Tile = cells.toTile(cellContext)
+  lazy val realizedTile: Tile = cells.toTile(cellContext)
 
   protected override def delegate: Tile = realizedTile
 
@@ -113,6 +113,8 @@ class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
       case _: DoubleCells ⇒ DoubleCellReader(this)
     }
   }
+
+  override def toString: String = ShowableTile.show(this)
 }
 
 object InternalRowTile {

@@ -59,10 +59,16 @@ object ProjectedRasterTile {
   case class ConcreteProjectedRasterTile(t: Tile, extent: Extent, crs: CRS)
       extends ProjectedRasterTile {
     def delegate: Tile = t
+
     override def convert(cellType: CellType): Tile =
       ConcreteProjectedRasterTile(t.convert(cellType), extent, crs)
-  }
 
+    override def toString: String = {
+      val e = s"(${extent.xmin}, ${extent.ymin}, ${extent.xmax}, ${extent.ymax})"
+      val c = crs.toProj4String
+      s"[${ShowableTile.show(t)}, $e, $c]"
+    }
+  }
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
     override def schema: StructType = StructType(Seq(
       StructField("tile_context", schemaOf[TileContext], false),
