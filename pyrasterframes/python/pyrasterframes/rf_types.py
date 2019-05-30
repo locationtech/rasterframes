@@ -196,23 +196,7 @@ class CellType(object):
 
     def to_numpy_dtype(self):
         n = self.base_cell_type_name()
-        if n == "uint8":
-            return np.uint
-        elif n == "int8":
-            return np.int
-        elif n == "uint16":
-            return np.ushort
-        elif n == "int16":
-            return np.short
-        elif n == "int32":
-            return np.int
-        elif n == "float32":
-            return np.float
-        elif n == "float64":
-            return np.double
-        else:
-            # Shouldn't happen
-            return np.dtype(n)
+        return np.dtype(n)
 
     def with_no_data_value(self, no_data):
         return CellType(self.base_cell_type_name() + "ud" + str(no_data))
@@ -234,18 +218,18 @@ class Tile(object):
     def __init__(self, cells, cell_type=None):
         if cell_type is None:
             self.cell_type = CellType.from_numpy_dtype(cells.dtype)
+            self.cells = cells
         else:
             self.cell_type = cell_type
+            self.cells = cells.astype(cell_type.to_numpy_dtype())
 
         if self.cell_type.has_no_data():
             nd_value = self.cell_type.no_data_value()
             if np.isnan(nd_value):
-                self.cells = np.ma.masked_invalid(cells)
+                self.cells = np.ma.masked_invalid(self.cells)
             else:
                 # if the value in the array is `nd_value`, it is masked as nodata
-                self.cells = np.ma.masked_equal(cells, nd_value)
-        else:
-            self.cells = cells
+                self.cells = np.ma.masked_equal(self.cells, nd_value)
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -254,12 +238,12 @@ class Tile(object):
             return False
 
     def __str__(self):
-        return "Tile(\n  dimensions={}\n  cell_type={}\n  cells={}\n)" \
+        return "Tile(dimensions={}, cell_type={}, cells={})" \
             .format(self.dimensions(), self.cell_type, self.cells)
 
     def __repr__(self):
         return "Tile({}, {})" \
-            .format(repr(self.cell_type), str(self.cells))
+            .format(repr(self.cells), repr(self.cell_type))
 
     def __add__(self, right):
         if isinstance(right, Tile):
@@ -324,7 +308,6 @@ class TileUDT(UserDefinedType):
         return 'org.apache.spark.sql.rf.TileUDT'
 
     def serialize(self, tile):
-        #print("in: ", repr(tile.cells.flatten().tobytes()))
         row = [
             # cell_context
             [
@@ -350,11 +333,8 @@ class TileUDT(UserDefinedType):
         cols = datum.cell_context.dimensions.cols
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
-        #print("out: ", repr(cell_data_bytes))
         try:
-            as_numpy = np.frombuffer(cell_data_bytes)
-                #.astype(dtype=cell_type.to_numpy_dtype())
-                #.astype(dtype=np.dtype('B')) \
+            as_numpy = np.frombuffer(cell_data_bytes, dtype=cell_type.to_numpy_dtype())
             reshaped = as_numpy.reshape((rows, cols))
             t = Tile(reshaped, cell_type)
         except ValueError as e:
@@ -364,8 +344,7 @@ class TileUDT(UserDefinedType):
                 "rows": rows,
                 "cell_data.length": len(cell_data_bytes),
                 "cell_data.type": type(cell_data_bytes),
-                "cell_data.values": repr(cell_data_bytes),
-                "as_numpy.values": repr(as_numpy)
+                "cell_data.values": repr(cell_data_bytes)
             }, e)
         return t
 

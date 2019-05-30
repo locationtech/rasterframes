@@ -46,8 +46,11 @@ class TestEnvironment(unittest.TestCase):
         print("Spark Version: " + cls.spark.version)
         cls.spark.withRasterFrames()
 
-        # load something into a rasterframe
-        rf = cls.spark.read.geotiff(cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()) \
+        cls.img_uri = cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()
+
+
+    # load something into a rasterframe
+        rf = cls.spark.read.geotiff(cls.img_uri) \
             .withBounds() \
             .withCenter()
 
@@ -384,16 +387,6 @@ class UDT(TestEnvironment):
                                  CellType.from_numpy_dtype(ct.to_numpy_dtype()),
                                  "GTCellType comparison for " + str(ct))
 
-    def test_array_flattening(self):
-        #a = np.frombuffer(bytearray([1, 0, 0, 0, 0, 0, 0, 0]))
-
-        a = np.array([[1, 2], [0, 4]], dtype=np.dtype("uint8"))
-        b = np.ma.masked_equal(a, 2)
-        c = builtins.bytearray(b.flatten().tobytes())
-        d = np.frombuffer(c, b.dtype).reshape(2, 2)
-        e = np.ma.masked_equal(d, 2)
-        print(repr(e))
-
     def test_mask_no_data(self):
         t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
         self.assertTrue(t1.cells.mask[1][0])
@@ -429,6 +422,7 @@ class UDT(TestEnvironment):
 
     def test_no_data_udf_handling(self):
         t1 = Tile(np.array([[1, 2], [0, 4]]), CellType("uint8"))
+        self.assertEqual(t1.cell_type.to_numpy_dtype(), np.dtype("uint8"))
         e1 = Tile(np.array([[2, 3], [0, 5]]), CellType("uint8"))
         schema = StructType([StructField("tile", TileUDT(), False)])
         df = self.spark.createDataFrame([{"tile": t1}], schema)
@@ -453,7 +447,23 @@ class TileOps(TestEnvironment):
         r2 = (t1 + t2).cells
         self.assertTrue(np.ma.allequal(r2, e2))
 
-    def test_tile_ops_general(self):
+
+class PandasInterop(TestEnvironment):
+
+    def test_pandas_conversion(self):
+        import pandas as pd
+        pd.options.display.max_colwidth = 256
+        cell_types = (ct for ct in rf_cell_types() if not (ct.is_raw() or ("bool" in ct.base_cell_type_name())))
+        tiles = [Tile(np.random.randn(10, 12) * 100, ct) for ct in cell_types]
+        in_pandas = pd.DataFrame({
+            'tile': tiles
+        })
+
+        in_spark = self.spark.createDataFrame(in_pandas)
+        out_pandas = in_spark.select('tile').toPandas()
+        self.assertTrue(out_pandas.equals(in_pandas))
+
+    def test_extended_pandas_ops(self):
         import pandas as pd
 
         self.assertIsInstance(self.rf.sql_ctx, SQLContext)
@@ -466,12 +476,15 @@ class TileOps(TestEnvironment):
         # Try to create a tile from numpy.
         self.assertEqual(Tile(np.random.randn(10, 10)).dimensions(), [10, 10])
 
+        tiles = [Tile(np.random.randn(10, 12), CellType("float32")) for _ in range(3)]
         to_spark = pd.DataFrame({
-            't': [Tile(np.random.randn(10, 12)) for _ in range(3)],
+            't': tiles,
             'b': ['a', 'b', 'c'],
             'c': [1, 2, 4],
         })
         rf_maybe = self.spark.createDataFrame(to_spark)
+
+        rf_maybe.select(rf_render_matrix(rf_maybe.t)).show(truncate=False)
 
         # Try to do something with it.
         sums = to_spark.t.apply(lambda a: a.cells.sum()).tolist()
