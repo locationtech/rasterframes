@@ -416,4 +416,7 @@ trait RasterFunctions {
   def rf_expm1(tileCol: Column): TypedColumn[Any, Tile] =
     ExpM1(tileCol)
 
+  def rf_identity(tileCol: Column): TypedColumn[Any, Tile] =
+    Identity(tileCol)
+
 }

@@ -22,29 +22,29 @@
 package org.locationtech.rasterframes.expressions.localops
 
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Compute the absolute value of each cell.",
+  usage = "_FUNC_(tile) - Return the given tile or projected raster unchanged. Useful in debugging round-trip serialization across various language and memory boundaries.",
   arguments = """
   Arguments:
-    * tile - tile column to apply abs""",
+    * tile - tile column to pass through""",
   examples = """
   Examples:
     > SELECT  _FUNC_(tile);
        ..."""
 )
-case class Abs(child: Expression) extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
-  override def nodeName: String = "rf_abs"
+case class Identity(child: Expression) extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
+  override def nodeName: String = "rf_identity"
   override def na: Any = null
-  override protected def op(t: Tile): Tile = t.localAbs()
+  override protected def op(t: Tile): Tile = t
 }
 
-object Abs {
+object Identity {
   def apply(tile: Column): TypedColumn[Any, Tile] =
-    new Column(Abs(tile.expr)).as[Tile]
+    new Column(Identity(tile.expr)).as[Tile]
 }

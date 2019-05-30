@@ -354,26 +354,26 @@ class CellTypeHandling(unittest.TestCase):
 
     def test_cell_type_no_data(self):
         import math
-        self.assertIsNone(CellType("bool").no_data_value())
+        self.assertIsNone(CellType.bool().no_data_value())
 
-        self.assertTrue(CellType("int8").has_no_data())
-        self.assertEqual(CellType("int8").no_data_value(), -128)
+        self.assertTrue(CellType.int8().has_no_data())
+        self.assertEqual(CellType.int8().no_data_value(), -128)
 
-        self.assertTrue(CellType("uint8").has_no_data())
-        self.assertEqual(CellType("uint8").no_data_value(), 0)
+        self.assertTrue(CellType.uint8().has_no_data())
+        self.assertEqual(CellType.uint8().no_data_value(), 0)
 
-        self.assertTrue(CellType("int16").has_no_data())
-        self.assertEqual(CellType("int16").no_data_value(), -32768)
+        self.assertTrue(CellType.int16().has_no_data())
+        self.assertEqual(CellType.int16().no_data_value(), -32768)
 
-        self.assertTrue(CellType("uint16").has_no_data())
-        self.assertEqual(CellType("uint16").no_data_value(), 0)
+        self.assertTrue(CellType.uint16().has_no_data())
+        self.assertEqual(CellType.uint16().no_data_value(), 0)
 
-        self.assertTrue(CellType("float32").has_no_data())
-        self.assertTrue(np.isnan(CellType("float32").no_data_value()))
+        self.assertTrue(CellType.float32().has_no_data())
+        self.assertTrue(np.isnan(CellType.float32().no_data_value()))
 
         self.assertEqual(CellType("float32ud-98").no_data_value(), -98.0)
-        self.assertTrue(math.isnan(CellType("float64").no_data_value()))
-        self.assertEqual(CellType("uint8").no_data_value(), 0)
+        self.assertTrue(math.isnan(CellType.float64().no_data_value()))
+        self.assertEqual(CellType.uint8().no_data_value(), 0)
 
 
 class UDT(TestEnvironment):
@@ -392,7 +392,7 @@ class UDT(TestEnvironment):
         self.assertTrue(t1.cells.mask[1][0])
         self.assertIsNotNone(t1.cells[1][1])
         self.assertEqual(len(t1.cells.compressed()), 3)
-        t2 = Tile(np.array([[1.0, 2.0], [float('nan'), 4.0]]), CellType("float32"))
+        t2 = Tile(np.array([[1.0, 2.0], [float('nan'), 4.0]]), CellType.float32())
         self.assertEqual(len(t2.cells.compressed()), 3)
         self.assertTrue(t2.cells.mask[1][0])
         self.assertIsNotNone(t2.cells[1][1])
@@ -421,9 +421,9 @@ class UDT(TestEnvironment):
             self.assertEqual(long_trip, a_tile)
 
     def test_no_data_udf_handling(self):
-        t1 = Tile(np.array([[1, 2], [0, 4]]), CellType("uint8"))
+        t1 = Tile(np.array([[1, 2], [0, 4]]), CellType.uint8())
         self.assertEqual(t1.cell_type.to_numpy_dtype(), np.dtype("uint8"))
-        e1 = Tile(np.array([[2, 3], [0, 5]]), CellType("uint8"))
+        e1 = Tile(np.array([[2, 3], [0, 5]]), CellType.uint8())
         schema = StructType([StructField("tile", TileUDT(), False)])
         df = self.spark.createDataFrame([{"tile": t1}], schema)
 
@@ -438,11 +438,11 @@ class UDT(TestEnvironment):
 class TileOps(TestEnvironment):
 
     def test_addition(self):
-        t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
+        t1 = Tile(np.array([[1, 2], [3, 4]]), CellType.int8().with_no_data_value(3))
         e1 = np.ma.masked_equal(np.array([[5, 6], [7, 8]]), 7)
         self.assertTrue(np.array_equal((t1 + 4).cells, e1))
 
-        t2 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud1"))
+        t2 = Tile(np.array([[1, 2], [3, 4]]), CellType.int8().with_no_data_value(1))
         e2 = np.ma.masked_equal(np.array([[3, 4], [3, 8]]), 3)
         r2 = (t1 + t2).cells
         self.assertTrue(np.ma.allequal(r2, e2))
@@ -452,16 +452,16 @@ class PandasInterop(TestEnvironment):
 
     def test_pandas_conversion(self):
         import pandas as pd
-        pd.options.display.max_colwidth = 256
+        #pd.options.display.max_colwidth = 256
         cell_types = (ct for ct in rf_cell_types() if not (ct.is_raw() or ("bool" in ct.base_cell_type_name())))
-        tiles = [Tile(np.random.randn(10, 12) * 100, ct) for ct in cell_types]
+        tiles = [Tile(np.random.randn(5, 5) * 100, ct) for ct in cell_types]
         in_pandas = pd.DataFrame({
             'tile': tiles
         })
 
         in_spark = self.spark.createDataFrame(in_pandas)
-        out_pandas = in_spark.select('tile').toPandas()
-        self.assertTrue(out_pandas.equals(in_pandas))
+        out_pandas = in_spark.select(rf_identity('tile').alias('tile')).toPandas()
+        self.assertTrue(out_pandas.equals(in_pandas), str(in_pandas) + "\n\n" + str(out_pandas))
 
     def test_extended_pandas_ops(self):
         import pandas as pd
@@ -474,9 +474,9 @@ class PandasInterop(TestEnvironment):
             all([isinstance(row.tile.cells, np.ndarray) for row in rf_collect]))
 
         # Try to create a tile from numpy.
-        self.assertEqual(Tile(np.random.randn(10, 10)).dimensions(), [10, 10])
+        self.assertEqual(Tile(np.random.randn(10, 10), CellType.int8()).dimensions(), [10, 10])
 
-        tiles = [Tile(np.random.randn(10, 12), CellType("float32")) for _ in range(3)]
+        tiles = [Tile(np.random.randn(10, 12), CellType.float64()) for _ in range(3)]
         to_spark = pd.DataFrame({
             't': tiles,
             'b': ['a', 'b', 'c'],
@@ -484,7 +484,7 @@ class PandasInterop(TestEnvironment):
         })
         rf_maybe = self.spark.createDataFrame(to_spark)
 
-        rf_maybe.select(rf_render_matrix(rf_maybe.t)).show(truncate=False)
+        # rf_maybe.select(rf_render_matrix(rf_maybe.t)).show(truncate=False)
 
         # Try to do something with it.
         sums = to_spark.t.apply(lambda a: a.cells.sum()).tolist()
@@ -492,26 +492,23 @@ class PandasInterop(TestEnvironment):
         maybe_sums = [r.tsum for r in maybe_sums.collect()]
         np.testing.assert_almost_equal(maybe_sums, sums, 12)
 
-        # Back to python side.
-        print(rf_maybe.toPandas())
-
         # Test round trip for an array
-        simple_array = Tile(np.array([[1, 2], [3, 4]]).astype('float64'), )
+        simple_array = Tile(np.array([[1, 2], [3, 4]]), CellType.float64())
         to_spark_2 = pd.DataFrame({
             't': [simple_array]
         })
 
         rf_maybe_2 = self.spark.createDataFrame(to_spark_2)
-        print("RasterFrame `show`:")
-        rf_maybe_2.select(rf_render_matrix(rf_maybe_2.t).alias('t')).show(truncate=False)
+        #print("RasterFrame `show`:")
+        #rf_maybe_2.select(rf_render_matrix(rf_maybe_2.t).alias('t')).show(truncate=False)
 
         pd_2 = rf_maybe_2.toPandas()
         array_back_2 = pd_2.iloc[0].t
-        print("Array collected from toPandas output\n", array_back_2)
+        #print("Array collected from toPandas output\n", array_back_2)
 
         self.assertIsInstance(array_back_2, Tile)
         np.testing.assert_equal(array_back_2.cells, simple_array.cells)
-
+        np.int8
 
 class RasterSource(TestEnvironment):
 

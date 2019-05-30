@@ -143,10 +143,42 @@ class CellType(object):
 
     @classmethod
     def from_numpy_dtype(cls, np_dtype: np.dtype):
-        return CellType(str(np_dtype))
+        return CellType(str(np_dtype.name))
+
+    @classmethod
+    def bool(cls):
+        return CellType('bool')
+
+    @classmethod
+    def int8(cls):
+        return CellType('int8')
+
+    @classmethod
+    def uint8(cls):
+        return CellType('uint8')
+
+    @classmethod
+    def int16(cls):
+        return CellType('int16')
+
+    @classmethod
+    def uint16(cls):
+        return CellType('uint16')
+
+    @classmethod
+    def int32(cls):
+        return CellType('int32')
+
+    @classmethod
+    def float32(cls):
+        return CellType('float32')
+
+    @classmethod
+    def float64(cls):
+        return CellType('float64')
 
     def is_raw(self):
-        return self.cell_type_name.endswith("raw")
+        return self.cell_type_name.endswith('raw')
 
     def is_user_defined_no_data(self):
         return "ud" in self.cell_type_name
@@ -155,13 +187,13 @@ class CellType(object):
         return not (self.is_raw() or self.is_user_defined_no_data())
 
     def is_floating_point(self):
-        return self.cell_type_name.startswith("float")
+        return self.cell_type_name.startswith('float')
 
     def base_cell_type_name(self):
         if self.is_raw():
             return self.cell_type_name[:-3]
         elif self.is_user_defined_no_data():
-            return self.cell_type_name.split("ud")[0]
+            return self.cell_type_name.split('ud')[0]
         else:
             return self.cell_type_name
 
@@ -172,7 +204,7 @@ class CellType(object):
         if self.is_raw():
             return None
         elif self.is_user_defined_no_data():
-            num_str = self.cell_type_name.split("ud")[1]
+            num_str = self.cell_type_name.split('ud')[1]
             if self.is_floating_point():
                 return float(num_str)
             else:
@@ -182,24 +214,24 @@ class CellType(object):
                 return np.nan
             else:
                 n = self.base_cell_type_name()
-                if n == "uint8" or n == "uint16":
+                if n == 'uint8' or n == 'uint16':
                     return 0
-                elif n == "int8":
+                elif n == 'int8':
                     return -128
-                elif n == "int16":
+                elif n == 'int16':
                     return -32768
-                elif n == "int32":
+                elif n == 'int32':
                     return -2147483648
-                elif n == "bool":
+                elif n == 'bool':
                     return None
         raise Exception("Unable to determine no_data_value from '{}'".format(n))
 
     def to_numpy_dtype(self):
         n = self.base_cell_type_name()
-        return np.dtype(n)
+        return np.dtype(n).newbyteorder('>')
 
     def with_no_data_value(self, no_data):
-        return CellType(self.base_cell_type_name() + "ud" + str(no_data))
+        return CellType(self.base_cell_type_name() + 'ud' + str(no_data))
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -215,13 +247,9 @@ class CellType(object):
 
 
 class Tile(object):
-    def __init__(self, cells, cell_type=None):
-        if cell_type is None:
-            self.cell_type = CellType.from_numpy_dtype(cells.dtype)
-            self.cells = cells
-        else:
-            self.cell_type = cell_type
-            self.cells = cells.astype(cell_type.to_numpy_dtype())
+    def __init__(self, cells, cell_type):
+        self.cell_type = cell_type
+        self.cells = cells.astype(cell_type.to_numpy_dtype())
 
         if self.cell_type.has_no_data():
             nd_value = self.cell_type.no_data_value()
@@ -233,7 +261,7 @@ class Tile(object):
 
     def __eq__(self, other):
         if type(other) is type(self):
-            return np.array_equal(self.cells, other.cells)
+            return self.cell_type == other.cell_type and np.array_equal(self.cells, other.cells)
         else:
             return False
 
@@ -250,11 +278,7 @@ class Tile(object):
             other = right.cells
         else:
             other = right
-        result = np.add(self.cells, other)
-        ct = CellType.from_numpy_dtype(result.dtype)
-        if isinstance(result, np.ma.masked_array):
-            ct = ct.with_no_data_value(result.fill_value)
-        return Tile(np.add(self.cells, other), ct)
+        return Tile(np.add(self.cells, other), self.cell_type)
 
     def __sub__(self, right):
         if isinstance(right, Tile):
@@ -262,6 +286,21 @@ class Tile(object):
         else:
             other = right
         return Tile(np.subtract(self.cells, other), self.cell_type)
+
+    def __mul__(self, right):
+        if isinstance(right, Tile):
+            other = right.cells
+        else:
+            other = right
+        return Tile(np.multiply(self.cells, other), self.cell_type)
+
+    def __truediv__(self, right):
+        if isinstance(right, Tile):
+            other = right.cells
+        else:
+            other = right
+        return Tile(np.true_divide(self.cells, other), self.cell_type)
+
 
     def dimensions(self):
         # list of cols, rows as is conventional in GeoTrellis and RasterFrames
@@ -308,6 +347,7 @@ class TileUDT(UserDefinedType):
         return 'org.apache.spark.sql.rf.TileUDT'
 
     def serialize(self, tile):
+        cells = bytearray(tile.cells.flatten().tobytes())
         row = [
             # cell_context
             [
@@ -317,7 +357,7 @@ class TileUDT(UserDefinedType):
             # cell_data
             [
                 # cells
-                bytearray(tile.cells.flatten().tobytes()),
+                cells,
                 None
             ]
         ]
