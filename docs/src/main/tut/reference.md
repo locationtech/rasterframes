@@ -365,7 +365,13 @@ Returns a `tile` column containing the element-wise inequality of `tile1` and `r
 
 Round cell values to the nearest integer without changing the cell type.
 
-#### rf_exp
+#### rf_abs
+
+    Tile rf_abs(Tile tile)
+
+ Compute the absolute value of cell value.
+ 
+ #### rf_exp
 
     Tile rf_exp(Tile tile)
 

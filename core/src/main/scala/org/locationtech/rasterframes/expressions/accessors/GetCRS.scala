@@ -39,7 +39,7 @@ import org.locationtech.rasterframes.model.TileContext
  */
 case class GetCRS(child: Expression) extends OnTileContextExpression with CodegenFallback {
   override def dataType: DataType = schemaOf[CRS]
-  override def nodeName: String = "crs"
+  override def nodeName: String = "rf_crs"
   override def eval(ctx: TileContext): InternalRow = ctx.crs.toInternalRow
 }
 

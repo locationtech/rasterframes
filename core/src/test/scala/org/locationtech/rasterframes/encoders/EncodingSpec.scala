@@ -152,5 +152,13 @@ class EncodingSpec extends TestEnvironment with TestData {
       assert(ds.first === env)
     }
   }
+  describe("Dataframe encoding ops on spatial types") {
 
+    it("should code RDD[Point]") {
+      val points = Seq(null, extent.center.jtsGeom, null)
+      val ds = points.toDS
+      write(ds)
+      assert(ds.collect().toSeq === points)
+    }
+  }
 }

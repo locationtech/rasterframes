@@ -2,10 +2,10 @@
 The operations in this file are designed for development and testing only.
 """
 
-
 from setuptools import setup, find_packages
 import distutils.log
 import importlib
+from os import environ
 
 
 def _extract_module(mod):
@@ -15,7 +15,6 @@ def _extract_module(mod):
         globals().update({n: getattr(module, n) for n in module.__all__})
     else:
         globals().update({k: v for (k, v) in module.__dict__.items() if not k.startswith('_')})
-
 
 
 class ExampleCommand(distutils.cmd.Command):
@@ -51,7 +50,6 @@ class ExampleCommand(distutils.cmd.Command):
             self.examples = re.split('\W+', self.examples)
         self.examples = map(lambda x: 'examples.' + x.stem,
                             map(self._check_ex_path, self.examples))
-
 
     def run(self):
         """Run the examples."""
@@ -98,42 +96,32 @@ class ZipCommand(distutils.cmd.Command):
             przip.write('LICENSE.md', 'pyrasterframes/LICENSE.md')
 
 
-
-
-
 with open('README.rst') as f:
     readme = f.read()
 
-#pyspark_ver = 'pyspark>=2.2.0,<2.3'
-pyspark_ver = 'pyspark==2.3.2'
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 setup_args = dict(
     name='pyrasterframes',
     description='Python bindings for RasterFrames',
     long_description=readme,
-    version='0.0.1',
+    version=environ.get('RASTERFRAMES_VERSION', 'SNAPSHOT'),
     url='http://rasterframes.io',
-    author='D. Benjamin Guseman',
-    author_email='guseman@astraea.io',
+    author='Astraea, Inc.',
+    author_email='info@astraea.io',
     license='Apache 2',
-    setup_requires=['pytest-runner', pyspark_ver, 'pathlib'],
-    install_requires=[
-        'pytz',
-        'shapely',
-        'numpy>=1.7',
-    ],
+    setup_requires=['pytest-runner', 'pathlib'],
+    install_requires=requirements,
     tests_require=[
-        pyspark_ver,
         'pytest==3.4.2',
-        'pypandoc',
-        'pandas',
-        # 'numpy>=1.7',
+        'pypandoc'
     ],
     test_suite="pytest-runner",
     packages=find_packages(exclude=['tests', 'examples']),
     include_package_data=True,
-    package_data={'.':['LICENSE.md'], 'pyrasterframes':['*.jar']},
-    exclude_package_data={'.':['setup.*', 'README.*']},
+    package_data={'.': ['LICENSE.md'], 'pyrasterframes': ['*.jar']},
+    exclude_package_data={'.': ['setup.*', 'README.*']},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Other Environment',

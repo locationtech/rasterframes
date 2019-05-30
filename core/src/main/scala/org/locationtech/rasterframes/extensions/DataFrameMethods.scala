@@ -92,26 +92,26 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def tileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ col(f.name).as[Tile])
+      .map(f ⇒ self.col(f.name).as[Tile])
 
   /** Get the columns that are not of type `Tile` */
   def notTileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => !DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ col(f.name))
+      .map(f ⇒ self.col(f.name))
 
   /** Get the spatial column. */
   def spatialKeyColumn: Option[TypedColumn[Any, SpatialKey]] = {
     val key = findSpatialKeyField
     key
       .map(_.name)
-      .map(col(_).as[SpatialKey])
+      .map(self.col(_).as[SpatialKey])
   }
 
   /** Get the temporal column, if any. */
   def temporalKeyColumn: Option[TypedColumn[Any, TemporalKey]] = {
     val key = findTemporalKeyField
-    key.map(_.name).map(col(_).as[TemporalKey])
+    key.map(_.name).map(self.col(_).as[TemporalKey])
   }
 
   /** Find the field tagged with the requested `role` */
@@ -167,6 +167,57 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
 
     potentialRF
   }
+
+  /**
+    * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
+    * The operation is logically a "left outer" join, with the left side also determining the target CRS and extents.
+    * Right side may have multiple Tile columns. Assumes both dataframes use the column names `extent` and `crs` for
+    * the Extent and CRS details for each row. The join expression used is:
+    *
+    * {{{
+    *   st_intersects(st_geometry(leftExtent), st_reproject(st_geometry(rightExtent), rightCRS, leftCRS))
+    * }}}
+    *
+    * @param right Right side of the join.
+    * @return joined dataframe
+    */
+  def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right)
+
+  /**
+    * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
+    * The operation is logically a "left outer" join, with the left side also determining the target CRS and extents.
+    * Right side may have multiple Tile columns. This variant allows for the specific geospatial columns to be
+    * specified. The join expression used is:
+    * {{{
+    *   st_intersects(st_geometry(leftExtent), st_reproject(st_geometry(rightExtent), rightCRS, leftCRS))
+    * }}}
+    *
+    * @param right right dataframe
+    * @param leftExtent this (left) dataframe's Extent column
+    * @param leftCRS this (left) datafrasme's CRS column
+    * @param rightExtent right dataframe's CRS extent
+    * @param rightCRS right dataframe's CRS column
+    * @return joined dataframe
+    */
+  def rasterJoin(right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
+    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS)
+
+  /**
+    * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
+    * The operation is logically a "left outer" join, with the left side also determining the target CRS and extents.
+    * Right side may have multiple Tile columns. This variant allows for the specific geospatial columns and join
+    * expression to be specified.
+    *
+    * @param right right dataframe
+    * @param leftExtent this (left) dataframe's Extent column
+    * @param joinExpr join expression
+    * @param leftCRS this (left) datafrasme's CRS column
+    * @param rightExtent right dataframe's CRS extent
+    * @param rightCRS right dataframe's CRS column
+    * @return joined dataframe
+    */
+  def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
+    RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
 
   /**
    * Convert DataFrame into a RasterFrame

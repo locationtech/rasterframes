@@ -5,8 +5,8 @@ _defaults: &defaults
   environment:
     TERM: dumb
   docker:
-    - image: circleci/openjdk:8-jdk
-      
+    - image: s22s/rasterframes-circleci:latest
+
 _setenv: &setenv
   name: set CloudRepo credentials
   command: |-
@@ -111,6 +111,28 @@ jobs:
       - save_cache:
           <<: *save_cache
 
+  itWithoutGdal:
+    working_directory: ~/repo
+    environment:
+      TERM: dumb
+    docker:
+      - image: circleci/openjdk:8-jdk
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run: *setenv
+
+      - restore_cache:
+          <<: *restore_cache
+
+      - run:
+          command: cat /dev/null | sbt it:test
+          no_output_timeout: 30m
+      - run: *unsetenv
+
+      - save_cache:
+          <<: *save_cache
+
 workflows:
   version: 2
   all:
@@ -120,12 +142,17 @@ workflows:
           filters:
             branches:
               only:
-                - /astraea\/feature\/.*-its/
+                - /feature\/.*-its/
+      - itWithoutGdal:
+          filters:
+            branches:
+              only:
+                - /feature\/.*-its/
       - publish:
           filters:
             branches:
               only:
-                - astraea/develop
+                - develop
   nightlyReleaseAstraea:
     triggers:
       - schedule:
@@ -133,7 +160,8 @@ workflows:
           filters:
             branches:
               only:
-                - astraea/develop
+                - develop
     jobs:
       - it
+      - itWithoutGdal
       - staticAnalysis

@@ -43,8 +43,11 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   //p.setProperty(“spark.driver.allowMultipleContexts”, “true”)
 
   lazy val sqlContext: SQLContext = {
-    val session = SparkSession.builder.config(_sc.getConf).getOrCreate()
-    org.locationtech.rasterframes.WithSQLContextMethods(session.sqlContext).withRasterFrames
+    val session = SparkSession.builder
+      .config(_sc.getConf)
+      .config("spark.sql.crossJoin.enabled", true)
+      .getOrCreate()
+    session.sqlContext.withRasterFrames
   }
 
   lazy val sql: String ⇒ DataFrame = sqlContext.sql

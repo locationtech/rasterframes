@@ -24,6 +24,7 @@ import geotrellis.raster.{CellType, MultibandTile}
 import geotrellis.spark.io._
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql._
+import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.{RasterFunctions, _}
 import org.locationtech.rasterframes.model.LazyCRS
 import spray.json._
@@ -96,6 +97,24 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     val jtlm = tlm.parseJson.convertTo[TileLayerMetadata[SpatialKey]]
     df.asRF(spatialKey, jtlm)
   }
+
+  /**
+    * Left spatial join managing reprojection and merging of `other`
+    */
+  def rasterJoin(df: DataFrame, other: DataFrame): DataFrame = RasterJoin(df, other)
+
+  /**
+    * Left spatial join managing reprojection and merging of `other`; uses extent and CRS columns to determine if rows intersect
+    */
+  def rasterJoin(df: DataFrame, other: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
+    RasterJoin(df, other, leftExtent, leftCRS, rightExtent, rightCRS)
+
+  /**
+    * Left spatial join managing reprojection and merging of `other`; uses joinExprs to conduct initial join then extent and CRS columns to determine if rows intersect
+    */
+  def rasterJoin(df: DataFrame, other: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
+    RasterJoin(df, other, joinExprs, leftExtent, leftCRS, rightExtent, rightCRS)
+
 
   /**
     * Convenience functions for use in Python

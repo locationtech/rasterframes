@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.util
 
 import org.locationtech.rasterframes.expressions.TileAssembler
 import org.locationtech.rasterframes.expressions.accessors._
-import org.locationtech.rasterframes.expressions.aggstats._
+import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._

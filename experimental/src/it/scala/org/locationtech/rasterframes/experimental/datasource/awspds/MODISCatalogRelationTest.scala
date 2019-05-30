@@ -41,13 +41,11 @@ class MODISCatalogRelationTest extends TestEnvironment {
       .cache()
 
     it("should provide a non-empty catalog") {
-      scenes.show(false)
       assert(scenes.count() === 1)
     }
 
     it("should construct band specific download URLs") {
       val b01 = scenes.select($"assets"("B01").as[String])
-      b01.show(false)
       noException shouldBe thrownBy {
         new URL(b01.first())
       }
@@ -65,7 +63,6 @@ class MODISCatalogRelationTest extends TestEnvironment {
     it("should download geotiff as tiles") {
       val b01 = scenes
         .select(read_tiles($"assets"("B01") as "B01", $"assets"("B02") as "B02"))
-      b01.show(false)
       assert(b01.count() === 100)
 
 //      val kv = b01.select($"B01_extent", $"B01_tile").as[(Extent, Tile)]
