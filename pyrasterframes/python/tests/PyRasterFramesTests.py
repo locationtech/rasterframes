@@ -31,13 +31,15 @@ class TestEnvironment(unittest.TestCase):
     def setUpClass(cls):
         # gather Scala requirements
 
-        jarpath = glob.glob(os.path.join(HERE, '..', '..', 'scala-2.11', 'pyrasterframes-assembly*.jar'))
+        scala_target = os.path.realpath(os.path.join(HERE, '..', '..', 'scala-2.11'))
+
+        jarpath = glob.glob(os.path.join(scala_target, 'pyrasterframes-assembly*.jar'))
 
         if not len(jarpath) == 1:
             raise RuntimeError("Expected to find exactly one assembly. Found: ", jarpath)
 
         # hard-coded relative path for resources
-        cls.resource_dir = os.path.realpath(os.path.join(HERE, '..', 'static'))
+        cls.resource_dir = os.path.realpath(os.path.join(scala_target, 'test-classes'))
 
         # spark session with RF
         cls.spark = (SparkSession.builder
@@ -47,9 +49,9 @@ class TestEnvironment(unittest.TestCase):
                      .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
 
+        print("Spark Version: " + cls.spark.version)
         print(cls.spark.sparkContext._conf.getAll())
 
-        print("Spark Version: " + cls.spark.version)
         cls.spark.withRasterFrames()
 
         cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
@@ -522,6 +524,32 @@ class RasterSource(TestEnvironment):
         self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
                          "org.apache.spark.serializer.KryoSerializer")
 
+    def test_raster_join(self):
+        # re-read the same source
+        rf_prime = self.spark.read.geotiff(self.img_uri) \
+            .withColumnRenamed('tile', 'tile2').alias('rf_prime')
+
+        rf_joined = self.rf.raster_join(rf_prime)
+
+        self.assertTrue(rf_joined.count(), self.rf.count())
+        self.assertTrue(len(rf_joined.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
+
+        rf_joined_2 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs, rf_prime.extent, rf_prime.crs)
+        self.assertTrue(rf_joined_2.count(), self.rf.count())
+        self.assertTrue(len(rf_joined_2.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
+
+        # this will bring arbitrary additional data into join; garbage result
+        join_expression = self.rf.extent.xmin == rf_prime.extent.xmin
+        rf_joined_3 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs,
+                                          rf_prime.extent, rf_prime.crs,
+                                          join_expression)
+        self.assertTrue(rf_joined_3.count(), self.rf.count())
+        self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
+
+        # throws if you don't  pass  in all expected columns
+        with self.assertRaises(AssertionError):
+            self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
+
     def test_raster_source_reader(self):
         import pandas as pd
         # much the same as RasterSourceDataSourceSpec here; but using https PDS. Takes about 30s to run
@@ -591,35 +619,9 @@ class RasterSource(TestEnvironment):
         b1_paths = [s.format('1') for s in scene_dict.values()]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
-    def test_raster_join(self):
-        # re-read the same source
-        rf_prime = self.spark.read.geotiff(self.img_uri) \
-            .withColumnRenamed('tile', 'tile2').alias('rf_prime')
-
-        rf_joined = self.rf.raster_join(rf_prime)
-
-        self.assertTrue(rf_joined.count(), self.rf.count())
-        self.assertTrue(len(rf_joined.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
-
-        rf_joined_2 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs, rf_prime.extent, rf_prime.crs)
-        self.assertTrue(rf_joined_2.count(), self.rf.count())
-        self.assertTrue(len(rf_joined_2.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
-
-        # this will bring arbitrary additional data into join; garbage result
-        join_expression = self.rf.extent.xmin == rf_prime.extent.xmin
-        rf_joined_3 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs,
-                                          rf_prime.extent, rf_prime.crs,
-                                          join_expression)
-        self.assertTrue(rf_joined_3.count(), self.rf.count())
-        self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
-
-        # throws if you don't  pass  in all expected columns
-        with self.assertRaises(AssertionError):
-            self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
 
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
-
 
 unittest.TextTestRunner().run(suite())

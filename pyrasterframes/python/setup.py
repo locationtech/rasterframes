@@ -16,6 +16,15 @@ with open(path.join(here, 'requirements.txt')) as f:
     requirements = f.read().splitlines()
 
 
+def _extract_module(mod):
+    module = importlib.import_module(mod)
+
+    if hasattr(module, '__all__'):
+        globals().update({n: getattr(module, n) for n in module.__all__})
+    else:
+        globals().update({k: v for (k, v) in module.__dict__.items() if not k.startswith('_')})
+
+
 class RunExamples(distutils.cmd.Command):
     """A custom command to run pyrasterframes examples."""
 
@@ -26,21 +35,7 @@ class RunExamples(distutils.cmd.Command):
     ]
 
     @staticmethod
-    def _extract_module(mod):
-        module = importlib.import_module(mod)
-
-        if hasattr(module, '__all__'):
-            globals().update({n: getattr(module, n) for n in module.__all__})
-        else:
-            globals().update({k: v for (k, v) in module.__dict__.items() if not k.startswith('_')})
-
-    def initialize_options(self):
-        """Set default values for options."""
-        # Each user option must be listed here with their default value.
-        self.examples = filter(lambda x: not x.name.startswith('_'),
-                               list(Path('./examples').resolve().glob('*.py')))
-
-    def _check_ex_path(self, ex):
+    def _check_ex_path(ex):
         file = Path(ex)
         if not file.suffix:
             file = file.with_suffix('.py')
@@ -48,6 +43,12 @@ class RunExamples(distutils.cmd.Command):
 
         assert file.is_file(), ('Invalid example %s' % file)
         return file
+
+    def initialize_options(self):
+        """Set default values for options."""
+        # Each user option must be listed here with their default value.
+        self.examples = filter(lambda x: not x.name.startswith('_'),
+                               list(Path('./examples').resolve().glob('*.py')))
 
     def finalize_options(self):
         """Post-process options."""
@@ -63,7 +64,7 @@ class RunExamples(distutils.cmd.Command):
         for ex in self.examples:
             print(('-' * 50) + '\nRunning %s' % ex + '\n' + ('-' * 50))
             try:
-                self._extract_module(ex)
+                _extract_module(ex)
             except Exception:
                 print(('-' * 50) + '\n%s Failed:' % ex + '\n' + ('-' * 50))
                 print(traceback.format_exc())

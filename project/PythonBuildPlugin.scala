@@ -26,7 +26,7 @@ import complete.DefaultParsers._
 import scala.sys.process.Process
 import sbtassembly.AssemblyPlugin.autoImport.assembly
 
-object PIPBuildPlugin extends AutoPlugin {
+object PythonBuildPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   override def requires = RFAssemblyPlugin
 

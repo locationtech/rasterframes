@@ -56,7 +56,7 @@ lazy val core = project
 
 lazy val pyrasterframes = project
   .dependsOn(core, datasource, experimental)
-  .enablePlugins(RFAssemblyPlugin, PIPBuildPlugin)
+  .enablePlugins(RFAssemblyPlugin, PythonBuildPlugin)
   .settings(
     libraryDependencies ++= Seq(
       geotrellis("s3").value,
