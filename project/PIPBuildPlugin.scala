@@ -75,7 +75,11 @@ object PIPBuildPlugin extends AutoPlugin {
     },
     Compile / pythonSource := (Compile / sourceDirectory).value / "python",
     Test / pythonSource := (Test / sourceDirectory).value / "python",
-    Compile / `package` := (Compile / `package`).dependsOn(Python / packageBin).value
+    Compile / `package` := (Compile / `package`).dependsOn(Python / packageBin).value,
+    Test / test := Def.sequential(
+      Test / test,
+      Python / test
+    ).value
   ) ++
     inConfig(Python)(Seq(
       target := target.value / "python",
@@ -93,9 +97,10 @@ object PIPBuildPlugin extends AutoPlugin {
         val ver = version.value
         dest / s"${art.name}-python-$ver.zip"
       },
-      test := {
-        pySetup.toTask(" test").value
-      }
+      test := Def.sequential(
+        assembly,
+        pySetup.toTask(" test")
+      ).value
     )) ++
     addArtifact(Python / packageBin / artifact, Python / packageBin)
 }

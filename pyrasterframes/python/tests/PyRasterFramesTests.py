@@ -1,14 +1,12 @@
 from pyspark.sql import SparkSession, Column, SQLContext
 from pyspark.sql.functions import *
-from pyspark.sql.types import *
-
-from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 from geomesa_pyspark.types import *
-from pathlib import Path
 import unittest
 import numpy as np
+import os
+import glob
 
 # version-conditional imports
 import sys
@@ -18,6 +16,7 @@ if sys.version_info[0] > 2:
 else:
     import __builtin__ as builtins
 
+HERE = os.path.dirname(os.path.realpath(__file__))
 
 class TestEnvironment(unittest.TestCase):
     """
@@ -31,23 +30,29 @@ class TestEnvironment(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # gather Scala requirements
-        jarpath = list(Path('../target/scala-2.11').resolve().glob('pyrasterframes-assembly*.jar'))[0]
+
+        jarpath = glob.glob(os.path.join(HERE, '..', '..', 'scala-2.11', 'pyrasterframes-assembly*.jar'))
+
+        if not len(jarpath) == 1:
+            raise RuntimeError("Expected to find exactly one assembly. Found: ", jarpath)
 
         # hard-coded relative path for resources
-        cls.resource_dir = Path('./static').resolve()
+        cls.resource_dir = os.path.realpath(os.path.join(HERE, '..', 'static'))
 
         # spark session with RF
         cls.spark = (SparkSession.builder
-                     .config('spark.driver.extraClassPath', jarpath)
-                     .config('spark.executor.extraClassPath', jarpath)
+                     .config('spark.driver.extraClassPath', jarpath[0])
+                     .config('spark.executor.extraClassPath', jarpath[0])
                      .withKryoSerialization()
                      .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
+
+        print(cls.spark.sparkContext._conf.getAll())
+
         print("Spark Version: " + cls.spark.version)
         cls.spark.withRasterFrames()
 
-        cls.img_uri = cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()
-
+        cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 
     # load something into a rasterframe
         rf = cls.spark.read.geotiff(cls.img_uri) \

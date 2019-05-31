@@ -60,9 +60,9 @@ lazy val pyrasterframes = project
   .settings(
     libraryDependencies ++= Seq(
       geotrellis("s3").value,
-      spark("core").value ,
-      spark("mllib").value,
-      spark("sql").value
+      spark("core").value % Provided,
+      spark("mllib").value % Provided,
+      spark("sql").value % Provided
     )
   )
 
