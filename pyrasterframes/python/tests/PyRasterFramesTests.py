@@ -428,7 +428,7 @@ class UDT(TestEnvironment):
         df = self.spark.createDataFrame([{"tile": t1}], schema)
 
         @udf(TileUDT())
-        def increment(t: Tile):
+        def increment(t):
             return t + 1
 
         r1 = df.select(increment(df.tile).alias("inc")).first()["inc"]
