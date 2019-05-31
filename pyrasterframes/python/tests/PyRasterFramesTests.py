@@ -398,6 +398,12 @@ class UDT(TestEnvironment):
                 self.assertEqual(ct,
                                  CellType.from_numpy_dtype(ct.to_numpy_dtype()),
                                  "GTCellType comparison for " + str(ct))
+            else:
+                ct_ud = ct.with_no_data_value(99)
+                self.assertEqual(ct_ud.base_cell_type_name(),
+                                 repr(CellType.from_numpy_dtype(ct_ud.to_numpy_dtype())),
+                                 "GTCellType comparison for " + str(ct_ud)
+                                 )
 
     def test_mask_no_data(self):
         t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
@@ -440,11 +446,28 @@ class UDT(TestEnvironment):
         df = self.spark.createDataFrame([{"tile": t1}], schema)
 
         @udf(TileUDT())
-        def increment(t: Tile):
+        def increment(t):
             return t + 1
 
         r1 = df.select(increment(df.tile).alias("inc")).first()["inc"]
         self.assertEqual(r1, e1)
+
+    def test_udf_np_implicit_type_conversion(self):
+        import math
+        import pandas
+
+        a1 = np.array([[1, 2], [0, 4]])
+        t1 = Tile(a1, CellType.uint8())
+        exp_array = a1 * math.pi
+
+        @udf(TileUDT())
+        def times_pi(t):
+            return t * math.pi
+
+        df = self.spark.createDataFrame(pandas.DataFrame([{"tile": t1}]))
+        r1 = df.select(times_pi(df.tile)).first()[0]
+        self.assertTrue(np.all(r1.cells, exp_array))
+        self.assertEqual(r1.cells.dtype, exp_array.dtype)
 
 
 class TileOps(TestEnvironment):
