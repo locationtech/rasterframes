@@ -130,7 +130,9 @@ class RasterSourceUDT(UserDefinedType):
         return 'org.apache.spark.sql.rf.RasterSourceUDT'
 
     def serialize(self, obj):
-        # Not yet implemented. Kryo serialized bytes?
+        # RasterSource is opaque in the Python context.
+        # Any thing passed in by a UDF return value couldn't be validated.
+        # Therefore obj is dropped None is passed to Catalyst.
         return None
 
     def deserialize(self, datum):
