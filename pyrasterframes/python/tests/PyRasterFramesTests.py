@@ -68,6 +68,7 @@ class TestEnvironment(unittest.TestCase):
             .withColumnRenamed('tile2', cls.tileCol).asRF()
         # cls.rf.show()
 
+
 class VectorTypes(TestEnvironment):
 
     def setUp(self):
@@ -139,9 +140,33 @@ class VectorTypes(TestEnvironment):
         )
 
     def test_rasterize(self):
-        # NB: This test just makes sure rf_rasterize runs, not that the results are correct.
-        with_raster = self.rf.withColumn('rasterized', rf_rasterize('geometry', 'geometry', lit(42), 10, 10))
-        with_raster.show()
+        # simple test that raster contents are not invalid
+
+        # create a udf to buffer (the bounds) polygon
+        def _buffer(g, d):
+            return g.buffer(d)
+
+        @udf("double")
+        def area(g):
+            return g.area
+
+        buffer_udf = udf(_buffer, PolygonUDT())
+
+        buf_cells = 10
+        with_poly = self.rf.withColumn('poly', buffer_udf(self.rf.geometry, lit(-15 * buf_cells)))  # cell res is 15x15
+        area = with_poly.select(area('poly') < area('geometry'))
+        area_result = area.collect()
+        self.assertTrue(all([r[0] for r in area_result]))
+
+        cols = 194
+        rows = 250
+        with_raster = with_poly.withColumn('rasterized', rf_rasterize('poly', 'geometry', lit(16), cols, rows))
+        # expect a 4 by 4 cell
+        result = with_raster.select(rf_tile_sum(rf_local_equal_int(with_raster.rasterized, 16)),
+                                    rf_tile_sum(with_raster.rasterized))
+        expected_burned_in_cells = (cols - 2 * buf_cells) * (rows - 2 * buf_cells)
+        self.assertEqual(result.first()[0], float(expected_burned_in_cells))
+        self.assertEqual(result.first()[1], 16. * expected_burned_in_cells)
 
     def test_reproject(self):
         reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
@@ -203,30 +228,12 @@ class RasterFunctions(TestEnvironment):
             .withColumn('expm1', rf_expm1(self.tileCol)) \
             .withColumn('round', rf_round(self.tileCol)) \
             .withColumn('abs', rf_abs(self.tileCol))
-        # TODO: add test for rf_extent and rf_geometry once rastersource connector is integrated and we have
-        #  a source of ProjectedRasterTiles.
+
         df.first()
 
     def test_agg_mean(self):
         mean = self.rf.agg(rf_agg_mean(self.tileCol)).first()['rf_agg_mean(tile)']
         self.assertTrue(self.rounded_compare(mean, 10160))
-
-    def test_prt_functions(self):
-        df = self.spark.read.rastersource(self.img_uri) \
-            .withColumn('crs', rf_crs(self.tileCol)) \
-            .withColumn('ext', rf_extent(self.tileCol)) \
-            .withColumn('geom', rf_geometry(self.tileCol))
-        df.show()
-
-    def test_rasterize(self):
-        # NB: This test just makes sure rf_rasterize runs, not that the results are correct.
-        withRaster = self.rf.withColumn('rasterized', rf_rasterize('geometry', 'geometry', lit(42), 10, 10))
-        withRaster.first()
-
-    def test_reproject(self):
-        reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
-        reprojected.first()
-
 
     def test_aggregations(self):
         aggs = self.rf.agg(
@@ -316,7 +323,6 @@ class RasterFunctions(TestEnvironment):
             .collect()[0][0]
         self.assertTrue(result)
 
-
     def test_resample(self):
         from pyspark.sql.functions import lit
         result = self.rf.select(
@@ -393,6 +399,12 @@ class UDT(TestEnvironment):
                 self.assertEqual(ct,
                                  CellType.from_numpy_dtype(ct.to_numpy_dtype()),
                                  "GTCellType comparison for " + str(ct))
+            else:
+                ct_ud = ct.with_no_data_value(99)
+                self.assertEqual(ct_ud.base_cell_type_name(),
+                                 repr(CellType.from_numpy_dtype(ct_ud.to_numpy_dtype())),
+                                 "GTCellType comparison for " + str(ct_ud)
+                                 )
 
     def test_mask_no_data(self):
         t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
@@ -441,6 +453,23 @@ class UDT(TestEnvironment):
         r1 = df.select(increment(df.tile).alias("inc")).first()["inc"]
         self.assertEqual(r1, e1)
 
+    def test_udf_np_implicit_type_conversion(self):
+        import math
+        import pandas
+
+        a1 = np.array([[1, 2], [0, 4]])
+        t1 = Tile(a1, CellType.uint8())
+        exp_array = a1 * math.pi
+
+        @udf(TileUDT())
+        def times_pi(t):
+            return t * math.pi
+
+        df = self.spark.createDataFrame(pandas.DataFrame([{"tile": t1}]))
+        r1 = df.select(times_pi(df.tile)).first()[0]
+        self.assertTrue(np.all(r1.cells, exp_array))
+        self.assertEqual(r1.cells.dtype, exp_array.dtype)
+
 
 class TileOps(TestEnvironment):
 
@@ -459,7 +488,7 @@ class PandasInterop(TestEnvironment):
 
     def test_pandas_conversion(self):
         import pandas as pd
-        #pd.options.display.max_colwidth = 256
+        # pd.options.display.max_colwidth = 256
         cell_types = (ct for ct in rf_cell_types() if not (ct.is_raw() or ("bool" in ct.base_cell_type_name())))
         tiles = [Tile(np.random.randn(5, 5) * 100, ct) for ct in cell_types]
         in_pandas = pd.DataFrame({
@@ -515,14 +544,8 @@ class PandasInterop(TestEnvironment):
 
         self.assertIsInstance(array_back_2, Tile)
         np.testing.assert_equal(array_back_2.cells, simple_array.cells)
-        np.int8
 
-class RasterSource(TestEnvironment):
-
-    # Putting this here for convenience
-    def test_setup(self):
-        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
-                         "org.apache.spark.serializer.KryoSerializer")
+class RasterJoin(TestEnvironment):
 
     def test_raster_join(self):
         # re-read the same source
@@ -549,6 +572,21 @@ class RasterSource(TestEnvironment):
         # throws if you don't  pass  in all expected columns
         with self.assertRaises(AssertionError):
             self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
+
+
+class RasterSource(TestEnvironment):
+
+    # Putting this here for convenience
+    def test_setup(self):
+        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
+                         "org.apache.spark.serializer.KryoSerializer")
+
+    def test_prt_functions(self):
+        df = self.spark.read.rastersource(self.img_uri) \
+            .withColumn('crs', rf_crs(self.tileCol)) \
+            .withColumn('ext', rf_extent(self.tileCol)) \
+            .withColumn('geom', rf_geometry(self.tileCol))
+        df.select('crs', 'ext', 'geom').first()                         
 
     def test_raster_source_reader(self):
         import pandas as pd
@@ -618,7 +656,6 @@ class RasterSource(TestEnvironment):
         b1_paths_maybe = path_df.select('b1_path').distinct().collect()
         b1_paths = [s.format('1') for s in scene_dict.values()]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
-
 
 def suite():
     function_tests = unittest.TestSuite()
