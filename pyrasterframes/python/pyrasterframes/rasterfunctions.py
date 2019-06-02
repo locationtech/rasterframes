@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from pyspark.sql.types import *
 from pyspark.sql.column import Column, _to_java_column
 from .context import RFContext
-
+from .rf_types import CellType
 
 THIS_MODULE = 'pyrasterframes'
 
@@ -163,7 +163,7 @@ def _create_inverseMaskByValue():
 _rf_unique_functions = {
     'rf_array_to_tile': _create_arrayToTile(),
     'rf_assemble_tile': _create_assembleTile(),
-    'rf_cell_types': lambda: _context_call('rf_cell_types'),
+    'rf_cell_types': lambda: [CellType(str(ct)) for ct in _context_call('rf_cell_types')],
     'rf_convert_cell_type': _create_convertCellType(),
     'rf_explode_tiles': _create_explode_tiles(),
     'rf_explode_tiles_sample': _create_explode_tiles_sample(),
@@ -255,6 +255,7 @@ _rf_column_functions = {
     'rf_exp2': 'Compute 2 to the power of cell values',
     'rf_exp10': 'Compute 10 to the power of cell values',
     'rf_expm1': 'Performs cell-wise exponential, then subtract one',
+    'rf_identity': 'Pass tile through unchanged',
     'rf_resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
     'rf_crs': 'Get the CRS of a RasterSource or ProjectedRasterTile',
     'st_extent': 'Compute the extent/bbox of a Geometry (a tile with embedded extent and CRS)',

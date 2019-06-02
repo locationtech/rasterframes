@@ -20,12 +20,11 @@
  */
 
 package org.apache.spark.sql.rf
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.TileDataContext
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
 import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.{Cells, TileDataContext}
 import org.locationtech.rasterframes.tiles.InternalRowTile
 
@@ -40,7 +39,7 @@ class TileUDT extends UserDefinedType[Tile] {
   import TileUDT._
   override def typeName = TileUDT.typeName
 
-  override def pyUDT: String = "pyrasterframes.TileUDT"
+  override def pyUDT: String = "pyrasterframes.rf_types.TileUDT"
 
   def userClass: Class[Tile] = classOf[Tile]
 
