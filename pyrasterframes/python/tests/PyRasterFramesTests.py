@@ -578,7 +578,7 @@ class RasterSource(TestEnvironment):
             .withColumn('crs', rf_crs(self.tileCol)) \
             .withColumn('ext', rf_extent(self.tileCol)) \
             .withColumn('geom', rf_geometry(self.tileCol))
-        df.first()
+        df.select('crs', 'ext', 'geom').first()
 
     def test_raster_source_reader(self):
         import pandas as pd
