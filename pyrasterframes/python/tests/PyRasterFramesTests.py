@@ -227,13 +227,6 @@ class RasterFunctions(TestEnvironment):
         mean = self.rf.agg(rf_agg_mean(self.tileCol)).first()['rf_agg_mean(tile)']
         self.assertTrue(self.rounded_compare(mean, 10160))
 
-    def test_prt_functions(self):
-        df = self.spark.read.rastersource(self.img_uri) \
-            .withColumn('crs', rf_crs(self.tileCol)) \
-            .withColumn('ext', rf_extent(self.tileCol)) \
-            .withColumn('geom', rf_geometry(self.tileCol))
-        df.show()
-
     def test_aggregations(self):
         aggs = self.rf.agg(
             rf_agg_data_cells(self.tileCol),
@@ -543,7 +536,35 @@ class PandasInterop(TestEnvironment):
 
         self.assertIsInstance(array_back_2, Tile)
         np.testing.assert_equal(array_back_2.cells, simple_array.cells)
-        np.int8
+
+class RasterJoin(TestEnvironment):
+
+    def test_raster_join(self):
+        # re-read the same source
+        rf_prime = self.spark.read.geotiff(self.img_uri) \
+            .withColumnRenamed('tile', 'tile2').alias('rf_prime')
+
+        rf_joined = self.rf.raster_join(rf_prime)
+
+        self.assertTrue(rf_joined.count(), self.rf.count())
+        self.assertTrue(len(rf_joined.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
+
+        rf_joined_2 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs, rf_prime.extent, rf_prime.crs)
+        self.assertTrue(rf_joined_2.count(), self.rf.count())
+        self.assertTrue(len(rf_joined_2.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
+
+        # this will bring arbitrary additional data into join; garbage result
+        join_expression = self.rf.extent.xmin == rf_prime.extent.xmin
+        rf_joined_3 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs,
+                                          rf_prime.extent, rf_prime.crs,
+                                          join_expression)
+        self.assertTrue(rf_joined_3.count(), self.rf.count())
+        self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
+
+        # throws if you don't  pass  in all expected columns
+        with self.assertRaises(AssertionError):
+            self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
+
 
 class RasterSource(TestEnvironment):
 
@@ -551,6 +572,13 @@ class RasterSource(TestEnvironment):
     def test_setup(self):
         self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
                          "org.apache.spark.serializer.KryoSerializer")
+
+    def test_prt_functions(self):
+        df = self.spark.read.rastersource(self.img_uri) \
+            .withColumn('crs', rf_crs(self.tileCol)) \
+            .withColumn('ext', rf_extent(self.tileCol)) \
+            .withColumn('geom', rf_geometry(self.tileCol))
+        df.first()
 
     def test_raster_source_reader(self):
         import pandas as pd
@@ -620,33 +648,6 @@ class RasterSource(TestEnvironment):
         b1_paths_maybe = path_df.select('b1_path').distinct().collect()
         b1_paths = [s.format('1') for s in scene_dict.values()]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
-
-    def test_raster_join(self):
-        # re-read the same source
-        rf_prime = self.spark.read.geotiff(self.img_uri) \
-            .withColumnRenamed('tile', 'tile2').alias('rf_prime')
-
-        rf_joined = self.rf.raster_join(rf_prime)
-
-        self.assertTrue(rf_joined.count(), self.rf.count())
-        self.assertTrue(len(rf_joined.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
-
-        rf_joined_2 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs, rf_prime.extent, rf_prime.crs)
-        self.assertTrue(rf_joined_2.count(), self.rf.count())
-        self.assertTrue(len(rf_joined_2.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
-
-        # this will bring arbitrary additional data into join; garbage result
-        join_expression = self.rf.extent.xmin == rf_prime.extent.xmin
-        rf_joined_3 = self.rf.raster_join(rf_prime, self.rf.extent, self.rf.crs,
-                                          rf_prime.extent, rf_prime.crs,
-                                          join_expression)
-        self.assertTrue(rf_joined_3.count(), self.rf.count())
-        self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
-
-        # throws if you don't  pass  in all expected columns
-        with self.assertRaises(AssertionError):
-            self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
-
 
 def suite():
     function_tests = unittest.TestSuite()
