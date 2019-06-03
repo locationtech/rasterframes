@@ -280,20 +280,36 @@ class Tile(object):
             other = right.cells
         else:
             other = right
-        return Tile(np.add(self.cells, other), self.cell_type)
+
+        _sum = np.add(self.cells, other)
+        ct = CellType.from_numpy_dtype(_sum.dtype)
+        if isinstance(_sum, np.ma.MaskedArray):
+            ct = ct.with_no_data_value(_sum.fill_value)
+
+        return Tile(_sum, ct)
 
     def __sub__(self, right):
         if isinstance(right, Tile):
             other = right.cells
         else:
             other = right
-        return Tile(np.subtract(self.cells, other), self.cell_type)
+        _diff = np.subtract(self.cells, other)
+        ct = CellType.from_numpy_dtype(_diff.dtype)
+        if isinstance(_diff, np.ma.MaskedArray):
+            ct = ct.with_no_data_value(_diff.fill_value)
+
+        return Tile(_diff, ct)
 
     def __mul__(self, right):
         if isinstance(right, Tile):
             other = right.cells
         else:
             other = right
+        prod = np.multiply(self.cells, other)
+        ct = CellType.from_numpy_dtype(prod.dtype)
+        if isinstance(prod, np.ma.MaskedArray):
+            ct = ct.with_no_data_value(prod.fill_value)
+
         return Tile(np.multiply(self.cells, other), self.cell_type)
 
     def __truediv__(self, right):
@@ -301,7 +317,11 @@ class Tile(object):
             other = right.cells
         else:
             other = right
-        return Tile(np.true_divide(self.cells, other), self.cell_type)
+        quot = np.true_divide(self.cells, other)
+        ct = CellType.from_numpy_dtype(quot.dtype)
+        if isinstance(quot, np.ma.MaskedArray):
+            ct = ct.with_no_data_value(quot.fill_value)
+        return Tile(quot, ct)
 
 
     def dimensions(self):
