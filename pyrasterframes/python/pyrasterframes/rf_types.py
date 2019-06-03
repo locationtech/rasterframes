@@ -233,6 +233,8 @@ class CellType(object):
         return np.dtype(n).newbyteorder('>')
 
     def with_no_data_value(self, no_data):
+        if self.has_no_data() and self.no_data_value() == no_data:
+            return self
         return CellType(self.base_cell_type_name() + 'ud' + str(no_data))
 
     def __eq__(self, other):
