@@ -24,10 +24,12 @@ package org.locationtech.rasterframes.model
 import geotrellis.raster.{ArrayTile, ConstantTile, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{BinaryType, StructField, StructType}
+import org.locationtech.rasterframes
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
+import org.locationtech.rasterframes.tiles.ShowableTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile.ConcreteProjectedRasterTile
 
 /** Represents the union of binary cell datas or a reference to the data.*/
@@ -37,14 +39,18 @@ case class Cells(data: Either[Array[Byte], RasterRef]) {
   /** Convert cells into either a RasterRefTile or an ArrayTile. */
   def toTile(ctx: TileDataContext): Tile = {
     data.fold(
-      bytes => ArrayTile.fromBytes(bytes, ctx.cellType, ctx.dimensions.cols, ctx.dimensions.rows),
+      bytes => {
+        val t = ArrayTile.fromBytes(bytes, ctx.cellType, ctx.dimensions.cols, ctx.dimensions.rows)
+        if (Cells.showableTiles) new ShowableTile(t)
+        else t
+      },
       ref => RasterRefTile(ref)
     )
   }
 }
 
 object Cells {
-
+  private val showableTiles = rasterframes.rfConfig.getBoolean("showable-tiles")
   /** Extracts the Cells from a Tile. */
   def apply(t: Tile): Cells = {
     t match {
@@ -53,7 +59,8 @@ object Cells {
       case ref: RasterRefTile =>
         Cells(Right(ref.rr))
       case const: ConstantTile =>
-        // TODO: Create mechanism whereby constant tiles aren't expanded.
+        // Need to expand constant tiles so they can be interpreted properly in catalyst and Python.
+        // If we don't, the serialization breaks.
         Cells(Left(const.toArrayTile().toBytes))
       case o =>
         Cells(Left(o.toBytes))

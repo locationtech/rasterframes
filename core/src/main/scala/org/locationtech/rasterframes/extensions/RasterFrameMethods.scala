@@ -42,6 +42,7 @@ import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 import com.typesafe.scalalogging.LazyLogging
 import org.locationtech.rasterframes.MetadataKeys
+import org.locationtech.rasterframes.tiles.ShowableTile
 
 import scala.reflect.runtime.universe._
 
@@ -226,12 +227,31 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
    */
   def toTileLayerRDD(tileCol: Column): Either[TileLayerRDD[SpatialKey], TileLayerRDD[SpaceTimeKey]] =
     tileLayerMetadata.fold(
-      tlm ⇒ Left(ContextRDD(self.select(self.spatialKeyColumn, tileCol.as[Tile]).rdd, tlm)),
+      tlm ⇒ {
+        val rdd = self.select(self.spatialKeyColumn, tileCol.as[Tile])
+          .rdd
+          .map {
+            // Wrapped tiles can break GeoTrellis Avro code.
+            case (sk, wrapped: ShowableTile) => (sk, wrapped.delegate)
+            case o => o
+          }
+
+        Left(ContextRDD(rdd, tlm))
+      },
       tlm ⇒ {
         val rdd = self
           .select(self.spatialKeyColumn, self.temporalKeyColumn.get, tileCol.as[Tile])
           .rdd
-          .map { case (sk, tk, v) ⇒ (SpaceTimeKey(sk, tk), v) }
+          .map {
+            case (sk, tk, v) ⇒
+              val tile = v match {
+                // Wrapped tiles can break GeoTrellis Avro code.
+                case wrapped: ShowableTile => wrapped.delegate
+                case o => o
+              }
+
+            (SpaceTimeKey(sk, tk), tile)
+          }
         Right(ContextRDD(rdd, tlm))
       }
     )
