@@ -226,16 +226,49 @@ object RasterSource extends LazyLogging {
       case _                       => EMPTY_TAGS
     }
     override def tags: Tags = info.tags
+
+    private def readWithRetry[R >: Null](f: () => R): R = {
+      val retryLimit = 10
+      var result: R = null
+      var cnt = 0
+      while(result == null && cnt < retryLimit) {
+        cnt = cnt + 1
+        try {
+          result = f()
+        }
+        catch {
+          case be: java.nio.BufferUnderflowException =>
+            if (cnt == 1)
+              logger.warn("Retrying read to " + source)
+            if (cnt == retryLimit) {
+              logger.warn(s"Failed to read '$source' after $cnt tries")
+              throw be
+            }
+            else Thread.sleep(100)
+            ()
+        }
+      }
+      result
+    }
+
     override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
-      delegate.readBounds(bounds, bands)
+      readWithRetry(() =>
+        delegate.readBounds(bounds, bands)
+      )
+
     override def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
-      delegate
-        .read(bounds, bands)
-        .getOrElse(throw new IllegalArgumentException(s"Bounds '$bounds' outside of source"))
+      readWithRetry(() =>
+        delegate
+          .read(bounds, bands)
+          .getOrElse(throw new IllegalArgumentException(s"Bounds '$bounds' outside of source"))
+      )
+
     override def read(extent: Extent, bands: Seq[Int]): Raster[MultibandTile] =
-      delegate
-        .read(extent, bands)
-        .getOrElse(throw new IllegalArgumentException(s"Extent '$extent' outside of source"))
+      readWithRetry(() =>
+        delegate
+          .read(extent, bands)
+          .getOrElse(throw new IllegalArgumentException(s"Extent '$extent' outside of source"))
+      )
   }
 
   case class JVMGeoTiffRasterSource(source: URI) extends DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))
