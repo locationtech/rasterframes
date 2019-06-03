@@ -25,7 +25,7 @@ import geotrellis.raster.Tile
 
 class ShowableTile(val delegate: Tile) extends FixedDelegatingTile {
   override def equals(obj: Any): Boolean = obj match {
-    case ppt: ShowableTile => delegate.equals(ppt.delegate)
+    case st: ShowableTile => delegate.equals(st.delegate)
     case o => delegate.equals(o)
   }
   override def hashCode(): Int = delegate.hashCode()
@@ -37,12 +37,14 @@ object ShowableTile {
   def show(tile: Tile): String = {
     val ct = tile.cellType
     val dims = tile.dimensions
+
     val data = if (tile.cellType.isFloatingPoint)
       tile.toArrayDouble()
     else tile.toArray()
 
-    val cells = if (data.length <= maxCells)
+    val cells = if(tile.size <= maxCells) {
       data.mkString("[", ",", "]")
+    }
     else {
       val front = data.take(maxCells/2).mkString("[", ",", "")
       val back = data.takeRight(maxCells/2).mkString("", ",", "]")
