@@ -10,7 +10,7 @@ SBT Commands
 
 Build the shaded JAR:
 
-    ``$ sbt pyrasterframes/spPublishLocal``
+    ``$ sbt pyrasterframes/assembly``
 
 Run tests:
 
@@ -52,7 +52,9 @@ Run examples:
 Spark Usage
 -----------
 
-Get a Spark REPL (after running ``$ sbt pyrasterframes/spPublishLocal``):
+*TODO: The following may be out of date.*
+
+Get a Spark REPL (after running ``$ sbt pyrasterframes/assembly``):
 
     ``$  pyspark --packages io.astraea:pyrasterframes:$VERSION --master local[2]``
 

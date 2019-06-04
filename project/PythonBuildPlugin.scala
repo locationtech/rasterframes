@@ -69,7 +69,10 @@ object PythonBuildPlugin extends AutoPlugin {
       val wd = copyPySources.value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
-      val ver = version.value
+      val ver = version.value match {
+        case "SNAPSHOT" => "dev"
+        case o => o
+      }
       s.log.info(s"Running '${cmd.mkString(" ")}' in $wd")
       Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
     },
@@ -79,7 +82,8 @@ object PythonBuildPlugin extends AutoPlugin {
     Test / test := Def.sequential(
       Test / test,
       Python / test
-    ).value
+    ).value,
+    Test / testQuick := (Python / testQuick).evaluated
   ) ++
     inConfig(Python)(Seq(
       target := target.value / "python",
@@ -100,7 +104,8 @@ object PythonBuildPlugin extends AutoPlugin {
       test := Def.sequential(
         assembly,
         pySetup.toTask(" test")
-      ).value
+      ).value,
+      testQuick := pySetup.toTask(" test").value
     )) ++
     addArtifact(Python / packageBin / artifact, Python / packageBin)
 }

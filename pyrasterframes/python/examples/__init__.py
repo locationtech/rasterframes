@@ -12,7 +12,9 @@ resource_dir = os.path.realpath(os.path.join(scala_target, 'test-classes'))
 jarpath = glob.glob(os.path.join(scala_target, 'pyrasterframes-assembly*.jar'))
 
 if not len(jarpath) == 1:
-    raise RuntimeError("Expected to find exactly one assembly. Found: ", jarpath)
+    raise RuntimeError("""
+Expected to find exactly one assembly. Found '{}' instead. 
+Try running 'sbt pyrasterframes/clean' first. """.format(jarpath))
 
 pyJar = jarpath[0]
 

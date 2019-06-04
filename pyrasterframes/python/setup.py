@@ -75,7 +75,7 @@ setup(
     description='RasterFrames for PySpark',
     long_description=readme,
     long_description_content_type='text/x-rst',
-    version=environ.get('RASTERFRAMES_VERSION', 'SNAPSHOT'),
+    version=environ.get('RASTERFRAMES_VERSION', 'dev'),
     author='Astraea, Inc.',
     author_email='info@astraea.earth',
     license='Apache 2',
@@ -84,12 +84,12 @@ setup(
         'Bug Reports': 'https://github.com/locationtech/rasterframes/issues',
         'Source': 'https://github.com/locationtech/rasterframes',
     },
+    install_requires=requirements,
     setup_requires=[
         'pytest-runner',
         'setuptools >= 0.8',
         'pathlib2'
-    ],
-    install_requires=requirements,
+    ] + requirements,
     tests_require=[
         'pytest==3.4.2',
         'pypandoc',
