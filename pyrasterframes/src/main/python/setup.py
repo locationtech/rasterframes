@@ -88,7 +88,8 @@ setup(
     setup_requires=[
         'pytest-runner',
         'setuptools >= 0.8',
-        'pathlib2'
+        'pathlib2',
+        'jupytext'
     ] + requirements,
     tests_require=[
         'pytest==3.4.2',

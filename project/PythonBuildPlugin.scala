@@ -48,6 +48,16 @@ object PythonBuildPlugin extends AutoPlugin {
     dest
   }
 
+  val copyPyTestSources = Def.task {
+    val s = streams.value
+    val src = (Test / pythonSource).value
+    val dest = (Python / target).value / "tests"
+    if (!dest.exists()) dest.mkdirs()
+    s.log(s"Copying '$src' to '$dest'")
+    IO.copyDirectory(src, dest)
+    dest
+  }
+
   val buildWhl = Def.task {
     val buildDir = (Python / target).value
     val retcode = pySetup.toTask(" build bdist_wheel").value
@@ -105,6 +115,7 @@ object PythonBuildPlugin extends AutoPlugin {
       },
       test := Def.sequential(
         assembly,
+        copyPyTestSources,
         pySetup.toTask(" test")
       ).value,
       testQuick := pySetup.toTask(" test").value
