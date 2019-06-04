@@ -59,7 +59,7 @@ object Cells {
       case ref: RasterRefTile =>
         Cells(Right(ref.rr))
       case const: ConstantTile =>
-        // TODO: Create mechanism whereby constant tiles aren't expanded.
+        // Need to expand constant tiles so they can be interpreted properly in catalyst and Python.
         // If we don't, the serialization breaks.
         Cells(Left(const.toArrayTile().toBytes))
       case o =>
