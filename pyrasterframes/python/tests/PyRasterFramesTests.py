@@ -451,15 +451,30 @@ class UDT(TestEnvironment):
 
         a1 = np.array([[1, 2], [0, 4]])
         t1 = Tile(a1, CellType.uint8())
-        exp_array = a1 * math.pi
+        exp_array = a1.astype('>f8')
 
         @udf(TileUDT())
         def times_pi(t):
             return t * math.pi
 
+        @udf(TileUDT())
+        def divide_pi(t):
+            return t / math.pi
+
+        @udf(TileUDT())
+        def plus_pi(t):
+            return t + math.pi
+
+        @udf(TileUDT())
+        def less_pi(t):
+            return t - math.pi
+
         df = self.spark.createDataFrame(pandas.DataFrame([{"tile": t1}]))
-        r1 = df.select(times_pi(df.tile)).first()[0]
-        self.assertTrue(np.all(r1.cells, exp_array))
+        r1 = df.select(
+            less_pi(divide_pi(times_pi(plus_pi(df.tile))))
+        ).first()[0]
+
+        self.assertTrue(np.all(r1.cells == exp_array))
         self.assertEqual(r1.cells.dtype, exp_array.dtype)
 
 
