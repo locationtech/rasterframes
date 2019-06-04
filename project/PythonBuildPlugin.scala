@@ -51,7 +51,7 @@ object PythonBuildPlugin extends AutoPlugin {
   val copyPyTestSources = Def.task {
     val s = streams.value
     val src = (Test / pythonSource).value
-    val dest = (Python / target).value / "tests"
+    val dest = (Python / test / target).value
     if (!dest.exists()) dest.mkdirs()
     s.log(s"Copying '$src' to '$dest'")
     IO.copyDirectory(src, dest)
@@ -98,7 +98,8 @@ object PythonBuildPlugin extends AutoPlugin {
     Test / testQuick := (Python / testQuick).evaluated
   ) ++
     inConfig(Python)(Seq(
-      target := target.value / "python",
+      target := (Compile / target).value / "python",
+      test / target := (Compile / target).value / "python" / "tests",
       packageBin := Def.sequential(
         Compile / packageBin,
         pyDistAsZip,
