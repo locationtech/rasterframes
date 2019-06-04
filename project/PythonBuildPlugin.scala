@@ -48,7 +48,7 @@ object PythonBuildPlugin extends AutoPlugin {
     dest
   }
 
-  val buildPyDist= Def.task {
+  val buildPyDist = Def.task {
     val buildDir = (Python / target).value
     val pyDist = (packageBin / artifactPath).value
     val retcode = pySetup.toTask(" build sdist --formats=zip").value
