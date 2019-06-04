@@ -48,15 +48,20 @@ object PythonBuildPlugin extends AutoPlugin {
     dest
   }
 
-  val buildPyDist = Def.task {
+  val buildWhl = Def.task {
     val buildDir = (Python / target).value
-    val pyDist = (packageBin / artifactPath).value
-    val retcode = pySetup.toTask(" build sdist --formats=zip").value
+    val retcode = pySetup.toTask(" build bdist_wheel").value
     if(retcode != 0) throw new RuntimeException(s"'python setup.py' returned $retcode")
-    val art = (Python / packageBin / artifact).value
-    val ver = version.value
-    IO.move(buildDir / "dist" / s"${art.name}-$ver.zip", pyDist)
-    pyDist
+    val whls = (buildDir / "dist" ** "pyrasterframes*.whl").get()
+    require(whls.length == 1, "Running setup.py should have produced a single .whl file. Try running `clean` first.")
+    whls.head
+  }
+
+  val pyDistAsZip = Def.task {
+    val pyDest = (packageBin / artifactPath).value
+    val whl = buildWhl.value
+    IO.copyFile(whl, pyDest)
+    pyDest
   }
 
   override def projectConfigurations: Seq[Configuration] = Seq(Python)
@@ -69,10 +74,7 @@ object PythonBuildPlugin extends AutoPlugin {
       val wd = copyPySources.value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
-      val ver = version.value match {
-        case "SNAPSHOT" => "dev"
-        case o => o
-      }
+      val ver = version.value
       s.log.info(s"Running '${cmd.mkString(" ")}' in $wd")
       Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
     },
@@ -89,7 +91,7 @@ object PythonBuildPlugin extends AutoPlugin {
       target := target.value / "python",
       packageBin := Def.sequential(
         Compile / packageBin,
-        buildPyDist
+        pyDistAsZip,
       ).value,
       packageBin / artifact := {
         val java = (Compile / packageBin / artifact).value

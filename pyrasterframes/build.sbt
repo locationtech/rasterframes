@@ -3,25 +3,22 @@ import PythonBuildPlugin.autoImport.pySetup
 Compile / pythonSource := baseDirectory.value / "python"
 Test / pythonSource := baseDirectory.value / "python" / "tests"
 
-// This setting adds relevant python source to the JVM artifact
-// where pyspark can pick it up from the `--packages` setting.
-
-Python / sourceDirectories := Seq(
-  (Compile / pythonSource).value / "pyrasterframes",
-  (Compile / pythonSource).value / "geomesa_pyspark"
-)
-
-Compile / packageBin / mappings ++= {
-  val pybase = (Compile / pythonSource).value
-  val dirs = (Python / sourceDirectories).value
-  for {
-    d <- dirs
-    p <- d ** "*.py" --- d pair (f => IO.relativize(pybase, f))
-  } yield p
-}
-
-// This is needed for the above to get included properly in the assembly.
 exportJars := true
+
+lazy val pySparkCmd = taskKey[Unit]("Create build and emit command to run in pyspark")
+pySparkCmd := {
+  val s = streams.value
+  val jvm = assembly.value
+  val py = (Python / packageBin).value
+  val script = IO.createTemporaryDirectory / "pyrf_init.py"
+  IO.write(script, """
+from pyrasterframes import *
+from pyrasterframes.rasterfunctions import *
+""")
+  val msg = s"PYTHONSTARTUP=$script pyspark --jars $jvm --py-files $py"
+  s.log.debug(msg)
+  println(msg)
+}
 
 lazy val pyExamples = taskKey[Unit]("Run python examples")
 

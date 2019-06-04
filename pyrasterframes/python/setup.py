@@ -9,7 +9,7 @@ import importlib
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     readme = f.read()
 
 with open(path.join(here, 'requirements.txt')) as f:
@@ -74,7 +74,7 @@ setup(
     name='pyrasterframes',
     description='RasterFrames for PySpark',
     long_description=readme,
-    long_description_content_type='text/x-rst',
+    long_description_content_type='text/markdown',
     version=environ.get('RASTERFRAMES_VERSION', 'dev'),
     author='Astraea, Inc.',
     author_email='info@astraea.earth',
