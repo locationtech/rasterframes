@@ -1,11 +1,20 @@
 # PyRasterFrames
 
-PyRasterFrames is the Python API for Spark RasterFrames. 
+PyRasterFrames is the Python API for Spark RasterFrames.
 
-Building RasterFrames requires [`sbt`](https://www.scala-sbt.org/), and all `sbt` commands referenced below must be 
-run from the root source directory, i.e. the parent of the `pyrasterframes` directory. Know that `sbt` is much 
-faster if run in "interactive" mode, where you launch `sbt` with no arguments, and subsequent commands are invoked
-via an interactive shell. But for context clarity, we'll prefix each command example below with `sbt`. 
+
+## Prerequisites
+
+1. [`sbt`](https://www.scala-sbt.org/)
+2. ['pyspark`](https://pypi.org/project/pyspark/) > 2.3.2 
+
+RasterFrames is primarily implmented in Scala, and as such uses the Scala build tool [`sbt`](https://www.scala-sbt.org/).
+All `sbt` commands referenced below must be run from the root source directory, i.e. the parent of the `pyrasterframes` 
+directory, including Python-related build steps. 
+
+As a tip, know that `sbt` is much faster if run in "interactive" mode, where you launch `sbt` with no arguments, 
+and subsequent commands are invoked via an interactive shell. But for context clarity, we'll prefix each command 
+example below with `sbt`. 
 
 ## Quickstart
 
@@ -21,7 +30,7 @@ This will:
 1. Merge all JVM code and dependencies into a single "assembly" JAR file.
 1. Create the PyRasterFrames `.whl` package
 1. Construct a temporary initialization script
-1. Emit a `bash` command with requiesite arguments to load RasterFrames and import PyRasterFrames 
+1. Emit a `bash` command with requisite arguments to start a pyspark interpreter with RasterFrames imports.
 
 You then copy/paste the emitted command into your `bash` shell to start up a spark shell. It assumes you have
 `pyspark` >= 2.3.2 installed in your environment.
@@ -34,6 +43,8 @@ The PyRasterFrames unit tests can found in `<src-root>/pyrasterframes/python/tes
 sbt pyTests
 ```
 
+*See also the below discussion of running `setup.py` for more options to run unit tests.* 
+
 Similarly, to run the examples in `<src-root>pyrasterframes/python/examples`:
 
 ```bash
@@ -42,13 +53,13 @@ sbt pyExamples
 
 ## Creating and Using a Build
 
-Assuming that `$SCALA_VER` is the major verison of Scala in use, and `$VER` is the version of RasterFrames, 
+Assuming that `$SCALA_VER` is the major verison of Scala in use (e.g. 2.11) , and `$VER` is the version of RasterFrames, 
 the primary build artifacts are:
 
 * JVM library: `pyrasterframes/target/scala-$SCALA_VER/pyrasterframes_$SCALA_VER-$VER.jar`
 * Python package: `pyrasterframes/target/scala-$SCALA_VER/pyrasterframes-python-$VER.zip`
 
-You build them with"
+You build them with:
 
 ```bash
 sbt pyrasterframes/package
