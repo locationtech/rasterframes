@@ -38,25 +38,20 @@ object PythonBuildPlugin extends AutoPlugin {
   }
   import autoImport._
 
-  val copyPySources = Def.task {
+  def copySources(srcDir: SettingKey[File], destDir: SettingKey[File]) = Def.task {
     val s = streams.value
-    val src = (Compile / pythonSource).value
-    val dest = (Python / target).value
-    if (!dest.exists()) dest.mkdirs()
-    s.log(s"Copying '$src' to '$dest'")
+    val src = srcDir.value
+    val dest = destDir.value
+    IO.delete(dest)
+    dest.mkdirs()
+    s.log.info(s"Copying '$src' to '$dest'")
     IO.copyDirectory(src, dest)
     dest
   }
 
-  val copyPyTestSources = Def.task {
-    val s = streams.value
-    val src = (Test / pythonSource).value
-    val dest = (Python / test / target).value
-    if (!dest.exists()) dest.mkdirs()
-    s.log(s"Copying '$src' to '$dest'")
-    IO.copyDirectory(src, dest)
-    dest
-  }
+  val copyPySources = copySources(Compile / pythonSource, Python / target)
+
+  val copyPyTestSources = copySources(Test / pythonSource, Python / test / target)
 
   val buildWhl = Def.task {
     val buildDir = (Python / target).value

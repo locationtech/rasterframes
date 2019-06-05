@@ -1,8 +1,5 @@
 import PythonBuildPlugin.autoImport.pySetup
 
-Compile / pythonSource := baseDirectory.value / "python"
-Test / pythonSource := baseDirectory.value / "python" / "tests"
-
 exportJars := true
 
 lazy val pySparkCmd = taskKey[Unit]("Create build and emit command to run in pyspark")
