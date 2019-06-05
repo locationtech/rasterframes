@@ -12,7 +12,10 @@ scala:
   - 2.11.11
 
 jdk:
-  - oraclejdk8
+  - openjdk8
+
+python:
+  - "3.7"
 
 addons:
   apt:
