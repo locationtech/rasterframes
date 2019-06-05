@@ -1,11 +1,19 @@
-"""
-The operations in this file are designed for development and testing only.
-"""
-
+# Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-import distutils.log
+from os import path, environ
+from io import open
+from pathlib import Path
+import distutils.cmd
 import importlib
-from os import environ
+
+here = path.abspath(path.dirname(__file__))
+
+# Get the long description from the README file
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    readme = f.read()
+
+with open(path.join(here, 'requirements.txt')) as f:
+    requirements = f.read().splitlines()
 
 
 def _extract_module(mod):
@@ -17,7 +25,7 @@ def _extract_module(mod):
         globals().update({k: v for (k, v) in module.__dict__.items() if not k.startswith('_')})
 
 
-class ExampleCommand(distutils.cmd.Command):
+class RunExamples(distutils.cmd.Command):
     """A custom command to run pyrasterframes examples."""
 
     description = 'run pyrasterframes examples'
@@ -26,15 +34,8 @@ class ExampleCommand(distutils.cmd.Command):
         ('examples=', 'e', 'examples to run'),
     ]
 
-    def initialize_options(self):
-        from pathlib import Path
-        """Set default values for options."""
-        # Each user option must be listed here with their default value.
-        self.examples = filter(lambda x: not x.name.startswith('_'),
-                               list(Path('./examples').resolve().glob('*.py')))
-
-    def _check_ex_path(self, ex):
-        from pathlib import Path
+    @staticmethod
+    def _check_ex_path(ex):
         file = Path(ex)
         if not file.suffix:
             file = file.with_suffix('.py')
@@ -42,6 +43,12 @@ class ExampleCommand(distutils.cmd.Command):
 
         assert file.is_file(), ('Invalid example %s' % file)
         return file
+
+    def initialize_options(self):
+        """Set default values for options."""
+        # Each user option must be listed here with their default value.
+        self.examples = filter(lambda x: not x.name.startswith('_'),
+                               list(Path('./examples').resolve().glob('*.py')))
 
     def finalize_options(self):
         """Post-process options."""
@@ -63,67 +70,39 @@ class ExampleCommand(distutils.cmd.Command):
                 print(traceback.format_exc())
 
 
-class ZipCommand(distutils.cmd.Command):
-    """A custom command to create a minimal zip distribution."""
-
-    description = 'create a minimal pyrasterframes source zip file'
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        """Create the zip."""
-        import zipfile
-        from pathlib import Path
-        import os
-        zfile = 'pyrasterframes.zip'
-
-        if os.path.isfile(zfile):
-            os.remove(zfile)
-        with zipfile.ZipFile(zfile, 'w') as przip:
-            przip.write('pyrasterframes')
-            # Bring in source files and readme
-            patterns = ['*.py', '*.rst', '*.jar']
-            root = Path('.').resolve()
-            for pattern in patterns:
-                for file in list(root.glob('pyrasterframes/' + pattern)):
-                    przip.write(str(file.relative_to(root)))
-            # Put a copy of the license in the zip
-            przip.write('LICENSE.md', 'pyrasterframes/LICENSE.md')
-
-
-with open('README.rst') as f:
-    readme = f.read()
-
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
-
-setup_args = dict(
+setup(
     name='pyrasterframes',
-    description='Python bindings for RasterFrames',
+    description='RasterFrames for PySpark',
     long_description=readme,
-    version=environ.get('RASTERFRAMES_VERSION', 'SNAPSHOT'),
-    url='http://rasterframes.io',
+    long_description_content_type='text/markdown',
+    version=environ.get('RASTERFRAMES_VERSION', 'dev'),
     author='Astraea, Inc.',
-    author_email='info@astraea.io',
+    author_email='info@astraea.earth',
     license='Apache 2',
-    setup_requires=['pytest-runner', 'pathlib'],
+    url='https://rasterframes.io',
+    project_urls={
+        'Bug Reports': 'https://github.com/locationtech/rasterframes/issues',
+        'Source': 'https://github.com/locationtech/rasterframes',
+    },
     install_requires=requirements,
+    setup_requires=[
+        'pytest-runner',
+        'setuptools >= 0.8',
+        'pathlib2'
+    ] + requirements,
     tests_require=[
         'pytest==3.4.2',
-        'pypandoc'
+        'pypandoc',
+        'numpy>=1.7',
+        'pandas',
     ],
-    test_suite="pytest-runner",
-    packages=find_packages(exclude=['tests', 'examples']),
+    packages=[
+        'pyrasterframes',
+        'geomesa_pyspark'
+    ],
     include_package_data=True,
-    package_data={'.': ['LICENSE.md'], 'pyrasterframes': ['*.jar']},
-    exclude_package_data={'.': ['setup.*', 'README.*']},
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Other Environment',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
@@ -132,14 +111,11 @@ setup_args = dict(
         'Topic :: Software Development :: Libraries'
     ],
     zip_safe=False,
+    test_suite="pytest-runner",
     cmdclass={
-        'examples': ExampleCommand,
-        'minzip': ZipCommand
+        'examples': RunExamples
     }
     # entry_points={
     #     "console_scripts": ['pyrasterframes=pyrasterframes:console']
     # }
 )
-
-if __name__ == "__main__":
-    setup(**setup_args)

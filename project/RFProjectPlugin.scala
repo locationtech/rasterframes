@@ -11,13 +11,6 @@ object RFProjectPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   override def requires = GitPlugin
 
-  object autoImport {
-    val Python = config("python")
-  }
-  import autoImport._
-
-  override def projectConfigurations: Seq[Configuration] = Seq(Python)
-
   override def projectSettings = Seq(
     organization := "org.locationtech.rasterframes",
     organizationName := "LocationTech RasterFrames",
@@ -25,7 +18,7 @@ object RFProjectPlugin extends AutoPlugin {
     homepage := Some(url("http://rasterframes.io")),
     git.remoteRepo := "git@github.com:locationtech/rasterframes.git",
     scmInfo := Some(ScmInfo(url("https://github.com/locationtech/rasterframes"), "git@github.com:locationtech/rasterframes.git")),
-    description := "RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis",
+    description := "RasterFrames brings the power of Spark DataFrames to geospatial raster data.",
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion := "2.11.12",
     scalacOptions ++= Seq(

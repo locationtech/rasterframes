@@ -1,15 +1,26 @@
 # examples_setup
-from pathlib import Path
+import os
+import glob
 from pyspark.sql import SparkSession
 
 __all__ = ["resource_dir", "example_session"]
 
-jarpath = list(Path('../target').resolve().glob('**/pyrasterframes*.jar'))
-if len(jarpath) > 0:
-    pyJar = jarpath[0].as_uri()
+HERE = os.path.dirname(os.path.realpath(__file__))
 
-    def example_session():
-        return (SparkSession.builder
+scala_target = os.path.realpath(os.path.join(HERE, '..', '..', 'scala-2.11'))
+resource_dir = os.path.realpath(os.path.join(scala_target, 'test-classes'))
+jarpath = glob.glob(os.path.join(scala_target, 'pyrasterframes-assembly*.jar'))
+
+if not len(jarpath) == 1:
+    raise RuntimeError("""
+Expected to find exactly one assembly. Found '{}' instead. 
+Try running 'sbt pyrasterframes/clean' first. """.format(jarpath))
+
+pyJar = jarpath[0]
+
+
+def example_session():
+    return (SparkSession.builder
             .master("local[*]")
             .appName("RasterFrames")
             .config('spark.driver.extraClassPath', pyJar)
@@ -18,7 +29,3 @@ if len(jarpath) > 0:
             .withKryoSerialization()
             .getOrCreate())
 
-
-# hard-coded relative path for resources
-resource_dir = Path('./static').resolve()
-# examples_setup
