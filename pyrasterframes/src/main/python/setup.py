@@ -49,7 +49,7 @@ class RunExamples(distutils.cmd.Command):
     def initialize_options(self):
         """Set default values for options."""
         # Each user option must be listed here with their default value.
-        self.examples = filter(lambda x: not x[:1] == '_',
+        self.examples = filter(lambda x: not path.basename(x)[:1] == '_',
                                glob(path.join(here, 'examples', '*')))
 
     def finalize_options(self):
@@ -57,7 +57,7 @@ class RunExamples(distutils.cmd.Command):
         import re
         if isinstance(self.examples, str):
             self.examples = filter(lambda s: len(s) > 0, re.split('\W+', self.examples))
-        self.examples = map(lambda x: 'examples.' + path.basename(x),
+        self.examples = map(lambda x: 'examples.' + path.splitext(path.basename(x))[0],
                             map(self._check_ex_path, self.examples))
 
     def run(self):

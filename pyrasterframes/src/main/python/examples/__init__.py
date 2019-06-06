@@ -14,7 +14,7 @@ jarpath = glob.glob(os.path.join(scala_target, 'pyrasterframes-assembly*.jar'))
 if not len(jarpath) == 1:
     raise RuntimeError("""
 Expected to find exactly one assembly. Found '{}' instead. 
-Try running 'sbt pyrasterframes/clean' first. """.format(jarpath))
+Try running 'sbt pyrasterframes/clean && sbt pyrasterframes/test' first. """.format(jarpath))
 
 pyJar = jarpath[0]
 
