@@ -39,7 +39,7 @@ class RunExamples(distutils.cmd.Command):
         file = Path(ex)
         if not file.suffix:
             file = file.with_suffix('.py')
-        file = (Path('./examples') / file).resolve()
+        file = (Path(here) / 'examples' / file).resolve()
 
         assert file.is_file(), ('Invalid example %s' % file)
         return file
@@ -48,13 +48,13 @@ class RunExamples(distutils.cmd.Command):
         """Set default values for options."""
         # Each user option must be listed here with their default value.
         self.examples = filter(lambda x: not x.name.startswith('_'),
-                               list(Path('./examples').resolve().glob('*.py')))
+                               list((Path(here) / 'examples').resolve().glob('*.py')))
 
     def finalize_options(self):
         """Post-process options."""
         import re
         if isinstance(self.examples, str):
-            self.examples = re.split('\W+', self.examples)
+            self.examples = filter(lambda s: len(s) > 0, re.split('\W+', self.examples))
         self.examples = map(lambda x: 'examples.' + x.stem,
                             map(self._check_ex_path, self.examples))
 
@@ -88,7 +88,8 @@ setup(
     setup_requires=[
         'pytest-runner',
         'setuptools >= 0.8',
-        'pathlib2'
+        'pathlib2',
+        'jupytext'
     ] + requirements,
     tests_require=[
         'pytest==3.4.2',

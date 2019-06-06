@@ -5,7 +5,7 @@ from pyspark.sql import *
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
 from pyspark.ml import Pipeline
-
+import os
 
 spark = example_session().withRasterFrames()
 
@@ -18,9 +18,9 @@ bandColNames = list(map(lambda n: 'band_{}'.format(n), bandNumbers))
 # For each identified band, load the associated image file
 from functools import reduce
 joinedRF = reduce(lambda rf1, rf2: rf1.asRF().spatialJoin(rf2.drop('bounds').drop('metadata').drop('extent').drop('crs')),
-                  map(lambda bf: spark.read.geotiff(bf[1]) \
+                  map(lambda bf: spark.read.geotiff(bf[1])
                       .withColumnRenamed('tile', 'band_{}'.format(bf[0])),
-                  map(lambda b: (b, resource_dir.joinpath(filenamePattern.format(b)).as_uri()), bandNumbers)))
+                  map(lambda b: (b, os.path.join(resource_dir, filenamePattern.format(b))), bandNumbers)))
 
 # We should see a single spatial_key column along with columns of tiles.
 joinedRF.printSchema()
