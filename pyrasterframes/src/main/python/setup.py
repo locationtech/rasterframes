@@ -1,8 +1,8 @@
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 from os import path, environ
+from glob import glob
 from io import open
-from pathlib import Path
 import distutils.cmd
 import importlib
 
@@ -36,26 +36,28 @@ class RunExamples(distutils.cmd.Command):
 
     @staticmethod
     def _check_ex_path(ex):
-        file = Path(ex)
-        if not file.suffix:
-            file = file.with_suffix('.py')
-        file = (Path(here) / 'examples' / file).resolve()
 
-        assert file.is_file(), ('Invalid example %s' % file)
+        file = ex
+        suffix = path.splitext(ex)[1]
+        if suffix == '':
+            file += '.py'
+        file = path.join(here, 'examples', file)
+
+        assert path.isfile(file), ('Invalid example %s' % file)
         return file
 
     def initialize_options(self):
         """Set default values for options."""
         # Each user option must be listed here with their default value.
-        self.examples = filter(lambda x: not x.name.startswith('_'),
-                               list((Path(here) / 'examples').resolve().glob('*.py')))
+        self.examples = filter(lambda x: not x[:1] == '_',
+                               glob(path.join(here, 'examples', '*')))
 
     def finalize_options(self):
         """Post-process options."""
         import re
         if isinstance(self.examples, str):
             self.examples = filter(lambda s: len(s) > 0, re.split('\W+', self.examples))
-        self.examples = map(lambda x: 'examples.' + x.stem,
+        self.examples = map(lambda x: 'examples.' + path.basename(x),
                             map(self._check_ex_path, self.examples))
 
     def run(self):
