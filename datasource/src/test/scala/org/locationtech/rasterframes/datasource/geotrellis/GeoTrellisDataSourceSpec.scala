@@ -298,7 +298,7 @@ class GeoTrellisDataSourceSpec
 
     it("should support query with multiple geometry types") {
       // Mostly just testing that these evaluate without catalyst type errors.
-      forEvery(JTS.all) { g ⇒
+      forEvery(GeomData.all) { g ⇒
         val query = layerReader.loadRF(layer).where(GEOMETRY_COLUMN.intersects(g))
           .persist(StorageLevel.OFF_HEAP)
         assert(query.count() === 0)

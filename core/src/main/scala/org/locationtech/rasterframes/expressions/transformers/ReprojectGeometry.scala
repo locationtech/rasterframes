@@ -34,14 +34,25 @@ import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.encoders.CatalystSerializer
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
+import org.locationtech.rasterframes.model.LazyCRS
 
-/**
-  *
-  *
-  * @since 11/29/18
-  */
+@ExpressionDescription(
+  usage = "_FUNC_(geom, srcCRS, dstCRS) - Reprojects the given `geom` from `srcCRS` to `dstCRS",
+  arguments = """
+  Arguments:
+    * geom - the geometry column to reproject
+    * srcCRS - the CRS of the `geom` column
+    * dstCRS - the CRS to project geometry into""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(geom, srcCRS, dstCRS);
+       ..."""
+)
 case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: Expression) extends Expression
   with CodegenFallback with ExpectsInputTypes {
+
+  // TODO: Replace registration in `org.locationtech.rasterframes.functions.register`
+  // TODO: with proper Expression supporting String columns as well.
 
   override def nodeName: String = "st_reproject"
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
@@ -60,10 +71,15 @@ case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: E
     }
 
   override def eval(input: InternalRow): Any = {
-    val geom = JTSTypes.GeometryTypeInstance.deserialize(geometry.eval(input))
     val src = srcCRS.eval(input).asInstanceOf[InternalRow].to[CRS]
     val dst = dstCRS.eval(input).asInstanceOf[InternalRow].to[CRS]
-    JTSTypes.GeometryTypeInstance.serialize(reproject(geom, src, dst))
+    (src, dst) match {
+      // Optimized pass-through case.
+      case (s: LazyCRS, r: LazyCRS) if s.encoded == r.encoded => geometry.eval(input)
+      case _ =>
+        val geom = JTSTypes.GeometryTypeInstance.deserialize(geometry.eval(input))
+        JTSTypes.GeometryTypeInstance.serialize(reproject(geom, src, dst))
+    }
   }
 }
 
