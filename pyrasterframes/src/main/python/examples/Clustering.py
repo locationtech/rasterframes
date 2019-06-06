@@ -1,4 +1,4 @@
-from . import example_session, resource_dir
+from examples import example_session, resource_dir
 from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql import *

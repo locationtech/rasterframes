@@ -1,5 +1,6 @@
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
+import os
 from os import path, environ
 from io import open
 from pathlib import Path
@@ -25,10 +26,15 @@ def _extract_module(mod):
         globals().update({k: v for (k, v) in module.__dict__.items() if not k.startswith('_')})
 
 
+def _divided(msg):
+    divider = ('-' * 50)
+    return divider + '\n' + msg + '\n' + divider
+
+
 class RunExamples(distutils.cmd.Command):
     """A custom command to run pyrasterframes examples."""
 
-    description = 'run pyrasterframes examples'
+    description = 'Run PyRasterFrames examples'
     user_options = [
         # The format is (long option, short option, description).
         ('examples=', 'e', 'examples to run'),
@@ -61,17 +67,60 @@ class RunExamples(distutils.cmd.Command):
     def run(self):
         """Run the examples."""
         import traceback
+
         for ex in self.examples:
-            print(('-' * 50) + '\nRunning %s' % ex + '\n' + ('-' * 50))
+            print(_divided('Running %s' % ex))
             try:
                 _extract_module(ex)
             except Exception:
-                print(('-' * 50) + '\n%s Failed:' % ex + '\n' + ('-' * 50))
+                print(_divided('%s Failed:' % ex))
                 print(traceback.format_exc())
 
 
+class PweaveDocs(distutils.cmd.Command):
+    """A custom command to run documentation scripts through pweave."""
+
+    description = 'Pweave PyRasterFrames examples'
+    user_options = [
+        # The format is (long option, short option, description).
+        ('files=', 'f', 'Specific files to pweave. Defaults to all in `examples` directory.'),
+    ]
+
+    def initialize_options(self):
+        """Set default values for options."""
+        # Each user option must be listed here with their default value.
+        self.files = filter(lambda x: not x.name.startswith('_'),
+                               list((Path(here) / 'examples').resolve().glob('*.py')))
+
+    def finalize_options(self):
+        """Post-process options."""
+        import re
+        if isinstance(self.files, str):
+            self.files = filter(lambda s: len(s) > 0, re.split('\W+', self.files))
+
+    def run(self):
+        """Run pweave."""
+        import traceback
+        import pweave
+        dest = path.join(here, 'docs-md')
+        os.mkdir(dest)
+
+        for ex in self.files:
+            name = path.splitext(path.basename(ex))[0]
+            print(_divided('Running %s' % ex))
+            try:
+                pweave.weave(
+                    file=str(ex),
+                    doctype='markdown',
+                    output=path.join(dest, name + ".md"),
+                    figdir=path.join(dest, "figures")
+                )
+            except Exception:
+                print(_divided('%s Failed:' % ex))
+                print(traceback.format_exc())
+
 setup(
-    name='pyrasterframes',
+    name='PyRasterFrames',
     description='RasterFrames for PySpark',
     long_description=readme,
     long_description_content_type='text/markdown',
@@ -89,7 +138,7 @@ setup(
         'pytest-runner',
         'setuptools >= 0.8',
         'pathlib2',
-        'jupytext'
+        'Pweave'
     ] + requirements,
     tests_require=[
         'pytest==3.4.2',
@@ -114,7 +163,8 @@ setup(
     zip_safe=False,
     test_suite="pytest-runner",
     cmdclass={
-        'examples': RunExamples
+        'examples': RunExamples,
+        'pweave': PweaveDocs
     }
     # entry_points={
     #     "console_scripts": ['pyrasterframes=pyrasterframes:console']

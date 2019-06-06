@@ -14,13 +14,13 @@ jarpath = glob.glob(os.path.join(scala_target, 'pyrasterframes-assembly*.jar'))
 if not len(jarpath) == 1:
     raise RuntimeError("""
 Expected to find exactly one assembly. Found '{}' instead. 
-Try running 'sbt pyrasterframes/clean' first. """.format(jarpath))
+Try running 'sbt pyrasterframes/pyTest' first. """.format(jarpath))
 
 pyJar = jarpath[0]
 
 
 def example_session():
-    return (SparkSession.builder
+    spark = (SparkSession.builder
             .master("local[*]")
             .appName("RasterFrames")
             .config('spark.driver.extraClassPath', pyJar)
@@ -28,4 +28,6 @@ def example_session():
             .config("spark.ui.enabled", "false")
             .withKryoSerialization()
             .getOrCreate())
+    spark.sparkContext.setLogLevel("ERROR")
+    return spark
 

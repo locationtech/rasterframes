@@ -1,4 +1,4 @@
-from . import resource_dir, example_session
+from examples import resource_dir, example_session
 from pyrasterframes import *
 from pyrasterframes.rasterfunctions import *
 import os
