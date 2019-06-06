@@ -55,7 +55,7 @@ object RFAssemblyPlugin extends AutoPlugin {
         "org.apache.http",
         "com.google.guava"
       )
-      shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"aee.shaded.$p.@1").inAll)
+      shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"rf.shaded.$p.@1").inAll)
     },
     assemblyOption in assembly :=
       (assemblyOption in assembly).value.copy(includeScala = false),

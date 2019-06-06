@@ -1,69 +1,38 @@
-from pyspark.sql import SparkSession, Column, SQLContext
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
+#
+# This software is licensed under the Apache 2 license, quoted below.
+#
+# Copyright 2019 Astraea, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# [http://www.apache.org/licenses/LICENSE-2.0]
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 
-from pyrasterframes import *
+import unittest
+
+import numpy as np
+from geomesa_pyspark.types import *
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
-from geomesa_pyspark.types import *
-from pathlib import Path
-import unittest
-import numpy as np
-
-# version-conditional imports
-import sys
-
-if sys.version_info[0] > 2:
-    import builtins
-else:
-    import __builtin__ as builtins
-
-
-class TestEnvironment(unittest.TestCase):
-    """
-    Base class for tests.
-    """
-
-    def rounded_compare(self, val1, val2):
-        print('Comparing {} and {} using round()'.format(val1, val2))
-        return builtins.round(val1) == builtins.round(val2)
-
-    @classmethod
-    def setUpClass(cls):
-        # gather Scala requirements
-        jarpath = list(Path('../target/scala-2.11').resolve().glob('pyrasterframes-assembly*.jar'))[0]
-
-        # hard-coded relative path for resources
-        cls.resource_dir = Path('./static').resolve()
-
-        # spark session with RF
-        cls.spark = (SparkSession.builder
-                     .config('spark.driver.extraClassPath', jarpath)
-                     .config('spark.executor.extraClassPath', jarpath)
-                     .withKryoSerialization()
-                     .getOrCreate())
-        cls.spark.sparkContext.setLogLevel('ERROR')
-        print("Spark Version: " + cls.spark.version)
-        cls.spark.withRasterFrames()
-
-        cls.img_uri = cls.resource_dir.joinpath('L8-B8-Robinson-IL.tiff').as_uri()
-
-        # load something into a rasterframe
-        rf = cls.spark.read.geotiff(cls.img_uri) \
-            .withBounds() \
-            .withCenter()
-
-        # convert the tile cell type to provide for other operations
-        cls.tileCol = 'tile'
-        cls.rf = rf.withColumn('tile2', rf_convert_cell_type(cls.tileCol, 'float32')) \
-            .drop(cls.tileCol) \
-            .withColumnRenamed('tile2', cls.tileCol).asRF()
-        # cls.rf.show()
-
+from pyspark.sql import SQLContext, Column
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+from . import TestEnvironment
 
 class VectorTypes(TestEnvironment):
 
     def setUp(self):
+        self.create_rasterframe()
         import pandas as pd
         self.pandas_df = pd.DataFrame({
             'eye': ['a', 'b', 'c', 'd'],
@@ -77,7 +46,7 @@ class VectorTypes(TestEnvironment):
         self.df = df.withColumn("poly_geom", st_bufferPoint(df.point_geom, lit(1250.0)))
 
     def test_spatial_relations(self):
-        from pyspark.sql.functions import lit, udf, sum
+        from pyspark.sql.functions import udf, sum
         import shapely
         import numpy.testing
 
@@ -167,6 +136,9 @@ class VectorTypes(TestEnvironment):
 
 class RasterFunctions(TestEnvironment):
 
+    def setUp(self):
+        self.create_rasterframe()
+
     def test_identify_columns(self):
         cols = self.rf.tileColumns()
         self.assertEqual(len(cols), 1, '`tileColumns` did not find the proper number of columns.')
@@ -186,8 +158,8 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(tiles.count(), 4)
 
     def test_multi_column_operations(self):
-        df1 = self.rf.withColumnRenamed(self.tileCol, 't1').asRF()
-        df2 = self.rf.withColumnRenamed(self.tileCol, 't2').asRF()
+        df1 = self.rf.withColumnRenamed('tile', 't1').asRF()
+        df2 = self.rf.withColumnRenamed('tile', 't2').asRF()
         df3 = df1.spatialJoin(df2).asRF()
         df3 = df3.withColumn('norm_diff', rf_normalized_difference('t1', 't2'))
         # df3.printSchema()
@@ -203,36 +175,36 @@ class RasterFunctions(TestEnvironment):
     def test_general(self):
         meta = self.rf.tileLayerMetadata()
         self.assertIsNotNone(meta['bounds'])
-        df = self.rf.withColumn('dims', rf_dimensions(self.tileCol)) \
-            .withColumn('type', rf_cell_type(self.tileCol)) \
-            .withColumn('dCells', rf_data_cells(self.tileCol)) \
-            .withColumn('ndCells', rf_no_data_cells(self.tileCol)) \
-            .withColumn('min', rf_tile_min(self.tileCol)) \
-            .withColumn('max', rf_tile_max(self.tileCol)) \
-            .withColumn('mean', rf_tile_mean(self.tileCol)) \
-            .withColumn('sum', rf_tile_sum(self.tileCol)) \
-            .withColumn('stats', rf_tile_stats(self.tileCol)) \
+        df = self.rf.withColumn('dims', rf_dimensions('tile')) \
+            .withColumn('type', rf_cell_type('tile')) \
+            .withColumn('dCells', rf_data_cells('tile')) \
+            .withColumn('ndCells', rf_no_data_cells('tile')) \
+            .withColumn('min', rf_tile_min('tile')) \
+            .withColumn('max', rf_tile_max('tile')) \
+            .withColumn('mean', rf_tile_mean('tile')) \
+            .withColumn('sum', rf_tile_sum('tile')) \
+            .withColumn('stats', rf_tile_stats('tile')) \
             .withColumn('extent', st_extent('geometry')) \
             .withColumn('extent_geom1', st_geometry('extent')) \
-            .withColumn('ascii', rf_render_ascii(self.tileCol)) \
-            .withColumn('log', rf_log(self.tileCol)) \
-            .withColumn('exp', rf_exp(self.tileCol)) \
-            .withColumn('expm1', rf_expm1(self.tileCol)) \
-            .withColumn('round', rf_round(self.tileCol)) \
-            .withColumn('abs', rf_abs(self.tileCol))
+            .withColumn('ascii', rf_render_ascii('tile')) \
+            .withColumn('log', rf_log('tile')) \
+            .withColumn('exp', rf_exp('tile')) \
+            .withColumn('expm1', rf_expm1('tile')) \
+            .withColumn('round', rf_round('tile')) \
+            .withColumn('abs', rf_abs('tile'))
 
         df.first()
 
     def test_agg_mean(self):
-        mean = self.rf.agg(rf_agg_mean(self.tileCol)).first()['rf_agg_mean(tile)']
+        mean = self.rf.agg(rf_agg_mean('tile')).first()['rf_agg_mean(tile)']
         self.assertTrue(self.rounded_compare(mean, 10160))
 
     def test_aggregations(self):
         aggs = self.rf.agg(
-            rf_agg_data_cells(self.tileCol),
-            rf_agg_no_data_cells(self.tileCol),
-            rf_agg_stats(self.tileCol),
-            rf_agg_approx_histogram(self.tileCol)
+            rf_agg_data_cells('tile'),
+            rf_agg_no_data_cells('tile'),
+            rf_agg_stats('tile'),
+            rf_agg_approx_histogram('tile')
         )
         row = aggs.first()
 
@@ -244,7 +216,7 @@ class RasterFunctions(TestEnvironment):
     def test_sql(self):
         self.rf.createOrReplaceTempView("rf")
 
-        dims = self.rf.withColumn('dims', rf_dimensions(self.tileCol)).first().dims
+        dims = self.rf.withColumn('dims', rf_dimensions('tile')).first().dims
         dims_str = """{}, {}""".format(dims.cols, dims.rows)
 
         self.spark.sql("""SELECT tile, rf_make_constant_tile(1, {}, 'uint16') AS One, 
@@ -258,7 +230,7 @@ class RasterFunctions(TestEnvironment):
                                 FROM r3""")
 
         # ops.printSchema
-        statsRow = ops.select(rf_tile_mean(self.tileCol).alias('base'),
+        statsRow = ops.select(rf_tile_mean('tile').alias('base'),
                               rf_tile_mean("AndOne").alias('plus_one'),
                               rf_tile_mean("LessOne").alias('minus_one'),
                               rf_tile_mean("TimesTwo").alias('double'),
@@ -272,7 +244,7 @@ class RasterFunctions(TestEnvironment):
 
     def test_explode(self):
         import pyspark.sql.functions as F
-        self.rf.select('spatial_key', rf_explode_tiles(self.tileCol)).show()
+        self.rf.select('spatial_key', rf_explode_tiles('tile')).show()
         # +-----------+------------+---------+-------+
         # |spatial_key|column_index|row_index|tile   |
         # +-----------+------------+---------+-------+
@@ -288,7 +260,7 @@ class RasterFunctions(TestEnvironment):
 
         # Test the sample version
         frac = 0.01
-        sample_count = self.rf.select(rf_explode_tiles_sample(frac, 1872, self.tileCol)).count()
+        sample_count = self.rf.select(rf_explode_tiles_sample(frac, 1872, 'tile')).count()
         print('Sample count is {}'.format(sample_count))
         self.assertTrue(sample_count > 0)
         self.assertTrue(sample_count < (frac * 1.1) * 387000)  # give some wiggle room
@@ -451,15 +423,30 @@ class UDT(TestEnvironment):
 
         a1 = np.array([[1, 2], [0, 4]])
         t1 = Tile(a1, CellType.uint8())
-        exp_array = a1 * math.pi
+        exp_array = a1.astype('>f8')
 
         @udf(TileUDT())
         def times_pi(t):
             return t * math.pi
 
+        @udf(TileUDT())
+        def divide_pi(t):
+            return t / math.pi
+
+        @udf(TileUDT())
+        def plus_pi(t):
+            return t + math.pi
+
+        @udf(TileUDT())
+        def less_pi(t):
+            return t - math.pi
+
         df = self.spark.createDataFrame(pandas.DataFrame([{"tile": t1}]))
-        r1 = df.select(times_pi(df.tile)).first()[0]
-        self.assertTrue(np.all(r1.cells, exp_array))
+        r1 = df.select(
+            less_pi(divide_pi(times_pi(plus_pi(df.tile))))
+        ).first()[0]
+
+        self.assertTrue(np.all(r1.cells == exp_array))
         self.assertEqual(r1.cells.dtype, exp_array.dtype)
 
 
@@ -477,6 +464,8 @@ class TileOps(TestEnvironment):
 
 
 class PandasInterop(TestEnvironment):
+    def setUp(self):
+        self.create_rasterframe()
 
     def test_pandas_conversion(self):
         import pandas as pd
@@ -539,6 +528,9 @@ class PandasInterop(TestEnvironment):
 
 class RasterJoin(TestEnvironment):
 
+    def setUp(self):
+        self.create_rasterframe()
+
     def test_raster_join(self):
         # re-read the same source
         rf_prime = self.spark.read.geotiff(self.img_uri) \
@@ -575,10 +567,10 @@ class RasterSource(TestEnvironment):
 
     def test_prt_functions(self):
         df = self.spark.read.rastersource(self.img_uri) \
-            .withColumn('crs', rf_crs(self.tileCol)) \
-            .withColumn('ext', rf_extent(self.tileCol)) \
-            .withColumn('geom', rf_geometry(self.tileCol))
-        df.select('crs', 'ext', 'geom').first()
+            .withColumn('crs', rf_crs('tile')) \
+            .withColumn('ext', rf_extent('tile')) \
+            .withColumn('geom', rf_geometry('tile'))
+        df.select('crs', 'ext', 'geom').first()                         
 
     def test_raster_source_reader(self):
         import pandas as pd
@@ -652,6 +644,5 @@ class RasterSource(TestEnvironment):
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
-
 
 unittest.TextTestRunner().run(suite())

@@ -12,7 +12,6 @@ lazy val root = project
 lazy val `rf-notebook` = project
   .dependsOn(pyrasterframes)
   .enablePlugins(RFAssemblyPlugin, DockerPlugin)
-  .disablePlugins(SparkPackagePlugin)
 
 lazy val IntegrationTest = config("it") extend Test
 
@@ -21,7 +20,6 @@ lazy val core = project
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.testSettings))
   .settings(Defaults.itSettings)
-  .disablePlugins(SparkPackagePlugin)
   .settings(
     moduleName := "rasterframes",
     libraryDependencies ++= Seq(
@@ -58,11 +56,18 @@ lazy val core = project
 
 lazy val pyrasterframes = project
   .dependsOn(core, datasource, experimental)
-  .enablePlugins(RFAssemblyPlugin)
+  .enablePlugins(RFAssemblyPlugin, PythonBuildPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      geotrellis("s3").value,
+      spark("core").value % Provided,
+      spark("mllib").value % Provided,
+      spark("sql").value % Provided
+    )
+  )
 
 lazy val datasource = project
   .dependsOn(core % "test->test;compile->compile")
-  .disablePlugins(SparkPackagePlugin)
   .settings(
     moduleName := "rasterframes-datasource",
     libraryDependencies ++= Seq(
@@ -83,7 +88,6 @@ lazy val experimental = project
   .settings(Defaults.itSettings)
   .dependsOn(core % "test->test;it->test;compile->compile")
   .dependsOn(datasource % "test->test;it->test;compile->compile")
-  .disablePlugins(SparkPackagePlugin)
   .settings(
     moduleName := "rasterframes-experimental",
     libraryDependencies ++= Seq(
@@ -99,10 +103,8 @@ lazy val experimental = project
 
 lazy val docs = project
   .dependsOn(core, datasource)
-  .disablePlugins(SparkPackagePlugin)
 
 lazy val bench = project
   .dependsOn(core % "compile->test")
-  .disablePlugins(SparkPackagePlugin)
   .settings(publish / skip := true)
 
