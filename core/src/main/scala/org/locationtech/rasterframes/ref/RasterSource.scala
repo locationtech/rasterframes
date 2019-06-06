@@ -191,7 +191,25 @@ object RasterSource extends LazyLogging {
   /** A RasterFrames RasterSource which delegates most operations to a geotrellis-contrib RasterSource */
   abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRasterSource) extends RasterSource with URIRasterSource {
     @transient
-    lazy val delegate = delegateBuilder()
+    @volatile
+    private var _delRef: GTRasterSource = _
+
+    private def retryableRead[R >: Null](f: GTRasterSource => R): R = synchronized {
+      try {
+        if (_delRef == null)
+          _delRef = delegateBuilder()
+        f(_delRef)
+      }
+      catch {
+        // On this exeception we attempt to recreate the delegate and read again.
+        case be: java.nio.BufferUnderflowException =>
+          _delRef = null
+          val newDel = delegateBuilder()
+          val result = f(newDel)
+          _delRef = newDel
+          result
+      }
+    }
 
     // Bad, bad, bad?
     override def equals(obj: Any): Boolean = obj match {
@@ -201,16 +219,16 @@ object RasterSource extends LazyLogging {
     override def hashCode(): Int = source.hashCode()
 
     // This helps reduce header reads between serializations
-    lazy val info: SimpleGeoTiffInfo = {
+    lazy val info: SimpleGeoTiffInfo = retryableRead { rs =>
       SimpleGeoTiffInfo(
-        delegate.cols,
-        delegate.rows,
-        delegate.cellType,
-        delegate.extent,
-        delegate.rasterExtent,
-        delegate.crs,
+        rs.cols,
+        rs.rows,
+        rs.cellType,
+        rs.extent,
+        rs.rasterExtent,
+        rs.crs,
         fetchTags,
-        delegate.bandCount,
+        rs.bandCount,
         None
       )
     }
@@ -221,21 +239,49 @@ object RasterSource extends LazyLogging {
     override def extent: Extent = info.extent
     override def cellType: CellType = info.cellType
     override def bandCount: Int = info.bandCount
-    private def fetchTags: Tags = delegate match {
+    private def fetchTags: Tags = retryableRead {
       case rs: GeoTiffRasterSource => rs.tiff.tags
       case _                       => EMPTY_TAGS
     }
     override def tags: Tags = info.tags
+
+//    private def readWithRetry[R >: Null](f: () => R): R = {
+//      val retryLimit = 10
+//      var result: R = null
+//      var cnt = 0
+//      while(result == null && cnt < retryLimit) {
+//        cnt = cnt + 1
+//        try {
+//          result = f()
+//        }
+//        catch {
+//          case be: java.nio.BufferUnderflowException =>
+//            if (cnt == 1)
+//              logger.warn("Retrying read to " + source)
+//            if (cnt == retryLimit) {
+//              logger.warn(s"Failed to read '$source' after $cnt tries")
+//              throw be
+//            }
+//            else Thread.sleep(100)
+//            ()
+//        }
+//      }
+//      result
+//    }
+
+
     override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
-      delegate.readBounds(bounds, bands)
+      retryableRead(_.readBounds(bounds, bands))
+
     override def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
-      delegate
-        .read(bounds, bands)
+      retryableRead(_.read(bounds, bands)
         .getOrElse(throw new IllegalArgumentException(s"Bounds '$bounds' outside of source"))
+      )
+
     override def read(extent: Extent, bands: Seq[Int]): Raster[MultibandTile] =
-      delegate
-        .read(extent, bands)
+      retryableRead(_.read(extent, bands)
         .getOrElse(throw new IllegalArgumentException(s"Extent '$extent' outside of source"))
+      )
   }
 
   case class JVMGeoTiffRasterSource(source: URI) extends DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))
