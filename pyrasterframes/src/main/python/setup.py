@@ -79,18 +79,17 @@ class RunExamples(distutils.cmd.Command):
 
 class PweaveDocs(distutils.cmd.Command):
     """A custom command to run documentation scripts through pweave."""
-
-    description = 'Pweave PyRasterFrames examples'
+    description = 'Pweave PyRasterFrames documentation scripts'
     user_options = [
         # The format is (long option, short option, description).
-        ('files=', 'f', 'Specific files to pweave. Defaults to all in `examples` directory.'),
+        ('files=', 'f', 'Specific files to pweave. Defaults to all in `docs` directory.'),
     ]
 
     def initialize_options(self):
         """Set default values for options."""
         # Each user option must be listed here with their default value.
         self.files = filter(lambda x: not x.name.startswith('_'),
-                               list((Path(here) / 'examples').resolve().glob('*.py')))
+                               list((Path(here) / 'docs').resolve().glob('*.py')))
 
     def finalize_options(self):
         """Post-process options."""
@@ -102,8 +101,6 @@ class PweaveDocs(distutils.cmd.Command):
         """Run pweave."""
         import traceback
         import pweave
-        dest = path.join(here, 'docs-md')
-        os.mkdir(dest)
 
         for ex in self.files:
             name = path.splitext(path.basename(ex))[0]
@@ -111,9 +108,7 @@ class PweaveDocs(distutils.cmd.Command):
             try:
                 pweave.weave(
                     file=str(ex),
-                    doctype='markdown',
-                    output=path.join(dest, name + ".md"),
-                    figdir=path.join(dest, "figures")
+                    doctype='markdown'
                 )
             except Exception:
                 print(_divided('%s Failed:' % ex))

@@ -2,6 +2,17 @@ import PythonBuildPlugin.autoImport.pySetup
 
 exportJars := true
 
+Python / doc / target := (Python / target).value / "docs"
+Python / doc := {
+  val _ = Def.sequential(
+    assembly,
+    pySetup.toTask(" pweave")
+  ).value
+  (Python / doc / target).value
+}
+
+doc := (Python / doc).value
+
 lazy val pySparkCmd = taskKey[Unit]("Create build and emit command to run in pyspark")
 pySparkCmd := {
   val s = streams.value
