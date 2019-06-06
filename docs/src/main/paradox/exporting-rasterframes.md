@@ -27,8 +27,7 @@ The cell values within a `Tile` are encoded internally as an array. There may be
 where the additional context provided by the `Tile` construct is no longer needed and one would
 prefer to work with the underlying array data.
 
-The @scaladoc[`rf_tile_to_array_int`][rf_tile_to_array_int] and @scaladoc[`rf_tile_to_array_double`][rf_tile_to_array_double]
-provide this facility.
+The `rf_tile_to_array_int` and `rf_tile_to_array_double` functions provide this facility.
 
 ```tut
 val withArrays = rf.withColumn("tileData", rf_tile_to_array_int($"tile")).drop("tile")

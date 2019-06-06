@@ -102,7 +102,29 @@ lazy val experimental = project
   )
 
 lazy val docs = project
-  .dependsOn(core, datasource)
+  .dependsOn(core, datasource, pyrasterframes)
+  .enablePlugins(SiteScaladocPlugin, ParadoxPlugin, GhpagesPlugin, ScalaUnidocPlugin)
+  .settings(
+    apiURL := Some(url("http://rasterframes.io/latest/api")),
+    autoAPIMappings := true,
+    ghpagesNoJekyll := true,
+    ScalaUnidoc / siteSubdirName := "latest/api",
+    paradox / siteSubdirName := ".",
+    paradoxProperties ++= Map(
+      "github.base_url" -> "https://github.com/locationtech/rasterframes",
+      "version" -> version.value,
+      "scaladoc.org.apache.spark.sql.rf" -> "http://rasterframes.io/latest"
+    ),
+    paradoxTheme := Some(builtinParadoxTheme("generic")),
+    makeSite := makeSite.dependsOn(Compile / unidoc).dependsOn(Compile / paradox).value,
+    Compile / paradox / sourceDirectories += (pyrasterframes / Python / doc / target).value
+  )
+  .settings(
+    addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
+  )
+  .settings(
+    addMappingsToSiteDir(Compile / paradox / mappings, paradox / siteSubdirName)
+  )
 
 lazy val bench = project
   .dependsOn(core % "compile->test")
