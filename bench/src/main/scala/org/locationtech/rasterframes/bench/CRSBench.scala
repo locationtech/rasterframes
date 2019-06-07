@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
-import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.proj4.{CRS, LatLng, WebMercator}
 import org.locationtech.proj4j.CoordinateReferenceSystem
 import org.locationtech.rasterframes.model.LazyCRS
 import org.openjdk.jmh.annotations._
@@ -33,24 +33,37 @@ import org.openjdk.jmh.annotations._
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 class CRSBench extends SparkEnv {
 
-  var crs: CRS = _
+  var crs1: CRS = _
+  var crs2: CRS = _
 
   @Setup(Level.Invocation)
   def setupData(): Unit = {
-    crs = LazyCRS("epsg:4326")
+    crs1 = LazyCRS("epsg:4326")
+    crs2 = LazyCRS(WebMercator.toProj4String)
   }
+
   @Benchmark
   def resolveCRS(): CoordinateReferenceSystem = {
-    crs.proj4jCrs
+    crs1.proj4jCrs
   }
 
   @Benchmark
-  def selfEquals(): Boolean = {
-    crs == crs
+  def logicalEqualsTrue(): Boolean = {
+    crs1 == LatLng
   }
 
   @Benchmark
-  def logicalEquals(): Boolean = {
-    crs == LatLng
+  def logicalEqualsFalse(): Boolean = {
+    crs1 == WebMercator
+  }
+
+  @Benchmark
+  def logicalLazyEqualsTrue(): Boolean = {
+    crs1 == crs1
+  }
+
+  @Benchmark
+  def logicalLazyEqualsFalse(): Boolean = {
+    crs1 == crs2
   }
 }

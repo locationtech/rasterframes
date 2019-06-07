@@ -34,8 +34,14 @@ class LazyCRS(val encoded: EncodedCRS) extends CRS {
     else delegate.toProj4String
 
   override def equals(o: Any): Boolean = o match {
-    case l: LazyCRS => encoded == l.encoded || super.equals(o)
-    case c => delegate.equals(c)
+    case l: LazyCRS =>
+      encoded == l.encoded ||
+        toProj4String == l.toProj4String ||
+        super.equals(o)
+    case c: CRS =>
+      toProj4String == c.toProj4String ||
+        delegate.equals(c)
+    case _ => false
   }
 }
 
@@ -53,7 +59,9 @@ object LazyCRS {
   @transient
   private lazy val cache = Scaffeine().build[String, CRS](mapper)
 
-  def apply(value: String): CRS = {
+  def apply(crs: CRS): LazyCRS = apply(crs.toProj4String)
+
+  def apply(value: String): LazyCRS = {
     if (mapper.isDefinedAt(value)) {
       new LazyCRS(value.asInstanceOf[EncodedCRS])
     }

@@ -24,14 +24,17 @@ package org.locationtech.rasterframes
 import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
 import geotrellis.vector.{Extent, Point => GTPoint}
 import org.locationtech.jts.geom._
+import spray.json.JsNumber
 
 /**
  * Test rig for operations providing interop with JTS types.
  *
  * @since 12/16/17
  */
-class JTSSpec extends TestEnvironment with TestData with StandardColumns {
-  describe("JTS interop") {
+class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardColumns {
+  import spark.implicits._
+
+  describe("Vector geometry operations") {
     val rf = l8Sample(1).projectedRaster.toRF(10, 10).withGeometry()
     it("should allow joining and filtering of tiles based on points") {
       import spark.implicits._
@@ -70,7 +73,7 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
     }
 
     it("should allow construction of geometry literals") {
-      import JTS._
+      import GeomData._
       assert(dfBlank.select(geomLit(point)).first === point)
       assert(dfBlank.select(geomLit(line)).first === line)
       assert(dfBlank.select(geomLit(poly)).first === poly)
@@ -128,6 +131,38 @@ class JTSSpec extends TestEnvironment with TestData with StandardColumns {
       val wm4 = sql("SELECT st_reproject(ll, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 'EPSG:3857') AS wm4 from geom")
         .as[Geometry].first()
       wm4 should matchGeom(webMercator, 0.00001)
+
+      // TODO: See comment in `org.locationtech.rasterframes.expressions.register` for
+      // TODO: what needs to happen to support this.
+      //checkDocs("st_reproject")
     }
+  }
+
+  it("should rasterize geometry") {
+    val rf = l8Sample(1).projectedRaster.toRF.withGeometry()
+    val df = GeomData.features.map(f ⇒ (
+      f.geom.reproject(LatLng, rf.crs).jtsGeom,
+      f.data.fields("id").asInstanceOf[JsNumber].value.intValue()
+    )).toDF("geom", "__fid__")
+
+    val toRasterize = rf.crossJoin(df)
+
+    val tlm = rf.tileLayerMetadata.merge
+
+    val (cols, rows) = tlm.layout.tileLayout.tileDimensions
+
+    val rasterized = toRasterize.withColumn("rasterized", rf_rasterize($"geom", GEOMETRY_COLUMN, $"__fid__", cols, rows))
+
+    assert(rasterized.count() === df.count() * rf.count())
+    assert(rasterized.select(rf_dimensions($"rasterized")).distinct().count() === 1)
+    val pixelCount = rasterized.select(rf_agg_data_cells($"rasterized")).first()
+    assert(pixelCount < cols * rows)
+
+
+    toRasterize.createOrReplaceTempView("stuff")
+    val viaSQL = sql(s"select rf_rasterize(geom, geometry, __fid__, $cols, $rows) as rasterized from stuff")
+    assert(viaSQL.select(rf_agg_data_cells($"rasterized")).first === pixelCount)
+
+    //rasterized.select($"rasterized".as[Tile]).foreach(t ⇒ t.renderPng(ColorMaps.IGBP).write("target/" + t.hashCode() + ".png"))
   }
 }

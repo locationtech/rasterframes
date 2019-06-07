@@ -70,7 +70,7 @@ object BenchmarkPlugin extends AutoPlugin {
       val pat = (".*" + file + ".*").r
       jmhRun(pat)
     }.evaluated,
-    libraryDependencies += "org.openjdk.jmh" % "jmh-generator-annprocess" % "1.19"
+    libraryDependencies += "org.openjdk.jmh" % "jmh-generator-annprocess" % "1.21"
   )
 
   def jmhRun(filePattern: Regex) = Def.taskDyn {
@@ -94,7 +94,7 @@ object BenchmarkPlugin extends AutoPlugin {
     (run in Jmh).toTask(args)
   }
 
-  val benchFilesParser: Def.Initialize[State => Parser[File]] = Def.setting { (state: State) =>
+  val benchFilesParser: Def.Initialize[State => Parser[File]] = Def.setting { state: State =>
     val extracted = Project.extract(state)
     val pat = new PatternFilter(
       extracted.getOpt(jmhFileRegex).getOrElse(".*".r).pattern
