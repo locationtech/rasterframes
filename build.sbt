@@ -1,5 +1,6 @@
 
 addCommandAlias("makeSite", "docs/makeSite")
+addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("console", "datasource/console")
 
 lazy val root = project
@@ -117,7 +118,8 @@ lazy val docs = project
     ),
     paradoxTheme := Some(builtinParadoxTheme("generic")),
     makeSite := makeSite.dependsOn(Compile / unidoc).dependsOn(Compile / paradox).value,
-    Compile / paradox / sourceDirectories += (pyrasterframes / Python / doc / target).value
+    Compile / paradox / sourceDirectories += (pyrasterframes / Python / doc / target).value.getParentFile,
+    Compile / paradox := (Compile / paradox).dependsOn(pyrasterframes / doc).value
   )
   .settings(
     addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)

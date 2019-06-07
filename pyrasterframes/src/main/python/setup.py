@@ -60,9 +60,14 @@ class RunExamples(distutils.cmd.Command):
         """Post-process options."""
         import re
         if isinstance(self.examples, str):
-            self.examples = filter(lambda s: len(s) > 0, re.split('\W+', self.examples))
-        self.examples = map(lambda x: 'examples.' + x.stem,
-                            map(self._check_ex_path, self.examples))
+            self.examples = filter(
+                lambda s: len(s) > 0,
+                re.split('\W+', self.examples)
+            )
+        self.examples = map(
+            lambda x: 'examples.' + x.stem,
+            map(self._check_ex_path, self.examples)
+        )
 
     def run(self):
         """Run the examples."""
@@ -88,8 +93,10 @@ class PweaveDocs(distutils.cmd.Command):
     def initialize_options(self):
         """Set default values for options."""
         # Each user option must be listed here with their default value.
-        self.files = filter(lambda x: not x.name.startswith('_'),
-                               list((Path(here) / 'docs').resolve().glob('*.py')))
+        self.files = filter(
+            lambda x: not x.name.startswith('_'),
+            list((Path(here) / 'docs').resolve().glob('*.py'))
+        )
 
     def finalize_options(self):
         """Post-process options."""
@@ -102,16 +109,16 @@ class PweaveDocs(distutils.cmd.Command):
         import traceback
         import pweave
 
-        for ex in self.files:
-            name = path.splitext(path.basename(ex))[0]
-            print(_divided('Running %s' % ex))
+        for file in self.files:
+            name = path.splitext(path.basename(file))[0]
+            print(_divided('Running %s' % name))
             try:
                 pweave.weave(
-                    file=str(ex),
+                    file=str(file),
                     doctype='markdown'
                 )
             except Exception:
-                print(_divided('%s Failed:' % ex))
+                print(_divided('%s Failed:' % file))
                 print(traceback.format_exc())
 
 setup(

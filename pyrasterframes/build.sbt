@@ -1,12 +1,20 @@
-import PythonBuildPlugin.autoImport.pySetup
+import PythonBuildPlugin.autoImport._
+
+addCommandAlias("pyTest", "pyrasterframes/test")
+addCommandAlias("pyDocs", "pyrasterframes/doc")
 
 exportJars := true
-
-Python / doc / target := (Python / target).value / "docs"
+Python / doc / sourceDirectory := (Python / target).value / "docs"
+Python / doc / target := (Python / target).value / "markdown" / "pyrasterframes"
 Python / doc := {
   val _ = Def.sequential(
     assembly,
-    pySetup.toTask(" pweave")
+    pySetup.toTask(" pweave"),
+    copySources(
+      Python / doc / sourceDirectory,
+      Python / doc / target,
+      deleteFirst = true
+    )
   ).value
   (Python / doc / target).value
 }
@@ -35,4 +43,3 @@ pyExamples := Def.sequential(
   pySetup.toTask(" examples")
 ).value
 
-addCommandAlias("pyTest", "pyrasterframes/test")

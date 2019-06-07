@@ -39,7 +39,7 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 @@@ index
 * [Getting Started](getting-started.md)
-* [PyRasterFrames](pyrasterframes.md)
+* [PyRasterFrames](pyrasterframes/index.md)
 * [Creating RasterFrames](creating-rasterframes.md)
 * [Spatial Queries](spatial-queries.md)
 * [Applications](apps/index.md)
