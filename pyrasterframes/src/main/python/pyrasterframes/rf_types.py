@@ -160,11 +160,11 @@ class RasterSourceUDT(UserDefinedType):
 
 
 class CellType(object):
-    def __init__(self, cell_type_name: str):
+    def __init__(self, cell_type_name):
         self.cell_type_name = cell_type_name
 
     @classmethod
-    def from_numpy_dtype(cls, np_dtype: np.dtype):
+    def from_numpy_dtype(cls, np_dtype):
         return CellType(str(np_dtype.name))
 
     @classmethod
