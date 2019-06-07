@@ -345,6 +345,8 @@ class Tile(object):
             ct = ct.with_no_data_value(quot.fill_value)
         return Tile(quot, ct)
 
+    def __div__(self, right):
+        return self.__truediv__(right)
 
     def dimensions(self):
         # list of cols, rows as is conventional in GeoTrellis and RasterFrames
