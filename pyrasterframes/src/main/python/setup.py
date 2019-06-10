@@ -70,7 +70,6 @@ class RunExamples(distutils.cmd.Command):
 
 
 class PweaveDocs(distutils.cmd.Command):
-    from pathlib import Path
     """A custom command to run documentation scripts through pweave."""
     description = 'Pweave PyRasterFrames documentation scripts'
     user_options = [
@@ -83,7 +82,7 @@ class PweaveDocs(distutils.cmd.Command):
         # Each user option must be listed here with their default value.
         self.files = filter(
             lambda x: not x.name.startswith('_'),
-            list((Path(here) / 'docs').resolve().glob('*.py'))
+            glob(path.join(here, 'docs', '*.py'))
         )
 
     def finalize_options(self):
@@ -141,7 +140,6 @@ setup(
     setup_requires=[
         'pytest-runner',
         'setuptools>=0.8',
-        'pathlib2',
         'jupytext',
     ] + requirements,
     tests_require=[
