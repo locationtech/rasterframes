@@ -1,39 +1,49 @@
 # PyRasterFrames
 
-PyRasterFrames is the Python API for Spark RasterFrames.
+PyRasterFrames is a library for distributed processing of geospatial raster data with Spark.
 
 
 ## Prerequisites
 
-1. [`sbt`](https://www.scala-sbt.org/)
+1. [`pip`](https://pip.pypa.io/en/stable/installing/)
 2. ['pyspark`](https://pypi.org/project/pyspark/) > 2.3.2 
-
-RasterFrames is primarily implmented in Scala, and as such uses the Scala build tool [`sbt`](https://www.scala-sbt.org/).
-All `sbt` commands referenced below must be run from the root source directory, i.e. the parent of the `pyrasterframes` 
-directory, including Python-related build steps. 
-
-As a tip, know that `sbt` is much faster if run in "interactive" mode, where you launch `sbt` with no arguments, 
-and subsequent commands are invoked via an interactive shell. But for context clarity, we'll prefix each command 
-example below with `sbt`. 
 
 ## Quickstart
 
-The quickest way to run a `pyspark` shell with the latest RasterFrames enabled is to run:
+The quickest way to get started is to `pip` install the pyrasterframes package.
 
 ```bash
-sbt pySparkCmd
+pip install pyrasterframes
 ```
 
-This will: 
+You can then access a [`pyspark SparkSession`]() using the [`local[*]` master](https://spark.apache.org/docs/latest/submitting-applications.html#master-urls) as follows.
 
-1. Compile all the Scala/JVM code.
-1. Merge all JVM code and dependencies into a single "assembly" JAR file.
-1. Create the PyRasterFrames `.whl` package
-1. Construct a temporary initialization script
-1. Emit a `bash` command with requisite arguments to start a pyspark interpreter with RasterFrames imports.
+```python
+import pyrasterframes
+spark = pyrasterframes.get_spark_session()
+```
 
-You then copy/paste the emitted command into your `bash` shell to start up a spark shell. It assumes you have
-`pyspark` >= 2.3.2 installed in your environment.
+Then you can read a raster and do some simple processing on it.
+
+```python
+from pyrasterframes.rasterfunctions import *
+from pyspark.sql.functions import lit
+# Read a Landsat 8 L1TP PDS scene
+df = spark.read.rastersource('https://landsat-pds.s3.amazonaws.com/c1/L8/038/037/LC08_L1TP_038037_20190322_20190403_01_T1/LC08_L1TP_038037_20190322_20190403_01_T1_B4.TIF')
+# Add 3 to every cell, show some rows of the dataframe
+df.select(rf_local_add(df.tile, lit(3))).show(6, False)
+```
+
+## Development
+
+RasterFrames is primarily implemented in Scala, and as such uses the Scala build tool [`sbt`](https://www.scala-sbt.org/).
+All `sbt` commands referenced below must be run from the root source directory, i.e. the parent of the `pyrasterframes`
+directory, including Python-related build steps.
+
+As a tip, know that `sbt` is much faster if run in "interactive" mode, where you launch `sbt` with no arguments,
+and subsequent commands are invoked via an interactive shell. But for context clarity, we'll prefix each command
+example below with `sbt`.
+
 
 ## Running Tests and Examples
 
@@ -65,7 +75,7 @@ You build them with:
 sbt pyrasterframes/package
 ```
 
-Release versions of these artifacts are published to https://central.sonatype.org/ under the Maven/Ivy "GAV" coordinates
+Release versions of these artifacts are published to https://central.sonatype.org/ under the Maven/Ivy groupId:artifactId:version (GAV) coordinates
 `org.locationtech.rasterframes:pyrasterframes_$SCALA_VER:$VER`.
 
 Latest version can be found [here](https://search.maven.org/search?q=g:org.locationtech.rasterframes). 
@@ -92,7 +102,9 @@ sbt 'pySetup examples -e NDVI'
 
 *Note: You may need to run `sbt pyrasterframes/assembly` at least once for certain `pySetup` commands to work.*
 
-### `SparkSession` Setup
+## `SparkSession` Setup
+
+### Python shell
 
 To initialize PyRasterFrames in a generic Python shell:
 
@@ -104,7 +116,29 @@ spark = SparkSession.builder \
      .master("local[*]") \
      .appName("Using RasterFrames") \
      .config("spark.some.config.option", "some-value") \
+     .withKryoSerialization() \
      .getOrCreate() \
      .withRasterFrames()
 ```
 
+### Pyspark shell
+
+To initialize PyRasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the pyton source zip.
+
+```bash
+   pyspark \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --conf spark.kryo.registrator=org.locationtech.rasterframes.util.RFKryoRegistrator \
+    --conf spark.kryoserializer.buffer.max=500m \
+    --jars pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar \
+    --py-files pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
+   
+```
+
+Then in the pyspark shell import the module and call `withRasterFrames`.
+
+```python
+import pyrasterframes
+spark = spark.withRasterFrames()
+df = spark.read.rastersource('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
+```

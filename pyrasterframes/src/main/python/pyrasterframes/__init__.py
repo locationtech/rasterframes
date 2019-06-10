@@ -56,6 +56,39 @@ def _kryo_init(builder):
     return builder
 
 
+def get_spark_session():
+    from pyspark.sql import SparkSession
+    import os
+    import sys
+
+    if sys.version < "3":
+        import imp
+        try:
+            module_home = imp.find_module("pyrasterframes")[1]  # path
+            jar_path = os.path.join(module_home, 'jars')
+        except ImportError:
+            print("pyrasterframes was not pip installed. See documentation for initialization instructions.")
+            return None
+    else:
+        from importlib.util import find_spec
+        try:
+            module_home = find_spec("pyrasterframes").origin
+            jar_path = os.path.join(os.path.dirname(module_home), 'jars')
+        except ImportError:
+            print("pyrasterframes was not pip installed. See documentation for initialization instructions.")
+            return None
+
+    jars_cp = ','.join([f.path for f in os.scandir(jar_path) if f.name[-3:] == 'jar'])
+    spark = (SparkSession.builder
+             .master("local[*]")
+             .appName("RasterFrames")
+             .config('spark.jars', jars_cp)
+             .withKryoSerialization()
+             .getOrCreate()
+             ).withRasterFrames()
+    return spark
+
+
 def _convert_df(df, sp_key=None, metadata=None):
     ctx = SparkContext._active_spark_context._rf_context
 

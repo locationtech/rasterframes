@@ -12,9 +12,6 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     readme = f.read()
 
-with open(path.join(here, 'requirements.txt')) as f:
-    requirements = f.read().splitlines()
-
 
 def _extract_module(mod):
     module = importlib.import_module(mod)
@@ -72,6 +69,60 @@ class RunExamples(distutils.cmd.Command):
                 print(traceback.format_exc())
 
 
+class PweaveDocs(distutils.cmd.Command):
+    from pathlib import Path
+    """A custom command to run documentation scripts through pweave."""
+    description = 'Pweave PyRasterFrames documentation scripts'
+    user_options = [
+        # The format is (long option, short option, description).
+        ('files=', 'f', 'Specific files to pweave. Defaults to all in `docs` directory.'),
+    ]
+
+    def initialize_options(self):
+        """Set default values for options."""
+        # Each user option must be listed here with their default value.
+        self.files = filter(
+            lambda x: not x.name.startswith('_'),
+            list((Path(here) / 'docs').resolve().glob('*.py'))
+        )
+
+    def finalize_options(self):
+        """Post-process options."""
+        import re
+        if isinstance(self.files, str):
+            self.files = filter(lambda s: len(s) > 0, re.split('\W+', self.files))
+
+    def run(self):
+        """Run pweave."""
+        import traceback
+        import pweave
+
+        for file in self.files:
+            name = path.splitext(path.basename(file))[0]
+            print(_divided('Running %s' % name))
+            try:
+                pweave.weave(
+                    file=str(file),
+                    doctype='markdown'
+                )
+            except Exception:
+                print(_divided('%s Failed:' % file))
+                print(traceback.format_exc())
+
+
+try:
+    with open(path.join(here, 'requirements.txt')) as f:
+        requirements = f.read().splitlines()
+except:
+    print("couldn't open requirements.txt")
+    requirements = [
+        'pytz',
+        'shapely',
+        'pyspark>=2.3',
+        'numpy>=1.7',
+        'pandas',
+    ]
+
 setup(
     name='pyrasterframes',
     description='RasterFrames for PySpark',
@@ -89,9 +140,9 @@ setup(
     install_requires=requirements,
     setup_requires=[
         'pytest-runner',
-        'setuptools >= 0.8',
+        'setuptools>=0.8',
         'pathlib2',
-        'jupytext'
+        'jupytext',
     ] + requirements,
     tests_require=[
         'pytest==3.4.2',
@@ -101,8 +152,15 @@ setup(
     ],
     packages=[
         'pyrasterframes',
-        'geomesa_pyspark'
+        'geomesa_pyspark',
+        'pyrasterframes.jars',
     ],
+    package_dir={
+        'pyrasterframes.jars': 'deps/jars'
+    },
+    package_data={
+        'pyrasterframes.jars': ['*.jar']
+    },
     include_package_data=True,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -118,7 +176,4 @@ setup(
     cmdclass={
         'examples': RunExamples
     }
-    # entry_points={
-    #     "console_scripts": ['pyrasterframes=pyrasterframes:console']
-    # }
 )
