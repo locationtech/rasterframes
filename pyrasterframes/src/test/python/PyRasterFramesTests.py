@@ -567,7 +567,10 @@ class TileOps(TestEnvironment):
         self.assertTrue(np.array_equal(r2, np.array([[1,1], [1, 1]], dtype=r2.dtype)))
 
     def test_matmul(self):
-        r1 = self.t1 @ self.t2
+        # if sys.version >= '3.5':  # per https://docs.python.org/3.7/library/operator.html#operator.matmul new in 3.5
+        #     r1 = self.t1 @ self.t2
+        r1 = self.t1.__matmul__(self.t2)
+
         nd = r1.cell_type.no_data_value()
         e1 = Tile(np.ma.masked_equal(np.array([[nd, 10],
                                                [nd, nd]], dtype=r1.cell_type.to_numpy_dtype()), nd))
