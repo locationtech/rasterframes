@@ -29,6 +29,7 @@ from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from . import TestEnvironment
 
+
 class VectorTypes(TestEnvironment):
 
     def setUp(self):
@@ -374,7 +375,6 @@ class UDT(TestEnvironment):
     def setUp(self):
         self.create_rasterframe()
 
-
     def test_mask_no_data(self):
         t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
         self.assertTrue(t1.cells.mask[1][0])
@@ -449,8 +449,7 @@ class UDT(TestEnvironment):
         @udf(TileUDT())
         def my_udf(t):
             import numpy as np
-            a = np.log1p(t.cells)
-            return Tile(a, CellType.from_numpy_dtype(a.dtype))
+            return Tile(np.log1p(t.cells))
 
         rf_result = rf.select(
             rf_tile_max(
@@ -461,6 +460,7 @@ class UDT(TestEnvironment):
             ).alias('expect_zeros')
         ).collect()
 
+        # almost equal because of different implemenations under the hoods: C (numpy) versus Java (rf_)
         numpy.testing.assert_almost_equal(
             [r['expect_zeros'] for r in rf_result],
             [0.0 for _ in rf_result],
@@ -516,15 +516,62 @@ class UDT(TestEnvironment):
 
 class TileOps(TestEnvironment):
 
-    def test_addition(self):
-        t1 = Tile(np.array([[1, 2], [3, 4]]), CellType.int8().with_no_data_value(3))
-        e1 = np.ma.masked_equal(np.array([[5, 6], [7, 8]]), 7)
-        self.assertTrue(np.array_equal((t1 + 4).cells, e1))
+    def setUp(self):
+        # convenience so we can assert around Tile() == Tile()
+        self.t1 = Tile(np.array([[1, 2],
+                                 [3, 4]]), CellType.int8().with_no_data_value(3))
+        self.t2 = Tile(np.array([[1, 2],
+                                 [3, 4]]), CellType.int8().with_no_data_value(1))
 
-        t2 = Tile(np.array([[1, 2], [3, 4]]), CellType.int8().with_no_data_value(1))
-        e2 = np.ma.masked_equal(np.array([[3, 4], [3, 8]]), 3)
-        r2 = (t1 + t2).cells
+    def test_addition(self):
+        e1 = np.ma.masked_equal(np.array([[5, 6],
+                                          [7, 8]]), 7)
+        self.assertTrue(np.array_equal((self.t1 + 4).cells, e1))
+
+        e2 = np.ma.masked_equal(np.array([[3, 4],
+                                          [3, 8]]), 3)
+        r2 = (self.t1 + self.t2).cells
         self.assertTrue(np.ma.allequal(r2, e2))
+
+    def test_multiplication(self):
+        e1 = np.ma.masked_equal(np.array([[4, 8],
+                                          [12, 16]]), 12)
+
+        self.assertTrue(np.array_equal((self.t1 * 4).cells, e1))
+
+        e2 = np.ma.masked_equal(np.array([[3, 4], [3, 16]]), 3)
+        r2 = (self.t1 * self.t2).cells
+        self.assertTrue(np.ma.allequal(r2, e2))
+
+    def test_subtraction(self):
+        t3 = self.t1 * 4
+        r1 = t3 - self.t1
+        # note careful construction of mask value and dtype above
+        e1 = Tile(np.ma.masked_equal(np.array([[4 - 1, 8 - 2],
+                                               [3, 16 - 4]], dtype='int8'),
+                                     3, )
+                  )
+        self.assertTrue(r1 == e1,
+                        "{} does not equal {}".format(r1, e1))
+        # put another way
+        self.assertTrue(r1 == self.t1 * 3,
+                        "{} does not equal {}".format(r1, self.t1 * 3))
+
+    def test_division(self):
+        t3 = self.t1 * 9
+        r1 = t3 / 9
+        self.assertTrue(np.array_equal(r1.cells, self.t1.cells),
+                        "{} does not equal {}".format(r1, self.t1))
+
+        r2 = (self.t1 / self.t1).cells
+        self.assertTrue(np.array_equal(r2, np.array([[1,1], [1, 1]], dtype=r2.dtype)))
+
+    def test_matmul(self):
+        r1 = self.t1 @ self.t2
+        nd = r1.cell_type.no_data_value()
+        e1 = Tile(np.ma.masked_equal(np.array([[nd, 10],
+                                               [nd, nd]], dtype=r1.cell_type.to_numpy_dtype()), nd))
+        self.assertTrue(r1 == e1)
 
 
 class PandasInterop(TestEnvironment):
@@ -589,6 +636,7 @@ class PandasInterop(TestEnvironment):
 
         self.assertIsInstance(array_back_2, Tile)
         np.testing.assert_equal(array_back_2.cells, simple_array.cells)
+
 
 class RasterJoin(TestEnvironment):
 
@@ -705,8 +753,10 @@ class RasterSource(TestEnvironment):
         b1_paths = [s.format('1') for s in scene_dict.values()]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
+
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
+
 
 unittest.TextTestRunner().run(suite())
