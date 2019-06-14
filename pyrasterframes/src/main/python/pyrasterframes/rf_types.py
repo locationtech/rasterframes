@@ -349,8 +349,101 @@ class Tile(object):
         return self.__truediv__(right)
 
     def dimensions(self):
-        # list of cols, rows as is conventional in GeoTrellis and RasterFrames
+        """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
         return [self.cells.shape[1], self.cells.shape[0]]
+
+    def to_png(self):
+        """ Provide image of Tile."""
+        if self.cells is None:
+            return None
+
+        import io
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+        from matplotlib.figure import Figure
+
+        # Set up matplotlib objects
+        [width, height] = self.dimensions()
+        dpi = 300
+        nominal_size = 5.5  # approx full size for a 256x256 tile
+        fig = Figure(figsize=(nominal_size * width / dpi,   nominal_size * height / dpi))
+        canvas = FigureCanvas(fig)
+        axis = fig.add_subplot(1, 1, 1)
+
+        axis.imshow(self.cells)
+        axis.set_aspect('equal')
+        axis.xaxis.set_ticks([])
+        axis.yaxis.set_ticks([])
+
+        axis.set_title('{}, {})'.format(self.dimensions(), self.cell_type.__repr__()))  # compact metadata as title
+
+        with io.BytesIO() as output:
+            canvas.print_png(output)
+            return output.getvalue()
+
+    def to_html(self):
+        """ Provide HTML string representation of Tile image."""
+        import base64
+        b64_img_html = '<img src="data:image/png;base64,{}" />'
+        png_bits = self.to_png()
+        b64_png = base64.b64encode(png_bits).decode('utf-8').replace('\n', '')
+        return b64_img_html.format(b64_png)
+
+    def _repr_png_(self):
+            """Provide default PNG rendering in IPython and Jupyter"""
+            return self.to_png()
+
+    @classmethod
+    def pandas_df_to_html(cls, df):
+        """
+        Provide HTML formatting for pandas.DataFrame or pandas.Series of Tile
+        """
+        import pandas as pd
+        # honor the existing options on display
+        if not pd.get_option("display.notebook_repr_html"):
+            return None
+
+        if len(df) == 0:
+            return df._repr_html_()
+
+
+        tile_cols = []
+        for c in df.columns:
+            if isinstance(df.iloc[0][c], cls):  # if the first is a Tile try formatting
+                tile_cols.append(c)
+
+        def tile_to_html(t):
+            if isinstance(t, Tile):
+                return t.to_html()
+            else:
+                return t.__repr__()
+
+        # dict keyed by column with custom rendering function
+        formatter = {c: tile_to_html for c in tile_cols}
+
+        # This is needed to avoid our tile being rendered as `<img src="only up to fifty char...`
+        default_max_colwidth = pd.get_option('display.max_colwidth')  # we'll try to politely put it back
+        pd.set_option('display.max_colwidth', -1)
+        return_html = df.to_html(escape=False,  # means our `< img` does not get changed to `&lt; img`
+                          formatters=formatter,  # apply custom format to columns
+                          render_links=True,  # common in raster frames
+                          notebook=True,
+                          max_rows=pd.get_option("display.max_rows"),  # retain existing options
+                          max_cols=pd.get_option("display.max_columns"),
+                          show_dimensions=pd.get_option("display.show_dimensions"),
+                          )
+        pd.set_option('display.max_colwidth', default_max_colwidth)
+        return return_html
+
+
+try:
+    from IPython import get_ipython
+    # modifications to currently running ipython session, if we are in one; these enable nicer visualization for Pandas
+    if get_ipython() is not None:
+        import pandas
+        html_formatter = get_ipython().display_formatter.formatters['text/html']
+        html_formatter.for_type(pandas.DataFrame, Tile.pandas_df_to_html)
+except ImportError:
+    pass
 
 
 class TileUDT(UserDefinedType):
