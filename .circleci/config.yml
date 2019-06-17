@@ -148,11 +148,11 @@ workflows:
             branches:
               only:
                 - /feature\/.*-its/
-      - publish:
-          filters:
-            branches:
-              only:
-                - develop
+#      - publish:
+#          filters:
+#            branches:
+#              only:
+#                - develop
   nightlyReleaseAstraea:
     triggers:
       - schedule:

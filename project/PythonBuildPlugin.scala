@@ -23,6 +23,8 @@ import sbt.KeyRanks.ASetting
 import sbt.Keys.{`package`, _}
 import sbt._
 import complete.DefaultParsers._
+import sbt.Tests.Summary
+
 import scala.sys.process.Process
 import sbtassembly.AssemblyPlugin.autoImport.assembly
 
@@ -82,17 +84,23 @@ object PythonBuildPlugin extends AutoPlugin {
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
       val ver = version.value
-      s.log.info(s"Running '${cmd.mkString(" ")}' in $wd")
+      s.log.info(s"Running '${cmd.mkString(" ")}' in '$wd'")
       Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
     },
     Compile / pythonSource := (Compile / sourceDirectory).value / "python",
     Test / pythonSource := (Test / sourceDirectory).value / "python",
     Compile / `package` := (Compile / `package`).dependsOn(Python / packageBin).value,
-    Test / test := Def.sequential(
-      Test / test,
-      Python / test
-    ).value,
-    Test / testQuick := (Python / testQuick).evaluated
+    Test / testQuick := (Python / testQuick).evaluated,
+    Test / executeTests := {
+      val standard = (Test / executeTests).value
+      standard.overall match {
+        case TestResult.Passed =>
+          (Python / executeTests).value
+        case _ ⇒
+          val pySummary = Summary("pyrasterframes", "tests skipped due to scalatest failures")
+          standard.copy(summaries = standard.summaries ++ Iterable(pySummary))
+      }
+    }
   ) ++
     inConfig(Python)(Seq(
       target := (Compile / target).value / "python",
@@ -111,11 +119,49 @@ object PythonBuildPlugin extends AutoPlugin {
         val ver = version.value
         dest / s"${art.name}-python-$ver.zip"
       },
-      test := Def.sequential(
+      testQuick := pySetup.toTask(" test").value,
+      executeTests := Def.sequential(
         assembly,
-        pySetup.toTask(" test")
-      ).value,
-      testQuick := pySetup.toTask(" test").value
+        Def.task {
+          val resultCode = pySetup.toTask(" test").value
+          val msg = resultCode match {
+            case 1 ⇒ "There are Python test failures."
+            case 2 ⇒ "Python test execution was interrupted."
+            case 3 ⇒ "Internal error during Python test execution."
+            case 4 ⇒ "PyTest usage error."
+            case 5 ⇒ "No Python tests found."
+            case x if x != 0 ⇒ "Unknown error while running Python tests."
+            case _ ⇒ "PyRasterFrames tests successfully completed."
+          }
+          val pySummary = Summary("pyrasterframes", msg)
+          // Would be cool to derive this from the python output...
+        val result = if (resultCode == 0) {
+          new SuiteResult(
+            TestResult.Passed,
+            passedCount = 1,
+            failureCount = 0,
+            errorCount = 0,
+            skippedCount = 0,
+            ignoredCount = 0,
+            canceledCount = 0,
+            pendingCount = 0
+          )
+        }
+        else {
+          new SuiteResult(
+            TestResult.Failed,
+            passedCount = 0,
+            failureCount = 1,
+            errorCount = 0,
+            skippedCount = 0,
+            ignoredCount = 0,
+            canceledCount = 0,
+            pendingCount = 0
+          )
+        }
+        result
+        Tests.Output(result.result, Map("PyRasterFramesTests" -> result), Iterable(pySummary))
+      }).value
     )) ++
     addArtifact(Python / packageBin / artifact, Python / packageBin)
 }

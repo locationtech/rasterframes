@@ -160,11 +160,11 @@ class RasterSourceUDT(UserDefinedType):
 
 
 class CellType(object):
-    def __init__(self, cell_type_name: str):
+    def __init__(self, cell_type_name):
         self.cell_type_name = cell_type_name
 
     @classmethod
-    def from_numpy_dtype(cls, np_dtype: np.dtype):
+    def from_numpy_dtype(cls, np_dtype):
         return CellType(str(np_dtype.name))
 
     @classmethod
@@ -345,6 +345,8 @@ class Tile(object):
             ct = ct.with_no_data_value(quot.fill_value)
         return Tile(quot, ct)
 
+    def __div__(self, right):
+        return self.__truediv__(right)
 
     def dimensions(self):
         # list of cols, rows as is conventional in GeoTrellis and RasterFrames

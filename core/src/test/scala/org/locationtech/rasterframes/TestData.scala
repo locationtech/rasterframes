@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes
 
 import java.net.URI
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 import java.time.ZonedDateTime
 
 import geotrellis.proj4.{CRS, LatLng}
@@ -32,6 +32,7 @@ import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.spark._
 import geotrellis.spark.testkit.TileLayerRDDBuilders
 import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.vector.io.json.JsonFeatureCollection
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.commons.io.IOUtils
 import org.apache.spark.SparkContext
@@ -39,6 +40,7 @@ import org.apache.spark.sql.SparkSession
 import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
 import org.locationtech.rasterframes.expressions.tilestats.NoDataCells
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import spray.json.JsObject
 
 import scala.reflect.ClassTag
 
@@ -149,7 +151,7 @@ trait TestData {
   lazy val l8samplePath: URI = getClass.getResource("/L8-B1-Elkton-VA.tiff").toURI
   lazy val modisConvertedMrfPath: URI = getClass.getResource("/MCD43A4.A2019111.h30v06.006.2019120033434_01.mrf").toURI
 
-  object JTS {
+  object GeomData {
     val fact = new GeometryFactory()
     val c1 = new Coordinate(1, 2)
     val c2 = new Coordinate(3, 4)
@@ -162,6 +164,19 @@ trait TestData {
     val mpoly = fact.createMultiPolygon(Array(poly, poly, poly))
     val coll = fact.createGeometryCollection(Array(point, line, poly, mpoint, mline, mpoly))
     val all = Seq(point, line, poly, mpoint, mline, mpoly, coll)
+    lazy val geoJson = {
+      import scala.collection.JavaConversions._
+      val p = Paths.get(TestData.getClass
+        .getResource("/L8-Labels-Elkton-VA.geojson").toURI)
+      Files.readAllLines(p).mkString("\n")
+    }
+    lazy val features = {
+      import geotrellis.vector.io._
+      import geotrellis.vector.io.json.JsonFeatureCollection
+      import spray.json.DefaultJsonProtocol._
+      import spray.json._
+      GeomData.geoJson.parseGeoJson[JsonFeatureCollection].getAllPolygonFeatures[JsObject]()
+    }
   }
 }
 
