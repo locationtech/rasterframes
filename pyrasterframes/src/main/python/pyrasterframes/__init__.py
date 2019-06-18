@@ -32,7 +32,7 @@ from pyspark.sql.column import _to_java_column
 from .rf_types import *
 from . import rasterfunctions
 from .context import RFContext
-
+from .version import __version__
 
 __all__ = ['RasterFrame', 'TileExploder']
 
