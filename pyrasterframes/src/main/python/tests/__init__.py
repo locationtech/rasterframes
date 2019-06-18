@@ -44,10 +44,14 @@ class TestEnvironment(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        def pdir(curr):
+            return os.path.dirname(curr)
         # gather Scala requirements
-        here = os.path.dirname(os.path.realpath(__file__))
-        target_dir = os.path.dirname(os.path.dirname(here))
-
+        here = pdir(os.path.realpath(__file__))
+        target_dir = pdir(pdir(here))
+        # See if we're running outside of sbt build and adjust
+        if os.path.basename(target_dir) != "target":
+            target_dir = os.path.join(pdir(pdir(target_dir)), 'target')
         scala_target = os.path.realpath(os.path.join(target_dir, 'scala-2.11'))
 
         jarpath = glob.glob(os.path.join(scala_target, 'pyrasterframes-assembly*.jar'))
