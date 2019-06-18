@@ -48,17 +48,6 @@ trait RasterFunctions {
   import util._
 
   // format: off
-  /** Create a row for each cell in Tile. */
-  def rf_explode_tiles(cols: Column*): Column = rf_explode_tiles_sample(1.0, None, cols: _*)
-
-  /** Create a row for each cell in Tile with random sampling and optional seed. */
-  def rf_explode_tiles_sample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column =
-    ExplodeTiles(sampleFraction, seed, cols)
-
-  /** Create a row for each cell in Tile with random sampling (no seed). */
-  def rf_explode_tiles_sample(sampleFraction: Double, cols: Column*): Column =
-    ExplodeTiles(sampleFraction, None, cols)
-
   /** Query the number of (cols, rows) in a Tile. */
   def rf_dimensions(col: Column): TypedColumn[Any, TileDimensions] = GetDimensions(col)
 
@@ -70,6 +59,9 @@ trait RasterFunctions {
 
   /** Extracts the CRS from a RasterSource or ProjectedRasterTile */
   def rf_crs(col: Column): TypedColumn[Any, CRS] = GetCRS(col)
+
+  /** Extracts the Tile component of a RasterSource, ProjectedRasterTile (or Tile) and ensures the cells are fully fetched. */
+  def rf_realize_tile(col: Column): TypedColumn[Any, Tile] = RealizeTile(col)
 
   /** Flattens Tile into a double array. */
   def rf_tile_to_array_double(col: Column): TypedColumn[Any, Array[Double]] =
@@ -416,7 +408,18 @@ trait RasterFunctions {
   def rf_expm1(tileCol: Column): TypedColumn[Any, Tile] =
     ExpM1(tileCol)
 
+  /** Return the incoming tile untouched. */
   def rf_identity(tileCol: Column): TypedColumn[Any, Tile] =
     Identity(tileCol)
 
+  /** Create a row for each cell in Tile. */
+  def rf_explode_tiles(cols: Column*): Column = rf_explode_tiles_sample(1.0, None, cols: _*)
+
+  /** Create a row for each cell in Tile with random sampling and optional seed. */
+  def rf_explode_tiles_sample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column =
+    ExplodeTiles(sampleFraction, seed, cols)
+
+  /** Create a row for each cell in Tile with random sampling (no seed). */
+  def rf_explode_tiles_sample(sampleFraction: Double, cols: Column*): Column =
+    ExplodeTiles(sampleFraction, None, cols)
 }

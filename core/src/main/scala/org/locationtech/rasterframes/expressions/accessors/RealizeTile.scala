@@ -21,34 +21,35 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile.ConcreteProjectedRasterTile
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.model.TileContext
-import org.locationtech.rasterframes.tiles.InternalRowTile
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.model.TileContext
 
-/** Expression to extract at tile from several types that contain tiles.*/
-case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
+@ExpressionDescription(
+  usage = "_FUNC_(raster) - Extracts the Tile component of a RasterSource, ProjectedRasterTile (or Tile) and ensures the cells are fully fetched.",
+  examples = """
+    Examples:
+      > SELECT _FUNC_(raster);
+         ....
+  """)
+case class RealizeTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def dataType: DataType = TileType
 
-  override def nodeName: String = "rf_extract_tile"
+  override def nodeName: String = "rf_realize_tile"
   implicit val tileSer = TileUDT.tileSerializer
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
-    case irt: InternalRowTile => irt.mem
-    case tile: ConcreteProjectedRasterTile => tile.t.toInternalRow
-    case tile: Tile => tile.toInternalRow
-  }
+
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
+    (tile.toArrayTile(): Tile).toInternalRow
 }
 
-object ExtractTile {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
-  def apply(input: Column): TypedColumn[Any, Tile] =
-    new Column(new ExtractTile(input.expr)).as[Tile]
+object RealizeTile {
+  def apply(col: Column): TypedColumn[Any, Tile] =
+    new Column(new RealizeTile(col.expr)).as[Tile]
 }

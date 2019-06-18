@@ -565,11 +565,10 @@ class RasterJoin(TestEnvironment):
 class RasterSource(TestEnvironment):
 
     def test_handle_lazy_eval(self):
-        import numpy.testing
-        # rf_local_add(t, 0) is to force lazy eval; accessing tile.tile is to get at the actual Tile type vs PRT struct
         df = self.spark.read.rastersource(self.img_uri)
-        t = df.select('tile.tile').first()
-        print(t)
+        tdf = df.select(rf_realize_tile('tile'))
+        self.assertGreater(tdf.count(),  0)
+        self.assertIsNotNone(tdf.first())
 
     def test_prt_functions(self):
         df = self.spark.read.rastersource(self.img_uri) \
