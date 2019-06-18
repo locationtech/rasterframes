@@ -271,9 +271,16 @@ class CellType(object):
 
 
 class Tile(object):
-    def __init__(self, cells, cell_type):
-        self.cell_type = cell_type
-        self.cells = cells.astype(cell_type.to_numpy_dtype())
+    def __init__(self, cells, cell_type=None):
+        if cell_type is None:
+            # infer cell type from the cells dtype and whether or not it is masked
+            ct = CellType.from_numpy_dtype(cells.dtype)
+            if isinstance(cells, np.ma.MaskedArray):
+                ct = ct.with_no_data_value(cells.fill_value)
+            self.cell_type = ct
+        else:
+            self.cell_type = cell_type
+        self.cells = cells.astype(self.cell_type.to_numpy_dtype())
 
         if self.cell_type.has_no_data():
             nd_value = self.cell_type.no_data_value()
@@ -285,7 +292,7 @@ class Tile(object):
 
     def __eq__(self, other):
         if type(other) is type(self):
-            return self.cell_type == other.cell_type and np.array_equal(self.cells, other.cells)
+            return self.cell_type == other.cell_type and np.ma.allequal(self.cells, other.cells)
         else:
             return False
 
@@ -303,50 +310,38 @@ class Tile(object):
         else:
             other = right
 
-        _sum = np.add(self.cells, other)
-        ct = CellType.from_numpy_dtype(_sum.dtype)
-        if isinstance(_sum, np.ma.MaskedArray):
-            ct = ct.with_no_data_value(_sum.fill_value)
-
-        return Tile(_sum, ct)
+        return Tile(np.add(self.cells, other))
 
     def __sub__(self, right):
         if isinstance(right, Tile):
             other = right.cells
         else:
             other = right
-        _diff = np.subtract(self.cells, other)
-        ct = CellType.from_numpy_dtype(_diff.dtype)
-        if isinstance(_diff, np.ma.MaskedArray):
-            ct = ct.with_no_data_value(_diff.fill_value)
-
-        return Tile(_diff, ct)
+        return Tile(np.subtract(self.cells, other))
 
     def __mul__(self, right):
         if isinstance(right, Tile):
             other = right.cells
         else:
             other = right
-        prod = np.multiply(self.cells, other)
-        ct = CellType.from_numpy_dtype(prod.dtype)
-        if isinstance(prod, np.ma.MaskedArray):
-            ct = ct.with_no_data_value(prod.fill_value)
-
-        return Tile(np.multiply(self.cells, other), self.cell_type)
+        return Tile(np.multiply(self.cells, other))
 
     def __truediv__(self, right):
         if isinstance(right, Tile):
             other = right.cells
         else:
             other = right
-        quot = np.true_divide(self.cells, other)
-        ct = CellType.from_numpy_dtype(quot.dtype)
-        if isinstance(quot, np.ma.MaskedArray):
-            ct = ct.with_no_data_value(quot.fill_value)
-        return Tile(quot, ct)
+        return Tile(np.true_divide(self.cells, other))
 
     def __div__(self, right):
         return self.__truediv__(right)
+
+    def __matmul__(self, right):
+        if isinstance(right, Tile):
+            other = right.cells
+        else:
+            other = right
+        return Tile(np.matmul(self.cells, other))
 
     def dimensions(self):
         """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
