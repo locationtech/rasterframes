@@ -245,31 +245,6 @@ object RasterSource extends LazyLogging {
     }
     override def tags: Tags = info.tags
 
-//    private def readWithRetry[R >: Null](f: () => R): R = {
-//      val retryLimit = 10
-//      var result: R = null
-//      var cnt = 0
-//      while(result == null && cnt < retryLimit) {
-//        cnt = cnt + 1
-//        try {
-//          result = f()
-//        }
-//        catch {
-//          case be: java.nio.BufferUnderflowException =>
-//            if (cnt == 1)
-//              logger.warn("Retrying read to " + source)
-//            if (cnt == retryLimit) {
-//              logger.warn(s"Failed to read '$source' after $cnt tries")
-//              throw be
-//            }
-//            else Thread.sleep(100)
-//            ()
-//        }
-//      }
-//      result
-//    }
-
-
     override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
       retryableRead(_.readBounds(bounds, bands))
 

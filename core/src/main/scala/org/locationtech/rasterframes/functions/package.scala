@@ -149,8 +149,8 @@ package object functions {
 
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)
+    // TODO: replace this with full ReprojectGeometry with String handling.
     sqlContext.udf.register("st_reproject", reprojectGeometryCRSName)
     sqlContext.udf.register("rf_array_to_tile", arrayToTile)
-
   }
 }
