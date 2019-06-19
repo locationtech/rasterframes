@@ -83,7 +83,8 @@ Assuming that `$SCALA_VER` is the major verison of Scala in use (e.g. 2.11) , an
 the primary build artifacts are:
 
 * JVM library: `pyrasterframes/target/scala-$SCALA_VER/pyrasterframes_$SCALA_VER-$VER.jar`
-* Python package: `pyrasterframes/target/scala-$SCALA_VER/pyrasterframes-python-$VER.zip`
+* Python .whl package with assembly: `pyrasterframes/target/python/dist/pyrasterframes-$VER-py2.py3-none-any.whl`
+* Python package as Maven .zip artifact: `pyrasterframes/target/scala-$SCALA_VER/pyrasterframes-python-$VER.zip`
 
 You build them with:
 
