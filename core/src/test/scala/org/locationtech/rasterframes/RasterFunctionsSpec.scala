@@ -30,7 +30,6 @@ import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
@@ -311,15 +310,6 @@ class RasterFunctionsSpec extends FunSpec
       val g = Seq(randPRT).toDF("tile").select(rf_geometry($"tile")).first()
       g should be (extent.jtsGeom)
       checkDocs("rf_geometry")
-    }
-
-    it("should realize a delayed load tile") {
-      val df = Seq(lazyPRT).toDF("prt").as[ProjectedRasterTile]
-      val lazyTile = df.select(col("prt.tile").as[Tile]).first()
-      lazyTile shouldBe a[RasterRefTile]
-
-      val realized = df.select(rf_realize_tile(col("prt"))).first()
-      realized should not be a [RasterRefTile]
     }
   }
 

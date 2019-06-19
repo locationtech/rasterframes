@@ -427,7 +427,7 @@ class TileUDT(UserDefinedType):
                 raise Exception("Invalid Tile structure. Missing cells and reference")
             else:
                 payload = datum.cell_data.ref
-                cell_data_bytes = RFContext.active().resolve_raster_ref(payload)
+                cell_data_bytes = RFContext.active()._resolve_raster_ref(payload)
 
         if cell_data_bytes is None:
             raise Exception("Unable to fetch cell data from: " + repr(datum))

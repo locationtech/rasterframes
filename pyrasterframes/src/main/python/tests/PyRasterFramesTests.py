@@ -566,10 +566,6 @@ class RasterSource(TestEnvironment):
 
     def test_handle_lazy_eval(self):
         df = self.spark.read.rastersource(self.img_uri)
-        tdf = df.select(rf_realize_tile('tile'))
-        self.assertGreater(tdf.count(),  0)
-        self.assertIsNotNone(tdf.first())
-
         ltdf = df.select('tile')
         self.assertGreater(ltdf.count(), 0)
         self.assertIsNotNone(ltdf.first())

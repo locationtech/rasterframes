@@ -15,7 +15,6 @@
 * Added `SinglebandGeoTiff.toDF` extension method.
 * Added `DataFrame.rasterJoin` extension method for merging two dataframes with tiles in disparate CRSs.
 * Added `rf_crs` for `ProjectedRasterTile` columns.
-* Added `rf_realize_tile` for cases where you want to ensure no lazy tile loading is happening.
 * Added `st_extent` (for `Geometry` types) and `rf_extent` (for `ProjectedRasterTile` and `RasterSource` columns).
 * Added `st_geometry` (for `Extent` types) and `rf_geometry` (for `ProjectedRasterTile` and `RasterSource` columns).
 * _Breaking_: Root package changed from `org.locationtech.rasterframes` to `org.locationtech.rasterframes`.

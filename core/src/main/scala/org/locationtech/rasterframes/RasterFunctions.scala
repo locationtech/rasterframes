@@ -60,9 +60,6 @@ trait RasterFunctions {
   /** Extracts the CRS from a RasterSource or ProjectedRasterTile */
   def rf_crs(col: Column): TypedColumn[Any, CRS] = GetCRS(col)
 
-  /** Extracts the Tile component of a RasterSource, ProjectedRasterTile (or Tile) and ensures the cells are fully fetched. */
-  def rf_realize_tile(col: Column): TypedColumn[Any, Tile] = RealizeTile(col)
-
   /** Flattens Tile into a double array. */
   def rf_tile_to_array_double(col: Column): TypedColumn[Any, Array[Double]] =
     TileToArrayDouble(col)

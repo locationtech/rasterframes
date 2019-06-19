@@ -37,6 +37,13 @@ import org.locationtech.rasterframes.model.TileContext
  *
  * @since 9/9/18
  */
+@ExpressionDescription(
+  usage = "_FUNC_(raster) - Fetches the CRS of a ProjectedRasterTile or RasterSource.",
+  examples = """
+    Examples:
+      > SELECT _FUNC_(raster);
+         ....
+  """)
 case class GetCRS(child: Expression) extends OnTileContextExpression with CodegenFallback {
   override def dataType: DataType = schemaOf[CRS]
   override def nodeName: String = "rf_crs"

@@ -275,7 +275,6 @@ _rf_column_functions = {
     'rf_expm1': 'Performs cell-wise exponential, then subtract one',
     'rf_identity': 'Pass tile through unchanged',
     'rf_resample': 'Resample tile to different size based on scalar factor or tile whose dimension to match',
-    'rf_realize_tile': 'Extracts the Tile component of a RasterSource, ProjectedRasterTile (or Tile) and ensures the cells are fully fetched.',
     'rf_crs': 'Get the CRS of a RasterSource or ProjectedRasterTile',
     'st_extent': 'Compute the extent/bbox of a Geometry (a tile with embedded extent and CRS)',
     'rf_extent': 'Get the extent of a RasterSource or ProjectedRasterTile (a tile with embedded extent and CRS)',
