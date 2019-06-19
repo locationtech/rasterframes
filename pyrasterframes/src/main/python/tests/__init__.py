@@ -68,6 +68,7 @@ Try running 'sbt pyrasterframes/clean' first.""".format(jarpath))
         cls.spark = (SparkSession.builder
                      .config('spark.driver.extraClassPath', jarpath[0])
                      .config('spark.executor.extraClassPath', jarpath[0])
+                     .config('spark.ui.enabled', False)
                      .withKryoSerialization()
                      .getOrCreate())
         cls.spark.sparkContext.setLogLevel('ERROR')
