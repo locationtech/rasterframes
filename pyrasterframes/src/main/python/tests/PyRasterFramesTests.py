@@ -570,6 +570,11 @@ class RasterSource(TestEnvironment):
         self.assertGreater(tdf.count(),  0)
         self.assertIsNotNone(tdf.first())
 
+        ltdf = df.select('tile')
+        self.assertGreater(ltdf.count(), 0)
+        self.assertIsNotNone(ltdf.first())
+
+
     def test_prt_functions(self):
         df = self.spark.read.rastersource(self.img_uri) \
             .withColumn('crs', rf_crs('tile')) \

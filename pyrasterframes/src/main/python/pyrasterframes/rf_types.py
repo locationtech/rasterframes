@@ -31,6 +31,7 @@ from pyspark.sql import DataFrame, Column
 from pyspark.sql.types import *
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
+from pyrasterframes.context import RFContext
 import numpy as np
 
 __all__ = ['RasterFrame', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
@@ -422,7 +423,14 @@ class TileUDT(UserDefinedType):
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
         if cell_data_bytes is None:
-            raise Exception("Null cell data: " + str(datum))
+            if datum.cell_data.ref is None:
+                raise Exception("Invalid Tile structure. Missing cells and reference")
+            else:
+                payload = datum.cell_data.ref
+                cell_data_bytes = RFContext.active().resolve_raster_ref(payload)
+
+        if cell_data_bytes is None:
+            raise Exception("Unable to fetch cell data from: " + repr(datum))
 
         try:
             as_numpy = np.frombuffer(cell_data_bytes, dtype=cell_type.to_numpy_dtype())

@@ -40,7 +40,7 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
   import RasterSourceUDT._
   override def typeName = "rf_rastersource"
 
-  override def pyUDT: String = "pyrasterframes.RasterSourceUDT"
+  override def pyUDT: String = "pyrasterframes.rf_types.RasterSourceUDT"
 
   def userClass: Class[RasterSource] = classOf[RasterSource]
 
