@@ -1,7 +1,7 @@
 FROM circleci/openjdk:8-jdk
 
 ENV OPENJPEG_VERSION 2.3.0
-ENV GDAL_VERSION 2.3.3
+ENV GDAL_VERSION 2.4.1
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 
 # most of these libraries required for
@@ -64,4 +64,4 @@ RUN cd /tmp && \
     cd swig/java && \
     sudo make install && \
     sudo ldconfig && \
-    cd /tmp && rm -Rf gdal*
+    cd /tmp && sudo rm -Rf gdal*
