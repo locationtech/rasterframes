@@ -118,7 +118,7 @@ lazy val docs = project
     ),
     paradoxTheme := Some(builtinParadoxTheme("generic")),
     makeSite := makeSite.dependsOn(Compile / unidoc).dependsOn(Compile / paradox).value,
-    Compile / paradox / sourceDirectories += (pyrasterframes / Python / doc / target).value.getParentFile,
+    Compile / paradox / sourceDirectories += (pyrasterframes / Python / doc / target).value,
     Compile / paradox := (Compile / paradox).dependsOn(pyrasterframes / doc).value
   )
   .settings(

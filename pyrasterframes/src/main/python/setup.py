@@ -96,8 +96,8 @@ class PweaveDocs(distutils.cmd.Command):
         """Set default values for options."""
         # Each user option must be listed here with their default value.
         self.files = filter(
-            lambda x: not x.name.startswith('_'),
-            list((Path(here) / 'docs').resolve().glob('*.py'))
+            lambda x: not path.basename(x)[:1] == '_',
+            glob(path.join(here, 'docs', '*.pymd'))
         )
 
     def finalize_options(self):

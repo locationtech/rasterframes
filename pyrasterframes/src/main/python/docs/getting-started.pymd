@@ -1,0 +1,41 @@
+# Initializing PySpark
+
+There are a number of ways to use PyRasterFrames:
+
+1. Standalone Script
+2. `pyspark` shell
+3. Notebook Environment
+
+## Initializing a Python Script
+
+```python, echo=False
+from docs import *
+```
+
+RasterFrames requires some special configuration to Spark to be fully functional. As a convenience you can use a provided utility function to get a preconfigured Spark session: 
+
+The first step is to set up a `SparkSession`:
+
+```python
+from pyspark.sql import SparkSession
+from pyrasterframes.utils import create_rf_spark_session 
+spark = create_rf_spark_session()
+```
+
+Now we have a standard Spark session with RasterFrames enabled in it.
+To import RasterFrames functions into the environment, use:
+
+```python
+from pyrasterframes.rasterfunctions import *
+```
+
+Functions starting with `rf_` (raster-oriented) or `st_` (vector geometry-oriented) are
+become available for use with DataFrames.
+
+```python
+list(filter(lambda x: x.startswith("rf_") or x.startswith("st_"), dir()))
+```
+
+```python, echo=False 
+spark.stop()
+```
