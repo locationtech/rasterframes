@@ -32,7 +32,6 @@ import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.spark._
 import geotrellis.spark.testkit.TileLayerRDDBuilders
 import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.vector.io.json.JsonFeatureCollection
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.commons.io.IOUtils
 import org.apache.spark.SparkContext
