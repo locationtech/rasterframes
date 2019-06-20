@@ -56,28 +56,32 @@ object PythonBuildPlugin extends AutoPlugin {
     copySources(Compile / pythonSource, Python / target, true),
     copySources(Test / pythonSource, Python / test / target, false)
   )
+  
+  val pyWhlJar = Def.task {
+    val log = streams.value.log
+    val buildDir = (Python / target).value
+    val asmbl = (Compile / assembly).value
+    val dest = buildDir / "deps" / "jars" / asmbl.getName
+    IO.copyFile(asmbl, dest)
+    log.info(s"PyRasterFrames assembly written to '$dest'")
+    dest
+  }
 
-  val buildWhl = Def.sequential(
-    (Compile / assembly), // Needed because SBT will try to parallelize this step out of sequence.
-    Def.task {
-      val log = streams.value.log
-      val buildDir = (Python / target).value
-      val asmbl = (Compile / assembly).value
-      val dest = buildDir / "deps" / "jars" / asmbl.getName
-      IO.copyFile(asmbl, dest)
-      val retcode = pySetup.toTask(" build bdist_wheel").value
-      if(retcode != 0) throw new RuntimeException(s"'python setup.py' returned $retcode")
-      val whls = (buildDir / "dist" ** "pyrasterframes*.whl").get()
-      require(whls.length == 1, "Running setup.py should have produced a single .whl file. Try running `clean` first.")
-      log.info(s"Python .whl file written to '${whls.head}'")
-      whls.head
-    }
-  )
+  val pyWhl = Def.task {
+    val log = streams.value.log
+    val buildDir = (Python / target).value
+    val retcode = pySetup.toTask(" build bdist_wheel").value
+    if(retcode != 0) throw new RuntimeException(s"'python setup.py' returned $retcode")
+    val whls = (buildDir / "dist" ** "pyrasterframes*.whl").get()
+    require(whls.length == 1, "Running setup.py should have produced a single .whl file. Try running `clean` first.")
+    log.info(s"Python .whl file written to '${whls.head}'")
+    whls.head
+  }.dependsOn(pyWhlJar)
 
-  val pyDistAsZip = Def.task {
+  val pyWhlAsZip = Def.task {
     val log = streams.value.log
     val pyDest = (packageBin / artifactPath).value
-    val whl = buildWhl.value
+    val whl = pyWhl.value
     IO.copyFile(whl, pyDest)
     log.info(s"Maven Python .zip artifact written to '$pyDest'")
     pyDest
@@ -118,7 +122,8 @@ object PythonBuildPlugin extends AutoPlugin {
       test / target := (Compile / target).value / "python" / "tests",
       packageBin := Def.sequential(
         Compile / packageBin,
-        pyDistAsZip,
+        pyWhl,
+        pyWhlAsZip,
       ).value,
       packageBin / artifact := {
         val java = (Compile / packageBin / artifact).value
