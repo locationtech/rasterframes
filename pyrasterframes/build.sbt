@@ -3,6 +3,9 @@ import PythonBuildPlugin.autoImport._
 addCommandAlias("pyTest", "pyrasterframes/test")
 addCommandAlias("pyDocs", "pyrasterframes/doc")
 
+
+Test / pythonSource := (Compile / sourceDirectory).value / "tests"
+
 exportJars := true
 Python / doc / sourceDirectory := (Python / target).value / "docs"
 Python / doc / target := (Python / target).value / "markdown" / "pyrasterframes"

@@ -48,6 +48,18 @@ class RFContext(object):
     def build_info(self):
         return self._jrfctx.buildInfo()
 
+    # NB: Tightly coupled to `org.locationtech.rasterframes.py.PyRFContext._resolveRasterRef`
+    def _resolve_raster_ref(self, ref):
+        f = self.lookup("_resolveRasterRef")
+        return f(
+            ref.source.raster_source_kryo,
+            ref.bandIndex,
+            ref.subextent.xmin,
+            ref.subextent.ymin,
+            ref.subextent.xmax,
+            ref.subextent.ymax,
+        )
+
     @staticmethod
     def active():
         """

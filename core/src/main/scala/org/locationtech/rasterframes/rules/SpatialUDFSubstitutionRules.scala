@@ -34,8 +34,8 @@ import org.apache.spark.sql.catalyst.rules.Rule
 object SpatialUDFSubstitutionRules extends Rule[LogicalPlan] {
   def apply(plan: LogicalPlan): LogicalPlan = {
     plan.transform {
-      case q: LogicalPlan ⇒ q.transformExpressions {
-        case s: ScalaUDF ⇒ SpatialRelation.fromUDF(s).getOrElse(s)
+      case q: LogicalPlan => q.transformExpressions {
+        case s: ScalaUDF => SpatialRelation.fromUDF(s).getOrElse(s)
       }
     }
   }

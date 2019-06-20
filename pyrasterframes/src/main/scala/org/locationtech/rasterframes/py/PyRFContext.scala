@@ -20,13 +20,18 @@
  */
 package org.locationtech.rasterframes.py
 
+import java.nio.ByteBuffer
+
 import geotrellis.raster.{CellType, MultibandTile}
 import geotrellis.spark.io._
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.vector.Extent
 import org.apache.spark.sql._
 import org.locationtech.rasterframes.extensions.RasterJoin
-import org.locationtech.rasterframes.{RasterFunctions, _}
 import org.locationtech.rasterframes.model.LazyCRS
+import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.util.KryoSupport
+import org.locationtech.rasterframes.{RasterFunctions, _}
 import spray.json._
 
 import scala.collection.JavaConverters._
@@ -215,4 +220,14 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   //----------------------------Support Routines-----------------------------------------
 
   def _listToSeq(cols: java.util.ArrayList[AnyRef]): Seq[AnyRef] = cols.asScala
+
+  type jInt = java.lang.Integer
+  type jDouble = java.lang.Double
+  // NB: Tightly coupled to the `RFContext.resolve_raster_ref` method in `pyrasterframes.context`. */
+  def _resolveRasterRef(srcBin: Array[Byte], bandIndex: jInt, xmin: jDouble, ymin: jDouble, xmax: jDouble, ymax: jDouble): AnyRef = {
+    val src = KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(srcBin))
+    val extent = Extent(xmin, ymin, xmax, ymax)
+    val ref = RasterRef(src, bandIndex, Some(extent))
+    ref.tile.toArrayTile().toBytes()
+  }
 }
