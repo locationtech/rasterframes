@@ -30,6 +30,7 @@ import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.scalatest.{FunSpec, Matchers}
@@ -52,8 +53,8 @@ class RasterFunctionsSpec extends FunSpec
   lazy val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
   lazy val six = ProjectedRasterTile(three * two, three.extent, three.crs)
   lazy val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
-  lazy val randTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
-  lazy val randNDTile  = TestData.injectND(numND)(randTile)
+  lazy val randPRT = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
+  lazy val randNDPRT  = TestData.injectND(numND)(randPRT)
 
   lazy val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
   lazy val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
@@ -64,6 +65,8 @@ class RasterFunctionsSpec extends FunSpec
   lazy val randNDTilesWithNull = Seq.fill[Tile](tileCount)(TestData.injectND(numND)(
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
+
+  def lazyPRT = RasterRef(RasterSource(TestData.l8samplePath), 0, None).tile
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
@@ -287,18 +290,24 @@ class RasterFunctionsSpec extends FunSpec
 
   describe("raster metadata") {
     it("should get the TileDimensions of a Tile") {
-      val t = Seq(randTile).toDF("tile").select(rf_dimensions($"tile")).first()
-      t should be (TileDimensions(randTile.dimensions))
+      val t = Seq(randPRT).toDF("tile").select(rf_dimensions($"tile")).first()
+      t should be (TileDimensions(randPRT.dimensions))
       checkDocs("rf_dimensions")
     }
     it("should get the Extent of a ProjectedRasterTile") {
-      val e = Seq(randTile).toDF("tile").select(rf_extent($"tile")).first()
+      val e = Seq(randPRT).toDF("tile").select(rf_extent($"tile")).first()
       e should be (extent)
       checkDocs("rf_extent")
     }
 
+    it("should get the CRS of a ProjectedRasterTile") {
+      val e = Seq(randPRT).toDF("tile").select(rf_crs($"tile")).first()
+      e should be (crs)
+      checkDocs("rf_crs")
+    }
+
     it("should get the Geometry of a ProjectedRasterTile") {
-      val g = Seq(randTile).toDF("tile").select(rf_geometry($"tile")).first()
+      val g = Seq(randPRT).toDF("tile").select(rf_geometry($"tile")).first()
       g should be (extent.jtsGeom)
       checkDocs("rf_geometry")
     }
@@ -353,33 +362,33 @@ class RasterFunctionsSpec extends FunSpec
       checkDocs("rf_for_all")
     }
     it("should find the minimum cell value") {
-      val min = randNDTile.toArray().filter(c => raster.isData(c)).min.toDouble
-      val df = Seq(randNDTile).toDF("rand")
+      val min = randNDPRT.toArray().filter(c => raster.isData(c)).min.toDouble
+      val df = Seq(randNDPRT).toDF("rand")
       df.select(rf_tile_min($"rand")).first() should be(min)
       df.selectExpr("rf_tile_min(rand)").as[Double].first() should be(min)
       checkDocs("rf_tile_min")
     }
 
     it("should find the maximum cell value") {
-      val max = randNDTile.toArray().filter(c => raster.isData(c)).max.toDouble
-      val df = Seq(randNDTile).toDF("rand")
+      val max = randNDPRT.toArray().filter(c => raster.isData(c)).max.toDouble
+      val df = Seq(randNDPRT).toDF("rand")
       df.select(rf_tile_max($"rand")).first() should be(max)
       df.selectExpr("rf_tile_max(rand)").as[Double].first() should be(max)
       checkDocs("rf_tile_max")
     }
     it("should compute the tile mean cell value") {
-      val values = randNDTile.toArray().filter(c => raster.isData(c))
+      val values = randNDPRT.toArray().filter(c => raster.isData(c))
       val mean = values.sum.toDouble / values.length
-      val df = Seq(randNDTile).toDF("rand")
+      val df = Seq(randNDPRT).toDF("rand")
       df.select(rf_tile_mean($"rand")).first() should be(mean)
       df.selectExpr("rf_tile_mean(rand)").as[Double].first() should be(mean)
       checkDocs("rf_tile_mean")
     }
 
     it("should compute the tile summary statistics") {
-      val values = randNDTile.toArray().filter(c => raster.isData(c))
+      val values = randNDPRT.toArray().filter(c => raster.isData(c))
       val mean = values.sum.toDouble / values.length
-      val df = Seq(randNDTile).toDF("rand")
+      val df = Seq(randNDPRT).toDF("rand")
       val stats = df.select(rf_tile_stats($"rand")).first()
       stats.mean should be (mean +- 0.00001)
 
@@ -406,7 +415,7 @@ class RasterFunctionsSpec extends FunSpec
     }
 
     it("should compute the tile histogram") {
-      val df = Seq(randNDTile).toDF("rand")
+      val df = Seq(randNDPRT).toDF("rand")
       val h1 = df.select(rf_tile_histogram($"rand")).first()
 
       val h2 = df.selectExpr("rf_tile_histogram(rand) as hist")
@@ -487,7 +496,7 @@ class RasterFunctionsSpec extends FunSpec
     }
 
     it("should compute local data cell counts") {
-      val df = Seq(two, randNDTile, nd).toDF("tile")
+      val df = Seq(two, randNDPRT, nd).toDF("tile")
       val t1 = df.select(rf_agg_local_data_cells($"tile")).first()
       val t2 = df.selectExpr("rf_agg_local_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
       t1 should be (t2)
@@ -495,7 +504,7 @@ class RasterFunctionsSpec extends FunSpec
     }
 
     it("should compute local no-data cell counts") {
-      val df = Seq(two, randNDTile, nd).toDF("tile")
+      val df = Seq(two, randNDPRT, nd).toDF("tile")
       val t1 = df.select(rf_agg_local_no_data_cells($"tile")).first()
       val t2 = df.selectExpr("rf_agg_local_no_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
       t1 should be (t2)
@@ -522,7 +531,7 @@ class RasterFunctionsSpec extends FunSpec
     }
 
     it("should mask one tile against another") {
-      val df = Seq[Tile](randTile).toDF("tile")
+      val df = Seq[Tile](randPRT).toDF("tile")
 
       val withMask = df.withColumn("mask",
         rf_convert_cell_type(
@@ -541,7 +550,7 @@ class RasterFunctionsSpec extends FunSpec
     }
 
     it("should inverse mask one tile against another") {
-      val df = Seq[Tile](randTile).toDF("tile")
+      val df = Seq[Tile](randPRT).toDF("tile")
 
       val baseND = df.select(rf_agg_no_data_cells($"tile")).first()
 
@@ -564,7 +573,7 @@ class RasterFunctionsSpec extends FunSpec
     }
 
     it("should mask tile by another identified by specified value") {
-      val df = Seq[Tile](randTile).toDF("tile")
+      val df = Seq[Tile](randPRT).toDF("tile")
       val mask_value = 4
 
       val withMask = df.withColumn("mask",
@@ -585,7 +594,7 @@ class RasterFunctionsSpec extends FunSpec
     }
 
     it("should inverse mask tile by another identified by specified value") {
-      val df = Seq[Tile](randTile).toDF("tile")
+      val df = Seq[Tile](randPRT).toDF("tile")
       val mask_value = 4
 
       val withMask = df.withColumn("mask",

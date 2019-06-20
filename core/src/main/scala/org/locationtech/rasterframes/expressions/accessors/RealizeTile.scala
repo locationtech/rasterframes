@@ -21,36 +21,35 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders.crsEncoder
-import org.locationtech.rasterframes.expressions.OnTileContextExpression
-import geotrellis.proj4.CRS
-import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions._
+import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
 
-/**
- * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
- *
- * @since 9/9/18
- */
 @ExpressionDescription(
-  usage = "_FUNC_(raster) - Fetches the CRS of a ProjectedRasterTile or RasterSource.",
+  usage = "_FUNC_(raster) - Extracts the Tile component of a RasterSource, ProjectedRasterTile (or Tile) and ensures the cells are fully fetched.",
   examples = """
     Examples:
       > SELECT _FUNC_(raster);
          ....
   """)
-case class GetCRS(child: Expression) extends OnTileContextExpression with CodegenFallback {
-  override def dataType: DataType = schemaOf[CRS]
-  override def nodeName: String = "rf_crs"
-  override def eval(ctx: TileContext): InternalRow = ctx.crs.toInternalRow
+case class RealizeTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
+  override def dataType: DataType = TileType
+
+  override def nodeName: String = "rf_realize_tile"
+  implicit val tileSer = TileUDT.tileSerializer
+
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
+    (tile.toArrayTile(): Tile).toInternalRow
 }
 
-object GetCRS {
-  def apply(ref: Column): TypedColumn[Any, CRS] =
-    new Column(new GetCRS(ref.expr)).as[CRS]
+object RealizeTile {
+  def apply(col: Column): TypedColumn[Any, Tile] =
+    new Column(new RealizeTile(col.expr)).as[Tile]
 }
