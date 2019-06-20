@@ -29,7 +29,17 @@ spark = SparkSession.builder \
 
 #### Pyspark shell or app
 
-To initialize PyRasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip. See below for how to build or download those artifacts.
+To quickly get the command to run a `pyspark` shell with PyRasterFrames enabled, run
+
+```bash
+sbt pySparkCmd
+
+# > PYTHONSTARTUP=/var/foo/pyrf_init.py pyspark --jars /somewhere/rasterframes/pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar --py-files /somewhere/rasterframes/pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
+```
+
+The runtime dependencies will be created and the command to run printed to the console.
+
+To manually initialize PyRasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip. See below for how to build or download those artifacts.
 
 ```bash
    pyspark \
@@ -66,7 +76,7 @@ example below with `sbt`.
 The PyRasterFrames unit tests can found in `<src-root>/pyrasterframes/python/tests`. To run them:
 
 ```bash
-sbt pyTests
+sbt pyrasterframes/test # alias 'pyTest'
 ```
 
 *See also the below discussion of running `setup.py` for more options to run unit tests.* 
@@ -74,7 +84,7 @@ sbt pyTests
 Similarly, to run the examples in `<src-root>pyrasterframes/python/examples`:
 
 ```bash
-sbt pyExamples
+sbt pyrasterframes/run # alias 'pyExamples'
 ```
 
 ## Creating and Using a Build
@@ -89,7 +99,7 @@ the primary build artifacts are:
 You build them with:
 
 ```bash
-sbt pyrasterframes/package
+sbt pyrasterframes/package # alias 'pyBuild'
 ```
 
 Release versions of these artifacts are published to https://central.sonatype.org/ under the Maven/Ivy groupId:artifactId:version (GAV) coordinates

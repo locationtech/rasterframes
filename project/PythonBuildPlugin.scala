@@ -136,21 +136,19 @@ object PythonBuildPlugin extends AutoPlugin {
         dest / s"${art.name}-python-$ver.zip"
       },
       testQuick := pySetup.toTask(" test").value,
-      executeTests := Def.sequential(
-        assembly,
-        Def.task {
-          val resultCode = pySetup.toTask(" test").value
-          val msg = resultCode match {
-            case 1 ⇒ "There are Python test failures."
-            case 2 ⇒ "Python test execution was interrupted."
-            case 3 ⇒ "Internal error during Python test execution."
-            case 4 ⇒ "PyTest usage error."
-            case 5 ⇒ "No Python tests found."
-            case x if x != 0 ⇒ "Unknown error while running Python tests."
-            case _ ⇒ "PyRasterFrames tests successfully completed."
-          }
-          val pySummary = Summary("pyrasterframes", msg)
-          // Would be cool to derive this from the python output...
+      executeTests := Def.task {
+        val resultCode = pySetup.toTask(" test").value
+        val msg = resultCode match {
+          case 1 ⇒ "There are Python test failures."
+          case 2 ⇒ "Python test execution was interrupted."
+          case 3 ⇒ "Internal error during Python test execution."
+          case 4 ⇒ "PyTest usage error."
+          case 5 ⇒ "No Python tests found."
+          case x if x != 0 ⇒ "Unknown error while running Python tests."
+          case _ ⇒ "PyRasterFrames tests successfully completed."
+        }
+        val pySummary = Summary("pyrasterframes", msg)
+        // Would be cool to derive this from the python output...
         val result = if (resultCode == 0) {
           new SuiteResult(
             TestResult.Passed,
@@ -177,7 +175,7 @@ object PythonBuildPlugin extends AutoPlugin {
         }
         result
         Tests.Output(result.result, Map("PyRasterFramesTests" -> result), Iterable(pySummary))
-      }).value
+      }.dependsOn(assembly).value
     )) ++
     addArtifact(Python / packageBin / artifact, Python / packageBin)
 }
