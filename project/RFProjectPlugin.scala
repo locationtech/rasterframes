@@ -11,10 +11,6 @@ object RFProjectPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   override def requires = GitPlugin
 
-  lazy val IntegrationTest = config("it") extend Test
-
-  override def projectConfigurations: Seq[Configuration] = Seq(IntegrationTest)
-
   override def projectSettings = Seq(
     organization := "org.locationtech.rasterframes",
     organizationName := "LocationTech RasterFrames",

@@ -21,6 +21,8 @@
 
 package org.locationtech.rasterframes.datasource.rastersource
 
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.util._
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.locationtech.rasterframes.model.TileDimensions
@@ -31,11 +33,8 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val bands = parameters.bandIndexes
     val tiling = parameters.tileDims
-    val pathTable = parameters.pathTable
-    val files = parameters.filePaths
-    require(!(pathTable.nonEmpty && files.nonEmpty),
-      "Only one of a set of file paths OR a paths table column may be provided.")
-    RasterSourceRelation(sqlContext, files, pathTable, bands, tiling)
+    val spec = parameters.pathSpec
+    RasterSourceRelation(sqlContext, spec, bands, tiling)
   }
 }
 object RasterSourceDataSource {
@@ -47,36 +46,61 @@ object RasterSourceDataSource {
   final val PATH_TABLE_PARAM = "pathTable"
   final val PATH_TABLE_COL_PARAM = "pathTableColumns"
 
+  final val DEFAULT_COLUMN_NAME = PROJECTED_RASTER_COLUMN.columnName
+
+  trait WithBandColumns {
+    def bandColumnNames: Seq[String]
+  }
+  /** Container for specifying raster paths. */
+  case class BandSet(bandPaths: String*)
+  case class RasterSourcePathTable(sceneRows: Seq[BandSet], bandColumnNames: String*) extends WithBandColumns {
+    require(sceneRows.forall(_.bandPaths.length == bandColumnNames.length),
+      "Each scene row must have the same number of entries as band column names")
+  }
   /** Container for specifying where to select raster paths from. */
-  case class RasterSourceTable(tableName: String, columnNames: String*)
+  case class RasterSourcePathTableRef(tableName: String, bandColumnNames: String*) extends WithBandColumns
 
   private[rastersource]
   implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
-    def filePaths: Seq[String] = (
-      parameters
-        .get(PATHS_PARAM)
-        .toSeq
-        .flatMap(_.split(Array('\n','\r'))) ++
-        parameters
-          .get(RasterSourceDataSource.PATH_PARAM)
-          .toSeq
-      )
-      .filter(_.nonEmpty)
 
     def tileDims: Option[TileDimensions] =
       parameters.get(TILE_DIMS_PARAM)
-      .map(_.split(',').map(_.trim.toInt))
-      .map { case Array(cols, rows) => TileDimensions(cols, rows)}
+        .map(_.split(',').map(_.trim.toInt))
+        .map { case Array(cols, rows) => TileDimensions(cols, rows)}
 
     def bandIndexes: Seq[Int] = parameters
       .get(BAND_INDEXES_PARAM)
       .map(_.split(',').map(_.trim.toInt).toSeq)
       .getOrElse(Seq(0))
 
-    def pathTable: Option[RasterSourceTable] = parameters
+    def filePaths: Option[RasterSourcePathTable] = {
+      val paths = (
+        parameters
+          .get(PATHS_PARAM)
+          .toSeq
+          .flatMap(_.split(Array('\n','\r'))) ++
+          parameters
+            .get(RasterSourceDataSource.PATH_PARAM)
+            .toSeq
+        ).filter(_.nonEmpty)
+
+      if (paths.isEmpty) None
+      else
+        Some(RasterSourcePathTable(paths.map(BandSet(_)), DEFAULT_COLUMN_NAME))
+    }
+
+    def pathTable: Option[RasterSourcePathTableRef] = parameters
       .get(PATH_TABLE_PARAM)
       .zip(parameters.get(PATH_TABLE_COL_PARAM))
-      .map(p => RasterSourceTable(p._1, p._2.split(','): _*))
+      .map(p => RasterSourcePathTableRef(p._1, p._2.split(','): _*))
       .headOption
+
+    def pathSpec: Either[RasterSourcePathTable, RasterSourcePathTableRef] = {
+      (filePaths, pathTable) match {
+        case (Some(f), None) => Left(f)
+        case (None, Some(p)) => Right(p)
+        case _ => throw new IllegalArgumentException("Only one of a set of file paths OR a paths table column may be provided.")
+      }
+    }
   }
 }
