@@ -1,26 +1,18 @@
 addCommandAlias("pyDocs", "pyrasterframes/doc")
 addCommandAlias("pyTest", "pyrasterframes/test")
 addCommandAlias("pyBuild", "pyrasterframes/package")
-addCommandAlias("pyExamples", "pyrasterframes/run")
 
 Test / pythonSource := (Compile / sourceDirectory).value / "tests"
 
-Compile / run := pySetup.toTask(" examples").dependsOn(assembly).value
-
-//RFProjectPlugin.IntegrationTest / test := (Compile / run).inputTaskValue
-
 exportJars := true
 Python / doc / sourceDirectory := (Python / target).value / "docs"
-Python / doc / target := (Compile / target).value / "py-markdown"
+Python / doc / target := (Python / target).value / "docs"
+  //(Compile / target).value / "py-markdown"
 Python / doc := (Python / doc / target).toTask.dependsOn(
   Def.sequential(
     assembly,
-    pySetup.toTask(" pweave"),
-    copySources(
-      Python / doc / sourceDirectory,
-      Python / doc / target,
-      deleteFirst = true
-    )
+    Test / compile,
+    pySetup.toTask(" pweave")
   )
 ).value
 

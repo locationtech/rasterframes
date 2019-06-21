@@ -1,0 +1,22 @@
+# Aggregation
+
+```python, echo=False
+from docs import *
+from pyrasterframes.utils import create_rf_spark_session
+from pyrasterframes.rasterfunctions import *
+from pyspark.sql import *
+import os
+
+spark = create_rf_spark_session()
+```
+
+## Cell Counts & Tile Mean
+
+```python
+rf = spark.read.geotiff(os.path.join(resource_dir(), 'L8-B8-Robinson-IL.tiff'))
+rf.show(5, False)
+
+stats = rf.agg(rf_agg_no_data_cells('tile'), rf_agg_data_cells('tile'), rf_agg_mean('tile'))
+stats.show(5, False)
+```
+

@@ -19,13 +19,12 @@
 #
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
-from os import path, environ
+from setuptools import setup
+from os import path
 import sys
 from glob import glob
 from io import open
 import distutils.cmd
-import importlib
 
 try:
     exec(open('pyrasterframes/version.py').read())  # executable python script contains __version__; credit pyspark
@@ -43,69 +42,9 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     readme = f.read()
 
 
-def _extract_module(mod):
-    module = importlib.import_module(mod)
-
-    if hasattr(module, '__all__'):
-        globals().update({n: getattr(module, n) for n in module.__all__})
-    else:
-        globals().update({k: v for (k, v) in module.__dict__.items() if not k.startswith('_')})
-
-
 def _divided(msg):
     divider = ('-' * 50)
     return divider + '\n' + msg + '\n' + divider
-
-
-class RunExamples(distutils.cmd.Command):
-    """A custom command to run pyrasterframes examples."""
-
-    description = 'Run PyRasterFrames examples'
-    user_options = [
-        # The format is (long option, short option, description).
-        ('examples=', 'e', 'examples to run'),
-    ]
-
-    @staticmethod
-    def _check_ex_path(ex):
-        file = ex
-        suffix = path.splitext(ex)[1]
-        if suffix == '':
-            file += '.py'
-        file = path.join(here, 'examples', file)
-
-        assert path.isfile(file), ('Invalid example %s' % file)
-        return file
-
-    def initialize_options(self):
-        """Set default values for options."""
-        # Each user option must be listed here with their default value.
-        self.examples = filter(lambda x: not path.basename(x)[:1] == '_',
-                               glob(path.join(here, 'examples', '*.py')))
-
-    def finalize_options(self):
-        """Post-process options."""
-        import re
-        if isinstance(self.examples, str):
-            self.examples = filter(
-                lambda s: len(s) > 0,
-                re.split('\W+', self.examples)
-            )
-            self.examples = map(
-                lambda x: 'examples.' + path.splitext(path.basename(x))[0],
-                map(self._check_ex_path, self.examples)
-            )
-
-    def run(self):
-        """Run the examples."""
-        import traceback
-        for ex in self.examples:
-            print(_divided('Running %s' % ex))
-            try:
-                _extract_module(ex)
-            except Exception:
-                print(_divided('%s Failed:' % ex))
-                print(traceback.format_exc())
 
 
 class PweaveDocs(distutils.cmd.Command):
@@ -128,7 +67,7 @@ class PweaveDocs(distutils.cmd.Command):
         """Post-process options."""
         import re
         if isinstance(self.files, str):
-            self.files = filter(lambda s: len(s) > 0, re.split('\W+', self.files))
+            self.files = filter(lambda s: len(s) > 0, re.split(',', self.files))
 
     def run(self):
         """Run pweave."""
@@ -212,7 +151,6 @@ setup(
     zip_safe=False,
     test_suite="pytest-runner",
     cmdclass={
-        'examples': RunExamples,
         'pweave': PweaveDocs
     }
 )
