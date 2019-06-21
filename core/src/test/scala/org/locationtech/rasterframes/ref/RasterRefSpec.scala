@@ -110,7 +110,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
     }
   }
 
-  describe("rf_extent") {
+  describe("GetExtent") {
     it("should read from RasterRef") {
       import spark.implicits._
       new Fixture {

@@ -118,17 +118,17 @@ class CatalystSerializerSpec extends TestEnvironment with TestData {
       assertContract(ext)
     }
 
-    it("should eserialize ProjectedExtent") {
+    it("should serialize ProjectedExtent") {
       val pe = ProjectedExtent(ext, ConusAlbers)
       assertContract(pe)
     }
 
-    it("should eserialize SpatialKey") {
+    it("should serialize SpatialKey") {
       val v = SpatialKey(2, 3)
       assertContract(v)
     }
 
-    it("should eserialize SpaceTimeKey") {
+    it("should serialize SpaceTimeKey") {
       val v = SpaceTimeKey(2, 3, ZonedDateTime.now())
       assertContract(v)
     }

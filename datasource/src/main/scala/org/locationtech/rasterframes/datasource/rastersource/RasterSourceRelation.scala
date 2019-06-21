@@ -48,7 +48,7 @@ case class RasterSourceRelation(sqlContext: SQLContext, discretePaths: Seq[Strin
 
   lazy val inputColNames = pathTable
     .map(_.columnNames)
-    .getOrElse(Seq(TILE_COLUMN.columnName))
+    .getOrElse(Seq(PROJECTED_RASTER_COLUMN.columnName))
 
   def pathColNames = inputColNames
     .map(_ + "_path")
