@@ -56,6 +56,11 @@ package object rastersource {
           .option(RasterSourceDataSource.PATH_TABLE_COL_PARAM, bandColumnNames.mkString(","))
       )
 
+    def fromCSV(pathTableCSV: String): RasterSourceDataFrameReader =
+      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
+        reader.option(RasterSourceDataSource.PATH_CSV_PARAM, pathTableCSV)
+      )
+
     def from(newlineDelimPaths: String): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
         reader.option(RasterSourceDataSource.PATHS_PARAM, newlineDelimPaths)

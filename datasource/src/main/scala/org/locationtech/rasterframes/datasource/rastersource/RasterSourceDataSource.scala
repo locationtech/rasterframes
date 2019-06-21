@@ -27,6 +27,8 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.locationtech.rasterframes.model.TileDimensions
 
+import scala.util.Try
+
 class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   import RasterSourceDataSource._
   override def shortName(): String = SHORT_NAME
@@ -44,6 +46,7 @@ object RasterSourceDataSource {
   final val BAND_INDEXES_PARAM = "bandIndexes"
   final val TILE_DIMS_PARAM = "tileDimensions"
   final val PATH_TABLE_PARAM = "pathTable"
+  final val PATH_CSV_PARAM = "pathCSVTable"
   final val PATH_TABLE_COL_PARAM = "pathTableColumns"
 
   final val DEFAULT_COLUMN_NAME = PROJECTED_RASTER_COLUMN.columnName
@@ -57,6 +60,24 @@ object RasterSourceDataSource {
     require(sceneRows.forall(_.bandPaths.length == bandColumnNames.length),
       "Each scene row must have the same number of entries as band column names")
   }
+
+  object RasterSourcePathTable {
+    def apply(csv: String): Option[RasterSourcePathTable] = Try {
+      val lines = csv
+        .split(Array('\n','\r'))
+        .map(_.trim)
+        .filter(_.nonEmpty)
+
+      val header = lines.head.split(',').map(_.trim)
+      val rows = lines.tail.map(_.split(',').map(_.trim)).map(BandSet(_: _*))
+      RasterSourcePathTable(rows, header: _*)
+    }.toOption
+
+    def apply(singlebandPaths: Seq[String]): Option[RasterSourcePathTable]  =
+      if (singlebandPaths.isEmpty) None
+      else Some(RasterSourcePathTable(singlebandPaths.map(BandSet(_)), DEFAULT_COLUMN_NAME))
+  }
+
   /** Container for specifying where to select raster paths from. */
   case class RasterSourcePathTableRef(tableName: String, bandColumnNames: String*) extends WithBandColumns
 
@@ -84,9 +105,10 @@ object RasterSourceDataSource {
             .toSeq
         ).filter(_.nonEmpty)
 
-      if (paths.isEmpty) None
-      else
-        Some(RasterSourcePathTable(paths.map(BandSet(_)), DEFAULT_COLUMN_NAME))
+      RasterSourcePathTable(paths)
+        .orElse(parameters
+          .get(PATH_CSV_PARAM)
+          .flatMap(RasterSourcePathTable(_)))
     }
 
     def pathTable: Option[RasterSourcePathTableRef] = parameters

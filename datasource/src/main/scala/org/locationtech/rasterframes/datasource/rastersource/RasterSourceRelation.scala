@@ -83,7 +83,12 @@ case class RasterSourceRelation(
       case Right(spec) => sqlContext.table(spec.tableName)
       case Left(spec) => spec.bandColumnNames match {
         case Seq(single) => spec.sceneRows.map(_.bandPaths.headOption.orNull).toDF(single)
-        case bands => spec.sceneRows.map(_.bandPaths).toDF(bands: _*)
+        case bands =>
+          val bsel = bands.zipWithIndex.map { case (b, i) => col("value")(i).as(b) }
+
+          spec.sceneRows.map(_.bandPaths)
+            .toDF("value")
+            .select(bsel: _*)
       }
     }
 

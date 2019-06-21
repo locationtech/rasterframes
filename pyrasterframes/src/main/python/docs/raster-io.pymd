@@ -1,7 +1,90 @@
 # Raster Data I/O
 
+The standard mechanism by which any data is brought in and out of a Spark Dataframe is the [Spark SQL DataSource][DS]. RasterFrames are compatible with existing generalized DataSources, such as Parquet, but provide specialized ones oriented around geospatial raster data.
+
 ## Reading Raster Data
+
+```python, echo=False
+from IPython.display import display
+from pyrasterframes.utils import create_rf_spark_session 
+from pyrasterframes.rasterfunctions import *
+spark = create_rf_spark_session()
+```
+
+RasterFrames registers a DataSource named `rastersource` that enables reading of GeoTIFFs (and other formats when GDAL is installed) from arbitrary (sets of) URLs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket:
+
+```python
+data_root = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp'
+def s2_band(idx):
+    return f"{data_root}/B0{idx}.tif"
+    
+```
+
+### Single Raster
+
+The simplest form is reading a single raster from a single URL:
+
+```python
+rf = spark.read.rastersource(s2_band(2))
+rf.printSchema()
+```
+
+[[Discuss the schema]]
+
+Let's unpack the `proj_raster` column and look at the contents in more detail. 
+
+```python
+crs = rf.select(rf_crs("proj_raster").alias("value")).first()
+
+parts = rf.select(
+    rf_extent("proj_raster").alias("extent"), 
+    rf_tile("proj_raster").alias("tile")
+)
+
+print("CRS", crs.value.crsProj4)
+parts.show(5)
+
+```
+
+Let's elect a single tile and view it.
+
+```python
+tile = rf.select(rf_tile("proj_raster")).first()
+# TODO: IPython rendering
+print(tile)
+```
+
+
+### Single Scene, Multiple Bands
+
+Generally we'll want to work with multiple bands. If you have several singleband image files of the same scene, `rastersource` can make use of a CSV (or other DataFrame) specifying the band columns and scene rows.
+
+```python
+csv = f"""
+red,green,blue
+{s2_band(4)},{s2_band(3)},{s2_band(2)}
+"""
+
+print(csv)
+
+rf2 = spark.read.rastersource(csv=csv)
+rf2.printSchema()
+
+rf2.show(5)
+```
+
 
 ## Writing Raster Data
 
+### Overviews
 
+### GeoTIFFs
+
+### Tile Samples
+
+### GeoTrellis Layers
+
+
+
+
+[DS]: https://spark.apache.org/docs/latest/sql-data-sources.html

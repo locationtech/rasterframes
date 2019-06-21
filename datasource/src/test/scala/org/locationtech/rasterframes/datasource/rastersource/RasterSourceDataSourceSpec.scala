@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.datasource.rastersource
 import org.locationtech.rasterframes.{TestEnvironment, _}
-import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource._
+import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.{RasterSourcePathTable, _}
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util._
 
@@ -61,7 +61,19 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
     it("should parse path table specification") {
       val p = Map(PATH_TABLE_PARAM -> "pathTable", PATH_TABLE_COL_PARAM -> "path")
-      p.pathTable should be (Some(RasterSourcePathTableRef("pathTable", "path")))
+      p.pathSpec should be (Right(RasterSourcePathTableRef("pathTable", "path")))
+    }
+
+    it("should parse path table from CSV") {
+      val bands = Seq("B1", "B2", "B3")
+      val paths = Seq("/usr/local/foo/bar.tif", "/usr/local/bar/foo.tif", "/usr/local/barf/baz.tif")
+      val csv =
+        s"""
+          |${bands.mkString(",")}
+          |${paths.mkString(",")}
+        """.stripMargin.trim
+      val p = Map(PATH_CSV_PARAM -> csv)
+      p.pathSpec should be (Left(RasterSourcePathTable(Seq(BandSet(paths:_*)), bands:_*)))
     }
   }
 
@@ -135,8 +147,31 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       df.select($"${b}_b3").na.drop.count() should be (0)
     }
 
+    it("should read a set of coherent bands from multiple files from a CSV") {
+      val bands = Seq("B1", "B2", "B3")
+      val paths = Seq(
+        l8SamplePath(1).toASCIIString,
+        l8SamplePath(2).toASCIIString,
+        l8SamplePath(3).toASCIIString
+      )
 
-    it("should read a extent coherent bands from multiple files") {
+      val csv =
+        s"""
+           |${bands.mkString(",")}
+           |${paths.mkString(",")}
+        """.stripMargin.trim
+
+      val df = spark.read.rastersource
+        .fromCSV(csv)
+        .withTileDimensions(128, 128)
+        .load()
+
+      df.schema.size should be(6)
+      df.tileColumns.size should be (3)
+      df.select($"B1_path").distinct().count() should be (1)
+    }
+
+    it("should read a set of coherent bands from multiple files in a table") {
       val bandPaths = Seq((
         l8SamplePath(1).toASCIIString,
         l8SamplePath(2).toASCIIString,

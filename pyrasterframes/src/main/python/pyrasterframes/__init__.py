@@ -99,7 +99,7 @@ def _layer_reader(df_reader, format_key, path, **options):
     return _convert_df(df)
 
 
-def _rastersource_reader(df_reader, path=None, band_indexes=None, tile_dimensions=(256, 256), **options):
+def _rastersource_reader(df_reader, path=None, csv=None, band_indexes=None, tile_dimensions=(256, 256), **options):
     if band_indexes is None:
         band_indexes = [0]
 
@@ -109,6 +109,12 @@ def _rastersource_reader(df_reader, path=None, band_indexes=None, tile_dimension
         "bandIndexes": to_csv(band_indexes),
         "tileDimensions": to_csv(tile_dimensions)
     })
+
+    if csv is not None:
+        options.update({
+            "pathCSVTable": csv
+        })
+
     return df_reader \
         .format("rastersource") \
         .load(path, **options)
