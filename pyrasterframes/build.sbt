@@ -1,10 +1,13 @@
-import PythonBuildPlugin.autoImport._
-
-addCommandAlias("pyTest", "pyrasterframes/test")
 addCommandAlias("pyDocs", "pyrasterframes/doc")
-
+addCommandAlias("pyTest", "pyrasterframes/test")
+addCommandAlias("pyBuild", "pyrasterframes/package")
+addCommandAlias("pyExamples", "pyrasterframes/run")
 
 Test / pythonSource := (Compile / sourceDirectory).value / "tests"
+
+Compile / run := pySetup.toTask(" examples").dependsOn(assembly).value
+
+//RFProjectPlugin.IntegrationTest / test := (Compile / run).inputTaskValue
 
 exportJars := true
 Python / doc / sourceDirectory := (Python / target).value / "docs"
@@ -20,7 +23,6 @@ Python / doc := (Python / doc / target).toTask.dependsOn(
     )
   )
 ).value
-
 
 doc := (Python / doc).value
 
@@ -39,10 +41,5 @@ from pyrasterframes.rasterfunctions import *
   println(msg)
 }
 
-lazy val pyExamples = taskKey[Unit]("Run python examples")
 
-pyExamples := Def.sequential(
-  assembly,
-  pySetup.toTask(" examples")
-).value
 

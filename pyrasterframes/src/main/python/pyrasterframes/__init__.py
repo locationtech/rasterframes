@@ -32,7 +32,7 @@ from pyspark.sql.column import _to_java_column
 from .rf_types import *
 from . import rasterfunctions
 from .context import RFContext
-
+from .version import __version__
 
 __all__ = ['RasterFrame', 'TileExploder']
 
@@ -55,6 +55,13 @@ def _kryo_init(builder):
         .config("spark.kryoserializer.buffer.max", "500m")
     return builder
 
+
+def get_spark_session():
+    from pyspark.sql import SparkSession
+    import os
+    from pyrasterframes.utils import create_rf_spark_session
+
+    return create_rf_spark_session()
 
 def _convert_df(df, sp_key=None, metadata=None):
     ctx = SparkContext._active_spark_context._rf_context

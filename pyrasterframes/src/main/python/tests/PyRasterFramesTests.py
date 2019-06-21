@@ -578,7 +578,7 @@ class TileOps(TestEnvironment):
         nd = r1.cell_type.no_data_value()
         e1 = Tile(np.ma.masked_equal(np.array([[nd, 10],
                                                [nd, nd]], dtype=r1.cell_type.to_numpy_dtype()), nd))
-        self.assertTrue(r1 == e1)
+        self.assertEqual(r1, e1)
 
 
 class PandasInterop(TestEnvironment):
