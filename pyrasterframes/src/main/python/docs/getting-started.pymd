@@ -1,12 +1,40 @@
-# Initializing PySpark
+# Getting Started
+
 
 There are a number of ways to use PyRasterFrames:
 
-1. Standalone Script
-2. `pyspark` shell
-3. Notebook Environment
+1. `pyspark` shell
+2. Jupyter Notebook
+3. Standalone Python Script
 
-## Initializing a Python Script
+## `pyspark` shell
+
+
+To manually initialize PyRasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip. See below for how to build or download those artifacts.
+
+```bash
+   pyspark \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --conf spark.kryo.registrator=org.locationtech.rasterframes.util.RFKryoRegistrator \
+    --conf spark.kryoserializer.buffer.max=500m \
+    --jars pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar \
+    --py-files pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
+   
+```
+
+Then in the pyspark shell or app, import the module and call `withRasterFrames` on the SparkSession.
+
+```python, evaluate=False
+import pyrasterframes
+spark = spark.withRasterFrames()
+df = spark.read.rastersource('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
+```
+
+## Jupyter Notebook
+
+See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook)/README.md
+
+## Standalone Python Script
 
 ```python, echo=False
 from docs import *

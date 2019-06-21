@@ -8,9 +8,9 @@ Test / pythonSource := (Compile / sourceDirectory).value / "tests"
 
 exportJars := true
 Python / doc / sourceDirectory := (Python / target).value / "docs"
-Python / doc / target := (Python / target).value / "markdown" / "pyrasterframes"
-Python / doc := {
-  val _ = Def.sequential(
+Python / doc / target := (Compile / target).value / "py-markdown"
+Python / doc := (Python / doc / target).toTask.dependsOn(
+  Def.sequential(
     assembly,
     pySetup.toTask(" pweave"),
     copySources(
@@ -18,9 +18,9 @@ Python / doc := {
       Python / doc / target,
       deleteFirst = true
     )
-  ).value
-  (Python / doc / target).value
-}
+  )
+).value
+
 
 doc := (Python / doc).value
 

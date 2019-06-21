@@ -37,6 +37,8 @@ object PythonBuildPlugin extends AutoPlugin {
     val pythonSource = settingKey[File]("Default Python source directory.").withRank(ASetting)
     val pythonCommand = settingKey[String]("Python command. Defaults to 'python'")
     val pySetup = inputKey[Int]("Run 'python setup.py <args>'. Returns exit code.")
+
+    // TODO: figure out how to rewrite this using the standard `mappings` facility.
     def copySources(srcDir: SettingKey[File], destDir: SettingKey[File], deleteFirst: Boolean) = Def.task {
       val s = streams.value
       val src = srcDir.value
