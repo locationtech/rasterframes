@@ -11,7 +11,7 @@ from pyrasterframes.rasterfunctions import *
 spark = create_rf_spark_session()
 ```
 
-RasterFrames registers a DataSource named `rastersource` that enables reading of GeoTIFFs (and other formats when GDAL is installed) from arbitrary (sets of) URLs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket:
+RasterFrames registers a DataSource named `rastersource` that enables reading of GeoTIFFs (and other formats when GDAL is installed) from arbitrary (sets of) URIs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket:
 
 ```python
 data_root = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp'
@@ -22,7 +22,7 @@ def s2_band(idx):
 
 ### Single Raster
 
-The simplest form is reading a single raster from a single URL:
+The simplest form is reading a single raster from a single URI:
 
 ```python
 rf = spark.read.rastersource(s2_band(2))
@@ -73,6 +73,62 @@ rf2.printSchema()
 rf2.show(5)
 ```
 
+### Multiple Scenes, Multiple Bands
+
+The example above will work with a reasonable number of rows in the CSV string. However, in many cases it's preferable to have that information organized in another DataFrame. For the purposes of this example use one of the AWS PDS daily scene listing files for MODIS surface reflectance as our catalog. 
+
+```python
+from pyspark import SparkFiles
+cat_filename = "2018-07-04_scenes.txt"
+spark.sparkContext.addFile(f"https://modis-pds.s3.amazonaws.com/MCD43A4.006/{cat_filename}")
+modis_catalog = spark.read \
+    .format("csv") \
+    .option("header", "true") \
+    .load(SparkFiles.get(cat_filename))
+modis_catalog.printSchema()
+print("Available scenes: ", modis_catalog.count())
+modis_catalog.show(5, truncate=False)
+```
+
+MODIS data products are delivered on a regular, consistent grid, making identification of a specific area over time easy using `(h,v)` grid coordinates. 
+
+![MODIS Grid](https://modis-land.gsfc.nasa.gov/images/MODIS_sinusoidal_grid1.gif)
+
+For sake of example, lets say we wanted all the MODIS data right above the equator. The grid position is encoded in the GUID, with `h07` being the strip just above the equator . To go from `download_url` to band URL we strip off `index.html`, and append the GUID, band specifier, and file extension.
+
+```python
+from pyspark.sql import functions as F
+    
+# Index URIs take the form:
+#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/index.html    
+# Image URIs take the form:
+#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF    
+
+#    .filter(modis_catalog.download_url.contains("h07")) \
+
+equator = modis_catalog \
+    .withColumn('base_url', 
+        F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',) 
+    ) \
+.select(
+    F.concat('base_url', F.lit("_B1.TIF")).alias('red'),
+    F.concat('base_url', F.lit("_B2.TIF")).alias('nir')
+) \
+.where(F.col('gid').like('%h07%'))
+equator.show(5)
+```
+
+Now that we have a catalog of multiple scenes and mutiple bands withit each scene, we can pass it along to `rastersource` load the imagery. To complete the example, we compute some aggregate statistics over NDVI.
+
+```python
+equator.createOrReplaceTempView("equator")
+spark.read.rastersource()
+```
+
+### Multiband Rasters
+
+[[Need to know _a priori_ how many bands there are, specified with `band_indexes`]]
+ 
 
 ## Writing Raster Data
 
