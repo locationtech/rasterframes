@@ -21,12 +21,11 @@
 import unittest
 
 import numpy as np
-from geomesa_pyspark.types import *
+import geomesa_pyspark.types
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 from pyspark.sql import SQLContext, Column
 from pyspark.sql.functions import *
-from pyspark.sql.types import *
 from . import TestEnvironment
 
 
@@ -48,6 +47,7 @@ class VectorTypes(TestEnvironment):
 
     def test_spatial_relations(self):
         from pyspark.sql.functions import udf, sum
+        from geomesa_pyspark.types import PointUDT
         import shapely
         import numpy.testing
 
@@ -102,6 +102,7 @@ class VectorTypes(TestEnvironment):
         )
 
     def test_rasterize(self):
+        from geomesa_pyspark.types import PolygonUDT
         # simple test that raster contents are not invalid
 
         # create a udf to buffer (the bounds) polygon
@@ -391,6 +392,8 @@ class UDT(TestEnvironment):
         self.assertIsNotNone(t2.cells[1][1])
 
     def test_tile_udt_serialization(self):
+        from pyspark.sql.types import StructType, StructField
+
         udt = TileUDT()
         cell_types = (ct for ct in rf_cell_types() if not (ct.is_raw() or ("bool" in ct.base_cell_type_name())))
 
@@ -472,6 +475,8 @@ class UDT(TestEnvironment):
         )
 
     def test_no_data_udf_handling(self):
+        from pyspark.sql.types import StructType, StructField
+
         t1 = Tile(np.array([[1, 2], [0, 4]]), CellType.uint8())
         self.assertEqual(t1.cell_type.to_numpy_dtype(), np.dtype("uint8"))
         e1 = Tile(np.array([[2, 3], [0, 5]]), CellType.uint8())
@@ -519,6 +524,8 @@ class UDT(TestEnvironment):
 
 
 class TileOps(TestEnvironment):
+
+    from pyrasterframes.rf_types import Tile
 
     def setUp(self):
         # convenience so we can assert around Tile() == Tile()
@@ -582,6 +589,7 @@ class TileOps(TestEnvironment):
 
 
 class PandasInterop(TestEnvironment):
+
     def setUp(self):
         self.create_rasterframe()
 
