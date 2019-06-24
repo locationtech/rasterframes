@@ -84,7 +84,6 @@ def create_rf_spark_session():
              .master("local[*]")
              .appName("RasterFrames")
              .config('spark.jars', jars_cp)
-             .config("spark.ui.enabled", "false")
              .withKryoSerialization()
              .getOrCreate())
     spark.withRasterFrames()

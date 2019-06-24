@@ -67,7 +67,7 @@ red,green,blue
 
 print(csv)
 
-rf2 = spark.read.rastersource(csv=csv)
+rf2 = spark.read.rastersource(catalog=csv, catalog_col_names=['red', 'green', 'blue'])
 rf2.printSchema()
 
 rf2.show(5)
@@ -104,25 +104,34 @@ from pyspark.sql import functions as F
 # Image URIs take the form:
 #    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF    
 
-#    .filter(modis_catalog.download_url.contains("h07")) \
-
-equator = modis_catalog \
+equator = (modis_catalog 
     .withColumn('base_url', 
         F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',) 
-    ) \
+    )
 .select(
-    F.concat('base_url', F.lit("_B1.TIF")).alias('red'),
-    F.concat('base_url', F.lit("_B2.TIF")).alias('nir')
-) \
-.where(F.col('gid').like('%h07%'))
-equator.show(5)
+    F.concat('base_url', F.lit("_B01.TIF")).alias('red'),
+    F.concat('base_url', F.lit("_B02.TIF")).alias('nir')
+)
+.where(F.col('gid').like('%v07%'))
+)
+equator.show(3)
 ```
 
 Now that we have a catalog of multiple scenes and mutiple bands withit each scene, we can pass it along to `rastersource` load the imagery. To complete the example, we compute some aggregate statistics over NDVI.
 
 ```python
-equator.createOrReplaceTempView("equator")
-spark.read.rastersource()
+rf = spark.read.rastersource(
+    catalog=equator, 
+    catalog_col_names=['red', 'nir']
+).repartition()
+rf.show(2, truncate=False)
+(rf 
+    .select(rf_normalized_difference('nir', 'red').alias('ndvi')) 
+    .agg(rf_agg_stats('ndvi').alias('stats')) 
+    .select('stats.*') 
+    .show(truncate=False)
+)
+    
 ```
 
 ### Multiband Rasters

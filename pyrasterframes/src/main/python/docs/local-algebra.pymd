@@ -13,6 +13,7 @@ spark = create_rf_spark_session()
 ## Computing NDVI
 
 ```python, term=True
+# TODO: rewrite to use `rastersource`
 redBand = spark.read.geotiff(os.path.join(resource_dir(), 'L8-B4-Elkton-VA.tiff')).withColumnRenamed('tile', 'red_band')
 nirBand = spark.read.geotiff(os.path.join(resource_dir(), 'L8-B5-Elkton-VA.tiff')).withColumnRenamed('tile', 'nir_band')
 

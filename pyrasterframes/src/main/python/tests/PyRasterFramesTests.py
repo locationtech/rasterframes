@@ -728,8 +728,6 @@ class RasterSource(TestEnvironment):
         print(path_count.toPandas())
         self.assertTrue(path_count.count() == 3)
 
-        ###  Similar to the scala side's `fromTable`, read from a table with columns giving URI paths
-
         scene_dict = {
             1: 'http://landsat-pds.s3.amazonaws.com/c1/L8/015/041/LC08_L1TP_015041_20190305_20190309_01_T1/LC08_L1TP_015041_20190305_20190309_01_T1_B{}.TIF',
             2: 'http://landsat-pds.s3.amazonaws.com/c1/L8/015/042/LC08_L1TP_015042_20190305_20190309_01_T1/LC08_L1TP_015042_20190305_20190309_01_T1_B{}.TIF',
@@ -741,7 +739,6 @@ class RasterSource(TestEnvironment):
             p = scene_dict[scene]
             return p.format(band)
 
-        path_table_hive_name = 'path_table'
         # Create a pandas dataframe (makes it easy to create spark df)
         path_pandas = pd.DataFrame([
             {'b1': path(1, 1), 'b2': path(1, 2), 'b3': path(1, 3)},
@@ -749,14 +746,13 @@ class RasterSource(TestEnvironment):
             {'b1': path(3, 1), 'b2': path(3, 2), 'b3': path(3, 3)},
         ])
         # comma separated list of column names containing URI's to read.
-        csv_columns = ','.join(path_pandas.columns.tolist())  # 'b1,b2,b3'
+        catalog_columns = ','.join(path_pandas.columns.tolist())  # 'b1,b2,b3'
         path_table = self.spark.createDataFrame(path_pandas)
-        path_table.createOrReplaceTempView(path_table_hive_name)
 
         path_df = self.spark.read.rastersource(
             tile_dimensions=(512, 512),
-            pathTable=path_table_hive_name,
-            pathTableColumns=csv_columns,
+            catalog=path_table,
+            catalog_col_names=catalog_columns
         )
 
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}

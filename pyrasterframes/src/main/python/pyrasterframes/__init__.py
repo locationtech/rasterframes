@@ -101,24 +101,43 @@ def _layer_reader(df_reader, format_key, path, **options):
 
 def _rastersource_reader(
         df_reader, path=None,
-        csv=None,
-        band_indexes=None, tile_dimensions=(256, 256),
+        band_indexes=None,
+        tile_dimensions=(256, 256),
+        catalog=None,
+        catalog_col_names=None,
         **options):
+
+    def to_csv(comp):
+        if isinstance(comp, str):
+            return comp
+        else:
+            return ','.join(str(v) for v in comp)
 
     if band_indexes is None:
         band_indexes = [0]
 
-    def to_csv(comp): return ','.join(str(v) for v in comp)
-    # If path is list, convert to newline delimited string and pass as "paths" (plural)
     options.update({
         "bandIndexes": to_csv(band_indexes),
         "tileDimensions": to_csv(tile_dimensions)
     })
 
-    if csv is not None:
-        options.update({
-            "pathCSVTable": csv
-        })
+    if catalog is not None:
+        if catalog_col_names is None:
+            raise Exception("'catalog_col_names' required when DataFrame 'catalog' specified")
+        if isinstance(catalog, str):
+            options.update({
+                "catalogCSV": catalog,
+                "catalogColumns": to_csv(catalog_col_names)
+            })
+        elif isinstance(catalog, DataFrame):
+            import uuid
+            # Create a random view name
+            name = str(uuid.uuid4()).replace('-', '')
+            catalog.createOrReplaceTempView(name)
+            options.update({
+                "catalogTable": name,
+                "catalogColumns": to_csv(catalog_col_names)
+            })
 
     return df_reader \
         .format("rastersource") \

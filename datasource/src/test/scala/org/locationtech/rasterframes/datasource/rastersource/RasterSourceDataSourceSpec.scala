@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.datasource.rastersource
 import org.locationtech.rasterframes.{TestEnvironment, _}
-import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.{RasterSourcePathTable, _}
+import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.{RasterSourceCatalog, _}
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util._
 
@@ -31,28 +31,28 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
   describe("DataSource parameter processing") {
     def singleCol(paths: Iterable[String]) = {
       val rows: Seq[BandSet] = paths.map(BandSet(_)).toSeq
-      RasterSourcePathTable(rows, DEFAULT_COLUMN_NAME)
+      RasterSourceCatalog(rows, DEFAULT_COLUMN_NAME)
     }
 
     it("should handle single `path`") {
       val p = Map(PATH_PARAM -> "/usr/local/foo/bar.tif")
-      p.filePaths should be (Some(singleCol(p.values)))
+      p.catalog should be (Some(singleCol(p.values)))
     }
 
     it("should handle single `paths`") {
       val p = Map(PATHS_PARAM -> "/usr/local/foo/bar.tif")
-      p.filePaths should be (Some(singleCol(p.values)))
+      p.catalog should be (Some(singleCol(p.values)))
     }
     it("should handle multiple `paths`") {
       val expected = Seq("/usr/local/foo/bar.tif", "/usr/local/bar/foo.tif")
       val p = Map(PATHS_PARAM -> expected.mkString("\n\r", "\n\n", "\r"))
-      p.filePaths should be (Some(singleCol(expected)))
+      p.catalog should be (Some(singleCol(expected)))
     }
     it("should handle both `path` and `paths`") {
       val expected1 = Seq("/usr/local/foo/bar.tif", "/usr/local/bar/foo.tif")
       val expected2 = "/usr/local/barf/baz.tif"
       val p = Map(PATHS_PARAM -> expected1.mkString("\n"), PATH_PARAM -> expected2)
-      p.filePaths should be (Some(singleCol(expected1 :+ expected2)))
+      p.catalog should be (Some(singleCol(expected1 :+ expected2)))
     }
     it("should parse tile dimensions") {
       val p = Map(TILE_DIMS_PARAM -> "4, 5")
@@ -60,8 +60,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     }
 
     it("should parse path table specification") {
-      val p = Map(PATH_TABLE_PARAM -> "pathTable", PATH_TABLE_COL_PARAM -> "path")
-      p.pathSpec should be (Right(RasterSourcePathTableRef("pathTable", "path")))
+      val p = Map(CATALOG_TABLE_PARAM -> "catalogTable", CATALOG_TABLE_COLS_PARAM -> "path")
+      p.pathSpec should be (Right(RasterSourceCatalogRef("catalogTable", "path")))
     }
 
     it("should parse path table from CSV") {
@@ -72,8 +72,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
           |${bands.mkString(",")}
           |${paths.mkString(",")}
         """.stripMargin.trim
-      val p = Map(PATH_CSV_PARAM -> csv)
-      p.pathSpec should be (Left(RasterSourcePathTable(Seq(BandSet(paths:_*)), bands:_*)))
+      val p = Map(CATALOG_CSV_PARAM -> csv)
+      p.pathSpec should be (Left(RasterSourceCatalog(Seq(BandSet(paths:_*)), bands:_*)))
     }
   }
 

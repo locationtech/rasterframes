@@ -45,9 +45,9 @@ object RasterSourceDataSource {
   final val PATHS_PARAM = "paths"
   final val BAND_INDEXES_PARAM = "bandIndexes"
   final val TILE_DIMS_PARAM = "tileDimensions"
-  final val PATH_TABLE_PARAM = "pathTable"
-  final val PATH_CSV_PARAM = "pathCSVTable"
-  final val PATH_TABLE_COL_PARAM = "pathTableColumns"
+  final val CATALOG_TABLE_PARAM = "catalogTable"
+  final val CATALOG_TABLE_COLS_PARAM = "catalogColumns"
+  final val CATALOG_CSV_PARAM = "catalogCSV"
 
   final val DEFAULT_COLUMN_NAME = PROJECTED_RASTER_COLUMN.columnName
 
@@ -56,30 +56,32 @@ object RasterSourceDataSource {
   }
   /** Container for specifying raster paths. */
   case class BandSet(bandPaths: String*)
-  case class RasterSourcePathTable(sceneRows: Seq[BandSet], bandColumnNames: String*) extends WithBandColumns {
+  case class RasterSourceCatalog(sceneRows: Seq[BandSet], bandColumnNames: String*) extends WithBandColumns {
     require(sceneRows.forall(_.bandPaths.length == bandColumnNames.length),
       "Each scene row must have the same number of entries as band column names")
   }
 
-  object RasterSourcePathTable {
-    def apply(csv: String): Option[RasterSourcePathTable] = Try {
+  object RasterSourceCatalog {
+    def apply(csv: String, bandColumnNames: String*): Option[RasterSourceCatalog] = Try {
       val lines = csv
         .split(Array('\n','\r'))
         .map(_.trim)
         .filter(_.nonEmpty)
 
-      val header = lines.head.split(',').map(_.trim)
+      val header = lines.head.split(',').map(_.trim).toSeq
       val rows = lines.tail.map(_.split(',').map(_.trim)).map(BandSet(_: _*))
-      RasterSourcePathTable(rows, header: _*)
+      val bands = if (bandColumnNames.isEmpty) header
+      else bandColumnNames
+      RasterSourceCatalog(rows, bands: _*)
     }.toOption
 
-    def apply(singlebandPaths: Seq[String]): Option[RasterSourcePathTable]  =
+    def apply(singlebandPaths: Seq[String]): Option[RasterSourceCatalog]  =
       if (singlebandPaths.isEmpty) None
-      else Some(RasterSourcePathTable(singlebandPaths.map(BandSet(_)), DEFAULT_COLUMN_NAME))
+      else Some(RasterSourceCatalog(singlebandPaths.map(BandSet(_)), DEFAULT_COLUMN_NAME))
   }
 
   /** Container for specifying where to select raster paths from. */
-  case class RasterSourcePathTableRef(tableName: String, bandColumnNames: String*) extends WithBandColumns
+  case class RasterSourceCatalogRef(tableName: String, bandColumnNames: String*) extends WithBandColumns
 
   private[rastersource]
   implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
@@ -94,7 +96,7 @@ object RasterSourceDataSource {
       .map(_.split(',').map(_.trim.toInt).toSeq)
       .getOrElse(Seq(0))
 
-    def filePaths: Option[RasterSourcePathTable] = {
+    def catalog: Option[RasterSourceCatalog] = {
       val paths = (
         parameters
           .get(PATHS_PARAM)
@@ -105,20 +107,26 @@ object RasterSourceDataSource {
             .toSeq
         ).filter(_.nonEmpty)
 
-      RasterSourcePathTable(paths)
+      RasterSourceCatalog(paths)
         .orElse(parameters
-          .get(PATH_CSV_PARAM)
-          .flatMap(RasterSourcePathTable(_)))
+          .get(CATALOG_CSV_PARAM)
+          .flatMap(RasterSourceCatalog(_, catalogTableCols: _*))
+        )
     }
 
-    def pathTable: Option[RasterSourcePathTableRef] = parameters
-      .get(PATH_TABLE_PARAM)
-      .zip(parameters.get(PATH_TABLE_COL_PARAM))
-      .map(p => RasterSourcePathTableRef(p._1, p._2.split(','): _*))
-      .headOption
+    def catalogTableCols: Seq[String] = parameters
+      .get(CATALOG_TABLE_COLS_PARAM)
+      .map(_.split(',').toSeq)
+      .getOrElse(Seq.empty)
 
-    def pathSpec: Either[RasterSourcePathTable, RasterSourcePathTableRef] = {
-      (filePaths, pathTable) match {
+    def catalogTable: Option[RasterSourceCatalogRef] = parameters
+      .get(CATALOG_TABLE_PARAM)
+      .map(p => RasterSourceCatalogRef(p, catalogTableCols: _*))
+
+    def pathSpec: Either[RasterSourceCatalog, RasterSourceCatalogRef] = {
+      val a = catalogTable
+      val b = catalogTableCols
+      (catalog, catalogTable) match {
         case (Some(f), None) => Left(f)
         case (None, Some(p)) => Right(p)
         case _ => throw new IllegalArgumentException("Only one of a set of file paths OR a paths table column may be provided.")
