@@ -1,11 +1,13 @@
 from . import test_resource_dir
+
+from pyrasterframes import TileExploder
 from pyrasterframes.utils import create_rf_spark_session
-from pyrasterframes import *
-from pyrasterframes.rasterfunctions import *
-from pyspark.sql import *
+from pyrasterframes.rasterfunctions import rf_assemble_tile
+
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
 from pyspark.ml import Pipeline
+
 import os
 
 spark = create_rf_spark_session()

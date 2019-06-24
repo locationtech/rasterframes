@@ -1,11 +1,11 @@
 from . import test_resource_dir
-from pyrasterframes.utils import create_rf_spark_session
-from pyrasterframes import *
-from pyrasterframes.rasterfunctions import *
-from pyspark.sql import *
+
+import pyrasterframes
+from pyrasterframes.rasterfunctions import rf_agg_no_data_cells, rf_agg_data_cells, rf_agg_mean
+
 import os
 
-spark = create_rf_spark_session().withRasterFrames()
+spark = pyrasterframes.get_spark_session()
 
 rf = spark.read.geotiff(os.path.join(test_resource_dir(), 'L8-B8-Robinson-IL.tiff'))
 rf.show(5, False)
