@@ -1,6 +1,6 @@
 pytz
 shapely
-pyspark<2.4
+pyspark==2.3.3  # See issue # 154
 numpy>=1.7
 pandas
 matplotlib<3.0.0  # no python 2.7 support after v2.x.x
