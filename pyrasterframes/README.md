@@ -16,8 +16,7 @@ To initialize PyRasterFrames in a generic Python shell follow the pattern below,
 
 ```python
 from pyspark.sql import SparkSession
-from pyrasterframes import *
-from pyrasterframes.rasterfunctions import *
+import pyrasterframes 
 spark = SparkSession.builder \
      .master("local[*]") \
      .appName("Using RasterFrames") \
@@ -108,6 +107,20 @@ Release versions of these artifacts are published to https://central.sonatype.or
 Latest version can be found [here](https://search.maven.org/search?q=g:org.locationtech.rasterframes). 
 The Python package is published under the `python` classifier, `zip` extension.
 
+### Building and publishing for pypi
+
+To create a source and binary distribution appropriate for pypi:
+
+```bash
+sbt pyrasterframes/package # alias 'pyBuild'
+```
+
+Observe the output messages such as:
+
+    [info] Python .whl file written to '/Users/monty/rasterframes/pyrasterframes/target/python/dist/pyrasterframes-0.8.0.dev0-py2.py3-none-any.whl'
+    
+This wheel is suitable for publishing to a package index. See [https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives](packaging.python.org).
+
 ## Build Internals
 
 ### Running `setup.py`
@@ -128,3 +141,4 @@ sbt 'pySetup examples -e NDVI'
 ```
 
 *Note: You may need to run `sbt pyrasterframes/assembly` at least once for certain `pySetup` commands to work.*
+

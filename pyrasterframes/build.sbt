@@ -18,7 +18,7 @@ pySparkCmd := {
   val py = (Python / packageBin).value
   val script = IO.createTemporaryDirectory / "pyrf_init.py"
   IO.write(script, """
-from pyrasterframes import *
+import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 """)
   val msg = s"PYTHONSTARTUP=$script pyspark --jars $jvm --py-files $py"

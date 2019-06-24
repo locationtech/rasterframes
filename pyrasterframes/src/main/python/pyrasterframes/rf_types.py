@@ -28,7 +28,7 @@ class here provides the PyRasterFrames entry point.
 from pyspark.sql.types import UserDefinedType
 from pyspark import SparkContext
 from pyspark.sql import DataFrame, Column
-from pyspark.sql.types import *
+from pyspark.sql.types import (StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 import numpy as np

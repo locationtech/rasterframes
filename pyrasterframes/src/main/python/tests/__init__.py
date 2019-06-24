@@ -22,7 +22,6 @@ import glob
 import os
 import unittest
 
-from pyrasterframes.rasterfunctions import *
 from pyrasterframes.utils import create_rf_spark_session
 
 import sys
@@ -68,6 +67,7 @@ class TestEnvironment(unittest.TestCase):
         cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 
     def create_rasterframe(self):
+        from pyrasterframes.rasterfunctions import rf_convert_cell_type
         # load something into a rasterframe
         rf = self.spark.read.geotiff(self.img_uri) \
             .withBounds() \
