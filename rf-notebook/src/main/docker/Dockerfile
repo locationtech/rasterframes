@@ -3,8 +3,6 @@ FROM s22s/pyspark-notebook:spark-2.3.3-hadoop-2.7
 MAINTAINER Astraea, Inc.
 
 ENV RF_LIB_LOC /usr/local/rasterframes
-ENV RF_JAR $RF_LIB_LOC/rasterframes.jar
-ENV PY_RF_ZIP $RF_LIB_LOC/pyrasterframes.zip
 
 USER root
 
@@ -16,8 +14,6 @@ RUN echo "spark.driver.extraClassPath $RF_JAR" >> /usr/local/spark/conf/spark-de
 EXPOSE 4040 4041 4042 4043 4044
 
 ENV SPARK_OPTS $SPARK_OPTS \
-    --py-files $PY_RF_ZIP \
-    --jars $RF_JAR \
     --driver-class-path $RF_JAR \
     --conf spark.executor.extraClassPath=$RF_JAR
 
@@ -34,8 +30,8 @@ RUN rm -rf /home/$NB_USER/.local && \
 
 # Do these after the standard environment setup
 # since these change more regularly.
-COPY *.zip $PY_RF_ZIP
-COPY *.jar $RF_JAR
+COPY *.whl $RF_LIB_LOC
+RUN ls -1 $RF_LIB_LOC/*.whl | xargs pip install
 
 RUN chown -R $NB_UID:$NB_GID $HOME
 
