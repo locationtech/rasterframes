@@ -1,5 +1,9 @@
-from . import test_resource_dir
+# Spark ML Support
 
+## Clustering
+
+```python, echo=False
+from docs import *
 from pyrasterframes import TileExploder
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import rf_assemble_tile
@@ -11,53 +15,85 @@ from pyspark.ml import Pipeline
 import os
 
 spark = create_rf_spark_session()
+```
 
-# The first step is to load multiple bands of imagery and construct
-# a single RasterFrame from them.
+The first step is to load multiple bands of imagery and construct
+a single RasterFrame from them.
+
+```python
 filenamePattern = "L8-B{}-Elkton-VA.tiff"
 bandNumbers = range(1, 8)
 bandColNames = list(map(lambda n: 'band_{}'.format(n), bandNumbers))
+```
 
-# For each identified band, load the associated image file
+For each identified band, load the associated image file:
+
+```python, term=True
 from functools import reduce
 joinedRF = reduce(lambda rf1, rf2: rf1.asRF().spatialJoin(rf2.drop('bounds').drop('metadata').drop('extent').drop('crs')),
                   map(lambda bf: spark.read.geotiff(bf[1])
                       .withColumnRenamed('tile', 'band_{}'.format(bf[0])),
-                  map(lambda b: (b, os.path.join(test_resource_dir(), filenamePattern.format(b))), bandNumbers)))
+                  map(lambda b: (b, os.path.join(resource_dir(), filenamePattern.format(b))), bandNumbers)))
+```
 
-# We should see a single spatial_key column along with columns of tiles.
+We should see a single spatial_key column along with columns of tiles.
+
+```python
 joinedRF.printSchema()
+```
 
-# SparkML requires that each observation be in its own row, and those
-# observations be packed into a single `Vector`. The first step is to
-# "explode" the tiles into a single row per cell/pixel
+SparkML requires that each observation be in its own row, and those
+observations be packed into a single `Vector`. The first step is to
+"explode" the tiles into a single row per cell/pixel
+
+```python
 exploder = TileExploder()
+```
 
-# To "vectorize" the the band columns we use the SparkML `VectorAssembler`
+To "vectorize" the the band columns we use the SparkML `VectorAssembler`
+
+```python
 assembler = VectorAssembler() \
     .setInputCols(bandColNames) \
     .setOutputCol("features")
+```
 
-# Configure our clustering algorithm
+Configure our clustering algorithm
+
+```python
 k = 5
 kmeans = KMeans().setK(k)
+```
 
-# Combine the two stages
+Combine the two stages
+
+```python
 pipeline = Pipeline().setStages([exploder, assembler, kmeans])
+```
 
-# Compute clusters
+Compute clusters
+
+```python
 model = pipeline.fit(joinedRF)
+```
 
-# Run the data through the model to assign cluster IDs to each
+Run the data through the model to assign cluster IDs to each
+
+```python
 clustered = model.transform(joinedRF)
 clustered.show(8)
+```
 
+If we want to inspect the model statistics, the SparkML API requires us to go
+through this unfortunate contortion:
 
-# If we want to inspect the model statistics, the SparkML API requires us to go
-# through this unfortunate contortion:
+```python
 clusterResults = list(filter(lambda x: str(x).startswith('KMeans'), model.stages))[0]
+```
 
-# Compute sum of squared distances of points to their nearest center
+Compute sum of squared distances of points to their nearest center
+
+```python
 metric = clusterResults.computeCost(clustered)
 print("Within set sum of squared errors: %s" % metric)
 
@@ -72,5 +108,9 @@ retiled = clustered.groupBy('spatial_key').agg(
 rf = retiled.asRF('spatial_key', tlm)
 rf.printSchema()
 rf.show()
+```
 
+
+```python, echo=False
 spark.stop()
+```

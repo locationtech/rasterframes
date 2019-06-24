@@ -1,18 +1,22 @@
-
+addCommandAlias("pyDocs", "pyrasterframes/doc")
 addCommandAlias("pyTest", "pyrasterframes/test")
 addCommandAlias("pyBuild", "pyrasterframes/package")
-addCommandAlias("pyExamples", "pyrasterframes/run")
-
-Test / pythonSource := (Compile / sourceDirectory).value / "tests"
-
-Compile / run := pySetup.toTask(" examples").dependsOn(assembly).value
-
-//RFProjectPlugin.IntegrationTest / test := (Compile / run).inputTaskValue
-
 
 Test / pythonSource := (Compile / sourceDirectory).value / "tests"
 
 exportJars := true
+Python / doc / sourceDirectory := (Python / target).value / "docs"
+Python / doc / target := (Python / target).value / "docs"
+  //(Compile / target).value / "py-markdown"
+Python / doc := (Python / doc / target).toTask.dependsOn(
+  Def.sequential(
+    assembly,
+    Test / compile,
+    pySetup.toTask(" pweave")
+  )
+).value
+
+doc := (Python / doc).value
 
 lazy val pySparkCmd = taskKey[Unit]("Create build and emit command to run in pyspark")
 pySparkCmd := {

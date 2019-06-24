@@ -32,13 +32,13 @@ else:
     import __builtin__ as builtins
 
 
-def test_resource_dir():
+def resource_dir():
     here = os.path.dirname(os.path.realpath(__file__))
     scala_target = os.path.realpath(os.path.join(here, '..', '..', 'scala-2.11'))
     return os.path.realpath(os.path.join(scala_target, 'test-classes'))
 
 
-def testing_spark_session():
+def spark_test_session():
     spark = create_rf_spark_session()
     spark.sparkContext.setLogLevel('ERROR')
 
@@ -60,9 +60,9 @@ class TestEnvironment(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # hard-coded relative path for resources
-        cls.resource_dir = test_resource_dir()
+        cls.resource_dir = resource_dir()
 
-        cls.spark = testing_spark_session()
+        cls.spark = spark_test_session()
 
         cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 

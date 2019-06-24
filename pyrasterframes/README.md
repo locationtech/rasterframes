@@ -12,18 +12,30 @@ The pip installation focuses on local mode operation of spark. To deploy spark a
 
 #### Python shell
 
-To initialize PyRasterFrames in a generic Python shell follow the pattern below, substituting configs as needed.
+
+To initialize RasterFrames in a generic Python shell, use the provided convenience function as follows:
+
+```python
+from pyrasterframes.utils import create_rf_spark_session
+from pyrasterframes.rasterfunctions import *
+spark = create_rf_spark_session()
+```
+
+If you require further customization you can follow the general pattern below:
 
 ```python
 from pyspark.sql import SparkSession
-import pyrasterframes 
-spark = SparkSession.builder \
-     .master("local[*]") \
-     .appName("Using RasterFrames") \
-     .config("spark.some.config.option", "some-value") \
-     .withKryoSerialization() \
-     .getOrCreate() \
-     .withRasterFrames()
+from pyrasterframes.utils import find_pyrasterframes_assembly
+from pyrasterframes.rasterfunctions import *
+rf_jar = find_pyrasterframes_assembly()
+spark = (SparkSession.builder
+    .master("local[*]")
+    .appName("RasterFrames")
+    .config("spark.jars", rf_jar)
+    .config("spark.some.config.option", "some-value")
+    .withKryoSerialization()
+    .getOrCreate())
+    .withRasterFrames()
 ```
 
 #### Pyspark shell or app
@@ -33,7 +45,7 @@ To quickly get the command to run a `pyspark` shell with PyRasterFrames enabled,
 ```bash
 sbt pySparkCmd
 
-# > PYTHONSTARTUP=/var/foo/pyrf_init.py pyspark --jars /somewhere/rasterframes/pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar --py-files /somewhere/rasterframes/pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
+# > PYTHONSTARTUP=/var/somewhere/pyrf_init.py pyspark --jars <src-root>/pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar --py-files <src-root>/pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
 ```
 
 The runtime dependencies will be created and the command to run printed to the console.
@@ -53,11 +65,10 @@ To manually initialize PyRasterFrames in a `pyspark` shell, prepare to call pysp
 Then in the pyspark shell or app, import the module and call `withRasterFrames` on the SparkSession.
 
 ```python
-import pyrasterframes
-spark = spark.withRasterFrames()
+from pyrasterframes.utils import create_rf_spark_session
+spark = create_rf_spark_session()
 df = spark.read.rastersource('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
 ```
-
 
 ## Development
 
@@ -70,7 +81,7 @@ and subsequent commands are invoked via an interactive shell. But for context cl
 example below with `sbt`.
 
 
-## Running Tests and Examples
+## Running Tests
 
 The PyRasterFrames unit tests can found in `<src-root>/pyrasterframes/python/tests`. To run them:
 
@@ -78,22 +89,32 @@ The PyRasterFrames unit tests can found in `<src-root>/pyrasterframes/python/tes
 sbt pyrasterframes/test # alias 'pyTest'
 ```
 
-*See also the below discussion of running `setup.py` for more options to run unit tests.* 
+*See also the below discussion of running `setup.py` for more options to run unit tests.*
 
-Similarly, to run the examples in `<src-root>pyrasterframes/python/examples`:
+## Running Python Markdown Sources
+
+The markdown documentation in `<src-root>/pyrasterframes/src/main/python/docs` contains code blocks that are evaluated by the build to show results alongside examples. The processed markdown source can be found in `<src-root>/pyrasterframes/target/python/docs`.  
 
 ```bash
-sbt pyrasterframes/run # alias 'pyExamples'
+sbt pyrasterframes/doc # alias 'pyDoc'
 ```
+
+To build the full complement of documentation and generate the HTML website, run:
+
+```bash
+sbt makeSite
+``` 
+
+Results will be found in `<src-root>/docs/target/site`.
 
 ## Creating and Using a Build
 
 Assuming that `$SCALA_VER` is the major verison of Scala in use (e.g. 2.11) , and `$VER` is the version of RasterFrames, 
 the primary build artifacts are:
 
-* JVM library: `pyrasterframes/target/scala-$SCALA_VER/pyrasterframes_$SCALA_VER-$VER.jar`
-* Python .whl package with assembly: `pyrasterframes/target/python/dist/pyrasterframes-$VER-py2.py3-none-any.whl`
-* Python package as Maven .zip artifact: `pyrasterframes/target/scala-$SCALA_VER/pyrasterframes-python-$VER.zip`
+* JVM library: `<src-root>/pyrasterframes/target/scala-$SCALA_VER/pyrasterframes_$SCALA_VER-$VER.jar`
+* Python .whl package with assembly: `<src-root>/pyrasterframes/target/python/dist/pyrasterframes-$VER-py2.py3-none-any.whl`
+* Python package as Maven .zip artifact: `<src-root>/pyrasterframes/target/scala-$SCALA_VER/pyrasterframes-python-$VER.zip`
 
 You build them with:
 
@@ -134,11 +155,10 @@ illustrate its usage, suppose we want to run a subset of the Python unit test. I
 sbt 'pySetup test --addopts "-k test_tile_creation"'
 ```
 
-Or to run a specific example:
+Or to build a specific document:
 
 ```bash
-sbt 'pySetup examples -e NDVI'
+sbt 'pySetup pweave -f docs/raster-io.pymd'
 ```
 
-*Note: You may need to run `sbt pyrasterframes/assembly` at least once for certain `pySetup` commands to work.*
-
+*Note: You may need to run `sbt pyrasterframes/package` at least once for certain `pySetup` commands to work.*
