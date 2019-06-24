@@ -57,8 +57,7 @@ def _kryo_init(builder):
 
 
 def get_spark_session():
-    from pyspark.sql import SparkSession
-    import os
+    """ Create a SparkSession with pyrasterframes enabled and configured. """
     from pyrasterframes.utils import create_rf_spark_session
 
     return create_rf_spark_session()

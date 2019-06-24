@@ -22,7 +22,6 @@ import glob
 import os
 import unittest
 
-from pyspark.sql import SparkSession
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.utils import create_rf_spark_session
 
