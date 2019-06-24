@@ -1,4 +1,13 @@
-import PythonBuildPlugin.autoImport.pySetup
+
+addCommandAlias("pyTest", "pyrasterframes/test")
+addCommandAlias("pyBuild", "pyrasterframes/package")
+addCommandAlias("pyExamples", "pyrasterframes/run")
+
+Test / pythonSource := (Compile / sourceDirectory).value / "tests"
+
+Compile / run := pySetup.toTask(" examples").dependsOn(assembly).value
+
+//RFProjectPlugin.IntegrationTest / test := (Compile / run).inputTaskValue
 
 
 Test / pythonSource := (Compile / sourceDirectory).value / "tests"
@@ -12,7 +21,7 @@ pySparkCmd := {
   val py = (Python / packageBin).value
   val script = IO.createTemporaryDirectory / "pyrf_init.py"
   IO.write(script, """
-from pyrasterframes import *
+import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 """)
   val msg = s"PYTHONSTARTUP=$script pyspark --jars $jvm --py-files $py"
@@ -20,11 +29,5 @@ from pyrasterframes.rasterfunctions import *
   println(msg)
 }
 
-lazy val pyExamples = taskKey[Unit]("Run python examples")
 
-pyExamples := Def.sequential(
-  assembly,
-  pySetup.toTask(" examples")
-).value
 
-addCommandAlias("pyTest", "pyrasterframes/test")

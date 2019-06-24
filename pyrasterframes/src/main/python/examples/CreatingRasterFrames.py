@@ -1,11 +1,10 @@
-from . import resource_dir, example_session
-from pyrasterframes import *
-from pyspark.sql import *
+from . import test_resource_dir
+import pyrasterframes
 import os
 
-spark = example_session().withRasterFrames()
+spark = pyrasterframes.get_spark_session()
 
-rf = spark.read.geotiff(os.path.join(resource_dir, 'L8-B8-Robinson-IL.tiff'))
+rf = spark.read.geotiff(os.path.join(test_resource_dir(), 'L8-B8-Robinson-IL.tiff'))
 rf.show(5, False)
 
 rf.tileColumns()

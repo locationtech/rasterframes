@@ -56,20 +56,34 @@ object PythonBuildPlugin extends AutoPlugin {
     copySources(Compile / pythonSource, Python / target, true),
     copySources(Test / pythonSource, Python / test / target, false)
   )
+  
+  val pyWhlJar = Def.task {
+    val log = streams.value.log
+    val buildDir = (Python / target).value
+    val asmbl = (Compile / assembly).value
+    val dest = buildDir / "deps" / "jars" / asmbl.getName
+    IO.copyFile(asmbl, dest)
+    log.info(s"PyRasterFrames assembly written to '$dest'")
+    dest
+  }
 
-  val buildWhl = Def.task {
+  val pyWhl = Def.task {
+    val log = streams.value.log
     val buildDir = (Python / target).value
     val retcode = pySetup.toTask(" build bdist_wheel").value
     if(retcode != 0) throw new RuntimeException(s"'python setup.py' returned $retcode")
     val whls = (buildDir / "dist" ** "pyrasterframes*.whl").get()
     require(whls.length == 1, "Running setup.py should have produced a single .whl file. Try running `clean` first.")
+    log.info(s"Python .whl file written to '${whls.head}'")
     whls.head
-  }
+  }.dependsOn(pyWhlJar)
 
-  val pyDistAsZip = Def.task {
+  val pyWhlAsZip = Def.task {
+    val log = streams.value.log
     val pyDest = (packageBin / artifactPath).value
-    val whl = buildWhl.value
+    val whl = pyWhl.value
     IO.copyFile(whl, pyDest)
+    log.info(s"Maven Python .zip artifact written to '$pyDest'")
     pyDest
   }
 
@@ -108,7 +122,8 @@ object PythonBuildPlugin extends AutoPlugin {
       test / target := (Compile / target).value / "python" / "tests",
       packageBin := Def.sequential(
         Compile / packageBin,
-        pyDistAsZip,
+        pyWhl,
+        pyWhlAsZip,
       ).value,
       packageBin / artifact := {
         val java = (Compile / packageBin / artifact).value
@@ -121,21 +136,19 @@ object PythonBuildPlugin extends AutoPlugin {
         dest / s"${art.name}-python-$ver.zip"
       },
       testQuick := pySetup.toTask(" test").value,
-      executeTests := Def.sequential(
-        assembly,
-        Def.task {
-          val resultCode = pySetup.toTask(" test").value
-          val msg = resultCode match {
-            case 1 ⇒ "There are Python test failures."
-            case 2 ⇒ "Python test execution was interrupted."
-            case 3 ⇒ "Internal error during Python test execution."
-            case 4 ⇒ "PyTest usage error."
-            case 5 ⇒ "No Python tests found."
-            case x if x != 0 ⇒ "Unknown error while running Python tests."
-            case _ ⇒ "PyRasterFrames tests successfully completed."
-          }
-          val pySummary = Summary("pyrasterframes", msg)
-          // Would be cool to derive this from the python output...
+      executeTests := Def.task {
+        val resultCode = pySetup.toTask(" test").value
+        val msg = resultCode match {
+          case 1 ⇒ "There are Python test failures."
+          case 2 ⇒ "Python test execution was interrupted."
+          case 3 ⇒ "Internal error during Python test execution."
+          case 4 ⇒ "PyTest usage error."
+          case 5 ⇒ "No Python tests found."
+          case x if x != 0 ⇒ "Unknown error while running Python tests."
+          case _ ⇒ "PyRasterFrames tests successfully completed."
+        }
+        val pySummary = Summary("pyrasterframes", msg)
+        // Would be cool to derive this from the python output...
         val result = if (resultCode == 0) {
           new SuiteResult(
             TestResult.Passed,
@@ -162,7 +175,7 @@ object PythonBuildPlugin extends AutoPlugin {
         }
         result
         Tests.Output(result.result, Map("PyRasterFramesTests" -> result), Iterable(pySummary))
-      }).value
+      }.dependsOn(assembly).value
     )) ++
     addArtifact(Python / packageBin / artifact, Python / packageBin)
 }

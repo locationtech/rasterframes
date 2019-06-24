@@ -1,14 +1,19 @@
-from . import resource_dir, example_session
-from pyrasterframes import *
-from pyrasterframes.rasterfunctions import *
+from . import test_resource_dir
+
+import pyrasterframes
+from pyrasterframes.rasterfunctions import rf_normalized_difference
+
 import os
 
-spark = example_session().withRasterFrames()
+spark = pyrasterframes.get_spark_session()
 
-redBand = spark.read.geotiff(os.path.join(resource_dir, 'L8-B4-Elkton-VA.tiff')).withColumnRenamed('tile', 'red_band')
-nirBand = spark.read.geotiff(os.path.join(resource_dir, 'L8-B5-Elkton-VA.tiff')).withColumnRenamed('tile', 'nir_band')
+red_path = os.path.join(test_resource_dir(), 'L8-B4-Elkton-VA.tiff')
+nir_path = os.path.join(test_resource_dir(), 'L8-B5-Elkton-VA.tiff')
 
-rf = redBand.asRF().spatialJoin(nirBand.asRF()) \
+red_band = spark.read.geotiff(red_path).withColumnRenamed('tile', 'red_band')
+nir_band = spark.read.geotiff(nir_path).withColumnRenamed('tile', 'nir_band')
+
+rf = red_band.asRF().spatialJoin(nir_band.asRF()) \
     .withColumn("ndvi", rf_normalized_difference('red_band', 'nir_band'))
 rf.printSchema()
 rf.show(20)

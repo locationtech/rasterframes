@@ -1,13 +1,16 @@
-from . import example_session, resource_dir
-from pyrasterframes import *
-from pyrasterframes.rasterfunctions import *
-from pyspark.sql import *
+from . import test_resource_dir
+
+from pyrasterframes import TileExploder
+from pyrasterframes.utils import create_rf_spark_session
+from pyrasterframes.rasterfunctions import rf_assemble_tile
+
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
 from pyspark.ml import Pipeline
+
 import os
 
-spark = example_session().withRasterFrames()
+spark = create_rf_spark_session()
 
 # The first step is to load multiple bands of imagery and construct
 # a single RasterFrame from them.
@@ -20,7 +23,7 @@ from functools import reduce
 joinedRF = reduce(lambda rf1, rf2: rf1.asRF().spatialJoin(rf2.drop('bounds').drop('metadata').drop('extent').drop('crs')),
                   map(lambda bf: spark.read.geotiff(bf[1])
                       .withColumnRenamed('tile', 'band_{}'.format(bf[0])),
-                  map(lambda b: (b, os.path.join(resource_dir, filenamePattern.format(b))), bandNumbers)))
+                  map(lambda b: (b, os.path.join(test_resource_dir(), filenamePattern.format(b))), bandNumbers)))
 
 # We should see a single spatial_key column along with columns of tiles.
 joinedRF.printSchema()

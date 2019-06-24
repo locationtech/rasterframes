@@ -22,8 +22,7 @@ import glob
 import os
 import unittest
 
-from pyspark.sql import SparkSession
-from pyrasterframes.rasterfunctions import *
+from pyrasterframes.utils import create_rf_spark_session
 
 import sys
 
@@ -31,6 +30,22 @@ if sys.version_info[0] > 2:
     import builtins
 else:
     import __builtin__ as builtins
+
+
+def test_resource_dir():
+    here = os.path.dirname(os.path.realpath(__file__))
+    scala_target = os.path.realpath(os.path.join(here, '..', '..', 'scala-2.11'))
+    return os.path.realpath(os.path.join(scala_target, 'test-classes'))
+
+
+def testing_spark_session():
+    spark = create_rf_spark_session()
+    spark.sparkContext.setLogLevel('ERROR')
+
+    print("Spark Version: " + spark.version)
+    print("Spark Config: " + str(spark.sparkContext._conf.getAll()))
+
+    return spark
 
 
 class TestEnvironment(unittest.TestCase):
@@ -44,43 +59,15 @@ class TestEnvironment(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        def pdir(curr):
-            return os.path.dirname(curr)
-        # gather Scala requirements
-        here = pdir(os.path.realpath(__file__))
-        target_dir = pdir(pdir(here))
-        # See if we're running outside of sbt build and adjust
-        if os.path.basename(target_dir) != "target":
-            target_dir = os.path.join(pdir(pdir(target_dir)), 'target')
-        scala_target = os.path.realpath(os.path.join(target_dir, 'scala-2.11'))
-
-        jarpath = glob.glob(os.path.join(scala_target, 'pyrasterframes-assembly*.jar'))
-
-        if not len(jarpath) == 1:
-            raise RuntimeError("""
-Expected to find exactly one assembly. Found '{}' instead. 
-Try running 'sbt pyrasterframes/clean' first.""".format(jarpath))
-
         # hard-coded relative path for resources
-        cls.resource_dir = os.path.realpath(os.path.join(scala_target, 'test-classes'))
+        cls.resource_dir = test_resource_dir()
 
-        # spark session with RF
-        cls.spark = (SparkSession.builder
-                     .config('spark.driver.extraClassPath', jarpath[0])
-                     .config('spark.executor.extraClassPath', jarpath[0])
-                     .config('spark.ui.enabled', False)
-                     .withKryoSerialization()
-                     .getOrCreate())
-        cls.spark.sparkContext.setLogLevel('ERROR')
-
-        print("Spark Version: " + cls.spark.version)
-        print(cls.spark.sparkContext._conf.getAll())
-
-        cls.spark.withRasterFrames()
+        cls.spark = testing_spark_session()
 
         cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 
     def create_rasterframe(self):
+        from pyrasterframes.rasterfunctions import rf_convert_cell_type
         # load something into a rasterframe
         rf = self.spark.read.geotiff(self.img_uri) \
             .withBounds() \

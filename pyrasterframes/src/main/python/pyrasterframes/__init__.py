@@ -29,10 +29,9 @@ from pyspark.sql import SparkSession, DataFrame, DataFrameReader
 from pyspark.sql.column import _to_java_column
 
 # Import RasterFrame types and functions
-from .rf_types import *
-from . import rasterfunctions
 from .context import RFContext
-
+from .version import __version__
+from .rf_types import RasterFrame, TileExploder, TileUDT, RasterSourceUDT
 
 __all__ = ['RasterFrame', 'TileExploder']
 
@@ -54,6 +53,13 @@ def _kryo_init(builder):
         .config("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator") \
         .config("spark.kryoserializer.buffer.max", "500m")
     return builder
+
+
+def get_spark_session():
+    """ Create a SparkSession with pyrasterframes enabled and configured. """
+    from pyrasterframes.utils import create_rf_spark_session
+
+    return create_rf_spark_session()
 
 
 def _convert_df(df, sp_key=None, metadata=None):
