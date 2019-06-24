@@ -31,6 +31,7 @@ from pyspark.sql import DataFrame, Column
 from pyspark.sql.types import (StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
+from pyrasterframes.context import RFContext
 import numpy as np
 
 __all__ = ['RasterFrame', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
@@ -143,20 +144,22 @@ class RasterSourceUDT(UserDefinedType):
 
     @classmethod
     def module(cls):
-        return 'pyrasterframes.types'
+        return 'pyrasterframes.rf_types'
 
     @classmethod
     def scalaUDT(cls):
         return 'org.apache.spark.sql.rf.RasterSourceUDT'
 
+    def needConversion(self):
+        return False
+
+    # The contents of a RasterSource is opaque in the Python context.
+    # Just pass data through unmodified.
     def serialize(self, obj):
-        # RasterSource is opaque in the Python context.
-        # Any thing passed in by a UDF return value couldn't be validated.
-        # Therefore obj is dropped None is passed to Catalyst.
-        return None
+        return obj
 
     def deserialize(self, datum):
-        bytes(datum[0])
+        return datum
 
 
 class CellType(object):
@@ -344,8 +347,14 @@ class Tile(object):
         return Tile(np.matmul(self.cells, other))
 
     def dimensions(self):
-        # list of cols, rows as is conventional in GeoTrellis and RasterFrames
+        """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
         return [self.cells.shape[1], self.cells.shape[0]]
+
+
+    def _repr_png_(self):
+        """Provide default PNG rendering in IPython and Jupyter"""
+        from pyrasterframes.rf_ipython import tile_to_png
+        return tile_to_png(self)
 
 
 class TileUDT(UserDefinedType):
@@ -414,6 +423,16 @@ class TileUDT(UserDefinedType):
         cols = datum.cell_context.dimensions.cols
         rows = datum.cell_context.dimensions.rows
         cell_data_bytes = datum.cell_data.cells
+        if cell_data_bytes is None:
+            if datum.cell_data.ref is None:
+                raise Exception("Invalid Tile structure. Missing cells and reference")
+            else:
+                payload = datum.cell_data.ref
+                cell_data_bytes = RFContext.active()._resolve_raster_ref(payload)
+
+        if cell_data_bytes is None:
+            raise Exception("Unable to fetch cell data from: " + repr(datum))
+
         try:
             as_numpy = np.frombuffer(cell_data_bytes, dtype=cell_type.to_numpy_dtype())
             reshaped = as_numpy.reshape((rows, cols))

@@ -141,6 +141,10 @@ class RasterFunctions(TestEnvironment):
     def setUp(self):
         self.create_rasterframe()
 
+    def test_setup(self):
+        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
+                         "org.apache.spark.serializer.KryoSerializer")
+
     def test_identify_columns(self):
         cols = self.rf.tileColumns()
         self.assertEqual(len(cols), 1, '`tileColumns` did not find the proper number of columns.')
@@ -683,10 +687,12 @@ class RasterJoin(TestEnvironment):
 
 class RasterSource(TestEnvironment):
 
-    # Putting this here for convenience
-    def test_setup(self):
-        self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
-                         "org.apache.spark.serializer.KryoSerializer")
+    def test_handle_lazy_eval(self):
+        df = self.spark.read.rastersource(self.img_uri)
+        ltdf = df.select('tile')
+        self.assertGreater(ltdf.count(), 0)
+        self.assertIsNotNone(ltdf.first())
+
 
     def test_prt_functions(self):
         df = self.spark.read.rastersource(self.img_uri) \
