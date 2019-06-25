@@ -76,15 +76,19 @@ Try running 'sbt pyrasterframes/package' first. """.format(jarpath))
 
 
 def create_rf_spark_session():
-    jar_path = find_pyrasterframes_jar_dir()
-
-    jars_cp = ','.join([f.path for f in os.scandir(jar_path) if f.name[-3:] == 'jar'])
+    """ Create a SparkSession with pyrasterframes enabled and configured. """
+    jar_path = find_pyrasterframes_assembly()
 
     spark = (SparkSession.builder
              .master("local[*]")
-             .appName("RasterFrames")
-             .config('spark.jars', jars_cp)
+             .appName("PyRasterFrames")
+             .config('spark.jars', jar_path)
              .withKryoSerialization()
              .getOrCreate())
-    spark.withRasterFrames()
-    return spark
+
+    try:
+        spark.withRasterFrames()
+        return spark
+    except TypeError as te:
+        print("Error setting up SparkSession; cannot find the pyrasterframes assembly jar\n", te)
+        return None

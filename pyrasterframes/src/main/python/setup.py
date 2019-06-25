@@ -103,14 +103,14 @@ setup(
     install_requires=[
         'pytz',
         'shapely',
-        'pyspark==2.3.3',
+        'pyspark<2.4',
         'numpy>=1.7',
         'pandas',
     ],
     setup_requires=[
         'pytz',
         'shapely',
-        'pyspark==2.3.3',
+        'pyspark<2.4',
         'numpy>=1.7',
         'pandas',
         'pytest-runner',

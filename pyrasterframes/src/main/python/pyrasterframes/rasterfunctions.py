@@ -24,7 +24,6 @@ implementations. Most functions are standard Column functions, but those with un
 signatures are handled here as well.
 """
 from __future__ import absolute_import
-from pyspark.sql.types import *
 from pyspark.sql.column import Column, _to_java_column
 from .context import RFContext
 from .rf_types import CellType
