@@ -37,21 +37,21 @@ object PythonBuildPlugin extends AutoPlugin {
     val pythonSource = settingKey[File]("Default Python source directory.").withRank(ASetting)
     val pythonCommand = settingKey[String]("Python command. Defaults to 'python'")
     val pySetup = inputKey[Int]("Run 'python setup.py <args>'. Returns exit code.")
-
-    // TODO: figure out how to rewrite this using the standard `mappings` facility.
-    def copySources(srcDir: SettingKey[File], destDir: SettingKey[File], deleteFirst: Boolean) = Def.task {
-      val s = streams.value
-      val src = srcDir.value
-      val dest = destDir.value
-      if (deleteFirst)
-        IO.delete(dest)
-      dest.mkdirs()
-      s.log.info(s"Copying '$src' to '$dest'")
-      IO.copyDirectory(src, dest)
-      dest
-    }
+    val pyWhl = taskKey[File]("Builds the Python wheel distribution")
   }
   import autoImport._
+
+  def copySources(srcDir: SettingKey[File], destDir: SettingKey[File], deleteFirst: Boolean) = Def.task {
+    val s = streams.value
+    val src = srcDir.value
+    val dest = destDir.value
+    if (deleteFirst)
+      IO.delete(dest)
+    dest.mkdirs()
+    s.log.info(s"Copying '$src' to '$dest'")
+    IO.copyDirectory(src, dest)
+    dest
+  }
 
   val copyPySources = Def.sequential(
     copySources(Compile / pythonSource, Python / target, true),
@@ -66,9 +66,9 @@ object PythonBuildPlugin extends AutoPlugin {
     IO.copyFile(asmbl, dest)
     log.info(s"PyRasterFrames assembly written to '$dest'")
     dest
-  }
+  }.dependsOn(copyPySources)
 
-  val pyWhl = Def.task {
+  val pyWhlImp = Def.task {
     val log = streams.value.log
     val buildDir = (Python / target).value
     val retcode = pySetup.toTask(" build bdist_wheel").value
@@ -86,7 +86,7 @@ object PythonBuildPlugin extends AutoPlugin {
     IO.copyFile(whl, pyDest)
     log.info(s"Maven Python .zip artifact written to '$pyDest'")
     pyDest
-  }
+  }.dependsOn(pyWhl)
 
   override def projectConfigurations: Seq[Configuration] = Seq(Python)
 
@@ -95,7 +95,6 @@ object PythonBuildPlugin extends AutoPlugin {
     pythonCommand := "python",
     pySetup := {
       val s = streams.value
-      val _ = copyPySources.value
       val wd = (Python / target).value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
@@ -103,6 +102,7 @@ object PythonBuildPlugin extends AutoPlugin {
       s.log.info(s"Running '${cmd.mkString(" ")}' in '$wd'")
       Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
     },
+    pyWhl := pyWhlImp.value,
     Compile / pythonSource := (Compile / sourceDirectory).value / "python",
     Test / pythonSource := (Test / sourceDirectory).value / "python",
     Compile / `package` := (Compile / `package`).dependsOn(Python / packageBin).value,
