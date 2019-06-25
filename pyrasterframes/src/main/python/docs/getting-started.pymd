@@ -1,0 +1,69 @@
+# Getting Started
+
+
+There are a number of ways to use PyRasterFrames:
+
+1. `pyspark` shell
+2. Jupyter Notebook
+3. Standalone Python Script
+
+## `pyspark` shell
+
+
+To manually initialize PyRasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip. See below for how to build or download those artifacts.
+
+```bash
+   pyspark \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --conf spark.kryo.registrator=org.locationtech.rasterframes.util.RFKryoRegistrator \
+    --conf spark.kryoserializer.buffer.max=500m \
+    --jars pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar \
+    --py-files pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
+   
+```
+
+Then in the pyspark shell or app, import the module and call `withRasterFrames` on the SparkSession.
+
+```python, evaluate=False
+import pyrasterframes
+spark = spark.withRasterFrames()
+df = spark.read.rastersource('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
+```
+
+## Jupyter Notebook
+
+See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook)/README.md
+
+## Standalone Python Script
+
+```python, echo=False
+from docs import *
+```
+
+RasterFrames requires some special configuration to Spark to be fully functional. As a convenience you can use a provided utility function to get a preconfigured Spark session: 
+
+The first step is to set up a `SparkSession`:
+
+```python
+from pyspark.sql import SparkSession
+from pyrasterframes.utils import create_rf_spark_session 
+spark = create_rf_spark_session()
+```
+
+Now we have a standard Spark session with RasterFrames enabled in it.
+To import RasterFrames functions into the environment, use:
+
+```python
+from pyrasterframes.rasterfunctions import *
+```
+
+Functions starting with `rf_` (raster-oriented) or `st_` (vector geometry-oriented) are
+become available for use with DataFrames.
+
+```python
+list(filter(lambda x: x.startswith("rf_") or x.startswith("st_"), dir()))
+```
+
+```python, echo=False 
+spark.stop()
+```
