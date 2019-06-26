@@ -770,6 +770,39 @@ class RasterSource(TestEnvironment):
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
 
+class TileExploder(TestEnvironment):
+
+    def test_tile_exploder_pipeline_for_prt(self):
+        from pyrasterframes import TileExploder
+        from pyspark.ml.feature import VectorAssembler
+        from pyspark.ml import Pipeline
+
+        # NB the tile is a Projected Raster Tile
+        df = self.spark.read.rastersource(self.img_uri)
+        t_col = 'proj_raster'
+        self.assertTrue(t_col in df.columns)
+
+        assembler = VectorAssembler().setInputCols([t_col])
+        pipe = Pipeline().setStages([TileExploder(), assembler])
+        pipe_model = pipe.fit(df)
+        tranformed_df = pipe_model.transform(df)
+        self.assertTrue(tranformed_df.count() > df.count())
+
+    def test_tile_exploder_pipeline_for_tile(self):
+        from pyrasterframes import TileExploder
+        from pyspark.ml.feature import VectorAssembler
+        from pyspark.ml import Pipeline
+
+        t_col = 'tile'
+        df = self.spark.read.rastersource(self.img_uri).withColumn(t_col, rf_tile('proj_raster'))
+
+        assembler = VectorAssembler().setInputCols([t_col])
+        pipe = Pipeline().setStages([TileExploder(), assembler])
+        pipe_model = pipe.fit(df)
+        tranformed_df = pipe_model.transform(df)
+        self.assertTrue(tranformed_df.count() > df.count())
+
+
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
