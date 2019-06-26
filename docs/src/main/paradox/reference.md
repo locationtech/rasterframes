@@ -85,17 +85,23 @@ Get number of columns and rows in the `tile`, as a Struct of `cols` and `rows`.
     
 Get the cell type of the `tile`. The cell type can be changed with @ref:[rf_convert_cell_type](reference.md#rf-convert-cell-type). 
 
+#### rf_tile
+
+    Tile rf_tile(ProjectedRasterTile proj_raster)
+    
+Get the `tile` from the `ProjectedRasterTile` or `RasterSource` type tile column.
+
 #### rf_extent
 
-    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(ProjectedRasterTile raster)
-    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(RasterSource raster)
+    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(ProjectedRasterTile proj_raster)
+    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(RasterSource proj_raster)
 
 Fetches the extent (bounding box or envelope) of a `ProjectedRasterTile` or `RasterSource` type tile columns.
 
 #### rf_crs
 
-    Struct[String] rf_crs(ProjectedRasterTile raster)
-    Struct[String] rf_crs(RasterSource raster)
+    Struct[String] rf_crs(ProjectedRasterTile proj_raster)
+    Struct[String] rf_crs(RasterSource proj_raster)
     
 Fetch the [proj4](https://proj4.org/) string representation of the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns.
 
