@@ -95,6 +95,7 @@ object PythonBuildPlugin extends AutoPlugin {
     pythonCommand := "python",
     pySetup := {
       val s = streams.value
+      val _ = copyPySources.value
       val wd = (Python / target).value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
