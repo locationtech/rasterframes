@@ -36,7 +36,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 /**
   * Constructs a Spark Relation over one or more RasterSource paths.
   * @param sqlContext Query context
-  * @param catalogTable Specifiction of raster path sources
+  * @param catalogTable Specification of raster path sources
   * @param bandIndexes band indexes to fetch
   * @param subtileDims how big to tile/subdivide rasters info
   */
