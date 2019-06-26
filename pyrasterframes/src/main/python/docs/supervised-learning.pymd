@@ -71,7 +71,8 @@ print('Found ', len(crses), 'distinct CRS.')
 crs = crses[0][0]
 
 label_df = spark.read.geojson(os.path.join(resource_dir_uri(), 'luray-labels.geojson')) \
-					 .select('id', st_reproject('geometry', 'EPSG:4326', crs).alias('geometry')) \
+					 .select('id', 
+                   st_reproject('geometry', rf_mk_crs('EPSG:4326'), rf_mk_crs(crs)).alias('geometry')) \
 					 .hint('broadcast')
 
 df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry')) 
