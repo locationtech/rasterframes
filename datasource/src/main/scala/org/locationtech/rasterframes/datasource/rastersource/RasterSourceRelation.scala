@@ -21,34 +21,32 @@
 
 package org.locationtech.rasterframes.datasource.rastersource
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
-import org.locationtech.rasterframes.util._
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.RasterSourceTable
+import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.{RasterSourceCatalog, RasterSourceCatalogRef}
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
+import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
   * Constructs a Spark Relation over one or more RasterSource paths.
   * @param sqlContext Query context
-  * @param discretePaths list of URIs to fetch rastefrom.
+  * @param catalogTable Specification of raster path sources
   * @param bandIndexes band indexes to fetch
   * @param subtileDims how big to tile/subdivide rasters info
   */
-case class RasterSourceRelation(sqlContext: SQLContext, discretePaths: Seq[String],
-  pathTable: Option[RasterSourceTable], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions])
+case class RasterSourceRelation(
+  sqlContext: SQLContext,
+  catalogTable: Either[RasterSourceCatalog, RasterSourceCatalogRef],
+  bandIndexes: Seq[Int], subtileDims: Option[TileDimensions])
   extends BaseRelation with TableScan {
 
-  lazy val inputColNames = pathTable
-    .map(_.columnNames)
-    .getOrElse(Seq(TILE_COLUMN.columnName))
+  lazy val inputColNames = catalogTable.merge.bandColumnNames
 
   def pathColNames = inputColNames
     .map(_ + "_path")
@@ -81,9 +79,17 @@ case class RasterSourceRelation(sqlContext: SQLContext, discretePaths: Seq[Strin
     // The general transformaion is:
     // input -> path -> src -> ref -> tile
     // Each step is broken down for readability
-    val inputs: DataFrame = pathTable match {
-      case Some(spec) => sqlContext.table(spec.tableName)
-      case _ => discretePaths.toDF(inputColNames.head)
+    val inputs: DataFrame = catalogTable match {
+      case Right(spec) => sqlContext.table(spec.tableName)
+      case Left(spec) => spec.bandColumnNames match {
+        case Seq(single) => spec.sceneRows.map(_.bandPaths.headOption.orNull).toDF(single)
+        case bands =>
+          val bsel = bands.zipWithIndex.map { case (b, i) => col("value")(i).as(b) }
+
+          spec.sceneRows.map(_.bandPaths)
+            .toDF("value")
+            .select(bsel: _*)
+      }
     }
 
     // Basically renames the input columns to have the '_path' suffix

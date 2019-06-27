@@ -63,9 +63,10 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     if (b < src.bandCount) RasterRef(src, b, e) else null
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+    var src: RasterSource = null
     try {
       val refs = children.map { child ⇒
-        val src = RasterSourceType.deserialize(child.eval(input))
+        src = RasterSourceType.deserialize(child.eval(input))
         subtileDims.map(dims =>
           src
             .layoutExtents(dims)
@@ -77,7 +78,8 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     }
     catch {
       case NonFatal(ex) ⇒
-        logger.error("Error fetching data for " + input, ex)
+        val payload = if (src == null) input else src
+        logger.error("Error fetching data for " + payload, ex)
         Traversable.empty
     }
   }

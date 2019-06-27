@@ -277,6 +277,7 @@ _rf_column_functions = {
     'rf_crs': 'Get the CRS of a RasterSource or ProjectedRasterTile',
     'st_extent': 'Compute the extent/bbox of a Geometry (a tile with embedded extent and CRS)',
     'rf_extent': 'Get the extent of a RasterSource or ProjectedRasterTile (a tile with embedded extent and CRS)',
+    'rf_tile': 'Extracts the Tile component of a ProjectedRasterTile (or Tile).',
     'st_geometry': 'Convert the given extent/bbox to a polygon',
     'rf_geometry': 'Get the extent of a RasterSource or ProjectdRasterTile as a Geometry',
 
