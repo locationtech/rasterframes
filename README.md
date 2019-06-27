@@ -50,7 +50,7 @@ The documentation may be built with
 sbt makeSite
 ```
 
-The `pyrasterframes` build instructions are located [pyrasterframes/python/README.rst](pyrasterframes/python/README.rst)
+The `pyrasterframes` build instructions are located at [pyrasterframes/src/main/python/README.md](pyrasterframes/src/main/python/README.md)
 
 ## Copyright and License
 
