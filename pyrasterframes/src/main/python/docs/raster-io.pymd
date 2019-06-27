@@ -16,7 +16,7 @@ RasterFrames registers a DataSource named `rastersource` that enables reading of
 ```python
 data_root = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp'
 def s2_band(idx):
-    return f"{data_root}/B0{idx}.tif"
+    return "{}/B0{}.tif".format(data_root, idx)
     
 ```
 
@@ -60,10 +60,10 @@ print(tile)
 Generally we'll want to work with multiple bands. If you have several singleband image files of the same scene, `rastersource` can make use of a CSV (or other DataFrame) specifying the band columns and scene rows.
 
 ```python
-csv = f"""
+csv = """
 red,green,blue
-{s2_band(4)},{s2_band(3)},{s2_band(2)}
-"""
+{},{},{}
+""".format(s2_band(4), s2_band(3), s2_band(2))
 
 print(csv)
 
@@ -80,7 +80,7 @@ The example above will work with a reasonable number of rows in the CSV string. 
 ```python
 from pyspark import SparkFiles
 cat_filename = "2018-07-04_scenes.txt"
-spark.sparkContext.addFile(f"https://modis-pds.s3.amazonaws.com/MCD43A4.006/{cat_filename}")
+spark.sparkContext.addFile("https://modis-pds.s3.amazonaws.com/MCD43A4.006/{}".format(cat_filename))
 modis_catalog = spark.read \
     .format("csv") \
     .option("header", "true") \

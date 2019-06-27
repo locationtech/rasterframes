@@ -418,7 +418,6 @@ class UDT(TestEnvironment):
 
     def test_udf_on_tile_type_input(self):
         import numpy.testing
-        # rf_local_add(t, 0) is to force lazy eval; accessing tile.tile is to get at the actual Tile type vs PRT struct
         df = self.spark.read.rastersource(self.img_uri)
         rf = self.rf
 

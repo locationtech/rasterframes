@@ -1,6 +1,5 @@
-import sbt.{IO, _}
-
 import scala.sys.process.Process
+import PythonBuildPlugin.autoImport.pyWhl
 
 Docker / packageName := "rasterframes-notebook"
 
@@ -18,11 +17,9 @@ Docker / mappings := {
   val dockerSrc = (Docker / sourceDirectory).value
   val dockerAssets = (dockerSrc ** "*") pair Path.relativeTo(dockerSrc)
 
-  val jar = assembly.value
+  val py = (LocalProject("pyrasterframes") / pyWhl).value
 
-  val py = (LocalProject("pyrasterframes") / Python / packageBin).value
-
-  dockerAssets ++ Seq(jar -> jar.getName, py -> py.getName)
+  dockerAssets ++ Seq(py -> py.getName)
 }
 
 // This bypasses the standard DockerPlugin DSL-based Dockerfile construction
