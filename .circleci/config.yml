@@ -69,7 +69,9 @@ jobs:
       - restore_cache:
           <<: *restore_cache
 
-      - run: sudo apt-get update && sudo apt-get install -y python-pip pandoc && pip install setuptools # required for pyrasterframes testing
+      - run: sudo apt-get update && sudo apt-get install -y python3 python3-pip
+      - run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+      - run: pip3 install ipython==6.2.1
       - run: cat /dev/null | sbt test
 
       - run: *unsetenv
