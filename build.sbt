@@ -24,7 +24,7 @@ addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("console", "datasource/console")
 
 // Prefer our own IntegrationTest config definition, which inherits from Test.
-val IntegrationTest = RFProjectPlugin.IntegrationTest
+lazy val IntegrationTest = config("it") extend Test
 
 lazy val root = project
   .in(file("."))

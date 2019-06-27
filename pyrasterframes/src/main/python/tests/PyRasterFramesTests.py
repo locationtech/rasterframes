@@ -418,8 +418,7 @@ class UDT(TestEnvironment):
 
     def test_udf_on_tile_type_input(self):
         import numpy.testing
-        # rf_local_add(t, 0) is to force lazy eval; accessing tile.tile is to get at the actual Tile type vs PRT struct
-        df = self.spark.read.rastersource(self.img_uri).withColumn('tile2', rf_local_add_int(col('tile.tile'), 0))
+        df = self.spark.read.rastersource(self.img_uri)
         rf = self.rf
 
         # create trivial UDF that does something we already do with raster_Functions
@@ -438,8 +437,8 @@ class UDT(TestEnvironment):
         )
 
         df_result = df.select(
-            (rf_dimensions(df.tile).cols.cast('int') * rf_dimensions(df.tile).rows.cast('int') -
-                my_udf(df.tile2)).alias('result')
+            (rf_dimensions(df.proj_raster).cols.cast('int') * rf_dimensions(df.proj_raster).rows.cast('int') -
+                my_udf(rf_tile(df.proj_raster))).alias('result')
         ).toPandas()
 
         numpy.testing.assert_array_equal(
@@ -689,16 +688,19 @@ class RasterSource(TestEnvironment):
 
     def test_handle_lazy_eval(self):
         df = self.spark.read.rastersource(self.img_uri)
-        ltdf = df.select('tile')
+        ltdf = df.select('proj_raster')
         self.assertGreater(ltdf.count(), 0)
         self.assertIsNotNone(ltdf.first())
 
+        tdf = df.select(rf_tile('proj_raster'))
+        self.assertGreater(tdf.count(),  0)
+        self.assertIsNotNone(tdf.first())
 
     def test_prt_functions(self):
         df = self.spark.read.rastersource(self.img_uri) \
-            .withColumn('crs', rf_crs('tile')) \
-            .withColumn('ext', rf_extent('tile')) \
-            .withColumn('geom', rf_geometry('tile'))
+            .withColumn('crs', rf_crs('proj_raster')) \
+            .withColumn('ext', rf_extent('proj_raster')) \
+            .withColumn('geom', rf_geometry('proj_raster'))
         df.select('crs', 'ext', 'geom').first()                         
 
     def test_raster_source_reader(self):
@@ -720,20 +722,18 @@ class RasterSource(TestEnvironment):
 
         # schema is tile_path and tile
         # df.printSchema()
-        self.assertTrue(len(df.columns) == 2 and 'tile_path' in df.columns and 'tile' in df.columns)
+        self.assertTrue(len(df.columns) == 2 and 'proj_raster_path' in df.columns and 'proj_raster' in df.columns)
 
         # the most common tile dimensions should be as passed to `options`, showing that options are correctly applied
-        tile_size_df = df.select(rf_dimensions(df.tile).rows.alias('r'), rf_dimensions(df.tile).cols.alias('c')) \
+        tile_size_df = df.select(rf_dimensions(df.proj_raster).rows.alias('r'), rf_dimensions(df.proj_raster).cols.alias('c')) \
             .groupby(['r', 'c']).count().toPandas()
         most_common_size = tile_size_df.loc[tile_size_df['count'].idxmax()]
         self.assertTrue(most_common_size.r == tile_size and most_common_size.c == tile_size)
 
         # all rows are from a single source URI
-        path_count = df.groupby(df.tile_path).count()
+        path_count = df.groupby(df.proj_raster_path).count()
         print(path_count.toPandas())
         self.assertTrue(path_count.count() == 3)
-
-        ###  Similar to the scala side's `fromTable`, read from a table with columns giving URI paths
 
         scene_dict = {
             1: 'http://landsat-pds.s3.amazonaws.com/c1/L8/015/041/LC08_L1TP_015041_20190305_20190309_01_T1/LC08_L1TP_015041_20190305_20190309_01_T1_B{}.TIF',
@@ -746,7 +746,6 @@ class RasterSource(TestEnvironment):
             p = scene_dict[scene]
             return p.format(band)
 
-        path_table_hive_name = 'path_table'
         # Create a pandas dataframe (makes it easy to create spark df)
         path_pandas = pd.DataFrame([
             {'b1': path(1, 1), 'b2': path(1, 2), 'b3': path(1, 3)},
@@ -754,14 +753,13 @@ class RasterSource(TestEnvironment):
             {'b1': path(3, 1), 'b2': path(3, 2), 'b3': path(3, 3)},
         ])
         # comma separated list of column names containing URI's to read.
-        csv_columns = ','.join(path_pandas.columns.tolist())  # 'b1,b2,b3'
+        catalog_columns = ','.join(path_pandas.columns.tolist())  # 'b1,b2,b3'
         path_table = self.spark.createDataFrame(path_pandas)
-        path_table.createOrReplaceTempView(path_table_hive_name)
 
         path_df = self.spark.read.rastersource(
             tile_dimensions=(512, 512),
-            pathTable=path_table_hive_name,
-            pathTableColumns=csv_columns,
+            catalog=path_table,
+            catalog_col_names=catalog_columns
         )
 
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}

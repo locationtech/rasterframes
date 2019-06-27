@@ -1,7 +1,155 @@
 # Raster Data I/O
 
+The standard mechanism by which any data is brought in and out of a Spark Dataframe is the [Spark SQL DataSource][DS]. RasterFrames are compatible with existing generalized DataSources, such as Parquet, but provide specialized ones oriented around geospatial raster data.
+
 ## Reading Raster Data
+
+```python, echo=False
+from IPython.display import display
+from pyrasterframes.utils import create_rf_spark_session 
+from pyrasterframes.rasterfunctions import *
+spark = create_rf_spark_session()
+```
+
+RasterFrames registers a DataSource named `rastersource` that enables reading of GeoTIFFs (and other formats when GDAL is installed) from arbitrary (sets of) URIs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket:
+
+```python
+data_root = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp'
+def s2_band(idx):
+    return "{}/B0{}.tif".format(data_root, idx)
+    
+```
+
+### Single Raster
+
+The simplest form is reading a single raster from a single URI:
+
+```python
+rf = spark.read.rastersource(s2_band(2))
+rf.printSchema()
+```
+
+[[Discuss the schema]]
+
+Let's unpack the `proj_raster` column and look at the contents in more detail. 
+
+```python
+crs = rf.select(rf_crs("proj_raster").alias("value")).first()
+
+parts = rf.select(
+    rf_extent("proj_raster").alias("extent"), 
+    rf_tile("proj_raster").alias("tile")
+)
+
+print("CRS", crs.value.crsProj4)
+parts.show(5)
+
+```
+
+Let's elect a single tile and view it.
+
+```python
+tile = rf.select(rf_tile("proj_raster")).first()
+# TODO: IPython rendering
+print(tile)
+```
+
+
+### Single Scene, Multiple Bands
+
+Generally we'll want to work with multiple bands. If you have several singleband image files of the same scene, `rastersource` can make use of a CSV (or other DataFrame) specifying the band columns and scene rows.
+
+```python
+csv = """
+red,green,blue
+{},{},{}
+""".format(s2_band(4), s2_band(3), s2_band(2))
+
+print(csv)
+
+rf2 = spark.read.rastersource(catalog=csv, catalog_col_names=['red', 'green', 'blue'])
+rf2.printSchema()
+
+rf2.show(5)
+```
+
+### Multiple Scenes, Multiple Bands
+
+The example above will work with a reasonable number of rows in the CSV string. However, in many cases it's preferable to have that information organized in another DataFrame. For the purposes of this example use one of the AWS PDS daily scene listing files for MODIS surface reflectance as our catalog. 
+
+```python
+from pyspark import SparkFiles
+cat_filename = "2018-07-04_scenes.txt"
+spark.sparkContext.addFile("https://modis-pds.s3.amazonaws.com/MCD43A4.006/{}".format(cat_filename))
+modis_catalog = spark.read \
+    .format("csv") \
+    .option("header", "true") \
+    .load(SparkFiles.get(cat_filename))
+modis_catalog.printSchema()
+print("Available scenes: ", modis_catalog.count())
+modis_catalog.show(5, truncate=False)
+```
+
+MODIS data products are delivered on a regular, consistent grid, making identification of a specific area over time easy using `(h,v)` grid coordinates. 
+
+![MODIS Grid](https://modis-land.gsfc.nasa.gov/images/MODIS_sinusoidal_grid1.gif)
+
+For sake of example, lets say we wanted all the MODIS data right above the equator. The grid position is encoded in the GUID, with `h07` being the strip just above the equator . To go from `download_url` to band URL we strip off `index.html`, and append the GUID, band specifier, and file extension.
+
+```python
+from pyspark.sql import functions as F
+    
+# Index URIs take the form:
+#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/index.html    
+# Image URIs take the form:
+#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF    
+
+equator = (modis_catalog 
+    .withColumn('base_url', 
+        F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',) 
+    )
+.select(
+    F.concat('base_url', F.lit("_B01.TIF")).alias('red'),
+    F.concat('base_url', F.lit("_B02.TIF")).alias('nir')
+)
+.where(F.col('gid').like('%v07%'))
+)
+equator.show(3)
+```
+
+Now that we have a catalog of multiple scenes and mutiple bands withit each scene, we can pass it along to `rastersource` load the imagery. To complete the example, we compute some aggregate statistics over NDVI.
+
+```python
+rf = spark.read.rastersource(
+    catalog=equator, 
+    catalog_col_names=['red', 'nir']
+).repartition()
+rf.show(2, truncate=False)
+(rf 
+    .select(rf_normalized_difference('nir', 'red').alias('ndvi')) 
+    .agg(rf_agg_stats('ndvi').alias('stats')) 
+    .select('stats.*') 
+    .show(truncate=False)
+)
+    
+```
+
+### Multiband Rasters
+
+[[Need to know _a priori_ how many bands there are, specified with `band_indexes`]]
+ 
 
 ## Writing Raster Data
 
+### Overviews
 
+### GeoTIFFs
+
+### Tile Samples
+
+### GeoTrellis Layers
+
+
+
+
+[DS]: https://spark.apache.org/docs/latest/sql-data-sources.html

@@ -36,10 +36,6 @@ See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/
 
 ## Standalone Python Script
 
-```python, echo=False
-from docs import *
-```
-
 RasterFrames requires some special configuration to Spark to be fully functional. As a convenience you can use a provided utility function to get a preconfigured Spark session: 
 
 The first step is to set up a `SparkSession`:
