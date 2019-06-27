@@ -1,27 +1,71 @@
-# Local Algebra
 
 ```python, echo=False
-from docs import *
+from IPython.core.display import display
 from pyrasterframes.utils import create_rf_spark_session
-from pyrasterframes.rasterfunctions import *
-from pyspark.sql import *
+from pyrasterframes.rasterfunctions import rf_normalized_difference, rf_tile, rf_dimensions, rf_extent, rf_tile_mean
+
+import pandas as pd
 import os
+
 
 spark = create_rf_spark_session()
 ```
 
+# Local Map Algebra
+
+[Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single `tile`,  between a `tile` and a scalar, between two `tile`s, or among many `tile`s. These operations are common in processing of earth observation and other image data.
+
+
 ## Computing NDVI
 
+Here’s an example of computing the Normalized Differential Vegetation Index (NDVI). NDVI is a vegetation index which emphasizes differences in relative biomass and vegetation health. The term _index_ in Earth observation means a combination of many raster bands into a single band that highlights a phenomenon of interest. Various indexes have proven useful visual tools and frequently appear as features in machine learning models using Earth observation data.
+
+> NDVI is often used worldwide to monitor drought, monitor and predict agricultural production, assist in predicting hazardous fire zones, and map desert encroachment. The NDVI is preferred for global vegetation monitoring because it helps to compensate for changing illumination conditions, surface slope, aspect, and other extraneous factors (Lillesand. _Remote sensing and image interpretation_. 2004)
+
+### Create DataFrame
+
+We will use the @ref:[catalog pattern](raster-io.md) for data access. To compute NDVI we need to compute local algebra on the *red* and *near infrared* bands: `(n - r) / (n + r)`. This form of `(x - y) / (x + y)` is common in remote sensing and is called a normalized difference. It is used with other band pairs to highlight water, snow, and other phenomena.
+
 ```python, term=True
-# TODO: rewrite to use `rastersource`
-redBand = spark.read.geotiff(os.path.join(resource_dir(), 'L8-B4-Elkton-VA.tiff')).withColumnRenamed('tile', 'red_band')
-nirBand = spark.read.geotiff(os.path.join(resource_dir(), 'L8-B5-Elkton-VA.tiff')).withColumnRenamed('tile', 'nir_band')
+bands = {4: 'red', 8: 'nir'}
+uri_pattern = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B0{}.tif'
+catalog_df = pd.DataFrame([
+    {bands[b_num]: uri_pattern.format(b_num) for b_num in bands.keys()}
+])
+df = spark.read.rastersource(catalog=catalog_df.to_csv(index=None),
+                             catalog_col_names=list(catalog_df.columns))
+df.printSchema()
+```
 
-rf = redBand.asRF().spatialJoin(nirBand.asRF()) \
-    .withColumn("ndvi", rf_normalized_difference('red_band', 'nir_band'))
-rf.printSchema()
-rf.show(20, truncate=False)
+Observe how the bands we need to use to compute the index are arranged as columns of our resulting DataFrame. The rows or observations are various spatial extents within the entire coverage area.
 
+### Local Map Algebra
+
+RasterFrames provides a wide variety of local map algebra functions. There are several different broad categories, based on how many tiles the function takes as input:
+
+ * A function on a single Tile is a unary operation; example: @ref:[rf_log](reference.md#rf-log);
+ * A function on two Tiles is a binary operation; example: @ref:[rf_local_multiply](reference.md#rf-local-multiply);
+ * A function on a Tile and a scalar is a binary operation; example: @ref:[rf_local_less](reference.md#rf-local-less); or
+ * A function on many Tiles is a n-ary operation; example: @ref:[rf_agg_local_min](reference.md#rf-agg-local-min)
+
+We can express the normalized difference with a combination of `rf_local_divide`, `rf_local_subtract`, and `rf_local_add`. Since the normalized difference is so common there is a convenience method `rf_normalized_difference` which we use in this example. We will append a new column to the DataFrame, which will apply the map alegbra function to each row.
+
+```python
+df = df.withColumn('ndvi', rf_normalized_difference(df.nir, df.red))
+df.printSchema()
+```
+
+We can inspect a small sample of the data. The yellow values are areas of healthy vegetation and the purple areas are bare soil or impervious surfaces.
+
+```python
+ndvi_tiles = df.sort(-rf_tile_mean('ndvi')) \
+               .select(rf_tile('ndvi').alias('ndvi')) \
+               .take(5)
+for r in ndvi_tiles:
+    display(r['ndvi'])
+#display(
+#    df.select(rf_extent('ndvi'), rf_tile('ndvi')).toPandas()
+#)
 ```
 
 
