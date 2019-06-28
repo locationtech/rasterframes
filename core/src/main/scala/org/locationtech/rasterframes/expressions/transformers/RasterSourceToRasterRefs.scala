@@ -36,6 +36,7 @@ import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRast
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 
+import scala.util.Try
 import scala.util.control.NonFatal
 
 /**
@@ -63,10 +64,9 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     if (b < src.bandCount) RasterRef(src, b, e) else null
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
-    var src: RasterSource = null
     try {
       val refs = children.map { child ⇒
-        src = RasterSourceType.deserialize(child.eval(input))
+        val src = RasterSourceType.deserialize(child.eval(input))
         subtileDims.map(dims =>
           src
             .layoutExtents(dims)
@@ -78,8 +78,8 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     }
     catch {
       case NonFatal(ex) ⇒
-        val payload = if (src == null) input else src
-        logger.error("Error fetching data for " + payload, ex)
+        val payload = Try(children.map(c => RasterSourceType.deserialize(c.eval(input)))).toOption.toSeq.flatten
+        logger.error("Error fetching data for one of: " + payload.mkString(", "), ex)
         Traversable.empty
     }
   }
