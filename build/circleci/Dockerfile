@@ -7,8 +7,13 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 # most of these libraries required for
 # python-pip pandoc && pip install setuptools => required for pyrasterframes testing
 RUN sudo apt-get update && \
-    sudo apt-get install -y \
-    python-pip pandoc \
+    sudo apt remove \
+      python python-minimal python2.7 python2.7-minimal \
+      libpython-stdlib libpython2.7 libpython2.7-minimal libpython2.7-stdlib \
+    && sudo apt-get install -y \
+      python3 \
+      python3-pip \
+      pandoc \
       wget \
       gcc g++ build-essential \
             libcurl4-gnutls-dev \
@@ -22,8 +27,10 @@ RUN sudo apt-get update && \
             libpng-dev \
             swig \
             ant \
-        && sudo apt-get clean all \
-        && pip install setuptools
+    && sudo apt autoremove \
+    && sudo apt-get clean all \
+    && pip3 install setuptools ipython==6.2.1 \
+    && sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 # install OpenJPEG
 RUN cd /tmp && \
