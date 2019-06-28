@@ -188,6 +188,9 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       df.schema.size should be(6)
       df.tileColumns.size should be (3)
       df.select($"B1_path").distinct().count() should be (1)
+
+      val diffStats = df.select(rf_tile_stats($"B1") =!= rf_tile_stats($"B2")).as[Boolean].collect()
+      diffStats.forall(identity) should be(true)
     }
   }
 }
