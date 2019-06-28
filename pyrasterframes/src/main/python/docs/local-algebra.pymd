@@ -1,12 +1,12 @@
 
 ```python, echo=False
-from IPython.core.display import display
+from IPython.core.display import display, HTML
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import rf_normalized_difference, rf_tile, rf_dimensions, rf_extent, rf_tile_mean
+import pyrasterframes.rf_ipython
 
 import pandas as pd
 import os
-
 
 spark = create_rf_spark_session()
 ```
@@ -55,18 +55,15 @@ df = df.withColumn('ndvi', rf_normalized_difference(df.nir, df.red))
 df.printSchema()
 ```
 
-We can inspect a small sample of the data. The yellow values are areas of healthy vegetation and the purple areas are bare soil or impervious surfaces.
+We can inspect a sample of the data. Yellow indicates very healthy vegetation, and purple represents bare soil or impervious surfaces.
 
 ```python
-ndvi_tiles = df.sort(-rf_tile_mean('ndvi')) \
-               .select(rf_tile('ndvi').alias('ndvi')) \
-               .take(5)
-for r in ndvi_tiles:
-    display(r['ndvi'])
-#display(
-#    df.select(rf_extent('ndvi'), rf_tile('ndvi')).toPandas()
-#)
+df.select(rf_tile('ndvi').alias('ndvi')).limit(5).toPandas()
 ```
+
+**TODO** fix the display once issue #166 fix.
+
+We continue examining NDVI in the @ref:[time series](time-series.md) section.
 
 
 ```python, echo=False

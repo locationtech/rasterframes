@@ -21,7 +21,7 @@ ENV PYTHONPATH $PYTHONPATH:$PY_RF_ZIP
 
 # Sphinx (for Notebook->html)
 RUN conda install --quiet --yes \
-    anaconda sphinx nbsphinx shapely numpy
+    anaconda sphinx nbsphinx shapely numpy folium geopandas geojsonio
 
 # Cleanup pip residuals
 RUN rm -rf /home/$NB_USER/.local && \

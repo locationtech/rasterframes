@@ -29,7 +29,7 @@ rf = spark.read.rastersource(s2_band(2))
 rf.printSchema()
 ```
 
-[[Discuss the schema]]
+\[Discuss the schema\]
 
 Let's unpack the `proj_raster` column and look at the contents in more detail. 
 
@@ -46,12 +46,12 @@ parts.show(5)
 
 ```
 
-Let's elect a single tile and view it.
+Let's select a single tile and view it.
 
 ```python
-tile = rf.select(rf_tile("proj_raster")).first()
-# TODO: IPython rendering
-print(tile)
+tile = rf.select(rf_tile("proj_raster")).first()[0]
+display(tile)
+# todo verify its chilly
 ```
 
 
