@@ -41,21 +41,20 @@ object PythonBuildPlugin extends AutoPlugin {
   }
   import autoImport._
 
-  def copySources(srcDir: SettingKey[File], destDir: SettingKey[File], deleteFirst: Boolean) = Def.task {
+  def copySources(srcDir: SettingKey[File], destDir: SettingKey[File]) = Def.task {
     val s = streams.value
     val src = srcDir.value
     val dest = destDir.value
-    if (deleteFirst)
-      IO.delete(dest)
-    dest.mkdirs()
+    if (!dest.exists())
+      dest.mkdirs()
     s.log.info(s"Copying '$src' to '$dest'")
     IO.copyDirectory(src, dest)
     dest
   }
 
   val copyPySources = Def.sequential(
-    copySources(Compile / pythonSource, Python / target, true),
-    copySources(Test / pythonSource, Python / test / target, false)
+    copySources(Compile / pythonSource, Python / target),
+    copySources(Test / pythonSource, Python / test / target)
   )
   
   val pyWhlJar = Def.task {
@@ -122,6 +121,7 @@ object PythonBuildPlugin extends AutoPlugin {
     inConfig(Python)(Seq(
       target := (Compile / target).value / "python",
       test / target := (Compile / target).value / "python" / "tests",
+      includeFilter := "*",
       packageBin := Def.sequential(
         Compile / packageBin,
         pyWhl,
