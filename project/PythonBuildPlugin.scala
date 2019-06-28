@@ -24,6 +24,7 @@ import sbt.Keys.{`package`, _}
 import sbt._
 import complete.DefaultParsers._
 import sbt.Tests.Summary
+import sbt.util.CacheStore
 
 import scala.sys.process.Process
 import sbtassembly.AssemblyPlugin.autoImport.assembly
@@ -41,22 +42,22 @@ object PythonBuildPlugin extends AutoPlugin {
   }
   import autoImport._
 
-  def copySources(srcDir: SettingKey[File], destDir: SettingKey[File]) = Def.task {
-    val s = streams.value
-    val src = srcDir.value
-    val dest = destDir.value
-    if (!dest.exists())
-      dest.mkdirs()
-    s.log.info(s"Copying '$src' to '$dest'")
-    IO.copyDirectory(src, dest)
-    dest
+  val copyPySources = Def.task {
+    val log = streams.value.log
+
+    val destDir = (Python / target).value
+    val cacheDir = streams.value.cacheDirectory
+    val maps =  (Python / mappings).value
+
+    val resolved = maps map { case (file, d) => (file, destDir / d) }
+
+    log.info(s"Synchronizing ${maps.size} files to '${destDir}'")
+    resolved.foreach(println)
+
+    Sync.sync(CacheStore(cacheDir / "python"))(resolved)
+    destDir
   }
 
-  val copyPySources = Def.sequential(
-    copySources(Compile / pythonSource, Python / target),
-    copySources(Test / pythonSource, Python / test / target)
-  )
-  
   val pyWhlJar = Def.task {
     val log = streams.value.log
     val buildDir = (Python / target).value
@@ -94,8 +95,7 @@ object PythonBuildPlugin extends AutoPlugin {
     pythonCommand := "python",
     pySetup := {
       val s = streams.value
-      val _ = copyPySources.value
-      val wd = (Python / target).value
+      val wd = copyPySources.value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
       val ver = version.value
@@ -122,6 +122,7 @@ object PythonBuildPlugin extends AutoPlugin {
       target := (Compile / target).value / "python",
       test / target := (Compile / target).value / "python" / "tests",
       includeFilter := "*",
+      mappings := Path.selectSubpaths((Compile / pythonSource).value, (Python / includeFilter).value).toSeq,
       packageBin := Def.sequential(
         Compile / packageBin,
         pyWhl,
