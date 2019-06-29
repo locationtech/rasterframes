@@ -2,11 +2,13 @@
 
 @@@ index
 
-* [Local Algebra](local-algebra.md)
-* ["NoData" Handling](nodata-handling.md)
-* [Aggregation](aggregation.md)
-* [Time Series](time-series.md)
-* [Spark ML](spark-ml.md)
+* @ref:[Local Algebra](local-algebra.md)
+* @ref:["NoData" Handling](nodata-handling.md)
+* @ref:[Aggregation](aggregation.md)
+* @ref:[Time Series](time-series.md)
+* @ref:[Machine Learning](spark-ml.md)
 
 @@@
 
+
+Explore what you can do with RasterFrames to work with, analyze, manipulate, and summarize Earth observation data.
