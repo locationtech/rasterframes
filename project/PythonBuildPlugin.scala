@@ -19,7 +19,6 @@
  *
  */
 
-import sbt.KeyRanks.ASetting
 import sbt.Keys.{`package`, _}
 import sbt._
 import complete.DefaultParsers._
@@ -35,7 +34,6 @@ object PythonBuildPlugin extends AutoPlugin {
 
   object autoImport {
     val Python = config("python")
-    val pythonSource = settingKey[File]("Default Python source directory.").withRank(ASetting)
     val pythonCommand = settingKey[String]("Python command. Defaults to 'python'")
     val pySetup = inputKey[Int]("Run 'python setup.py <args>'. Returns exit code.")
     val pyWhl = taskKey[File]("Builds the Python wheel distribution")
@@ -44,16 +42,11 @@ object PythonBuildPlugin extends AutoPlugin {
 
   val copyPySources = Def.task {
     val log = streams.value.log
-
     val destDir = (Python / target).value
     val cacheDir = streams.value.cacheDirectory
     val maps =  (Python / mappings).value
-
     val resolved = maps map { case (file, d) => (file, destDir / d) }
-
     log.info(s"Synchronizing ${maps.size} files to '${destDir}'")
-    resolved.foreach(println)
-
     Sync.sync(CacheStore(cacheDir / "python"))(resolved)
     destDir
   }
@@ -103,8 +96,6 @@ object PythonBuildPlugin extends AutoPlugin {
       Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
     },
     pyWhl := pyWhlImp.value,
-    Compile / pythonSource := (Compile / sourceDirectory).value / "python",
-    Test / pythonSource := (Test / sourceDirectory).value / "python",
     Compile / `package` := (Compile / `package`).dependsOn(Python / packageBin).value,
     Test / testQuick := (Python / testQuick).evaluated,
     Test / executeTests := {
@@ -119,10 +110,13 @@ object PythonBuildPlugin extends AutoPlugin {
     }
   ) ++
     inConfig(Python)(Seq(
+      sourceDirectory := (Compile / sourceDirectory).value / "python",
+      sourceDirectories := Seq((Python / sourceDirectory).value),
       target := (Compile / target).value / "python",
-      test / target := (Compile / target).value / "python" / "tests",
       includeFilter := "*",
-      mappings := Path.selectSubpaths((Compile / pythonSource).value, (Python / includeFilter).value).toSeq,
+      excludeFilter := HiddenFileFilter || "__pycache__" || "*.egg-info",
+      sources := Defaults.collectFiles(Python / sourceDirectories, Python / includeFilter, Python / excludeFilter).value,
+      mappings := Defaults.relativeMappings(Python / sources, Python / sourceDirectories).value,
       packageBin := Def.sequential(
         Compile / packageBin,
         pyWhl,
