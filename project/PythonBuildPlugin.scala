@@ -19,11 +19,11 @@
  *
  */
 
-import sbt.KeyRanks.ASetting
 import sbt.Keys.{`package`, _}
 import sbt._
 import complete.DefaultParsers._
 import sbt.Tests.Summary
+import sbt.util.CacheStore
 
 import scala.sys.process.Process
 import sbtassembly.AssemblyPlugin.autoImport.assembly
@@ -34,30 +34,23 @@ object PythonBuildPlugin extends AutoPlugin {
 
   object autoImport {
     val Python = config("python")
-    val pythonSource = settingKey[File]("Default Python source directory.").withRank(ASetting)
     val pythonCommand = settingKey[String]("Python command. Defaults to 'python'")
     val pySetup = inputKey[Int]("Run 'python setup.py <args>'. Returns exit code.")
     val pyWhl = taskKey[File]("Builds the Python wheel distribution")
   }
   import autoImport._
 
-  def copySources(srcDir: SettingKey[File], destDir: SettingKey[File], deleteFirst: Boolean) = Def.task {
-    val s = streams.value
-    val src = srcDir.value
-    val dest = destDir.value
-    if (deleteFirst)
-      IO.delete(dest)
-    dest.mkdirs()
-    s.log.info(s"Copying '$src' to '$dest'")
-    IO.copyDirectory(src, dest)
-    dest
+  val copyPySources = Def.task {
+    val log = streams.value.log
+    val destDir = (Python / target).value
+    val cacheDir = streams.value.cacheDirectory
+    val maps =  (Python / mappings).value
+    val resolved = maps map { case (file, d) => (file, destDir / d) }
+    log.info(s"Synchronizing ${maps.size} files to '${destDir}'")
+    Sync.sync(CacheStore(cacheDir / "python"))(resolved)
+    destDir
   }
 
-  val copyPySources = Def.sequential(
-    copySources(Compile / pythonSource, Python / target, true),
-    copySources(Test / pythonSource, Python / test / target, false)
-  )
-  
   val pyWhlJar = Def.task {
     val log = streams.value.log
     val buildDir = (Python / target).value
@@ -95,8 +88,7 @@ object PythonBuildPlugin extends AutoPlugin {
     pythonCommand := "python",
     pySetup := {
       val s = streams.value
-      val _ = copyPySources.value
-      val wd = (Python / target).value
+      val wd = copyPySources.value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
       val ver = version.value
@@ -104,8 +96,6 @@ object PythonBuildPlugin extends AutoPlugin {
       Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
     },
     pyWhl := pyWhlImp.value,
-    Compile / pythonSource := (Compile / sourceDirectory).value / "python",
-    Test / pythonSource := (Test / sourceDirectory).value / "python",
     Compile / `package` := (Compile / `package`).dependsOn(Python / packageBin).value,
     Test / testQuick := (Python / testQuick).evaluated,
     Test / executeTests := {
@@ -120,8 +110,13 @@ object PythonBuildPlugin extends AutoPlugin {
     }
   ) ++
     inConfig(Python)(Seq(
+      sourceDirectory := (Compile / sourceDirectory).value / "python",
+      sourceDirectories := Seq((Python / sourceDirectory).value),
       target := (Compile / target).value / "python",
-      test / target := (Compile / target).value / "python" / "tests",
+      includeFilter := "*",
+      excludeFilter := HiddenFileFilter || "__pycache__" || "*.egg-info",
+      sources := Defaults.collectFiles(Python / sourceDirectories, Python / includeFilter, Python / excludeFilter).value,
+      mappings := Defaults.relativeMappings(Python / sources, Python / sourceDirectories).value,
       packageBin := Def.sequential(
         Compile / packageBin,
         pyWhl,

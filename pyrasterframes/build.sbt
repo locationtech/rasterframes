@@ -2,8 +2,6 @@ addCommandAlias("pyDocs", "pyrasterframes/doc")
 addCommandAlias("pyTest", "pyrasterframes/test")
 addCommandAlias("pyBuild", "pyrasterframes/package")
 
-Test / pythonSource := (Compile / sourceDirectory).value / "tests"
-
 exportJars := true
 Python / doc / sourceDirectory := (Python / target).value / "docs"
 Python / doc / target := (Python / target).value / "docs"
