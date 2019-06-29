@@ -124,29 +124,112 @@ def rf_inverse_mask_by_value(data_tile, mask_tile, mask_value):
     return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
 
 
-_rf_column_scalar_functions = {
-    'rf_with_no_data': 'Assign a `NoData` value to the Tiles in the given Column.',
-    'rf_local_add_double': 'Add a scalar to a Tile',
-    'rf_local_add_int': 'Add a scalar to a Tile',
-    'rf_local_subtract_double': 'Subtract a scalar from a Tile',
-    'rf_local_subtract_int': 'Subtract a scalar from a Tile',
-    'rf_local_multiply_double': 'Multiply a Tile by a scalar',
-    'rf_local_multiply_int': 'Multiply a Tile by a scalar',
-    'rf_local_divide_double': 'Divide a Tile by a scalar',
-    'rf_local_divide_int': 'Divide a Tile by a scalar',
-    'rf_local_less_double': 'Return a Tile with values equal 1 if the cell is less than a scalar, otherwise 0',
-    'rf_local_less_int': 'Return a Tile with values equal 1 if the cell is less than a scalar, otherwise 0',
-    'rf_local_less_equal_double': 'Return a Tile with values equal 1 if the cell is less than or equal to a scalar, otherwise 0',
-    'rf_local_less_equal_int': 'Return a Tile with values equal 1 if the cell is less than or equal to a scalar, otherwise 0',
-    'rf_local_greater_double': 'Return a Tile with values equal 1 if the cell is greater than a scalar, otherwise 0',
-    'rf_local_greater_int': 'Return a Tile with values equal 1 if the cell is greater than a scalar, otherwise 0',
-    'rf_local_greater_equal_double': 'Return a Tile with values equal 1 if the cell is greater than or equal to a scalar, otherwise 0',
-    'rf_local_greater_equal_int': 'Return a Tile with values equal 1 if the cell is greater than or equal to a scalar, otherwise 0',
-    'rf_local_equal_double': 'Return a Tile with values equal 1 if the cell is equal to a scalar, otherwise 0',
-    'rf_local_equal_int': 'Return a Tile with values equal 1 if the cell is equal to a scalar, otherwise 0',
-    'rf_local_unequal_double': 'Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0',
-    'rf_local_unequal_int': 'Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0',
-}
+def _apply_scalar_to_tile(name, tile_col, scalar):
+    jfcn = RFContext.active().lookup(name)
+    return Column(jfcn(_to_java_column(tile_col), scalar))
+
+def rf_with_no_data(tile_col, scalar):
+    """Assign a `NoData` value to the Tiles in the given Column."""
+    return _apply_scalar_to_tile('rf_with_no_data', tile_col, scalar)
+
+def rf_local_add_double(tile_col, scalar):
+    """Add a floating point scalar to a Tile"""
+    return _apply_scalar_to_tile('rf_local_add_double', tile_col, scalar)
+
+
+def rf_local_add_int(tile_col, scalar):
+    """Add an integral scalar to a Tile"""
+    return _apply_scalar_to_tile('rf_local_add_int', tile_col, scalar)
+
+
+def rf_local_subtract_double(tile_col, scalar):
+    """Subtract a floating point scalar from a Tile"""
+    return _apply_scalar_to_tile('rf_local_subtract_double', tile_col, scalar)
+
+
+def rf_local_subtract_int(tile_col, scalar):
+    """Subtract an integral scalar from a Tile"""
+    return _apply_scalar_to_tile('rf_local_subtract_int', tile_col, scalar)
+
+
+def rf_local_multiply_double(tile_col, scalar):
+    """Multiply a Tile by a float point scalar"""
+    return _apply_scalar_to_tile('rf_local_multiply_double', tile_col, scalar)
+
+
+def rf_local_multiply_int(tile_col, scalar):
+    """Multiply a Tile by an integral scalar"""
+    return _apply_scalar_to_tile('rf_local_multiply_int', tile_col, scalar)
+
+
+def rf_local_divide_double(tile_col, scalar):
+    """Divide a Tile by a floating point scalar"""
+    return _apply_scalar_to_tile('rf_local_divide_double', tile_col, scalar)
+
+
+def rf_local_divide_int(tile_col, scalar):
+    """Divide a Tile by an integral scalar"""
+    return _apply_scalar_to_tile('rf_local_divide_int', tile_col, scalar)
+
+
+def rf_local_less_double(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is less than a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('foo', tile_col, scalar)
+
+
+def rf_local_less_int(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is less than a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_less_double', tile_col, scalar)
+
+
+def rf_local_less_equal_double(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is less than or equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_less_equal_double', tile_col, scalar)
+
+
+def rf_local_less_equal_int(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is less than or equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_less_equal_int', tile_col, scalar)
+
+
+def rf_local_greater_double(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is greater than a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_greater_double', tile_col, scalar)
+
+
+def rf_local_greater_int(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is greater than a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_greater_int', tile_col, scalar)
+
+
+def rf_local_greater_equal_double(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is greater than or equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_greater_equal_double', tile_col, scalar)
+
+
+def rf_local_greater_equal_int(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is greater than or equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_greater_equal_int', tile_col, scalar)
+
+
+def rf_local_equal_double(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_equal_double', tile_col, scalar)
+
+
+def rf_local_equal_int(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_equal_int', tile_col, scalar)
+
+
+def rf_local_unequal_double(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_unequal_double', tile_col, scalar)
+
+
+def rf_local_unequal_int(tile_col, scalar):
+    """Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0"""
+    return _apply_scalar_to_tile('rf_local_unequal_int', tile_col, scalar)
 
 
 _rf_column_functions = {
@@ -302,24 +385,11 @@ def _create_column_function(name, doc=""):
     return _
 
 
-def _create_columnScalarFunction(name, doc=""):
-    """ Create a mapping to Scala UDF for a (column, scalar) -> column function by name"""
-    def _(col, scalar):
-        jfcn = RFContext.active().lookup(name)
-        return Column(jfcn(_to_java_column(col), scalar))
-    _.__name__ = name
-    _.__doc__ = doc
-    _.__module__ = THIS_MODULE
-    return _
-
 
 def _register_functions():
     """ Register each function in the scope"""
     for name, doc in _rf_column_functions.items():
         globals()[name] = _create_column_function(name, doc)
-
-    for name, doc in _rf_column_scalar_functions.items():
-        globals()[name] = _create_columnScalarFunction(name, doc)
 
 
 _register_functions()
