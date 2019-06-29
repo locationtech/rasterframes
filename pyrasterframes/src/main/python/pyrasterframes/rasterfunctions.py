@@ -36,162 +36,92 @@ def _context_call(name, *args):
     return f(*args)
 
 
-def _celltype(cellTypeStr):
+def _parse_cell_type(cell_type_str):
     """ Convert the string cell type to the expected CellType object."""
-    return _context_call('rf_cell_type', cellTypeStr)
+    return _context_call('_parse_cell_type', cell_type_str)
 
 
-def _create_assembleTile():
-    """ Create a function mapping to the Scala implementation."""
-    def _(colIndex, rowIndex, cellData, numCols, numRows, cellType):
-        jfcn = RFContext.active().lookup('rf_assemble_tile')
-        return Column(jfcn(_to_java_column(colIndex), _to_java_column(rowIndex), _to_java_column(cellData), numCols, numRows, _celltype(cellType)))
-    _.__name__ = 'rf_assemble_tile'
-    _.__doc__ = "Create a Tile from  a column of cell data with location indices"
-    _.__module__ = THIS_MODULE
-    return _
+def rf_cell_types():
+    """Return a list of standard cell types"""
+    return [CellType(str(ct)) for ct in _context_call('rf_cell_types')]
 
 
-def _create_arrayToTile():
-    """ Create a function mapping to the Scala implementation."""
-    def _(arrayCol, numCols, numRows):
-        jfcn = RFContext.active().lookup('rf_array_to_tile')
-        return Column(jfcn(_to_java_column(arrayCol), numCols, numRows))
-    _.__name__ = 'rf_array_to_tile'
-    _.__doc__ = "Convert array in `arrayCol` into a Tile of dimensions `numCols` and `numRows'"
-    _.__module__ = THIS_MODULE
-    return _
+def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type_str):
+    """Create a Tile from  a column of cell data with location indices"""
+    jfcn = RFContext.active().lookup('rf_assemble_tile')
+    return Column(jfcn(_to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col), num_cols, num_rows, _parse_cell_type(cell_type_str)))
 
 
-def _create_convertCellType():
-    """ Create a function mapping to the Scala implementation."""
-    def _(tileCol, cellType):
-        jfcn = RFContext.active().lookup('rf_convert_cell_type')
-        return Column(jfcn(_to_java_column(tileCol), _celltype(cellType)))
-    _.__name__ = 'rf_convert_cell_type'
-    _.__doc__ = "Convert the numeric type of the Tiles in `tileCol`"
-    _.__module__ = THIS_MODULE
-    return _
+def rf_array_to_tile(array_col, num_cols, num_rows):
+    """Convert array in `array_col` into a Tile of dimensions `num_cols` and `num_rows'"""
+    jfcn = RFContext.active().lookup('rf_array_to_tile')
+    return Column(jfcn(_to_java_column(array_col), num_cols, num_rows))
 
 
-def _create_makeConstantTile():
-    """ Create a function mapping to the Scala implementation."""
-    def _(value, cols, rows, cellType):
-        jfcn = RFContext.active().lookup('rf_make_constant_tile')
-        return Column(jfcn(value, cols, rows, cellType))
-    _.__name__ = 'rf_make_constant_tile'
-    _.__doc__ = "Constructor for constant tile column"
-    _.__module__ = THIS_MODULE
-    return _
+def rf_convert_cell_type(tile_col, cell_type):
+    """Convert the numeric type of the Tiles in `tileCol`"""
+    jfcn = RFContext.active().lookup('rf_convert_cell_type')
+    return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
 
 
-def _create_tileZeros():
-    """ Create a function mapping to the Scala implementation."""
-    def _(cols, rows, cellType = 'float64'):
-        jfcn = RFContext.active().lookup('rf_make_zeros_tile')
-        return Column(jfcn(cols, rows, cellType))
-    _.__name__ = 'rf_make_zeros_tile'
-    _.__doc__ = "Create column of constant tiles of zero"
-    _.__module__ = THIS_MODULE
-    return _
+def rf_make_constant_tile(value, cols, rows, cell_type):
+    """Constructor for constant tile column"""
+    jfcn = RFContext.active().lookup('rf_make_constant_tile')
+    return Column(jfcn(value, cols, rows, cell_type))
 
 
-def _create_tileOnes():
-    """ Create a function mapping to the Scala implementation."""
-    def _(cols, rows, cellType = 'float64'):
-        jfcn = RFContext.active().lookup('rf_make_ones_tile')
-        return Column(jfcn(cols, rows, cellType))
-    _.__name__ = 'rf_tile_ones'
-    _.__doc__ = "Create column of constant tiles of one"
-    _.__module__ = THIS_MODULE
-    return _
+def rf_make_zeros_tile(cols, rows, cell_type='float64'):
+    """Create column of constant tiles of zero"""
+    jfcn = RFContext.active().lookup('rf_make_zeros_tile')
+    return Column(jfcn(cols, rows, cell_type))
 
 
-def _create_rasterize():
-    """ Create a function mapping to the Scala rf_rasterize function. """
-    def _(geometryCol, boundsCol, valueCol, numCols, numRows):
-        jfcn = RFContext.active().lookup('rf_rasterize')
-        return Column(jfcn(_to_java_column(geometryCol), _to_java_column(boundsCol), _to_java_column(valueCol), numCols, numRows))
-    _.__name__ = 'rf_rasterize'
-    _.__doc__ = 'Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value.'
-    _.__module__ = THIS_MODULE
-    return _
+def rf_make_ones_tile(cols, rows, cell_type='float64'):
+    """Create column of constant tiles of one"""
+    jfcn = RFContext.active().lookup('rf_make_ones_tile')
+    return Column(jfcn(cols, rows, cell_type))
 
 
-def _create_reproject_geometry():
-    """ Create a function mapping to the Scala st_reproject function. """
-    def _(geometryCol, srcCRSName, dstCRSName):
-        jfcn = RFContext.active().lookup('st_reproject')
-        return Column(jfcn(_to_java_column(geometryCol), srcCRSName, dstCRSName))
-    _.__name__ = 'st_reproject'
-    _.__doc__ = """Reproject a column of geometry given the CRS names of the source and destination.
-Currently supported registries are EPSG, ESRI, WORLD, NAD83, & NAD27.
-An example of a valid CRS name is EPSG:3005.
-"""
-    _.__module__ = THIS_MODULE
-    return _
+def rf_rasterize(geometry_col, bounds_col, value_col, num_cols, num_rows):
+    """Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value."""
+    jfcn = RFContext.active().lookup('rf_rasterize')
+    return Column(jfcn(_to_java_column(geometry_col), _to_java_column(bounds_col), _to_java_column(value_col), num_cols, num_rows))
 
 
-def _create_explode_tiles():
-    """ Create a function mapping to Scala rf_explode_tiles function """
-    def _(*args):
-        jfcn = RFContext.active().lookup('rf_explode_tiles')
-        jcols = [_to_java_column(arg) for arg in args]
-        return Column(jfcn(RFContext.active().list_to_seq(jcols)))
-    _.__name__ = 'rf_explode_tiles'
-    _.__doc__ = 'Create a row for each cell in Tile.'
-    _.__module__ = THIS_MODULE
-    return _
+def st_reproject(geometry_col, src_crs_name, dst_crs_name):
+    """Reproject a column of geometry given the CRS names of the source and destination.
+    Currently supported registries are EPSG, ESRI, WORLD, NAD83, & NAD27.
+    An example of a valid CRS name is EPSG:3005."""
+    jfcn = RFContext.active().lookup('st_reproject')
+    return Column(jfcn(_to_java_column(geometry_col), src_crs_name, dst_crs_name))
 
 
-def _create_explode_tiles_sample():
-    """ Create a function mapping to Scala rf_explode_tiles_sample function"""
-    def _(sample_frac, seed, *tile_cols):
-        jfcn = RFContext.active().lookup('rf_explode_tiles_sample')
-        jcols = [_to_java_column(arg) for arg in tile_cols]
-        return Column(jfcn(sample_frac, seed, RFContext.active().list_to_seq(jcols)))
-
-    _.__name__ = 'rf_explode_tiles_sample'
-    _.__doc__ = 'Create a row for a sample of cells in Tile columns.'
-    _.__module__ = THIS_MODULE
-    return _
+def rf_explode_tiles(*args):
+    """Create a row for each cell in Tile."""
+    jfcn = RFContext.active().lookup('rf_explode_tiles')
+    jcols = [_to_java_column(arg) for arg in args]
+    return Column(jfcn(RFContext.active().list_to_seq(jcols)))
 
 
-def _create_maskByValue():
-    """ Create a function mapping to Scala rf_mask_by_value function """
-    def _(data_tile, mask_tile, mask_value):
-        jfcn = RFContext.active().lookup('rf_mask_by_value')
-        return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
-    _.__name__ = 'rf_mask_by_value'
-    _.__doc__ = 'Generate a tile with the values from the data tile, but where cells in the masking tile contain the masking value, replace the data value with NODATA.'
-    _.__module__ = THIS_MODULE
-    return _
+def rf_explode_tiles_sample(sample_frac, seed, *tile_cols):
+    """Create a row for a sample of cells in Tile columns."""
+    jfcn = RFContext.active().lookup('rf_explode_tiles_sample')
+    jcols = [_to_java_column(arg) for arg in tile_cols]
+    return Column(jfcn(sample_frac, seed, RFContext.active().list_to_seq(jcols)))
 
-def _create_inverseMaskByValue():
-    """ Create a function mapping to Scala rf_inverse_mask_by_value function """
-    def _(data_tile, mask_tile, mask_value):
-        jfcn = RFContext.active().lookup('rf_inverse_mask_by_value')
-        return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
-    _.__name__ = 'rf_inverse_mask_by_value'
-    _.__doc__ = 'Generate a tile with the values from the data tile, but where cells in the masking tile do not contain the masking value, replace the data value with NODATA.'
-    _.__module__ = THIS_MODULE
-    return _
 
-_rf_unique_functions = {
-    'rf_array_to_tile': _create_arrayToTile(),
-    'rf_assemble_tile': _create_assembleTile(),
-    'rf_cell_types': lambda: [CellType(str(ct)) for ct in _context_call('rf_cell_types')],
-    'rf_convert_cell_type': _create_convertCellType(),
-    'rf_explode_tiles': _create_explode_tiles(),
-    'rf_explode_tiles_sample': _create_explode_tiles_sample(),
-    'rf_make_constant_tile': _create_makeConstantTile(),
-    'rf_mask_by_value': _create_maskByValue(),
-    'rf_inverse_mask_by_value': _create_inverseMaskByValue(),
-    'rf_rasterize': _create_rasterize(),
-    'st_reproject': _create_reproject_geometry(),
-    'rf_make_ones_tile': _create_tileOnes(),
-    'rf_make_zeros_tile': _create_tileZeros(),
-}
+def rf_mask_by_value(data_tile, mask_tile, mask_value):
+    """Generate a tile with the values from the data tile, but where cells in the masking tile contain the masking
+    value, replace the data value with NODATA. """
+    jfcn = RFContext.active().lookup('rf_mask_by_value')
+    return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
+
+
+def rf_inverse_mask_by_value(data_tile, mask_tile, mask_value):
+    """Generate a tile with the values from the data tile, but where cells in the masking tile do not contain the
+    masking value, replace the data value with NODATA. """
+    jfcn = RFContext.active().lookup('rf_inverse_mask_by_value')
+    return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
 
 
 _rf_column_scalar_functions = {
@@ -360,11 +290,6 @@ _rf_column_functions = {
 }
 
 
-__all__ = list(_rf_column_functions.keys()) + \
-          list(_rf_column_scalar_functions.keys()) + \
-          list(_rf_unique_functions.keys())
-
-
 def _create_column_function(name, doc=""):
     """ Create a mapping to Scala UDF for a column function by name"""
     def _(*args):
@@ -395,9 +320,6 @@ def _register_functions():
 
     for name, doc in _rf_column_scalar_functions.items():
         globals()[name] = _create_columnScalarFunction(name, doc)
-
-    for name, func in _rf_unique_functions.items():
-        globals()[name] = func
 
 
 _register_functions()
