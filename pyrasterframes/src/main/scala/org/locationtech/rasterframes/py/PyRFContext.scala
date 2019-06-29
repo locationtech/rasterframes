@@ -124,7 +124,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   /**
     * Convenience functions for use in Python
     */
-  def rf_cell_type(name: String): CellType = CellType.fromName(name)
+  def _parse_cell_type(name: String): CellType = CellType.fromName(name)
 
   /**
     * Convenience list of valid cell type strings
