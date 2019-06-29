@@ -25,9 +25,9 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 ## Related Links
 
 * [Gitter Channel](https://gitter.im/s22s/raster-frames)&nbsp;&nbsp;[![Join the chat at https://gitter.im/s22s/raster-frames](https://badges.gitter.im/s22s/raster-frames.svg)](https://gitter.im/s22s/raster-frames?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-* [API Documentation](latest/api/index.html)
+* [Scala API Documentation](latest/api/index.html)
 * [GitHub Repository](https://github.com/locationtech/rasterframes)
-* [Astraea, Inc.](http://www.astraea.earth/) (the company behind RasterFrames)
+* [Astraea, Inc.](http://www.astraea.earth/), the company behind RasterFrames
 
 @@@
 
@@ -43,12 +43,8 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 * [Raster Data I/O](raster-io.md)
 * [Spatial Relations](spatial-relations.md)
 * [Raster Processing](raster-processing.md)
-* [Pandas & NumPy Interoperabiliyt](pandas-numpy.md)
+* [Pandas, NumPy & RasterFrames](pandas-numpy.md)
 * [UDF Reference](reference.md)
 * [Release Notes](release-notes.md)
 @@@
 
-
-
-Raster processing
-Installation 

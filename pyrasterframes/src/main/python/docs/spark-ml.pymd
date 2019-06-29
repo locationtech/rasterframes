@@ -1,87 +1,100 @@
-# Spark ML Support
+# Machine Learning with RasterFrames
 
-## Clustering
+RasterFrames provides access to train and predict with a wide variety of machine learning models through [Spark ML Pipelines](https://spark.apache.org/docs/latest/ml-guide.html). This library provides a variety of pipeline components for supervised learning, unsupervised learning, and data preparation that can be used to repeatably represent a variety of tasks in machine learning.
+
+In this example we will demonstrate how to fit and score an unsupervised learning model with a [sample of Landsat 8 data](https://github.com/locationtech/rasterframes/tree/develop/pyrasterframes/src/test/resources).
+
+## Imports and Data Preparation
 
 ```python, echo=False
-from docs import *
-from pyrasterframes import TileExploder
+from IPython.core.display import display
+from docs import resource_dir_uri
 from pyrasterframes.utils import create_rf_spark_session
-from pyrasterframes.rasterfunctions import rf_assemble_tile
+
+import os
+
+spark = create_rf_spark_session()
+
+import pandas as pd
+```
+
+We import various Spark components that we need to construct our Pipeline.
+
+```python, echo=True
+from pyrasterframes import TileExploder
+from pyrasterframes.rasterfunctions import rf_assemble_tile, rf_crs, rf_extent, rf_tile, rf_dimensions
 
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
 from pyspark.ml import Pipeline
 
-import os
-
-spark = create_rf_spark_session()
 ```
 
-The first step is to load multiple bands of imagery and construct
-a single RasterFrame from them.
+The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from [the I/O page](raster-io.html#Single-Scene--Multiple-Bands). In the catalog, each row represents a distinct area and time; and each column is the URI to a band's image product. The function `resource_dir` gives a local file system path to the sample Landsat data. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
 
-```python
-filenamePattern = "L8-B{}-Elkton-VA.tiff"
-bandNumbers = range(1, 8)
-bandColNames = list(map(lambda n: 'band_{}'.format(n), bandNumbers))
-```
-
-For each identified band, load the associated image file:
 
 ```python, term=True
-# TODO: rewrite using `rastersource`.
-from functools import reduce
-joinedRF = reduce(lambda rf1, rf2: rf1.asRF().spatialJoin(rf2.drop('bounds').drop('metadata').drop('extent').drop('crs')),
-                  map(lambda bf: spark.read.geotiff(bf[1])
-                      .withColumnRenamed('tile', 'band_{}'.format(bf[0])),
-                  map(lambda b: (b, os.path.join(resource_dir(), filenamePattern.format(b))), bandNumbers)))
+filenamePattern = "L8-B{}-Elkton-VA.tiff"
+catalog_df = pd.DataFrame([
+    {'b' + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
+])
+df = spark.read.rastersource(catalog=catalog_df.to_csv(index=None), catalog_col_names=catalog_df.columns)
+df = df.select(
+    rf_crs(df.b1).alias('crs'),
+    rf_extent(df.b1).alias('extent'),
+    rf_tile(df.b1).alias('b1'),
+    rf_tile(df.b2).alias('b2'),
+    rf_tile(df.b3).alias('b3'),
+    rf_tile(df.b4).alias('b4'),
+    rf_tile(df.b5).alias('b5'),
+    rf_tile(df.b6).alias('b6'),
+    rf_tile(df.b7).alias('b7'),
+)
+df.printSchema()
 ```
 
-We should see a single spatial_key column along with columns of tiles.
+## Create ML Pipeline
 
-```python
-joinedRF.printSchema()
-```
-
-SparkML requires that each observation be in its own row, and those
-observations be packed into a single `Vector`. The first step is to
-"explode" the tiles into a single row per cell/pixel
+SparkML requires that each observation be in its own row, and features for each
+observation be packed into a single `Vector`. For this unsupervised learning problem, we will treat each _pixel_ as an observation and use one feature per band. The first step is to
+"explode" the tiles into a single row per pixel. In the scala API a pixel is called a `cell`.
 
 ```python
 exploder = TileExploder()
 ```
 
-To "vectorize" the the band columns we use the SparkML `VectorAssembler`
+To "vectorize" the the band columns we use the SparkML `VectorAssembler`. We use each of the seven bands for a different feature.
 
 ```python
 assembler = VectorAssembler() \
-    .setInputCols(bandColNames) \
+    .setInputCols(list(catalog_df.columns)) \
     .setOutputCol("features")
 ```
 
-Configure our clustering algorithm
+Configure our clustering algorithm.
 
 ```python
-k = 5
-kmeans = KMeans().setK(k)
+kmeans = KMeans().setK(5).setFeaturesCol('features')
 ```
 
-Combine the two stages
+Combine the stages into a single pipeline.
 
 ```python
 pipeline = Pipeline().setStages([exploder, assembler, kmeans])
 ```
 
-Compute clusters
+## Fit the Model and Score
+
+Fit the pipeline; this actually executes exploding the tiles, assembling the `Vector`s, and fitting the k-means clustering.
 
 ```python
-model = pipeline.fit(joinedRF)
+model = pipeline.fit(df)
 ```
 
-Run the data through the model to assign cluster IDs to each
+Score the training data in the fitted pipeline model. This will add a column called `prediction` with the closest cluster identifier.
 
 ```python
-clustered = model.transform(joinedRF)
+clustered = model.transform(df)
 clustered.show(8)
 ```
 
@@ -89,29 +102,34 @@ If we want to inspect the model statistics, the SparkML API requires us to go
 through this unfortunate contortion:
 
 ```python
-clusterResults = list(filter(lambda x: str(x).startswith('KMeans'), model.stages))[0]
+cluster_stage = model.stages[2]
 ```
 
-Compute sum of squared distances of points to their nearest center
+Compute sum of squared distances of points to their nearest center. This is elemental to most of the cluster quality metrics.
 
 ```python
-metric = clusterResults.computeCost(clustered)
+metric = cluster_stage.computeCost(clustered)
 print("Within set sum of squared errors: %s" % metric)
-
-tlm = joinedRF.tileLayerMetadata()
-layout = tlm['layoutDefinition']['tileLayout']
-
-retiled = clustered.groupBy('spatial_key').agg(
-    rf_assemble_tile('column_index', 'row_index', 'prediction',
-        layout['tileCols'], layout['tileRows'], 'int8')
-)
-
-rf = retiled.asRF('spatial_key', tlm)
-rf.printSchema()
-rf.show()
 ```
 
+## Visualize Prediction
 
-```python, echo=False
-spark.stop()
+We can recreate the tiled data structure using the metadata added by the `TileExploder` pipeline stage.
+
+```python
+tile_dims = df.select(rf_dimensions(df.b1).alias('dims')).first()['dims']
+retiled = clustered.groupBy('extent', 'crs') \
+    .agg(
+        rf_assemble_tile('column_index', 'row_index', 'prediction',
+            tile_dims['cols'], tile_dims['rows'], 'int8').alias('prediction')
+)
+
+retiled.printSchema()
+retiled.show()
+```
+
+Take a look at the resulting output.
+
+```python
+display(retiled.select('prediction').first()['prediction'])
 ```

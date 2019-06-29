@@ -1,16 +1,14 @@
 # Function Reference
 
-For the most up to date list of User Defined Functions using Tiles, look at API documentation for @scaladoc[`RasterFunctions`][RasterFunctions]. 
-
-The full Scala API documentation can be found [here][scaladoc].
-
-RasterFrames also provides SQL and Python bindings to many UDFs using the `Tile` column type. In Spark SQL, the functions are already registered in the SQL engine; they are usually prefixed with `rf_`. In Python, they are available in the `pyrasterframes.rasterfunctions` module. 
+RasterFrames provides SQL and Python bindings to many UDFs using the `Tile` column type. In Spark SQL, the functions are already registered in the SQL engine; they are usually prefixed with `rf_`. In Python, they are available in the `pyrasterframes.rasterfunctions` module. 
 
 The convention in this document will be to define the function signature as below, with its return type, the function name, and named arguments with their types.
 
 ```
 ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
 ```
+
+For the Scala documentation on these functions, see @scaladoc[`RasterFunctions`][RasterFunctions]. The full Scala API documentation can be found [here][scaladoc].
 
 ## List of Available SQL and Python Functions
 
@@ -40,7 +38,7 @@ See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/
 
 #### st_geometry 
 
-    Geometry st_extent(Struct[Double xmin, Double xmax, Double ymin, Double ymax] extent)
+    Geometry st_geometry(Struct[Double xmin, Double xmax, Double ymin, Double ymax] extent)
     
 Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`](reference.md#st-extent) or @ref:[`rf_extent`](reference.md#rf-extent). 
 
@@ -85,17 +83,23 @@ Get number of columns and rows in the `tile`, as a Struct of `cols` and `rows`.
     
 Get the cell type of the `tile`. The cell type can be changed with @ref:[rf_convert_cell_type](reference.md#rf-convert-cell-type). 
 
+#### rf_tile
+
+    Tile rf_tile(ProjectedRasterTile proj_raster)
+    
+Get the `tile` from the `ProjectedRasterTile` or `RasterSource` type tile column.
+
 #### rf_extent
 
-    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(ProjectedRasterTile raster)
-    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(RasterSource raster)
+    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(ProjectedRasterTile proj_raster)
+    Struct[Double xmin, Double xmax, Double ymin, Double ymax] rf_extent(RasterSource proj_raster)
 
 Fetches the extent (bounding box or envelope) of a `ProjectedRasterTile` or `RasterSource` type tile columns.
 
 #### rf_crs
 
-    Struct[String] rf_crs(ProjectedRasterTile raster)
-    Struct[String] rf_crs(RasterSource raster)
+    Struct[String] rf_crs(ProjectedRasterTile proj_raster)
+    Struct[String] rf_crs(RasterSource proj_raster)
     
 Fetch the [proj4](https://proj4.org/) string representation of the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns.
 
@@ -247,17 +251,19 @@ The `no_data_value` argument is a literal Double, not a Column expression.
 
 If input `tile` had a nodata value already, the behaviour depends on if its cell type is floating point or not. For floating point cell type `tile`, nodata values on the input `tile` remain nodata values on the output. For integral cell type `tile`s, the previous nodata values become literal values. 
 
-### Map Algebra
+### Local Map Algebra
 
-[Map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations between a `tile` and a scalar, between two `tile`s, or among many `tile`s. 
+[Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single tile (unary), between a `tile` and a scalar, between two `tile`s, or across many `tile`s. 
 
-Some of these functions have similar variations in the Python API:
+The binary local map algebra functions have similar variations in the Python API depending on the left hand side type:
 
  - `rf_local_op`: applies `op` to two columns; the right hand side can be a `tile` or a numeric column.
  - `rf_local_op_double`: applies `op` to a `tile` and a literal scalar, coercing the `tile` to a floating point type
  - `rf_local_op_int`: applies `op` to a `tile` and a literal scalar, without coercing the `tile` to a floating point type
  
 The SQL API does not require the `rf_local_op_double` or `rf_local_op_int` forms (just `rf_local_op`).
+
+Local map algebra operations for more than two tiles are implemented to work across rows in the data frame. As such, they are @ref:[aggregate functions](reference.md#tile-local-aggregate-statistics).
 
 #### rf_local_add
 

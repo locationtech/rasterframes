@@ -4,12 +4,7 @@ PyRasterFrames enables access and processing of geospatial raster data in PySpar
 
 ## Getting started
 
-### Prerequisites
-
-1. [`pip`](https://pip.pypa.io/en/stable/installing/)
-2. ['pyspark`](https://pypi.org/project/pyspark/) > 2.3.2 
-
-The quickest way to get started is to `pip` install the pyrasterframes package.
+The quickest way to get started is to [`pip`](https://pip.pypa.io/en/stable/installing/) install the pyrasterframes package.
 
 ```bash
 pip install pyrasterframes
@@ -32,7 +27,6 @@ df = spark.read.rastersource('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/
 # Add 3 element-wise, show some rows of the dataframe
 df.select(rf_local_add(df.tile, lit(3))).show(5, False)
 ```
-
 
 ## Support
 
