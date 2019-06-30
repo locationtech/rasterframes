@@ -134,6 +134,14 @@ class VectorTypes(TestEnvironment):
     def test_reproject(self):
         reprojected = self.rf.withColumn('reprojected', st_reproject('center', 'EPSG:4326', 'EPSG:3857'))
         reprojected.show()
+        self.assertEqual(reprojected.count(), 8)
+
+    def test_geojson(self):
+        import os
+        sample = 'file://' + os.path.join(self.resource_dir, 'buildings.geojson')
+        geo = self.spark.read.geojson(sample)
+        geo.show()
+        self.assertEqual(geo.select('geometry').count(), 8)
 
 
 class RasterFunctions(TestEnvironment):

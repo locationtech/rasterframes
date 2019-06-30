@@ -19,7 +19,7 @@
  *
  */
 
-package org.locationtech.rasterframes.experimental.datasource
+package org.locationtech.rasterframes.datasource
 
 import org.apache.spark.sql.DataFrameReader
 

@@ -41,7 +41,7 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 * [Description](description.md)
 * [Getting Started](getting-started.md)
 * [Raster Data I/O](raster-io.md)
-* [Spatial Relations](spatial-relations.md)
+* [Vector Data](vector-data.md)
 * [Raster Processing](raster-processing.md)
 * [Pandas, NumPy & RasterFrames](pandas-numpy.md)
 * [UDF Reference](reference.md)

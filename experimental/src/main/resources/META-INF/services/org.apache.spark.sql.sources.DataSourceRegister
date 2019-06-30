@@ -1,4 +1,3 @@
-org.locationtech.rasterframes.experimental.datasource.geojson.GeoJsonDataSource
 org.locationtech.rasterframes.experimental.datasource.awspds.L8CatalogDataSource
 org.locationtech.rasterframes.experimental.datasource.awspds.MODISCatalogDataSource
 org.locationtech.rasterframes.experimental.datasource.awspds.L8DataSource

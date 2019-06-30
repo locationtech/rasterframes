@@ -2,3 +2,4 @@ org.locationtech.rasterframes.datasource.geotiff.GeoTiffDataSource
 org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisLayerDataSource
 org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisCatalog
 org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource
+org.locationtech.rasterframes.datasource.geojson.GeoJsonDataSource

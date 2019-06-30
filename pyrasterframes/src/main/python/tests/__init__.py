@@ -33,9 +33,16 @@ else:
 
 
 def resource_dir():
+    def pdir(curr):
+        return os.path.dirname(curr)
+
     here = os.path.dirname(os.path.realpath(__file__))
-    scala_target = os.path.realpath(os.path.join(here, '..', '..', 'scala-2.11'))
-    return os.path.realpath(os.path.join(scala_target, 'test-classes'))
+    scala_target = os.path.realpath(os.path.join(pdir(pdir(here)), 'scala-2.11'))
+    rez_dir = os.path.realpath(os.path.join(scala_target, 'test-classes'))
+    # If not running in build mode, try source dirs.
+    if not os.path.exists(rez_dir):
+        rez_dir = os.path.realpath(os.path.join(pdir(pdir(pdir(here))), 'test', 'resources'))
+    return rez_dir
 
 
 def spark_test_session():

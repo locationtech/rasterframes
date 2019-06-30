@@ -98,6 +98,10 @@ def _layer_reader(df_reader, format_key, path, **options):
     return _convert_df(df)
 
 
+def _aliased_reader(df_reader, format_key, path, **options):
+    """ Loads the file of the given type at the given path."""
+    return df_reader.format(format_key).load(path, **options)
+
 def _raster_reader(
         df_reader, path=None,
         band_indexes=None,
@@ -155,6 +159,8 @@ DataFrame.raster_join = _raster_join
 
 # Add DataSource convenience methods to the DataFrameReader
 DataFrameReader.raster = _raster_reader
+DataFrameReader.geojson = lambda df_reader, path: _aliased_reader(df_reader, "geojson", path)
+
 
 # Legacy readers
 DataFrameReader.geotiff = lambda df_reader, path: _layer_reader(df_reader, "geotiff", path)
