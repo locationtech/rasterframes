@@ -22,11 +22,12 @@
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
+import org.apache.hadoop.fs.{Path => HadoopPath}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
+import org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation
 
 /**
  * Constructs a dataframe from the available scenes

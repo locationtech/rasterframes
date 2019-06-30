@@ -40,3 +40,4 @@ private[rasterframes] trait SparkBasicEncoders {
   implicit val boolEnc: Encoder[Boolean] = Encoders.scalaBoolean
 }
 
+object SparkBasicEncoders extends SparkBasicEncoders

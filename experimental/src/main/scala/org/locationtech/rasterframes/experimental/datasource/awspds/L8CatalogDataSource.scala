@@ -28,6 +28,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
+import org.locationtech.rasterframes.experimental.datasource.ResourceCacheSupport
 
 /**
  * Data source for querying AWS PDS catalog of L8 imagery.
@@ -48,7 +49,7 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
 }
 
 object L8CatalogDataSource extends LazyLogging with ResourceCacheSupport {
-  final val SHORT_NAME: String = "awsl8-catalog"
+  final val SHORT_NAME: String = "aws-pds-l8-catalog"
   private val remoteSource = URI.create("http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz")
   private def sceneListFile(implicit fs: FileSystem) =
     cachedURI(remoteSource).getOrElse(throw new FileNotFoundException(remoteSource.toString))

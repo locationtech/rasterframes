@@ -22,12 +22,14 @@
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
 import com.typesafe.scalalogging.LazyLogging
-import org.locationtech.jts.geom.Envelope
-import org.apache.hadoop.fs.{Path ⇒ HadoopPath}
+import geotrellis.vector.Extent
+import org.apache.hadoop.fs.{Path => HadoopPath}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{Dataset, Row, SQLContext}
+import org.apache.spark.sql.{Dataset, Row, SQLContext, TypedColumn}
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders.stringEnc
+import org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation
 /**
  * Schema definition and parser for AWS PDS L8 scene data.
  *
@@ -43,9 +45,12 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
   protected def cacheFile: HadoopPath = sceneListPath.suffix(".parquet")
 
   protected def constructDataset: Dataset[Row] = {
-    import org.locationtech.rasterframes.encoders.StandardEncoders.envelopeEncoder
+    import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
     import sqlContext.implicits._
     logger.debug("Parsing " + sceneListPath)
+
+    val bandCols = Bands.values.toSeq.map(b => l8_band_url(b) as (b.toString))
+
     sqlContext.read
       .schema(inputSchema)
       .option("header", "true")
@@ -54,12 +59,13 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
       .where(not($"${PRODUCT_ID.name}".endsWith("RT")))
       .drop("download_url")
       .withColumn(BOUNDS_WGS84.name, struct(
-        $"min_lon" as "minX",
-        $"max_lon" as "maxX",
-        $"min_lat" as "minY",
-        $"max_lat" as "maxY"
-      ).as[Envelope])
+        $"min_lon" as "xmin",
+        $"min_lat" as "ymin",
+        $"max_lon" as "xmax",
+        $"max_lat" as "ymax"
+      ).as[Extent])
       .withColumnRenamed("__url", DOWNLOAD_URL.name)
+      .select(col("*") +: bandCols: _*)
       .select(schema.map(f ⇒ col(f.name)): _*)
       .orderBy(ACQUISITION_DATE.name, PATH.name, ROW.name)
       .distinct() // The scene file contains duplicates.
@@ -68,6 +74,17 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
 }
 
 object L8CatalogRelation extends PDSFields {
+
+
+  /**
+    * Constructs link with the form:
+    * `https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_{bandId].TIF`
+    * @param band Band identifier
+    * @return
+    */
+  def l8_band_url(band: Bands.Band): TypedColumn[Any, String] = {
+    concat(col("download_url"), concat(col("product_id"), lit(s"_$band.TIF")))
+  }.as(band.toString).as[String]
 
   private def inputSchema = StructType(Seq(
     PRODUCT_ID,
@@ -84,6 +101,13 @@ object L8CatalogRelation extends PDSFields {
     DOWNLOAD_URL
   ))
 
+  object Bands extends Enumeration {
+    type Band = Value
+    val B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, BQA = Value
+    val names: Seq[String] = values.toSeq.map(_.toString)
+  }
+
+
   def schema = StructType(Seq(
     PRODUCT_ID,
     ENTITY_ID,
@@ -92,9 +116,8 @@ object L8CatalogRelation extends PDSFields {
     PROC_LEVEL,
     PATH,
     ROW,
-    BOUNDS_WGS84,
-    DOWNLOAD_URL
-  ))
+    BOUNDS_WGS84
+  ) ++ Bands.names.map(n => StructField(n, StringType, true)))
 }
 
 

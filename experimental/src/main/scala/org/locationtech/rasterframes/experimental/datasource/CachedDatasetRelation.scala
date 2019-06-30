@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2089 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,13 +19,13 @@
  *
  */
 
-package org.locationtech.rasterframes.experimental.datasource.awspds
+package org.locationtech.rasterframes.experimental.datasource
 
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.hadoop.fs.{FileSystem, Path ⇒ HadoopPath}
+import org.apache.hadoop.fs.{FileSystem, Path => HadoopPath}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.sql.sources.BaseRelation
+import org.apache.spark.sql.{Dataset, Row}
 import org.locationtech.rasterframes.util._
 
 /**
