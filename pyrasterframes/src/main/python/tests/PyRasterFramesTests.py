@@ -418,7 +418,7 @@ class UDT(TestEnvironment):
 
     def test_udf_on_tile_type_input(self):
         import numpy.testing
-        df = self.spark.read.rastersource(self.img_uri)
+        df = self.spark.read.raster(self.img_uri)
         rf = self.rf
 
         # create trivial UDF that does something we already do with raster_Functions
@@ -687,7 +687,7 @@ class RasterJoin(TestEnvironment):
 class RasterSource(TestEnvironment):
 
     def test_handle_lazy_eval(self):
-        df = self.spark.read.rastersource(self.img_uri)
+        df = self.spark.read.raster(self.img_uri)
         ltdf = df.select('proj_raster')
         self.assertGreater(ltdf.count(), 0)
         self.assertIsNotNone(ltdf.first())
@@ -697,7 +697,7 @@ class RasterSource(TestEnvironment):
         self.assertIsNotNone(tdf.first())
 
     def test_prt_functions(self):
-        df = self.spark.read.rastersource(self.img_uri) \
+        df = self.spark.read.raster(self.img_uri) \
             .withColumn('crs', rf_crs('proj_raster')) \
             .withColumn('ext', rf_extent('proj_raster')) \
             .withColumn('geom', rf_geometry('proj_raster'))
@@ -715,7 +715,7 @@ class RasterSource(TestEnvironment):
         path_param = '\n'.join([l8path(b) for b in [1, 2, 3]])  # "http://foo.com/file1.tif,http://foo.com/file2.tif"
         tile_size = 512
 
-        df = self.spark.read.rastersource(
+        df = self.spark.read.raster(
             tile_dimensions=(tile_size, tile_size),
             paths=path_param
         )
@@ -756,7 +756,7 @@ class RasterSource(TestEnvironment):
         catalog_columns = ','.join(path_pandas.columns.tolist())  # 'b1,b2,b3'
         path_table = self.spark.createDataFrame(path_pandas)
 
-        path_df = self.spark.read.rastersource(
+        path_df = self.spark.read.raster(
             tile_dimensions=(512, 512),
             catalog=path_table,
             catalog_col_names=catalog_columns

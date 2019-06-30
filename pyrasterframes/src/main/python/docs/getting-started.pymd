@@ -20,7 +20,7 @@ from pyrasterframes.rasterfunctions import rf_local_add
 from pyspark.sql.functions import lit
 
 # Read a MODIS surface reflectance granule
-df = spark.read.rastersource('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
+df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 
 # Add 3 element-wise, show some rows of the dataframe
 df.select(rf_local_add(df.proj_raster, lit(3))).show(5, False)
@@ -79,7 +79,7 @@ Then in the pyspark shell, import the module and call `withRasterFrames` on the 
 ```python, evaluate=False
 import pyrasterframes
 spark = spark.withRasterFrames()
-df = spark.read.rastersource('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
+df = spark.read.raster('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
 ```
 
 Now you have the configured SparkSession with RasterFrames enabled.

@@ -11,7 +11,7 @@ from pyrasterframes.rasterfunctions import *
 spark = create_rf_spark_session()
 ```
 
-RasterFrames registers a DataSource named `rastersource` that enables reading of GeoTIFFs (and other formats when GDAL is installed) from arbitrary (sets of) URIs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket:
+RasterFrames registers a DataSource named `rasters` that enables reading of GeoTIFFs (and other formats when GDAL is installed) from arbitrary (sets of) URIs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket:
 
 ```python
 data_root = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp'
@@ -25,7 +25,7 @@ def s2_band(idx):
 The simplest form is reading a single raster from a single URI:
 
 ```python
-rf = spark.read.rastersource(s2_band(2))
+rf = spark.read.raster(s2_band(2))
 rf.printSchema()
 ```
 
@@ -57,7 +57,7 @@ display(tile)
 
 ### Single Scene, Multiple Bands
 
-Generally we'll want to work with multiple bands. If you have several singleband image files of the same scene, `rastersource` can make use of a CSV (or other DataFrame) specifying the band columns and scene rows.
+Generally we'll want to work with multiple bands. If you have several singleband image files of the same scene, `raster` can make use of a CSV (or other DataFrame) specifying the band columns and scene rows.
 
 ```python
 csv = """
@@ -67,7 +67,7 @@ red,green,blue
 
 print(csv)
 
-rf2 = spark.read.rastersource(catalog=csv, catalog_col_names=['red', 'green', 'blue'])
+rf2 = spark.read.raster(catalog=csv, catalog_col_names=['red', 'green', 'blue'])
 rf2.printSchema()
 
 rf2.show(5)
@@ -117,10 +117,10 @@ equator = (modis_catalog
 equator.show(3)
 ```
 
-Now that we have a catalog of multiple scenes and mutiple bands withit each scene, we can pass it along to `rastersource` load the imagery. To complete the example, we compute some aggregate statistics over NDVI.
+Now that we have a catalog of multiple scenes and mutiple bands withit each scene, we can pass it along to `raster` load the imagery. To complete the example, we compute some aggregate statistics over NDVI.
 
 ```python
-rf = spark.read.rastersource(
+rf = spark.read.raster(
     catalog=equator, 
     catalog_col_names=['red', 'nir']
 ).repartition()

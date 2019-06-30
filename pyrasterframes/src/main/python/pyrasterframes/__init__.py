@@ -29,7 +29,7 @@ from pyspark.sql import SparkSession, DataFrame, DataFrameReader
 from pyspark.sql.column import _to_java_column
 
 # Import RasterFrame types and functions
-from .context import RFContext
+from .rf_context import RFContext
 from .version import __version__
 from .rf_types import RasterFrame, TileExploder, TileUDT, RasterSourceUDT
 
@@ -98,7 +98,7 @@ def _layer_reader(df_reader, format_key, path, **options):
     return _convert_df(df)
 
 
-def _rastersource_reader(
+def _raster_reader(
         df_reader, path=None,
         band_indexes=None,
         tile_dimensions=(256, 256),
@@ -131,15 +131,15 @@ def _rastersource_reader(
         elif isinstance(catalog, DataFrame):
             import uuid
             # Create a random view name
-            name = str(uuid.uuid4()).replace('-', '')
-            catalog.createOrReplaceTempView(name)
+            tmp_name = str(uuid.uuid4()).replace('-', '')
+            catalog.createOrReplaceTempView(tmp_name)
             options.update({
-                "catalogTable": name,
+                "catalogTable": tmp_name,
                 "catalogColumns": to_csv(catalog_col_names)
             })
 
     return df_reader \
-        .format("rastersource") \
+        .format("raster") \
         .load(path, **options)
 
 
@@ -154,7 +154,7 @@ DataFrame.asRF = _convert_df
 DataFrame.raster_join = _raster_join
 
 # Add DataSource convenience methods to the DataFrameReader
-DataFrameReader.rastersource = _rastersource_reader
+DataFrameReader.raster = _raster_reader
 
 # Legacy readers
 DataFrameReader.geotiff = lambda df_reader, path: _layer_reader(df_reader, "geotiff", path)

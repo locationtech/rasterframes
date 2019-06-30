@@ -67,7 +67,7 @@ Then in the pyspark shell or app, import the module and call `withRasterFrames` 
 ```python
 from pyrasterframes.utils import create_rf_spark_session
 spark = create_rf_spark_session()
-df = spark.read.rastersource('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
+df = spark.read.raster('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
 ```
 
 ## Development

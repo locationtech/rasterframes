@@ -31,7 +31,7 @@ from pyspark.sql import DataFrame, Column
 from pyspark.sql.types import (StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
-from pyrasterframes.context import RFContext
+from pyrasterframes.rf_context import RFContext
 import numpy as np
 
 __all__ = ['RasterFrame', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
