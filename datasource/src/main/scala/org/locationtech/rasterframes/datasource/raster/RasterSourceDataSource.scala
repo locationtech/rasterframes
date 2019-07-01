@@ -27,8 +27,6 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.locationtech.rasterframes.model.TileDimensions
 
-import scala.util.Try
-
 class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   import RasterSourceDataSource._
   override def shortName(): String = SHORT_NAME
@@ -36,9 +34,11 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
     val bands = parameters.bandIndexes
     val tiling = parameters.tileDims
     val spec = parameters.pathSpec
-    RasterSourceRelation(sqlContext, spec, bands, tiling)
+    val catRef = spec.fold(_.registerAsTable(sqlContext), identity)
+    RasterSourceRelation(sqlContext, catRef, bands, tiling)
   }
 }
+
 object RasterSourceDataSource {
   final val SHORT_NAME = "raster"
   final val PATH_PARAM = "path"
@@ -55,29 +55,39 @@ object RasterSourceDataSource {
     def bandColumnNames: Seq[String]
   }
   /** Container for specifying raster paths. */
-  case class BandSet(bandPaths: String*)
-  case class RasterSourceCatalog(sceneRows: Seq[BandSet], bandColumnNames: String*) extends WithBandColumns {
-    require(sceneRows.forall(_.bandPaths.length == bandColumnNames.length),
-      "Each scene row must have the same number of entries as band column names")
-  }
-
-  object RasterSourceCatalog {
-    def apply(csv: String, bandColumnNames: String*): Option[RasterSourceCatalog] = Try {
+  case class RasterSourceCatalog(csv: String, bandColumnNames: String*) extends WithBandColumns {
+    def registerAsTable(sqlContext: SQLContext): RasterSourceCatalogRef = {
+      import sqlContext.implicits._
       val lines = csv
         .split(Array('\n','\r'))
         .map(_.trim)
         .filter(_.nonEmpty)
 
-      val header = lines.head.split(',').map(_.trim).toSeq
-      val rows = lines.tail.map(_.split(',').map(_.trim)).map(BandSet(_: _*))
-      val bands = if (bandColumnNames.isEmpty) header
-      else bandColumnNames
-      RasterSourceCatalog(rows, bands: _*)
-    }.toOption
+      val dsLines = sqlContext.createDataset(lines)
+      val catalog = sqlContext.read
+        .option("header", "true")
+        .option("ignoreTrailingWhiteSpace", true)
+        .option("ignoreLeadingWhiteSpace", true)
+        .csv(dsLines)
 
+      val tmpName = tmpTableName()
+      catalog.createOrReplaceTempView(tmpName)
+
+      val cols = if (bandColumnNames.isEmpty) catalog.columns.toSeq
+      else bandColumnNames
+
+      RasterSourceCatalogRef(tmpName, cols: _*)
+    }
+  }
+
+  object RasterSourceCatalog {
     def apply(singlebandPaths: Seq[String]): Option[RasterSourceCatalog]  =
       if (singlebandPaths.isEmpty) None
-      else Some(RasterSourceCatalog(singlebandPaths.map(BandSet(_)), DEFAULT_COLUMN_NAME))
+      else {
+        val header = DEFAULT_COLUMN_NAME
+        val csv = header + "\n" + singlebandPaths.mkString("\n")
+        Some(new RasterSourceCatalog(csv, header))
+      }
   }
 
   /** Container for specifying where to select raster paths from. */
@@ -85,15 +95,16 @@ object RasterSourceDataSource {
 
   private[raster]
   implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
+    def tokenize(csv: String): Seq[String] = csv.split(',').map(_.trim)
 
     def tileDims: Option[TileDimensions] =
       parameters.get(TILE_DIMS_PARAM)
-        .map(_.split(',').map(_.trim.toInt))
-        .map { case Array(cols, rows) => TileDimensions(cols, rows)}
+        .map(tokenize(_).map(_.toInt))
+        .map { case Seq(cols, rows) => TileDimensions(cols, rows)}
 
     def bandIndexes: Seq[Int] = parameters
       .get(BAND_INDEXES_PARAM)
-      .map(_.split(',').map(_.trim.toInt).toSeq)
+      .map(tokenize(_).map(_.toInt))
       .getOrElse(Seq(0))
 
     def catalog: Option[RasterSourceCatalog] = {
@@ -110,13 +121,13 @@ object RasterSourceDataSource {
       RasterSourceCatalog(paths)
         .orElse(parameters
           .get(CATALOG_CSV_PARAM)
-          .flatMap(RasterSourceCatalog(_, catalogTableCols: _*))
+          .map(RasterSourceCatalog(_, catalogTableCols: _*))
         )
     }
 
     def catalogTableCols: Seq[String] = parameters
       .get(CATALOG_TABLE_COLS_PARAM)
-      .map(_.split(',').toSeq)
+      .map(tokenize(_).filter(_.nonEmpty).toSeq)
       .getOrElse(Seq.empty)
 
     def catalogTable: Option[RasterSourceCatalogRef] = parameters
@@ -124,12 +135,13 @@ object RasterSourceDataSource {
       .map(p => RasterSourceCatalogRef(p, catalogTableCols: _*))
 
     def pathSpec: Either[RasterSourceCatalog, RasterSourceCatalogRef] = {
-      val a = catalogTable
-      val b = catalogTableCols
       (catalog, catalogTable) match {
         case (Some(f), None) => Left(f)
         case (None, Some(p)) => Right(p)
-        case _ => throw new IllegalArgumentException("Only one of a set of file paths OR a paths table column may be provided.")
+        case (None, None) => throw new IllegalArgumentException(
+          s"Unable to interpret paths from: ${parameters.mkString("\n", "\n", "\n")}")
+        case _ => throw new IllegalArgumentException(
+          "Only one of a set of file paths OR a paths table column may be provided.")
       }
     }
   }

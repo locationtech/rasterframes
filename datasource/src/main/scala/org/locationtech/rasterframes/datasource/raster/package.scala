@@ -29,6 +29,8 @@ import shapeless.tag
 import shapeless.tag.@@
 package object raster {
 
+  private[raster] def tmpTableName() = UUID.randomUUID().toString.replace("-", "")
+
   trait RasterSourceDataFrameReaderTag
   type RasterSourceDataFrameReader = DataFrameReader @@ RasterSourceDataFrameReaderTag
 
@@ -53,9 +55,10 @@ package object raster {
 
     def fromCatalog(catalog: DataFrame, bandColumnNames: String*): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader] {
-        val tmpName = UUID.randomUUID().toString.replace("-", "")
+        val tmpName = tmpTableName()
         catalog.createOrReplaceTempView(tmpName)
-        reader.option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tmpName)
+        reader
+          .option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tmpName)
           .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
       }
 
@@ -65,9 +68,10 @@ package object raster {
           .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
       )
 
-    def fromCSV(catalogCSV: String): RasterSourceDataFrameReader =
+    def fromCSV(catalogCSV: String, bandColumnNames: String*): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
         reader.option(RasterSourceDataSource.CATALOG_CSV_PARAM, catalogCSV)
+          .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
       )
 
     def from(newlineDelimPaths: String): RasterSourceDataFrameReader =

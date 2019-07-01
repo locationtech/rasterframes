@@ -26,7 +26,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.{RasterSourceCatalog, RasterSourceCatalogRef}
+import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
@@ -42,11 +42,11 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
   */
 case class RasterSourceRelation(
   sqlContext: SQLContext,
-  catalogTable: Either[RasterSourceCatalog, RasterSourceCatalogRef],
+  catalogTable: RasterSourceCatalogRef,
   bandIndexes: Seq[Int], subtileDims: Option[TileDimensions])
   extends BaseRelation with TableScan {
 
-  lazy val inputColNames = catalogTable.merge.bandColumnNames
+  lazy val inputColNames = catalogTable.bandColumnNames
 
   def pathColNames = inputColNames
     .map(_ + "_path")
@@ -61,6 +61,11 @@ case class RasterSourceRelation(
   def tileColNames = inputColNames
     .flatMap(bandNames(_, bandIndexes))
 
+  def extraCols: Seq[StructField] = {
+    val catalog = sqlContext.table(catalogTable.tableName)
+    catalog.schema.fields.filter(f => !catalogTable.bandColumnNames.contains(f.name))
+  }
+
   override def schema: StructType = {
     val tileSchema = schemaOf[ProjectedRasterTile]
     val paths = for {
@@ -70,7 +75,7 @@ case class RasterSourceRelation(
       tileColName <- tileColNames
     } yield StructField(tileColName, tileSchema, true)
 
-    StructType(paths ++ tiles)
+    StructType(paths ++ tiles ++ extraCols)
   }
 
   override def buildScan(): RDD[Row] = {
@@ -79,18 +84,7 @@ case class RasterSourceRelation(
     // The general transformaion is:
     // input -> path -> src -> ref -> tile
     // Each step is broken down for readability
-    val inputs: DataFrame = catalogTable match {
-      case Right(spec) => sqlContext.table(spec.tableName)
-      case Left(spec) => spec.bandColumnNames match {
-        case Seq(single) => spec.sceneRows.map(_.bandPaths.headOption.orNull).toDF(single)
-        case bands =>
-          val bsel = bands.zipWithIndex.map { case (b, i) => col("value")(i).as(b) }
-
-          spec.sceneRows.map(_.bandPaths)
-            .toDF("value")
-            .select(bsel: _*)
-      }
-    }
+    val inputs: DataFrame = sqlContext.table(catalogTable.tableName)
 
     // Basically renames the input columns to have the '_path' suffix
     val pathsAliasing = for {
@@ -115,15 +109,17 @@ case class RasterSourceRelation(
 
     // Add path columns
     val withPaths = inputs
-      .select(pathsAliasing: _*)
+      .select($"*" +: pathsAliasing: _*)
 
     // Path columns have to be manually pulled along through each step. Resolve columns once
     // and reused with each select.
     val paths = pathColNames.map(withPaths.apply)
 
+    val extras = extraCols.map(f => inputs(f.name))
+
     val df = withPaths
-      .select(paths :+ refs: _*)
-      .select(paths ++ refsToTiles: _*)
+      .select(extras ++ paths :+ refs: _*)
+      .select(paths ++ refsToTiles ++ extras: _*)
 
     df.rdd
   }
