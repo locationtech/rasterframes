@@ -22,10 +22,9 @@
 package org.locationtech.rasterframes.util
 
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.ref.RasterRef
-import org.locationtech.rasterframes.ref.RasterSource._
+import org.locationtech.rasterframes.ref.{DelegatingRasterSource, RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref._
 import com.esotericsoftware.kryo.Kryo
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 
 
 /**
@@ -41,10 +40,11 @@ class RFKryoRegistrator extends geotrellis.spark.io.kryo.KryoRegistrator {
     kryo.register(classOf[RasterRef])
     kryo.register(classOf[RasterRefTile])
     kryo.register(classOf[DelegatingRasterSource])
+    kryo.register(classOf[JVMGeoTiffRasterSource])
     kryo.register(classOf[InMemoryRasterSource])
     kryo.register(classOf[HadoopGeoTiffRasterSource])
     kryo.register(classOf[GDALRasterSource])
-    kryo.register(classOf[SimpleGeoTiffInfo])
+    kryo.register(classOf[SimpleRasterInfo])
     kryo.register(classOf[geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo])
   }
 }

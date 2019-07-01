@@ -23,7 +23,7 @@ Then you can read a raster and do some work with it.
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import lit
 # Read a MODIS surface reflectance granule
-df = spark.read.rastersource('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
+df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 # Add 3 element-wise, show some rows of the dataframe
 df.select(rf_local_add(df.tile, lit(3))).show(5, False)
 ```

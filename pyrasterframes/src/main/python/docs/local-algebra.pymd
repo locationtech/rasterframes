@@ -32,8 +32,8 @@ uri_pattern = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B0{}.tif'
 catalog_df = pd.DataFrame([
     {bands[b_num]: uri_pattern.format(b_num) for b_num in bands.keys()}
 ])
-df = spark.read.rastersource(catalog=catalog_df.to_csv(index=None),
-                             catalog_col_names=list(catalog_df.columns))
+df = spark.read.raster(catalog=catalog_df.to_csv(index=None),
+                       catalog_col_names=list(catalog_df.columns))
 df.printSchema()
 ```
 

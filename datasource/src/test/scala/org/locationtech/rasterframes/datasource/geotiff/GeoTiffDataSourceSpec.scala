@@ -35,18 +35,14 @@ class GeoTiffDataSourceSpec
   describe("GeoTiff reading") {
 
     it("should read sample GeoTiff") {
-      val rf = spark.read
-        .geotiff
-        .loadRF(cogPath)
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
 
       assert(rf.count() > 10)
     }
 
     it("should lay out tiles correctly"){
 
-      val rf = spark.read
-        .geotiff
-        .loadRF(cogPath)
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
 
       val tlm = rf.tileLayerMetadata.left.get
       val gb = tlm.gridBounds
@@ -55,12 +51,7 @@ class GeoTiffDataSourceSpec
     }
 
     it("should lay out tiles correctly for non-tiled tif") {
-      val rf = spark.read
-        .geotiff
-        .loadRF(nonCogPath)
-
-      //println(rf.count())
-      //rf.show(false)
+      val rf = spark.read.format("geotiff").load(nonCogPath.toASCIIString).asRF
 
       assert(rf.count() > 1)
 
@@ -83,7 +74,7 @@ class GeoTiffDataSourceSpec
 
     it("should read in correctly check-summed contents") {
       // c.f. TileStatsSpec -> computing statistics over tiles -> should compute tile statistics -> sum
-      val rf = spark.read.geotiff.loadRF(l8B1SamplePath)
+      val rf = spark.read.format("geotiff").load(l8B1SamplePath.toASCIIString).asRF
       val expected = 309149454 // computed with rasterio
       val result = rf.agg(
         sum(rf_tile_sum(rf("tile")))
@@ -93,23 +84,19 @@ class GeoTiffDataSourceSpec
     }
 
     it("should write GeoTIFF RF to parquet") {
-      val rf = spark.read
-        .geotiff
-        .loadRF(cogPath)
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
       assert(write(rf))
     }
 
     it("should write GeoTIFF") {
-      val rf = spark.read
-        .geotiff
-        .loadRF(cogPath)
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
 
       logger.info(s"Read extent: ${rf.tileLayerMetadata.merge.extent}")
 
       val out = Paths.get("target", "example-geotiff.tiff")
       logger.info(s"Writing to $out")
       noException shouldBe thrownBy {
-        rf.write.geotiff.save(out.toString)
+        rf.write.format("geotiff").save(out.toString)
       }
     }
   }

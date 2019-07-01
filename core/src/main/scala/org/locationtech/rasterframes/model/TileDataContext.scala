@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.model
 
-import org.locationtech.rasterframes.encoders.CatalystSerializerEncoder
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder

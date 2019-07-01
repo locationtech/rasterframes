@@ -1,0 +1,17 @@
+# Vector Data
+
+* `geojson` DataSource for going right into Spark
+* Shapely or Python-side processing, getting into Spark via Pandas  
+
+## GeoJSON DataSource
+
+Show `spark.read.geojson(...)` example.
+
+## Shapely
+
+Show Shapely interop
+
+## Spatial Relations
+
+Using `st_` functions, particularly boolean relations.
+

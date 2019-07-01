@@ -21,9 +21,6 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.ref.RasterRef
-import org.locationtech.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
@@ -32,9 +29,11 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.util._
 
 import scala.util.Try
 import scala.util.control.NonFatal

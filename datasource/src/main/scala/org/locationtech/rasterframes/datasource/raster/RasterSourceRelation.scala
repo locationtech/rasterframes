@@ -19,14 +19,14 @@
  *
  */
 
-package org.locationtech.rasterframes.datasource.rastersource
+package org.locationtech.rasterframes.datasource.raster
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.{RasterSourceCatalog, RasterSourceCatalogRef}
+import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.{RasterSourceCatalog, RasterSourceCatalogRef}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}

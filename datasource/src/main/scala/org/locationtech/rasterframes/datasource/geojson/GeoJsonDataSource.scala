@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,10 +19,8 @@
  *
  */
 
-package org.locationtech.rasterframes.experimental.datasource.geojson
+package org.locationtech.rasterframes.datasource.geojson
 
-import org.locationtech.rasterframes.experimental.datasource.geojson.DOM._
-import org.locationtech.jts.geom.Geometry
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.jts.JTSTypes
@@ -30,6 +28,8 @@ import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationP
 import org.apache.spark.sql.types.{DataTypes, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.locationtech.geomesa.spark.jts._
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.rasterframes.datasource.geojson.DOM._
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 

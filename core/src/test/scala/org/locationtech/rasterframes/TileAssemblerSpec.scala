@@ -27,8 +27,7 @@ import geotrellis.raster._
 import geotrellis.raster.render.ColorRamps
 import geotrellis.vector.Extent
 import org.apache.spark.sql.{functions => F, _}
-import org.locationtech.rasterframes.ref.RasterSource
-import org.locationtech.rasterframes.ref.RasterSource.InMemoryRasterSource
+import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RasterSource}
 
 /**
  *

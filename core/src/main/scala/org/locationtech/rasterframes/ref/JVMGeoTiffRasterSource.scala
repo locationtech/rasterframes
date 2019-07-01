@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,17 +19,10 @@
  *
  */
 
-package org.locationtech.rasterframes.experimental
+package org.locationtech.rasterframes.ref
 
-import org.apache.spark.sql._
+import java.net.URI
 
+import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
 
-/**
- * Module utilitities
- *
- * @since 9/3/18
- */
-package object datasource {
-  def register(sqlContext: SQLContext): Unit = {
-  }
-}
+case class JVMGeoTiffRasterSource(source: URI) extends DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))

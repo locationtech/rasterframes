@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,17 +19,16 @@
  *
  */
 
-package org.locationtech.rasterframes.experimental.datasource.awspds
+package org.locationtech.rasterframes.experimental.datasource
 
 import java.net.URI
 import java.time.{Duration, Instant}
 
-import org.locationtech.rasterframes.experimental.datasource.DownloadSupport
-import org.locationtech.rasterframes.util._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.FilenameUtils
-import org.apache.hadoop.fs.{FileSystem, Path ⇒ HadoopPath}
+import org.apache.hadoop.fs.{FileSystem, Path => HadoopPath}
 import org.apache.hadoop.io.MD5Hash
+import org.locationtech.rasterframes.util._
 
 import scala.util.Try
 import scala.util.control.NonFatal

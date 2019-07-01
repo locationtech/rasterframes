@@ -35,16 +35,19 @@ package object geotiff {
 
   /** Adds `geotiff` format specifier to `DataFrameReader`. */
   implicit class DataFrameReaderHasGeoTiffFormat(val reader: DataFrameReader) {
+    @deprecated("Use `raster` instead.", "7/1/2019")
     def geotiff: GeoTiffRasterFrameReader =
       tag[GeoTiffRasterFrameReaderTag][DataFrameReader](reader.format(GeoTiffDataSource.SHORT_NAME))
   }
 
   implicit class DataFrameWriterHasGeoTiffFormat[T](val writer: DataFrameWriter[T]) {
+    @deprecated("Use `raster` instead.", "7/1/2019")
     def geotiff: DataFrameWriter[T] = writer.format(GeoTiffDataSource.SHORT_NAME)
   }
 
   /** Adds `loadRF` to appropriately tagged `DataFrameReader` */
   implicit class GeoTiffReaderWithRF(val reader: GeoTiffRasterFrameReader) {
+    @deprecated("Use `raster` instead.", "7/1/2019")
     def loadRF(path: URI): RasterFrame = reader.load(path.toASCIIString).asRF
   }
 }

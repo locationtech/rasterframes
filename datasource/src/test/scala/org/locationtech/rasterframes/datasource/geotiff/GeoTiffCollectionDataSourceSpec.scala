@@ -35,7 +35,7 @@ class GeoTiffCollectionDataSourceSpec
     it("shiould read a directory of files") {
 
       val df = spark.read
-        .geotiff
+        .format("geotiff")
         .load(geotiffDir.resolve("*.tiff").toString)
       val expected = geotiffDir.toFile.list(new FilenameFilter {
         override def accept(dir: File, name: String): Boolean = name.endsWith("tiff")

@@ -25,7 +25,7 @@ signatures are handled here as well.
 """
 from __future__ import absolute_import
 from pyspark.sql.column import Column, _to_java_column
-from .context import RFContext
+from .rf_context import RFContext
 from .rf_types import CellType
 
 THIS_MODULE = 'pyrasterframes'

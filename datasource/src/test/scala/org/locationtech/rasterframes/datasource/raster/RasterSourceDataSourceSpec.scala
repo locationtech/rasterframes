@@ -19,9 +19,9 @@
  *
  */
 
-package org.locationtech.rasterframes.datasource.rastersource
+package org.locationtech.rasterframes.datasource.raster
 import org.locationtech.rasterframes.{TestEnvironment, _}
-import org.locationtech.rasterframes.datasource.rastersource.RasterSourceDataSource.{RasterSourceCatalog, _}
+import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.{RasterSourceCatalog, _}
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util._
 
@@ -81,14 +81,14 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     val b = DEFAULT_COLUMN_NAME
 
     it("should default to a single band schema") {
-      val df = spark.read.rastersource.load(l8B1SamplePath.toASCIIString)
+      val df = spark.read.raster.load(l8B1SamplePath.toASCIIString)
       val tcols = df.tileColumns
       tcols.length should be(1)
       tcols.map(_.columnName) should contain(DEFAULT_COLUMN_NAME)
     }
     it("should support a multiband schema") {
       val df = spark.read
-        .rastersource
+        .raster
         .withBandIndexes(0, 1, 2)
         .load(cogPath.toASCIIString)
       val tcols = df.tileColumns
@@ -97,7 +97,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     }
     it("should read a multiband file") {
       val df = spark.read
-        .rastersource
+        .raster
         .withBandIndexes(0, 1, 2)
         .load(cogPath.toASCIIString)
         .cache()
@@ -111,7 +111,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     }
     it("should read a single file") {
       // Image is 1028 x 989 -> 9 x 8 tiles
-      val df = spark.read.rastersource
+      val df = spark.read.raster
         .withTileDimensions(128, 128)
         .load(cogPath.toASCIIString)
 
@@ -124,7 +124,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       df.select($"${b}_path").distinct().count() should be(1)
     }
     it("should read a multiple files with one band") {
-      val df = spark.read.rastersource
+      val df = spark.read.raster
         .from(Seq(cogPath, l8B1SamplePath, nonCogPath))
         .withTileDimensions(128, 128)
         .load()
@@ -132,7 +132,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       df.schema.size should be(2)
     }
     it("should read a multiple files with heterogeneous bands") {
-      val df = spark.read.rastersource
+      val df = spark.read.raster
         .from(Seq(cogPath, l8B1SamplePath, nonCogPath))
         .withTileDimensions(128, 128)
         .withBandIndexes(0, 1, 2, 3)
@@ -161,7 +161,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
            |${paths.mkString(",")}
         """.stripMargin.trim
 
-      val df = spark.read.rastersource
+      val df = spark.read.raster
         .fromCSV(csv)
         .withTileDimensions(128, 128)
         .load()
@@ -170,6 +170,27 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       df.tileColumns.size should be (3)
       df.select($"B1_path").distinct().count() should be (1)
     }
+
+    it("should read a set of coherent bands from multiple files in a dataframe") {
+      val bandPaths = Seq((
+        l8SamplePath(1).toASCIIString,
+        l8SamplePath(2).toASCIIString,
+        l8SamplePath(3).toASCIIString))
+        .toDF("B1", "B2", "B3")
+
+      val df = spark.read.raster
+        .fromCatalog(bandPaths, "B1", "B2", "B3")
+        .withTileDimensions(128, 128)
+        .load()
+
+      df.schema.size should be(6)
+      df.tileColumns.size should be (3)
+      df.select($"B1_path").distinct().count() should be (1)
+
+      val diffStats = df.select(rf_tile_stats($"B1") =!= rf_tile_stats($"B2")).as[Boolean].collect()
+      diffStats.forall(identity) should be(true)
+    }
+
 
     it("should read a set of coherent bands from multiple files in a table") {
       val bandPaths = Seq((
@@ -180,8 +201,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
       bandPaths.createOrReplaceTempView("pathsTable")
 
-      val df = spark.read.rastersource
-        .fromTable("pathsTable", "B1", "B2", "B3")
+      val df = spark.read.raster
+        .fromCatalog("pathsTable", "B1", "B2", "B3")
         .withTileDimensions(128, 128)
         .load()
 

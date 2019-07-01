@@ -19,17 +19,17 @@
  *
  */
 
-package org.locationtech.rasterframes.experimental.datasource
+package org.locationtech.rasterframes.ref
 
-import org.apache.spark.sql.DataFrameReader
+import java.net.URI
 
-/**
- * Module extension methods.
- *
- * @since 2019-01-08
- */
-package object geojson {
-  implicit class DataFrameReaderHasGeoJson(val reader: DataFrameReader) {
-    def geojson: DataFrameReader = reader.format(GeoJsonDataSource.SHORT_NAME)
-  }
+import geotrellis.spark.io.hadoop.HdfsRangeReader
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.Path
+import org.locationtech.rasterframes.ref.RasterSource.{URIRasterSource, URIRasterSourceDebugString}
+
+case class HadoopGeoTiffRasterSource(source: URI, config: () => Configuration)
+    extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>
+  @transient
+  protected lazy val rangeReader = HdfsRangeReader(new Path(source.getPath), config())
 }

@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2018 Astraea, Inc.
+ * Copyright 2019 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,24 +19,17 @@
  *
  */
 
-package org.locationtech.rasterframes.experimental.datasource.awspds
+package org.locationtech.rasterframes.datasource
 
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
+import org.apache.spark.sql.DataFrameReader
 
 /**
- * Experiment in providing RasterFrames over whole PDS catalog.
+ * Module extension methods.
  *
- * @since 8/21/18
+ * @since 2019-01-08
  */
-class L8DataSource extends DataSourceRegister with RelationProvider {
-  override def shortName(): String = L8DataSource.SHORT_NAME
-
-  override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    L8Relation(sqlContext)
+package object geojson {
+  implicit class DataFrameReaderHasGeoJson(val reader: DataFrameReader) {
+    def geojson: DataFrameReader = reader.format(GeoJsonDataSource.SHORT_NAME)
   }
-}
-
-object L8DataSource {
-  final val SHORT_NAME = "awsl8"
 }

@@ -28,10 +28,11 @@ import java.time.temporal.ChronoUnit
 import org.locationtech.rasterframes.util.withResource
 import org.locationtech.rasterframes._
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.hadoop.fs.{FileSystem, Path ⇒ HadoopPath}
+import org.apache.hadoop.fs.{FileSystem, Path => HadoopPath}
 import org.apache.hadoop.io.IOUtils
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
+import org.locationtech.rasterframes.experimental.datasource.ResourceCacheSupport
 
 
 /**
@@ -70,7 +71,7 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider wi
 }
 
 object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
-  final val SHORT_NAME = "aws-pds-modis"
+  final val SHORT_NAME = "aws-pds-modis-catalog"
   final val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
   override def maxCacheFileAgeHours: Int = Int.MaxValue
 

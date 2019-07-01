@@ -109,7 +109,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
         }
     }
     else {
-      logger.warn("GeoTIFF is not already tiled. In-memory read required: " + uri)
+      //logger.warn("GeoTIFF is not already tiled. In-memory read required: " + uri)
       val geotiff = HadoopGeoTiffReader.readMultiband(new Path(uri))
       val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, Shims.toArrayTile(geotiff.tile))))
 

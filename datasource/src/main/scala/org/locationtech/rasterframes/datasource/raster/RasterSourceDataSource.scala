@@ -19,7 +19,7 @@
  *
  */
 
-package org.locationtech.rasterframes.datasource.rastersource
+package org.locationtech.rasterframes.datasource.raster
 
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.util._
@@ -40,7 +40,7 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   }
 }
 object RasterSourceDataSource {
-  final val SHORT_NAME = "rastersource"
+  final val SHORT_NAME = "raster"
   final val PATH_PARAM = "path"
   final val PATHS_PARAM = "paths"
   final val BAND_INDEXES_PARAM = "bandIndexes"
@@ -83,7 +83,7 @@ object RasterSourceDataSource {
   /** Container for specifying where to select raster paths from. */
   case class RasterSourceCatalogRef(tableName: String, bandColumnNames: String*) extends WithBandColumns
 
-  private[rastersource]
+  private[raster]
   implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
 
     def tileDims: Option[TileDimensions] =

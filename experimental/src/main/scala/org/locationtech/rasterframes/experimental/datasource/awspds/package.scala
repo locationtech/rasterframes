@@ -21,9 +21,9 @@
 
 package org.locationtech.rasterframes.experimental.datasource
 
-import org.apache.spark.sql._
-import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
+import org.apache.spark.sql.DataFrameReader
+import shapeless.tag
+import shapeless.tag.@@
 
 /**
  * Module support.
@@ -31,14 +31,16 @@ import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders
  * @since 5/4/18
  */
 package object awspds {
-  /**
-   * Constructs link with the form:
-   * `https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_{bandId].TIF`
-   * @param bandID Band ID suffix, e.g. "B4"
-   * @return
-   */
-  def l8_band_url(bandID: String): TypedColumn[Any, String] = {
-    concat(col("download_url"), concat(col("product_id"), lit(s"_$bandID.TIF")))
-  }.as(bandID).as[String]
+  trait CatalogDataFrameReaderTag
+  type CatalogDataFrameReader = DataFrameReader @@ CatalogDataFrameReaderTag
 
+  implicit class DataFrameReaderHasL8CatalogFormat(val reader: DataFrameReader) {
+    def l8Catalog: CatalogDataFrameReader =
+      tag[CatalogDataFrameReaderTag][DataFrameReader](
+        reader.format(L8CatalogDataSource.SHORT_NAME))
+
+    def modisCatalog: CatalogDataFrameReader =
+      tag[CatalogDataFrameReaderTag][DataFrameReader](
+        reader.format(MODISCatalogDataSource.SHORT_NAME))
+  }
 }

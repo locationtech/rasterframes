@@ -22,18 +22,19 @@
 package org.locationtech.rasterframes.datasource
 
 import java.net.URI
+import java.util.UUID
 
-import org.apache.spark.sql.DataFrameReader
+import org.apache.spark.sql.{DataFrame, DataFrameReader}
 import shapeless.tag
 import shapeless.tag.@@
-package object rastersource {
+package object raster {
 
   trait RasterSourceDataFrameReaderTag
   type RasterSourceDataFrameReader = DataFrameReader @@ RasterSourceDataFrameReaderTag
 
-  /** Adds `rastersource` format specifier to `DataFrameReader`. */
+  /** Adds `raster` format specifier to `DataFrameReader`. */
   implicit class DataFrameReaderHasRasterSourceFormat(val reader: DataFrameReader) {
-    def rastersource: RasterSourceDataFrameReader =
+    def raster: RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
         reader.format(RasterSourceDataSource.SHORT_NAME))
   }
@@ -50,7 +51,15 @@ package object rastersource {
         reader.option(RasterSourceDataSource.TILE_DIMS_PARAM, s"$cols,$rows")
       )
 
-    def fromTable(tableName: String, bandColumnNames: String*): RasterSourceDataFrameReader =
+    def fromCatalog(catalog: DataFrame, bandColumnNames: String*): RasterSourceDataFrameReader =
+      tag[RasterSourceDataFrameReaderTag][DataFrameReader] {
+        val tmpName = UUID.randomUUID().toString.replace("-", "")
+        catalog.createOrReplaceTempView(tmpName)
+        reader.option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tmpName)
+          .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
+      }
+
+    def fromCatalog(tableName: String, bandColumnNames: String*): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader](
         reader.option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tableName)
           .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))

@@ -20,11 +20,9 @@
 
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
-import java.net.URL
-
 import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.experimental.datasource._
-import org.locationtech.rasterframes.TestEnvironment
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.datasource.raster._
 
 /**
  * Test rig for L8 catalog stuff.
@@ -32,38 +30,60 @@ import org.locationtech.rasterframes.TestEnvironment
  * @since 5/4/18
  */
 class L8CatalogRelationTest extends TestEnvironment {
+  import spark.implicits._
+
+  val catalog = spark.read.l8Catalog.load()
+
+  val scenes = catalog
+    .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
+    .where($"path" === 11 && $"row" === 12)
+    .cache()
+
   describe("Representing L8 scenes as a Spark data source") {
-    import spark.implicits._
-    val catalog = spark.read.format(L8CatalogDataSource.SHORT_NAME).load()
-
-    val scenes = catalog
-      .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
-      .where($"path" === 11 && $"row" === 12)
-
     it("should provide a non-empty catalog") {
-      assert(scenes.count() === 1)
+      scenes.count() shouldBe 1
     }
 
-    it("should construct band specific download URLs") {
-      val b01 = scenes.select(l8_band_url("B1"))
-      noException shouldBe thrownBy {
-        new URL(b01.first())
-      }
+    it("should provide 11 band + 1 QA urls") {
+      scenes.schema.count(_.name.startsWith("B")) shouldBe 12
     }
 
-    it("should download geotiff as blob") {
-      import org.apache.spark.sql.functions.{length ⇒ alength}
-      val b01 = scenes.limit(1)
-        .select(download(l8_band_url("B1")) as "data")
-
-      val len = b01.select(alength($"data").as[Long])
-      assert(len.first() >= 4000000)
+    it("should construct valid URLs") {
+      val urlStr = scenes.select("B11").as[String].first
+      val code = TestSupport.urlResponse(urlStr)
+      code should be (200)
     }
 
-    it("should download geotiff as tiles") {
-      val b01 = scenes
-        .select($"*", read_tiles(l8_band_url("B1")))
-      assert(b01.count() === 1089)
+    it("should work with SQL and spatial predicates") {
+      catalog.createOrReplaceTempView("l8_catalog")
+      val scenes = spark.sql("""
+        SELECT st_geometry(bounds_wgs84) as geometry, acquisition_date, B1, B2
+        FROM l8_catalog
+        WHERE
+         st_intersects(st_geometry(bounds_wgs84), st_geomFromText('LINESTRING (-39.551 -7.1881, -72.2461 -45.7062)')) AND
+         acquisition_date > to_timestamp('2017-11-01') AND
+         acquisition_date <= to_timestamp('2017-11-03')
+        """)
+
+      scenes.count() shouldBe > (200L)
+    }
+  }
+
+  describe("Read L8 scenes from PDS") {
+    it("should be compatible with raster DataSource") {
+      val df = spark.read.raster
+        .fromCatalog(scenes, "B1", "B3")
+        .withTileDimensions(512, 512)
+        .load()
+
+      // Further refine down to a tile
+      val sub = df.select($"B3")
+        .where(st_contains(st_geometry(rf_extent($"B1")), st_makePoint(574965, 7679175)))
+
+      val stats = sub.select(rf_agg_stats($"B3")).first
+
+      stats.data_cells should be (512L * 512L)
+      stats.mean shouldBe > (10000.0)
     }
   }
 }
