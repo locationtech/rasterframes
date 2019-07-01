@@ -90,10 +90,12 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
 object RasterSource extends LazyLogging {
   final val SINGLEBAND = Seq(0)
   final val EMPTY_TAGS = Tags(Map.empty, List.empty)
+
   val cacheTimeout: Duration = Duration.fromNanos(rfConfig.getDuration("raster-source-cache-timeout").toNanos)
+
   private val rsCache = Scaffeine()
     .expireAfterAccess(RasterSource.cacheTimeout)
-    .build[URI, RasterSource]
+    .build[String, RasterSource]
 
   implicit def rsEncoder: ExpressionEncoder[RasterSource] = {
     RasterSourceUDT // Makes sure UDT is registered first
@@ -102,7 +104,7 @@ object RasterSource extends LazyLogging {
 
   def apply(source: URI): RasterSource =
     rsCache.get(
-      source, {
+      source.toASCIIString, _ => source match {
         case IsGDAL()          => GDALRasterSource(source)
         case IsHadoopGeoTiff() =>
           // TODO: How can we get the active hadoop configuration
@@ -162,7 +164,7 @@ object RasterSource extends LazyLogging {
       s"${getClass.getSimpleName}(${source})"
     }
   }
-  trait URIRasterSourceDebugString { _: RangeReaderRasterSource with URIRasterSource with Product =>
+  trait URIRasterSourceDebugString { _: RasterSource with URIRasterSource with Product =>
     def toDebugString: String = {
       val buf = new StringBuilder()
       buf.append(productPrefix)

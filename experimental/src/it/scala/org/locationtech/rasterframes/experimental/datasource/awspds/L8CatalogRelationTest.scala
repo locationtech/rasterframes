@@ -87,19 +87,24 @@ class L8CatalogRelationTest extends TestEnvironment {
   describe("Read L8 scenes from PDS") {
     import spark.implicits._
     val catalog = spark.read.l8Catalog.load().repartition(8)
+    val scenes = catalog
+      .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
+      .where($"path" === 11 && $"row" === 12)
 
     it("should be compatible with raster DataSource") {
       val df = spark.read.raster
-        .fromCatalog(catalog, "B1", "B3")
+        .fromCatalog(scenes, "B1", "B3")
         .withTileDimensions(512, 512)
         .load()
 
-      // Read just a single tile.
-      val sub = df.select($"B1", $"B3").where(
-        st_contains(st_geometry(rf_extent($"B1")), st_makePoint(602205, 7843335))
-      )
+      // Further refine down to a tile
+      val sub = df.select($"B3")
+        .where(st_contains(st_geometry(rf_extent($"B1")), st_makePoint(574965, 7679175)))
 
-      sub.show(false)
+      val stats = sub.select(rf_agg_stats($"B3")).first
+
+      stats.data_cells should be (512*512)
+      stats.mean shouldBe > (10000.0)
     }
   }
 }

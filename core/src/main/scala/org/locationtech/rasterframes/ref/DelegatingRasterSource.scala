@@ -62,7 +62,7 @@ abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRast
   override def hashCode(): Int = source.hashCode()
 
   // This helps reduce header reads between serializations
-  lazy val info: SimpleRasterInfo = SimpleRasterInfo.cache.get(source, _ =>
+  def info: SimpleRasterInfo = SimpleRasterInfo.cache.get(source.toASCIIString, _ =>
     retryableRead(rs => SimpleRasterInfo(rs))
   )
 

@@ -21,8 +21,6 @@
 
 package org.locationtech.rasterframes.ref
 
-import java.net.URI
-
 import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
 import geotrellis.contrib.vlm.{RasterSource => GTRasterSource}
@@ -79,6 +77,6 @@ object SimpleRasterInfo {
   }
 
   lazy val cache = Scaffeine()
-    .recordStats()
-    .build[URI, SimpleRasterInfo]
+    //.recordStats()
+    .build[String, SimpleRasterInfo]
 }

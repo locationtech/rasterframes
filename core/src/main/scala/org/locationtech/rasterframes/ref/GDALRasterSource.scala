@@ -44,7 +44,7 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
     VLMRasterSource(tweaked)
   }
 
-  protected lazy val tiffInfo = SimpleRasterInfo.cache.get(source, _ => SimpleRasterInfo(gdal))
+  protected def tiffInfo = SimpleRasterInfo.cache.get(source.toASCIIString, _ => SimpleRasterInfo(gdal))
 
   override def crs: CRS = tiffInfo.crs
 
@@ -52,10 +52,7 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
 
   private def metadata = Map.empty[String, String]
 
-  override def cellType: CellType = {
-    println(SimpleRasterInfo.cache.stats().toString)
-    tiffInfo.cellType
-  }
+  override def cellType: CellType = tiffInfo.cellType
 
   override def bandCount: Int = tiffInfo.bandCount
 
