@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.ref
 
-import RasterSource.{GDALRasterSource, JVMGeoTiffRasterSource}
 import org.locationtech.rasterframes.TestData
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT

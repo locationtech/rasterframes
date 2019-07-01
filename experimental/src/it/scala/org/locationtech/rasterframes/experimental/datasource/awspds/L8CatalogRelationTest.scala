@@ -20,10 +20,10 @@
 
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
-import java.net.{HttpURLConnection, URL, URLConnection}
+import java.net.{HttpURLConnection, URL}
 
 import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.{TestEnvironment, rf_agg_stats}
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.raster._
 
 /**
@@ -90,31 +90,16 @@ class L8CatalogRelationTest extends TestEnvironment {
 
     it("should be compatible with raster DataSource") {
       val df = spark.read.raster
-        .fromCatalog(catalog, "B1", "B8")
+        .fromCatalog(catalog, "B1", "B3")
         .withTileDimensions(512, 512)
         .load()
 
-      df.printSchema()
-      df.show(false)
-    }
+      // Read just a single tile.
+      val sub = df.select($"B1", $"B3").where(
+        st_contains(st_geometry(rf_extent($"B1")), st_makePoint(602205, 7843335))
+      )
 
-//    it("should count scenes") {
-//
-//
-//
-//
-//      val scenes = sql("SELECT entity_id FROM l8 DISTINCT")
-//      scenes.count() shouldBe > (300400L)
-//
-//      val subscenes = sqlContext.table("subscenes")
-//      subscenes.schema.size should be (4)
-//      subscenes.count() should be (7)
-//    }
-//
-//    it("should compute statistics") {
-//      val subscenes = sqlContext.table("subscenes")
-//      val stats = subscenes.select(rf_agg_stats($"B1")).first()
-//      stats.data_cells shouldBe > (420024000L)
-//    }
+      sub.show(false)
+    }
   }
 }
