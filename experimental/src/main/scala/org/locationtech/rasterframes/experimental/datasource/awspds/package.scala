@@ -34,10 +34,13 @@ package object awspds {
   trait CatalogDataFrameReaderTag
   type CatalogDataFrameReader = DataFrameReader @@ CatalogDataFrameReaderTag
 
-  /** Adds `raster` format specifier to `DataFrameReader`. */
   implicit class DataFrameReaderHasL8CatalogFormat(val reader: DataFrameReader) {
     def l8Catalog: CatalogDataFrameReader =
       tag[CatalogDataFrameReaderTag][DataFrameReader](
         reader.format(L8CatalogDataSource.SHORT_NAME))
+
+    def modisCatalog: CatalogDataFrameReader =
+      tag[CatalogDataFrameReaderTag][DataFrameReader](
+        reader.format(MODISCatalogDataSource.SHORT_NAME))
   }
 }

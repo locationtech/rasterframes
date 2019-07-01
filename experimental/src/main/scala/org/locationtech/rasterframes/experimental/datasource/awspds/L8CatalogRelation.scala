@@ -49,7 +49,7 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
     import sqlContext.implicits._
     logger.debug("Parsing " + sceneListPath)
 
-    val bandCols = Bands.values.toSeq.map(b => l8_band_url(b) as (b.toString))
+    val bandCols = Bands.values.toSeq.map(b => l8_band_url(b) as b.toString)
 
     sqlContext.read
       .schema(inputSchema)
@@ -69,12 +69,11 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
       .select(schema.map(f ⇒ col(f.name)): _*)
       .orderBy(ACQUISITION_DATE.name, PATH.name, ROW.name)
       .distinct() // The scene file contains duplicates.
-      .repartition(8)
+      .repartition(8, col(PATH.name), col(ROW.name))
   }
 }
 
 object L8CatalogRelation extends PDSFields {
-
 
   /**
     * Constructs link with the form:

@@ -28,6 +28,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation
+import org.locationtech.rasterframes.experimental.datasource.awspds.MODISCatalogRelation.Bands
 
 /**
  * Constructs a dataframe from the available scenes
@@ -41,19 +42,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
 
   protected def cacheFile: HadoopPath = sceneList.suffix(".parquet")
 
-  private val inputSchema = StructType(Seq(
-    StructField("date", TimestampType, false),
-    DOWNLOAD_URL,
-    GID
-  ))
-
-  def schema = StructType(Seq(
-    PRODUCT_ID,
-    ACQUISITION_DATE,
-    GRANULE_ID,
-    GID,
-    ASSETS
-  ))
+  override def schema: StructType = MODISCatalogRelation.schema
 
   protected def constructDataset: Dataset[Row] = {
     import sqlContext.implicits._
@@ -63,47 +52,46 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
       .option("header", "true")
       .option("mode", "DROPMALFORMED") // <--- mainly for the fact that we have internal headers from the concat
       .option("timestampFormat", "yyyy-MM-dd HH:mm:ss")
-      .schema(inputSchema)
+      .schema(MODISCatalogRelation.inputSchema)
       .csv(sceneList.toString)
+
+    val bandCols = Bands.values.toSeq.map(b => MCD43A4_band_url(b) as b.toString)
 
     catalog
       .withColumn("__split_gid", split($"gid", "\\."))
       .withColumn(DOWNLOAD_URL.name, regexp_replace(col(DOWNLOAD_URL.name), "index.html", ""))
-      .select(
+      .select(Seq(
         $"__split_gid" (0) as PRODUCT_ID.name,
         $"date" as ACQUISITION_DATE.name,
         $"__split_gid" (2) as GRANULE_ID.name,
-        $"${GID.name}",
-        MCD43A4_BAND_MAP as ASSETS.name
+        $"${GID.name}") ++ bandCols: _*
       )
       .orderBy(ACQUISITION_DATE.name, GID.name)
-      .repartition(col(GRANULE_ID.name))
+      .repartition(8, col(GRANULE_ID.name))
   }
 }
 
 object MODISCatalogRelation extends PDSFields {
 
-  def MCD43A4_LINK(suffix: String) =
-    concat(col(DOWNLOAD_URL.name), concat(col(GID.name), lit(suffix)))
+  def MCD43A4_band_url(suffix: Bands.Band) =
+    concat(col(DOWNLOAD_URL.name), concat(col(GID.name), lit(s"_${suffix}.TIF")))
 
-  val MCD43A4_BAND_MAP = map(
-    lit("B01"), MCD43A4_LINK("_B01.TIF"),
-    lit("B01qa"), MCD43A4_LINK("_B01qa.TIF"),
-    lit("B02"), MCD43A4_LINK("_B02.TIF"),
-    lit("B02qa"), MCD43A4_LINK("_B02qa.TIF"),
-    lit("B03"), MCD43A4_LINK("_B03.TIF"),
-    lit("B03qa"), MCD43A4_LINK("_B03qa.TIF"),
-    lit("B04"), MCD43A4_LINK("_B04.TIF"),
-    lit("B04qa"), MCD43A4_LINK("_B04qa.TIF"),
-    lit("B05"), MCD43A4_LINK("_B05.TIF"),
-    lit("B05qa"), MCD43A4_LINK("_B05qa.TIF"),
-    lit("B06"), MCD43A4_LINK("_B06.TIF"),
-    lit("B06qa"), MCD43A4_LINK("_B06qa.TIF"),
-    lit("B07"), MCD43A4_LINK("_B07.TIF"),
-    lit("B07qa"), MCD43A4_LINK("_B07qa.TIF"),
-    lit("metadata.json"), MCD43A4_LINK("_meta.json"),
-    lit("metadata.xml"), MCD43A4_LINK(".hdf.xml"),
-    lit("index.html"), concat(col(DOWNLOAD_URL.name), lit("index.html"))
-  )
+  object Bands extends Enumeration {
+    type Band = Value
+    val B01, B01qa, B02, B02qa, B03, B03aq, B04, B04qa, B05, B05qa, B06, B06qa, B07, B07qa = Value
+    val names: Seq[String] = values.toSeq.map(_.toString)
+  }
 
+  def schema = StructType(Seq(
+    PRODUCT_ID,
+    ACQUISITION_DATE,
+    GRANULE_ID,
+    GID
+  ) ++ Bands.names.map(n => StructField(n, StringType, true)))
+
+  private val inputSchema = StructType(Seq(
+    StructField("date", TimestampType, false),
+    DOWNLOAD_URL,
+    GID
+  ))
 }

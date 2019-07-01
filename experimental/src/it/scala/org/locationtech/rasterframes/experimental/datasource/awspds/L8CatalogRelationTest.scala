@@ -20,8 +20,6 @@
 
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
-import java.net.{HttpURLConnection, URL}
-
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.raster._
@@ -32,16 +30,16 @@ import org.locationtech.rasterframes.datasource.raster._
  * @since 5/4/18
  */
 class L8CatalogRelationTest extends TestEnvironment {
+  import spark.implicits._
 
+  val catalog = spark.read.l8Catalog.load()
+
+  val scenes = catalog
+    .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
+    .where($"path" === 11 && $"row" === 12)
+    .cache()
 
   describe("Representing L8 scenes as a Spark data source") {
-    import spark.implicits._
-    val catalog = spark.read.l8Catalog.load()
-
-    val scenes = catalog
-      .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
-      .where($"path" === 11 && $"row" === 12)
-
     it("should provide a non-empty catalog") {
       scenes.count() shouldBe 1
     }
@@ -51,22 +49,9 @@ class L8CatalogRelationTest extends TestEnvironment {
     }
 
     it("should construct valid URLs") {
-
-      def urlResponse(urlStr: String): Int = {
-        val conn = new URL(urlStr).openConnection().asInstanceOf[HttpURLConnection]
-        try {
-          conn.setRequestMethod("GET")
-          conn.connect()
-          conn.getResponseCode
-        }
-        finally {
-          conn.disconnect()
-        }
-      }
-
       val urlStr = scenes.select("B11").as[String].first
-      val code = urlResponse(urlStr)
-      code shouldBe 200
+      val code = TestSupport.urlResponse(urlStr)
+      code should be (200)
     }
 
     it("should work with SQL and spatial predicates") {
@@ -85,12 +70,6 @@ class L8CatalogRelationTest extends TestEnvironment {
   }
 
   describe("Read L8 scenes from PDS") {
-    import spark.implicits._
-    val catalog = spark.read.l8Catalog.load().repartition(8)
-    val scenes = catalog
-      .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
-      .where($"path" === 11 && $"row" === 12)
-
     it("should be compatible with raster DataSource") {
       val df = spark.read.raster
         .fromCatalog(scenes, "B1", "B3")
@@ -103,7 +82,7 @@ class L8CatalogRelationTest extends TestEnvironment {
 
       val stats = sub.select(rf_agg_stats($"B3")).first
 
-      stats.data_cells should be (512*512)
+      stats.data_cells should be (512L * 512L)
       stats.mean shouldBe > (10000.0)
     }
   }
