@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.ref.RasterSource
 case class URIToRasterSource(override val child: Expression)
   extends UnaryExpression with ExpectsInputTypes with CodegenFallback with LazyLogging {
 
-  override def nodeName: String = "rf_read_raster_source"
+  override def nodeName: String = "rf_uri_to_raster_source"
 
   override def dataType: DataType = RasterSourceType
 

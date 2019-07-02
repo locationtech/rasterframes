@@ -103,11 +103,13 @@ def _aliased_reader(df_reader, format_key, path, **options):
     return df_reader.format(format_key).load(path, **options)
 
 def _raster_reader(
-        df_reader, path=None,
-        band_indexes=None,
-        tile_dimensions=(256, 256),
+        df_reader,
+        path=None,
         catalog=None,
         catalog_col_names=None,
+        band_indexes=None,
+        tile_dimensions=(256, 256),
+        lazy_tiles=True,
         **options):
 
     def to_csv(comp):
@@ -121,7 +123,8 @@ def _raster_reader(
 
     options.update({
         "bandIndexes": to_csv(band_indexes),
-        "tileDimensions": to_csv(tile_dimensions)
+        "tileDimensions": to_csv(tile_dimensions),
+        "lazyTiles": lazy_tiles
     })
 
     if catalog is not None:

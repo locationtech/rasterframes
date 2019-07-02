@@ -26,7 +26,8 @@ import java.util.concurrent.TimeUnit
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql._
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs}
+import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs
+import org.locationtech.rasterframes.expressions.transformers.RasterRefToTile
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.RasterSource
 import org.openjdk.jmh.annotations._

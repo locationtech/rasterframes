@@ -154,6 +154,11 @@ rf.show(2, truncate=False)
     
 ```
 
+### Lazy vs. Strict Raster Reads
+
+> Discuss the `spark.read.raster(lazy_tiles=False)` behavior
+
+
 ### Multiband Rasters
 
 > Need to know _a priori_ how many bands there are, specified with `band_indexes`.
