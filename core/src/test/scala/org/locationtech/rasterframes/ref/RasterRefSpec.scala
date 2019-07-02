@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.ref
 
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.accessors._
-import org.locationtech.rasterframes.expressions.transformers._
+import org.locationtech.rasterframes.expressions.generators._
 import RasterRef.RasterRefTile
 import geotrellis.raster.Tile
 import geotrellis.vector.Extent

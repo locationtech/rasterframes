@@ -33,9 +33,10 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val bands = parameters.bandIndexes
     val tiling = parameters.tileDims
+    val lazyTiles = parameters.lazyTiles
     val spec = parameters.pathSpec
     val catRef = spec.fold(_.registerAsTable(sqlContext), identity)
-    RasterSourceRelation(sqlContext, catRef, bands, tiling)
+    RasterSourceRelation(sqlContext, catRef, bands, tiling, lazyTiles)
   }
 }
 
@@ -48,6 +49,7 @@ object RasterSourceDataSource {
   final val CATALOG_TABLE_PARAM = "catalogTable"
   final val CATALOG_TABLE_COLS_PARAM = "catalogColumns"
   final val CATALOG_CSV_PARAM = "catalogCSV"
+  final val LAZY_TILES_PARAM = "lazyTiles"
 
   final val DEFAULT_COLUMN_NAME = PROJECTED_RASTER_COLUMN.columnName
 
@@ -106,6 +108,10 @@ object RasterSourceDataSource {
       .get(BAND_INDEXES_PARAM)
       .map(tokenize(_).map(_.toInt))
       .getOrElse(Seq(0))
+
+
+    def lazyTiles: Boolean = parameters
+      .get(LAZY_TILES_PARAM).forall(_.toBoolean)
 
     def catalog: Option[RasterSourceCatalog] = {
       val paths = (

@@ -20,10 +20,12 @@
  */
 
 package org.locationtech.rasterframes.datasource.raster
-import org.apache.spark.sql.functions.lit
+import geotrellis.raster.Tile
+import org.apache.spark.sql.functions.{lit, udf}
 import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.{RasterSourceCatalog, _}
 import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.util._
 
 class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
@@ -135,6 +137,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     it("should read a multiple files with heterogeneous bands") {
       val df = spark.read.raster
         .from(Seq(cogPath, l8B1SamplePath, nonCogPath))
+        .withLazyTiles(false)
         .withTileDimensions(128, 128)
         .withBandIndexes(0, 1, 2, 3)
         .load()
@@ -197,7 +200,6 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       diffStats.forall(identity) should be(true)
     }
 
-
     it("should read a set of coherent bands from multiple files in a csv") {
       def b(i: Int) = l8SamplePath(i).toASCIIString
 
@@ -222,6 +224,25 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
       val diffStats = df.select(rf_tile_stats($"B1") =!= rf_tile_stats($"B2")).as[Boolean].collect()
       diffStats.forall(identity) should be(true)
+    }
+
+    it("should support lazy and strict reading of tiles") {
+      val is_lazy = udf((t: Tile) => {
+        t.isInstanceOf[RasterRefTile]
+      })
+
+      val df1 = spark.read.raster
+        .withLazyTiles(true)
+        .load(l8SamplePath(1).toASCIIString)
+
+      df1.select(is_lazy($"proj_raster.tile").as[Boolean]).first() should be (true)
+
+      val df2 = spark.read.raster
+        .withLazyTiles(false)
+        .load(l8SamplePath(1).toASCIIString)
+
+      df2.select(is_lazy($"proj_raster.tile").as[Boolean]).first() should be (false)
+
     }
   }
 }

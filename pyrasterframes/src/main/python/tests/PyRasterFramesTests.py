@@ -712,7 +712,6 @@ class RasterSource(TestEnvironment):
         df.select('crs', 'ext', 'geom').first()                         
 
     def test_raster_source_reader(self):
-        import pandas as pd
         # much the same as RasterSourceDataSourceSpec here; but using https PDS. Takes about 30s to run
 
         def l8path(b):
@@ -725,8 +724,9 @@ class RasterSource(TestEnvironment):
 
         df = self.spark.read.raster(
             tile_dimensions=(tile_size, tile_size),
-            paths=path_param
-        )
+            paths=path_param,
+            lazy_tiles=False
+        ).cache()
 
         # schema is tile_path and tile
         # df.printSchema()
@@ -742,6 +742,9 @@ class RasterSource(TestEnvironment):
         path_count = df.groupby(df.proj_raster_path).count()
         print(path_count.toPandas())
         self.assertTrue(path_count.count() == 3)
+
+    def test_raster_source_catalog_reader(self):
+        import pandas as pd
 
         scene_dict = {
             1: 'http://landsat-pds.s3.amazonaws.com/c1/L8/015/041/LC08_L1TP_015041_20190305_20190309_01_T1/LC08_L1TP_015041_20190305_20190309_01_T1_B{}.TIF',
@@ -767,7 +770,8 @@ class RasterSource(TestEnvironment):
         path_df = self.spark.read.raster(
             tile_dimensions=(512, 512),
             catalog=path_table,
-            catalog_col_names=catalog_columns
+            catalog_col_names=catalog_columns,
+            lazy_tiles=True # We'll get an OOM error if we try to read 9 scenes all at once!
         )
 
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}

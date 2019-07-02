@@ -19,21 +19,21 @@
  *
  */
 
-package org.locationtech.rasterframes.expressions.transformers
+package org.locationtech.rasterframes.expressions.generators
 
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
+import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
+import org.locationtech.rasterframes.RasterSourceType
 
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -44,36 +44,31 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions] = None) extends Expression
+case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions] = None) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
 
-  private val RasterSourceType = new RasterSourceUDT()
-  private val rasterRefSchema = schemaOf[RasterRef]
-
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
-  override def nodeName: String = "raster_source_to_raster_ref"
+  override def nodeName: String = "rf_raster_source_to_tiles"
 
   override def elementSchema: StructType = StructType(for {
     child <- children
-    basename = child.name + "_ref"
+    basename = child.name
     name <- bandNames(basename, bandIndexes)
-  } yield StructField(name, rasterRefSchema, true))
-
-  private def band2ref(src: RasterSource, e: Option[Extent])(b: Int): RasterRef =
-    if (b < src.bandCount) RasterRef(src, b, e) else null
+  } yield StructField(name, schemaOf[ProjectedRasterTile], true))
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
-      val refs = children.map { child ⇒
+      val tiles = children.map { child ⇒
         val src = RasterSourceType.deserialize(child.eval(input))
-        subtileDims.map(dims =>
-          src
-            .layoutExtents(dims)
-            .map(e ⇒ bandIndexes.map(band2ref(src, Some(e))))
-        )
-        .getOrElse(Seq(bandIndexes.map(band2ref(src, None))))
+        val maxBands = src.bandCount
+        val allowedBands = bandIndexes.filter(_ < maxBands)
+        src.readAll(subtileDims.getOrElse(rasterframes.NOMINAL_TILE_DIMS), allowedBands)
+          .map(r => bandIndexes.map {
+            case i if i < maxBands => ProjectedRasterTile(r.tile.band(i), r.extent, src.crs)
+            case _ => null
+          })
       }
-      refs.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(_.toInternalRow)): _*))
+      tiles.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(_.toInternalRow)): _*))
     }
     catch {
       case NonFatal(ex) ⇒
@@ -84,14 +79,10 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
   }
 }
 
-object RasterSourceToRasterRefs {
-  def apply(rrs: Column*): TypedColumn[Any, RasterRef] = apply(None, Seq(0), rrs: _*)
-  def apply(subtileDims: Option[TileDimensions], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, RasterRef] =
-    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims)).as[RasterRef]
-
-  private[rasterframes] def bandNames(basename: String, bandIndexes: Seq[Int]): Seq[String] = bandIndexes match {
-    case Seq() => Seq.empty
-    case Seq(0) => Seq(basename)
-    case s => s.map(n => basename + "_b" + n)
-  }
+object RasterSourceToTiles {
+  def apply(rrs: Column*): TypedColumn[Any, ProjectedRasterTile] = apply(None, Seq(0), rrs: _*)
+  def apply(subtileDims: Option[TileDimensions], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
+    new Column(new RasterSourceToTiles(rrs.map(_.expr), bandIndexes, subtileDims)).as[ProjectedRasterTile]
 }
+
+

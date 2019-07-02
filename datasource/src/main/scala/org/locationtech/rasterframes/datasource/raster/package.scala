@@ -53,13 +53,18 @@ package object raster {
         reader.option(RasterSourceDataSource.TILE_DIMS_PARAM, s"$cols,$rows")
       )
 
+    /** Indicate if tile reading should be delayed until cells are fetched. Defaults to `true`. */
+    def withLazyTiles(state: Boolean): RasterSourceDataFrameReader =
+      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
+        reader.option(RasterSourceDataSource.LAZY_TILES_PARAM, state))
+
     def fromCatalog(catalog: DataFrame, bandColumnNames: String*): RasterSourceDataFrameReader =
       tag[RasterSourceDataFrameReaderTag][DataFrameReader] {
         val tmpName = tmpTableName()
         catalog.createOrReplaceTempView(tmpName)
         reader
           .option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tmpName)
-          .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
+          .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(",")): DataFrameReader
       }
 
     def fromCatalog(tableName: String, bandColumnNames: String*): RasterSourceDataFrameReader =

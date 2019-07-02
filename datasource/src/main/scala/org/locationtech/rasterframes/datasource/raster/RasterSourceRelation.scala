@@ -28,8 +28,9 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.transformers.RasterSourceToRasterRefs.bandNames
-import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, RasterSourceToRasterRefs, URIToRasterSource}
+import org.locationtech.rasterframes.expressions.generators.{RasterSourceToRasterRefs, RasterSourceToTiles}
+import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
+import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, URIToRasterSource}
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
@@ -43,8 +44,10 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 case class RasterSourceRelation(
   sqlContext: SQLContext,
   catalogTable: RasterSourceCatalogRef,
-  bandIndexes: Seq[Int], subtileDims: Option[TileDimensions])
-  extends BaseRelation with TableScan {
+  bandIndexes: Seq[Int],
+  subtileDims: Option[TileDimensions],
+  lazyTiles: Boolean
+) extends BaseRelation with TableScan {
 
   lazy val inputColNames = catalogTable.bandColumnNames
 
@@ -61,7 +64,7 @@ case class RasterSourceRelation(
   def tileColNames = inputColNames
     .flatMap(bandNames(_, bandIndexes))
 
-  def extraCols: Seq[StructField] = {
+  lazy val extraCols: Seq[StructField] = {
     val catalog = sqlContext.table(catalogTable.tableName)
     catalog.schema.fields.filter(f => !catalogTable.bandColumnNames.contains(f.name))
   }
@@ -96,17 +99,6 @@ case class RasterSourceRelation(
       (pathColName, srcColName) <- pathColNames.zip(srcColNames)
     } yield URIToRasterSource(col(pathColName)) as srcColName
 
-    // Expand RasterSource into multiple columns per band, and multiple rows per tile
-    // There's some unintentional fragililty here in that the structure of the expression
-    // is expected to line up with our column structure here.
-    val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, srcs: _*) as refColNames
-
-    // RasterSourceToRasterRef is a generator, which means you have to do the Tile conversion
-    // in a separate select statement (Query planner doesn't know how many columns ahead of time).
-    val refsToTiles = for {
-      (refColName, tileColName) <- refColNames.zip(tileColNames)
-    } yield RasterRefToTile(col(refColName)) as tileColName
-
     // Add path columns
     val withPaths = inputs
       .select($"*" +: pathsAliasing: _*)
@@ -115,12 +107,30 @@ case class RasterSourceRelation(
     // and reused with each select.
     val paths = pathColNames.map(withPaths.apply)
 
+    // Input columns along for the ride.
     val extras = extraCols.map(f => inputs(f.name))
 
-    val df = withPaths
-      .select(extras ++ paths :+ refs: _*)
-      .select(paths ++ refsToTiles ++ extras: _*)
+    val df = if (lazyTiles) {
+      // Expand RasterSource into multiple columns per band, and multiple rows per tile
+      // There's some unintentional fragililty here in that the structure of the expression
+      // is expected to line up with our column structure here.
+      val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, srcs: _*) as refColNames
 
+      // RasterSourceToRasterRef is a generator, which means you have to do the Tile conversion
+      // in a separate select statement (Query planner doesn't know how many columns ahead of time).
+      val refsToTiles = for {
+        (refColName, tileColName) <- refColNames.zip(tileColNames)
+      } yield RasterRefToTile(col(refColName)) as tileColName
+
+      withPaths
+        .select(extras ++ paths :+ refs: _*)
+        .select(paths ++ refsToTiles ++ extras: _*)
+    }
+    else {
+      val tiles = RasterSourceToTiles(subtileDims, bandIndexes, srcs: _*) as tileColNames
+      withPaths
+        .select((paths :+ tiles) ++ extras: _*)
+    }
     df.rdd
   }
 }
