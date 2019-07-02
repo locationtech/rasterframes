@@ -38,7 +38,7 @@ class SpatialKeySpec extends TestEnvironment with TestData {
   describe("Spatial key conversions") {
     val raster = sampleGeoTiff.projectedRaster
     // Create a raster frame with a single row
-    val rf = raster.toRF(raster.tile.cols, raster.tile.rows)
+    val rf = raster.toLayer(raster.tile.cols, raster.tile.rows)
 
     it("should add an extent column") {
       val expected = raster.extent.jtsGeom

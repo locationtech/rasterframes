@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.extensions
 
 import org.locationtech.rasterframes.StandardColumns._
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterFrame
+import org.locationtech.rasterframes.RasterFrameLayer
 import geotrellis.raster.Tile
 import geotrellis.spark.io._
 import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey, TileLayerMetadata}
@@ -44,7 +44,7 @@ import scala.util.Try
  * @since 7/18/17
  */
 trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with MetadataKeys {
-  import Implicits.{WithDataFrameMethods, WithMetadataBuilderMethods, WithMetadataMethods, WithRasterFrameMethods}
+  import Implicits.{WithDataFrameMethods, WithMetadataBuilderMethods, WithMetadataMethods, WithRasterFrameLayerMethods}
 
   private def selector(column: Column) = (attr: Attribute) ⇒
     attr.name == column.columnName || attr.semanticEquals(column.expr)
@@ -82,7 +82,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def setTemporalColumnRole(column: Column): DF =
     addColumnMetadata(column, _.tagTemporalKey)
 
-  /** Get the role tag the column plays in the RasterFrame, if any. */
+  /** Get the role tag the column plays in the RasterFrameLayer, if any. */
   private[rasterframes]
   def getColumnRole(column: Column): Option[String] =
     fetchMetadataValue(column, _.metadata.getString(SPATIAL_ROLE_KEY))
@@ -135,7 +135,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def withPrefixedColumnNames(prefix: String): DF =
     self.columns.foldLeft(self)((df, c) ⇒ df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
 
-  /** Converts this DataFrame to a RasterFrame after ensuring it has:
+  /** Converts this DataFrame to a RasterFrameLayer after ensuring it has:
    *
    * <ol type="a">
    * <li>a space or space-time key column
@@ -145,23 +145,23 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    *
    * If any of the above are violated, and [[IllegalArgumentException]] is thrown.
    *
-   * @return validated RasterFrame
+   * @return validated RasterFrameLayer
    * @throws IllegalArgumentException when constraints are not met.
    */
   @throws[IllegalArgumentException]
-  def asRF: RasterFrame = {
+  def asLayer: RasterFrameLayer = {
     val potentialRF = certifyRasterframe(self)
 
     require(
       potentialRF.findSpatialKeyField.nonEmpty,
-      "A RasterFrame requires a column identified as a spatial key"
+      "A RasterFrameLayer requires a column identified as a spatial key"
     )
 
-    require(potentialRF.tileColumns.nonEmpty, "A RasterFrame requires at least one tile column")
+    require(potentialRF.tileColumns.nonEmpty, "A RasterFrameLayer requires at least one tile column")
 
     require(
       Try(potentialRF.tileLayerMetadata).isSuccess,
-      "A RasterFrame requires embedded TileLayerMetadata"
+      "A RasterFrameLayer requires embedded TileLayerMetadata"
     )
 
     potentialRF
@@ -219,36 +219,36 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
 
   /**
-   * Convert DataFrame into a RasterFrame
+   * Convert DataFrame into a RasterFrameLayer
    *
    * @param spatialKey The column where the spatial key is stored
    * @param tlm Metadata describing layout under which tiles were created. Note: no checking is
    *            performed to ensure metadata, key-space, and tiles are coherent.
-   * @throws IllegalArgumentException when constraints outlined in `asRF` are not met.
-   * @return Encoded RasterFrame
+   * @throws IllegalArgumentException when constraints outlined in `asLayer` are not met.
+   * @return Encoded RasterFrameLayer
    */
   @throws[IllegalArgumentException]
-  def asRF(spatialKey: Column, tlm: TileLayerMetadata[SpatialKey]): RasterFrame =
-    setSpatialColumnRole(spatialKey, tlm).asRF
+  def asLayer(spatialKey: Column, tlm: TileLayerMetadata[SpatialKey]): RasterFrameLayer =
+    setSpatialColumnRole(spatialKey, tlm).asLayer
 
   /**
-   * Convert DataFrame into a RasterFrame
+   * Convert DataFrame into a RasterFrameLayer
    *
    * @param spatialKey The column where the spatial key is stored
    * @param temporalKey The column tagged under the temporal role
    * @param tlm Metadata describing layout under which tiles were created. Note: no checking is
    *            performed to ensure metadata, key-space, and tiles are coherent.
-   * @throws IllegalArgumentException when constraints outlined in `asRF` are not met.
-   * @return Encoded RasterFrame
+   * @throws IllegalArgumentException when constraints outlined in `asLayer` are not met.
+   * @return Encoded RasterFrameLayer
    */
   @throws[IllegalArgumentException]
-  def asRF(spatialKey: Column, temporalKey: Column, tlm: TileLayerMetadata[SpaceTimeKey]): RasterFrame =
+  def asLayer(spatialKey: Column, temporalKey: Column, tlm: TileLayerMetadata[SpaceTimeKey]): RasterFrameLayer =
     setSpatialColumnRole(spatialKey, tlm)
       .setTemporalColumnRole(temporalKey)
-      .asRF
+      .asLayer
 
   /**
-   * Converts [[DataFrame]] to a RasterFrame if the following constraints are fulfilled:
+   * Converts [[DataFrame]] to a RasterFrameLayer if the following constraints are fulfilled:
    *
    * <ol type="a">
    * <li>a space or space-time key column
@@ -256,9 +256,9 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    * <li>tile layout metadata
    * <ol>
    *
-   * @return Some[RasterFrame] if constraints fulfilled, [[None]] otherwise.
+   * @return Some[RasterFrameLayer] if constraints fulfilled, [[None]] otherwise.
    */
-  def asRFSafely: Option[RasterFrame] = Try(asRF).toOption
+  def asLayerSafely: Option[RasterFrameLayer] = Try(asLayer).toOption
 
   /**
    * Tests for the following conditions on the [[DataFrame]]:
@@ -271,9 +271,9 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    *
    * @return true if all constraints are fulfilled, false otherwise.
    */
-  def isRF: Boolean = Try(asRF).isSuccess
+  def isLayer: Boolean = Try(asLayer).isSuccess
 
-  /** Internal method for slapping the RasterFreame seal of approval on a DataFrame.
+  /** Internal method for slapping the RasterFreameLayer seal of approval on a DataFrame.
    * Only call if if you are sure it has a spatial key and tile columns and TileLayerMetadata. */
   private[rasterframes] def certify = certifyRasterframe(self)
 }

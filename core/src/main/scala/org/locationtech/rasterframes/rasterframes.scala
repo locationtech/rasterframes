@@ -56,7 +56,7 @@ package object rasterframes extends StandardColumns
   final val NOMINAL_TILE_DIMS: TileDimensions = TileDimensions(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE)
 
   /**
-   * Initialization injection point. Must be called before any RasterFrame
+   * Initialization injection point. Must be called before any RasterFrameLayer
    * types are used.
    */
   def initRF(sqlContext: SQLContext): Unit = {
@@ -92,14 +92,14 @@ package object rasterframes extends StandardColumns
   def RasterSourceType = new RasterSourceUDT()
 
   /**
-   * A RasterFrame is just a DataFrame with certain invariants, enforced via the methods that create and transform them:
+   * A RasterFrameLayer is just a DataFrame with certain invariants, enforced via the methods that create and transform them:
    *   1. One column is a [[geotrellis.spark.SpatialKey]] or [[geotrellis.spark.SpaceTimeKey]]
    *   2. One or more columns is a [[Tile]] UDT.
    *   3. The `TileLayerMetadata` is encoded and attached to the key column.
    */
-  type RasterFrame = DataFrame @@ RasterFrameTag
+  type RasterFrameLayer = DataFrame @@ RasterFrameTag
 
-  /** Tagged type for allowing compiler to help keep track of what has RasterFrame assurances applied to it. */
+  /** Tagged type for allowing compiler to help keep track of what has RasterFrameLayer assurances applied to it. */
   trait RasterFrameTag
 
   type TileFeatureLayerRDD[K, D] =

@@ -77,8 +77,8 @@ package object util {
 
   type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
 
-  /** Internal method for slapping the RasterFrame seal of approval on a DataFrame. */
-  private[rasterframes] def certifyRasterframe(df: DataFrame): RasterFrame =
+  /** Internal method for slapping the RasterFrameLayer seal of approval on a DataFrame. */
+  private[rasterframes] def certifyRasterframe(df: DataFrame): RasterFrameLayer =
     shapeless.tag[RasterFrameTag][DataFrame](df)
 
 

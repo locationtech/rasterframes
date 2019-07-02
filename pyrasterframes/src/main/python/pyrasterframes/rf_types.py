@@ -21,7 +21,7 @@
 """
 This module contains all types relevant to PyRasterFrames. Classes in this module are
 meant to provide smoother pathways between the jvm and Python, and whenever possible,
-the implementations take advantage of the existing Scala functionality. The RasterFrame
+the implementations take advantage of the existing Scala functionality. The RasterFrameLayer
 class here provides the PyRasterFrames entry point.
 """
 
@@ -34,15 +34,15 @@ from pyspark.ml.util import JavaMLReadable, JavaMLWritable
 from pyrasterframes.rf_context import RFContext
 import numpy as np
 
-__all__ = ['RasterFrame', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
 
-class RasterFrame(DataFrame):
+class RasterFrameLayer(DataFrame):
     def __init__(self, jdf, spark_session):
         DataFrame.__init__(self, jdf, spark_session._wrapped)
         self._jrfctx = spark_session.rasterframes._jrfctx
 
-    def tileColumns(self):
+    def tile_columns(self):
         """
         Fetches columns of type Tile.
         :return: One or more Column instances associated with Tiles.
@@ -50,7 +50,7 @@ class RasterFrame(DataFrame):
         cols = self._jrfctx.tileColumns(self._jdf)
         return [Column(c) for c in cols]
 
-    def spatialKeyColumn(self):
+    def spatial_key_column(self):
         """
         Fetch the tagged spatial key column.
         :return: Spatial key column
@@ -58,7 +58,7 @@ class RasterFrame(DataFrame):
         col = self._jrfctx.spatialKeyColumn(self._jdf)
         return Column(col)
 
-    def temporalKeyColumn(self):
+    def temporal_key_column(self):
         """
         Fetch the temporal key column, if any.
         :return: Temporal key column, or None.
@@ -66,7 +66,7 @@ class RasterFrame(DataFrame):
         col = self._jrfctx.temporalKeyColumn(self._jdf)
         return col and Column(col)
 
-    def tileLayerMetadata(self):
+    def tile_layer_metadata(self):
         """
         Fetch the tile layer metadata.
         :return: A dictionary of metadata.
@@ -74,16 +74,16 @@ class RasterFrame(DataFrame):
         import json
         return json.loads(str(self._jrfctx.tileLayerMetadata(self._jdf)))
 
-    def spatialJoin(self, other_df):
+    def spatial_join(self, other_df):
         """
-        Spatially join this RasterFrame to the given RasterFrame.
-        :return: Joined RasterFrame.
+        Spatially join this RasterFrameLayer to the given RasterFrameLayer.
+        :return: Joined RasterFrameLayer.
         """
         ctx = SparkContext._active_spark_context._rf_context
         df = ctx._jrfctx.spatialJoin(self._jdf, other_df._jdf)
-        return RasterFrame(df, ctx._spark_session)
+        return RasterFrameLayer(df, ctx._spark_session)
 
-    def toIntRaster(self, colname, cols, rows):
+    def to_int_raster(self, colname, cols, rows):
         """
         Convert a tile to an Int raster
         :return: array containing values of the tile's cells
@@ -91,7 +91,7 @@ class RasterFrame(DataFrame):
         resArr = self._jrfctx.toIntRaster(self._jdf, colname, cols, rows)
         return resArr
 
-    def toDoubleRaster(self, colname, cols, rows):
+    def to_double_raster(self, colname, cols, rows):
         """
         Convert a tile to an Double raster
         :return: array containing values of the tile's cells
@@ -99,41 +99,41 @@ class RasterFrame(DataFrame):
         resArr = self._jrfctx.toDoubleRaster(self._jdf, colname, cols, rows)
         return resArr
 
-    def withBounds(self):
+    def with_bounds(self):
         """
         Add a column called "bounds" containing the extent of each row.
-        :return: RasterFrame with "bounds" column.
+        :return: RasterFrameLayer with "bounds" column.
         """
         ctx = SparkContext._active_spark_context._rf_context
         df = ctx._jrfctx.withBounds(self._jdf)
-        return RasterFrame(df, ctx._spark_session)
+        return RasterFrameLayer(df, ctx._spark_session)
 
-    def withCenter(self):
+    def with_center(self):
         """
         Add a column called "center" containing the center of the extent of each row.
-        :return: RasterFrame with "center" column.
+        :return: RasterFrameLayer with "center" column.
         """
         ctx = SparkContext._active_spark_context._rf_context
         df = ctx._jrfctx.withCenter(self._jdf)
-        return RasterFrame(df, ctx._spark_session)
+        return RasterFrameLayer(df, ctx._spark_session)
 
-    def withCenterLatLng(self):
+    def with_center_lat_lng(self):
         """
         Add a column called "center" containing the center of the extent of each row in Lat Long form.
-        :return: RasterFrame with "center" column.
+        :return: RasterFrameLayer with "center" column.
         """
         ctx = SparkContext._active_spark_context._rf_context
         df = ctx._jrfctx.withCenterLatLng(self._jdf)
-        return RasterFrame(df, ctx._spark_session)
+        return RasterFrameLayer(df, ctx._spark_session)
 
-    def withSpatialIndex(self):
+    def with_spatial_index(self):
         """
         Add a column containing the spatial index of each row.
-        :return: RasterFrame with "center" column.
+        :return: RasterFrameLayer with "center" column.
         """
         ctx = SparkContext._active_spark_context._rf_context
         df = ctx._jrfctx.withSpatialIndex(self._jdf)
-        return RasterFrame(df, ctx._spark_session)
+        return RasterFrameLayer(df, ctx._spark_session)
 
 
 class RasterSourceUDT(UserDefinedType):

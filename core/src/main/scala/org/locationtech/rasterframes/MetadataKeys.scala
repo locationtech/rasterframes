@@ -29,6 +29,6 @@ trait MetadataKeys {
   /** Key under which ContextRDD metadata is stored. */
   private[rasterframes] val CONTEXT_METADATA_KEY = "_context"
 
-  /** Key under which RasterFrame role a column plays. */
+  /** Key under which RasterFrameLayer role a column plays. */
   private[rasterframes] val SPATIAL_ROLE_KEY = "_stRole"
 }

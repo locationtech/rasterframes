@@ -36,7 +36,7 @@ import scala.annotation.implicitNotFound
  *
  * @since 4/8/18
  */
-@implicitNotFound("An RDD converter is required create a RasterFrame. " +
+@implicitNotFound("An RDD converter is required create a RasterFrameLayer. " +
   "Please provide an implementation of PairRDDConverter[${K}, ${V}].")
 trait PairRDDConverter[K, V] extends Serializable {
   val schema: StructType

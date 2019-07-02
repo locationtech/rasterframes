@@ -19,7 +19,7 @@
 #
 
 """
-This module contains access to the jvm SparkContext with RasterFrame support.
+This module contains access to the jvm SparkContext with RasterFrameLayer support.
 """
 
 from pyspark import SparkContext

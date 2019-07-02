@@ -91,7 +91,7 @@ class GeoTrellisDataSourceSpec
     outputDir.deleteOnExit()
 
     // Test layer writing via RF
-    testRdd.toRF.write.geotrellis.asLayer(layer).save()
+    testRdd.toLayer.write.geotrellis.asLayer(layer).save()
 
     val tfRdd = testRdd.map { case (k, tile) ⇒
         val md = Map("col" -> k.col,"row" -> k.row)
@@ -117,7 +117,7 @@ class GeoTrellisDataSourceSpec
     val tlfRdd = ContextRDD(tfRdd, testRdd.metadata)
     writer.write(tfLayer.id, tlfRdd, ZCurveKeyIndexMethod.byDay())
 
-    //TestData.sampleTileLayerRDD.toRF.write.geotrellis.asLayer(sampleImageLayer).save()
+    //TestData.sampleTileLayerRDD.toLayer.write.geotrellis.asLayer(sampleImageLayer).save()
     val writer2 = LayerWriter(sampleImageLayer.base)
     val imgRDD = TestData.sampleTileLayerRDD
     writer2.write(sampleImageLayer.id, imgRDD, ZCurveKeyIndexMethod)
@@ -126,12 +126,12 @@ class GeoTrellisDataSourceSpec
   describe("DataSource reading") {
     def layerReader = spark.read.geotrellis
     it("should read tiles") {
-      val df = layerReader.loadRF(layer)
+      val df = layerReader.loadLayer(layer)
       assert(df.count === tileCoordRange.length * tileCoordRange.length)
     }
 
     it("used produce tile UDT that we can manipulate") {
-      val df = layerReader.loadRF(layer)
+      val df = layerReader.loadLayer(layer)
         .select(SPATIAL_KEY_COLUMN, rf_tile_stats(TILE_COLUMN))
       assert(df.count() > 0)
     }
@@ -141,7 +141,7 @@ class GeoTrellisDataSourceSpec
       val  bbox = testRdd.metadata.layout
         .mapTransform(boundKeys.toGridBounds())
         .jtsGeom
-      val wc = layerReader.loadRF(layer).withCenter()
+      val wc = layerReader.loadLayer(layer).withCenter()
 
       withClue("literate API") {
         val df = wc.where(CENTER_COLUMN intersects bbox)
@@ -154,7 +154,7 @@ class GeoTrellisDataSourceSpec
     }
 
     it("should invoke Encoder[Extent]") {
-      val df = layerReader.loadRF(layer).withGeometry()
+      val df = layerReader.loadLayer(layer).withGeometry()
       assert(df.count > 0)
       assert(df.first.length === 5)
       assert(df.first.getAs[Extent](2) !== null)
@@ -162,7 +162,7 @@ class GeoTrellisDataSourceSpec
 
     it("should write to parquet") {
       //just should not throw
-      val df = layerReader.loadRF(layer)
+      val df = layerReader.loadLayer(layer)
       assert(write(df))
     }
   }
@@ -172,21 +172,21 @@ class GeoTrellisDataSourceSpec
       val expected = 2
       val df = spark.read.geotrellis
         .withNumPartitions(expected)
-        .loadRF(layer)
+        .loadLayer(layer)
       assert(df.rdd.partitions.length === expected)
     }
     it("should respect partitions 20") {
       val expected = 20
       val df = spark.read.geotrellis
         .withNumPartitions(expected)
-        .loadRF(layer)
+        .loadLayer(layer)
       assert(df.rdd.partitions.length === expected)
     }
     it("should respect subdivide 2") {
       val param = 2
-      val df: RasterFrame = spark.read.geotrellis
+      val df: RasterFrameLayer = spark.read.geotrellis
         .withTileSubdivisions(param)
-        .loadRF(layer)
+        .loadLayer(layer)
 
       val dims = df.select(rf_dimensions(df.tileColumns.head)("cols"), rf_dimensions(df.tileColumns.head)("rows")).first()
       assert(dims.getAs[Int](0) === tileSize / param)
@@ -197,9 +197,9 @@ class GeoTrellisDataSourceSpec
     }
     it("should respect subdivide with TileFeature"){
       val param = 2
-      val rf: RasterFrame = spark.read.geotrellis
+      val rf: RasterFrameLayer = spark.read.geotrellis
         .withTileSubdivisions(param)
-        .loadRF(tfLayer)
+        .loadLayer(tfLayer)
 
       val dims = rf.select(rf_dimensions(rf.tileColumns.head)("cols"), rf_dimensions(rf.tileColumns.head)("rows"))
         .first()
@@ -216,7 +216,7 @@ class GeoTrellisDataSourceSpec
         .geotrellis
         .withNumPartitions(7)
         .withTileSubdivisions(subParam)
-        .loadRF(layer)
+        .loadLayer(layer)
 
       // is it partitioned correctly?
       assert(rf.rdd.partitions.length === 7)
@@ -233,7 +233,7 @@ class GeoTrellisDataSourceSpec
       val subs = 4
       val rf = spark.read.geotrellis
         .withTileSubdivisions(subs)
-        .loadRF(sampleImageLayer)
+        .loadLayer(sampleImageLayer)
 
 
       assert(rf.count === (TestData.sampleTileLayerRDD.count * subs * subs))
@@ -250,13 +250,13 @@ class GeoTrellisDataSourceSpec
 
     it("should throw on subdivide 5") {
       // only throws when an action is taken...
-      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(5).loadRF(layer).cache)
+      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(5).loadLayer(layer).cache)
     }
     it("should throw on subdivide 13") {
-      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(13).loadRF(layer).cache)
+      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(13).loadLayer(layer).cache)
     }
     it("should throw on subdivide -3") {
-      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(-3).loadRF(layer).count)
+      assertThrows[IllegalArgumentException](spark.read.geotrellis.withTileSubdivisions(-3).loadLayer(layer).count)
     }
   }
 
@@ -287,7 +287,7 @@ class GeoTrellisDataSourceSpec
 
     it("should support extent against a geometry literal") {
       val df: DataFrame = layerReader
-        .loadRF(layer)
+        .loadLayer(layer)
         .where(GEOMETRY_COLUMN intersects pt1)
 
       assert(numFilters(df) === 1)
@@ -299,7 +299,7 @@ class GeoTrellisDataSourceSpec
     it("should support query with multiple geometry types") {
       // Mostly just testing that these evaluate without catalyst type errors.
       forEvery(GeomData.all) { g ⇒
-        val query = layerReader.loadRF(layer).where(GEOMETRY_COLUMN.intersects(g))
+        val query = layerReader.loadLayer(layer).where(GEOMETRY_COLUMN.intersects(g))
           .persist(StorageLevel.OFF_HEAP)
         assert(query.count() === 0)
       }
@@ -311,7 +311,7 @@ class GeoTrellisDataSourceSpec
       val mkPtFcn = sparkUdf((_: Row) ⇒ { Point(-88, 60).jtsGeom })
 
       val df = layerReader
-        .loadRF(layer)
+        .loadLayer(layer)
         .where(st_intersects(GEOMETRY_COLUMN, mkPtFcn(SPATIAL_KEY_COLUMN)))
 
       assert(numFilters(df) === 0)
@@ -323,7 +323,7 @@ class GeoTrellisDataSourceSpec
     it("should support temporal predicates") {
       withClue("at now") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
 
         assert(numFilters(df) == 1)
@@ -332,7 +332,7 @@ class GeoTrellisDataSourceSpec
 
       withClue("at earlier") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
 
         assert(numFilters(df) === 1)
@@ -341,7 +341,7 @@ class GeoTrellisDataSourceSpec
 
       withClue("between now") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where(TIMESTAMP_COLUMN betweenTimes (now.minusDays(1), now.plusDays(1)))
 
         assert(numFilters(df) === 1)
@@ -350,7 +350,7 @@ class GeoTrellisDataSourceSpec
 
       withClue("between later") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where(TIMESTAMP_COLUMN betweenTimes (now.plusDays(1), now.plusDays(2)))
 
         assert(numFilters(df) === 1)
@@ -361,7 +361,7 @@ class GeoTrellisDataSourceSpec
     it("should support nested predicates") {
       withClue("fully nested") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where(
             ((GEOMETRY_COLUMN intersects pt1) ||
               (GEOMETRY_COLUMN intersects pt2)) &&
@@ -376,7 +376,7 @@ class GeoTrellisDataSourceSpec
 
       withClue("partially nested") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where((GEOMETRY_COLUMN intersects pt1) || (GEOMETRY_COLUMN intersects pt2))
           .where(TIMESTAMP_COLUMN === Timestamp.valueOf(now.toLocalDateTime))
 
@@ -390,7 +390,7 @@ class GeoTrellisDataSourceSpec
     it("should support intersects with between times") {
       withClue("intersects first") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where(GEOMETRY_COLUMN intersects pt1)
           .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
 
@@ -398,7 +398,7 @@ class GeoTrellisDataSourceSpec
       }
       withClue("intersects last") {
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where(TIMESTAMP_COLUMN betweenTimes(now.minusDays(1), now.plusDays(1)))
           .where(GEOMETRY_COLUMN intersects pt1)
 
@@ -408,7 +408,7 @@ class GeoTrellisDataSourceSpec
       withClue("untyped columns") {
         import spark.implicits._
         val df = layerReader
-          .loadRF(layer)
+          .loadLayer(layer)
           .where($"timestamp" >= Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
           .where($"timestamp" <= Timestamp.valueOf(now.plusDays(1).toLocalDateTime))
           .where(st_intersects(GEOMETRY_COLUMN, geomLit(pt1.jtsGeom)))
@@ -420,7 +420,7 @@ class GeoTrellisDataSourceSpec
 
     it("should handle renamed spatial filter columns") {
       val df = layerReader
-        .loadRF(layer)
+        .loadLayer(layer)
         .where(GEOMETRY_COLUMN intersects region.jtsGeom)
         .withColumnRenamed(GEOMETRY_COLUMN.columnName, "foobar")
 
@@ -430,7 +430,7 @@ class GeoTrellisDataSourceSpec
 
     it("should handle dropped spatial filter columns") {
       val df = layerReader
-        .loadRF(layer)
+        .loadLayer(layer)
         .where(GEOMETRY_COLUMN intersects region.jtsGeom)
         .drop(GEOMETRY_COLUMN)
 
@@ -440,14 +440,14 @@ class GeoTrellisDataSourceSpec
 
   describe("TileFeature support") {
     def layerReader = spark.read.geotrellis
-    it("should resolve TileFeature-based RasterFrame") {
-      val rf = layerReader.loadRF(tfLayer)
+    it("should resolve TileFeature-based RasterFrameLayer") {
+      val rf = layerReader.loadLayer(tfLayer)
       //rf.show(false)
       assert(rf.collect().length === testRdd.count())
     }
-    it("should respect subdivideTile option on TileFeature RasterFrame") {
+    it("should respect subdivideTile option on TileFeature RasterFrameLayer") {
       val subParam = 4
-      val rf = spark.read.option(TILE_SUBDIVISIONS_PARAM, subParam).geotrellis.loadRF(tfLayer)
+      val rf = spark.read.option(TILE_SUBDIVISIONS_PARAM, subParam).geotrellis.loadLayer(tfLayer)
 
       assert(rf.count === testRdd.count * subParam * subParam)
 
@@ -462,7 +462,7 @@ class GeoTrellisDataSourceSpec
       val rf = spark.read
         .option(TILE_SUBDIVISIONS_PARAM, subParam)
         .option(NUM_PARTITIONS_PARAM, 10)
-        .geotrellis.loadRF(tfLayer)
+        .geotrellis.loadLayer(tfLayer)
 
       // is it subdivided?
       assert(rf.count === testRdd.count * subParam * subParam)

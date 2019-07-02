@@ -64,7 +64,7 @@ class GeoTiffDataSource extends DataSourceRegister
     require(pathO.get.getScheme == "file" || pathO.get.getScheme == null, "Currently only 'file://' destinations are supported")
     sqlContext.withRasterFrames
 
-    require(data.isRF, "GeoTIFF can only be constructed from a RasterFrame")
+    require(data.isLayer, "GeoTIFF can only be constructed from a RasterFrameLayer")
     val rf = data.certify
 
     // If no desired image size is given, write at full size.

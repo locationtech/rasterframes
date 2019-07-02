@@ -34,19 +34,19 @@ import org.locationtech.rasterframes.util.SubdivideSupport
  */
 //noinspection ScalaUnusedSymbol
 class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSupport {
-  lazy val rf = sampleTileLayerRDD.toRF
+  lazy val rf = sampleTileLayerRDD.toLayer
 
   describe("DataFrame exention methods") {
     it("should maintain original type") {
       val df = rf.withPrefixedColumnNames("_foo_")
-      "val rf2: RasterFrame = df" should compile
+      "val rf2: RasterFrameLayer = df" should compile
     }
     it("should provide tagged column access") {
       val df = rf.drop("tile")
       "val Some(col) = df.spatialKeyColumn" should compile
     }
   }
-  describe("RasterFrame exention methods") {
+  describe("RasterFrameLayer exention methods") {
     it("should provide spatial key column") {
       noException should be thrownBy {
         rf.spatialKeyColumn

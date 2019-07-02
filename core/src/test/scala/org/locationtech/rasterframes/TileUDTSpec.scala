@@ -29,7 +29,7 @@ import org.locationtech.rasterframes.tiles.ShowableTile
 import org.scalatest.Inspectors
 
 /**
- * RasterFrame test rig.
+ * RasterFrameLayer test rig.
  *
  * @since 7/10/17
  */

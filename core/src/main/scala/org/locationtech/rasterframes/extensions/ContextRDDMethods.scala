@@ -25,7 +25,7 @@ import org.locationtech.rasterframes.PairRDDConverter._
 import org.locationtech.rasterframes.StandardColumns._
 import Implicits._
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.{PairRDDConverter, RasterFrame}
+import org.locationtech.rasterframes.RasterFrameLayer
 import geotrellis.raster.CellGrid
 import geotrellis.spark._
 import geotrellis.spark.io._
@@ -35,16 +35,16 @@ import org.apache.spark.sql.SparkSession
 import org.locationtech.rasterframes.PairRDDConverter
 
 /**
- * Extension method on `ContextRDD`-shaped RDDs with appropriate context bounds to create a RasterFrame.
+ * Extension method on `ContextRDD`-shaped RDDs with appropriate context bounds to create a RasterFrameLayer.
  * @since 7/18/17
  */
 abstract class SpatialContextRDDMethods[T <: CellGrid](implicit spark: SparkSession)
     extends MethodExtensions[RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]] {
   import PairRDDConverter._
 
-  def toRF(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrame = toRF(TILE_COLUMN.columnName)
+  def toLayer(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrameLayer = toLayer(TILE_COLUMN.columnName)
 
-  def toRF(tileColumnName: String)(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrame = {
+  def toLayer(tileColumnName: String)(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrameLayer = {
     val df = self.toDataFrame.setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
     val defName = TILE_COLUMN.columnName
     df.mapWhen(_ ⇒ tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
@@ -53,16 +53,16 @@ abstract class SpatialContextRDDMethods[T <: CellGrid](implicit spark: SparkSess
 }
 
 /**
- * Extension method on `ContextRDD`-shaped `Tile` RDDs keyed with [[SpaceTimeKey]], with appropriate context bounds to create a RasterFrame.
+ * Extension method on `ContextRDD`-shaped `Tile` RDDs keyed with [[SpaceTimeKey]], with appropriate context bounds to create a RasterFrameLayer.
  * @since 9/11/17
  */
 abstract class SpatioTemporalContextRDDMethods[T <: CellGrid](
   implicit spark: SparkSession)
   extends MethodExtensions[RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]] {
 
-  def toRF(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrame = toRF(TILE_COLUMN.columnName)
+  def toLayer(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrameLayer = toLayer(TILE_COLUMN.columnName)
 
-  def toRF(tileColumnName: String)(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrame = {
+  def toLayer(tileColumnName: String)(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrameLayer = {
     val df = self.toDataFrame
       .setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
       .setTemporalColumnRole(TEMPORAL_KEY_COLUMN)

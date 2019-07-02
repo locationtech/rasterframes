@@ -46,7 +46,7 @@ object Classification extends App {
   import spark.implicits._
 
   // The first step is to load multiple bands of imagery and construct
-  // a single RasterFrame from them.
+  // a single RasterFrameLayer from them.
   val filenamePattern = "L8-%s-Elkton-VA.tiff"
   val bandNumbers = 2 to 7
   val bandColNames = bandNumbers.map(b ⇒ s"band_$b").toArray
@@ -56,7 +56,7 @@ object Classification extends App {
   val joinedRF = bandNumbers
     .map { b ⇒ (b, filenamePattern.format("B" + b)) }
     .map { case (b, f) ⇒ (b, readTiff(f)) }
-    .map { case (b, t) ⇒ t.projectedRaster.toRF(tileSize, tileSize, s"band_$b") }
+    .map { case (b, t) ⇒ t.projectedRaster.toLayer(tileSize, tileSize, s"band_$b") }
     .reduce(_ spatialJoin _)
 
   // We should see a single spatial_key column along with 4 columns of tiles.
@@ -70,7 +70,7 @@ object Classification extends App {
   val target = readTiff(filenamePattern.format("Labels"))
     .mapTile(_.convert(DoubleConstantNoDataCellType))
     .projectedRaster
-    .toRF(tileSize, tileSize, targetCol)
+    .toLayer(tileSize, tileSize, targetCol)
 
   // Take a peek at what kind of label data we have to work with.
   target.select(rf_agg_stats(target(targetCol))).show
@@ -147,7 +147,7 @@ object Classification extends App {
     )
   )
 
-  val rf = retiled.asRF($"spatial_key", tlm)
+  val rf = retiled.asLayer($"spatial_key", tlm)
 
   val raster = rf.toRaster($"prediction", 186, 169)
 

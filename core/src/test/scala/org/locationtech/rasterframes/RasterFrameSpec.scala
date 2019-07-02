@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.model.TileDimensions
 import scala.util.control.NonFatal
 
 /**
- * RasterFrame test rig.
+ * RasterFrameLayer test rig.
  *
  * @since 7/10/17
  */
@@ -74,12 +74,12 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
   }
 
-  describe("RasterFrame") {
+  describe("RasterFrameLayer") {
     it("should implicitly convert from spatial layer type") {
 
       val tileLayerRDD = TestData.randomSpatialTileLayerRDD(20, 20, 2, 2)
 
-      val rf = tileLayerRDD.toRF
+      val rf = tileLayerRDD.toLayer
 
       assert(rf.tileColumns.nonEmpty)
       assert(rf.spatialKeyColumn.columnName == "spatial_key")
@@ -95,7 +95,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
       assert(rf.count() === 4)
 
-      val cols = tileLayerRDD.toRF("foo").columns
+      val cols = tileLayerRDD.toLayer("foo").columns
       assert(!cols.contains("tile"))
       assert(cols.contains("foo"))
     }
@@ -104,7 +104,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
       val tileLayerRDD = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2)
 
-      val rf = tileLayerRDD.toRF
+      val rf = tileLayerRDD.toLayer
 
       try {
         assert(rf.tileColumns.nonEmpty)
@@ -116,7 +116,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
           println(rf.schema.prettyJson)
           throw ex
       }
-      val cols = tileLayerRDD.toRF("foo").columns
+      val cols = tileLayerRDD.toLayer("foo").columns
        assert(!cols.contains("tile"))
        assert(cols.contains("foo"))
     }
@@ -135,7 +135,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
       val tileLayerRDD = TileFeatureLayerRDD(tileRDD, metadata)
 
-      val rf = tileLayerRDD.toRF
+      val rf = tileLayerRDD.toLayer
 
       assert(rf.columns.toSet === Set(SPATIAL_KEY_COLUMN, TILE_COLUMN, TILE_FEATURE_DATA_COLUMN).map(_.columnName))
     }
@@ -154,14 +154,14 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
       val tileLayerRDD = TileFeatureLayerRDD(tileRDD, metadata)
 
-      val rf = tileLayerRDD.toRF
+      val rf = tileLayerRDD.toLayer
 
       assert(rf.columns.toSet === Set(SPATIAL_KEY_COLUMN, TEMPORAL_KEY_COLUMN, TILE_COLUMN, TILE_FEATURE_DATA_COLUMN).map(_.columnName))
     }
 
     it("should support adding a timestamp column") {
       val now = ZonedDateTime.now()
-      val rf = sampleGeoTiff.projectedRaster.toRF(256, 256)
+      val rf = sampleGeoTiff.projectedRaster.toLayer(256, 256)
       val wt = rf.addTemporalComponent(now)
       val goodie = wt.withTimestamp()
       assert(goodie.columns.contains("timestamp"))
@@ -172,7 +172,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
 
     it("should support spatial joins") {
-      val rf = sampleGeoTiff.projectedRaster.toRF(256, 256)
+      val rf = sampleGeoTiff.projectedRaster.toLayer(256, 256)
 
       val wt = rf.addTemporalComponent(TemporalKey(34))
 
@@ -186,11 +186,11 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
 
     it("should have correct schema on inner spatial joins") {
-      val left = sampleGeoTiff.projectedRaster.toRF(256, 256)
+      val left = sampleGeoTiff.projectedRaster.toLayer(256, 256)
         .addTemporalComponent(TemporalKey(34))
 
       val right = left.withColumnRenamed(left.tileColumns.head.columnName, "rightTile")
-        .asRF
+        .asLayer
 
       val joined = left.spatialJoin(right)
       // since right is a copy of left, should not drop any rows with inner join
@@ -205,19 +205,19 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       assert(joined.tileColumns.toSet !== joined.notTileColumns.toSet)
     }
 
-    it("should convert a GeoTiff to RasterFrame") {
+    it("should convert a GeoTiff to RasterFrameLayer") {
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
       val (cols, rows) = praster.raster.dimensions
 
       val layoutCols = math.ceil(cols / 128.0).toInt
       val layoutRows = math.ceil(rows / 128.0).toInt
 
-      assert(praster.toRF.count() === 1)
-      assert(praster.toRF(128, 128).count() === (layoutCols * layoutRows))
+      assert(praster.toLayer.count() === 1)
+      assert(praster.toLayer(128, 128).count() === (layoutCols * layoutRows))
     }
 
     it("should provide TileLayerMetadata[SpatialKey]") {
-      val rf = sampleGeoTiff.projectedRaster.toRF(256, 256)
+      val rf = sampleGeoTiff.projectedRaster.toLayer(256, 256)
       val tlm = rf.tileLayerMetadata.merge
       val bounds = tlm.bounds.get
       assert(bounds === KeyBounds(SpatialKey(0, 0), SpatialKey(3, 1)))
@@ -225,7 +225,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
     it("should provide TileLayerMetadata[SpaceTimeKey]") {
       val now = ZonedDateTime.now()
-      val rf = sampleGeoTiff.projectedRaster.toRF(256, 256, now)
+      val rf = sampleGeoTiff.projectedRaster.toLayer(256, 256, now)
       val tlm = rf.tileLayerMetadata.merge
       val bounds = tlm.bounds.get
       assert(bounds._1 === SpaceTimeKey(0, 0, now))
@@ -235,7 +235,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 //    it("should clip TileLayerMetadata extent") {
 //      val tiled = sampleTileLayerRDD
 //
-//      val rf = tiled.reproject(LatLng, tiled.metadata.layout)._2.toRF
+//      val rf = tiled.reproject(LatLng, tiled.metadata.layout)._2.toLayer
 //
 //      val worldish = Extent(-179, -89, 179, 89)
 //      val areaish = Extent(-90, 30, -81, 40)
@@ -262,14 +262,14 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
 
     it("shouldn't clip already clipped extents") {
-      val rf = TestData.randomSpatialTileLayerRDD(1024, 1024, 8, 8).toRF
+      val rf = TestData.randomSpatialTileLayerRDD(1024, 1024, 8, 8).toLayer
 
       val expected = rf.tileLayerMetadata.merge.extent
       val computed = rf.clipLayerExtent.tileLayerMetadata.merge.extent
       basicallySame(expected, computed)
 
       val pr = sampleGeoTiff.projectedRaster
-      val rf2 = pr.toRF(256, 256)
+      val rf2 = pr.toLayer(256, 256)
       val expected2 = rf2.tileLayerMetadata.merge.extent
       val computed2 = rf2.clipLayerExtent.tileLayerMetadata.merge.extent
       basicallySame(expected2, computed2)
@@ -294,7 +294,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
 
     it("should rasterize with a spatiotemporal key") {
-      val rf = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toRF
+      val rf = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toLayer
 
       noException shouldBe thrownBy {
         rf.toRaster($"tile", 128, 128)
@@ -302,8 +302,8 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
 
     it("should maintain metadata after all spatial join operations") {
-      val rf1 = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toRF
-      val rf2 = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toRF
+      val rf1 = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toLayer
+      val rf2 = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toLayer
 
       val joinTypes = Seq("inner", "outer", "fullouter", "left_outer", "right_outer", "leftsemi")
       forEvery(joinTypes) { jt ⇒
@@ -315,9 +315,9 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
     it("should rasterize multiband") {
       withClue("Landsat") {
-        val blue = TestData.l8Sample(1).projectedRaster.toRF.withRFColumnRenamed("tile", "blue")
-        val green = TestData.l8Sample(2).projectedRaster.toRF.withRFColumnRenamed("tile", "green")
-        val red = TestData.l8Sample(3).projectedRaster.toRF.withRFColumnRenamed("tile", "red")
+        val blue = TestData.l8Sample(1).projectedRaster.toLayer.withRFColumnRenamed("tile", "blue")
+        val green = TestData.l8Sample(2).projectedRaster.toLayer.withRFColumnRenamed("tile", "green")
+        val red = TestData.l8Sample(3).projectedRaster.toLayer.withRFColumnRenamed("tile", "red")
 
         val joined = blue.spatialJoin(green).spatialJoin(red)
 
@@ -328,9 +328,9 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
         }
       }
       withClue("NAIP") {
-        val red = TestData.naipSample(1).projectedRaster.toRF.withRFColumnRenamed("tile", "red")
-        val green = TestData.naipSample(2).projectedRaster.toRF.withRFColumnRenamed("tile", "green")
-        val blue = TestData.naipSample(3).projectedRaster.toRF.withRFColumnRenamed("tile", "blue")
+        val red = TestData.naipSample(1).projectedRaster.toLayer.withRFColumnRenamed("tile", "red")
+        val green = TestData.naipSample(2).projectedRaster.toLayer.withRFColumnRenamed("tile", "green")
+        val blue = TestData.naipSample(3).projectedRaster.toLayer.withRFColumnRenamed("tile", "blue")
         val joined = blue.spatialJoin(green).spatialJoin(red)
 
         noException shouldBe thrownBy {
@@ -345,7 +345,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       // 774 × 500
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
       val (cols, rows) = praster.raster.dimensions
-      val rf = praster.toRF(64, 64)
+      val rf = praster.toLayer(64, 64)
       val raster = rf.toRaster($"tile", cols, rows)
 
       render(raster.tile, "normal")
@@ -366,7 +366,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
     it("shouldn't restitch raster that's has derived tiles") {
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
-      val rf = praster.toRF(64, 64)
+      val rf = praster.toLayer(64, 64)
 
       val equalizer = udf((t: Tile) => t.equalize())
 
@@ -374,13 +374,13 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
       intercept[IllegalArgumentException] {
         // spatial_key is lost
-        equalized.asRF.toRaster($"equalized", 128, 128)
+        equalized.asLayer.toRaster($"equalized", 128, 128)
       }
     }
 
     it("should fetch CRS") {
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
-      val rf = praster.toRF
+      val rf = praster.toLayer
 
       assert(rf.crs === praster.crs)
     }

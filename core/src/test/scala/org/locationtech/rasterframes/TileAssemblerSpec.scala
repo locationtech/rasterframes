@@ -41,7 +41,7 @@ class TileAssemblerSpec extends TestEnvironment {
 
     it("should reassemble a small scene") {
       val raster = TestData.l8Sample(8).projectedRaster
-      val rf = raster.toRF(16, 16)
+      val rf = raster.toLayer(16, 16)
       val ct = rf.tileLayerMetadata.merge.cellType
       val (tileCols, tileRows) = rf.tileLayerMetadata.merge.tileLayout.tileDimensions
 

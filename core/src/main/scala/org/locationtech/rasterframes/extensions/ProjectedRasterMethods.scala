@@ -23,20 +23,19 @@ package org.locationtech.rasterframes.extensions
 
 import java.time.ZonedDateTime
 
-import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.{RasterFrame, StandardColumns}
 import geotrellis.raster.{CellGrid, ProjectedRaster}
 import geotrellis.spark._
 import geotrellis.spark.tiling._
 import geotrellis.util.MethodExtensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
-import org.locationtech.rasterframes.{PairRDDConverter, StandardColumns}
+import org.locationtech.rasterframes.util._
+import org.locationtech.rasterframes.{PairRDDConverter, RasterFrameLayer, StandardColumns}
 
 import scala.reflect.runtime.universe._
 
 /**
- * Extension methods on [[ProjectedRaster]] for creating [[RasterFrame]]s.
+ * Extension methods on [[ProjectedRaster]] for creating [[RasterFrameLayer]]s.
  *
  * @since 8/10/17
  */
@@ -46,64 +45,64 @@ abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithProto
   type XTileLayerRDD[K] = RDD[(K, T)] with Metadata[TileLayerMetadata[K]]
 
   /**
-   * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrame]] with a
+   * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrameLayer]] with a
    * single row.
    *
-   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   * @param spark [[SparkSession]] in which to create [[RasterFrameLayer]]
    */
-  def toRF(implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrame =
-    toRF(TILE_COLUMN.columnName)
+  def toLayer(implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrameLayer =
+    toLayer(TILE_COLUMN.columnName)
 
   /**
-   * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrame]] with a
+   * Convert the wrapped [[ProjectedRaster]] into a [[RasterFrameLayer]] with a
    * single row.
    *
-   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   * @param spark [[SparkSession]] in which to create [[RasterFrameLayer]]
    */
-  def toRF(tileColName: String)
-    (implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrame = {
+  def toLayer(tileColName: String)
+    (implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrameLayer = {
     val (cols, rows) = self.raster.dimensions
-    toRF(cols, rows, tileColName)
+    toLayer(cols, rows, tileColName)
   }
 
   /**
-   * Convert the [[ProjectedRaster]] into a [[RasterFrame]] using the
+   * Convert the [[ProjectedRaster]] into a [[RasterFrameLayer]] using the
    * given dimensions as the target per-row tile size.
    *
    * @param tileCols Max number of horizontal cells per tile
    * @param tileRows Max number of vertical cells per tile
-   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   * @param spark [[SparkSession]] in which to create [[RasterFrameLayer]]
    */
-  def toRF(tileCols: Int, tileRows: Int)
-    (implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrame =
-    toRF(tileCols, tileRows, TILE_COLUMN.columnName)
+  def toLayer(tileCols: Int, tileRows: Int)
+    (implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrameLayer =
+    toLayer(tileCols, tileRows, TILE_COLUMN.columnName)
 
   /**
-   * Convert the [[ProjectedRaster]] into a [[RasterFrame]] using the
+   * Convert the [[ProjectedRaster]] into a [[RasterFrameLayer]] using the
    * given dimensions as the target per-row tile size.
    *
    * @param tileCols Max number of horizontal cells per tile
    * @param tileRows Max number of vertical cells per tile
    * @param tileColName Name to give the created tile column
-   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   * @param spark [[SparkSession]] in which to create [[RasterFrameLayer]]
    */
-  def toRF(tileCols: Int, tileRows: Int, tileColName: String)
-    (implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrame = {
-    toTileLayerRDD(tileCols, tileRows).toRF(tileColName)
+  def toLayer(tileCols: Int, tileRows: Int, tileColName: String)
+    (implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrameLayer = {
+    toTileLayerRDD(tileCols, tileRows).toLayer(tileColName)
   }
 
   /**
-   * Convert the [[ProjectedRaster]] into a [[RasterFrame]] using the
+   * Convert the [[ProjectedRaster]] into a [[RasterFrameLayer]] using the
    * given dimensions as the target per-row tile size and singular timestamp as the temporal component.
    *
    * @param tileCols Max number of horizontal cells per tile
    * @param tileRows Max number of vertical cells per tile.
    * @param timestamp Temporal key value to assign to tiles.
-   * @param spark [[SparkSession]] in which to create [[RasterFrame]]
+   * @param spark [[SparkSession]] in which to create [[RasterFrameLayer]]
    */
-  def toRF(tileCols: Int, tileRows: Int, timestamp: ZonedDateTime)
-    (implicit spark: SparkSession, schema: PairRDDConverter[SpaceTimeKey, T]): RasterFrame =
-    toTileLayerRDD(tileCols, tileRows, timestamp).toRF
+  def toLayer(tileCols: Int, tileRows: Int, timestamp: ZonedDateTime)
+    (implicit spark: SparkSession, schema: PairRDDConverter[SpaceTimeKey, T]): RasterFrameLayer =
+    toTileLayerRDD(tileCols, tileRows, timestamp).toLayer
 
   /**
    * Convert the [[ProjectedRaster]] into a [[TileLayerRDD[SpatialKey]] using the

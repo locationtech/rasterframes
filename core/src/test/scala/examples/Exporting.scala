@@ -38,7 +38,7 @@ object Exporting extends App {
 
   import spark.implicits._
   val scene = SinglebandGeoTiff("src/test/resources/L8-B8-Robinson-IL.tiff")
-  val rf = scene.projectedRaster.toRF(128, 128).cache()
+  val rf = scene.projectedRaster.toLayer(128, 128).cache()
 
   //  While the goal of RasterFrames is to make it as easy as possible to do your geospatial analysis with a single
   //    construct, it is helpful to be able to transform it into other representations for various use cases.
@@ -73,9 +73,9 @@ object Exporting extends App {
   //  the imagery types.
   //
   //
-  //    Let's assume we have a RasterFrame we've done some fancy processing on:
+  //    Let's assume we have a RasterFrameLayer we've done some fancy processing on:
   val equalizer = udf((t: Tile) => t.equalize())
-  val equalized = rf.withColumn("equalized", equalizer($"tile")).asRF
+  val equalized = rf.withColumn("equalized", equalizer($"tile")).asLayer
 
   equalized.printSchema
   equalized.select(rf_agg_stats($"tile")).show(false)
@@ -103,7 +103,7 @@ object Exporting extends App {
 
   //  ## Converting to `RDD` and `TileLayerRDD`
   //
-  //  Since a `RasterFrame` is just a `DataFrame` with extra metadata, the method
+  //  Since a `RasterFrameLayer` is just a `DataFrame` with extra metadata, the method
   //  @scaladoc[`DataFrame.rdd`][rdd] is available for simple conversion back to `RDD` space. The type returned
   //  by `.rdd` is dependent upon how you select it.
 
@@ -118,14 +118,14 @@ object Exporting extends App {
   showType(rf.select(rf.spatialKeyColumn, $"tile").as[(SpatialKey, Tile)].rdd)
 
   //  If your goal convert a single tile column with its spatial key back to a `TileLayerRDD[K]`, then there's an additional
-  //  extension method on `RasterFrame` called [`toTileLayerRDD`][toTileLayerRDD], which preserves the tile layer metadata,
+  //  extension method on `RasterFrameLayer` called [`toTileLayerRDD`][toTileLayerRDD], which preserves the tile layer metadata,
   //  enhancing interoperation with GeoTrellis RDD extension methods.
 
   showType(rf.toTileLayerRDD($"tile".as[Tile]))
 
   //  ## Exporting a Raster
   //
-  //  For the purposes of debugging, the RasterFrame tiles can be reassembled back into a raster for viewing. However,
+  //  For the purposes of debugging, the RasterFrameLayer tiles can be reassembled back into a raster for viewing. However,
   //  keep in mind that this will download all the data to the driver, and reassemble it in-memory. So it's not appropriate
   //  for very large coverages.
   //
@@ -147,7 +147,7 @@ object Exporting extends App {
   //  [*Download GeoTIFF*](rf-raster.tiff)
 
   //  # Exporting to a GeoTrellis Layer
-  // First, convert the RasterFrame into a TileLayerRDD. The return type is an Either;
+  // First, convert the RasterFrameLayer into a TileLayerRDD. The return type is an Either;
   // the `left` side is for spatial-only keyed data
   val tlRDD = equalized.toTileLayerRDD($"equalized").left.get
 

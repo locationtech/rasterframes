@@ -39,7 +39,7 @@ object MeanValue extends App {
 
   val scene = SinglebandGeoTiff("src/test/resources/L8-B8-Robinson-IL.tiff")
 
-  val rf = scene.projectedRaster.toRF(128, 128) // <-- tile size
+  val rf = scene.projectedRaster.toLayer(128, 128) // <-- tile size
 
   rf.printSchema
 

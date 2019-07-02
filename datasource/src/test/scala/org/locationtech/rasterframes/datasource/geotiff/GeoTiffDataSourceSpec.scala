@@ -35,14 +35,14 @@ class GeoTiffDataSourceSpec
   describe("GeoTiff reading") {
 
     it("should read sample GeoTiff") {
-      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
 
       assert(rf.count() > 10)
     }
 
     it("should lay out tiles correctly"){
 
-      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
 
       val tlm = rf.tileLayerMetadata.left.get
       val gb = tlm.gridBounds
@@ -51,7 +51,7 @@ class GeoTiffDataSourceSpec
     }
 
     it("should lay out tiles correctly for non-tiled tif") {
-      val rf = spark.read.format("geotiff").load(nonCogPath.toASCIIString).asRF
+      val rf = spark.read.format("geotiff").load(nonCogPath.toASCIIString).asLayer
 
       assert(rf.count() > 1)
 
@@ -74,7 +74,7 @@ class GeoTiffDataSourceSpec
 
     it("should read in correctly check-summed contents") {
       // c.f. TileStatsSpec -> computing statistics over tiles -> should compute tile statistics -> sum
-      val rf = spark.read.format("geotiff").load(l8B1SamplePath.toASCIIString).asRF
+      val rf = spark.read.format("geotiff").load(l8B1SamplePath.toASCIIString).asLayer
       val expected = 309149454 // computed with rasterio
       val result = rf.agg(
         sum(rf_tile_sum(rf("tile")))
@@ -84,12 +84,12 @@ class GeoTiffDataSourceSpec
     }
 
     it("should write GeoTIFF RF to parquet") {
-      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
       assert(write(rf))
     }
 
     it("should write GeoTIFF") {
-      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asRF
+      val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
 
       logger.info(s"Read extent: ${rf.tileLayerMetadata.merge.extent}")
 

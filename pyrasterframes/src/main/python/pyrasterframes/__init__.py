@@ -28,12 +28,12 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession, DataFrame, DataFrameReader
 from pyspark.sql.column import _to_java_column
 
-# Import RasterFrame types and functions
+# Import RasterFrameLayer types and functions
 from .rf_context import RFContext
 from .version import __version__
-from .rf_types import RasterFrame, TileExploder, TileUDT, RasterSourceUDT
+from .rf_types import RasterFrameLayer, TileExploder, TileUDT, RasterSourceUDT
 
-__all__ = ['RasterFrame', 'TileExploder']
+__all__ = ['RasterFrameLayer', 'TileExploder']
 
 
 def _rf_init(spark_session):
@@ -66,10 +66,10 @@ def _convert_df(df, sp_key=None, metadata=None):
     ctx = SparkContext._active_spark_context._rf_context
 
     if sp_key is None:
-        return RasterFrame(ctx._jrfctx.asRF(df._jdf), ctx._spark_session)
+        return RasterFrameLayer(ctx._jrfctx.asLayer(df._jdf), ctx._spark_session)
     else:
         import json
-        return RasterFrame(ctx._jrfctx.asRF(
+        return RasterFrameLayer(ctx._jrfctx.asLayer(
             df._jdf, _to_java_column(sp_key), json.dumps(metadata)), ctx._spark_session)
 
 
@@ -89,7 +89,7 @@ def _raster_join(df, other, left_extent=None, left_crs=None, right_extent=None, 
     else:
         jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf)
 
-    return RasterFrame(jdf, ctx._spark_session)
+    return RasterFrameLayer(jdf, ctx._spark_session)
 
 
 def _layer_reader(df_reader, format_key, path, **options):
@@ -151,8 +151,8 @@ def _raster_reader(
 SparkSession.withRasterFrames = _rf_init
 SparkSession.Builder.withKryoSerialization = _kryo_init
 
-# Add the 'asRF' method to pyspark DataFrame
-DataFrame.asRF = _convert_df
+# Add the 'asLayer' method to pyspark DataFrame
+DataFrame.as_layer = _convert_df
 
 # Add `raster_join` method to pyspark DataFrame
 DataFrame.raster_join = _raster_join

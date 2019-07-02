@@ -39,7 +39,7 @@ object Clustering extends App {
   import spark.implicits._
 
   // The first step is to load multiple bands of imagery and construct
-  // a single RasterFrame from them.
+  // a single RasterFrameLayer from them.
   val filenamePattern = "L8-B%d-Elkton-VA.tiff"
   val bandNumbers = 1 to 7
   val bandColNames = bandNumbers.map(b ⇒ s"band_$b").toArray
@@ -48,7 +48,7 @@ object Clustering extends App {
   val joinedRF = bandNumbers
     .map { b ⇒ (b, filenamePattern.format(b)) }
     .map { case (b,f) ⇒ (b, readTiff(f)) }
-    .map { case (b, t) ⇒ t.projectedRaster.toRF(s"band_$b") }
+    .map { case (b, t) ⇒ t.projectedRaster.toLayer(s"band_$b") }
     .reduce(_ spatialJoin _)
 
   // We should see a single spatial_key column along with 4 columns of tiles.
@@ -94,7 +94,7 @@ object Clustering extends App {
       tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType)
   )
 
-  val rf = retiled.asRF($"spatial_key", tlm)
+  val rf = retiled.asLayer($"spatial_key", tlm)
 
   val raster = rf.toRaster($"prediction", 186, 169)
 

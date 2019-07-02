@@ -49,11 +49,11 @@ object LocalArithmetic extends App {
   val joinedRF = bandNumbers.
     map { b ⇒ (b, filenamePattern.format(b)) }.
     map { case (b, f) ⇒ (b, readTiff(f)) }.
-    map { case (b, t) ⇒ t.projectedRaster.toRF(s"band_$b") }.
+    map { case (b, t) ⇒ t.projectedRaster.toLayer(s"band_$b") }.
     reduce(_ spatialJoin _)
 
-  val addRF = joinedRF.withColumn("1+2", rf_local_add(joinedRF("band_1"), joinedRF("band_2"))).asRF
-  val divideRF = joinedRF.withColumn("1/2", rf_local_divide(joinedRF("band_1"), joinedRF("band_2"))).asRF
+  val addRF = joinedRF.withColumn("1+2", rf_local_add(joinedRF("band_1"), joinedRF("band_2"))).asLayer
+  val divideRF = joinedRF.withColumn("1/2", rf_local_divide(joinedRF("band_1"), joinedRF("band_2"))).asLayer
 
   addRF.select("1+2").collect().apply(0) .getClass
 
