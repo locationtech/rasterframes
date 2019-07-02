@@ -20,6 +20,7 @@
  */
 
 package org.locationtech.rasterframes.datasource.raster
+import org.apache.spark.sql.functions.lit
 import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.{RasterSourceCatalog, _}
 import org.locationtech.rasterframes.model.TileDimensions
@@ -30,7 +31,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
   describe("DataSource parameter processing") {
     def singleCol(paths: Iterable[String]) = {
-      val rows: Seq[BandSet] = paths.map(BandSet(_)).toSeq
+      val rows = paths.mkString(DEFAULT_COLUMN_NAME + "\n", "\n", "")
       RasterSourceCatalog(rows, DEFAULT_COLUMN_NAME)
     }
 
@@ -73,7 +74,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
           |${paths.mkString(",")}
         """.stripMargin.trim
       val p = Map(CATALOG_CSV_PARAM -> csv)
-      p.pathSpec should be (Left(RasterSourceCatalog(Seq(BandSet(paths:_*)), bands:_*)))
+      p.pathSpec should be (Left(RasterSourceCatalog(csv)))
     }
   }
 
@@ -177,38 +178,47 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         l8SamplePath(2).toASCIIString,
         l8SamplePath(3).toASCIIString))
         .toDF("B1", "B2", "B3")
+        .withColumn("foo", lit("something"))
 
       val df = spark.read.raster
         .fromCatalog(bandPaths, "B1", "B2", "B3")
         .withTileDimensions(128, 128)
         .load()
 
-      df.schema.size should be(6)
+      df.schema.size should be(7)
       df.tileColumns.size should be (3)
       df.select($"B1_path").distinct().count() should be (1)
+
+      df.columns.contains("foo") should be (true)
+      df.select($"foo").distinct().count() should be (1)
+      df.select($"foo".as[String]).first() should be ("something")
 
       val diffStats = df.select(rf_tile_stats($"B1") =!= rf_tile_stats($"B2")).as[Boolean].collect()
       diffStats.forall(identity) should be(true)
     }
 
 
-    it("should read a set of coherent bands from multiple files in a table") {
-      val bandPaths = Seq((
-        l8SamplePath(1).toASCIIString,
-        l8SamplePath(2).toASCIIString,
-        l8SamplePath(3).toASCIIString))
-        .toDF("B1", "B2", "B3")
+    it("should read a set of coherent bands from multiple files in a csv") {
+      def b(i: Int) = l8SamplePath(i).toASCIIString
 
-      bandPaths.createOrReplaceTempView("pathsTable")
+      val csv =
+        s"""
+          |B1, B2, B3, foo
+          |${b(1)}, ${b(2)}, ${b(3)}, something
+        """.stripMargin
 
       val df = spark.read.raster
-        .fromCatalog("pathsTable", "B1", "B2", "B3")
+        .fromCSV(csv, "B1", "B2", "B3")
         .withTileDimensions(128, 128)
         .load()
 
-      df.schema.size should be(6)
+      df.schema.size should be(7)
       df.tileColumns.size should be (3)
       df.select($"B1_path").distinct().count() should be (1)
+
+      df.columns.contains("foo") should be (true)
+      df.select($"foo").distinct().count() should be (1)
+      df.select($"foo".as[String]).first() should be ("something")
 
       val diffStats = df.select(rf_tile_stats($"B1") =!= rf_tile_stats($"B2")).as[Boolean].collect()
       diffStats.forall(identity) should be(true)
