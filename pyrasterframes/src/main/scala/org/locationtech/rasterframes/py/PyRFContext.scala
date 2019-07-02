@@ -37,7 +37,7 @@ import spray.json._
 import scala.collection.JavaConverters._
 
 /**
- * py4j access wrapper to RasterFrame entry points.
+ * py4j access wrapper to RasterFrameLayer entry points.
  *
  * @since 11/6/17
  */
@@ -54,53 +54,53 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     retval
   }
 
-  def toSpatialMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpatialKey] =
+  def toSpatialMultibandTileLayerRDD(rf: RasterFrameLayer): MultibandTileLayerRDD[SpatialKey] =
     rf.toMultibandTileLayerRDD match {
       case Left(spatial) => spatial
       case Right(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpatailKey] but got $other instead")
     }
 
-  def toSpaceTimeMultibandTileLayerRDD(rf: RasterFrame): MultibandTileLayerRDD[SpaceTimeKey] =
+  def toSpaceTimeMultibandTileLayerRDD(rf: RasterFrameLayer): MultibandTileLayerRDD[SpaceTimeKey] =
     rf.toMultibandTileLayerRDD match {
       case Right(temporal) => temporal
       case Left(other) => throw new Exception(s"Expected a MultibandTileLayerRDD[SpaceTimeKey] but got $other instead")
     }
 
   /**
-   * Converts a `ContextRDD[Spatialkey, MultibandTile, TileLayerMedadata[Spatialkey]]` to a RasterFrame
+   * Converts a `ContextRDD[Spatialkey, MultibandTile, TileLayerMedadata[Spatialkey]]` to a RasterFrameLayer
    */
-  def asRF(
+  def asLayer(
     layer: ContextRDD[SpatialKey, MultibandTile, TileLayerMetadata[SpatialKey]],
     bandCount: java.lang.Integer
-  ): RasterFrame = {
+  ): RasterFrameLayer = {
     implicit val pr = PairRDDConverter.forSpatialMultiband(bandCount.toInt)
-    layer.toRF
+    layer.toLayer
   }
 
   /**
-   * Converts a `ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMedadata[SpaceTimeKey]]` to a RasterFrame
+   * Converts a `ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMedadata[SpaceTimeKey]]` to a RasterFrameLayer
    */
-  def asRF(
+  def asLayer(
     layer: ContextRDD[SpaceTimeKey, MultibandTile, TileLayerMetadata[SpaceTimeKey]],
     bandCount: java.lang.Integer
-  )(implicit d: DummyImplicit): RasterFrame = {
+  )(implicit d: DummyImplicit): RasterFrameLayer = {
     implicit val pr = PairRDDConverter.forSpaceTimeMultiband(bandCount.toInt)
-    layer.toRF
+    layer.toLayer
   }
 
   /**
-    * Base conversion to RasterFrame
+    * Base conversion to RasterFrameLayer
     */
-  def asRF(df: DataFrame): RasterFrame = {
-    df.asRF
+  def asLayer(df: DataFrame): RasterFrameLayer = {
+    df.asLayer
   }
 
   /**
-    * Conversion to RasterFrame with spatial key column and TileLayerMetadata specified.
+    * Conversion to RasterFrameLayer with spatial key column and TileLayerMetadata specified.
     */
-  def asRF(df: DataFrame, spatialKey: Column, tlm: String): RasterFrame = {
+  def asLayer(df: DataFrame, spatialKey: Column, tlm: String): RasterFrameLayer = {
     val jtlm = tlm.parseJson.convertTo[TileLayerMetadata[SpatialKey]]
-    df.asRF(spatialKey, jtlm)
+    df.asLayer(spatialKey, jtlm)
   }
 
   /**
@@ -138,13 +138,13 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     rf_explode_tiles_sample(sampleFraction, Some(seed), cols: _*)
 
   def tileColumns(df: DataFrame): Array[Column] =
-    df.asRF.tileColumns.toArray
+    df.asLayer.tileColumns.toArray
 
   def spatialKeyColumn(df: DataFrame): Column =
-    df.asRF.spatialKeyColumn
+    df.asLayer.spatialKeyColumn
 
   def temporalKeyColumn(df: DataFrame): Column =
-    df.asRF.temporalKeyColumn.orNull
+    df.asLayer.temporalKeyColumn.orNull
 
   // All the scalar tile arithmetic functions
 
@@ -196,26 +196,26 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   // return toRaster, get just the tile, and make an array out of it
   def toIntRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Int] = {
-    df.asRF.toRaster(df.col(colname), cols, rows).tile.toArray()
+    df.asLayer.toRaster(df.col(colname), cols, rows).tile.toArray()
   }
 
   def toDoubleRaster(df: DataFrame, colname: String, cols: Int, rows: Int): Array[Double] = {
-    df.asRF.toRaster(df.col(colname), cols, rows).tile.toArrayDouble()
+    df.asLayer.toRaster(df.col(colname), cols, rows).tile.toArrayDouble()
   }
 
   def tileLayerMetadata(df: DataFrame): String =
     // The `fold` is required because an `Either` is retured, depending on the key type.
-    df.asRF.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
+    df.asLayer.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
 
-  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrame = df.asRF.spatialJoin(right.asRF)
+  def spatialJoin(df: DataFrame, right: DataFrame): RasterFrameLayer = df.asLayer.spatialJoin(right.asLayer)
 
-  def withBounds(df: DataFrame): RasterFrame = df.asRF.withGeometry()
+  def withBounds(df: DataFrame): RasterFrameLayer = df.asLayer.withGeometry()
 
-  def withCenter(df: DataFrame): RasterFrame = df.asRF.withCenter()
+  def withCenter(df: DataFrame): RasterFrameLayer = df.asLayer.withCenter()
 
-  def withCenterLatLng(df: DataFrame): RasterFrame = df.asRF.withCenterLatLng()
+  def withCenterLatLng(df: DataFrame): RasterFrameLayer = df.asLayer.withCenterLatLng()
 
-  def withSpatialIndex(df: DataFrame): RasterFrame = df.asRF.withSpatialIndex()
+  def withSpatialIndex(df: DataFrame): RasterFrameLayer = df.asLayer.withSpatialIndex()
 
   //----------------------------Support Routines-----------------------------------------
 

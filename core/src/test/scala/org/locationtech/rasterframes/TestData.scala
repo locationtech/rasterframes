@@ -127,7 +127,7 @@ trait TestData {
   def rgbCogSample = readMultiband("LC08_RGB_Norfolk_COG.tiff")
 
   def sampleTileLayerRDD(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
-    val rf = sampleGeoTiff.projectedRaster.toRF(128, 128)
+    val rf = sampleGeoTiff.projectedRaster.toLayer(128, 128)
     rf.toTileLayerRDD(rf.tileColumns.head).left.get
   }
 

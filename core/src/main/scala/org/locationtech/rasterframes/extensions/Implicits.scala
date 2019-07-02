@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.extensions
 
-import org.locationtech.rasterframes.RasterFrame
+import org.locationtech.rasterframes.RasterFrameLayer
 import org.locationtech.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
@@ -56,7 +56,7 @@ trait Implicits {
 
   implicit class WithDataFrameMethods[D <: DataFrame](val self: D) extends DataFrameMethods[D]
 
-  implicit class WithRasterFrameMethods(val self: RasterFrame) extends RasterFrameMethods
+  implicit class WithRasterFrameLayerMethods(val self: RasterFrameLayer) extends RasterFrameLayerMethods
 
   implicit class WithSpatialContextRDDMethods[T <: CellGrid](
     val self: RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]

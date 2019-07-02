@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.extensions
 import java.time.ZonedDateTime
 
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterFrame
+import org.locationtech.rasterframes.RasterFrameLayer
 import geotrellis.proj4.CRS
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
 import geotrellis.raster.{MultibandTile, ProjectedRaster, Tile, TileLayout}
@@ -47,17 +47,18 @@ import org.locationtech.rasterframes.tiles.ShowableTile
 import scala.reflect.runtime.universe._
 
 /**
- * Extension methods on [[RasterFrame]] type.
- * @since 7/18/17
+ * Extension methods on [[RasterFrameLayer]] type.
+  *
+  * @since 7/18/17
  */
-trait RasterFrameMethods extends MethodExtensions[RasterFrame]
+trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
   with RFSpatialColumnMethods with MetadataKeys with LazyLogging {
-  import Implicits.{WithDataFrameMethods, WithRasterFrameMethods}
+  import Implicits.{WithDataFrameMethods, WithRasterFrameLayerMethods}
 
   /**
-   * A convenience over `DataFrame.withColumnRenamed` whereby the `RasterFrame` type is maintained.
+   * A convenience over `DataFrame.withColumnRenamed` whereby the `RasterFrameLayer` type is maintained.
    */
-  def withRFColumnRenamed(existingName: String, newName: String): RasterFrame =
+  def withRFColumnRenamed(existingName: String, newName: String): RasterFrameLayer =
     (self: DataFrame).withColumnRenamed(existingName, newName).certify
 
   /** Get the spatial column. */
@@ -75,7 +76,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   def tileLayerMetadata: Either[TileLayerMetadata[SpatialKey], TileLayerMetadata[SpaceTimeKey]] = {
     val spatialMD = self.findSpatialKeyField
       .map(_.metadata)
-      .getOrElse(throw new IllegalArgumentException(s"RasterFrame operation requsted on non-RasterFrame: $self"))
+      .getOrElse(throw new IllegalArgumentException(s"RasterFrameLayer operation requsted on non-RasterFrameLayer: $self"))
 
     if (self.findTemporalKeyField.nonEmpty)
       Right(extract[TileLayerMetadata[SpaceTimeKey]](CONTEXT_METADATA_KEY)(spatialMD))
@@ -83,12 +84,12 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
       Left(extract[TileLayerMetadata[SpatialKey]](CONTEXT_METADATA_KEY)(spatialMD))
   }
 
-  /** Get the CRS covering the RasterFrame. */
+  /** Get the CRS covering the RasterFrameLayer. */
   def crs: CRS = tileLayerMetadata.fold(_.crs, _.crs)
 
-  /** Add a temporal key to the RasterFrame, assigning the same temporal key to all rows. */
-  def addTemporalComponent(value: TemporalKey): RasterFrame = {
-    require(self.temporalKeyColumn.isEmpty, "RasterFrame already has a temporal component")
+  /** Add a temporal key to the RasterFrameLayer, assigning the same temporal key to all rows. */
+  def addTemporalComponent(value: TemporalKey): RasterFrameLayer = {
+    require(self.temporalKeyColumn.isEmpty, "RasterFrameLayer already has a temporal component")
     val tlm = tileLayerMetadata.left.get
     val newBounds: Bounds[SpaceTimeKey] =
       tlm.bounds.flatMap[SpaceTimeKey] {
@@ -110,14 +111,14 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   }
 
   /** Create a temporal key from the given time and assign it as thea temporal key for all rows. */
-  def addTemporalComponent(value: ZonedDateTime): RasterFrame = addTemporalComponent(TemporalKey(value))
+  def addTemporalComponent(value: ZonedDateTime): RasterFrameLayer = addTemporalComponent(TemporalKey(value))
 
   /**
    * Append a column containing the temporal key rendered as a TimeStamp.
    * @param colName name of column to add
-   * @return updated RasterFrame
+   * @return updated RasterFrameLayer
    */
-  def withTimestamp(colName: String = TIMESTAMP_COLUMN.columnName): RasterFrame = {
+  def withTimestamp(colName: String = TIMESTAMP_COLUMN.columnName): RasterFrameLayer = {
     self.withColumn(colName, (TEMPORAL_KEY_COLUMN.getField("instant").as[Long] / 1000).cast(TimestampType))
       .certify
   }
@@ -133,7 +134,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
    * @param joinType One of: `inner`, `outer`, `left_outer`, `right_outer`, `leftsemi`.
    */
   @Experimental
-  def spatialJoin(right: RasterFrame, joinType: String = "inner"): RasterFrame = {
+  def spatialJoin(right: RasterFrameLayer, joinType: String = "inner"): RasterFrameLayer = {
     val left = self
 
     val leftMetadata = left.tileLayerMetadata.merge
@@ -146,7 +147,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
       )
     }
 
-    def updateNames(rf: RasterFrame,
+    def updateNames(rf: RasterFrameLayer,
                     prefix: String,
                     sk: TypedColumn[Any, SpatialKey],
                     tk: Option[TypedColumn[Any, TemporalKey]]) = {
@@ -188,7 +189,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   /**
    * Performs a full RDD scans of the key column for the data extent, and updates the [[TileLayerMetadata]] data extent to match.
    */
-  def clipLayerExtent: RasterFrame = {
+  def clipLayerExtent: RasterFrameLayer = {
     val metadata = tileLayerMetadata
     val extent = metadata.merge.extent
     val layout = metadata.merge.layout
@@ -222,7 +223,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   }
 
   /**
-   * Convert a single tile column from RasterFrame to a GeoTrellis [[TileLayerRDD]]
+   * Convert a single tile column from RasterFrameLayer to a GeoTrellis [[TileLayerRDD]]
    * @param tileCol column with tiles to be the
    */
   def toTileLayerRDD(tileCol: Column): Either[TileLayerRDD[SpatialKey], TileLayerRDD[SpaceTimeKey]] =
@@ -287,7 +288,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
   private[rasterframes] def extract[M: JsonFormat](metadataKey: String)(md: Metadata) =
     md.getMetadata(metadataKey).json.parseJson.convertTo[M]
 
-  /** Convert the tiles in the RasterFrame into a single raster. For RasterFrames keyed with temporal keys, they
+  /** Convert the tiles in the RasterFrameLayer into a single raster. For RasterFrames keyed with temporal keys, they
     * will be merge undeterministically. */
   def toRaster(tileCol: Column,
                rasterCols: Int,
@@ -322,7 +323,7 @@ trait RasterFrameMethods extends MethodExtensions[RasterFrame]
     ProjectedRaster(croppedTile.tile, md.extent, md.crs)
   }
 
-  /** Convert the Red, Green & Blue assigned tiles in the RasterFrame into a single color composite raster.
+  /** Convert the Red, Green & Blue assigned tiles in the RasterFrameLayer into a single color composite raster.
    * For RasterFrames keyed with temporal keys, they will be merged underterministically. */
   def toMultibandRaster(
     tileCols: Seq[Column],

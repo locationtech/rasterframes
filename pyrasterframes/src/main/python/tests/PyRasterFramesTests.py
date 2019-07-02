@@ -32,7 +32,7 @@ from . import TestEnvironment
 class VectorTypes(TestEnvironment):
 
     def setUp(self):
-        self.create_rasterframe()
+        self.create_layer()
         import pandas as pd
         self.pandas_df = pd.DataFrame({
             'eye': ['a', 'b', 'c', 'd'],
@@ -147,20 +147,20 @@ class VectorTypes(TestEnvironment):
 class RasterFunctions(TestEnvironment):
 
     def setUp(self):
-        self.create_rasterframe()
+        self.create_layer()
 
     def test_setup(self):
         self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
                          "org.apache.spark.serializer.KryoSerializer")
 
     def test_identify_columns(self):
-        cols = self.rf.tileColumns()
+        cols = self.rf.tile_columns()
         self.assertEqual(len(cols), 1, '`tileColumns` did not find the proper number of columns.')
         print("Tile columns: ", cols)
-        col = self.rf.spatialKeyColumn()
+        col = self.rf.spatial_key_column()
         self.assertIsInstance(col, Column, '`spatialKeyColumn` was not found')
         print("Spatial key column: ", col)
-        col = self.rf.temporalKeyColumn()
+        col = self.rf.temporal_key_column()
         self.assertIsNone(col, '`temporalKeyColumn` should be `None`')
         print("Temporal key column: ", col)
 
@@ -172,9 +172,9 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(tiles.count(), 4)
 
     def test_multi_column_operations(self):
-        df1 = self.rf.withColumnRenamed('tile', 't1').asRF()
-        df2 = self.rf.withColumnRenamed('tile', 't2').asRF()
-        df3 = df1.spatialJoin(df2).asRF()
+        df1 = self.rf.withColumnRenamed('tile', 't1').as_layer()
+        df2 = self.rf.withColumnRenamed('tile', 't2').as_layer()
+        df3 = df1.spatial_join(df2).as_layer()
         df3 = df3.withColumn('norm_diff', rf_normalized_difference('t1', 't2'))
         # df3.printSchema()
 
@@ -187,7 +187,7 @@ class RasterFunctions(TestEnvironment):
         self.assertTrue(self.rounded_compare(row['rf_agg_mean(norm_diff)'], 0))
 
     def test_general(self):
-        meta = self.rf.tileLayerMetadata()
+        meta = self.rf.tile_layer_metadata()
         self.assertIsNotNone(meta['bounds'])
         df = self.rf.withColumn('dims', rf_dimensions('tile')) \
             .withColumn('type', rf_cell_type('tile')) \
@@ -263,7 +263,7 @@ class RasterFunctions(TestEnvironment):
         # |spatial_key|column_index|row_index|tile   |
         # +-----------+------------+---------+-------+
         # |[2,1]      |4           |0        |10150.0|
-        cell = self.rf.select(self.rf.spatialKeyColumn(), rf_explode_tiles(self.rf.tile)) \
+        cell = self.rf.select(self.rf.spatial_key_column(), rf_explode_tiles(self.rf.tile)) \
             .where(F.col("spatial_key.col") == 2) \
             .where(F.col("spatial_key.row") == 1) \
             .where(F.col("column_index") == 4) \
@@ -386,7 +386,7 @@ class CellTypeHandling(unittest.TestCase):
 class UDT(TestEnvironment):
 
     def setUp(self):
-        self.create_rasterframe()
+        self.create_layer()
 
     def test_mask_no_data(self):
         t1 = Tile(np.array([[1, 2], [3, 4]]), CellType("int8ud3"))
@@ -598,7 +598,7 @@ class TileOps(TestEnvironment):
 class PandasInterop(TestEnvironment):
 
     def setUp(self):
-        self.create_rasterframe()
+        self.create_layer()
 
     def test_pandas_conversion(self):
         import pandas as pd
@@ -649,7 +649,7 @@ class PandasInterop(TestEnvironment):
         })
 
         rf_maybe_2 = self.spark.createDataFrame(to_spark_2)
-        #print("RasterFrame `show`:")
+        #print("RasterFrameLayer `show`:")
         #rf_maybe_2.select(rf_render_matrix(rf_maybe_2.t).alias('t')).show(truncate=False)
 
         pd_2 = rf_maybe_2.toPandas()
@@ -663,7 +663,7 @@ class PandasInterop(TestEnvironment):
 class RasterJoin(TestEnvironment):
 
     def setUp(self):
-        self.create_rasterframe()
+        self.create_layer()
 
     def test_raster_join(self):
         # re-read the same source

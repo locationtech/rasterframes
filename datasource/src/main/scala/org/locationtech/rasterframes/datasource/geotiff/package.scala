@@ -29,7 +29,7 @@ import shapeless.tag
 
 package object geotiff {
   /** Tagged type construction for enabling type-safe extension methods for loading
-   * a RasterFrame in expected form. */
+   * a RasterFrameLayer in expected form. */
   type GeoTiffRasterFrameReader = DataFrameReader @@ GeoTiffRasterFrameReaderTag
   trait GeoTiffRasterFrameReaderTag
 
@@ -45,9 +45,9 @@ package object geotiff {
     def geotiff: DataFrameWriter[T] = writer.format(GeoTiffDataSource.SHORT_NAME)
   }
 
-  /** Adds `loadRF` to appropriately tagged `DataFrameReader` */
+  /** Adds `loadLayer` to appropriately tagged `DataFrameReader` */
   implicit class GeoTiffReaderWithRF(val reader: GeoTiffRasterFrameReader) {
     @deprecated("Use `raster` instead.", "7/1/2019")
-    def loadRF(path: URI): RasterFrame = reader.load(path.toASCIIString).asRF
+    def loadRF(path: URI): RasterFrameLayer = reader.load(path.toASCIIString).asLayer
   }
 }

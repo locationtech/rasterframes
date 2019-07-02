@@ -39,7 +39,7 @@ import org.locationtech.rasterframes.model.{CellContext, Cells, TileContext, Til
 import scala.reflect.runtime.universe._
 
 /**
- * Implicit encoder definitions for RasterFrame types.
+ * Implicit encoder definitions for RasterFrameLayer types.
  */
 trait StandardEncoders extends SpatialEncoders {
   object PrimitiveEncoders extends SparkBasicEncoders

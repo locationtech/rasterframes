@@ -81,8 +81,8 @@ class GeoTrellisLayerDataSource extends DataSourceRegister
     require(layerName.isDefined, s"'$LAYER_PARAM' parameter for raster layer name required.")
     require(zoom.isDefined, s"Integer '$ZOOM_PARAM' parameter for raster layer zoom level required.")
 
-    val rf = data.asRFSafely
-      .getOrElse(throw new IllegalArgumentException("Only a valid RasterFrame can be saved as a GeoTrellis layer"))
+    val rf = data.asLayerSafely
+      .getOrElse(throw new IllegalArgumentException("Only a valid RasterFrameLayer can be saved as a GeoTrellis layer"))
 
     val tileColumn = parameters.get(TILE_COLUMN_PARAM).map(c ⇒ rf(c))
 

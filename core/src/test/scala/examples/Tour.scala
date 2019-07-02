@@ -48,7 +48,7 @@ object Tour extends App {
   val scene = SinglebandGeoTiff("src/test/resources/L8-B8-Robinson-IL.tiff")
 
   // Convert it to a raster frame, discretizing it into the given tile size.
-  val rf = scene.projectedRaster.toRF(64, 64)
+  val rf = scene.projectedRaster.toLayer(64, 64)
 
   // See how many tiles we have after discretization
   println("Tile count: " + rf.count())
@@ -72,7 +72,7 @@ object Tour extends App {
   val contrast = udf((t: Tile) ⇒ t.sigmoidal(0.2, 10))
 
   // Let's contrast adjust the tile column
-  val withAdjusted = rf.withColumn("adjusted", contrast($"tile")).asRF
+  val withAdjusted = rf.withColumn("adjusted", contrast($"tile")).asLayer
 
   // Show the stats for the adjusted version
   withAdjusted.select(rf_agg_stats($"adjusted")).show(false)
@@ -82,7 +82,7 @@ object Tour extends App {
   GeoTiff(raster).write("contrast-adjusted.tiff")
 
   // Perform some arbitrary local ops between columns and render
-  val withOp = withAdjusted.withColumn("op", rf_local_subtract($"tile", $"adjusted")).asRF
+  val withOp = withAdjusted.withColumn("op", rf_local_subtract($"tile", $"adjusted")).asLayer
   val raster2 = withOp.toRaster($"op", 774, 500)
   GeoTiff(raster2).write("with-op.tiff")
 
@@ -91,7 +91,7 @@ object Tour extends App {
   val k = 4
 
   // SparkML doesn't like NoData/NaN values, so we set the no-data value to something less offensive
-  val forML = rf.select(rf.spatialKeyColumn, rf_with_no_data($"tile", 99999) as "tile").asRF
+  val forML = rf.select(rf.spatialKeyColumn, rf_with_no_data($"tile", 99999) as "tile").asLayer
 
   // First we instantiate the transformer that converts tile rows into cell rows.
   val exploder = new TileExploder()
@@ -126,7 +126,7 @@ object Tour extends App {
     rf_assemble_tile($"column_index", $"row_index", $"prediction", tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType)
   )
 
-  val clusteredRF = retiled.asRF($"spatial_key", tlm)
+  val clusteredRF = retiled.asLayer($"spatial_key", tlm)
 
   val raster3 = clusteredRF.toRaster($"prediction", 774, 500)
 

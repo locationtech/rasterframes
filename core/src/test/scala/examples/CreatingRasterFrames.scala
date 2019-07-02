@@ -27,7 +27,7 @@ package examples
 object CreatingRasterFrames extends App {
 //  # Creating RasterFrames
 //
-//  There are a number of ways to create a `RasterFrame`, as enumerated in the sections below.
+//  There are a number of ways to create a `RasterFrameLayer`, as enumerated in the sections below.
 //
 //  ## Initialization
 //
@@ -49,21 +49,21 @@ object CreatingRasterFrames extends App {
 
 //  ## From `ProjectedExtent`
 //
-//  The simplest mechanism for getting a RasterFrame is to use the `toRF(tileCols, tileRows)` extension method on `ProjectedRaster`.
+//  The simplest mechanism for getting a RasterFrameLayer is to use the `toLayer(tileCols, tileRows)` extension method on `ProjectedRaster`.
 
   val scene = SinglebandGeoTiff("src/test/resources/L8-B8-Robinson-IL.tiff")
-  val rf = scene.projectedRaster.toRF(128, 128)
+  val rf = scene.projectedRaster.toLayer(128, 128)
   rf.show(5, false)
 
 
 //  ## From `TileLayerRDD`
 //
-//  Another option is to use a GeoTrellis [`LayerReader`](https://docs.geotrellis.io/en/latest/guide/tile-backends.html), to get a `TileLayerRDD` for which there's also a `toRF` extension method.
+//  Another option is to use a GeoTrellis [`LayerReader`](https://docs.geotrellis.io/en/latest/guide/tile-backends.html), to get a `TileLayerRDD` for which there's also a `toLayer` extension method.
 
 
 //  ## Inspecting Structure
 //
-//  `RasterFrame` has a number of methods providing access to metadata about the contents of the RasterFrame.
+//  `RasterFrameLayer` has a number of methods providing access to metadata about the contents of the RasterFrameLayer.
 //
 //  ### Tile Column Names
 

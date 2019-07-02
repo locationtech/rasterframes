@@ -70,7 +70,7 @@ class GeoTrellisCatalogSpec
         .collect
       assert(layer.length === 2)
 
-      val lots = layer.map(sqlContext.read.geotrellis.loadRF).map(_.toDF).reduce(_ union _)
+      val lots = layer.map(sqlContext.read.geotrellis.loadLayer).map(_.toDF).reduce(_ union _)
       assert(lots.count === 60)
     }
   }

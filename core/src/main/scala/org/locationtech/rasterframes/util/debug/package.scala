@@ -33,14 +33,14 @@ import spray.json.JsValue
  * @since 4/6/18
  */
 package object debug {
-  implicit class RasterFrameWithDebug(val self: RasterFrame)  {
+  implicit class RasterFrameWithDebug(val self: RasterFrameLayer)  {
 
     /** Renders the whole schema with metadata as a JSON string. */
     def describeFullSchema: String = {
       self.schema.prettyJson
     }
 
-    /** Renders all the extents in this RasterFrame as GeoJSON in EPSG:4326. This does a full
+    /** Renders all the extents in this RasterFrameLayer as GeoJSON in EPSG:4326. This does a full
      * table scan and collects **all** the geometry into the driver, and then converts it into a
      * Spray JSON data structure. Not performant, and for debugging only. */
     def geoJsonExtents: JsValue = {

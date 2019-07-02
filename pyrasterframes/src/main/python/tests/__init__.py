@@ -73,15 +73,15 @@ class TestEnvironment(unittest.TestCase):
 
         cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 
-    def create_rasterframe(self):
+    def create_layer(self):
         from pyrasterframes.rasterfunctions import rf_convert_cell_type
         # load something into a rasterframe
         rf = self.spark.read.geotiff(self.img_uri) \
-            .withBounds() \
-            .withCenter()
+            .with_bounds() \
+            .with_center()
 
         # convert the tile cell type to provide for other operations
         self.rf = rf.withColumn('tile2', rf_convert_cell_type('tile', 'float32')) \
             .drop('tile') \
-            .withColumnRenamed('tile2', 'tile').asRF()
+            .withColumnRenamed('tile2', 'tile').as_layer()
         # cls.rf.show()

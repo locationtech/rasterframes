@@ -36,11 +36,11 @@ package object geotrellis extends DataSourceOptions {
   def geotrellis_layer = col("layer").as[Layer]
 
   /** Tagged type construction for enabling type-safe extension methods for loading
-   * a RasterFrame from a GeoTrellis layer. */
+   * a RasterFrameLayer from a GeoTrellis layer. */
   type GeoTrellisRasterFrameReader = DataFrameReader @@ GeoTrellisRasterFrameReaderTag
   trait GeoTrellisRasterFrameReaderTag
   /** Tagged type construction for enabling type-safe extension methods for writing
-   * a RasterFrame to a GeoTrellis layer. */
+   * a RasterFrameLayer to a GeoTrellis layer. */
   type GeoTrellisRasterFrameWriter[T] = DataFrameWriter[T] @@ GeoTrellisRasterFrameWriterTag
   trait GeoTrellisRasterFrameWriterTag
 
@@ -71,7 +71,7 @@ package object geotrellis extends DataSourceOptions {
         .option("path", layer.base.toASCIIString)
   }
 
-  /** Extension methods for loading a RasterFrame from a tagged `DataFrameReader`. */
+  /** Extension methods for loading a RasterFrameLayer from a tagged `DataFrameReader`. */
   implicit class GeoTrellisReaderWithRF(val reader: GeoTrellisRasterFrameReader) {
     def withTileSubdivisions(divs: Int): GeoTrellisRasterFrameReader =
       tag[GeoTrellisRasterFrameReaderTag][DataFrameReader](
@@ -83,13 +83,13 @@ package object geotrellis extends DataSourceOptions {
         reader.option(NUM_PARTITIONS_PARAM, partitions.toLong)
       )
 
-    def loadRF(uri: URI, id: LayerId): RasterFrame =
+    def loadLayer(uri: URI, id: LayerId): RasterFrameLayer =
       reader
         .option(LAYER_PARAM, id.name)
         .option(ZOOM_PARAM, id.zoom.toString)
         .load(uri.toASCIIString)
-        .asRF
+        .asLayer
 
-    def loadRF(layer: Layer): RasterFrame = loadRF(layer.base, layer.id)
+    def loadLayer(layer: Layer): RasterFrameLayer = loadLayer(layer.base, layer.id)
   }
 }
