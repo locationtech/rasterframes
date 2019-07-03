@@ -5,7 +5,6 @@ addCommandAlias("pyBuild", "pyrasterframes/package")
 exportJars := true
 Python / doc / sourceDirectory := (Python / target).value / "docs"
 Python / doc / target := (Python / target).value / "docs"
-  //(Compile / target).value / "py-markdown"
 Python / doc := (Python / doc / target).toTask.dependsOn(
   Def.sequential(
     assembly,
@@ -15,6 +14,14 @@ Python / doc := (Python / doc / target).toTask.dependsOn(
 ).value
 
 doc := (Python / doc).value
+
+val nbInclude = Def.setting[FileFilter](GlobFilter("*.ipynb"))
+
+lazy val pyNotebooks = taskKey[Seq[File]]("Convert relevant scripts into notebooks")
+pyNotebooks := {
+  val _ = pySetup.toTask(" notebooks").value
+  ((Python / doc / target).value ** "*.ipynb").get()
+}
 
 lazy val pySparkCmd = taskKey[Unit]("Create build and emit command to run in pyspark")
 pySparkCmd := {
