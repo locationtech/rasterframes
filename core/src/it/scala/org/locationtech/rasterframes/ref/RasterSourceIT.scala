@@ -24,6 +24,7 @@ package org.locationtech.rasterframes.ref
 import java.lang.Math.ceil
 import java.net.URI
 
+import com.azavea.gdal.GDALWarp
 import org.locationtech.rasterframes
 import org.locationtech.rasterframes.util.time
 import org.locationtech.rasterframes.{NOMINAL_TILE_SIZE, TestData, TestEnvironment}
@@ -63,7 +64,10 @@ class RasterSourceIT extends TestEnvironment with TestData {
   }
 
   if (RasterSource.IsGDAL.hasGDAL) {
+    println("GDAL version: " + GDALWarp.get_version_info("--version"))
+
     describe("GDAL support") {
+
 
       it("should read JPEG2000 scene") {
         RasterSource(localSentinel).readAll().flatMap(_.tile.statisticsDouble).size should be(64)
