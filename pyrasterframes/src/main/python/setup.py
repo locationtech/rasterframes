@@ -69,6 +69,9 @@ class PweaveDocs(distutils.cmd.Command):
         if isinstance(self.files, str):
             self.files = filter(lambda s: len(s) > 0, re.split(',', self.files))
 
+    def doctype(self):
+        return "markdown"
+
     def run(self):
         """Run pweave."""
         import traceback
@@ -80,11 +83,16 @@ class PweaveDocs(distutils.cmd.Command):
             try:
                 pweave.weave(
                     file=str(file),
-                    doctype='markdown'
+                    doctype=self.doctype()
                 )
             except Exception:
                 print(_divided('%s Failed:' % file))
                 print(traceback.format_exc())
+                exit(1)
+
+class PweaveNotebooks(PweaveDocs):
+    def doctype(self):
+        return "notebook"
 
 setup(
     name='pyrasterframes',
@@ -151,6 +159,7 @@ setup(
     zip_safe=False,
     test_suite="pytest-runner",
     cmdclass={
-        'pweave': PweaveDocs
+        'pweave': PweaveDocs,
+        'notebooks': PweaveNotebooks
     }
 )

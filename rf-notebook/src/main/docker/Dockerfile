@@ -39,3 +39,4 @@ USER $NB_UID
 
 COPY jupyter_notebook_config.py $HOME/.jupyter
 
+COPY examples $HOME/examples
