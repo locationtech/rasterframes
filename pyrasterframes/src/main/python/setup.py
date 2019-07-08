@@ -120,6 +120,7 @@ setup(
         'shapely',
         'pyspark<2.4',
         'numpy>=1.7',
+        'matplotlib<3.0.0',
         'pandas',
         'pytest-runner',
         'setuptools>=0.8',
