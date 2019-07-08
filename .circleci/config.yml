@@ -81,6 +81,7 @@ jobs:
 
       - store_artifacts:
           path: docs/target/site
+          destination: rf-site
 
       - run: *unsetenv
 
