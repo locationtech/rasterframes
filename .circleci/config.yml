@@ -30,6 +30,9 @@ _save_cache: &save_cache
     - ~/.sbt
     - ~/.rf_cache
 
+before_script:
+  - ulimit -c unlimited -S
+
 jobs:
   staticAnalysis:
     <<: *defaults
