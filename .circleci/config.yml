@@ -45,7 +45,7 @@ jobs:
       - run:
           command: |
             mkdir -p /tmp/core_dumps
-            cp core.* *.hs /tmp/core_dumps
+            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
           when: on_fail
 
       - store_artifacts:
@@ -73,7 +73,7 @@ jobs:
       - run:
           command: |
             mkdir -p /tmp/core_dumps
-            cp core.* *.hs /tmp/core_dumps
+            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
           when: on_fail
 
       - store_artifacts:
@@ -105,7 +105,7 @@ jobs:
       - run:
           command: |
             mkdir -p /tmp/core_dumps
-            cp core.* *.hs /tmp/core_dumps
+            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
           when: on_fail
 
       - store_artifacts:
@@ -187,7 +187,7 @@ workflows:
           filters:
             branches:
               only:
-                - /feature\/.*docs*/
+                - /feature\/.*docs.*/
 
   nightly:
     triggers:
