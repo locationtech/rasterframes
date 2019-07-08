@@ -41,7 +41,7 @@ jobs:
           <<: *restore_cache
 
       - run: ulimit -c unlimited -S
-      - run: cat /dev/null | sbt test
+      - run: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
       - run:
           command: |
             mkdir -p /tmp/core_dumps
