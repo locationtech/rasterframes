@@ -1,3 +1,4 @@
+# Local Map Algebra
 
 ```python, echo=False
 from IPython.core.display import display, HTML
@@ -10,8 +11,6 @@ import os
 
 spark = create_rf_spark_session()
 ```
-
-# Local Map Algebra
 
 [Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single `tile`,  between a `tile` and a scalar, between two `tile`s, or among many `tile`s. These operations are common in processing of earth observation and other image data.
 

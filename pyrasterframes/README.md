@@ -99,13 +99,8 @@ The markdown documentation in `<src-root>/pyrasterframes/src/main/python/docs` c
 sbt pyrasterframes/doc # alias 'pyDoc'
 ```
 
-To build the full complement of documentation and generate the HTML website, run:
+See [`docs/README.md`](../docs/README.md) for details.
 
-```bash
-sbt makeSite
-``` 
-
-Results will be found in `<src-root>/docs/target/site`.
 
 ## Creating and Using a Build
 
