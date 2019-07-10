@@ -71,7 +71,7 @@ def find_pyrasterframes_assembly():
     if not len(jarpath) == 1:
         raise RuntimeError("""
 Expected to find exactly one assembly. Found '{}' instead. 
-Try running 'sbt pyrasterframes/package' first. """.format(jarpath))
+Try running 'sbt pyrasterframes/clean pyrasterframes/package' first. """.format(jarpath))
     return jarpath[0]
 
 
