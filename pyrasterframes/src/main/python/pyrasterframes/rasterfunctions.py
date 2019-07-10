@@ -66,22 +66,22 @@ def rf_convert_cell_type(tile_col, cell_type):
     return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
 
 
-def rf_make_constant_tile(value, cols, rows, cell_type):
+def rf_make_constant_tile(scalar_value, num_cols, num_rows, cell_type):
     """Constructor for constant tile column"""
     jfcn = RFContext.active().lookup('rf_make_constant_tile')
-    return Column(jfcn(value, cols, rows, cell_type))
+    return Column(jfcn(scalar_value, num_cols, num_rows, cell_type))
 
 
-def rf_make_zeros_tile(cols, rows, cell_type='float64'):
+def rf_make_zeros_tile(num_cols, num_rows, cell_type='float64'):
     """Create column of constant tiles of zero"""
     jfcn = RFContext.active().lookup('rf_make_zeros_tile')
-    return Column(jfcn(cols, rows, cell_type))
+    return Column(jfcn(num_cols, num_rows, cell_type))
 
 
-def rf_make_ones_tile(cols, rows, cell_type='float64'):
+def rf_make_ones_tile(num_cols, num_rows, cell_type='float64'):
     """Create column of constant tiles of one"""
     jfcn = RFContext.active().lookup('rf_make_ones_tile')
-    return Column(jfcn(cols, rows, cell_type))
+    return Column(jfcn(num_cols, num_rows, cell_type))
 
 
 def rf_rasterize(geometry_col, bounds_col, value_col, num_cols, num_rows):
@@ -353,29 +353,29 @@ def rf_data_cells(tile_col):
     return _apply_column_function('rf_data_cells', tile_col)
 
 
-def rf_local_add(tile_col):
+def rf_local_add(left_tile_col, right_tile_col):
     """Add two Tiles"""
-    return _apply_column_function('rf_local_add', tile_col)
+    return _apply_column_function('rf_local_add', left_tile_col, right_tile_col)
 
 
-def rf_local_subtract(tile_col):
+def rf_local_subtract(left_tile_col, right_tile_col):
     """Subtract two Tiles"""
-    return _apply_column_function('rf_local_subtract', tile_col)
+    return _apply_column_function('rf_local_subtract', left_tile_col, right_tile_col)
 
 
-def rf_local_multiply(tile_col):
+def rf_local_multiply(left_tile_col, right_tile_col):
     """Multiply two Tiles"""
-    return _apply_column_function('rf_local_multiply', tile_col)
+    return _apply_column_function('rf_local_multiply', left_tile_col, right_tile_col)
 
 
-def rf_local_divide(tile_col):
+def rf_local_divide(left_tile_col, right_tile_col):
     """Divide two Tiles"""
-    return _apply_column_function('rf_local_divide', tile_col)
+    return _apply_column_function('rf_local_divide', left_tile_col, right_tile_col)
 
 
-def rf_normalized_difference(tile_col):
+def rf_normalized_difference(left_tile_col, right_tile_col):
     """Compute the normalized difference of two tiles"""
-    return _apply_column_function('rf_normalized_difference', tile_col)
+    return _apply_column_function('rf_normalized_difference', left_tile_col, right_tile_col)
 
 
 def rf_agg_local_max(tile_col):
@@ -408,44 +408,44 @@ def rf_agg_local_stats(tile_col):
     return _apply_column_function('rf_agg_local_stats', tile_col)
 
 
-def rf_mask(tile_col):
+def rf_mask(src_tile_col, mask_tile_col):
     """Where the rf_mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA."""
-    return _apply_column_function('rf_mask', tile_col)
+    return _apply_column_function('rf_mask', src_tile_col, mask_tile_col)
 
 
-def rf_inverse_mask(tile_col):
+def rf_inverse_mask(src_tile_col, mask_tile_col):
     """Where the rf_mask (second) tile DOES NOT contain NODATA, replace values in the source (first) tile with NODATA."""
-    return _apply_column_function('rf_inverse_mask', tile_col)
+    return _apply_column_function('rf_inverse_mask', src_tile_col, mask_tile_col)
 
 
-def rf_local_less(tile_col):
+def rf_local_less(left_tile_col, right_tile_col):
     """Cellwise less than comparison between two tiles"""
-    return _apply_column_function('rf_local_less', tile_col)
+    return _apply_column_function('rf_local_less', left_tile_col, right_tile_col)
 
 
-def rf_local_less_equal(tile_col):
+def rf_local_less_equal(left_tile_col, right_tile_col):
     """Cellwise less than or equal to comparison between two tiles"""
-    return _apply_column_function('rf_local_less_equal', tile_col)
+    return _apply_column_function('rf_local_less_equal', left_tile_col, right_tile_col)
 
 
-def rf_local_greater(tile_col):
+def rf_local_greater(left_tile_col, right_tile_col):
     """Cellwise greater than comparison between two tiles"""
-    return _apply_column_function('rf_local_greater', tile_col)
+    return _apply_column_function('rf_local_greater', left_tile_col, right_tile_col)
 
 
-def rf_local_greater_equal(tile_col):
+def rf_local_greater_equal(left_tile_col, right_tile_col):
     """Cellwise greater than or equal to comparison between two tiles"""
-    return _apply_column_function('rf_local_greater_equal', tile_col)
+    return _apply_column_function('rf_local_greater_equal', left_tile_col, right_tile_col)
 
 
-def rf_local_equal(tile_col):
+def rf_local_equal(left_tile_col, right_tile_col):
     """Cellwise equality comparison between two tiles"""
-    return _apply_column_function('rf_local_equal', tile_col)
+    return _apply_column_function('rf_local_equal', left_tile_col, right_tile_col)
 
 
-def rf_local_unequal(tile_col):
+def rf_local_unequal(left_tile_col, right_tile_col):
     """Cellwise inequality comparison between two tiles"""
-    return _apply_column_function('rf_local_unequal', tile_col)
+    return _apply_column_function('rf_local_unequal', left_tile_col, right_tile_col)
 
 
 def rf_round(tile_col):
