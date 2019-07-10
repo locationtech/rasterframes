@@ -130,7 +130,7 @@ object PythonBuildPlugin extends AutoPlugin {
         val dest = (Compile / packageBin / artifactPath).value.getParentFile
         val art = (Python / packageBin / artifact).value
         val ver = version.value
-        dest / s"${art.name}-python-$ver.zip"
+        dest / s"${art.name}-$ver-py2.py3-none-any.whl"
       },
       testQuick := pySetup.toTask(" test").value,
       executeTests := Def.task {
@@ -171,7 +171,7 @@ object PythonBuildPlugin extends AutoPlugin {
           )
         }
         result
-        Tests.Output(result.result, Map("PyRasterFramesTests" -> result), Iterable(pySummary))
+        Tests.Output(result.result, Map("Python Tests" -> result), Iterable(pySummary))
       }.dependsOn(assembly).value
     )) ++
     addArtifact(Python / packageBin / artifact, Python / packageBin)
