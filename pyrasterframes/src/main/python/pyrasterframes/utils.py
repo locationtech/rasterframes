@@ -81,7 +81,7 @@ def create_rf_spark_session():
 
     spark = (SparkSession.builder
              .master("local[*]")
-             .appName("PyRasterFrames")
+             .appName("RasterFrames")
              .config('spark.jars', jar_path)
              .withKryoSerialization()
              .getOrCreate())

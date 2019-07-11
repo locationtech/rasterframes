@@ -1,27 +1,3 @@
-# Raster Data I/O
-
-The standard mechanism by which any data is brought in and out of a Spark Dataframe is the [Spark SQL DataSource][DS]. RasterFrames are compatible with existing generalized DataSources, such as Parquet, but provide specialized ones oriented around geospatial raster data.
-
-Three types of DataSources will be introduced below: 
-
-* Catalog Readers
-    - `aws-pds-l8-catalog`: experimental
-    - `aws-pds-modis-catalog`: experimental
-    - `geotrellis-catalog`: for enumerating [GeoTrellis layers][GTLayer]
-* Raster Readers
-    - `raster`: the standard reader for most operations
-    - `geotrellis` (for reading [GeoTrellis layers][GTLayer])
-    - `geotiff`: a deprecated reader for reading single GeoTIFF files
-* Raster Writers 
-    - `geotrellis`: for creating [GeoTrellis layers][GTLayer]
-    - `geotiff`: beta
-    - `parquet`: for writing raster data in an analytics functional form  
-
-There's also some support for vector data (for masking and data labeling):
-
-* Vector Readers
-    - `geojson`: read GeoJson files with `geometry` column aside attribute values
-
 ## Reading Raster Data
 
 ```python, echo=False
@@ -164,19 +140,3 @@ rf.show(2, truncate=False)
 > Need to know _a priori_ how many bands there are, specified with `band_indexes`.
 > Must be homogenous, or tolerant of `null` Tiles.
  
-
-## Writing Raster Data
-
-### Overviews
-
-### GeoTIFFs
-
-### Tile Samples
-
-### GeoTrellis Layers
-
-
-
-
-[DS]: https://spark.apache.org/docs/latest/sql-data-sources.html
-[GTLayer]: https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html

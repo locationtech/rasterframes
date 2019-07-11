@@ -1,0 +1,164 @@
+# Raster Catalogs
+
+While much interesting processing can be done on single raster files, RasterFrames shines when _Catalogs_ of raster data are to be processed. In its simplest form, a _Catalog_ is a listing of URLs referencing raster files. This listing can be manifested as CSV in a character string or an external file, or as a Spark or Pandas DataFrame. This _Catalog_ then serves as the input into the `raster` DataSource, described in the next page.
+
+A _Catalog_ can be zero, one or two dimensions:
+
+* Zero-D: A single URL to a single raster file
+* One-D: Multiple URLs in a single column, where all referenced rasters represent the same content type. For example, a column of URLs to Landsat 8 NIR rasters covering Europe. Each row represents different spatiotemporal locations (scenes).
+* Two-D: One or more columns of multiple URLs, where each column references the same content type, and each row represents the same spatiotemporal location. For example, red-, green-, and blue-band columns for scenes covering Europe. Each spatiotemporal location (scenes), and each raster cell within it must be of the same dimensions, extent, crs, etc.
+
+## Creating a Catalog
+
+This section will provide some examples of creating your own _Catalogs_, as well as introduce some experimental _Catalogs_ built into RasterFrames. The consuption of _Catalogs_ is covered in more detail in the next page.
+
+```python, echo=False
+from IPython.display import display
+from pyrasterframes.utils import create_rf_spark_session 
+from pyrasterframes.rasterfunctions import *
+spark = create_rf_spark_session()
+```
+
+```python
+from pyspark.sql import Row
+```
+
+### Zero-D
+
+A single URL is this simplest form of a catalog.
+
+```python
+my_cat = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF"
+# or
+my_cat_df = spark.createDataFrame([Row(B01=my_cat)]) 
+```
+
+### One-D
+
+Example of a single column representing the same content type:
+
+```python
+scene1_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF"
+scene2_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF"
+
+# As CSV string
+my_cat = '\n'.join(['B01', scene1_B01, scene2_B01]) 
+# or
+my_cat_df = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
+my_cat_df.printSchema()
+```
+
+### Two-D
+
+Example of a multiple columns representing multiple content types (bands) across multiple scenes.
+
+```python
+scene1_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF"
+scene1_B02 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B02.TIF"
+scene2_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF"
+scene2_B02 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B02.TIF"
+
+
+# As CSV string
+my_cat = '\n'.join(['B01,B02', scene1_B01 + "," + scene1_B02, scene2_B01 + "," + scene2_B02]) 
+# or
+my_cat_df = spark.createDataFrame([Row(B01=scene1_B01, B02=scene1_B02), Row(B01=scene2_B01, B02=scene2_B02)])
+my_cat_df.printSchema()
+```
+
+## Using External Catalogs
+
+The simplest example of an external _Catalog_ is a CSV file (or a transformation of) in one of the formats above. Here's an extended example of reading an external CSV file of MODIS scenes and transforming it into a _Catalog_
+
+```python
+from pyspark import SparkFiles
+from pyspark.sql import functions as F
+
+spark.sparkContext.addFile("https://modis-pds.s3.amazonaws.com/MCD43A4.006/2018-07-04_scenes.txt")
+
+# The scenes list file has index URIs take the form:
+#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/index.html    
+# Image URIs take the form:
+#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF    
+
+modis_catalog = spark.read \
+    .format("csv") \
+    .option("header", "true") \
+    .load(SparkFiles.get("2018-07-04_scenes.txt")) \
+    .withColumn('base_url', 
+        F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',)
+    ) \
+    .withColumn('B01' , F.concat('base_url', F.lit("_B01.TIF"))) \
+    .withColumn('B02' , F.concat('base_url', F.lit("_B02.TIF"))) \
+    .withColumn('B03' , F.concat('base_url', F.lit("_B03.TIF"))) 
+# ... and so on.  
+modis_catalog.printSchema()
+```
+
+
+## Using Built-in Experimental Catalogs
+
+RasterFrames comes with two experimental catalogs over the AWS PDS Landsat 8 and MODIS repositories. They are created by downloading the latest scene lists and transforming as in the prior example.
+
+> Note: The first time you run these may take some time, as the catalogs are large. However, they are cached and subsequent invocations should be faster.
+
+### MODIS
+
+```python, evaluate=False
+modis_catalog2 = spark.read.format('aws-pds-modis-catalog').load()
+modis_catalog2.printSchema()
+```
+```
+root
+ |-- product_id: string (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- granule_id: string (nullable = false)
+ |-- gid: string (nullable = false)
+ |-- B01: string (nullable = true)
+ |-- B01qa: string (nullable = true)
+ |-- B02: string (nullable = true)
+ |-- B02qa: string (nullable = true)
+ |-- B03: string (nullable = true)
+ |-- B03aq: string (nullable = true)
+ |-- B04: string (nullable = true)
+ |-- B04qa: string (nullable = true)
+ |-- B05: string (nullable = true)
+ |-- B05qa: string (nullable = true)
+ |-- B06: string (nullable = true)
+ |-- B06qa: string (nullable = true)
+ |-- B07: string (nullable = true)
+ |-- B07qa: string (nullable = true)
+```
+
+### Landsat 8
+
+```python, evaluate=False
+l8 = spark.read.format('aws-pds-l8-catalog').load()
+l8.printSchema()
+root
+ |-- product_id: string (nullable = false)
+ |-- entity_id: string (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- cloud_cover_pct: float (nullable = false)
+ |-- processing_level: string (nullable = false)
+ |-- path: short (nullable = false)
+ |-- row: short (nullable = false)
+ |-- bounds_wgs84: struct (nullable = false)
+ |    |-- minX: double (nullable = false)
+ |    |-- maxX: double (nullable = false)
+ |    |-- minY: double (nullable = false)
+ |    |-- maxY: double (nullable = false)
+ |-- B1: string (nullable = true)
+ |-- B2: string (nullable = true)
+ |-- B3: string (nullable = true)
+ |-- B4: string (nullable = true)
+ |-- B5: string (nullable = true)
+ |-- B6: string (nullable = true)
+ |-- B7: string (nullable = true)
+ |-- B8: string (nullable = true)
+ |-- B9: string (nullable = true)
+ |-- B10: string (nullable = true)
+ |-- B11: string (nullable = true)
+ |-- BQA: string (nullable = true) 
+```
+
