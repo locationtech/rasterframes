@@ -4,15 +4,15 @@ The standard mechanism by which any data is brought in and out of a Spark Datafr
 
 Three types of DataSources will be introduced: 
 
-* Catalog Readers
+* @ref:[Catalog Readers](raster-catalogs.md)
     - `aws-pds-l8-catalog`: built-in catalog over [Landsat on AWS][Landsat]
     - `aws-pds-modis-catalog`: built-in catalog over [MODIS on AWS][MODIS]
     - `geotrellis-catalog`: for enumerating [GeoTrellis layers][GTLayer]
-* Raster Readers
+* @ref:[Raster Readers](raster-read.md)
     - `raster`: the standard reader for most raster data
     - `geotiff`: a simplified reader for reading a single GeoTIFF file
     - `geotrellis`: for reading a [GeoTrellis layer][GTLayer])
-* Raster Writers 
+* @ref:[Raster Writers](raster-write.md)
     - `geotrellis`: for creating a [GeoTrellis layer][GTLayer]
     - `geotiff`: beta writer to GeoTiff file
     - [`parquet`][Parquet]: general purpose writer 
