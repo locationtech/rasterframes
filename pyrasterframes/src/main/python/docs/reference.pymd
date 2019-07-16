@@ -12,11 +12,22 @@ For the Scala documentation on these functions, see @scaladoc[`RasterFunctions`]
 
 ## List of Available SQL and Python Functions
 
-@@toc { depth=3 }
+To import RasterFrames functions into the environment, import from `pyrasterframes.rasterfunctions`.
+
+```python
+from pyrasterframes.rasterfunctions import *
+```
+
+Functions starting with `rf_`, which are for raster, and `st_`, which are for vector geometry,
+become available for use with DataFrames. You can view all of the available functions with the following.
+
+```python, evaluate=False
+[fn for fn in dir() if fn.startswith('rf_') or fn.startswith('st_')]
+```
 
 ### Vector Operations
 
-Various LocationTech GeoMesa UDFs to deal with `geomtery` type columns are also provided in the SQL engine and within the `pyrasterframes.rasterfunctions` Python module. These are documented in the [LocationTech GeoMesa Spark SQL documentation](https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#). These functions are all prefixed with `st_`.
+Various LocationTech GeoMesa user-defined functions (UDFs) to deal with `geomtery` type columns are provided in the SQL engine and within the `pyrasterframes.rasterfunctions` Python module. These are documented in the [LocationTech GeoMesa Spark SQL documentation](https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#). These functions are all prefixed with `st_`.
 
 RasterFrames provides some additional functions for vector geometry operations.
 
@@ -51,25 +62,10 @@ Functions to access and change the particulars of a `tile`: its shape and the da
     Array[String] rf_cell_types()
     
 Print an array of possible cell type names, as below. These names are used in other functions. See @ref:[discussion on nodata](reference.md#masking-and-nodata) for additional details.
- 
-|cell_types |
-|----------|
-|bool      |
-|int8raw   |
-|int8      |
-|uint8raw  |
-|uint8     |
-|int16raw  |
-|int16     |
-|uint16raw |
-|uint16    |
-|int32raw  |
-|int32     |
-|float32raw|
-|float32   |
-|float64raw|
-|float64   |
 
+```python
+rf_cell_types() 
+``` 
 
 #### rf_dimensions
 
@@ -171,19 +167,6 @@ FROM
            st_geomFromWKT('POLYGON((0.0 0.0, 2.0 0.0, 2.0 2.0, 0.0 2.0, 0.0 0.0))') AS b
    ) r
 """).show(1, False)
-
------------
-|∘∘∘∘∘∘∘∘∘∘
-∘∘∘∘∘∘∘∘∘∘
-∘∘∘∘∘∘∘∘∘∘
-∘∘∘∘∘∘∘ ∘∘
-∘∘∘∘∘∘  ∘∘
-∘∘∘∘∘   ∘∘
-∘∘∘∘    ∘∘
-∘∘∘     ∘∘
-∘∘∘∘∘∘∘∘∘∘
-∘∘∘∘∘∘∘∘∘∘|
------------
 ```
 
 
@@ -377,7 +360,7 @@ Round cell values to the nearest integer without changing the cell type.
 
  Compute the absolute value of cell value.
  
- #### rf_exp
+#### rf_exp
 
     Tile rf_exp(Tile tile)
 
