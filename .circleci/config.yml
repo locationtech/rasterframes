@@ -19,16 +19,15 @@ _delenv: &unsetenv
 
 _restore_cache: &restore_cache
   keys:
-    - v2-dependencies-{{ checksum "build.sbt" }}
-    - v2-dependencies-
+    - v3-dependencies-{{ checksum "build.sbt" }}
+    - v3-dependencies-
 
 _save_cache: &save_cache
-  key: v2-dependencies--{{ checksum "build.sbt" }}
+  key: v3-dependencies--{{ checksum "build.sbt" }}
   paths:
     - ~/.cache/coursier
     - ~/.ivy2/cache
     - ~/.sbt
-    - ~/.rf_cache
 
 before_script:
   - ulimit -c unlimited -S
