@@ -2,6 +2,7 @@
 
 ```python, echo=False
 from IPython.display import display
+import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session 
 from pyrasterframes.rasterfunctions import *
 spark = create_rf_spark_session()
@@ -48,8 +49,9 @@ display(tile)
 
 ## URI Formats
 
-/[ TODO Populate this with valid URI's we can use including how to use gdal /]
+/[ TODO Populate this with valid URI's schemes we can use with an example? including how to use gdal /]
 
+file://  (is this only valid for spark local? or if file is )
 https://
 http:// ?
 s3a://
@@ -137,16 +139,11 @@ In the initial examples on this page, we used `rf_tile` to explicitly request th
 
 ## Multiband Rasters
 
-> Need to know _a priori_ how many bands there are, specified with `band_indexes`.
+A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated as different bands. The bands may represent intensity of different wavelengths of light (or other electromagnetic radiation). The different bands may represent other phenomena such as measurement time, quality indications, or additional measurements.
 
-band indexes start at 0
+When reading a multiband raster or a _Catalog_ describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, indexed from zero, passing a list of integers into the `band_indexes` parameter of the `raster` reader. 
 
-
- 
-> Must be homogenous, or tolerant of `null` Tiles.
-Not sure what that means?
-
-For example we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting dataframe represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
+For example we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting dataframe still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
 
 ```python Multiband
 mb = spark.read.raster('s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif', 
@@ -155,4 +152,24 @@ mb = spark.read.raster('s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.
 mb.printSchema()
 ```
 
-As with reading a singleband image we can use the `band_indexes` parameter to operate over a catalog of multiband rasters.
+If a band is passed into `band_index` that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but it will be full of `null` values.
+
+You can also pass a `catalog` and `band_indexes` together into the `raster` reader. This will create a projected raster column for the combination of all items passed into `catalog_col_names` and `band_indexes`. Again if a band in `band_indexes` exceeds the number of bands in a raster, it will have a `null` value for the corresponding column.
+
+Here is a trivial example with a _Catalog_ over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.
+
+```python multiband_catalog
+import pandas as pd
+mb_cat = pd.DataFrame([
+    {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+     'bar': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+    },
+])
+mb2 = spark.read.raster(catalog=spark.createDataFrame(mb_cat),
+                       catalog_col_names=['foo', 'bar'],
+                       band_indexes=[0, 1],
+                       tile_dimensions=(64,64)
+                      )
+mb2.printSchema()
+```
+ 
