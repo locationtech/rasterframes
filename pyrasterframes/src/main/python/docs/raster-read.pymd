@@ -40,7 +40,7 @@ You can also see that the single raster has been broken out into many arbitrary 
 rf.groupby(rf.proj_raster_path).count().show()
 ```
 
-Let's select a single tile and view it. The tile preview image as well as the string representation provide some basic information about the tile: it's dimensions as number of columns and rows, and the cell type, or data type of all the cells in the tile. For more about cell types, refer to @ref:[the NoData page](noData-handling.md#cell-types).
+Let's select a single tile and view it. The tile preview image as well as the string representation provide some basic information about the tile: it's dimensions as number of columns and rows, and the cell type, or data type of all the cells in the tile. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
 
 ```python show_tile_sample
 tile = rf.select(rf_tile("proj_raster")).first()[0]
@@ -172,4 +172,5 @@ mb2 = spark.read.raster(catalog=spark.createDataFrame(mb_cat),
                       )
 mb2.printSchema()
 ```
- 
+
+[CRS]: https://en.wikipedia.org/wiki/Spatial_reference_system

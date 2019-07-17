@@ -5,7 +5,7 @@ While much interesting processing can be done on a @ref:[single raster file](ras
 A _Catalog_ can have one or two dimensions:
 
 * One-D: A single column containing one or many URLs across the rows. All referenced rasters represent the same content type. For example, a column of URLs to Landsat 8 NIR rasters covering Europe. Each row represents different places and times.
-* Two-D: Many columns containing raster URLs. Each column references the same content type, and each row represents the same place and time. For example, red-, green-, and blue-band columns for scenes covering Europe. Each row reperesents a single spatiotemporal location (or scene) with the same dimensions, extent, CRS, etc across the row.
+* Two-D: Many columns containing raster URLs. Each column references the same content type, and each row represents the same place and time. For example, red-, green-, and blue-band columns for scenes covering Europe. Each row reperesents a single spatiotemporal location (or scene) with the same dimensions, extent, [_CRS_][CRS], etc across the row.
 
 ## Creating a Catalog
 
@@ -165,3 +165,4 @@ root
 
 [MODIS]: https://docs.opendata.aws/modis-pds/readme.html
 [Landsat]: https://docs.opendata.aws/landsat-pds/readme.html
+[CRS]: https://en.wikipedia.org/wiki/Spatial_reference_system
