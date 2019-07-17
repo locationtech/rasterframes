@@ -12,6 +12,9 @@ For the Scala documentation on these functions, see @scaladoc[`RasterFunctions`]
 
 ## List of Available SQL and Python Functions
 
+@@toc { depth=3 }
+
+
 To import RasterFrames functions into the environment, import from `pyrasterframes.rasterfunctions`.
 
 ```python
@@ -55,13 +58,13 @@ Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`]
 
 ### Tile Metadata and Mutation
 
-Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See below section on @ref:[masking and nodata](reference.md#masking-and-nodata) for additional discussion of cell types.
+Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See below section on @ref:[masking and NoData](reference.md#masking-and-NoData) for additional discussion of cell types.
 
 #### rf_cell_types
 
     Array[String] rf_cell_types()
     
-Print an array of possible cell type names, as below. These names are used in other functions. See @ref:[discussion on nodata](reference.md#masking-and-nodata) for additional details.
+Print an array of possible cell type names, as below. These names are used in other functions. See @ref:[discussion on NoData](reference.md#masking-and-NoData) for additional details.
 
 ```python
 rf_cell_types() 
@@ -149,12 +152,12 @@ Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with 
     Tile rf_rasterize(Geometry geom, Geometry tile_bounds, Int value, Int tile_columns, Int tile_rows)
     
 
-Convert a vector Geometry `geom` into a Tile representation. The `value` will be "burned-in" to the returned `tile` where the `geom` intersects the `tile_bounds`. Returned `tile` will have shape `tile_columns` by `tile_rows`. Values outside the `geom` will be assigned a nodata value. Returned `tile` has cell type `int32`, note that `value` is of type Int.
+Convert a vector Geometry `geom` into a Tile representation. The `value` will be "burned-in" to the returned `tile` where the `geom` intersects the `tile_bounds`. Returned `tile` will have shape `tile_columns` by `tile_rows`. Values outside the `geom` will be assigned a NoData value. Returned `tile` has cell type `int32`, note that `value` is of type Int.
 
 Parameters `tile_columns` and `tile_rows` are literals, not column expressions. The others are column expressions.
 
 
-Example use. In the code snip below, you can visualize the `tri` and `b` geometries with tools like [Wicket](https://arthur-e.github.io/Wicket/sandbox-gmaps3.html). The result is a right triangle burned into the `tile`, with nodata values shown as ∘.
+Example use. In the code snip below, you can visualize the `tri` and `b` geometries with tools like [Wicket](https://arthur-e.github.io/Wicket/sandbox-gmaps3.html). The result is a right triangle burned into the `tile`, with NoData values shown as ∘.
 
 
 ```python
@@ -182,57 +185,53 @@ Python only. Create a `tile` from a Spark SQL [Array](http://spark.apache.org/do
     
 Python only. Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`rf_explode_tiles`](reference.md#rf-explode-tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  The `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`rf_cell_types`](reference.md#rf-cell-types).
 
-### Masking and Nodata
+### Masking and NoData
 
-In raster operations, the preservation and correct processing of missing operations is very important. The idea of missing data is often expressed as a null or NaN. In raster data, missing observations are often termed NODATA; we will style them as nodata in this document.  RasterFrames provides a variety of functions to manage and inspect nodata within `tile`s. 
+See @ref:[NoData handling](nodata-handling.md) for conceptual discussion of cell types and NoData.
 
-See also statistical summaries to get the count of data and nodata values per `tile` and aggregate in a `tile` column: @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells).
+There are statistical functions of the count of data and NoData values per `tile` and aggregate over a `tile` column: @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells).
 
-It is important to note that not all cell types support the nodata representation: these are `bool` and when the cell type string ends in `raw`.
-
-For integral valued cell types, the nodata is marked by a special sentinel value. This can be a default, typically zero or the minimum value for the underlying data type. The nodata value can also be a user-defined value. For example if the value 4 is to be interpreted as nodata, the cell type will read 'int32ud4'. 
-
-For float cell types, the nodata can either be NaN or a user-defined value; for example `'float32ud-999.9'` would mean the value -999.9 is interpreted as a nodata.
-
-For more reading about cell types and ndodata, see the [GeoTrellis documentation](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#working-with-cell-values).
+Masking is a raster operation that sets specific cells to NoData based on the values in another raster.
 
 #### rf_mask
 
     Tile rf_mask(Tile tile, Tile mask)
     
-Where the `mask` contains nodata, replace values in the `tile` with nodata.
+Where the `mask` contains NoData, replace values in the `tile` with NoData.
 
-Returned `tile` cell type will be coerced to one supporting nodata if it does not already.
+Returned `tile` cell type will be coerced to one supporting NoData if it does not already.
+
+See also @[`rf_rasterize`](reference.md#rf-rasterize).
  
 
 #### rf_inverse_mask
 
     Tile rf_inverse_mask(Tile tile, Tile mask)
     
-Where the `mask` _does not_ contain nodata, replace values in `tile` with nodata. 
+Where the `mask` _does not_ contain NoData, replace values in `tile` with NoData. 
 
 #### rf_mask_by_value
 
     Tile rf_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
     
-Generate a `tile` with the values from `data_tile`, with nodata in cells where the `mask_tile` is equal to `mask_value`. 
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is equal to `mask_value`. 
 
 
 #### rf_is_no_data_tile
 
     Boolean rf_is_no_data_tile(Tile)
  
-Returns true if `tile` contains only nodata. By definition returns false if cell type does not support nodata. To count nodata cells or data cells, see @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), @ref:[`rf_agg_local_no_data_cells`](reference.md#rf-agg-local-no-data-cells), and @ref:[`rf_agg_local_data_cells`](reference.md#rf-agg-local-data-cells). This function is distinguished from @ref:[`rf_for_all`](reference.md#rf-for-all), which tests that values are not nodata and nonzero.
+Returns true if `tile` contains only NoData. By definition returns false if cell type does not support NoData. To count NoData cells or data cells, see @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), @ref:[`rf_agg_local_no_data_cells`](reference.md#rf-agg-local-no-data-cells), and @ref:[`rf_agg_local_data_cells`](reference.md#rf-agg-local-data-cells). This function is distinguished from @ref:[`rf_for_all`](reference.md#rf-for-all), which tests that values are not NoData and nonzero.
 
 #### rf_with_no_data
 
     Tile rf_with_no_data(Tile tile, Double no_data_value)
     
-Python only. Return a `tile` column marking as nodata all cells equal to `no_data_value`.
+Python only. Return a `tile` column marking as NoData all cells equal to `no_data_value`.
 
 The `no_data_value` argument is a literal Double, not a Column expression.
 
-If input `tile` had a nodata value already, the behaviour depends on if its cell type is floating point or not. For floating point cell type `tile`, nodata values on the input `tile` remain nodata values on the output. For integral cell type `tile`s, the previous nodata values become literal values. 
+If input `tile` had a NoData value already, the behaviour depends on if its cell type is floating point or not. For floating point cell type `tile`, NoData values on the input `tile` remain NoData values on the output. For integral cell type `tile`s, the previous NoData values become literal values. 
 
 ### Local Map Algebra
 
@@ -435,14 +434,14 @@ spark.sql("""
     Double rf_tile_sum(Tile tile)
     
 
-Computes the sum of cells in each row of column `tile`, ignoring nodata values.
+Computes the sum of cells in each row of column `tile`, ignoring NoData values.
 
 #### rf_tile_mean
 
     Double rf_tile_mean(Tile tile)
     
 
-Computes the mean of cells in each row of column `tile`, ignoring nodata values.
+Computes the mean of cells in each row of column `tile`, ignoring NoData values.
 
 
 #### rf_tile_min
@@ -450,7 +449,7 @@ Computes the mean of cells in each row of column `tile`, ignoring nodata values.
     Double rf_tile_min(Tile tile)
     
 
-Computes the min of cells in each row of column `tile`, ignoring nodata values.
+Computes the min of cells in each row of column `tile`, ignoring NoData values.
 
 
 #### rf_tile_max
@@ -458,7 +457,7 @@ Computes the min of cells in each row of column `tile`, ignoring nodata values.
     Double rf_tile_max(Tile tile)
     
 
-Computes the max of cells in each row of column `tile`, ignoring nodata values.
+Computes the max of cells in each row of column `tile`, ignoring NoData values.
 
 
 #### rf_no_data_cells
@@ -466,7 +465,7 @@ Computes the max of cells in each row of column `tile`, ignoring nodata values.
     Long rf_no_data_cells(Tile tile)
     
 
-Return the count of nodata cells in the `tile`.
+Return the count of NoData cells in the `tile`.
 
 #### rf_data_cells
 
@@ -478,19 +477,19 @@ Return the count of data cells in the `tile`.
 
     Boolean rf_exists(Tile tile)
     
-Returns true if any cells in the tile are true (non-zero and not nodata). 
+Returns true if any cells in the tile are true (non-zero and not NoData). 
 
 #### rf_for_all
 
     Boolean rf_for_all(Tile tile)
 
-Returns true if all cells in the tile are true (non-zero and not nodata). See also @ref:[`rf_is_no_data_tile](reference.md#rf-is-no-data-tile), which tests that all cells are nodata.
+Returns true if all cells in the tile are true (non-zero and not NoData). See also @ref:[`rf_is_no_data_tile](reference.md#rf-is-no-data-tile), which tests that all cells are NoData.
 
 #### rf_tile_stats
 
     Struct[Long, Long, Double, Double, Double, Double] rf_tile_stats(Tile tile)
     
-Computes the following statistics of cells in each row of column `tile`: data cell count, nodata cell count, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance are computed ignoring nodata values. 
+Computes the following statistics of cells in each row of column `tile`: data cell count, NoData cell count, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance are computed ignoring NoData values. 
 
 
 #### rf_tile_histogram
@@ -547,7 +546,7 @@ SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3.0) as t
     
 _SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).mean`
 
-Aggregates over the `tile` and return the mean of cell values, ignoring nodata. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.mean`.
+Aggregates over the `tile` and return the mean of cell values, ignoring NoData. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.mean`.
 
 
 #### rf_agg_data_cells
@@ -571,14 +570,14 @@ rf.agg(F.sum(rf_data_cells(rf.tile)).alias('agg_data_cell'))
     
 _SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).dataCells`
 
-Aggregates over the `tile` and return the count of nodata cells. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.noDataCells`. C.F. @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells) a row-wise count of no data cells.
+Aggregates over the `tile` and return the count of NoData cells. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.noDataCells`. C.F. @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells) a row-wise count of no data cells.
 
 #### rf_agg_stats
 
     Struct[Long, Long, Double, Double, Double, Double] rf_agg_stats(Tile tile)
     
 
-Aggregates over the `tile` and returns statistical summaries of cell values: number of data cells, number of nodata cells, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance ignore the presence of nodata. 
+Aggregates over the `tile` and returns statistical summaries of cell values: number of data cells, number of NoData cells, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance ignore the presence of NoData. 
 
 #### rf_agg_approx_histogram
 
@@ -677,7 +676,7 @@ Compute the cell-local count of data cells over Tiles in a column. Returned `til
 
     Tile rf_agg_local_no_data_cells(Tile tile)
 
-Compute the cell-local count of nodata cells over Tiles in a column. Returned `tile` has a cell type of `int32`.
+Compute the cell-local count of NoData cells over Tiles in a column. Returned `tile` has a cell type of `int32`.
 
 #### rf_agg_local_stats 
 
