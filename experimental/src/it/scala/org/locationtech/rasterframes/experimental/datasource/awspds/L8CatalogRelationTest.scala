@@ -62,10 +62,29 @@ class L8CatalogRelationTest extends TestEnvironment {
         WHERE
          st_intersects(st_geometry(bounds_wgs84), st_geomFromText('LINESTRING (-39.551 -7.1881, -72.2461 -45.7062)')) AND
          acquisition_date > to_timestamp('2017-11-01') AND
-         acquisition_date <= to_timestamp('2017-11-03')
+         acquisition_date <= to_timestamp('2017-12-13')
         """)
 
-      scenes.count() shouldBe > (200L)
+      scenes.count() shouldBe > (100L)
+    }
+
+    it("should construct expected extents") {
+      catalog.createOrReplaceTempView("l8_catalog")
+
+      catalog.filter($"bounds_wgs84.xmin" > $"bounds_wgs84.xmax").count() shouldBe (0)
+      catalog.filter($"bounds_wgs84.ymin" > $"bounds_wgs84.ymax").count() shouldBe (0)
+
+      val geo_area_row = spark.sql(
+        """
+           SELECT min(st_area(st_geometry(bounds_wgs84))) AS area
+           FROM l8_catalog
+           WHERE st_intersects(st_geometry(bounds_wgs84), st_geomFromText('LINESTRING(-78.035 39.004,-80.166 37.241)')) AND
+          acquisition_date > to_timestamp('2017-11-01') AND
+          acquisition_date <= to_timestamp('2017-11-16')
+        """).first()
+      val geo_area = geo_area_row.getDouble(0)
+      geo_area shouldBe < (6.5)
+      geo_area shouldBe > (4.5)
     }
   }
 
