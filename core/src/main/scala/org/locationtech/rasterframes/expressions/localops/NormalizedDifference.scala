@@ -38,7 +38,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
     * right - second tile argument""",
   examples = """
   Examples:
-    > SELECT _FUNC_(nir, red);
+    > SELECT _FUNC_(nir, red) as ndvi;
        ..."""
 )
 case class NormalizedDifference(left: Expression, right: Expression) extends BinaryRasterOp with CodegenFallback {

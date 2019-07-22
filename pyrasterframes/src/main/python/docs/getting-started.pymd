@@ -2,6 +2,8 @@
 
 There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames. Let's start with the simplest. Python 3.6 or greater is recommended.
 
+## pip install pyrasterframes
+
 ```bash
 $ python3 -m pip install pyrasterframes
 ```
@@ -31,20 +33,6 @@ This example is extended in the [getting started Jupyter notebook](https://nbvie
 
 To understand more about how and why RasterFrames represents Earth observation in DataFrames, read the project @ref:[description](description.md). For more hands-on examples, see the chapters about @ref:[reading](raster-io.md) and @ref:[processing](raster-processing.md) with RasterFrames.
 
-## Raster Functions
-
-To import RasterFrames functions into the environment, import from `pyrasterframes.rasterfunctions`.
-
-```python
-from pyrasterframes.rasterfunctions import *
-```
-
-Functions starting with `rf_`, which are for raster, and `st_`, which are for vector geometry,
-become available for use with DataFrames. See the complete @ref:[function reference](reference.md).
-
-```python
-[fn for fn in dir() if fn.startswith('rf_') or fn.startswith('st_')]
-```
 
 ## Other Options
 
@@ -89,4 +77,10 @@ Now you have the configured SparkSession with RasterFrames enabled.
 spark.stop()
 ```
 
+## Installing GDAL 
 
+GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to @ref:[read](raster-read.md) those formats.  If you are using the @ref:[Jupyter Notebook image](getting-started.md#jupyter-notebook), GDAL is already installed for you. Otherwise follow the instructions below.
+
+__TODO__ Verify notebook env has GDAL? 
+
+__TODO__ How to install it.

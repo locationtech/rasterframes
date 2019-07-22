@@ -122,6 +122,8 @@ setup(
         'numpy>=1.7',
         'matplotlib<3.0.0',
         'pandas',
+        'geopandas',
+        'requests',
         'pytest-runner',
         'setuptools>=0.8',
         'ipython==6.2.1',

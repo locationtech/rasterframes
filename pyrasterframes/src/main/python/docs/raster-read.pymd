@@ -1,35 +1,27 @@
-## Reading Raster Data
+# Reading Raster Data
 
 ```python, echo=False
 from IPython.display import display
+import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session 
 from pyrasterframes.rasterfunctions import *
 spark = create_rf_spark_session()
 ```
 
-RasterFrames registers a DataSource named `rasters` that enables reading of GeoTIFFs (and other formats when GDAL is installed) from arbitrary (sets of) URIs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket:
+RasterFrames registers a DataSource named `raster` that enables reading of GeoTIFFs (and other formats when @ref:[GDAL is installed](getting-started.md#installing-gdal)) from arbitrary URIs. In the examples that follow we'll be reading from a Sentinel 2 scene stored in an AWS S3 bucket.
 
-```python
-data_root = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp'
-def s2_band(idx):
-    return "{}/B0{}.tif".format(data_root, idx)
-    
-```
-
-### Single Raster
+## Single Raster
 
 The simplest form is reading a single raster from a single URI:
 
-```python
-rf = spark.read.raster(s2_band(2))
+```python read_one_uri
+rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
 rf.printSchema()
 ```
 
-\[Discuss the schema\]
+Let's unpack the `proj_raster` column and look at the contents in more detail. It contains a [_CRS_][CRS], a spatial _extent_ measured in that CRS, and a two-dimensional array of numeric values called a _tile_. 
 
-Let's unpack the `proj_raster` column and look at the contents in more detail. 
-
-```python
+```python unpack_schema
 crs = rf.select(rf_crs("proj_raster").alias("value")).first()
 
 parts = rf.select(
@@ -38,51 +30,66 @@ parts = rf.select(
 )
 
 print("CRS", crs.value.crsProj4)
-parts.show(5)
+parts.show(5, False)
 
 ```
 
-Let's select a single tile and view it.
+You can also see that the single raster has been broken out into many arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on managable amounts of data per task. 
 
-```python
+```python count_by_uri
+rf.groupby(rf.proj_raster_path).count().show()
+```
+
+Let's select a single tile and view it. The tile preview image as well as the string representation provide some basic information about the tile: it's dimensions as number of columns and rows, and the cell type, or data type of all the cells in the tile. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
+
+```python show_tile_sample
 tile = rf.select(rf_tile("proj_raster")).first()[0]
 display(tile)
-# todo verify its chilly
 ```
 
+## URI Formats
 
-### Single Scene, Multiple Bands
+/[ TODO Populate this with valid URI's schemes we can use with an example? including how to use gdal /]
 
-Generally we'll want to work with multiple bands. If you have several singleband image files of the same scene, `raster` can make use of a CSV (or other DataFrame) specifying the band columns and scene rows.
+file://  (is this only valid for spark local? or if file is )
+https://
+http:// ?
+s3a://
+s3n:// ?
+hdfs:// ?
+ftp:// ?
+azure ?
+google cloud ?
 
-```python
-csv = """
-red,green,blue
-{},{},{}
-""".format(s2_band(4), s2_band(3), s2_band(2))
+gdal vsi? https://gdal.org/user/virtual_file_systems.html 
 
-print(csv)
 
-rf2 = spark.read.raster(catalog=csv, catalog_col_names=['red', 'green', 'blue'])
-rf2.printSchema()
+## Raster Catalogs
 
-rf2.show(5)
-```
+Considering the definition of a @ref:[_Catalog_](raster-catalogs.md) previously discussed, let's read the raster data contained in the catalog URIs. We will start with the @ref:[external catalog](raster-catalogs.md#using-external-catalogs) of MODIS surface reflectance that we previously demonstrated.
 
-### Raster Catalogs
-
-The example above will work with a reasonable number of rows in the CSV string. However, in many cases it's preferable to have that information organized in another DataFrame. For the purposes of this example use one of the AWS PDS daily scene listing files for MODIS surface reflectance as our catalog. 
-
-```python
+```python catalog_prep
 from pyspark import SparkFiles
+from pyspark.sql import functions as F
+
 cat_filename = "2018-07-04_scenes.txt"
 spark.sparkContext.addFile("https://modis-pds.s3.amazonaws.com/MCD43A4.006/{}".format(cat_filename))
+
 modis_catalog = spark.read \
     .format("csv") \
     .option("header", "true") \
-    .load(SparkFiles.get(cat_filename))
+    .load(SparkFiles.get(cat_filename)) \
+    .withColumn('base_url', 
+        F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',) 
+    ) \
+    .drop('download_url') \
+    .withColumn('red' , F.concat('base_url', F.lit("_B01.TIF"))) \
+    .withColumn('nir' , F.concat('base_url', F.lit("_B02.TIF")))
+
 modis_catalog.printSchema()
+
 print("Available scenes: ", modis_catalog.count())
+
 modis_catalog.show(5, truncate=False)
 ```
 
@@ -90,53 +97,80 @@ MODIS data products are delivered on a regular, consistent grid, making identifi
 
 ![MODIS Grid](https://modis-land.gsfc.nasa.gov/images/MODIS_sinusoidal_grid1.gif)
 
-For sake of example, lets say we wanted all the MODIS data right above the equator. The grid position is encoded in the GUID, with `h07` being the strip just above the equator . To go from `download_url` to band URL we strip off `index.html`, and append the GUID, band specifier, and file extension.
+For example, MODIS data right above the equator is all grid coordinates with `v07`.  
 
-```python
-from pyspark.sql import functions as F
-    
-# Index URIs take the form:
-#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/index.html    
-# Image URIs take the form:
-#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF    
-
-equator = (modis_catalog 
-    .withColumn('base_url', 
-        F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',) 
-    )
-.select(
-    F.concat('base_url', F.lit("_B01.TIF")).alias('red'),
-    F.concat('base_url', F.lit("_B02.TIF")).alias('nir')
-)
-.where(F.col('gid').like('%v07%'))
-)
-equator.show(3)
+```python catalog_filtering
+equator = modis_catalog.where(F.col('gid').like('%v07%'))
+equator.select('date', 'gid').show(10, False)
 ```
 
-Now that we have a catalog of multiple scenes and mutiple bands withit each scene, we can pass it along to `raster` load the imagery. To complete the example, we compute some aggregate statistics over NDVI.
+Now that we have prepared our catalog, we simply pass the DataFrame or CSV string to the `raster` DataSource to load the imagery. The `catalog_col_names` parameter gives the columns that contain the URI's to be read.
 
-```python
+```python read_catalog
 rf = spark.read.raster(
     catalog=equator, 
-    catalog_col_names=['red', 'nir']
-).repartition()
-rf.show(2, truncate=False)
-(rf 
-    .select(rf_normalized_difference('nir', 'red').alias('ndvi')) 
-    .agg(rf_agg_stats('ndvi').alias('stats')) 
-    .select('stats.*') 
-    .show(truncate=False)
+    catalog_col_names=['red', 'nir'],
 )
-    
+rf.printSchema()
 ```
 
-### Lazy vs. Strict Raster Reads
+Observe schema of the resulting dataframe has a projected raster struct for each column passed in `catalog_col_names`. For reference the URI is now in a column appended with `_path`. We can take a quick look at the representation of the data. We see again each row contains an arbitrary portion of the entire scene coverage. We also see that for two-D catalogs, each row contains the same spatial extent from within that coverage.
 
-> Discuss the `spark.read.raster(lazy_tiles=False)` behavior
+```python cat_read_sample
+rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')).show(3, False)
+```
 
+### Lazy Raster Reads
 
-### Multiband Rasters
+By default the raster reads are delayed as long as possible. The DataFrame will contain metadata and pointers to the appropriate portion of the data until
 
-> Need to know _a priori_ how many bands there are, specified with `band_indexes`.
-> Must be homogenous, or tolerant of `null` Tiles.
- 
+Consider the following two reads of the same data source. In the first, the lazy case, there is a pointer to the URI, extent and band to read. This will not be evaluated until the cell values are absolutely required. The second case shows the realized tile is queried right away.
+
+```python lazy_demo
+uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
+spark.read.raster(uri) \
+    .select('proj_raster.tile').show(1, False)
+
+spark.read.raster(uri, lazy_tiles=False) \
+    .select('proj_raster.tile').show(1, False)
+```
+
+In the initial examples on this page, we used `rf_tile` to explicitly request the realized tile from the lazy representation.
+
+## Multiband Rasters
+
+A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated as different bands. The bands may represent intensity of different wavelengths of light (or other electromagnetic radiation). The different bands may represent other phenomena such as measurement time, quality indications, or additional measurements.
+
+When reading a multiband raster or a _Catalog_ describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, indexed from zero, passing a list of integers into the `band_indexes` parameter of the `raster` reader. 
+
+For example we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting dataframe still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
+
+```python Multiband
+mb = spark.read.raster('s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif', 
+                       band_indexes=[0, 1, 2, 3],
+                      )
+mb.printSchema()
+```
+
+If a band is passed into `band_index` that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but it will be full of `null` values.
+
+You can also pass a `catalog` and `band_indexes` together into the `raster` reader. This will create a projected raster column for the combination of all items passed into `catalog_col_names` and `band_indexes`. Again if a band in `band_indexes` exceeds the number of bands in a raster, it will have a `null` value for the corresponding column.
+
+Here is a trivial example with a _Catalog_ over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.
+
+```python multiband_catalog
+import pandas as pd
+mb_cat = pd.DataFrame([
+    {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+     'bar': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+    },
+])
+mb2 = spark.read.raster(catalog=spark.createDataFrame(mb_cat),
+                       catalog_col_names=['foo', 'bar'],
+                       band_indexes=[0, 1],
+                       tile_dimensions=(64,64)
+                      )
+mb2.printSchema()
+```
+
+[CRS]: https://en.wikipedia.org/wiki/Spatial_reference_system
