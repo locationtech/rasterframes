@@ -135,7 +135,7 @@ Observe the output messages such as:
 
     [info] Python .whl file written to '/Users/monty/rasterframes/pyrasterframes/target/python/dist/pyrasterframes-0.8.0.dev0-py2.py3-none-any.whl'
     
-This wheel is suitable for publishing to a package index. See [https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives](packaging.python.org).
+This wheel is suitable for publishing to a package index. See [packaging.python.org](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives).
 
 ## Build Internals
 
