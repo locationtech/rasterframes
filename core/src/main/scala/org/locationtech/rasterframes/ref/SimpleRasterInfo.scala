@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes.ref
 
 import com.github.blemale.scaffeine.Scaffeine
+import geotrellis.contrib.vlm.gdal.GDALBaseRasterSource
 import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
 import geotrellis.contrib.vlm.{RasterSource => GTRasterSource}
 import geotrellis.proj4.CRS
@@ -58,8 +59,11 @@ object SimpleRasterInfo {
     )
 
   def apply(rs: GTRasterSource): SimpleRasterInfo = {
+
+    // Not thrilled about this being here...
     def fetchTags: Tags = rs match {
       case gt: GeoTiffRasterSource => gt.tiff.tags
+      case gd: GDALBaseRasterSource => GDALMetadata(gd.dataset.token).toTags
       case _                       => EMPTY_TAGS
     }
 

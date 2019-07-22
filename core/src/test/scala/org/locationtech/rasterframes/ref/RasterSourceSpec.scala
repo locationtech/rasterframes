@@ -116,6 +116,10 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val jvm = JVMGeoTiffRasterSource(cogPath)
       it("should compute the same metadata as JVM RasterSource") {
         gdal.cellType should be(jvm.cellType)
+        gdal.tags should be(jvm.tags)
+
+        println(gdal.tags)
+        println(jvm.tags)
       }
       it("should compute the same dimensions as JVM RasterSource") {
         val dims = TileDimensions(128, 128)

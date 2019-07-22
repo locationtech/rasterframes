@@ -23,17 +23,17 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
+import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.raster.io.geotiff.Tags
+import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes.ref.RasterSource.URIRasterSource
-import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
 
 case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSource {
 
   @transient
-  private lazy val gdal: VLMRasterSource = {
+  private[ref] lazy val gdal: VLMRasterSource = {
     val cleaned = source.toASCIIString.replace("gdal+", "")
     // VSIPath doesn't like single slash "file:/path..."
     val tweaked =
@@ -50,8 +50,6 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
 
   override def extent: Extent = tiffInfo.extent
 
-  private def metadata = Map.empty[String, String]
-
   override def cellType: CellType = tiffInfo.cellType
 
   override def bandCount: Int = tiffInfo.bandCount
@@ -60,7 +58,7 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
 
   override def rows: Int = tiffInfo.rows
 
-  override def tags: Tags = Tags(metadata, List.empty)
+  override def tags: Tags = tiffInfo.tags
 
   override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
     gdal.readBounds(bounds, bands)
