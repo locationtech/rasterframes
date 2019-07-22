@@ -414,14 +414,6 @@ spark.sql("""
  UNION
  SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, 'float32'), 3) as t
  """).select(F.col('id'), rf_tile_sum(F.col('t'))).show()
-
-
-+---+-----------+
-| id|rf_tile_sum(t)|
-+---+-----------+
-|  2|       75.0|
-|  1|       25.0|
-+---+-----------+
 ```
 
 
@@ -528,12 +520,6 @@ SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
 UNION
 SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3.0) as t
 """).agg(rf_agg_mean(F.col('t'))).show(10, False)
-
-+--------------+
-|rf_agg_mean(t)|
-+--------------+
-|2.0           |
-+--------------+
 ```
 
 #### rf_agg_mean
@@ -616,31 +602,9 @@ SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, 'float32'), 3) as t
 
 ## local_agg_mean returns a tile
 alm.select(rf_dimensions(alm.l)).show()
-##
-+----------------+
-|rf_dimensions(l)|
-+----------------+
-|          [5, 5]|
-+----------------+
-##
-
+```
+``` python
 alm.select(rf_explode_tiles(alm.l)).show(10, False)
-##
-+------------+---------+---+
-|column_index|row_index|l  |
-+------------+---------+---+
-|0           |0        |2.0|
-|1           |0        |2.0|
-|2           |0        |2.0|
-|3           |0        |2.0|
-|4           |0        |2.0|
-|0           |1        |2.0|
-|1           |1        |2.0|
-|2           |1        |2.0|
-|3           |1        |2.0|
-|4           |1        |2.0|
-+------------+---------+---+
-only showing top 10 rows
 ```
 
 
