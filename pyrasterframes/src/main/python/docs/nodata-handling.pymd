@@ -10,8 +10,6 @@ RasterFrames provides a variety of functions to inspect and manage NoData within
 
 To understand how NoData is handled in RasterFrames, we first need to understand the different underlying types of data called cell types. The cell types are GeoTrellis `CellType`s, so the [GeoTrellis documentation](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#working-with-cell-values) is a valuable resource on how these are defined.
 
-Use the function `rf_cell_type` to find the cell type of a specific set of raster data.
-
 ```python setup, echo=False
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
@@ -21,23 +19,27 @@ from IPython.display import display
 spark = pyrasterframes.get_spark_session()
 ```
 
+The `CellType` class from the `rf_types` submodule allows us to create a representation of any valid cell type. There are convenience methods to create instances for a variety of basic types.
+
+```python celltype_ctors
+from pyrasterframes.rf_types import CellType
+import inspect
+
+[c[0] for c in inspect.getmembers(CellType, inspect.ismethod)]
+```
+
+We can also inspect the cell type of a given _tile_ or `proj_raster` column.
+
 ```python ct_from_sen
 spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif') \
     .select(rf_cell_type('proj_raster')).distinct().show()
 ```
 
-The function `rf_cell_types` provides a convenient list of basic cell types. Note that this list is not exhaustive. 
-
-```python
-rf_cell_types()
-```
-
 ### Understanding Cell Types and NoData
 
-Use the `CellType` class to learn more about a specific cell type.
+Use the methods on the `CellType` class to learn more about a specific cell type. Take for example the cell type of our sample data above.
 
 ```python
-from pyrasterframes.rf_types import CellType
 ct = CellType('uint16raw')
 ct, ct.is_floating_point(), ct.has_no_data()
 ```
@@ -85,30 +87,30 @@ Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create
 ```python def_mask
 from pyspark.sql.functions import lit
 
-unmasked = unmasked.withColumn('nodata', rf_local_equal('scl', lit(0)))
-unmasked = unmasked.withColumn('defect', rf_local_equal('scl', lit(1)))
-unmasked = unmasked.withColumn('cloud8', rf_local_equal('scl', lit(8)))
-unmasked = unmasked.withColumn('cloud9', rf_local_equal('scl', lit(9)))
-unmasked = unmasked.withColumn('cirrus', rf_local_equal('scl', lit(10)))
+mask_part = unmasked.withColumn('nodata', rf_local_equal('scl', lit(0))) \
+                    .withColumn('defect', rf_local_equal('scl', lit(1))) \
+                    .withColumn('cloud8', rf_local_equal('scl', lit(8))) \
+                    .withColumn('cloud9', rf_local_equal('scl', lit(9))) \
+                    .withColumn('cirrus', rf_local_equal('scl', lit(10))) 
 
-unmasked = unmasked.withColumn('mask', rf_local_add('nodata', 'defect'))
-unmasked = unmasked.withColumn('mask', rf_local_add('mask', 'cloud8'))
-unmasked = unmasked.withColumn('mask', rf_local_add('mask', 'cloud9'))
-unmasked = unmasked.withColumn('mask', rf_local_add('mask', 'cirrus'))
+one_mask = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
+                    .withColumn('mask', rf_local_add('mask', 'cloud8')) \
+                    .withColumn('mask', rf_local_add('mask', 'cloud9')) \
+                    .withColumn('mask', rf_local_add('mask', 'cirrus'))
 
-unmasked.select(rf_cell_type('mask')).distinct().show()
+one_mask.select(rf_cell_type('mask')).distinct().show()
 ```
 
 Now we will use the @ref:[`rf_mask_by_value`](reference.md#rf-mask-by-value) to designate the cloudy and other unwanted pixels as NoData in the blue column. Because there is not a NoData already defined, we will choose one. Note that in this particular example the minimum value is greater than zero, so we can use 0 as the NoData value.
 
 ```python pick_nd
-unmasked.agg(rf_agg_stats('blue').min.alias('blue_min')).show()
+one_mask.agg(rf_agg_stats('blue').min.alias('blue_min')).show()
 ```
 
 We can now construct the cell type string for our blue band's cell type, but designating 0 as NoData.
 
 ```python get_ct_string
-blue_ct = unmasked.select(rf_cell_type('blue')).distinct().first()[0][0]
+blue_ct = one_mask.select(rf_cell_type('blue')).distinct().first()[0][0]
 masked_blue_ct = CellType(blue_ct).with_no_data_value(0)
 masked_blue_ct.cell_type_name
 ```
@@ -117,9 +119,9 @@ Convert the cell type and apply the mask. Since the mask column is bit type, the
 
 ```python mask_blu 
 with_nd = rf_convert_cell_type('blue', masked_blue_ct.cell_type_name)
-masked = unmasked.withColumn('blue_masked', 
-            rf_mask_by_value(with_nd, 'mask', lit(1))) \
-            .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
+masked = one_mask.withColumn('blue_masked', 
+                             rf_mask_by_value(with_nd, 'mask', lit(1))) \
+                 .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
 ```
 
 We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the bit-type `mask` tile.
