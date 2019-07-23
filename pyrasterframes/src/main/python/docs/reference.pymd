@@ -1,4 +1,4 @@
-# Function Reference
+rf_make_ones_tile# Function Reference
 
 RasterFrames provides SQL and Python bindings to many UDFs using the `Tile` column type. In Spark SQL, the functions are already registered in the SQL engine; they are usually prefixed with `rf_`. In Python, they are available in the `pyrasterframes.rasterfunctions` module.
 
@@ -408,11 +408,11 @@ Performs natural logarithm of cell values plus one. Inverse of @ref:[`rf_expm1`]
 The following functions compute a statistical summary per row of a `tile` column. The statistics are computed across the cells of a single `tile`, within each DataFrame Row.  Consider the following example.
 
 ```python
-import pyspark.functions as F
+import pyspark.sql.functions as F
 spark.sql("""
  SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
  UNION
- SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, 'float32'), 3) as t
+ SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as t
  """).select(F.col('id'), rf_tile_sum(F.col('t'))).show()
 ```
 
@@ -507,8 +507,8 @@ These functions compute statistical summaries over all of the cell values *and* 
 
 
 ```python
-from pyspark.functions import month
-from pyrasterframes.functions import rf_agg_mean
+from pyspark.sql.functions import month
+from pyrasterframes.rasterfunctions import rf_agg_mean
 rf.groupby(month(rf.datetime)).agg(rf_agg_mean(rf.red_band).alias('red_mean_monthly'))
 ```
 
@@ -593,7 +593,7 @@ Consider again our example for Tile Statistics and Aggregate Tile Statistics, th
 
 
 ```python
-import pyspark.functions as F
+import pyspark.sql.functions as F
 alm = spark.sql("""
 SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
 UNION
