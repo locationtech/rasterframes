@@ -58,7 +58,7 @@ Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`]
 
 ## Tile Metadata and Mutation
 
-Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See below section on @ref:[masking and NoData](nodata-handling.md#masking-and-NoData) for additional discussion of cell types.
+Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See section on @ref:["NoData" handling](nodata-handling.md) for additional discussion of cell types.
 
 ### rf_dimensions
 
