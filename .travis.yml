@@ -1,6 +1,9 @@
 sudo: false
 dist: xenial
-language: scala
+language: python
+
+python:
+  - "3.7"
 
 cache:
   directories:
@@ -11,30 +14,24 @@ cache:
 scala:
   - 2.11.11
 
-jdk:
-  - openjdk8
-
-python:
-  - "3.7"
+env:
+  - COURSIER_VERBOSITY=-1 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 addons:
   apt:
     packages:
+      - openjdk-8-jdk
       - pandoc
-      - python-pip
 
 install:
-  - pip install setuptools
-
-sbt_args: -no-colors
+  - pip install --user rasterio shapely pandas numpy
+  - wget -O - https://piccolo.link/sbt-1.2.8.tgz | tar xzf -
 
 script:
-  - sbt test
-  - sbt it:test
+  - sbt/bin/sbt -java-home $JAVA_HOME -batch test
+  - sbt/bin/sbt -java-home $JAVA_HOME -batch it:test
   #  - sbt -Dfile.encoding=UTF8 clean coverage test coverageReport
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
-#after_success:
-#  - bash <(curl -s https://codecov.io/bash)
