@@ -1,0 +1,197 @@
+# Supervised Machine Learning
+
+In this example we will demonstrate how to fit and score an unsupervised learning model with a sample of Sentinel-2 data and labels from the US [National Land Cover Dataset](https://www.mrlc.gov/) (NLCD).
+
+```python, setup, echo=False
+from IPython.core.display import display
+from pyrasterframes.utils import create_rf_spark_session
+from pyrasterframes.rasterfunctions import * 
+import pandas as pd
+from docs import resource_dir_uri
+
+import os
+
+spark = create_rf_spark_session()
+```
+
+## Create and Read Raster Catalog
+
+We import various Spark components that we need to construct our [Pipeline](https://spark.apache.org/docs/latest/ml-pipeline.html).
+
+```python, imports, echo=True
+from pyrasterframes import TileExploder
+from pyrasterframes.rf_types import NoDataFilter
+
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.classification import DecisionTreeClassifier
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+from pyspark.ml import Pipeline
+```
+
+The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create @ref:[a catalog DataFrame](raster-catalogs.md#creating-a-catalog). In the catalog, each row represents a distinct area and time; and each column is the URI to a band's image product. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
+
+```python, read_bands, term=True
+uri_base = 's3://s22s-test-geotiffs/luray_snp/{}.tif'
+bands = ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B11', 'B12']
+cols = ['SCL'] + bands
+
+catalog_df = pd.DataFrame([
+    {b: uri_base.format(b) for b in cols} 
+])
+
+df = spark.read.raster(catalog=catalog_df, 
+					   catalog_col_names=cols,
+					   tile_dimensions=(128, 128)
+					   ).repartition(100)
+
+df = df.select(
+    rf_crs(df.B01).alias('crs'),
+    rf_extent(df.B01).alias('extent'),
+    rf_tile(df.SCL).alias('scl'),
+    rf_tile(df.B01).alias('B01'),
+    rf_tile(df.B02).alias('B02'),
+    rf_tile(df.B03).alias('B03'),
+    rf_tile(df.B04).alias('B04'),
+    rf_tile(df.B05).alias('B05'),
+    rf_tile(df.B06).alias('B06'),
+    rf_tile(df.B07).alias('B07'),
+    rf_tile(df.B08).alias('B08'),
+    rf_tile(df.B09).alias('B09'),
+    rf_tile(df.B11).alias('B11'),
+    rf_tile(df.B12).alias('B12'),
+)
+df.printSchema()
+```
+
+## Data Prep
+
+### Label Data
+
+[](https://github.com/locationtech/rasterframes/blob/develop/core/src/test/resources/L8-Labels-Elkton-VA.geojson)
+
+```python
+crses = df.select('crs.crsProj4').distinct().collect()
+print('Found ', len(crses), 'distinct CRS.')
+crs = crses[0][0]
+
+label_df = spark.read.geojson(os.path.join(resource_dir_uri(), "L8-Labels-Elkton-VA.geojson")) \
+					 .select('id', st_reproject('geometry', 'EPSG:4326', crs).alias('geometry')) \
+					 .hint('broadcast')
+
+df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry')) 
+
+df_joined.createOrReplaceTempView('df_joined')
+df_labeled = spark.sql("""
+SELECT *, rf_rasterize(geometry, st_geometry(extent), id, rf_dimensions(B01).cols, rf_dimensions(B01).rows) AS label
+FROM df_joined
+""")
+```
+
+
+
+## Masking NoData
+
+We will follow the same procedure as demonstrated in the @ref:[quality masking](nodata-handling.md#masking) section of the chapter on NoData. Instead of actually masking we will just sort on the mask cell values later in the process
+
+```python make_mask
+from pyspark.sql.functions import lit
+
+mask_part = df_labeled.withColumn('nodata', rf_local_equal('scl', lit(0))) \
+              .withColumn('defect', rf_local_equal('scl', lit(1))) \
+              .withColumn('cloud8', rf_local_equal('scl', lit(8))) \
+              .withColumn('cloud9', rf_local_equal('scl', lit(9))) \
+              .withColumn('cirrus', rf_local_equal('scl', lit(10))) 
+
+df_mask = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
+                   .withColumn('mask', rf_local_add('mask', 'cloud8')) \
+                   .withColumn('mask', rf_local_add('mask', 'cloud9')) \
+                   .withColumn('mask', rf_local_add('mask', 'cirrus')) \
+                   .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus')
+
+df_mask.printSchema()
+```
+
+
+## Create ML Pipeline
+
+The data preparation modeling pipeline is next. SparkML requires that each observation be in its own row, and those observations be packed into a single [`Vector`](https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#module-pyspark.ml.linalg) object. The first step is to "explode" the tiles into a single row per cell/pixel. Then we filter out any rows that have `NoData` values (which will cause an error during training). Finally we use the SparkML `VectorAssembler` to create that `Vector`. 
+
+```python, transformers
+exploder = TileExploder()
+
+noDataFilter = NoDataFilter() \
+  .setInputCols(cols + ['label', 'mask'])
+
+assembler = VectorAssembler() \
+  .setInputCols(bands) \
+  .setOutputCol("features")
+```
+
+We are going to use a decision tree for classification. You can swap out one of the other multi-class
+classification algorithms if you like. With the algorithm selected we can assemble our modeling pipeline.
+
+```python, pipeline
+classifier = DecisionTreeClassifier() \
+  .setLabelCol('label') \
+  .setFeaturesCol(assembler.getOutputCol())
+
+pipeline = Pipeline() \
+  .setStages([exploder, noDataFilter, assembler, classifier])
+
+pipeline.getStages()
+```
+
+## Train the Model
+
+Push the "go button"! This will actually run each step of the Pipeline we created including fitting the decision tree model.
+
+```python, train
+model = pipeline.fit(df_mask.filter(rf_tile_sum('label') > 0).cache())
+```
+
+## Model Evaluation
+
+To view the model's performance ....
+
+```python eval
+eval = MulticlassClassificationEvaluator(predictionCol=classifier.getPredictionCol(),
+										 labelCol=classifier.getLabelCol(),
+										 metricName='accuracy',
+)
+
+prediction_df = model.transform(df_mask) \
+                       .drop(assembler.getOutputCol()).cache()
+accuracy = eval.evaluate(prediction_df)
+accuracy
+```
+
+
+We can take a quick look at the resulting confusion matrix. 
+
+```python confusion_mtrx
+prediction_df.groupBy(classifier.getPredictionCol()) \
+    .pivot(classifier.getLabelCol()) \
+    .count().show(20, False)
+```
+
+## Visualize Prediction
+
+We can recreate the tiled data structure using the metadata added by the `TileExploder` pipeline stage.
+
+```python assemble_prediction
+model.transform(df_mask.drop('label')).createOrReplaceTempView('scored')
+retiled = spark.sql("""
+SELECT extent, crs, rf_assemble_tile(column_index, row_index, prediction, 128, 128) as prediction
+FROM scored
+GROUP BY extent, crs
+""")
+
+retiled.printSchema()
+```
+
+Take a look at a sample of the resulting output.
+
+```python display_prediction
+display(retiled.select('prediction').first()['prediction'])
+```
+

@@ -1,6 +1,4 @@
-# Machine Learning with RasterFrames
-
-RasterFrames provides access to train and predict with a wide variety of machine learning models through [Spark ML Pipelines](https://spark.apache.org/docs/latest/ml-guide.html). This library provides a variety of pipeline components for supervised learning, unsupervised learning, and data preparation that can be used to repeatably represent a variety of tasks in machine learning.
+# Unsupervised Machine Learning
 
 In this example we will demonstrate how to fit and score an unsupervised learning model with a [sample of Landsat 8 data](https://github.com/locationtech/rasterframes/tree/develop/pyrasterframes/src/test/resources).
 
