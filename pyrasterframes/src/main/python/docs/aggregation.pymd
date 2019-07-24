@@ -10,11 +10,23 @@ import os
 spark = create_rf_spark_session()
 ```
 
-There are 2 types of aggregate functions: aggregate tile and aggregate tile local. In the aggregate tile functions, we are computing statistical summaries over all of the cell values *and* across all of the rows in the DataFrame or group. In the aggregate tile local functions, we are computing the element-wise statistics across a DataFrame or group of tiles.
+There are 3 types of aggregate functions: tile aggregate, DataFrame aggregate, and element-wise local aggregate. In the tile aggregate functions, we are computing a statistical summary per row of a `tile` column in a DataFrame. In the DataFrame aggregate functions, we are computing statistical summaries over all of the cell values *and* across all of the rows in the DataFrame or group. In the element-wise local aggregate functions, we are computing the element-wise statistical summary across a DataFrame or group of tiles.
 
 ## Tile Mean
 
-We can illustrate this difference in computing tile mean. In the first code block we are using @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) to average 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned.
+We can illustrate this difference in computing tile mean. In the first code block we are using @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) to computer the tile aggregate mean of cells in each row of column `tile`. The mean of each tile is computed separately, so the first mean is 1.0 and the second mean is 3.0.
+
+```python
+import pyspark.sql.functions as F
+
+spark.sql("""
+SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
+UNION
+SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3.0) as t
+""").select(F.col('id'), rf_tile_mean(F.col('t'))).show(10, False)
+```
+
+In this next code block we are using @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
 
 ```python
 import pyspark.sql.functions as F
@@ -27,7 +39,7 @@ SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3.0) as t
 ```
 
 
-In this code block, we are using @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) instead of @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) to compute the element-wise mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
+In this code block, we are using @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) to compute the element-wise local aggregate mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
 
 ```python
 import pyspark.sql.functions as F
@@ -36,32 +48,26 @@ alm = spark.sql("""
 SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
 UNION
 SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as t
-""").agg(rf_agg_local_mean(F.col('t')).alias('l')) \
-
-## local_agg_mean returns a tile
-alm.select(rf_dimensions(alm.l)).show()
-
+""").agg(rf_agg_local_mean(F.col('t')).alias('l'))
 alm.select(rf_explode_tiles(alm.l)).show(10, False)
 ```
 
 ## Cell Counts
 
-We can also count the total number of data and NoData cells over all the tiles in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are 387,000 data cells and 1,000 NoData cells in this DataFrame.
+We can also count the total number of data and NoData cells over all the tiles in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are 3,348,900 data cells and 0 NoData cells in this DataFrame.
 
 ```python
-rf = spark.read.geotiff(os.path.join(resource_dir(), 'L8-B8-Robinson-IL.tiff'))
-rf.show(5, False)
-
-stats = rf.agg(rf_agg_data_cells('tile'), rf_agg_no_data_cells('tile'))
+rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
+stats = rf.select(rf_tile("proj_raster").alias("tile")).agg(rf_agg_data_cells('tile'), rf_agg_no_data_cells('tile'))
 stats.show(5, False)
 ```
 
 ## Statistical Summaries
 
-The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over all of the tiles in a DataFrame and returns a statistical summary of cell values: number of data cells, number of NoData cells, minimum, maximum, mean, and variance.
+The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over all of the tiles in a DataFrame and returns a statistical summary of cell values: number of data cells, number of NoData cells, minimum, maximum, mean, and variance. You can use the @ref:[`rf_tile_stats`](reference.md#rf-tile-stats) to compute summary statistics separately for each row in a `tile` column and you can use the @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) to compute the local element-wise summary statistics.
 
 ```python
-rf = spark.read.geotiff(os.path.join(resource_dir(), 'L8-B8-Robinson-IL.tiff'))
-stats = rf.agg(rf_agg_stats('tile').alias("stats"))
-stats.select("stats.data_cells", "stats.no_data_cells", "stats.min", "stats.max", "stats.mean", "stats.variance").show()
+rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
+stats = rf.select(rf_tile("proj_raster").alias("tile")).agg(rf_agg_stats('tile').alias("stats"))
+stats.select("stats.min", "stats.max", "stats.mean", "stats.variance").show(1, False)
 ```
