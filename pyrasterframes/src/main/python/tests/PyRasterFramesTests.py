@@ -704,6 +704,19 @@ class RasterSource(TestEnvironment):
         self.assertGreater(tdf.count(),  0)
         self.assertIsNotNone(tdf.first())
 
+    def test_strict_eval(self):
+        df_lazy = self.spark.read.raster(self.img_uri, lazy_tiles=True)
+        # when doing Show on a lazy tile we will see something like RasterRefTile(RasterRef(JVMGeoTiffRasterSource(...
+        # use this trick to get the `show` string
+        show_str_lazy = df_lazy.select('proj_raster')._jdf.showString(1, -1, False)
+        self.assertTrue('RasterRef' in show_str_lazy)
+
+        # again for strict
+        df_strict = self.spark.read.raster(self.img_uri, lazy_tiles=False)
+        show_str_strict = df_strict.select('proj_raster')._jdf.showString(1, -1, False)
+        self.assertTrue('RasterRef' not in show_str_lazy)
+
+
     def test_prt_functions(self):
         df = self.spark.read.raster(self.img_uri) \
             .withColumn('crs', rf_crs('proj_raster')) \
@@ -725,7 +738,7 @@ class RasterSource(TestEnvironment):
         df = self.spark.read.raster(
             tile_dimensions=(tile_size, tile_size),
             paths=path_param,
-            lazy_tiles=False
+            lazy_tiles=True,
         ).cache()
 
         # schema is tile_path and tile
@@ -779,6 +792,49 @@ class RasterSource(TestEnvironment):
         b1_paths_maybe = path_df.select('b1_path').distinct().collect()
         b1_paths = [s.format('1') for s in scene_dict.values()]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
+
+    def test_raster_source_catalog_reader_with_pandas(self):
+        import pandas as pd
+        import geopandas
+        from shapely.geometry import Point
+
+        scene_dict = {
+            1: 'http://landsat-pds.s3.amazonaws.com/c1/L8/015/041/LC08_L1TP_015041_20190305_20190309_01_T1/LC08_L1TP_015041_20190305_20190309_01_T1_B{}.TIF',
+            2: 'http://landsat-pds.s3.amazonaws.com/c1/L8/015/042/LC08_L1TP_015042_20190305_20190309_01_T1/LC08_L1TP_015042_20190305_20190309_01_T1_B{}.TIF',
+            3: 'http://landsat-pds.s3.amazonaws.com/c1/L8/016/041/LC08_L1TP_016041_20190224_20190309_01_T1/LC08_L1TP_016041_20190224_20190309_01_T1_B{}.TIF',
+        }
+
+        def path(scene, band):
+            assert band in range(1, 12)
+            p = scene_dict[scene]
+            return p.format(band)
+
+        # Create a pandas dataframe (makes it easy to create spark df)
+        path_pandas = pd.DataFrame([
+            {'b1': path(1, 1), 'b2': path(1, 2), 'b3': path(1, 3), 'geo': Point(1, 1)},
+            {'b1': path(2, 1), 'b2': path(2, 2), 'b3': path(2, 3), 'geo': Point(2, 2)},
+            {'b1': path(3, 1), 'b2': path(3, 2), 'b3': path(3, 3), 'geo': Point(3, 3)},
+        ])
+
+        # here a subtle difference with the test_raster_source_catalog_reader test, feed the DataFrame not a CSV and not an already created spark DF.
+        df = self.spark.read.raster(
+            catalog=path_pandas,
+            catalog_col_names=['b1', 'b2', 'b3']
+        )
+        self.assertEqual(len(df.columns), 7)  # three path cols, three tile cols, and geo
+        self.assertTrue('geo' in df.columns)
+        self.assertTrue(df.select('b1_path').distinct().count() == 3)
+
+
+        # Same test with geopandas
+        geo_df = geopandas.GeoDataFrame(path_pandas, crs={'init': 'EPSG:4326'}, geometry='geo')
+        df2 = self.spark.read.raster(
+            catalog=geo_df,
+            catalog_col_names=['b1', 'b2', 'b3']
+        )
+        self.assertEqual(len(df2.columns), 7)  # three path cols, three tile cols, and geo
+        self.assertTrue('geo' in df2.columns)
+        self.assertTrue(df2.select('b1_path').distinct().count() == 3)
 
 
 def suite():

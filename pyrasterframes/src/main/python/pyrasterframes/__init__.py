@@ -112,11 +112,18 @@ def _raster_reader(
         lazy_tiles=True,
         **options):
 
+    from pandas import DataFrame as PdDataFrame
+
     def to_csv(comp):
         if isinstance(comp, str):
             return comp
         else:
             return ','.join(str(v) for v in comp)
+
+    def temp_name():
+        """ Create a random name for a temporary view """
+        import uuid
+        return str(uuid.uuid4()).replace('-', '')
 
     if band_indexes is None:
         band_indexes = [0]
@@ -136,10 +143,20 @@ def _raster_reader(
                 "catalogColumns": to_csv(catalog_col_names)
             })
         elif isinstance(catalog, DataFrame):
-            import uuid
             # Create a random view name
-            tmp_name = str(uuid.uuid4()).replace('-', '')
+            tmp_name = temp_name()
             catalog.createOrReplaceTempView(tmp_name)
+            options.update({
+                "catalogTable": tmp_name,
+                "catalogColumns": to_csv(catalog_col_names)
+            })
+        elif isinstance(catalog, PdDataFrame):
+            # Handle to active spark session
+            session = SparkContext._active_spark_context._rf_context._spark_session
+            # Create a random view name
+            tmp_name = temp_name()
+            spark_catalog = session.createDataFrame(catalog)
+            spark_catalog.createOrReplaceTempView(tmp_name)
             options.update({
                 "catalogTable": tmp_name,
                 "catalogColumns": to_csv(catalog_col_names)
