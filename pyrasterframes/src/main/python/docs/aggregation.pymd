@@ -10,7 +10,7 @@ import os
 spark = create_rf_spark_session()
 ```
 
-There are 3 types of aggregate functions: tile aggregate, DataFrame aggregate, and element-wise local aggregate. In the tile aggregate functions, we are computing a statistical summary per row of a `tile` column in a DataFrame. In the DataFrame aggregate functions, we are computing statistical summaries over all of the cell values *and* across all of the rows in the DataFrame or group. In the element-wise local aggregate functions, we are computing the element-wise statistical summary across a DataFrame or group of tiles.
+There are 3 types of aggregate functions: tile aggregate, DataFrame aggregate, and element-wise local aggregate. In the @ref:[`tile aggregate functions`](reference.md#tile-statistics), we are computing a statistical summary per row of a `tile` column in a DataFrame. In the @ref:[`DataFrame aggregate functions`](reference.md#aggregate-tile-statistics), we are computing statistical summaries over all of the cell values *and* across all of the rows in the DataFrame or group. In the  @ref:[`element-wise local aggregate functions`](reference.md#tile-local-aggregate-statistics), we are computing the element-wise statistical summary across a DataFrame or group of tiles.
 
 ## Tile Mean
 
@@ -69,5 +69,6 @@ The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over al
 ```python
 rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
 stats = rf.select(rf_tile("proj_raster").alias("tile")).agg(rf_agg_stats('tile').alias("stats"))
+stats.printSchema()
 stats.select("stats.min", "stats.max", "stats.mean", "stats.variance").show(1, False)
 ```
