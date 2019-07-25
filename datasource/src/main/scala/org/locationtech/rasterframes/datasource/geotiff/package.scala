@@ -29,25 +29,47 @@ import shapeless.tag
 
 package object geotiff {
   /** Tagged type construction for enabling type-safe extension methods for loading
-   * a RasterFrameLayer in expected form. */
+   * a RasterFrameLayer from a single GeoTiff. */
   type GeoTiffRasterFrameReader = DataFrameReader @@ GeoTiffRasterFrameReaderTag
   trait GeoTiffRasterFrameReaderTag
+
+  /** Tagged type construction for enabling type-safe extension methods for writing
+    * a RasterFrame to a geotiff. */
+  type GeoTiffRasterFrameWriter[T] = DataFrameWriter[T] @@ GeoTiffRasterFrameWriterTag
+  trait GeoTiffRasterFrameWriterTag
 
   /** Adds `geotiff` format specifier to `DataFrameReader`. */
   implicit class DataFrameReaderHasGeoTiffFormat(val reader: DataFrameReader) {
     @deprecated("Use `raster` instead.", "7/1/2019")
     def geotiff: GeoTiffRasterFrameReader =
-      tag[GeoTiffRasterFrameReaderTag][DataFrameReader](reader.format(GeoTiffDataSource.SHORT_NAME))
+      tag[GeoTiffRasterFrameReaderTag][DataFrameReader](
+        reader.format(GeoTiffDataSource.SHORT_NAME)
+      )
   }
 
   implicit class DataFrameWriterHasGeoTiffFormat[T](val writer: DataFrameWriter[T]) {
-    @deprecated("Use `raster` instead.", "7/1/2019")
-    def geotiff: DataFrameWriter[T] = writer.format(GeoTiffDataSource.SHORT_NAME)
+    def geotiff: GeoTiffRasterFrameWriter[T] =
+      tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](
+        writer.format(GeoTiffDataSource.SHORT_NAME)
+      )
+
+    def withDimensions(cols: Int, rows: Int): GeoTiffRasterFrameWriter[T] =
+      tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](
+        writer
+          .option(GeoTiffDataSource.IMAGE_WIDTH_PARAM, cols)
+          .option(GeoTiffDataSource.IMAGE_HEIGHT_PARAM, rows)
+      )
+
+    def withCompression: GeoTiffRasterFrameWriter[T] =
+      tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](
+        writer
+          .option(GeoTiffDataSource.COMPRESS_PARAM, true)
+      )
   }
 
   /** Adds `loadLayer` to appropriately tagged `DataFrameReader` */
   implicit class GeoTiffReaderWithRF(val reader: GeoTiffRasterFrameReader) {
     @deprecated("Use `raster` instead.", "7/1/2019")
-    def loadRF(path: URI): RasterFrameLayer = reader.load(path.toASCIIString).asLayer
+    def loadLayer(path: URI): RasterFrameLayer = reader.load(path.toASCIIString).asLayer
   }
 }

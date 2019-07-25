@@ -21,16 +21,18 @@
 
 package org.locationtech.rasterframes.datasource.geotiff
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.datasource._
-import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
-import org.apache.spark.sql.types.LongType
-import org.apache.spark.sql.{DataFrame, SQLContext, SaveMode, functions ⇒ F}
-import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
 import _root_.geotrellis.raster.io.geotiff.compression._
 import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
+import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
+import com.typesafe.scalalogging.LazyLogging
+import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.datasource._
+import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
+import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
+import org.locationtech.rasterframes.util._
 
 /**
  * Spark SQL data source over GeoTIFF files.
@@ -58,51 +60,32 @@ class GeoTiffDataSource extends DataSourceRegister
     else GeoTiffRelation(sqlContext, p)
   }
 
+  def createLayer(df: DataFrame, parameters: Map[String, String], tileCols: Seq[Column]): RasterFrameLayer = {
+    require(tileCols.nonEmpty, "need at least one tile column")
+
+
+//    val prd = ProjectedRasterDefinition()
+//    val crsCol = col("crs")
+//    val extentCol = col("extent")
+//    df.agg(TileRasterizerAggregate(prd, crsCol, extentCol, tileCols.head))
+    ???
+  }
+
   override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = {
     val pathO = path(parameters)
     require(pathO.isDefined, "Valid URI 'path' parameter required.")
     require(pathO.get.getScheme == "file" || pathO.get.getScheme == null, "Currently only 'file://' destinations are supported")
     sqlContext.withRasterFrames
 
-    require(data.isLayer, "GeoTIFF can only be constructed from a RasterFrameLayer")
-    val rf = data.certify
+    val compress = parameters.get(GeoTiffDataSource.COMPRESS_PARAM).exists(_.toBoolean)
+    val tcols = data.tileColumns
 
-    // If no desired image size is given, write at full size.
-    lazy val (fullResCols, fullResRows) = {
-      // get the layout size given that the tiles may be heterogenously sized
-      // first get any valid row and column in the spatial key structure
-      val sk = rf.select(SPATIAL_KEY_COLUMN).first()
+    require(tcols.nonEmpty, "Could not find any tile columns.")
 
-      val tc = rf.tileColumns.head
-
-      val c = rf
-        .where(SPATIAL_KEY_COLUMN("row") === sk.row)
-        .agg(
-          F.sum(rf_dimensions(tc)("cols") cast(LongType))
-        ).first()
-        .getLong(0)
-
-      val r = rf
-        .where(SPATIAL_KEY_COLUMN("col") === sk.col)
-        .agg(
-          F.sum(rf_dimensions(tc)("rows") cast(LongType))
-        ).first()
-        .getLong(0)
-
-      (c, r)
-    }
-
-    val cols = numParam(GeoTiffDataSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(fullResCols)
-    val rows = numParam(GeoTiffDataSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(fullResRows)
-
-    require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a GeoTIFF of size $cols x $rows. (Too big!)")
-
-    // Should we really play traffic cop here?
-    if(cols.toDouble * rows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
-      logger.warn(s"You've asked for the construction of a very large image ($cols x $rows), destined for ${pathO.get}. Out of memory error likely.")
-
-    val tcols = rf.tileColumns
-    val raster = rf.toMultibandRaster(tcols, cols.toInt, rows.toInt)
+    val tags = Tags(
+      RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
+      tcols.map(c ⇒ Map("RF_COL" -> c.columnName)).toList
+    )
 
     // We make some assumptions here.... eventually have column metadata encode this.
     val colorSpace = tcols.size match {
@@ -110,13 +93,24 @@ class GeoTiffDataSource extends DataSourceRegister
       case _ ⇒ ColorSpace.BlackIsZero
     }
 
-    val compress = parameters.get(GeoTiffDataSource.COMPRESS_PARAM).map(_.toBoolean).getOrElse(false)
-    val options = GeoTiffOptions(Tiled, if (compress) DeflateCompression else NoCompression, colorSpace)
-    val tags = Tags(
-      RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
-      tcols.map(c ⇒ Map("RF_COL" -> c.columnName)).toList
-    )
-    val geotiff = new MultibandGeoTiff(raster.tile, raster.extent, raster.crs, tags, options)
+    val tiffOptions = GeoTiffOptions(Tiled, if (compress) DeflateCompression else NoCompression, colorSpace)
+
+    val layer = if(data.isLayer) data.certify else createLayer(data, parameters, tcols)
+
+    val tlm = layer.tileLayerMetadata.merge
+    // If no desired image size is given, write at full size.
+    val cols = numParam(GeoTiffDataSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(tlm.gridBounds.width.toLong)
+    val rows = numParam(GeoTiffDataSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(tlm.gridBounds.height.toLong)
+
+    require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a GeoTIFF of size $cols x $rows. (Too big!)")
+
+    // Should we really play traffic cop here?
+    if(cols.toDouble * rows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
+      logger.warn(s"You've asked for the construction of a very large image ($cols x $rows), destined for ${pathO.get}. Out of memory error likely.")
+
+    val raster = layer.toMultibandRaster(tcols, cols.toInt, rows.toInt)
+
+    val geotiff = new MultibandGeoTiff(raster.tile, raster.extent, raster.crs, tags, tiffOptions)
 
     logger.debug(s"Writing DataFrame to GeoTIFF ($cols x $rows) at ${pathO.get}")
     geotiff.write(pathO.get.getPath)

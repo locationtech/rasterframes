@@ -219,7 +219,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
 
   /**
-   * Convert DataFrame into a RasterFrameLayer
+   * Convert DataFrame already in a uniform gridding into a RasterFrameLayer
    *
    * @param spatialKey The column where the spatial key is stored
    * @param tlm Metadata describing layout under which tiles were created. Note: no checking is
@@ -228,11 +228,12 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    * @return Encoded RasterFrameLayer
    */
   @throws[IllegalArgumentException]
+  private[rasterframes]
   def asLayer(spatialKey: Column, tlm: TileLayerMetadata[SpatialKey]): RasterFrameLayer =
     setSpatialColumnRole(spatialKey, tlm).asLayer
 
   /**
-   * Convert DataFrame into a RasterFrameLayer
+   * Convert DataFrame already in a uniform gridding into a RasterFrameLayer
    *
    * @param spatialKey The column where the spatial key is stored
    * @param temporalKey The column tagged under the temporal role
@@ -242,6 +243,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    * @return Encoded RasterFrameLayer
    */
   @throws[IllegalArgumentException]
+  private[rasterframes]
   def asLayer(spatialKey: Column, temporalKey: Column, tlm: TileLayerMetadata[SpaceTimeKey]): RasterFrameLayer =
     setSpatialColumnRole(spatialKey, tlm)
       .setTemporalColumnRole(temporalKey)

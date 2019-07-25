@@ -167,7 +167,7 @@ def _raster_reader(
         .load(path, **options)
 
 
-def _geotiff_writer(df_writer, format_key, path, **options):
+def _aliased_writer(df_writer, format_key, path, **options):
     """ Saves the dataframe to a file of the given type at the given path."""
     return df_writer.format(format_key).save(path=path, options=options)
 
@@ -186,5 +186,6 @@ DataFrame.raster_join = _raster_join
 DataFrameReader.raster = _raster_reader
 DataFrameReader.geojson = lambda df_reader, path: _aliased_reader(df_reader, "geojson", path)
 DataFrameReader.geotiff = lambda df_reader, path: _layer_reader(df_reader, "geotiff", path)
+DataFrameWriter.geotiff = lambda df_writer, path: _aliased_writer(df_writer, "geotiff", path)
 DataFrameReader.geotrellis = lambda df_reader, path: _layer_reader(df_reader, "geotrellis", path)
-DataFrameWriter.geotiff = lambda df_writer, path: _geotiff_writer(df_writer, "geotiff", path)
+DataFrameWriter.geotrellis = lambda df_writer, path: _aliased_writer(df_writer, "geotrellis", path)
