@@ -21,17 +21,23 @@
 
 package org.locationtech.rasterframes.datasource.geotiff
 
+import java.net.URI
+
+import _root_.geotrellis.proj4.CRS
 import _root_.geotrellis.raster.io.geotiff.compression._
 import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
 import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
+import _root_.geotrellis.raster._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.rf.TileUDT
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource._
-import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
+import org.locationtech.rasterframes.expressions.aggregates.{ProjectedLayerMetadataAggregate, TileRasterizerAggregate}
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
+import org.locationtech.rasterframes.model.{LazyCRS, TileDimensions}
 import org.locationtech.rasterframes.util._
 
 /**
@@ -41,17 +47,15 @@ import org.locationtech.rasterframes.util._
 class GeoTiffDataSource extends DataSourceRegister
   with RelationProvider with CreatableRelationProvider
   with DataSourceOptions with LazyLogging {
+  import GeoTiffDataSource._
+
   def shortName() = GeoTiffDataSource.SHORT_NAME
 
-  def path(parameters: Map[String, String]) =
-    uriParam(PATH_PARAM, parameters)
-
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
-    val pathO = path(parameters)
-    require(pathO.isDefined, "Valid URI 'path' parameter required.")
+    require(parameters.path.isDefined, "Valid URI 'path' parameter required.")
     sqlContext.withRasterFrames
 
-    val p = pathO.get
+    val p = parameters.path.get
 
     if(p.getPath.contains("*")) {
       val bandCount = parameters.get(GeoTiffDataSource.BAND_COUNT_PARAM).map(_.toInt).getOrElse(1)
@@ -60,61 +64,87 @@ class GeoTiffDataSource extends DataSourceRegister
     else GeoTiffRelation(sqlContext, p)
   }
 
-  def createLayer(df: DataFrame, parameters: Map[String, String], tileCols: Seq[Column]): RasterFrameLayer = {
-    require(tileCols.nonEmpty, "need at least one tile column")
-
-
-//    val prd = ProjectedRasterDefinition()
-//    val crsCol = col("crs")
-//    val extentCol = col("extent")
-//    df.agg(TileRasterizerAggregate(prd, crsCol, extentCol, tileCols.head))
-    ???
-  }
-
-  override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = {
-    val pathO = path(parameters)
-    require(pathO.isDefined, "Valid URI 'path' parameter required.")
-    require(pathO.get.getScheme == "file" || pathO.get.getScheme == null, "Currently only 'file://' destinations are supported")
+  override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], df: DataFrame): BaseRelation = {
+    require(parameters.path.isDefined, "Valid URI 'path' parameter required.")
+    val path = parameters.path.get
+    require(path.getScheme == "file" || path.getScheme == null,
+      "Currently only 'file://' destinations are supported")
     sqlContext.withRasterFrames
 
-    val compress = parameters.get(GeoTiffDataSource.COMPRESS_PARAM).exists(_.toBoolean)
-    val tcols = data.tileColumns
+    val tileCols = df.tileColumns
 
-    require(tcols.nonEmpty, "Could not find any tile columns.")
+    require(tileCols.nonEmpty, "Could not find any tile columns.")
+
+    val raster = if(df.isAlreadyLayer) {
+      val layer = df.certify
+      val tlm = layer.tileLayerMetadata.merge
+
+      // If no desired image size is given, write at full size.
+      val TileDimensions(cols, rows) =  parameters.rasterDimensions
+        .getOrElse {
+          val actualSize = tlm.layout.toRasterExtent().gridBoundsFor(tlm.extent)
+          TileDimensions(actualSize.width, actualSize.height)
+        }
+
+      // Should we really play traffic cop here?
+      if(cols.toDouble * rows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
+        logger.warn(s"You've asked for the construction of a very large image ($cols x $rows), destined for ${path}. Out of memory error likely.")
+
+      layer.toMultibandRaster(tileCols, cols.toInt, rows.toInt)
+    }
+    else {
+      require(parameters.crs.nonEmpty, "A destination CRS must be provided")
+      require(tileCols.nonEmpty, "need at least one tile column")
+
+      val destCRS = parameters.crs.get
+
+      val crsCols = df.crsColumns
+      require(crsCols.size == 1, "Exactly one CRS column must be in DataFrame")
+      val extentCols = df.extentColumns
+      require(extentCols.size == 1, "Exactly one Extent column must be in DataFrame")
+
+      val tlm = df
+        .select(ProjectedLayerMetadataAggregate(
+          destCRS, extentCols.head, crsCols.head, rf_cell_type(tileCols.head), rf_dimensions(tileCols.head)
+        ))
+        .first()
+
+      val config = ProjectedRasterDefinition(tlm)
+
+      val aggs = tileCols
+        .map(t => TileRasterizerAggregate(
+          config, crsCols.head, extentCols.head, rf_tile(t))("tile").as(t.columnName)
+        )
+
+      val agg = df.select(aggs: _*)
+
+      val row = agg.first()
+
+      val bands = for(i <- 0 until row.size) yield row.getAs[Tile](i)
+
+      ProjectedRaster(MultibandTile(bands), tlm.extent, tlm.crs)
+    }
 
     val tags = Tags(
       RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
-      tcols.map(c ⇒ Map("RF_COL" -> c.columnName)).toList
+      tileCols.map(c ⇒ Map("RF_COL" -> c.columnName)).toList
     )
 
     // We make some assumptions here.... eventually have column metadata encode this.
-    val colorSpace = tcols.size match {
+    val colorSpace = tileCols.size match {
       case 3 | 4 ⇒  ColorSpace.RGB
       case _ ⇒ ColorSpace.BlackIsZero
     }
 
-    val tiffOptions = GeoTiffOptions(Tiled, if (compress) DeflateCompression else NoCompression, colorSpace)
-
-    val layer = if(data.isLayer) data.certify else createLayer(data, parameters, tcols)
-
-    val tlm = layer.tileLayerMetadata.merge
-    // If no desired image size is given, write at full size.
-    val cols = numParam(GeoTiffDataSource.IMAGE_WIDTH_PARAM, parameters).getOrElse(tlm.gridBounds.width.toLong)
-    val rows = numParam(GeoTiffDataSource.IMAGE_HEIGHT_PARAM, parameters).getOrElse(tlm.gridBounds.height.toLong)
-
-    require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a GeoTIFF of size $cols x $rows. (Too big!)")
-
-    // Should we really play traffic cop here?
-    if(cols.toDouble * rows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
-      logger.warn(s"You've asked for the construction of a very large image ($cols x $rows), destined for ${pathO.get}. Out of memory error likely.")
-
-    val raster = layer.toMultibandRaster(tcols, cols.toInt, rows.toInt)
+    val tiffOptions = GeoTiffOptions(Tiled,
+      if (parameters.compress) DeflateCompression else NoCompression, colorSpace
+    )
 
     val geotiff = new MultibandGeoTiff(raster.tile, raster.extent, raster.crs, tags, tiffOptions)
 
-    logger.debug(s"Writing DataFrame to GeoTIFF ($cols x $rows) at ${pathO.get}")
-    geotiff.write(pathO.get.getPath)
-    GeoTiffRelation(sqlContext, pathO.get)
+    logger.debug(s"Writing DataFrame to GeoTIFF (${geotiff.cols} x ${geotiff.rows}) at ${path}")
+    geotiff.write(path.getPath)
+    GeoTiffRelation(sqlContext, path)
   }
 }
 
@@ -124,5 +154,22 @@ object GeoTiffDataSource {
   final val IMAGE_WIDTH_PARAM = "imageWidth"
   final val IMAGE_HEIGHT_PARAM = "imageWidth"
   final val COMPRESS_PARAM = "compress"
+  final val CRS_PARAM = "crs"
   final val BAND_COUNT_PARAM = "bandCount"
+
+  private[geotiff]
+  implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
+    def path: Option[URI] = uriParam(PATH_PARAM, parameters)
+    def compress: Boolean = parameters.get(COMPRESS_PARAM).exists(_.toBoolean)
+    def crs: Option[CRS] = parameters.get(CRS_PARAM).map(s => LazyCRS(s))
+    def rasterDimensions: Option[TileDimensions] = {
+      numParam(IMAGE_WIDTH_PARAM, parameters)
+        .zip(numParam(IMAGE_HEIGHT_PARAM, parameters))
+        .map { case (cols, rows) =>
+          require(cols <= Int.MaxValue && rows <= Int.MaxValue,
+            s"Can't construct a GeoTIFF of size $cols x $rows. (Too big!)")
+          TileDimensions(cols.toInt, rows.toInt)
+        }.headOption
+    }
+  }
 }

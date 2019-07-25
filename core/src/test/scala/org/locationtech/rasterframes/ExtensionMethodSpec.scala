@@ -55,6 +55,15 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
     }
   }
   describe("Miscellaneous extensions") {
+    import spark.implicits._
+    it("should find multiple extent columns") {
+      val df = Seq((extent, "fred", extent, 34.0)).toDF("e1", "s", "e2", "n")
+      df.extentColumns.size should be(2)
+    }
+    it("should find multiple crs columns") {
+      val df = Seq((pe.crs, "fred", pe.crs, 34.0)).toDF("c1", "s", "c2", "n")
+      df.crsColumns.size should be (2)
+    }
     it("should split TileLayout") {
       val tl1 = TileLayout(2, 3, 10, 10)
       assert(tl1.subdivide(0) === tl1)

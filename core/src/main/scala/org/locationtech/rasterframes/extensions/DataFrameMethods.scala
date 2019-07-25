@@ -21,20 +21,23 @@
 
 package org.locationtech.rasterframes.extensions
 
-import org.locationtech.rasterframes.StandardColumns._
-import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterFrameLayer
-import geotrellis.raster.Tile
+import geotrellis.proj4.CRS
+import geotrellis.raster.{MultibandTile, Tile}
 import geotrellis.spark.io._
 import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
+import geotrellis.vector.{Extent, ProjectedExtent}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
-import spray.json.JsonFormat
+import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
+import org.locationtech.rasterframes.StandardColumns._
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
-import org.locationtech.rasterframes.MetadataKeys
+import org.locationtech.rasterframes.util._
+import spray.json.JsonFormat
 
 import scala.util.Try
 
@@ -91,7 +94,19 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def tileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ self.col(f.name).as[Tile])
+      .map(f ⇒ self.col(f.name))
+
+  /** Get the columns that look like `Extent`s. */
+  def extentColumns: Seq[Column] =
+    self.schema.fields
+      .filter(_.dataType.conformsTo[Extent])
+      .map(f => self.col(f.name))
+
+  /** Get the columns that look like `CRS`s. */
+  def crsColumns: Seq[Column] =
+    self.schema.fields
+      .filter(_.dataType.conformsTo[CRS])
+      .map(f => self.col(f.name))
 
   /** Get the columns that are not of type `Tile` */
   def notTileColumns: Seq[Column] =
@@ -134,38 +149,6 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    */
   def withPrefixedColumnNames(prefix: String): DF =
     self.columns.foldLeft(self)((df, c) ⇒ df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
-
-  /** Converts this DataFrame to a RasterFrameLayer after ensuring it has:
-   *
-   * <ol type="a">
-   * <li>a space or space-time key column
-   * <li>one or more tile columns
-   * <li>tile layout metadata
-   * <ol>
-   *
-   * If any of the above are violated, and [[IllegalArgumentException]] is thrown.
-   *
-   * @return validated RasterFrameLayer
-   * @throws IllegalArgumentException when constraints are not met.
-   */
-  @throws[IllegalArgumentException]
-  def asLayer: RasterFrameLayer = {
-    val potentialRF = certifyRasterframe(self)
-
-    require(
-      potentialRF.findSpatialKeyField.nonEmpty,
-      "A RasterFrameLayer requires a column identified as a spatial key"
-    )
-
-    require(potentialRF.tileColumns.nonEmpty, "A RasterFrameLayer requires at least one tile column")
-
-    require(
-      Try(potentialRF.tileLayerMetadata).isSuccess,
-      "A RasterFrameLayer requires embedded TileLayerMetadata"
-    )
-
-    potentialRF
-  }
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -217,6 +200,42 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     */
   def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
     RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
+
+
+  /** Layout contents of RasterFrame to a layer. Assumes CRS and extent columns exist. */
+  def toLayer(tlm: TileLayerMetadata[SpatialKey]): RasterFrameLayer = ReprojectToLayer(self, tlm)
+
+  /** Coerces this DataFrame to a RasterFrameLayer after ensuring it has:
+    *
+    * <ol type="a">
+    * <li>a space or space-time key column
+    * <li>one or more tile columns
+    * <li>tile layout metadata
+    * <ol>
+    *
+    * If any of the above are violated, and [[IllegalArgumentException]] is thrown.
+    *
+    * @return validated RasterFrameLayer
+    * @throws IllegalArgumentException when constraints are not met.
+    */
+  @throws[IllegalArgumentException]
+  def asLayer: RasterFrameLayer = {
+    val potentialRF = certifyRasterframe(self)
+
+    require(
+      potentialRF.findSpatialKeyField.nonEmpty,
+      "A RasterFrameLayer requires a column identified as a spatial key"
+    )
+
+    require(potentialRF.tileColumns.nonEmpty, "A RasterFrameLayer requires at least one tile column")
+
+    require(
+      Try(potentialRF.tileLayerMetadata).isSuccess,
+      "A RasterFrameLayer requires embedded TileLayerMetadata"
+    )
+
+    potentialRF
+  }
 
   /**
    * Convert DataFrame already in a uniform gridding into a RasterFrameLayer
@@ -273,7 +292,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    *
    * @return true if all constraints are fulfilled, false otherwise.
    */
-  def isLayer: Boolean = Try(asLayer).isSuccess
+  def isAlreadyLayer: Boolean = Try(asLayer).isSuccess
 
   /** Internal method for slapping the RasterFreameLayer seal of approval on a DataFrame.
    * Only call if if you are sure it has a spatial key and tile columns and TileLayerMetadata. */

@@ -24,6 +24,7 @@ import java.net.URI
 
 import org.apache.spark.sql.{DataFrameReader, DataFrameWriter}
 import org.locationtech.rasterframes._
+import _root_.geotrellis.proj4.CRS
 import shapeless.tag.@@
 import shapeless.tag
 
@@ -64,6 +65,11 @@ package object geotiff {
       tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](
         writer
           .option(GeoTiffDataSource.COMPRESS_PARAM, true)
+      )
+    def withCRS(crs: CRS): GeoTiffRasterFrameWriter[T] =
+      tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](
+        writer
+          .option(GeoTiffDataSource.CRS_PARAM, crs.toProj4String)
       )
   }
 

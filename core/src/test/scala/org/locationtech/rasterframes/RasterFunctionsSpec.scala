@@ -33,7 +33,6 @@ import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import org.scalatest.{FunSpec, Matchers}
 
 class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
   import spark.implicits._
