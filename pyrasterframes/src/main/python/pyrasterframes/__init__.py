@@ -25,7 +25,7 @@ appended to PySpark classes.
 
 from __future__ import absolute_import
 from pyspark import SparkContext
-from pyspark.sql import SparkSession, DataFrame, DataFrameReader
+from pyspark.sql import SparkSession, DataFrame, DataFrameReader, DataFrameWriter
 from pyspark.sql.column import _to_java_column
 
 # Import RasterFrameLayer types and functions
@@ -150,6 +150,11 @@ def _raster_reader(
         .load(path, **options)
 
 
+def _geotiff_writer(df_writer, format_key, path, **options):
+    """ Saves the dataframe to a file of the given type at the given path."""
+    return df_writer.format(format_key).save(path=path, options=options)
+
+
 # Patch new method on SparkSession to mirror Scala approach
 SparkSession.withRasterFrames = _rf_init
 SparkSession.Builder.withKryoSerialization = _kryo_init
@@ -163,8 +168,6 @@ DataFrame.raster_join = _raster_join
 # Add DataSource convenience methods to the DataFrameReader
 DataFrameReader.raster = _raster_reader
 DataFrameReader.geojson = lambda df_reader, path: _aliased_reader(df_reader, "geojson", path)
-
-
-# Legacy readers
 DataFrameReader.geotiff = lambda df_reader, path: _layer_reader(df_reader, "geotiff", path)
 DataFrameReader.geotrellis = lambda df_reader, path: _layer_reader(df_reader, "geotrellis", path)
+DataFrameWriter.geotiff = lambda df_writer, path: _geotiff_writer(df_writer, "geotiff", path)

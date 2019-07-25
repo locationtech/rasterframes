@@ -781,6 +781,20 @@ class RasterSource(TestEnvironment):
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
 
+class GeoTiffWriter(TestEnvironment):
+    def test_identity_write(self):
+        import tempfile
+        import os
+
+        rf = self.spark.read.geotiff(self.img_uri)
+
+        dest = os.path.join(tempfile.tempdir, "pyrf-test.tif")
+        rf.write.geotiff(dest)
+
+        rf2 = self.spark.read.geotiff(dest)
+        self.assertEqual(rf2.count(), rf.count())
+
+
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
