@@ -33,7 +33,7 @@ display(tile) # IPython.display function
 
 Within an IPython or Jupyter interpreter a Pandas DataFrame containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of a Pandas DataFrame.
 
-In the example below, notice the result is limited to a small subset. For more discussion about why this is important, see the @ref:[Pandas and NumPy discussion](pandas-numpy.md).
+In the example below, notice the result is limited to a small subset. For more discussion about why this is important, see the @ref:[Pandas and NumPy discussion](numpy-pandas.md).
 
 ```python toPandas, evaluate=True
 import pyrasterframes.rf_ipython

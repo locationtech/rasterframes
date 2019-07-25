@@ -1,6 +1,6 @@
 # Supervised Machine Learning
 
-In this example we will demonstrate how to fit and score an unsupervised learning model with a sample of Sentinel-2 data and labels from the US [National Land Cover Dataset](https://www.mrlc.gov/) (NLCD).
+In this example we will demonstrate how to fit and score an unsupervised learning model with a sample of Sentinel-2 data and hand-drawn vector labels over different [land cover](https://en.wikipedia.org/wiki/Land_cover) types.
 
 ```python, setup, echo=False
 from IPython.core.display import display
@@ -16,19 +16,7 @@ spark = create_rf_spark_session()
 
 ## Create and Read Raster Catalog
 
-We import various Spark components that we need to construct our [Pipeline](https://spark.apache.org/docs/latest/ml-pipeline.html).
-
-```python, imports, echo=True
-from pyrasterframes import TileExploder
-from pyrasterframes.rf_types import NoDataFilter
-
-from pyspark.ml.feature import VectorAssembler
-from pyspark.ml.classification import DecisionTreeClassifier
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-from pyspark.ml import Pipeline
-```
-
-The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create @ref:[a catalog DataFrame](raster-catalogs.md#creating-a-catalog). In the catalog, each row represents a distinct area and time; and each column is the URI to a band's image product. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
+The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create @ref:[a catalog DataFrame](raster-catalogs.md#creating-a-catalog). In the catalog, each row represents a distinct area and time; and each column is the URI to a band's image product. In this example our catalog just has one row. After reading the catalog, the resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
 
 ```python, read_bands, term=True
 uri_base = 's3://s22s-test-geotiffs/luray_snp/{}.tif'
@@ -67,14 +55,16 @@ df.printSchema()
 
 ### Label Data
 
-[](https://github.com/locationtech/rasterframes/blob/develop/core/src/test/resources/L8-Labels-Elkton-VA.geojson)
+The land classification labels are based on a smalls set of hand drawn polygons in the geojson file [here](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/test/resources/luray-labels.geojson). The property `id` indicates the type of land cover in each area. For these integer values 1 is forest, 2 is cropland, 3 is developed areas.
+
+We will create a very small Spark DataFrame of the label shapes and then join it to the raster DataFrame. Such joins are typically expensive but in this case both datasets are quite small. After the raster and vector data are joined, we will convert the vector shapes into _tiles_ using the @ref:[`rf_rasterize`](reference.md#rf-rasterize) function. This procedure is sometimes called "burning in" a geometry into a raster. The values in the resulting _tiles_ are the `id` property of the geojson; which we will use as labels in our supervised learning task.
 
 ```python
 crses = df.select('crs.crsProj4').distinct().collect()
 print('Found ', len(crses), 'distinct CRS.')
 crs = crses[0][0]
 
-label_df = spark.read.geojson(os.path.join(resource_dir_uri(), "L8-Labels-Elkton-VA.geojson")) \
+label_df = spark.read.geojson(os.path.join(resource_dir_uri(), 'luray-labels.geojson')) \
 					 .select('id', st_reproject('geometry', 'EPSG:4326', crs).alias('geometry')) \
 					 .hint('broadcast')
 
@@ -87,11 +77,9 @@ FROM df_joined
 """)
 ```
 
-
-
 ## Masking NoData
 
-We will follow the same procedure as demonstrated in the @ref:[quality masking](nodata-handling.md#masking) section of the chapter on NoData. Instead of actually masking we will just sort on the mask cell values later in the process
+To filter only for good quality pixels, we follow the same procedure as demonstrated in the @ref:[quality masking](nodata-handling.md#masking) section of the chapter on NoData. Instead of actually masking we will just sort on the mask cell values later in the process.
 
 ```python make_mask
 from pyspark.sql.functions import lit
@@ -111,10 +99,23 @@ df_mask = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
 df_mask.printSchema()
 ```
 
-
 ## Create ML Pipeline
 
-The data preparation modeling pipeline is next. SparkML requires that each observation be in its own row, and those observations be packed into a single [`Vector`](https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#module-pyspark.ml.linalg) object. The first step is to "explode" the tiles into a single row per cell/pixel. Then we filter out any rows that have `NoData` values (which will cause an error during training). Finally we use the SparkML `VectorAssembler` to create that `Vector`. 
+We import various Spark components that we need to construct our [Pipeline](https://spark.apache.org/docs/latest/ml-pipeline.html). These are the objects that will work in sequence to conduct the data preparation and modeling.
+
+```python, imports, echo=True
+from pyrasterframes import TileExploder
+from pyrasterframes.rf_types import NoDataFilter
+
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.classification import DecisionTreeClassifier
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+from pyspark.ml import Pipeline
+```
+
+SparkML requires that each observation be in its own row, and those observations be packed into a single [`Vector`](https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#module-pyspark.ml.linalg) object. The first step is to "explode" the tiles into a single row per cell/pixel with the `TileExploder` (see also @ref:[`rf_explode_tiles`](reference.md#rf_explode_tiles)). Then we filter out any rows that have `NoData` values (which will cause an error during training). Finally we use the SparkML `VectorAssembler` to create that `Vector`. 
+
+It is worth discussing a couple of interesting things about the `NoDataFilter`. First we filter by the mask column. This achieves the filtering of observations only to the good pixels, without having to explicitly mask and assign NoData in all eleven columns of raster data. The other column specified is the `label` column. When it is time to score the model, the pipeline will ignore the fact that there is no `label` column on the input DataFrame.
 
 ```python, transformers
 exploder = TileExploder()
@@ -151,35 +152,38 @@ model = pipeline.fit(df_mask.filter(rf_tile_sum('label') > 0).cache())
 
 ## Model Evaluation
 
-To view the model's performance ....
+To view the model's performance, we first call the pipeline's `transform` method on the training dataset. This transformed dataset will have the model's prediction included in each row. We next construct an evaluator and pass it the transformed dataset to easily compute the performance metric. We could also use a variety of DataFrame or SQL transformations to compute our metric if we like.
 
 ```python eval
+prediction_df = model.transform(df_mask) \
+                       .drop(assembler.getOutputCol()).cache()
+prediction_df.printSchema()
+
 eval = MulticlassClassificationEvaluator(predictionCol=classifier.getPredictionCol(),
 										 labelCol=classifier.getLabelCol(),
 										 metricName='accuracy',
 )
 
-prediction_df = model.transform(df_mask) \
-                       .drop(assembler.getOutputCol()).cache()
 accuracy = eval.evaluate(prediction_df)
-accuracy
+print("\nAccuracy:", accuracy)
 ```
 
-
-We can take a quick look at the resulting confusion matrix. 
+As an example of using the flexibility provided by DataFrames, the code below computes and displays the confusion matrix. 
 
 ```python confusion_mtrx
 prediction_df.groupBy(classifier.getPredictionCol()) \
     .pivot(classifier.getLabelCol()) \
-    .count().show(20, False)
+    .count() \
+	.sort(classifier.getPredictionCol()).show(20, False)
 ```
 
 ## Visualize Prediction
 
-We can recreate the tiled data structure using the metadata added by the `TileExploder` pipeline stage.
+Because the pipeline included a `TileExploder`, we will recreate the tiled data structure. The explosion transformation includes metadata enabling us to recreate the _tiles_. See the @ref:[`rf_assemble_tile`](reference.md#rf-assemble-tile) function documentation for more details. In this case, the pipeline is scoring on all areas, regardless of whether they intersect the label polygons. This is simply done by removing the `label` column, as @ref:[discussed above](supervised-learning.md#create-ml-pipeline). 
 
 ```python assemble_prediction
-model.transform(df_mask.drop('label')).createOrReplaceTempView('scored')
+scored = model.transform(df_mask.drop('label')).createOrReplaceTempView('scored')
+
 retiled = spark.sql("""
 SELECT extent, crs, rf_assemble_tile(column_index, row_index, prediction, 128, 128) as prediction
 FROM scored
@@ -189,9 +193,13 @@ GROUP BY extent, crs
 retiled.printSchema()
 ```
 
-Take a look at a sample of the resulting output.
+Take a look at a sample of the resulting output. Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow). 
 
 ```python display_prediction
-display(retiled.select('prediction').first()['prediction'])
+display(
+  retiled.select('prediction') \
+    .sort(-rf_tile_sum(rf_local_equal('prediction', lit(3.0)))) \
+    .first()['prediction']
+)
 ```
 
