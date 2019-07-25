@@ -40,7 +40,9 @@ In this code block we are using the @ref:[`rf_agg_mean`](reference.md#rf-agg-mea
 rf.agg(rf_agg_mean(F.col('tile'))).show(10, False)
 ```
 
-In this code block we are using the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function to compute the element-wise local aggregate mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`. To compute an element-wise local aggregate, tiles need have the same dimensions as in the example below where both tiles have 5 rows and 5 columns. If we tried to compute a local aggregate over the DataFrame without equal tile dimensions, we would get a runtime error.
+In this code block we are using the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function to compute the element-wise local aggregate mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
+
+To compute an element-wise local aggregate, tiles need have the same dimensions as in the example below where both tiles have 5 rows and 5 columns. If we tried to compute an element-wise local aggregate over the DataFrame without equal tile dimensions, we would get a runtime error.
 
 ```python
 rf.agg(rf_agg_local_mean(F.col('tile')).alias("local_mean")).select(rf_render_matrix("local_mean")).show(10, False)
@@ -48,7 +50,7 @@ rf.agg(rf_agg_local_mean(F.col('tile')).alias("local_mean")).select(rf_render_ma
 
 ## Cell Counts Example
 
-We can also count the total number of data and NoData cells over all the tiles in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are 3,842,290 data cells and 19,417,342 NoData cells in this DataFrame. See section on @ref:["NoData" handling](nodata-handling.md) for additional discussion on handling missing data.
+We can also count the total number of data and NoData cells over all the tiles in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are 3,842,290 data cells and 1,941,734 NoData cells in this DataFrame. See section on @ref:["NoData" handling](nodata-handling.md) for additional discussion on handling missing data.
 
 ```python
 rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
@@ -77,7 +79,7 @@ The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over al
 rf.agg(rf_agg_stats('proj_raster').alias('stats')).select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').show(10, False)
 ```
 
-The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below.
+The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks, has unequal tile dimensions, so a different DataFrame is used in this code block to avoid a runtime error.
 
 ```python
 rf = spark.sql("""
@@ -93,7 +95,7 @@ rf.select(rf_render_matrix('stats.min'), rf_render_matrix('stats.max'), rf_rende
 
 ## Histogram
 
-The @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function computes a count of cell values within each row of tile and outputs a `bins` array with the below schema. In the graph below, we have plotted values on the x-axis and counts on the y-axis to create the histogram. There are 100 rows of `tile` in this DataFrame, but this histogram was just computed for the `tile` in the first row.
+The @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function computes a count of cell values within each row of tile and outputs a `bins` array with the schema below. In the graph below, we have plotted `value` on the x-axis and `count` on the y-axis to create the histogram. There are 100 rows of `tile` in this DataFrame, but this histogram was just computed for the `tile` in the first row.
 
 ```python
 import matplotlib.pyplot as plt
@@ -111,7 +113,7 @@ plt.bar(values, counts)
 plt.show()
 ```
 
-The @ref:[`rf_agg_approx_histogram`](reference.md#rf-agg-approx-histogram) function computes a count of cell values across all of the rows of `tile` in a DataFrame or group. The histogram is shown below. The range of the y-axis is significantly wider than the range of the y-axis on the previous histogram since this computation is across all cell values in the DataFrame.
+The @ref:[`rf_agg_approx_histogram`](reference.md#rf-agg-approx-histogram) function computes a count of cell values across all of the rows of `tile` in a DataFrame or group. In the example below, the range of the y-axis is significantly wider than the range of the y-axis on the previous histogram since this histogram was computed for all cell values in the DataFrame.
 
 ```python
 bins_list = rf.agg(rf_agg_approx_histogram('proj_raster').alias('tile_histogram')).select('tile_histogram.bins').collect()
