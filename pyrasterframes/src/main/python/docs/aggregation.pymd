@@ -14,7 +14,7 @@ There are 3 types of aggregate functions: tile aggregate, DataFrame aggregate, a
 
 ## Tile Mean Example
 
-We can illustrate these differences in computing an aggregate mean. First, we create a sample DataFrame of 2 tiles where the first tile is composed of 25 values of 1.0 and the second tile is composed of 25 values of 3.0. In this first code block we are using the @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) function to compute the tile aggregate mean of cells in each row of column `tile`. The mean of each tile is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.
+We can illustrate these differences in computing an aggregate mean. First, we create a sample DataFrame of 2 tiles where the first tile is composed of 25 values of 1.0 and the second tile is composed of 25 values of 3.0.
 
 ```python
 import pyspark.sql.functions as F
@@ -22,32 +22,36 @@ import pyspark.sql.functions as F
 rf = spark.sql("""
 SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as tile
 UNION
-SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3.0) as tile
+SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as tile
 """)
 
-rf.show(10, False)
+rf.select("id", rf_render_matrix("tile")).show(10, False)
+```
 
+In this code block we are using the @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) function to compute the tile aggregate mean of cells in each row of column `tile`. The mean of each tile is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.
+
+```python
 rf.select(F.col('id'), rf_tile_mean(F.col('tile'))).show(10, False)
 ```
 
-In the next code block we are using @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
+In this code block we are using the @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) function to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
 
 ```python
 rf.agg(rf_agg_mean(F.col('tile'))).show(10, False)
 ```
 
-In the third code block we are using @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) to compute the element-wise local aggregate mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
+In this code block we are using the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function to compute the element-wise local aggregate mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`. To compute an element-wise local aggregate, tiles need have the same dimensions as in the example below where both tiles have 5 rows and 5 columns. If we tried to compute a local aggregate over the DataFrame without equal tile dimensions, we would get a runtime error.
 
 ```python
-rf.agg(rf_agg_local_mean(F.col('tile'))).show(10, False)
+rf.agg(rf_agg_local_mean(F.col('tile')).alias("local_mean")).select(rf_render_matrix("local_mean")).show(10, False)
 ```
 
 ## Cell Counts Example
 
-We can also count the total number of data and NoData cells over all the tiles in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are 313 data cells and 5,788,522 NoData cells in this DataFrame. See section on @ref:["NoData" handling](nodata-handling.md) for additional discussion on handling missing data.
+We can also count the total number of data and NoData cells over all the tiles in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are 3,842,290 data cells and 19,417,342 NoData cells in this DataFrame. See section on @ref:["NoData" handling](nodata-handling.md) for additional discussion on handling missing data.
 
 ```python
-rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/06/11/2007247/MCD43A4.A2007247.h06v11.006.2016118065909_B02.TIF')
+rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
 stats = rf.agg(rf_agg_data_cells('proj_raster'), rf_agg_no_data_cells('proj_raster'))
 
 stats.show(5, False)
@@ -64,23 +68,56 @@ rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B0
 stats = rf.select(rf_tile_stats('proj_raster').alias('stats'))
 
 stats.printSchema()
-stats.select("stats.min", "stats.max", "stats.mean", "stats.variance").show(10, False)
+stats.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').show(10, False)
 ```
 
 The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over all of the tiles in a DataFrame and returns a statistical summary of all cell values as shown below.
 
 ```python
-rf.agg(rf_agg_stats('proj_raster').alias('stats')).select("stats.min", "stats.max", "stats.mean", "stats.variance").show(10, False)
+rf.agg(rf_agg_stats('proj_raster').alias('stats')).select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').show(10, False)
 ```
 
 The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below.
 
 ```python
-rf.agg(rf_agg_local_stats('proj_raster').alias('stats')).select("stats.min", "stats.max", "stats.mean", "stats.variance").show(10, False)
+rf = spark.sql("""
+SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as tile
+UNION
+SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as tile
+UNION
+SELECT 3 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 5) as tile
+""").agg(rf_agg_local_stats('tile').alias('stats'))
+
+rf.select(rf_render_matrix('stats.min'), rf_render_matrix('stats.max'), rf_render_matrix('stats.mean'), rf_render_matrix('stats.variance')).show(10, False)
 ```
 
 ## Histogram
 
+The @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function computes a count of cell values within each row of tile and outputs a `bins` array with the below schema. In the graph below, we have plotted values on the x-axis and counts on the y-axis to create the histogram. There are 100 rows of `tile` in this DataFrame, but this histogram was just computed for the `tile` in the first row.
+
 ```python
-rf.agg(rf_tile_histogram('proj_raster').alias('tile_histogram')).select("tile_histogram.bins").collect()
+import matplotlib.pyplot as plt
+
+rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
+
+hist_df = rf.select(rf_tile_histogram('proj_raster').alias('tile_histogram')).select('tile_histogram.bins')
+hist_df.printSchema()
+
+bins_list = hist_df.collect()
+values = [int(row['value']) for row in bins_list[0].bins]
+counts = [int(row['count']) for row in bins_list[0].bins]
+
+plt.bar(values, counts)
+plt.show()
+```
+
+The @ref:[`rf_agg_approx_histogram`](reference.md#rf-agg-approx-histogram) function computes a count of cell values across all of the rows of `tile` in a DataFrame or group. The histogram is shown below. The range of the y-axis is significantly wider than the range of the y-axis on the previous histogram since this computation is across all cell values in the DataFrame.
+
+```python
+bins_list = rf.agg(rf_agg_approx_histogram('proj_raster').alias('tile_histogram')).select('tile_histogram.bins').collect()
+values = [int(row['value']) for row in bins_list[0].bins]
+counts = [int(row['count']) for row in bins_list[0].bins]
+
+plt.bar(values, counts, width=10)
+plt.show()
 ```
