@@ -518,7 +518,7 @@ Aggregates over the `tile` and returns statistical summaries of cell values: num
     Struct[Array[Struct[Double, Long]]] rf_agg_approx_histogram(Tile tile)
 
 
-Aggregates over the `tile` return a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function which operates on a single row at a time.
+Aggregates over all of the rows in DataFrame of `tile` and returns a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function which operates on a single row at a time.
 
 
 ## Tile Local Aggregate Statistics
