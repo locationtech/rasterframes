@@ -76,7 +76,9 @@ stats.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').show(10, 
 The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over all of the tiles in a DataFrame and returns a statistical summary of all cell values as shown below.
 
 ```python
-rf.agg(rf_agg_stats('proj_raster').alias('stats')).select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').show(10, False)
+rf.agg(rf_agg_stats('proj_raster').alias('stats')) \
+    .select('stats.min', 'stats.max', 'stats.mean', 'stats.variance') \
+    .show(10, False)
 ```
 
 The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks, has unequal tile dimensions, so a different DataFrame is used in this code block to avoid a runtime error.
@@ -85,41 +87,47 @@ The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function comput
 rf = spark.sql("""
 SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as tile
 UNION
-SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as tile
+SELECT 2 as id, rf_make_constant_tile(3, 5, 5, 'float32') as tile
 UNION
-SELECT 3 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 5) as tile
+SELECT 3 as id, rf_make_constant_tile(5, 5, 5, 'float32') as tile
 """).agg(rf_agg_local_stats('tile').alias('stats'))
 
-rf.select(rf_render_matrix('stats.min'), rf_render_matrix('stats.max'), rf_render_matrix('stats.mean'), rf_render_matrix('stats.variance')).show(10, False)
+agg_local_stats = rf.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').collect()
+
+for r in agg_local_stats:
+    for stat in r.asDict():
+        print(stat, ':\n', r[stat], '\n')
 ```
 
 ## Histogram
 
-The @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function computes a count of cell values within each row of tile and outputs a `bins` array with the schema below. In the graph below, we have plotted `value` on the x-axis and `count` on the y-axis to create the histogram. There are 100 rows of `tile` in this DataFrame, but this histogram was just computed for the `tile` in the first row.
+The @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function computes a count of cell values within each row of tile and outputs a `bins` array with the schema below. In the graph below, we have plotted `value` on the x-axis and `count` on the y-axis to create the histogram. There are 100 rows of `tile` in this DataFrame, but this histogram is just computed for the `tile` in the first row.
 
 ```python
 import matplotlib.pyplot as plt
 
 rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
 
-hist_df = rf.select(rf_tile_histogram('proj_raster').alias('tile_histogram')).select('tile_histogram.bins')
+hist_df = rf.select(rf_tile_histogram('proj_raster')['bins'].alias('bins'))
 hist_df.printSchema()
 
-bins_list = hist_df.collect()
-values = [int(row['value']) for row in bins_list[0].bins]
-counts = [int(row['count']) for row in bins_list[0].bins]
+bins_row = hist_df.first()
+values = [int(row['value']) for row in bins_row.bins]
+counts = [int(row['count']) for row in bins_row.bins]
 
-plt.bar(values, counts)
+plt.hist(values, weights=counts, bins=100)
 plt.show()
 ```
 
 The @ref:[`rf_agg_approx_histogram`](reference.md#rf-agg-approx-histogram) function computes a count of cell values across all of the rows of `tile` in a DataFrame or group. In the example below, the range of the y-axis is significantly wider than the range of the y-axis on the previous histogram since this histogram was computed for all cell values in the DataFrame.
 
 ```python
-bins_list = rf.agg(rf_agg_approx_histogram('proj_raster').alias('tile_histogram')).select('tile_histogram.bins').collect()
+bins_list = rf.agg(
+    rf_agg_approx_histogram('proj_raster')['bins'].alias('bins')
+    ).collect()
 values = [int(row['value']) for row in bins_list[0].bins]
 counts = [int(row['count']) for row in bins_list[0].bins]
 
-plt.bar(values, counts, width=10)
+plt.hist(values, weights=counts, bins=100)
 plt.show()
 ```
