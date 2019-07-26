@@ -1,6 +1,6 @@
 # Writing Raster Data
 
-RasterFrames is oriented toward large scale analyses of spatial data. The primary output for most use cases may be a @ref:[statistical summary](aggregation.md), a @ref:[machine learning model](spark-ml.md), or some other result that is generally much smaller than the input data set. 
+RasterFrames is oriented toward large scale analyses of spatial data. The primary output for most use cases may be a @ref:[statistical summary](aggregation.md), a @ref:[machine learning model](machine-learning.md), or some other result that is generally much smaller than the input data set. 
 
 However there are times in any analysis where writing a representative sample of the work in progress provides invaluable feedback on the process and results.
 
