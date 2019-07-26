@@ -43,7 +43,7 @@ def tile_to_png(tile):
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
 
-    axis.set_title('{}, {})'.format(tile.dimensions(), tile.cell_type.__repr__()))  # compact metadata as title
+    axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()))  # compact metadata as title
 
     with io.BytesIO() as output:
         canvas.print_png(output)
