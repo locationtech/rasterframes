@@ -6,7 +6,10 @@ The following sections provide some examples on how to integrate these workflows
 
 @@@ index
 
-* @ref:[Unsupervised Machine Learning](unsupervised-learning.md)
-* @ref:[Supervised Machine Learning](supervised-learning.md)
+* [Unsupervised Machine Learning](unsupervised-learning.md)
+* [Supervised Machine Learning](supervised-learning.md)
 
 @@@
+
+
+@@toc { depth=2 }
