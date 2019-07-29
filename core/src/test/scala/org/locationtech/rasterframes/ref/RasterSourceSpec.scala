@@ -21,6 +21,8 @@
 
 package org.locationtech.rasterframes.ref
 
+import java.net.URI
+
 import org.locationtech.rasterframes.TestData
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
@@ -124,6 +126,15 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         gdal.cellSize should be(jvm.cellSize)
         gdal.layoutBounds(dims) should contain allElementsOf jvm.layoutBounds(dims)
         gdal.layoutExtents(dims) should contain allElementsOf jvm.layoutExtents(dims)
+      }
+
+
+      it("should support vsi file paths") {
+        val archivePath = geotiffDir.resolve("L8-archive.zip")
+        val archiveURI = URI.create("gdal://vsizip/" + archivePath.toString + "/L8-RGB-VA.tiff")
+        val gdal = GDALRasterSource(archiveURI)
+
+        gdal.bandCount should be (3)
       }
     }
   }
