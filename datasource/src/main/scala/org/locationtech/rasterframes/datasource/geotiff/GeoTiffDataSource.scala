@@ -98,22 +98,35 @@ class GeoTiffDataSource extends DataSourceRegister
 
       val destCRS = parameters.crs.get
 
-      val crsCols = df.crsColumns
-      require(crsCols.size == 1, "Exactly one CRS column must be in DataFrame")
-      val extentCols = df.extentColumns
-      require(extentCols.size == 1, "Exactly one Extent column must be in DataFrame")
+      val (extCol, crsCol) = {
+        val prCols = df.projRasterColumns
+        if(prCols.nonEmpty) {
+          (rf_extent(prCols.head), rf_crs(prCols.head))
+        }
+        else {
+          val crsCols = df.crsColumns
+          require(crsCols.size == 1, "Exactly one CRS column must be in DataFrame")
+          val extentCols = df.extentColumns
+          require(extentCols.size == 1, "Exactly one Extent column must be in DataFrame")
+          (extentCols.head, crsCols.head)
+        }
+      }
 
       val tlm = df
         .select(ProjectedLayerMetadataAggregate(
-          destCRS, extentCols.head, crsCols.head, rf_cell_type(tileCols.head), rf_dimensions(tileCols.head)
+          destCRS, extCol, crsCol, rf_cell_type(tileCols.head), rf_dimensions(tileCols.head)
         ))
         .first()
 
-      val config = ProjectedRasterDefinition(tlm)
+      val c = ProjectedRasterDefinition(tlm)
+
+      val config = parameters.rasterDimensions.map { dims =>
+        c.copy(cols = dims.cols, rows = dims.rows)
+      }.getOrElse(c)
 
       val aggs = tileCols
         .map(t => TileRasterizerAggregate(
-          config, crsCols.head, extentCols.head, rf_tile(t))("tile").as(t.columnName)
+          config, crsCol, extCol, rf_tile(t))("tile").as(t.columnName)
         )
 
       val agg = df.select(aggs: _*)
@@ -152,7 +165,7 @@ object GeoTiffDataSource {
   final val SHORT_NAME = "geotiff"
   final val PATH_PARAM = "path"
   final val IMAGE_WIDTH_PARAM = "imageWidth"
-  final val IMAGE_HEIGHT_PARAM = "imageWidth"
+  final val IMAGE_HEIGHT_PARAM = "imageHeight"
   final val COMPRESS_PARAM = "compress"
   final val CRS_PARAM = "crs"
   final val BAND_COUNT_PARAM = "bandCount"

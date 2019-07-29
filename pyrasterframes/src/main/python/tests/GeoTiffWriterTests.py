@@ -22,6 +22,7 @@ import os
 import tempfile
 
 from . import TestEnvironment
+import rasterio
 
 
 class GeoTiffWriter(TestEnvironment):
@@ -43,11 +44,20 @@ class GeoTiffWriter(TestEnvironment):
 
     def test_unstructured_write(self):
         rf = self.spark.read.raster(self.img_uri)
-
         dest = self._tmpfile()
-        rf.write.geotiff(dest)
+        rf.write.geotiff(dest, crs='EPSG:32616')
 
         rf2 = self.spark.read.raster(dest)
         self.assertEqual(rf2.count(), rf.count())
+
+        os.remove(dest)
+
+    def test_downsampled_write(self):
+        rf = self.spark.read.raster(self.img_uri)
+        dest = self._tmpfile()
+        rf.write.geotiff(dest, crs='EPSG:32616', raster_dimensions=(128, 128))
+
+        with rasterio.open(dest) as f:
+            self.assertEqual((f.width, f.height), (128, 128))
 
         os.remove(dest)

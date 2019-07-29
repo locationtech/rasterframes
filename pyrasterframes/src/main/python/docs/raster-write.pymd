@@ -18,8 +18,10 @@ When collecting a _tile_ (see discussion of the RasterFrame @ref:[schema](raster
 In an IPython or Jupyter interpreter a `Tile` object will be displayed as an image with limited metadata.
 
 ```python tile_sample
-raster_url = 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/' \
-             'MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF'
+def scene(band): 
+    return 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/' \
+             'MCD43A4.A2019059.h11v08.006.2019072203257_B{}.TIF'.format(band)
+raster_url = scene('02')
 spark_df = spark.read.raster(raster_url)
 tile = spark_df.select(rf_tile('proj_raster').alias('tile')).first()['tile']
 tile
@@ -35,7 +37,7 @@ Within an IPython or Jupyter interpreter a Pandas DataFrame containing a column 
 
 In the example below, notice the result is limited to a small subset. For more discussion about why this is important, see the @ref:[Pandas and NumPy discussion](numpy-pandas.md).
 
-```python toPandas, evaluate=True
+```python to_pandas, evaluate=True
 import pyrasterframes.rf_ipython
 
 pandas_df = spark.read.raster(raster_url, tile_dimensions=(64, 64)) \
@@ -48,21 +50,47 @@ pandas_df.dtypes
 
 Viewing the DataFrame in Jupyter looks like this. 
 
-```python, evaluate=False
+```python show_pandas, evaluate=False
 pandas_df
 ```
 
 @@include[df-samples-output.md](static/df-samples-output.md)
 
-## PNG Overviews
-
-It is oftentimes convenient to have a simple overview image of the data, particularly if it spans a very wide area.
 
 ## GeoTIFFs
 
-GeoTIFF is one of the most common file formats for spatial data. 
+GeoTIFF is one of the most common file formats for spatial data, providing flexibility in data encoding, representation, and storage. RasterFrames provides a specialized Spark DataFrame writer for rendering a RasterFrame to a GeoTiff.
 
-\[ See issue https://s22s.myjetbrains.com/youtrack/issue/RF-71 \]
+One downside to GeoTIFF is that it is not a big data native format. To create a GeoTIFF all the data to be encoded has to be in the memory of one compute node (in Spark parlance, this is a "collect"), limiting it's maximum size substantially compared to that of a full cluster environment. When rendering GeoTIFFs in RasterFrames, you either need to specify the dimensions of the output raster, or be aware of how big the collected data will end up being.
+
+Fortunately, we can use the cluster computing capability to downlample the data into a more manageble saze. For sake of example, let's render a simple RGB overview image of our scene as a small raster:
+
+```python write_geotiff
+import os.path
+from docs import docs_dir
+cat = """  
+red,green,blue
+{},{},{}
+""".format(scene('01'), scene('04'), scene('03'))
+outfile = os.path.join(docs_dir(), 'geotiff-overview.tif')
+rf = spark.read.raster(catalog=cat, catalog_col_names=['red', 'green', 'blue'])
+rf.write.geotiff(outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
+```
+
+Wiew it with `rasterio` to check the results:
+
+```python view_geotiff
+import rasterio
+import numpy as np
+from rasterio.plot import show, show_hist
+ 
+with rasterio.open(outfile) as src:
+    cells = np.clip(src.read(), 0, 1800).astype('float32')
+    show(cells)
+    show_hist(src, bins=50, lw=0.0, stacked=False, alpha=0.3,
+        histtype='stepfilled', title="Overview Histogram")
+```
+
 
 ## GeoTrellis Layers
 
@@ -75,7 +103,7 @@ GeoTIFF is one of the most common file formats for spatial data.
 
 You can write the Spark DataFrame to an [Apache Parquet][Parquet] "file". This format is designed to work across different projects in the Hadoop ecosystem. It also provides a variety of optimizations for query against data written in the format. 
 
-```python, evaluate=False
+```python write_parquet, evaluate=False
 spark_df.withColumn('exp', rf_expm1('proj_raster')) \
     .write.mode('append').parquet('hdfs:///rf-user/sample.pq')
 ```

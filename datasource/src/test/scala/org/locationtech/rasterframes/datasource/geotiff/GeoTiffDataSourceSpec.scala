@@ -22,7 +22,7 @@ package org.locationtech.rasterframes.datasource.geotiff
 
 import java.nio.file.Paths
 
-import geotrellis.proj4.LatLng
+import geotrellis.proj4._
 import org.locationtech.rasterframes._
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestEnvironment
@@ -105,14 +105,52 @@ class GeoTiffDataSourceSpec
       import org.locationtech.rasterframes.datasource.raster._
       val pr = col("proj_raster_b0")
       val rf = spark.read.raster.withBandIndexes(0, 1, 2).load(rgbCogSamplePath.toASCIIString)
-        .withColumn("extent", rf_extent(pr))
-        .withColumn("crs", rf_crs(pr))
 
       val out = Paths.get("target", "example2-geotiff.tif")
       logger.info(s"Writing to $out")
-      noException shouldBe thrownBy {
-        rf.write.geotiff.withCRS(LatLng).save(out.toString)
+
+      withClue("explicit extent/crs") {
+        noException shouldBe thrownBy {
+          rf
+            .withColumn("extent", rf_extent(pr))
+            .withColumn("crs", rf_crs(pr))
+            .write.geotiff.withCRS(LatLng).save(out.toString)
+        }
       }
+
+      withClue("without explicit extent/crs") {
+        noException shouldBe thrownBy {
+          rf
+            .write.geotiff.withCRS(LatLng).save(out.toString)
+        }
+      }
+      withClue("with downsampling") {
+        noException shouldBe thrownBy {
+          rf
+            .write.geotiff
+            .withCRS(LatLng)
+            .withDimensions(128, 128)
+            .save(out.toString)
+        }
+      }
+    }
+
+    def s(band: Int): String =
+      s"https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/" +
+        s"MCD43A4.A2019059.h11v08.006.2019072203257_B0${band}.TIF"
+
+    it("shoud write multiband") {
+      import org.locationtech.rasterframes.datasource.raster._
+
+      val cat = s"""
+red,green,blue
+${s(1)},${s(4)},${s(3)}
+"""
+      val scene = spark.read.raster.fromCSV(cat, "red", "green", "blue").load()
+      scene.write.geotiff
+        .withCRS(LatLng)
+        .withDimensions(256, 256)
+        .save("geotiff-overview.tif")
 
     }
   }

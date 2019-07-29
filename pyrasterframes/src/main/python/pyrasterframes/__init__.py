@@ -102,6 +102,12 @@ def _aliased_reader(df_reader, format_key, path, **options):
     """ Loads the file of the given type at the given path."""
     return df_reader.format(format_key).load(path, **options)
 
+
+def _aliased_writer(df_writer, format_key, path, **options):
+    """ Saves the dataframe to a file of the given type at the given path."""
+    return df_writer.format(format_key).save(path, **options)
+
+
 def _raster_reader(
         df_reader,
         path=None,
@@ -167,10 +173,32 @@ def _raster_reader(
         .load(path, **options)
 
 
-def _aliased_writer(df_writer, format_key, path, **options):
-    """ Saves the dataframe to a file of the given type at the given path."""
-    return df_writer.format(format_key).save(path=path, options=options)
+def _geotiff_writer(
+    df_writer,
+    path=None,
+    crs=None,
+    raster_dimensions=None,
+    **options):
 
+    if raster_dimensions is not None:
+        if isinstance(raster_dimensions, tuple):
+            options.update({
+                "imageWidth": raster_dimensions[0],
+                "imageHeight": raster_dimensions[1]
+            })
+        elif isinstance(raster_dimensions, str):
+            parts = raster_dimensions.split(',')
+            options.update({
+                "imageWidth": parts[0],
+                "imageHeight": parts[1]
+            })
+
+    if crs is not None:
+        options.update({
+            "crs": crs
+        })
+
+    return _aliased_writer(df_writer, "geotiff", path, **options)
 
 # Patch new method on SparkSession to mirror Scala approach
 SparkSession.withRasterFrames = _rf_init
@@ -186,6 +214,6 @@ DataFrame.raster_join = _raster_join
 DataFrameReader.raster = _raster_reader
 DataFrameReader.geojson = lambda df_reader, path: _aliased_reader(df_reader, "geojson", path)
 DataFrameReader.geotiff = lambda df_reader, path: _layer_reader(df_reader, "geotiff", path)
-DataFrameWriter.geotiff = lambda df_writer, path: _aliased_writer(df_writer, "geotiff", path)
+DataFrameWriter.geotiff = _geotiff_writer
 DataFrameReader.geotrellis = lambda df_reader, path: _layer_reader(df_reader, "geotrellis", path)
 DataFrameWriter.geotrellis = lambda df_writer, path: _aliased_writer(df_writer, "geotrellis", path)

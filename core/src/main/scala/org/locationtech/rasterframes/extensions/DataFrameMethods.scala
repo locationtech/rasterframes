@@ -36,6 +36,7 @@ import org.locationtech.rasterframes.StandardColumns._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import spray.json.JsonFormat
 
@@ -95,6 +96,12 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     self.schema.fields
       .filter(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
       .map(f ⇒ self.col(f.name))
+
+  /** Get the columns that look like `ProjectedRasterTile`s. */
+  def projRasterColumns: Seq[Column] =
+    self.schema.fields
+      .filter(_.dataType.conformsTo[ProjectedRasterTile])
+      .map(f => self.col(f.name))
 
   /** Get the columns that look like `Extent`s. */
   def extentColumns: Seq[Column] =
