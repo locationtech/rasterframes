@@ -200,7 +200,7 @@ SELECT extent, crs,
     rf_assemble_tile(column_index, row_index, prediction, 128, 128) as prediction,
     rf_assemble_tile(column_index, row_index, B04, 128, 128) as red,
     rf_assemble_tile(column_index, row_index, B03, 128, 128) as grn, 
-    rf_assemble_tile(column_index, row_index, B02, 128, 128) as blu,
+    rf_assemble_tile(column_index, row_index, B02, 128, 128) as blu
 FROM scored
 GROUP BY extent, crs
 """)
@@ -221,7 +221,8 @@ red = sample['red'].cells
 grn = sample['grn'].cells
 blu = sample['blu'].cells
 sample_rgb = np.concatenate([red[ :, :, None], grn[:, :, None] , blu[ :, :, None]], axis=2)
-np.imshow(sample_rgb)
+mins = np.nanmin(sample_rgb, axis=(0,1))
+plt.imshow((sample_rgb -  mins)/ (np.nanmax(sample_rgb, axis=(0,1)) - mins))
 ```
 
 Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow). 
