@@ -714,7 +714,7 @@ class RasterSource(TestEnvironment):
         # again for strict
         df_strict = self.spark.read.raster(self.img_uri, lazy_tiles=False)
         show_str_strict = df_strict.select('proj_raster')._jdf.showString(1, -1, False)
-        self.assertTrue('RasterRef' not in show_str_lazy)
+        self.assertTrue('RasterRef' not in show_str_strict)
 
 
     def test_prt_functions(self):
