@@ -1,4 +1,4 @@
-# NumPy and Pandas Interoperabilty
+# NumPy and Pandas
 
 In the Python Spark API, the work of distributed computing over the DataFrame is done on many executors (the Spark term for workers) inside Java virual machines (JVM). Most calls to `pyspark` are passed to a Java process via the `py4j` library. The user can also ask for data inside the JVM to be brought over to the Python driver (the Spark term for the client application). When dealing with _tiles_, the driver will recieve this data a lightweight wrapper object around a NumPy ndarray. It is also possible to write lambda functions against NumPy arrays and evaluate them in the Spark DataFrame. 
 

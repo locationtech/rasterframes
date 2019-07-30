@@ -1,4 +1,8 @@
-# Description
+# Overview
+
+RasterFrames provides a DataFrame-centric view over arbitrary EO data, enabling spatiotemporal queries, map algebra raster operations, and compatibility with the ecosystem of Spark ML algorithms.
+
+## Context
 
 We have a millennia-long history of organizing information in tabular form. Typically, rows represent independent events or observations, and columns represent measurements from the observations. The forms have evolved, from hand-written agricultural records and transaction ledgers, to the advent of spreadsheets on the personal computer, and on to the creation of the _DataFrame_ data structure as found in [R Data Frames][R] and [Python Pandas][Pandas]. The table-oriented data structure remains a common and critical component of organizing data across industries, and is the mental model employed by many data scientists across diverse forms of modeling and analysis. 
 
@@ -8,7 +12,25 @@ RasterFrames®, an incubating Eclipse Foundation LocationTech project, brings to
 
 > Of the 1,738 operational satellites currently orbiting the earth (as of 9/[20]17), 596 are earth observation satellites and 477 of these are non-military assets (ie available to civil society including commercial entities and governments for earth observation, according to the Union of Concerned Scientists). This number is expected to increase significantly over the next ten years. The 200 or so planned remote sensing satellites have a value of over 27 billion USD (Forecast International). This estimate does not include the burgeoning fleets of smallsats as well as micro, nano and even smaller satellites... All this enthusiasm has, not unexpectedly, led to a veritable fire-hose of remotely sensed data which is becoming difficult to navigate even for seasoned experts.
 
-RasterFrames provides a DataFrame-centric view over arbitrary EO data, enabling spatiotemporal queries, map algebra raster operations, and compatibility with the ecosystem of Spark ML algorithms. By using DataFrames as the core cognitive and compute data model, it is able to deliver these features in a form that is accessible to general analysts while handling the rapidly growing data footprint.
+## Benefit
+
+By using DataFrames as the core cognitive and compute data model for processing EO data, RasterFrames is able to deliver sophisticated computational and algorithmic capabilities in a tabular form that is familiar and accessible to the general computing public. 
+
+
+## Architecture
+
+RasterFrames takes the Spark SQL DataFrame and extends it to support standard EO operations. It does this with the help of several other LocationTech projects:
+[GeoTrellis](https://geotrellis.io/), [GeoMesa](https://www.geomesa.org/),
+[JTS](https://github.com/locationtech/jts), and
+[SFCurve](https://github.com/locationtech/sfcurve) (see below).
+
+![LocationTech Stack](static/rasterframes-locationtech-stack.png)
+
+RasterFrames introduces a new native data type called `tile` to Spark SQL. Each `tile` cell contains a 2-D matrix of "cell" (pixel) values, along with information on how to numerically interpret those cells. As shown in the figure below, a "RasterFrame" is a Spark DataFrame with one or more columns of type `tile`. A `tile` column typically represents a single frequency band of sensor data, such as "blue" or "near infrared", discretized into regular-sized chunks, but can also be quality assurance information, land classification assignments, or any other discretized geo-spatiotemporal data. It also includes support for working with vector data, such as [GeoJSON][GeoJSON]. Along with `tile` columns there is typically a `geometry` column (bounds or extent/envelope) specifying the location of the data, the map projection of that geometry (`crs`), and a `timestamp` column representing the acquisition time. These columns can all be used in the `WHERE` clause when querying a catalog of imagery.
+
+![RasterFrame Anatomy](static/rasterframe-anatomy.png)
+
+Raster data can be read from a number of sources. Through the flexible Spark SQL DataSource API, RasterFrames can be constructed from collections of (preferably Cloud Optimized) GeoTIFFs, [GeoTrellis Layers][GTLayer], and from an experimental catalog of Landsat 8 and MODIS data sets on the [Amazon Web Services (AWS) Public Data Set (PDS)][PDS]. See @ref:[Raster Data I/O](raster-io.md) for details.
 
 [R]:https://www.rdocumentation.org/packages/base/versions/3.5.1/topics/data.frame
 [Pandas]:https://pandas.pydata.org/
