@@ -1,0 +1,99 @@
+# API Languages
+
+One of the great powers of RasterFrames, afforded by Spark SQL, is the ability to express computation in multiple programming languages. This manual is centered around Python because that's the most common language used in data science and GIS analytics. However, Scala (the implementation language of RasterFrames) and SQL are also fully supported. Examples in Python can be mechanically translated into the other two languages without much difficulty once the naming conventions are understood. In the sections below we will show the same example program (computing average NDVI per month for a single tile in Tanzania).
+
+```python, imports, echo=False
+from pyspark.sql.functions import month, dayofmonth, year
+from pyrasterframes.utils import create_rf_spark_session
+from pyrasterframes.rasterfunctions import *
+import pyrasterframes.rf_ipython
+import pandas as pd
+import os
+```
+
+## Python
+
+Step 1: Load the catalog
+
+```python, step_1_python
+modis = spark.read.format('aws-pds-modis-catalog').load()
+```
+Step 2: Down-select data by month
+
+```python, step_2_python
+red_nir_monthly_2017 = modis \
+    .select('granule_id', month('acquisition_date').alias('month'), col('B01').alias('red'), col('B02').alias('nir')) \
+    .where((year('acquisition_date') == 2017) & (dayofmonth('acquisition_date') == 15) & (col('granule_id') == 'h21v09'))
+```
+
+Step 3: Read tiles
+
+```python, step_3_python
+red_nir_tiles_monthly_2017 = spark.read.raster(catalog=red_nir_monthly_2017, catalog_col_names=['red', 'nir'])
+```
+
+Step 4: Compute aggregates
+
+```python, step_4_python
+result = red_nir_tiles_monthly_2017 \
+    .groupBy('month') \
+    .agg(first('month'), rf_agg_stats(rf_normalized_difference(col('nir'), col('red')).alias('ndvi_stats'))) \
+    .where(st_intersects(st_reproject(rf_geometry(col('red')), rf_crs(col('red')), rf_mk_crs('EPSG:4326')), st_makePoint(34.870605, -4.729727))) \
+    .orderBy(col('month'))
+result.show()
+```
+
+## SQL
+
+For convenience we're going to evaluate SQL from the Python environment. The SQL fragments should work in the `spark-sql` shell just the same.
+
+```python, sql_setup
+spark = create_rf_spark_session()
+def sql(stmt):
+    return spark.sql(stmt)
+```
+
+Step 1: Load the catalog
+
+```python, step_1_sql
+sql("CREATE OR REPLACE TEMPORARY VIEW modis USING `aws-pds-modis-catalog`")
+```
+
+Step 2: Down-select data by month
+
+```python, step_2_sql
+sql("""
+CREATE OR REPLACE TEMPORARY VIEW red_nir_monthly_2017 AS
+SELECT granule_id, month(acquisition_date) as month, B01 as red, B02 as nir
+FROM modis
+WHERE year(acquisition_date) = 2017 AND day(acquisition_date) = 15 AND granule_id = 'h21v09'
+""")
+sql('DESCRIBE red_nir_monthly_2017').show() 
+```
+
+Step 3: Read tiles
+
+```python, step_3_sql
+sql("""
+CREATE OR REPLACE TEMPORARY VIEW red_nir_tiles_monthly_2017 
+USING raster 
+OPTIONS (catalogTable='red_nir_monthly_2017', catalogColumns='red,nir')
+""")
+```
+
+Step 4: Compute aggregates
+
+```python, step_4_sql
+sql("""
+SELECT month, ndvi_stats.* FROM (
+    SELECT month, rf_agg_stats(rf_normalized_difference(nir, red)) as ndvi_stats
+    FROM red_nir_tiles_monthly_2017
+    WHERE st_intersects(st_reproject(rf_geometry(red), rf_crs(red), 'EPSG:4326'), st_makePoint(34.870605, -4.729727))
+    GROUP BY month
+    ORDER BY month
+)
+""").show()
+```
+
+## Scala
+
