@@ -21,13 +21,15 @@
 
 package org.locationtech.rasterframes.expressions
 
+import geotrellis.proj4.CRS
 import geotrellis.raster.{CellGrid, Tile}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.rf.{TileUDT, RasterSourceUDT}
+import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
+import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.TileContext
+import org.locationtech.rasterframes.model.{LazyCRS, TileContext}
 import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
@@ -77,6 +79,13 @@ object DynamicExtractors {
       (row: InternalRow) => row.to[ProjectedRasterTile]
   }
 
+  lazy val crsExtractor: PartialFunction[DataType, Any => CRS] = {
+    case _: StringType =>
+      (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
+    case t if t.conformsTo[CRS] =>
+      (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
+  }
+
   sealed trait TileOrNumberArg
   sealed trait NumberArg extends TileOrNumberArg
   case class TileArg(tile: Tile, ctx: Option[TileContext]) extends TileOrNumberArg
@@ -113,4 +122,5 @@ object DynamicExtractors {
       case c: Char  => IntegerArg(c.toInt)
     }
   }
+
 }

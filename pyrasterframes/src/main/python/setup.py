@@ -90,9 +90,11 @@ class PweaveDocs(distutils.cmd.Command):
                 print(traceback.format_exc())
                 exit(1)
 
+
 class PweaveNotebooks(PweaveDocs):
     def doctype(self):
         return "notebook"
+
 
 setup(
     name='pyrasterframes',
@@ -134,7 +136,7 @@ setup(
         'pytest==3.4.2',
         'pypandoc',
         'numpy>=1.7',
-        'shapley',
+        'shapely',
         'pandas',
         'rasterio'
     ],
