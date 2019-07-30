@@ -25,13 +25,16 @@ the implementations take advantage of the existing Scala functionality. The Rast
 class here provides the PyRasterFrames entry point.
 """
 
-from pyspark.sql.types import UserDefinedType
 from pyspark import SparkContext
 from pyspark.sql import DataFrame, Column
-from pyspark.sql.types import (StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
+from pyspark.sql.types import (UserDefinedType, StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
+
+from pyspark.ml.param.shared import HasInputCols
 from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import JavaMLReadable, JavaMLWritable
+
 from pyrasterframes.rf_context import RFContext
+
 import numpy as np
 
 __all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
@@ -464,7 +467,7 @@ class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.TileExploder", self.uid)
 
 
-class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
+class NoDataFilter(JavaTransformer, HasInputCols, JavaMLReadable, JavaMLWritable):
     """
     Python wrapper for NoDataFilter.scala
     """
@@ -473,5 +476,3 @@ class NoDataFilter(JavaTransformer, JavaMLReadable, JavaMLWritable):
         super(NoDataFilter, self).__init__()
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.NoDataFilter", self.uid)
 
-    def setInputCols(self, values):
-        self._java_obj.setInputCols(values)

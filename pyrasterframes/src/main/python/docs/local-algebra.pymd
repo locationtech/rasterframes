@@ -14,6 +14,10 @@ spark = create_rf_spark_session()
 
 [Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single `tile`,  between a `tile` and a scalar, between two `tile`s, or among many `tile`s. These operations are common in processing of earth observation and other image data.
 
+<img src="https://gisgeography.com/wp-content/uploads/2015/05/Local-Operation-Raster.png" alt="local op" style="width:200px;"/>
+
+Credit: [GISGeography](https://gisgeography.com)
+
 
 ## Computing NDVI
 
@@ -57,10 +61,9 @@ df.printSchema()
 We can inspect a sample of the data. Yellow indicates very healthy vegetation, and purple represents bare soil or impervious surfaces.
 
 ```python
-df.select(rf_tile('ndvi').alias('ndvi')).limit(5).toPandas()
-```
 
-**TODO** fix the display once issue #166 fix.
+display(df.select(rf_tile('ndvi').alias('ndvi')).first()['ndvi'])
+```
 
 We continue examining NDVI in the @ref:[time series](time-series.md) section.
 

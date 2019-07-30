@@ -139,6 +139,7 @@ lazy val docs = project
       "version" -> version.value,
       "scaladoc.org.apache.spark.sql.rf" -> "http://rasterframes.io/latest"
     ),
+    paradoxNavigationExpandDepth := Some(3),
     paradoxTheme := Some(builtinParadoxTheme("generic")),
     makeSite := makeSite.dependsOn(Compile / unidoc).dependsOn(Compile / paradox).value,
     Compile / paradox / sourceDirectories += (pyrasterframes / Python / doc / target).value,

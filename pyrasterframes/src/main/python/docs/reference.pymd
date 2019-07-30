@@ -399,17 +399,7 @@ Performs natural logarithm of cell values plus one. Inverse of @ref:[`rf_expm1`]
 
 ## Tile Statistics
 
-The following functions compute a statistical summary per row of a `tile` column. The statistics are computed across the cells of a single `tile`, within each DataFrame Row.  Consider the following example.
-
-```python
-import pyspark.sql.functions as F
-spark.sql("""
- SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
- UNION
- SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as t
- """).select(F.col('id'), rf_tile_sum(F.col('t'))).show()
-```
-
+The following functions compute a statistical summary per row of a `tile` column. The statistics are computed across the cells of a single `tile`, within each DataFrame Row.
 
 ### rf_tile_sum
 
@@ -489,17 +479,7 @@ spark.sql("SELECT rf_tile_histogram(rf_make_ones_tile(5, 5, 'float32')) as tile_
 
 ## Aggregate Tile Statistics
 
-These functions compute statistical summaries over all of the cell values *and* across all the rows in the DataFrame or group. Example use below computes a single double-valued mean per month, across all data cells in the `red_band` `tile` type column. This would return at most twelve rows.
-
-Continuing our example from the @ref:[Tile Statistics](reference.md#tile-statistics) section, consider the following. Note that only a single row is returned. It is averaging 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows.
-
-```python
-spark.sql("""
-SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
-UNION
-SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3.0) as t
-""").agg(rf_agg_mean(F.col('t'))).show(10, False)
-```
+These functions compute statistical summaries over all of the cell values *and* across all the rows in the DataFrame or group.
 
 ### rf_agg_mean
 
@@ -538,30 +518,12 @@ Aggregates over the `tile` and returns statistical summaries of cell values: num
     Struct[Array[Struct[Double, Long]]] rf_agg_approx_histogram(Tile tile)
 
 
-Aggregates over the `tile` return a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function which operates on a single row at a time.
+Aggregates over all of the rows in DataFrame of `tile` and returns a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function which operates on a single row at a time.
 
 
 ## Tile Local Aggregate Statistics
 
 Local statistics compute the element-wise statistics across a DataFrame or group of `tile`s, resulting in a `tile` that has the same dimension.
-
-Consider again our example for Tile Statistics and Aggregate Tile Statistics, this time apply @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean). We see that it is computing the element-wise mean across the two rows. In this case it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
-
-
-```python
-import pyspark.sql.functions as F
-alm = spark.sql("""
-SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as t
-UNION
-SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as t
-""").agg(rf_agg_local_mean(F.col('t')).alias('l')) \
-
-## local_agg_mean returns a tile
-alm.select(rf_dimensions(alm.l)).show()
-
-alm.select(rf_explode_tiles(alm.l)).show(10, False)
-```
-
 
 ### rf_agg_local_max
 
