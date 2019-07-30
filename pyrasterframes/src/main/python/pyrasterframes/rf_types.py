@@ -295,7 +295,8 @@ class Tile(object):
 
     def __eq__(self, other):
         if type(other) is type(self):
-            return self.cell_type == other.cell_type and np.ma.allequal(self.cells, other.cells)
+            return self.cell_type == other.cell_type and \
+                   np.ma.allequal(self.cells, other.cells, fill_value=True)
         else:
             return False
 

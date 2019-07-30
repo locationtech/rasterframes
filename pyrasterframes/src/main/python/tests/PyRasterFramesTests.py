@@ -532,8 +532,6 @@ class UDT(TestEnvironment):
 
 class TileOps(TestEnvironment):
 
-    from pyrasterframes.rf_types import Tile
-
     def setUp(self):
         # convenience so we can assert around Tile() == Tile()
         self.t1 = Tile(np.array([[1, 2],
@@ -589,9 +587,11 @@ class TileOps(TestEnvironment):
         #     r1 = self.t1 @ self.t2
         r1 = self.t1.__matmul__(self.t2)
 
-        nd = r1.cell_type.no_data_value()
-        e1 = Tile(np.ma.masked_equal(np.array([[nd, 10],
-                                               [nd, nd]], dtype=r1.cell_type.to_numpy_dtype()), nd))
+        # The behavior of np.matmul with masked arrays is not well documented
+        # it seems to treat the 2nd arg as if not a MaskedArray
+        e1 = Tile(np.matmul(self.t1.cells, self.t2.cells), r1.cell_type)
+
+        self.assertTrue(r1 == e1, "{} was not equal to {}".format(r1, e1))
         self.assertEqual(r1, e1)
 
 
