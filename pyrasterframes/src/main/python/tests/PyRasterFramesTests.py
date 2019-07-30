@@ -228,28 +228,23 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
     def test_sql(self):
-        self.rf.createOrReplaceTempView("rf")
+        self.rf.createOrReplaceTempView("rf_test_sql")
 
-        dims = self.rf.withColumn('dims', rf_dimensions('tile')).first().dims
-        dims_str = """{}, {}""".format(dims.cols, dims.rows)
+        self.spark.sql("""SELECT tile, 
+                            rf_local_add(tile, 1) AS and_one, 
+                            rf_local_subtract(tile, 1) AS less_one, 
+                            rf_local_multiply(tile, 2) AS times_two, 
+                            rf_local_divide(tile, 2) AS over_two 
+                        FROM rf_test_sql""").createOrReplaceTempView('rf_test_sql_1')
 
-        self.spark.sql("""SELECT tile, rf_make_constant_tile(1, {}, 'uint16') AS One, 
-                            rf_make_constant_tile(2, {}, 'uint16') AS Two FROM rf""".format(dims_str, dims_str)) \
-            .createOrReplaceTempView("r3")
-
-        ops = self.spark.sql("""SELECT tile, rf_local_add(tile, One) AS AndOne, 
-                                    rf_local_subtract(tile, One) AS LessOne, 
-                                    rf_local_multiply(tile, Two) AS TimesTwo, 
-                                    rf_local_divide(tile, Two) AS OverTwo 
-                                FROM r3""")
-
-        # ops.printSchema
-        statsRow = ops.select(rf_tile_mean('tile').alias('base'),
-                              rf_tile_mean("AndOne").alias('plus_one'),
-                              rf_tile_mean("LessOne").alias('minus_one'),
-                              rf_tile_mean("TimesTwo").alias('double'),
-                              rf_tile_mean("OverTwo").alias('half')) \
-            .first()
+        statsRow = self.spark.sql("""
+        SELECT rf_tile_mean(tile) as base,
+            rf_tile_mean(and_one) as plus_one,
+            rf_tile_mean(less_one) as minus_one,
+            rf_tile_mean(times_two) as double,
+            rf_tile_mean(over_two) as half
+        FROM rf_test_sql_1
+        """).first()
 
         self.assertTrue(self.rounded_compare(statsRow.base, statsRow.plus_one - 1))
         self.assertTrue(self.rounded_compare(statsRow.base, statsRow.minus_one + 1))
