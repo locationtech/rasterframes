@@ -24,7 +24,7 @@ addons:
       - pandoc
 
 install:
-  - pip install --user rasterio shapely pandas numpy
+  - pip install rasterio shapely pandas numpy
   - wget -O - https://piccolo.link/sbt-1.2.8.tgz | tar xzf -
 
 script:
