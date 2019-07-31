@@ -234,22 +234,34 @@ class RasterFunctions(TestEnvironment):
                             rf_local_add(tile, 1) AS and_one, 
                             rf_local_subtract(tile, 1) AS less_one, 
                             rf_local_multiply(tile, 2) AS times_two, 
-                            rf_local_divide(tile, 2) AS over_two 
+                            rf_local_divide(rf_convert_cell_type(tile, "float32"), 2) AS over_two 
                         FROM rf_test_sql""").createOrReplaceTempView('rf_test_sql_1')
 
-        statsRow = self.spark.sql("""
+        stats = self.spark.sql("""
         SELECT rf_tile_mean(tile) as base,
             rf_tile_mean(and_one) as plus_one,
             rf_tile_mean(less_one) as minus_one,
             rf_tile_mean(times_two) as double,
             rf_tile_mean(over_two) as half
         FROM rf_test_sql_1
-        """).first()
+        """)
+        stats.createOrReplaceTempView('rf_test_sql_stats')
 
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.plus_one - 1))
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.minus_one + 1))
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.double / 2))
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.half * 2))
+        compare = self.spark.sql("""
+        SELECT 
+            plus_one - 1.0 = base as add,
+            minus_one + 1.0 = base as subtract,
+            double / 2.0 = base as multiply,
+            half * 2.0 = base as divide
+        FROM rf_test_sql_stats
+        """)
+
+        expect_row = compare.first()
+
+        self.assertTrue(expect_row.add)
+        self.assertTrue(expect_row.subtract)
+        self.assertTrue(expect_row.multiply)
+        self.assertTrue(expect_row.divide)
 
     def test_explode(self):
         import pyspark.sql.functions as F
