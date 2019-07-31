@@ -105,7 +105,8 @@ class ReprojectGeometrySpec extends TestEnvironment {
         """
           | SELECT st_reproject(ll, llCRS, 'EPSG:3857') as wm2,
           |        st_reproject(wm, 'EPSG:3857', llCRS) as ll2,
-          |        st_reproject(st_reproject(ll, llCRS, '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs'), '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs', 'EPSG:3857') as wm3
+          |        st_reproject(st_reproject(ll, llCRS, '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs'),
+          |        '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs', 'EPSG:3857') as wm3
           | FROM geom
         """.stripMargin).as[(Geometry, Geometry, Geometry)]
 

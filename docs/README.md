@@ -67,7 +67,7 @@ To set up an environment whereby you can easily test/evaluate your code blocks d
     sbt:RasterFrames> pyrasterframes/doc
     ```
     There's a command alias for this last step: `pyDocs`.
-4. To evaluate a single `.pymd` file, you pass the `-f` option and the  filename relative to the `python` direoctry:
+4. To evaluate a single `.pymd` file, you pass the `-f` option and the filename relative to the `python` directory:
     ```
     sbt:RasterFrames> pyrasterframes/pySetup pweave -f docs/getting-started.pymd
     [info] Synchronizing 44 files to '<src-root>/pyrasterframes/target/python'
@@ -81,11 +81,22 @@ To set up an environment whereby you can easily test/evaluate your code blocks d
     Processing chunk 1 named None from line 14
     ...
     Weaved docs/getting-started.pymd to docs/getting-started.md
-    [success] Total time: 21 s, completed Jul 5, 2019 12:31:09 PM
-    sbt:RasterFrames>
     ```
 5. The _output_ Markdown files are written to `<src-root>/pyrasterframes/target/python/docs`. _Note_: don't edit any files in the `pyrasterframes/target` directory... they will get overwritten each time `sbt` runs a command.
-6. To build all the documentation and convert to a static html site, run:
+6. During content development it's sometimes helpful to see the output rendered as basic HTML. To do this, add the `-d html` option to the pweave command:
+    ```
+    sbt:RasterFrames> pyrasterframes/pySetup pweave -d html -f docs/getting-started.pymd
+    [info] Synchronizing 54 files to '<src-roog>/pyrasterframes/target/python'
+    [info] Running 'python setup.py pweave -d html -f docs/getting-started.pymd' in '<src-root>/pyrasterframes/target/python'
+    running pweave
+    --------------------------------------------------
+    Running getting-started
+    --------------------------------------------------
+    ...
+    Weaved docs/getting-started.pymd to docs/getting-started.html
+    ```
+    Note: This feature requires `pandoc` to be installed.
+7. To build all the documentation and convert to a static html site, run:
     ```bash
     sbt makeSite
     ``` 

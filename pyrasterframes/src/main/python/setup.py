@@ -53,6 +53,7 @@ class PweaveDocs(distutils.cmd.Command):
     user_options = [
         # The format is (long option, short option, description).
         ('files=', 'f', 'Specific files to pweave. Defaults to all in `docs` directory.'),
+        ('doctype=', 'd', 'Output format type. Defaults to `markdown`')
     ]
 
     def initialize_options(self):
@@ -62,15 +63,15 @@ class PweaveDocs(distutils.cmd.Command):
             lambda x: not path.basename(x)[:1] == '_',
             glob(path.join(here, 'docs', '*.pymd'))
         )
+        self.doctype = 'markdown'
 
     def finalize_options(self):
         """Post-process options."""
         import re
         if isinstance(self.files, str):
             self.files = filter(lambda s: len(s) > 0, re.split(',', self.files))
-
-    def doctype(self):
-        return "markdown"
+            if self.doctype is "html":
+                self.doctype = "pandoc2html"
 
     def run(self):
         """Run pweave."""
@@ -83,7 +84,7 @@ class PweaveDocs(distutils.cmd.Command):
             try:
                 pweave.weave(
                     file=str(file),
-                    doctype=self.doctype()
+                    doctype=self.doctype
                 )
             except Exception:
                 print(_divided('%s Failed:' % file))
@@ -92,8 +93,9 @@ class PweaveDocs(distutils.cmd.Command):
 
 
 class PweaveNotebooks(PweaveDocs):
-    def doctype(self):
-        return "notebook"
+    def initialize_options(self):
+        super().initialize_options()
+        self.doctype = 'notebook'
 
 
 setup(
