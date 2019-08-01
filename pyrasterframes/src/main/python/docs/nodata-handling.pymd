@@ -224,3 +224,48 @@ The results of `rf_tile_sum` vary on the tiles that were masked. This is because
 ```python
 masked_rf.select(rf_tile_sum('tile'), rf_tile_sum('tile_nd_1'), rf_tile_sum('tile_nd_2')).show()
 ```
+
+
+## Combining Tiles with Different Data Types
+
+RasterFrames supports having Tile columns with multiple cell types in a single RasterFrame. It is important to understand how these different cell types interact. 
+
+Let's first create a RasterFrame that has columns of `float` and `int` cell type. 
+
+```python
+x = Tile((np.ones((100, 100))*2).astype('int16'))
+y = Tile((np.ones((100, 100))*3.0).astype('int32'))
+rf = spark.createDataFrame(pd.DataFrame(data = 
+        {'x': [x],
+        'y': [y]}))
+rf.select(rf_cell_type('y'), rf_cell_type('x')).distinct().show()
+```
+
+When performing a local operation between tile columns with cell types `int` and type `float`, the resulting tile cell type will be `float`. If two tiles of different sized integer cell types are added together in the same way, the resulting cell type will be the same as the largest of the two integer cell types.
+
+```python
+rf_added = rf.withColumn('xy_sum', rf_local_add('y', 'x'))
+rf_added.select(rf_cell_type('xy_sum'), rf_cell_type('y'), rf_cell_type('x')).distinct().show()
+```
+
+Combining tile columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 3 tile columns: one without a defined NoData value, one with a NoData value of 1, and one with a NoData value of 2.
+
+
+```python
+def get_nodata_ct(nd_val):
+    return CellType('uint16').with_no_data_value(nd_val).cell_type_name
+
+x = Tile((np.ones((100, 100))*3).astype('int16'))
+
+rf = spark.createDataFrame(pd.DataFrame(data = 
+        {'x': [x]}))
+rf_nd = rf.withColumn('x_nd_1', rf_convert_cell_type('x', get_nodata_ct(1))) \
+          .withColumn('x_nd_2', rf_convert_cell_type('x', get_nodata_ct(2)))
+```
+
+Let's try adding the tile column without a defined NoData value to a tile column with a defined NoData value. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has no defined NoData value. 
+
+```python
+rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_1', 'x'))
+rf_nd_sum.select(rf_cell_type('x_nd_sum'), rf_cell_type('x'), rf_cell_type('x_nd_1')).distinct().show()
+```
