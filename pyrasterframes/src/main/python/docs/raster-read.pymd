@@ -61,10 +61,10 @@ RasterFrames relies on three different IO drivers, selected based on a combinati
 | `http://`           |  ✔︎          | ✔︎       | -      |
 | `https://`          |  ✔︎          | ✔︎       | -      |
 | `ftp://`            | `/vsicurl/`  | ✔       | -      |
-| `s3://`             |  `/vsis3/` ︎  | ✔︎       | -      |
 | `hdfs://`           |  `/vsihdfs/` ︎| -       | ✔︎      |
-| `s3n://`            |  - ︎          | -        | ✔︎      |
-| `s3a://`            |  - ︎          | -   | ✔︎      |
+| `s3://`             |  `/vsis3/` ︎  | ✔︎       | -      |
+| `s3n://`            |  - ︎          | -       | ✔︎      |
+| `s3a://`            |  - ︎          | -       | ✔︎      |
 | `wasb://`           |  `/vsiaz/` ︎  | -       | ✔︎      |
 | `wasbs://`          |  - ︎          | -       | ✔︎      |
 
