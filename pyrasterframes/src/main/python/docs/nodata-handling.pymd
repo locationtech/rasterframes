@@ -15,6 +15,9 @@ import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 from IPython.display import display
+import pandas as pd
+import numpy as np
+from pyrasterframes.rf_types import Tile
 
 spark = pyrasterframes.get_spark_session()
 ```
@@ -132,29 +135,92 @@ masked.select(rf_no_data_cells('blue_masked'), rf_tile_sum('mask')).show(10)
 
 It's also nice to view a sample.
 
-```python show_masked
+```python
 sample = masked.orderBy(-rf_no_data_cells('blue_masked')).select(rf_tile('blue_masked'), rf_tile('scl')).first()
 display(sample[0])
 ```
 
 And the original SCL data.
 
-```python show_scl
+```python
 display(sample[1])
 ```
 
-## NoData in Arithmetic Operations
+## Changing a Tile's NoData Values
 
-local algebra example; same celltype what happens to nodata 
-Possibly use st_geomFromWkt and rf_rasterize to create something to work from
+One way to mask a tile is to make a new tile with a user defined NoData value. We will explore this method below. First, lets create a rasterframe from a tile with values of 0, 1, 2, and 3.
 
-agg
+```python create_dummy_tile
+tile_size = 100
+x = np.zeros((tile_size, tile_size), dtype='int16')
 
+for i in range(4):
+    x[:, i*tile_size//4:(i+1)*tile_size//4] = i
+x = Tile(x)
 
-## Dealing with Multiple Cell Types
+rf = spark.createDataFrame(pd.DataFrame(data = 
+        {'tile': [x]}))
+x
+```
 
-Quick demo of one ND tile one raw tile
+First, we mask the value of 1 by making a new column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a tile with the cell type 'uint16ud2'.
 
-Quick demo of ND in two different cell types
+```python
+def get_nodata_ct(nd_val):
+    return CellType('uint16').with_no_data_value(nd_val).cell_type_name
 
+masked_rf = rf.withColumn('tile_nd_1', 
+                           rf_convert_cell_type('tile', get_nodata_ct(1))) \
+              .withColumn('tile_nd_2',
+                          rf_convert_cell_type('tile_nd_1', get_nodata_ct(2))) \
+```
 
+```python
+collected = masked_rf.collect()
+```
+
+Let's look at the new Tiles we created. The tile named `tile_nd_1` has the 1 values masked out as expected. 
+
+```python
+display(collected[0].tile_nd_1)
+```
+
+And the tile named `tile_nd_2` has the values of 1 and 2 masked out. This is because we created the tile by setting a new user defined NoData value to `tile_nd_1` the values previously masked out in `tile_nd_1` stayed masked when creating `tile_nd_2`.
+
+```python
+display(collected[0].tile_nd_2)
+```
+
+## Nodata Values in Aggregation
+
+Let's use the same tile as before to demonstrate how NoData values affect tile aggregations
+
+```python
+tile_size = 100
+x = np.eye(tile_size, dtype='int16')
+for i in range(4):
+    x[:, i*tile_size//4:(i+1)*tile_size//4] = i
+x = Tile(x)
+
+rf = spark.createDataFrame(pd.DataFrame(data = 
+        {'tile': [x]}))
+display(x)
+```
+
+First we create the two new masked tile columns as before. One with only the value of 1 masked, and the other with and values of 1 and 2 masked. 
+
+```python
+def get_nodata_ct(nd_val):
+    return CellType('uint16').with_no_data_value(nd_val).cell_type_name
+
+masked_rf = rf.withColumn('tile_nd_1', 
+                           rf_convert_cell_type('tile', get_nodata_ct(1))) \
+              .withColumn('tile_nd_2',
+                          rf_convert_cell_type('tile_nd_1', get_nodata_ct(2)))
+```
+
+The results of `rf_tile_sum` vary on the tiles that were masked. This is because any cells with NoData values are ignored in the aggregation. Note that `tile_nd_2` has the lowest sum, since it has the fewest amount of data cells.
+
+```python
+masked_rf.select(rf_tile_sum('tile'), rf_tile_sum('tile_nd_1'), rf_tile_sum('tile_nd_2')).show()
+```
