@@ -58,7 +58,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
   override def dataType: DataType = schemaOf[Raster[Tile]]
 
   override def initialize(buffer: MutableAggregationBuffer): Unit = {
-    buffer(0) = ArrayTile.empty(prd.cellType, prd.cols, prd.rows)
+    buffer(0) = ArrayTile.empty(prd.cellType, prd.totalCols, prd.totalRows)
   }
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
@@ -90,13 +90,14 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
 object TileRasterizerAggregate {
   val nodeName = "rf_tile_rasterizer_aggregate"
   /**  Convenience grouping of  parameters needed for running aggregate. */
-  case class ProjectedRasterDefinition(cols: Int, rows: Int, cellType: CellType, crs: CRS, extent: Extent, sampler: ResampleMethod = ResampleMethod.DEFAULT)
+  case class ProjectedRasterDefinition(totalCols: Int, totalRows: Int, cellType: CellType, crs: CRS, extent: Extent, sampler: ResampleMethod = ResampleMethod.DEFAULT)
 
   object ProjectedRasterDefinition {
     def apply(tlm: TileLayerMetadata[_]): ProjectedRasterDefinition = apply(tlm, ResampleMethod.DEFAULT)
 
     def apply(tlm: TileLayerMetadata[_], sampler: ResampleMethod): ProjectedRasterDefinition = {
-      val actualSize = tlm.layout.toRasterExtent().gridBoundsFor(tlm.extent)
+      // Try to determine the actual dimensions of our data coverage
+      val actualSize = tlm.layout.toRasterExtent().gridBoundsFor(tlm.extent) // <--- Do we have the math right here?
       val cols = actualSize.width
       val rows = actualSize.height
       new ProjectedRasterDefinition(cols, rows, tlm.cellType, tlm.crs, tlm.extent, sampler)

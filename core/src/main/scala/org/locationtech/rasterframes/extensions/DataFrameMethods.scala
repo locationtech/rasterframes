@@ -22,22 +22,20 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{MultibandTile, Tile}
 import geotrellis.spark.io._
 import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
-import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.rdd.RDD
+import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
-import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
 import org.locationtech.rasterframes.StandardColumns._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
+import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
 import spray.json.JsonFormat
 
 import scala.util.Try

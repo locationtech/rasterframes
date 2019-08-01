@@ -94,9 +94,8 @@ object ProjectedLayerMetadataAggregate {
   // Ordering must match InputRecord schema
     new ProjectedLayerMetadataAggregate(destCRS, destDims)(extent, crs, cellType, tileSize).as[TileLayerMetadata[SpatialKey]]
 
-
   private[expressions]
-  case class InputRecord(extent: Extent, crs: CRS, cellType: CellType, tileSize: TileDimensions) { self ⇒
+  case class InputRecord(extent: Extent, crs: CRS, cellType: CellType, tileSize: TileDimensions) {
     def toBufferRecord(destCRS: CRS): BufferRecord = {
       val transform = Transform(crs, destCRS)
 

@@ -180,18 +180,25 @@ def _geotiff_writer(
     raster_dimensions=None,
     **options):
 
+    def set_dims(parts):
+        parts = [int(p) for p in parts]
+        assert(len(parts) == 2, "Expected dimensions specification to have exactly two components")
+        assert(all([p > 0 for p in parts]), "Expected all components in dimensions to be positive integers")
+        options.update({
+            "imageWidth": parts[0],
+            "imageHeight": parts[1]
+        })
+        try:
+            parts = [int(p) for p in parts]
+            assert(all([p > 0 for p in parts]), 'nice message')
+        except ValueError:
+            raise
+
     if raster_dimensions is not None:
-        if isinstance(raster_dimensions, tuple):
-            options.update({
-                "imageWidth": raster_dimensions[0],
-                "imageHeight": raster_dimensions[1]
-            })
+        if isinstance(raster_dimensions, (list, tuple)):
+            set_dims(raster_dimensions)
         elif isinstance(raster_dimensions, str):
-            parts = raster_dimensions.split(',')
-            options.update({
-                "imageWidth": parts[0],
-                "imageHeight": parts[1]
-            })
+            set_dims(raster_dimensions.split(','))
 
     if crs is not None:
         options.update({
@@ -200,8 +207,11 @@ def _geotiff_writer(
 
     return _aliased_writer(df_writer, "geotiff", path, **options)
 
-# Patch new method on SparkSession to mirror Scala approach
+
+# Patch RasterFrames initialization method on SparkSession to mirror Scala approach
 SparkSession.withRasterFrames = _rf_init
+
+# Patch Kryo serialization initialization method on SparkSession.Builder to mirror Scala approach
 SparkSession.Builder.withKryoSerialization = _kryo_init
 
 # Add the 'asLayer' method to pyspark DataFrame

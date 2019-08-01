@@ -24,19 +24,18 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.net.URI
 
 import _root_.geotrellis.proj4.CRS
+import _root_.geotrellis.raster._
 import _root_.geotrellis.raster.io.geotiff.compression._
 import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
 import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
-import _root_.geotrellis.raster._
+import _root_.geotrellis.spark._
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.TileUDT
+import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource._
-import org.locationtech.rasterframes.expressions.aggregates.{ProjectedLayerMetadataAggregate, TileRasterizerAggregate}
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
+import org.locationtech.rasterframes.expressions.aggregates.{ProjectedLayerMetadataAggregate, TileRasterizerAggregate}
 import org.locationtech.rasterframes.model.{LazyCRS, TileDimensions}
 import org.locationtech.rasterframes.util._
 
@@ -96,32 +95,37 @@ class GeoTiffDataSource extends DataSourceRegister
       require(parameters.crs.nonEmpty, "A destination CRS must be provided")
       require(tileCols.nonEmpty, "need at least one tile column")
 
+      // Grab CRS to project into
       val destCRS = parameters.crs.get
 
-      val (extCol, crsCol) = {
+      // Select the anchoring Tile, Extent and CRS columns
+      val (extCol, crsCol, tileCol) = {
+        // Favor "ProjectedRaster" columns
         val prCols = df.projRasterColumns
         if(prCols.nonEmpty) {
-          (rf_extent(prCols.head), rf_crs(prCols.head))
+          (rf_extent(prCols.head), rf_crs(prCols.head), rf_tile(prCols.head))
         }
         else {
+          // If no "ProjectedRaster" column, look for single Extent and CRS columns.
           val crsCols = df.crsColumns
           require(crsCols.size == 1, "Exactly one CRS column must be in DataFrame")
           val extentCols = df.extentColumns
           require(extentCols.size == 1, "Exactly one Extent column must be in DataFrame")
-          (extentCols.head, crsCols.head)
+          (extentCols.head, crsCols.head, tileCols.head)
         }
       }
 
-      val tlm = df
+      // Scan table and constuct what the TileLayerMetadata would be in the specified destination CRS.
+      val tlm: TileLayerMetadata[SpatialKey] = df
         .select(ProjectedLayerMetadataAggregate(
-          destCRS, extCol, crsCol, rf_cell_type(tileCols.head), rf_dimensions(tileCols.head)
+          destCRS, extCol, crsCol, rf_cell_type(tileCol), rf_dimensions(tileCol)
         ))
         .first()
 
       val c = ProjectedRasterDefinition(tlm)
 
       val config = parameters.rasterDimensions.map { dims =>
-        c.copy(cols = dims.cols, rows = dims.rows)
+        c.copy(totalCols = dims.cols, totalRows = dims.rows)
       }.getOrElse(c)
 
       val aggs = tileCols
