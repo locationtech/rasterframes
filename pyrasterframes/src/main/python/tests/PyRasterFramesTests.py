@@ -832,6 +832,7 @@ class RasterSource(TestEnvironment):
         self.assertTrue(df2.select('b1_path').distinct().count() == 3)
 
 
+
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests

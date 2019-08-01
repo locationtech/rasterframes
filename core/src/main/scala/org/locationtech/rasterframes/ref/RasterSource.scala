@@ -145,7 +145,7 @@ object RasterSource extends LazyLogging {
 
   object IsDefaultGeoTiff {
     def unapply(source: URI): Boolean = source.getScheme match {
-      case "file" | "http" | "https" | "s3" => true
+      case "file" | "http" | "https" | "s3" | "" => true
       case _                                => false
     }
   }

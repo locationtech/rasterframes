@@ -125,6 +125,8 @@ package object rasterframes extends StandardColumns
   trait StandardLayerKey[T] extends Serializable {
     val selfType: TypeTag[T]
     def isType[R: TypeTag]: Boolean = typeOf[R] =:= selfType.tpe
+    def coerce[K >: T](tlm: TileLayerMetadata[_]): TileLayerMetadata[K] =
+      tlm.asInstanceOf[TileLayerMetadata[K]]
   }
   object StandardLayerKey {
     def apply[T: StandardLayerKey]: StandardLayerKey[T] = implicitly

@@ -135,6 +135,7 @@ setup(
         'pypandoc',
         'numpy>=1.7',
         'pandas',
+        'rasterio'
     ],
     packages=[
         'pyrasterframes',

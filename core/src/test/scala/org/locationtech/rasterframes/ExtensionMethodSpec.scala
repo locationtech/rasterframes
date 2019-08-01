@@ -25,6 +25,7 @@ import geotrellis.proj4.LatLng
 import geotrellis.raster.{ByteCellType, GridBounds, TileLayout}
 import geotrellis.spark.tiling.{CRSWorldExtent, LayoutDefinition}
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
+import org.apache.spark.sql.Encoders
 import org.locationtech.rasterframes.util.SubdivideSupport
 
 /**
@@ -55,13 +56,23 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
     }
   }
   describe("Miscellaneous extensions") {
+    import spark.implicits._
+    it("should find multiple extent columns") {
+      val df = Seq((extent, "fred", extent, 34.0)).toDF("e1", "s", "e2", "n")
+      df.extentColumns.size should be(2)
+    }
+    it("should find multiple crs columns") {
+      // Not sure why implicit resolution isn't handling this properly.
+      implicit val enc = Encoders.tuple(crsEncoder, Encoders.STRING, crsEncoder, Encoders.scalaDouble)
+      val df = Seq((pe.crs, "fred", pe.crs, 34.0)).toDF("c1", "s", "c2", "n")
+      df.crsColumns.size should be (2)
+    }
     it("should split TileLayout") {
       val tl1 = TileLayout(2, 3, 10, 10)
       assert(tl1.subdivide(0) === tl1)
       assert(tl1.subdivide(1) === tl1)
       assert(tl1.subdivide(2) === TileLayout(4, 6, 5, 5))
       assertThrows[IllegalArgumentException](tl1.subdivide(-1))
-
     }
     it("should split KeyBounds[SpatialKey]") {
       val grid = GridBounds(0, 0, 9, 9)

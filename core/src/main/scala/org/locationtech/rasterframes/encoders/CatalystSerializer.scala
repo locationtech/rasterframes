@@ -154,4 +154,9 @@ object CatalystSerializer extends StandardSerializers {
   implicit class WithFromRow(val r: Row) extends AnyVal {
     def to[T >: Null: CatalystSerializer]: T = if (r == null) null else CatalystSerializer[T].fromRow(r)
   }
+
+  implicit class WithTypeConformity(val left: DataType) extends AnyVal {
+    def conformsTo[T >: Null: CatalystSerializer]: Boolean =
+      org.apache.spark.sql.rf.WithTypeConformity(left).conformsTo(schemaOf[T])
+  }
 }

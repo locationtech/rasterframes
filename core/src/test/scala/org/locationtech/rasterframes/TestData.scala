@@ -124,7 +124,9 @@ trait TestData {
     readSingleband(s"NAIP-VA-b$band.tiff")
   }
 
-  def rgbCogSample = readMultiband("LC08_RGB_Norfolk_COG.tiff")
+  def rgbCogSample  = readMultiband("LC08_RGB_Norfolk_COG.tiff")
+
+  def rgbCogSamplePath = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
 
   def sampleTileLayerRDD(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
     val rf = sampleGeoTiff.projectedRaster.toLayer(128, 128)

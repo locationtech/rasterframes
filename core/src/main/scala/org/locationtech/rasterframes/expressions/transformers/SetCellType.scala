@@ -32,7 +32,7 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure,
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression}
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.rf._
+import org.apache.spark.sql.rf.{TileUDT, WithTypeConformity}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String

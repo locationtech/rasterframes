@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.expressions
 import geotrellis.raster.{CellGrid, Tile}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.rf.{TileUDT, _}
+import org.apache.spark.sql.rf.{TileUDT, RasterSourceUDT}
 import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileContext
@@ -38,7 +38,7 @@ object DynamicExtractors {
     case _: TileUDT =>
       (row: InternalRow) =>
         (row.to[Tile](TileUDT.tileSerializer), None)
-    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
+    case t if t.conformsTo[ProjectedRasterTile] =>
       (row: InternalRow) => {
         val prt = row.to[ProjectedRasterTile]
         (prt, Some(TileContext(prt)))
@@ -48,7 +48,7 @@ object DynamicExtractors {
   lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: Row) =>  (row.to[Tile](TileUDT.tileSerializer), None)
-    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
+    case t if t.conformsTo[ProjectedRasterTile] =>
       (row: Row) => {
         val prt = row.to[ProjectedRasterTile]
         (prt, Some(TileContext(prt)))
@@ -59,9 +59,9 @@ object DynamicExtractors {
   lazy val projectedRasterLikeExtractor: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
     case _: RasterSourceUDT ⇒
       (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
+    case t if t.conformsTo[ProjectedRasterTile] =>
       (row: InternalRow) => row.to[ProjectedRasterTile]
-    case t if t.conformsTo(schemaOf[RasterRef]) =>
+    case t if t.conformsTo[RasterRef] =>
       (row: InternalRow) => row.to[RasterRef]
   }
 
@@ -71,9 +71,9 @@ object DynamicExtractors {
       (row: InternalRow) => row.to[Tile](TileUDT.tileSerializer)
     case _: RasterSourceUDT =>
       (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo(schemaOf[RasterRef]) ⇒
+    case t if t.conformsTo[RasterRef] ⇒
       (row: InternalRow) => row.to[RasterRef]
-    case t if t.conformsTo(schemaOf[ProjectedRasterTile]) =>
+    case t if t.conformsTo[ProjectedRasterTile] =>
       (row: InternalRow) => row.to[ProjectedRasterTile]
   }
 

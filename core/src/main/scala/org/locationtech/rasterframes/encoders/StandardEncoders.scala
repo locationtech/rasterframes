@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.encoders
 import java.net.URI
 import java.sql.Timestamp
 
-import org.locationtech.rasterframes.model._
 import org.locationtech.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
@@ -32,6 +31,7 @@ import geotrellis.raster.{CellSize, CellType, Raster, Tile, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
+import org.apache.spark.sql.{Encoder, Encoders}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import org.locationtech.rasterframes.model.{CellContext, Cells, TileContext, TileDataContext}
@@ -70,6 +70,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def cellsEncoder: ExpressionEncoder[Cells] = Cells.encoder
   implicit def tileContextEncoder: ExpressionEncoder[TileContext] = TileContext.encoder
   implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = TileDataContext.encoder
+  implicit def extentTilePairEncoder: Encoder[(ProjectedExtent, Tile)] = Encoders.tuple(projectedExtentEncoder, singlebandTileEncoder)
 
 
 }
