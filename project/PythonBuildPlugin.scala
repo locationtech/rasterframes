@@ -95,7 +95,7 @@ object PythonBuildPlugin extends AutoPlugin {
       s.log.info(s"Running '${cmd.mkString(" ")}' in '$wd'")
       val ec = Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
       if (ec != 0)
-        throw new MessageOnlyException(s"'$cmd' exited with value '$ec'")
+        throw new MessageOnlyException(s"'${cmd.mkString(" ")}' exited with value '$ec'")
       ec
     },
     pyWhl := pyWhlImp.value,
