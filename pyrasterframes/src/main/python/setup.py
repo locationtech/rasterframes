@@ -78,6 +78,7 @@ class PweaveDocs(distutils.cmd.Command):
         """Run pweave."""
         import traceback
         import pweave
+        bad_words = ["Error"]
 
         for file in self.files:
             name = path.splitext(path.basename(file))[0]
@@ -87,6 +88,16 @@ class PweaveDocs(distutils.cmd.Command):
                     file=str(file),
                     doctype=self.format
                 )
+                if self.format == 'markdown':
+                    dest = path.splitext(file)[0] + '.md'
+                    if not path.exists(dest):
+                        raise FileNotFoundError("Markdown file '%s' didn't get created as expected" % dest)
+                    with open(dest, "r") as result:
+                        for (n, line) in enumerate(result):
+                            for word in bad_words:
+                                if word in line:
+                                    raise ChildProcessError("Error detected on line %s in %s:\n%s" % (n + 1, dest, line))
+
             except Exception:
                 print(_divided('%s Failed:' % file))
                 print(traceback.format_exc())
