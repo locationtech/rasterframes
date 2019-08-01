@@ -63,7 +63,7 @@ GeoTIFF is one of the most common file formats for spatial data, providing flexi
 
 One downside to GeoTIFF is that it is not a big data native format. To create a GeoTIFF all the data to be encoded has to be in the memory of one compute node (in Spark parlance, this is a "collect"), limiting it's maximum size substantially compared to that of a full cluster environment. When rendering GeoTIFFs in RasterFrames, you either need to specify the dimensions of the output raster, or be aware of how big the collected data will end up being.
 
-Fortunately, we can use the cluster computing capability to downlample the data into a more manageble saze. For sake of example, let's render a simple RGB overview image of our scene as a small raster:
+Fortunately, we can use the cluster computing capability to downlample the data (using nearest-neighbor) into a more manageble size. For sake of example, let's render a simple RGB overview image of our scene as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)):
 
 ```python write_geotiff
 import os.path
@@ -94,10 +94,9 @@ with rasterio.open(outfile) as src:
 
 ## GeoTrellis Layers
 
-[GeoTrellis][GeoTrellis] is one of the key libraries that RasterFrames builds upon. It provides a Scala language API to working with large raster data with Apache Spark. Ingesting raster data into a Layer is one of the key concepts for creating a dataset for processing on Spark. RasterFrames write data from an appropriate DataFrame into a GeoTrellis Layer.
+[GeoTrellis][GeoTrellis] is one of the key libraries that RasterFrames builds upon. It provides a Scala language API to working with large raster data with Apache Spark. Ingesting raster data into a Layer is one of the key concepts for creating a dataset for processing on Spark. RasterFrames write data from an appropriate DataFrame into a [GeoTrellis Layer](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html). RasterFrames provides a `geotrellis` DataSource that supports both reading and writing of GeoTrellis layers.
 
-\[ More details see https://s22s.myjetbrains.com/youtrack/issue/RF-72 \]
-
+> An example is forthcoming.
 
 ## Parquet
 
