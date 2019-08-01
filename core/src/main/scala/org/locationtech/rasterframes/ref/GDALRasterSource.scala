@@ -34,7 +34,9 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
 
   @transient
   private lazy val gdal: VLMRasterSource = {
-    val cleaned = source.toASCIIString.replace("gdal+", "")
+    val cleaned = source.toASCIIString
+      .replace("gdal+", "")
+      .replace("gdal:/", "")
     // VSIPath doesn't like single slash "file:/path..."
     val tweaked =
       if (cleaned.matches("^file:/[^/].*"))

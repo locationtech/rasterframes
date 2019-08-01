@@ -51,19 +51,24 @@ display(tile)
 
 ## URI Formats
 
-/[ TODO Populate this with valid URI's schemes we can use with an example? including how to use gdal /]
+RasterFrames relies on three different IO drivers, selected based on a combination of scheme, file extentions, and library availability. GDAL is used first if a compatible version of GDAL (>= 2.4) is installed. It is the only driver that can read non-GeoTIFF files. If GDAL is not available, either the _Java I/O` or _Hadoop_ driver will be selected, depending on scheme.  
 
-file://  (is this only valid for spark local? or if file is )
-https://
-http:// ?
-s3a://
-s3n:// ?
-hdfs:// ?
-ftp:// ?
-azure ?
-google cloud ?
 
-gdal vsi? https://gdal.org/user/virtual_file_systems.html 
+| Prefix              | GDAL        | Java I/O | Hadoop |
+| ------------------- | ----------- | -------- | ------ |
+| `gdal://<vsidrv>//` |  ✔︎          | -︎        | -      |
+| `file://`           |  ✔︎          | ✔︎       | -      |
+| `http://`           |  ✔︎          | ✔︎       | -      |
+| `https://`          |  ✔︎          | ✔︎       | -      |
+| `ftp://`            | `/vsicurl/`  | ✔       | -      |
+| `hdfs://`           |  `/vsihdfs/` ︎| -       | ✔︎      |
+| `s3://`             |  `/vsis3/` ︎  | ✔︎       | -      |
+| `s3n://`            |  - ︎          | -       | ✔︎      |
+| `s3a://`            |  - ︎          | -       | ✔︎      |
+| `wasb://`           |  `/vsiaz/` ︎  | -       | ✔︎      |
+| `wasbs://`          |  - ︎          | -       | ✔︎      |
+
+Specific [GDAL Virtual File System drivers](https://gdal.org/user/virtual_file_systems.html) can be selected using the `gdal://<vsidrv>//` syntax. For example If you have a `archive.zip` file containing a GeoTiff named `my-file-inside.tif`, you can address it with `gdal://vsizip//path/to/archive.zip/my-file-inside.tif`. See the GDAL documentation for the format of the URIs after the `gdal:/` prefix (which is stripped off before passing the rest of the path to GDAL).
 
 
 ## Raster Catalogs

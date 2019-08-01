@@ -134,6 +134,7 @@ setup(
         'pytest==3.4.2',
         'pypandoc',
         'numpy>=1.7',
+        'shapley',
         'pandas',
         'rasterio'
     ],

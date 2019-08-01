@@ -140,7 +140,7 @@ object RasterSource extends LazyLogging {
 
     /** Extractor for determining if a scheme indicates GDAL preference.  */
     def unapply(source: URI): Boolean =
-      gdalOnly(source) || ((preferGdal || source.getScheme.startsWith("gdal+")) && hasGDAL)
+      gdalOnly(source) || ((preferGdal || source.getScheme.startsWith("gdal")) && hasGDAL)
   }
 
   object IsDefaultGeoTiff {
