@@ -28,10 +28,7 @@ import _root_.geotrellis.raster._
 import _root_.geotrellis.raster.io.geotiff.compression._
 import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
 import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
-<<<<<<< HEAD
-=======
 import _root_.geotrellis.spark._
->>>>>>> develop
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql._
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
