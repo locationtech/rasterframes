@@ -4,7 +4,7 @@
 
 ### 0.8.0
 
-* Upgraded to the following core dependencies: Spark 2.3.2, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.
+* Upgraded to the following core dependencies: Spark 2.3.3, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.
 * Build `pyrasterframes` binary distribution for pip installation.
 * Added support for rendering RasterFrame types in IPython/Jupyter.
 * Added new tile functions `rf_round`, `rf_abs`, `rf_log`, `rf_log10`, `rf_log2`, `rf_log1p`, `rf_exp`, `rf_exp10`, `rf_exp2`, `rf_expm1`, `rf_resample`.
