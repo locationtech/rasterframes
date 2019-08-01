@@ -261,10 +261,10 @@ class RasterFunctions(TestEnvironment):
 
         expect_row = compare.first()
 
-        self.assertTrue(expect_row.add)
         self.assertTrue(expect_row.subtract)
         self.assertTrue(expect_row.multiply)
         self.assertTrue(expect_row.divide)
+        self.assertTrue(expect_row.add)
 
     def test_explode(self):
         import pyspark.sql.functions as F
