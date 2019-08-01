@@ -230,21 +230,24 @@ class RasterFunctions(TestEnvironment):
     def test_sql(self):
         self.rf.createOrReplaceTempView("rf_test_sql")
 
-        self.spark.sql("""SELECT tile, 
-                            rf_local_add(tile, 1) AS and_one, 
+        arith = self.spark.sql("""SELECT tile, 
+                            rf_local_add(tile, 1) AS add_one, 
                             rf_local_subtract(tile, 1) AS less_one, 
                             rf_local_multiply(tile, 2) AS times_two, 
                             rf_local_divide(rf_convert_cell_type(tile, "float32"), 2) AS over_two 
-                        FROM rf_test_sql""").createOrReplaceTempView('rf_test_sql_1')
+                        FROM rf_test_sql""")\
 
+        arith.createOrReplaceTempView('rf_test_sql_1')
+        arith.show(truncate=False)
         stats = self.spark.sql("""
         SELECT rf_tile_mean(tile) as base,
-            rf_tile_mean(and_one) as plus_one,
+            rf_tile_mean(add_one) as plus_one,
             rf_tile_mean(less_one) as minus_one,
             rf_tile_mean(times_two) as double,
             rf_tile_mean(over_two) as half
         FROM rf_test_sql_1
         """)
+        stats.show(truncate=False)
         stats.createOrReplaceTempView('rf_test_sql_stats')
 
         compare = self.spark.sql("""
