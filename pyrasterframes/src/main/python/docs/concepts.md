@@ -1,6 +1,6 @@
 # Concepts
 
-There are a number of EO concepts that crop up in the discussion of RasterFrames features. We'll cover these briefly in the sections below. However, here are a few links providing a more extensive introduction to working with Earth observation data. 
+There are a number of Earth-observation (EO) concepts that crop up in the discussion of RasterFrames features. We'll cover these briefly in the sections below. However, here are a few links providing a more extensive introduction to working with Earth observation data. 
 
 * [_Fundamentals of Remote Sensing_](https://www.nrcan.gc.ca/maps-tools-and-publications/satellite-imagery-and-air-photos/tutorial-fundamentals-remote-sensing/9309)
 * [_Newcomers Earth Observation Guide_](https://business.esa.int/newcomers-earth-observation-guide)
@@ -51,7 +51,13 @@ An extent (or bounding box) is a rectangular region specifying the geospatial co
 
 ## Tile
 
-A tile (sometimes called a "chip") is a sub-region of  a scene, usually square, usually with dimensions that are some power of 2. It is usually encoded as a two-dimensional array, or a a one-dimensional array with width/height dimensions. Tiles may be singleband or multiband (multi-channel). The tile is the primary discretization unit used in RasterFrames; the bands of a scene are separated into different columns, and the band's raster is carved up into tiles for each row.
+A tile (sometimes called a "chip") is a rectangular subset of a @ref:[scene](concepts.md#scene). A tile can conceptually be though of as a two-dimensional array.
+
+Some EO data has many bands or channels. Tiles in this context are conceptually a three-dimensional array, with the extra dimension representing the bands.
+
+Tiles are often square and the dimensions are some power of two, for example 256 by 256. 
+
+The tile is the primary discretization unit used in RasterFrames. Each band of a scene is in a separate column. The scene's overall @ref:[extent](concepts.md#extent) is carved up into smaller extents for each tile. Each row of the DataFrame contains a two-dimensional tile per band column.
 
 ## Projected Extent
 

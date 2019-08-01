@@ -33,7 +33,7 @@ import org.locationtech.jts.geom._
 class ReprojectGeometrySpec extends TestEnvironment {
   // Note: Test data copied from ReprojectSpec in GeoTrellis
   val fact = new GeometryFactory()
-  val latLng: Geometry = fact.createLineString(Array(
+  val llLineString: Geometry = fact.createLineString(Array(
     new Coordinate(-111.09374999999999, 34.784483415461345),
     new Coordinate(-111.09374999999999, 43.29919735147067),
     new Coordinate(-75.322265625, 43.29919735147067),
@@ -41,7 +41,7 @@ class ReprojectGeometrySpec extends TestEnvironment {
     new Coordinate(-111.09374999999999, 34.784483415461345)
   ))
 
-  val webMercator: Geometry = fact.createLineString(Array(
+  val wmLineString: Geometry = fact.createLineString(Array(
     new Coordinate(-12366899.680315234, 4134631.734001753),
     new Coordinate(-12366899.680315234, 5357624.186564572),
     new Coordinate(-8384836.254770693, 5357624.186564572),
@@ -54,7 +54,7 @@ class ReprojectGeometrySpec extends TestEnvironment {
 
     it("should handle two literal CRSs") {
 
-      val df = Seq((latLng, webMercator)).toDF("ll", "wm")
+      val df = Seq((llLineString, wmLineString)).toDF("ll", "wm")
 
       val rp = df.select(
         st_reproject($"ll", LatLng, WebMercator) as "wm2",
@@ -65,14 +65,14 @@ class ReprojectGeometrySpec extends TestEnvironment {
 
       val (wm2, ll2, wm3) = rp.first()
 
-      wm2 should matchGeom(webMercator, 0.00001)
-      ll2 should matchGeom(latLng, 0.00001)
-      wm3 should matchGeom(webMercator, 0.00001)
+      wm2 should matchGeom(wmLineString, 0.00001)
+      ll2 should matchGeom(llLineString, 0.00001)
+      wm3 should matchGeom(wmLineString, 0.00001)
     }
 
     it("should handle one literal crs") {
       implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsEncoder)
-      val df = Seq((latLng, webMercator, LatLng: CRS)).toDF("ll", "wm", "llCRS")
+      val df = Seq((llLineString, wmLineString, LatLng: CRS)).toDF("ll", "wm", "llCRS")
 
       val rp = df.select(
         st_reproject($"ll", $"llCRS", WebMercator) as "wm2",
@@ -83,9 +83,9 @@ class ReprojectGeometrySpec extends TestEnvironment {
 
       val (wm2, ll2, wm3) = rp.first()
 
-      wm2 should matchGeom(webMercator, 0.00001)
-      ll2 should matchGeom(latLng, 0.00001)
-      wm3 should matchGeom(webMercator, 0.00001)
+      wm2 should matchGeom(wmLineString, 0.00001)
+      ll2 should matchGeom(llLineString, 0.00001)
+      wm3 should matchGeom(wmLineString, 0.00001)
     }
 
     it("should accept other geometry types") {
@@ -98,7 +98,7 @@ class ReprojectGeometrySpec extends TestEnvironment {
 
     it("should work in SQL") {
       implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsEncoder)
-      val df = Seq((latLng, webMercator, LatLng: CRS)).toDF("ll", "wm", "llCRS")
+      val df = Seq((llLineString, wmLineString, LatLng: CRS)).toDF("ll", "wm", "llCRS")
       df.createOrReplaceTempView("geom")
 
       val rp = spark.sql(
@@ -112,9 +112,9 @@ class ReprojectGeometrySpec extends TestEnvironment {
 
       val (wm2, ll2, wm3) = rp.first()
 
-      wm2 should matchGeom(webMercator, 0.00001)
-      ll2 should matchGeom(latLng, 0.00001)
-      wm3 should matchGeom(webMercator, 0.00001)
+      wm2 should matchGeom(wmLineString, 0.00001)
+      ll2 should matchGeom(llLineString, 0.00001)
+      wm3 should matchGeom(wmLineString, 0.00001)
 
       checkDocs("st_reproject")
     }

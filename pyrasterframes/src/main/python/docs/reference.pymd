@@ -94,9 +94,9 @@ Fetch CRS structure representing the coordinate reference system of a `Projected
 
 ### rf_mk_crs
 
-Construct a CRS structure from one of its string representations. Three froms are supported:
-
     Struct rf_mk_crs(String crsText)   
+
+Construct a CRS structure from one of its string representations. Three froms are supported:
 
 * [EPSG code](https://www.epsg-registry.org/): `EPSG:<integer>`
 * [Proj4 string](https://proj.org/): `+proj <proj4 parameters>`

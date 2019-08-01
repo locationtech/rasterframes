@@ -67,11 +67,11 @@ To set up an environment whereby you can easily test/evaluate your code blocks d
     sbt:RasterFrames> pyrasterframes/doc
     ```
     There's a command alias for this last step: `pyDocs`.
-4. To evaluate a single `.pymd` file, you pass the `-f` option and the filename relative to the `python` directory:
+4. To evaluate a single `.pymd` file, you pass the `-s` option and the filename relative to the `python` directory:
     ```
-    sbt:RasterFrames> pyrasterframes/pySetup pweave -f docs/getting-started.pymd
+    sbt:RasterFrames> pyrasterframes/pySetup pweave -s docs/getting-started.pymd
     [info] Synchronizing 44 files to '<src-root>/pyrasterframes/target/python'
-    [info] Running 'python setup.py pweave -f docs/getting-started.pymd' in '<src-root>/pyrasterframes/target/python'
+    [info] Running 'python setup.py pweave -s docs/getting-started.pymd' in '<src-root>/pyrasterframes/target/python'
     running pweave
     --------------------------------------------------
     Running getting-started
@@ -85,9 +85,9 @@ To set up an environment whereby you can easily test/evaluate your code blocks d
 5. The _output_ Markdown files are written to `<src-root>/pyrasterframes/target/python/docs`. _Note_: don't edit any files in the `pyrasterframes/target` directory... they will get overwritten each time `sbt` runs a command.
 6. During content development it's sometimes helpful to see the output rendered as basic HTML. To do this, add the `-d html` option to the pweave command:
     ```
-    sbt:RasterFrames> pyrasterframes/pySetup pweave -d html -f docs/getting-started.pymd
+    sbt:RasterFrames> pyrasterframes/pySetup pweave -f html -s docs/getting-started.pymd
     [info] Synchronizing 54 files to '<src-roog>/pyrasterframes/target/python'
-    [info] Running 'python setup.py pweave -d html -f docs/getting-started.pymd' in '<src-root>/pyrasterframes/target/python'
+    [info] Running 'python setup.py pweave -f html -s docs/getting-started.pymd' in '<src-root>/pyrasterframes/target/python'
     running pweave
     --------------------------------------------------
     Running getting-started

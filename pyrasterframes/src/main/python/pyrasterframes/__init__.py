@@ -182,17 +182,14 @@ def _geotiff_writer(
 
     def set_dims(parts):
         parts = [int(p) for p in parts]
-        assert(len(parts) == 2, "Expected dimensions specification to have exactly two components")
-        assert(all([p > 0 for p in parts]), "Expected all components in dimensions to be positive integers")
+        assert len(parts) == 2, "Expected dimensions specification to have exactly two components"
+        assert all([p > 0 for p in parts]), "Expected all components in dimensions to be positive integers"
         options.update({
             "imageWidth": parts[0],
             "imageHeight": parts[1]
         })
-        try:
-            parts = [int(p) for p in parts]
-            assert(all([p > 0 for p in parts]), 'nice message')
-        except ValueError:
-            raise
+        parts = [int(p) for p in parts]
+        assert all([p > 0 for p in parts]), 'nice message'
 
     if raster_dimensions is not None:
         if isinstance(raster_dimensions, (list, tuple)):

@@ -4,6 +4,7 @@
 
 ### 0.8.0
 
+* Super-duper new Python-centric [RasterFrames Users' Manual](https://rasterframes.io/)!
 * Upgraded to the following core dependencies: Spark 2.3.3, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.
 * Build `pyrasterframes` binary distribution for pip installation.
 * Added support for rendering RasterFrame types in IPython/Jupyter.

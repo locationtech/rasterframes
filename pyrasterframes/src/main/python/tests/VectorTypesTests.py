@@ -129,7 +129,7 @@ class VectorTypes(TestEnvironment):
 
     def test_parse_crs(self):
         df = self.spark.createDataFrame([Row(id=1)])
-        df.select(rf_mk_crs('EPSG:4326')).show()
+        self.assertEqual(df.select(rf_mk_crs('EPSG:4326')).count(), 1)
 
     def test_reproject(self):
         reprojected = self.rf.withColumn('reprojected',
