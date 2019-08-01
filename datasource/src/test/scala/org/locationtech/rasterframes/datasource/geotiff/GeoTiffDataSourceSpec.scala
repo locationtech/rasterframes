@@ -101,6 +101,23 @@ class GeoTiffDataSourceSpec
       }
     }
 
+    it("should write unstructured raster") {
+      import spark.implicits._
+      val df = spark.read.format("raster")
+        .option("tileDimensions", "32,32")  // oddball
+        .load(nonCogPath.toASCIIString) // core L8-B8-Robinson-IL.tiff
+
+      df.count() shouldBe > (0)
+
+      val crs = df.select(rf_crs($"proj_raster")).first()
+
+      noException shouldBe thrownBy {
+        df.write.geotiff.withCRS(crs).save(
+          Paths.get("target", "unstructured.tif").toString()
+        )
+      }
+    }
+
     it("should write GeoTIFF without layer") {
       import org.locationtech.rasterframes.datasource.raster._
       val pr = col("proj_raster_b0")
