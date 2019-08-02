@@ -244,27 +244,48 @@ class RasterFunctions(TestEnvironment):
             rf_tile_mean(add_one) as plus_one,
             rf_tile_mean(less_one) as minus_one,
             rf_tile_mean(times_two) as double,
-            rf_tile_mean(over_two) as half
+            rf_tile_mean(over_two) as half,
+            rf_no_data_cells(tile) as nd
+            
         FROM rf_test_sql_1
+        ORDER BY rf_no_data_cells(tile)
         """)
         stats.show(truncate=False)
         stats.createOrReplaceTempView('rf_test_sql_stats')
 
-        compare = self.spark.sql("""
+        compare1 = self.spark.sql("""
         SELECT 
             plus_one - 1.0 = base as add,
             minus_one + 1.0 = base as subtract,
             double / 2.0 = base as multiply,
             half * 2.0 = base as divide
         FROM rf_test_sql_stats
+        ORDER BY nd
         """)
 
-        expect_row = compare.first()
+        expect_row1 = compare1.first()
 
-        self.assertTrue(expect_row.subtract)
-        self.assertTrue(expect_row.multiply)
-        self.assertTrue(expect_row.divide)
-        self.assertTrue(expect_row.add)
+        self.assertTrue(expect_row1.subtract)
+        self.assertTrue(expect_row1.multiply)
+        self.assertTrue(expect_row1.divide)
+        self.assertTrue(expect_row1.add)
+
+        compare2 = self.spark.sql("""
+        SELECT 
+            plus_one - 1.0 = base as add,
+            minus_one + 1.0 = base as subtract,
+            double / 2.0 = base as multiply,
+            half * 2.0 = base as divide
+        FROM rf_test_sql_stats
+        ORDER BY -nd
+        """)
+
+        expect_row2 = compare2.first()
+
+        self.assertTrue(expect_row2.subtract)
+        self.assertTrue(expect_row2.multiply)
+        self.assertTrue(expect_row2.divide)
+        self.assertTrue(expect_row2.add)  # <-- fails due to NoData handling. ND + 1 = 1
 
     def test_explode(self):
         import pyspark.sql.functions as F
