@@ -28,7 +28,7 @@ import org.locationtech.rasterframes.model.TileDimensions
 import geotrellis.proj4.{CRS, Transform}
 import geotrellis.raster._
 import geotrellis.raster.reproject.{Reproject, ReprojectRasterExtent}
-import geotrellis.spark.tiling.{FloatingLayoutScheme, LayoutDefinition, LayoutLevel}
+import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}

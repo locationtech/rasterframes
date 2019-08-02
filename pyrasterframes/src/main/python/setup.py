@@ -136,7 +136,8 @@ setup(
         'numpy>=1.7',
         'shapely',
         'pandas',
-        'rasterio'
+        'rasterio',
+        'boto3',
     ],
     packages=[
         'pyrasterframes',

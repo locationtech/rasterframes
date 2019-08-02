@@ -23,6 +23,7 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.nio.file.Paths
 
 import geotrellis.proj4._
+import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import org.locationtech.rasterframes._
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestEnvironment
@@ -107,16 +108,94 @@ class GeoTiffDataSourceSpec
         .option("tileDimensions", "32,32")  // oddball
         .load(nonCogPath.toASCIIString) // core L8-B8-Robinson-IL.tiff
 
-      df.count() shouldBe > (0)
+      df.count() should be > 0L
 
       val crs = df.select(rf_crs($"proj_raster")).first()
 
       noException shouldBe thrownBy {
-        df.write.geotiff.withCRS(crs).save(
-          Paths.get("target", "unstructured.tif").toString()
-        )
+        df.write.geotiff.withCRS(crs).save("datasource/target/unstructured.tif")
       }
+
+      val (inCols, inRows) = {
+        val id = sampleGeoTiff.imageData // inshallah same as nonCogPath
+        (id.cols, id.rows)
+      }
+      inCols should be (774)
+      inRows should be (500) //from gdalinfo
+
+      val outputTif = SinglebandGeoTiff("datasource/target/unstructured.tif")
+      outputTif.imageData.cols should be (inCols)
+      outputTif.imageData.rows should be (inRows)
+
+      // TODO check datatype, extent.
     }
+
+    it("should round trip unstructured raster from COG"){
+      val df = spark.read.format("raster")
+        .load(getClass.getResource("/LC08_B7_Memphis_COG.tiff").toURI.toASCIIString())
+
+      df.count() should be > 0L
+
+      val crs = df.select(rf_crs(col("proj_raster"))).first()
+
+      noException shouldBe thrownBy {
+        df.write.geotiff.withCRS(crs).save("datasource/target/unstructured_cog.tif")
+      }
+
+      val (inCols, inRows) = {
+        val id = readSingleband("LC08_B7_Memphis_COG.tiff").imageData
+        (id.cols, id.rows)
+      }
+      inCols should be (963)
+      inRows should be (754) //from gdalinfo
+
+      val outputTif = SinglebandGeoTiff("datasource/target/unstructured_cog.tif")
+      outputTif.imageData.cols should be (inCols)
+      outputTif.imageData.rows should be (inRows)
+
+      // TODO check datatype, extent.
+    }
+
+    /*
+    it("should round trip jasons favorite unstructured raster round trip okay") {
+      import org.locationtech.rasterframes.datasource.raster._
+      import spark.implicits._
+
+      val jasonsRasterPath = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/17/03/2019193/" +
+                            "MCD43A4.A2019193.h17v03.006.2019202033615_B06.TIF"
+      val df = spark.read.raster
+          .withTileDimensions(233, 133)
+          .from(Seq(jasonsRasterPath))
+        .load()
+
+      logger.debug("Read local file metadata")
+      val (inCols, inRows) = {
+        val in = readSingleband("MCD43A4.A2019193.h17v03.006.2019202033615_B06.TIF")
+        (in.cols, in.rows)
+      }
+      inCols should be (2400)  // from GDAL
+      inRows should be (2400)  // from GDAL
+
+      val outPath = "datasources/target/rf_mcd43a4.A2019193.h17v03.tif"
+
+      // now take actions on the read df
+      logger.debug("Actions on raster ref dataframe")
+      df.count() should be > 100L
+      val crs = df.select(rf_crs($"proj_raster")).first()
+      logger.debug("Write full res geotiff from dataframe")
+      df.write.geotiff.withCRS(crs).save(outPath)
+
+      // compare written file to path
+      logger.debug("Inspect written geotiff metadata")
+      val (outCols, outRows) = {
+        val outputTif = SinglebandGeoTiff(outPath)
+        (outputTif.cols, outputTif.rows)
+      }
+      outCols should be (inCols)
+      outRows should be (inRows)
+      // todo check extent and crs just for grins.
+
+    }*/
 
     it("should write GeoTIFF without layer") {
       import org.locationtech.rasterframes.datasource.raster._
@@ -169,6 +248,8 @@ ${s(1)},${s(4)},${s(3)}
         .withDimensions(256, 256)
         .save("geotiff-overview.tif")
 
+      val outTif = MultibandGeoTiff("geotiff-overview.tif")
+      outTif.bandCount should be (3)
     }
   }
 }

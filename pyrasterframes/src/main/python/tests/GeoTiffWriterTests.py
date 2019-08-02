@@ -29,7 +29,7 @@ class GeoTiffWriter(TestEnvironment):
 
     @staticmethod
     def _tmpfile():
-        return os.path.join(tempfile.tempdir, "pyrf-test.tif")
+        return os.path.join(tempfile.gettempdir(), "pyrf-test.tif")
 
     def test_identity_write(self):
         rf = self.spark.read.geotiff(self.img_uri)
@@ -44,13 +44,19 @@ class GeoTiffWriter(TestEnvironment):
 
     def test_unstructured_write(self):
         rf = self.spark.read.raster(self.img_uri)
-        dest = self._tmpfile()
-        rf.write.geotiff(dest, crs='EPSG:32616')
+        dest_file = self._tmpfile()
+        rf.write.geotiff(dest_file, crs='EPSG:32616')
 
-        rf2 = self.spark.read.raster(dest)
+        rf2 = self.spark.read.raster('file://' + dest_file)
         self.assertEqual(rf2.count(), rf.count())
 
-        os.remove(dest)
+        with rasterio.open(self.img_uri) as source:
+            with rasterio.open(dest_file) as dest:
+                self.assertEqual((dest.width, dest.height), (source.width, source.height))
+                self.assertEqual(dest.bounds, source.bounds)
+                self.assertEqual(dest.crs, source.crs)
+
+        os.remove(dest_file)
 
     def test_downsampled_write(self):
         rf = self.spark.read.raster(self.img_uri)
