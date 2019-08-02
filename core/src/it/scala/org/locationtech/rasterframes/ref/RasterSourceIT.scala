@@ -63,8 +63,8 @@ class RasterSourceIT extends TestEnvironment with TestData {
     }
   }
 
-  if (RasterSource.IsGDAL.hasGDAL) {
-    println("GDAL version: " + GDALWarp.get_version_info("--version"))
+  if (GDALRasterSource.hasGDAL) {
+    println("GDAL version: " + GDALRasterSource.gdalVersion())
 
     describe("GDAL support") {
 

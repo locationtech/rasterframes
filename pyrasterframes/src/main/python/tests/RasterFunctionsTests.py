@@ -18,13 +18,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import unittest
-
-import numpy as np
 from pyrasterframes.rasterfunctions import *
-from pyrasterframes.rf_types import *
-from pyspark.sql import SQLContext
+from pyrasterframes.utils import gdal_version
 from pyspark.sql.functions import *
+
 from . import TestEnvironment
 
 
@@ -36,6 +33,8 @@ class RasterFunctions(TestEnvironment):
     def test_setup(self):
         self.assertEqual(self.spark.sparkContext.getConf().get("spark.serializer"),
                          "org.apache.spark.serializer.KryoSerializer")
+        print("GDAL version", gdal_version())
+
 
     def test_identify_columns(self):
         cols = self.rf.tile_columns()
