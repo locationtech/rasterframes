@@ -158,9 +158,8 @@ for i in range(4):
     x[:, i*tile_size//4:(i+1)*tile_size//4] = i
 x = Tile(x)
 
-rf = spark.createDataFrame(pd.DataFrame(data = 
-        {'tile': [x]}))
-x
+rf = spark.createDataFrame([Row(tile=x)])
+display(x)
 ```
 
 First, we mask the value of 1 by making a new column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a tile with the cell type 'uint16ud2'.
@@ -197,13 +196,12 @@ Let's use the same tile as before to demonstrate how NoData values affect tile a
 
 ```python
 tile_size = 100
-x = np.eye(tile_size, dtype='int16')
+x = np.zeros((tile_size, tile_size), dtype='int16')
 for i in range(4):
     x[:, i*tile_size//4:(i+1)*tile_size//4] = i
 x = Tile(x)
 
-rf = spark.createDataFrame(pd.DataFrame(data = 
-        {'tile': [x]}))
+rf = spark.createDataFrame([Row(tile=x)])
 display(x)
 ```
 
@@ -235,9 +233,8 @@ Let's first create a RasterFrame that has columns of `float` and `int` cell type
 ```python
 x = Tile((np.ones((100, 100))*2).astype('float'))
 y = Tile((np.ones((100, 100))*3.0).astype('int32'))
-rf = spark.createDataFrame(pd.DataFrame(data = 
-        {'x': [x],
-        'y': [y]}))
+rf = spark.createDataFrame([Row(x=x, y=y)])
+
 rf.select(rf_cell_type('y'), rf_cell_type('x')).distinct().show()
 ```
 
@@ -257,8 +254,8 @@ def get_nodata_ct(nd_val):
 
 x = Tile((np.ones((100, 100))*3).astype('int16'))
 
-rf = spark.createDataFrame(pd.DataFrame(data = 
-        {'x': [x]}))
+rf = spark.createDataFrame([Row(x=x)])
+
 rf_nd = rf.withColumn('x_nd_1', rf_convert_cell_type('x', get_nodata_ct(1))) \
           .withColumn('x_nd_2', rf_convert_cell_type('x', get_nodata_ct(2)))
 ```
