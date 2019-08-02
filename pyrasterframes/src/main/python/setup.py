@@ -152,7 +152,8 @@ setup(
         'numpy>=1.7',
         'shapely',
         'pandas',
-        'rasterio'
+        'rasterio',
+        'boto3', # enable reading s3 files for tests
     ],
     packages=[
         'pyrasterframes',
