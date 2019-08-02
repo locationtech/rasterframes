@@ -28,7 +28,6 @@ from pyspark.sql.functions import *
 from . import TestEnvironment
 
 
-
 class CellTypeHandling(unittest.TestCase):
 
     def test_is_raw(self):
@@ -237,11 +236,16 @@ class UDT(TestEnvironment):
 class TileOps(TestEnvironment):
 
     def setUp(self):
+        from pyspark.sql import Row
         # convenience so we can assert around Tile() == Tile()
         self.t1 = Tile(np.array([[1, 2],
                                  [3, 4]]), CellType.int8().with_no_data_value(3))
         self.t2 = Tile(np.array([[1, 2],
                                  [3, 4]]), CellType.int8().with_no_data_value(1))
+        self.t3 = Tile(np.array([[1,  2],
+                                 [-3, 4]]), CellType.int8().with_no_data_value(3))
+
+        self.df = self.spark.createDataFrame([Row(t1=self.t1, t2=self.t2, t3=self.t3)])
 
     def test_addition(self):
         e1 = np.ma.masked_equal(np.array([[5, 6],
@@ -253,6 +257,9 @@ class TileOps(TestEnvironment):
         r2 = (self.t1 + self.t2).cells
         self.assertTrue(np.ma.allequal(r2, e2))
 
+        col_result = self.df.select(rf_local_add('t1', 't3').alias('sum')).first()
+        self.assertEqual(col_result.sum, self.t1 + self.t3)
+
     def test_multiplication(self):
         e1 = np.ma.masked_equal(np.array([[4, 8],
                                           [12, 16]]), 12)
@@ -262,6 +269,9 @@ class TileOps(TestEnvironment):
         e2 = np.ma.masked_equal(np.array([[3, 4], [3, 16]]), 3)
         r2 = (self.t1 * self.t2).cells
         self.assertTrue(np.ma.allequal(r2, e2))
+
+        r3 = self.df.select(rf_local_multiply('t1', 't3').alias('r3')).first().r3
+        self.assertEqual(r3, self.t1 * self.t3)
 
     def test_subtraction(self):
         t3 = self.t1 * 4
@@ -539,7 +549,6 @@ class RasterSource(TestEnvironment):
         self.assertEqual(len(df2.columns), 7)  # three path cols, three tile cols, and geo
         self.assertTrue('geo' in df2.columns)
         self.assertTrue(df2.select('b1_path').distinct().count() == 3)
-
 
 
 def suite():

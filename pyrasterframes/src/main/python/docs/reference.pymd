@@ -238,6 +238,8 @@ If input `tile` had a NoData value already, the behaviour depends on if its cell
 
 [Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single tile (unary), between a `tile` and a scalar, between two `tile`s, or across many `tile`s.
 
+When these operations encounter a NoData value in either operand, the cell in the resulting `tile` will have a NoData.
+
 The binary local map algebra functions have similar variations in the Python API depending on the left hand side type:
 
  - `rf_local_op`: applies `op` to two columns; the right hand side can be a `tile` or a numeric column.
@@ -535,6 +537,8 @@ Aggregates over all of the rows in DataFrame of `tile` and returns a count of ea
 ## Tile Local Aggregate Statistics
 
 Local statistics compute the element-wise statistics across a DataFrame or group of `tile`s, resulting in a `tile` that has the same dimension.
+
+When these functions encounter a NoData in a cell location, it will be ignored. 
 
 ### rf_agg_local_max
 
