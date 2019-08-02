@@ -97,6 +97,21 @@ class RasterFunctions(TestEnvironment):
         mean = self.rf.agg(rf_agg_mean('tile')).first()['rf_agg_mean(tile)']
         self.assertTrue(self.rounded_compare(mean, 10160))
 
+    def test_agg_local_mean(self):
+        from pyspark.sql import Row
+
+        # this is really testing the nodata propagation in the agg  local summation
+        ct = CellType.int8().with_no_data_value(4)
+        df = self.spark.createDataFrame([
+            Row(tile=Tile(np.array([[1, 2, 3, 4, 5, 6]]), ct)),
+            Row(tile=Tile(np.array([[1, 2, 4, 3, 5, 6]]), ct)),
+        ])
+
+        result = df.agg(rf_agg_local_mean('tile').alias('mean')).first().mean
+
+        expected = Tile(np.array([[1.0, 2.0, 3.0, 3.0, 5.0, 6.0]]), CellType.float64())
+        self.assertEqual(result, expected)
+
     def test_aggregations(self):
         aggs = self.rf.agg(
             rf_agg_data_cells('tile'),
@@ -112,28 +127,59 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
     def test_sql(self):
+
         self.rf.createOrReplaceTempView("rf_test_sql")
 
-        self.spark.sql("""SELECT tile, 
-                            rf_local_add(tile, 1) AS and_one, 
-                            rf_local_subtract(tile, 1) AS less_one, 
-                            rf_local_multiply(tile, 2) AS times_two, 
-                            rf_local_divide(tile, 2) AS over_two 
-                        FROM rf_test_sql""").createOrReplaceTempView('rf_test_sql_1')
+        arith = self.spark.sql("""SELECT tile, 
+                                rf_local_add(tile, 1) AS add_one, 
+                                rf_local_subtract(tile, 1) AS less_one, 
+                                rf_local_multiply(tile, 2) AS times_two, 
+                                rf_local_divide(
+                                    rf_convert_cell_type(tile, "float32"), 
+                                    2) AS over_two 
+                            FROM rf_test_sql""")
 
-        statsRow = self.spark.sql("""
-        SELECT rf_tile_mean(tile) as base,
-            rf_tile_mean(and_one) as plus_one,
-            rf_tile_mean(less_one) as minus_one,
-            rf_tile_mean(times_two) as double,
-            rf_tile_mean(over_two) as half
-        FROM rf_test_sql_1
-        """).first()
+        arith.createOrReplaceTempView('rf_test_sql_1')
+        arith.show(truncate=False)
+        stats = self.spark.sql("""
+            SELECT rf_tile_mean(tile) as base,
+                rf_tile_mean(add_one) as plus_one,
+                rf_tile_mean(less_one) as minus_one,
+                rf_tile_mean(times_two) as double,
+                rf_tile_mean(over_two) as half,
+                rf_no_data_cells(tile) as nd
+                
+            FROM rf_test_sql_1
+            ORDER BY rf_no_data_cells(tile)
+            """)
+        stats.show(truncate=False)
+        stats.createOrReplaceTempView('rf_test_sql_stats')
 
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.plus_one - 1))
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.minus_one + 1))
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.double / 2))
-        self.assertTrue(self.rounded_compare(statsRow.base, statsRow.half * 2))
+        compare = self.spark.sql("""
+            SELECT 
+                plus_one - 1.0 = base as add,
+                minus_one + 1.0 = base as subtract,
+                double / 2.0 = base as multiply,
+                half * 2.0 = base as divide,
+                nd
+            FROM rf_test_sql_stats
+            """)
+
+        expect_row1 = compare.orderBy('nd').first()
+
+        self.assertTrue(expect_row1.subtract)
+        self.assertTrue(expect_row1.multiply)
+        self.assertTrue(expect_row1.divide)
+        self.assertEqual(expect_row1.nd, 0)
+        self.assertTrue(expect_row1.add)
+
+        expect_row2 = compare.orderBy('nd', ascending=False).first()
+
+        self.assertTrue(expect_row2.subtract)
+        self.assertTrue(expect_row2.multiply)
+        self.assertTrue(expect_row2.divide)
+        self.assertTrue(expect_row2.nd > 0)
+        self.assertTrue(expect_row2.add)  # <-- Would fail in a case where ND + 1 = 1
 
     def test_explode(self):
         import pyspark.sql.functions as F
