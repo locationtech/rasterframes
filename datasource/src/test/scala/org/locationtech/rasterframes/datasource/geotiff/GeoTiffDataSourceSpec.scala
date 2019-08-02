@@ -24,6 +24,7 @@ import java.nio.file.Paths
 
 import geotrellis.proj4._
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
+import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestEnvironment
@@ -113,7 +114,7 @@ class GeoTiffDataSourceSpec
       val crs = df.select(rf_crs($"proj_raster")).first()
 
       noException shouldBe thrownBy {
-        df.write.geotiff.withCRS(crs).save("datasource/target/unstructured.tif")
+        df.write.geotiff.withCRS(crs).save("unstructured.tif")
       }
 
       val (inCols, inRows) = {
@@ -123,7 +124,7 @@ class GeoTiffDataSourceSpec
       inCols should be (774)
       inRows should be (500) //from gdalinfo
 
-      val outputTif = SinglebandGeoTiff("datasource/target/unstructured.tif")
+      val outputTif = SinglebandGeoTiff("unstructured.tif")
       outputTif.imageData.cols should be (inCols)
       outputTif.imageData.rows should be (inRows)
 
@@ -139,21 +140,24 @@ class GeoTiffDataSourceSpec
       val crs = df.select(rf_crs(col("proj_raster"))).first()
 
       noException shouldBe thrownBy {
-        df.write.geotiff.withCRS(crs).save("datasource/target/unstructured_cog.tif")
+        df.write.geotiff.withCRS(crs).save("target/unstructured_cog.tif")
       }
 
-      val (inCols, inRows) = {
-        val id = readSingleband("LC08_B7_Memphis_COG.tiff").imageData
-        (id.cols, id.rows)
+      val (inCols, inRows, inExtent, inCellType) = {
+        val tif = readSingleband("LC08_B7_Memphis_COG.tiff")
+        val id = tif.imageData
+        (id.cols, id.rows, tif.extent, tif.cellType)
       }
       inCols should be (963)
       inRows should be (754) //from gdalinfo
+      inExtent should be (Extent(752325.0, 3872685.0, 781215.0, 3895305.0))
 
-      val outputTif = SinglebandGeoTiff("datasource/target/unstructured_cog.tif")
+      val outputTif = SinglebandGeoTiff("target/unstructured_cog.tif")
       outputTif.imageData.cols should be (inCols)
       outputTif.imageData.rows should be (inRows)
+      outputTif.extent should be (inExtent)
+      outputTif.cellType should be (inCellType)
 
-      // TODO check datatype, extent.
     }
 
     /*
