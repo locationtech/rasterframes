@@ -233,7 +233,7 @@ RasterFrames supports having Tile columns with multiple cell types in a single R
 Let's first create a RasterFrame that has columns of `float` and `int` cell type. 
 
 ```python
-x = Tile((np.ones((100, 100))*2).astype('int16'))
+x = Tile((np.ones((100, 100))*2).astype('float'))
 y = Tile((np.ones((100, 100))*3.0).astype('int32'))
 rf = spark.createDataFrame(pd.DataFrame(data = 
         {'x': [x],
