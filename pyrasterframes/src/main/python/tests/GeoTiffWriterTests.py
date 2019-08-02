@@ -37,7 +37,7 @@ class GeoTiffWriter(TestEnvironment):
         dest = self._tmpfile()
         rf.write.geotiff(dest)
 
-        rf2 = self.spark.read.geotiff(dest)
+        rf2 = self.spark.read.geotiff('file://' + dest)
         self.assertEqual(rf2.count(), rf.count())
 
         os.remove(dest)
@@ -47,7 +47,7 @@ class GeoTiffWriter(TestEnvironment):
         dest = self._tmpfile()
         rf.write.geotiff(dest, crs='EPSG:32616')
 
-        rf2 = self.spark.read.raster(dest)
+        rf2 = self.spark.read.raster('file://' + dest)
         self.assertEqual(rf2.count(), rf.count())
 
         os.remove(dest)
