@@ -20,15 +20,14 @@
  */
 package org.locationtech.rasterframes
 import geotrellis.proj4.CRS
-import geotrellis.raster.{Tile, _}
 import geotrellis.raster.reproject.Reproject
+import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.jts.ReprojectionTransformer
-import org.locationtech.rasterframes.model.{LazyCRS, TileDimensions}
+import org.locationtech.rasterframes.model.TileDimensions
 
 /**
  * Module utils.
@@ -167,24 +166,12 @@ package object functions {
     }
   }
 
-  /** Reporjects a geometry column from one CRS to another, where CRS are defined in Proj4 format. */
-  private[rasterframes] val reprojectGeometryCRSName: (Geometry, String, String) ⇒ Geometry =
-    (sourceGeom, srcName, dstName) ⇒ {
-      val src = LazyCRS(srcName)
-      val dst = LazyCRS(dstName)
-      val trans = new ReprojectionTransformer(src, dst)
-      trans.transform(sourceGeom)
-    }
-
   def register(sqlContext: SQLContext): Unit = {
     sqlContext.udf.register("rf_make_constant_tile", makeConstantTile)
     sqlContext.udf.register("rf_make_zeros_tile", tileZeros)
     sqlContext.udf.register("rf_make_ones_tile", tileOnes)
-
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)
-    // TODO: replace this with full ReprojectGeometry with String handling.
-    sqlContext.udf.register("st_reproject", reprojectGeometryCRSName)
     sqlContext.udf.register("rf_array_to_tile", arrayToTile)
   }
 }

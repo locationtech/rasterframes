@@ -93,7 +93,10 @@ object PythonBuildPlugin extends AutoPlugin {
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
       val ver = version.value
       s.log.info(s"Running '${cmd.mkString(" ")}' in '$wd'")
-      Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
+      val ec = Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
+      if (ec != 0)
+        throw new MessageOnlyException(s"'${cmd.mkString(" ")}' exited with value '$ec'")
+      ec
     },
     pyWhl := pyWhlImp.value,
     Compile / `package` := (Compile / `package`).dependsOn(Python / packageBin).value,

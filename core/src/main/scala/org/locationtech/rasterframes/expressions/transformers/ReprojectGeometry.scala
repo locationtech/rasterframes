@@ -27,12 +27,14 @@ import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.jts.geom.Geometry
 import geotrellis.proj4.CRS
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.TypeCheckFailure
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.jts.JTSTypes
+import org.apache.spark.sql.jts.{AbstractGeometryUDT, JTSTypes}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
 import org.locationtech.rasterframes.model.LazyCRS
 
@@ -49,19 +51,22 @@ import org.locationtech.rasterframes.model.LazyCRS
        ..."""
 )
 case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: Expression) extends Expression
-  with CodegenFallback with ExpectsInputTypes {
-
-  // TODO: Replace registration in `org.locationtech.rasterframes.functions.register`
-  // TODO: with proper Expression supporting String columns as well.
+  with CodegenFallback {
 
   override def nodeName: String = "st_reproject"
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
   override def nullable: Boolean = geometry.nullable || srcCRS.nullable || dstCRS.nullable
   override def children: Seq[Expression] = Seq(geometry, srcCRS, dstCRS)
-  private def crsSerde = CatalystSerializer[CRS]
-  override val inputTypes = Seq(
-    dataType, crsSerde.schema, crsSerde.schema
-  )
+
+  override def checkInputDataTypes(): TypeCheckResult = {
+    if (!geometry.dataType.isInstanceOf[AbstractGeometryUDT[_]])
+      TypeCheckFailure(s"Input type '${geometry.dataType}' does not conform to a geometry type.")
+    else if(!DynamicExtractors.crsExtractor.isDefinedAt(srcCRS.dataType))
+      TypeCheckFailure(s"Input type '${srcCRS.dataType}' cannot be interpreted as a CRS.")
+    else if(!DynamicExtractors.crsExtractor.isDefinedAt(dstCRS.dataType))
+      TypeCheckFailure(s"Input type '${dstCRS.dataType}' cannot be interpreted as a CRS.")
+    else TypeCheckResult.TypeCheckSuccess
+  }
 
   /** Reprojects a geometry column from one CRS to another. */
   val reproject: (Geometry, CRS, CRS) ⇒ Geometry =
@@ -71,8 +76,8 @@ case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: E
     }
 
   override def eval(input: InternalRow): Any = {
-    val src = srcCRS.eval(input).asInstanceOf[InternalRow].to[CRS]
-    val dst = dstCRS.eval(input).asInstanceOf[InternalRow].to[CRS]
+    val src = DynamicExtractors.crsExtractor(srcCRS.dataType)(srcCRS.eval(input))
+    val dst = DynamicExtractors.crsExtractor(dstCRS.dataType)(dstCRS.eval(input))
     (src, dst) match {
       // Optimized pass-through case.
       case (s: LazyCRS, r: LazyCRS) if s.encoded == r.encoded => geometry.eval(input)

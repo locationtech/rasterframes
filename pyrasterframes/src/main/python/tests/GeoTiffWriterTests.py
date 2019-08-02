@@ -67,3 +67,4 @@ class GeoTiffWriter(TestEnvironment):
             self.assertEqual((f.width, f.height), (128, 128))
 
         os.remove(dest)
+
