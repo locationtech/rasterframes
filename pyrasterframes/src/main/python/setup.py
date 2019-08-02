@@ -128,7 +128,8 @@ setup(
         'setuptools>=0.8',
         'ipython==6.2.1',
         "ipykernel==4.8.0",
-        'Pweave==0.30.3'
+        'Pweave==0.30.3',
+        'pyrsistent==0.15.3',
     ],
     tests_require=[
         'pytest==3.4.2',
