@@ -145,6 +145,7 @@ setup(
         'ipython==6.2.1',
         "ipykernel==4.8.0",
         'Pweave==0.30.3',
+        'fiona==1.8.6'
     ],
     tests_require=[
         'pytest==3.4.2',
