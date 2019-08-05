@@ -9,12 +9,12 @@ The standard mechanism by which any data is brought in and out of a Spark Datafr
 * @ref:[Raster Readers](raster-read.md)
     - `raster`: the standard reader for most raster data, including single raster files or catalogs
     - `geotiff`: a simplified reader for reading a single GeoTIFF file
-    - `geotrellis`: for reading a [GeoTrellis layer][GTLayer])
+    - `geotrellis`: for reading a [GeoTrellis layer][GTLayer]
 * @ref:[Raster Writers](raster-write.md)
     - @ref:[Tile](raster-write.md#tile-samples) and @ref:[DataFrame](raster-write.md#dataframe-samples) samples
     - `geotiff`: beta writer to GeoTiff file
     - `geotrellis`: creating a [GeoTrellis layer][GTLayer]
-    - [`parquet`][Parquet]: general purpose writer 
+    - [`parquet`][Parquet]: general purpose writer
 
 There is also support for @ref:[vector data](vector-data.md) for masking and data labeling.
 
