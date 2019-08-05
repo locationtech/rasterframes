@@ -1,6 +1,10 @@
 # Getting Started
 
-There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames, and @ref:[several languages](languages.md) with which you can use it. Let's start with the simplest: the Python shell. Python 3.6 or greater is recommended.
+There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames, and @ref:[several languages](languages.md) with which you can use it. Let's start with the simplest: the Python shell.  To get started you will need:
+
+1. [Python](https://www.python.org/) installed. Version 3.6 or greater is recommended.
+1. `pip` or `pip3` (recommended) installed. If you are using Python 3, `pip3` may already be installed.
+1. Java [JDK 8](https://openjdk.java.net/install/index.html) installed on your system and `java` on your system `PATH` or `JAVA_HOME` pointing to a Java installation.
 
 ## pip install pyrasterframes
 
@@ -31,8 +35,7 @@ df.select(rf_local_add(df.proj_raster, lit(3))).show(5, False)
 
 This example is extended in the [getting started Jupyter notebook](https://nbviewer.jupyter.org/github/locationtech/rasterframes/blob/develop/rf-notebook/src/main/notebooks/Getting%20Started.ipynb).
 
-To understand more about how and why RasterFrames represents Earth observation in DataFrames, read the project @ref:[description](description.md). For more hands-on examples, see the chapters about @ref:[reading](raster-io.md) and @ref:[processing](raster-processing.md) with RasterFrames.
-
+To understand more about how and why RasterFrames represents Earth observation in DataFrames, read about the @ref:[core concepts](concepts.md) and the project @ref:[description](description.md). For more hands-on examples, see the chapters about @ref:[reading](raster-io.md) and @ref:[processing](raster-processing.md) with RasterFrames.
 
 ## Other Options
 
@@ -43,15 +46,27 @@ You can also use RasterFrames in the following environments:
 
 ### Jupyter Notebook
 
-**TODO** User facing quick instructions e.g. how to pull and run docker hub hosted container
+ RasterFrames provides a Docker image for a Jupyter notebook server whose default kernel is already set up for running RasterFrames. To use it:
 
-See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on running a Jupyter notebook server within a Docker container that has a fully set up environment.
+ 1. Install [docker](https://docs.docker.com/install/)
+ 1. Pull the image: `docker pull s22s/rasterframes-notebook`
+ 1. Run a container with the image, for example: 
+
+      docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/notebooks  rasterframes-notebook:latest
+
+ 1. In a browser, open `localhost:8808` in the example above. 
+
+See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.
 
 ### `pyspark` shell or app
 
-To initialize RasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip.
+To initialize RasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip. 
 
-**TODO** how to build or download those artifacts.
+You can either [build](https://github.com/locationtech/rasterframes/blob/develop/README.md) the artifacts or download them:
+
+ * Assembly JAR: https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes-assembly-${VERSION}.jar
+ * Python zip: https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip
+
 
 ```bash
    pyspark \
