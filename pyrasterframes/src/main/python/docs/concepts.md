@@ -1,6 +1,6 @@
 # Concepts
 
-There are a number of Earth-observation (EO) concepts that crop up in the discussion of RasterFrames features. We'll cover these briefly in the sections below. However, here are a few links providing a more extensive introduction to working with Earth observation data. 
+There are a number of Earth-observation (EO) concepts that crop up in the discussion of RasterFrames features. We'll cover these briefly in the sections below. However, here are a few links providing a more extensive introduction to working with Earth observation data.
 
 * [_Fundamentals of Remote Sensing_](https://www.nrcan.gc.ca/maps-tools-and-publications/satellite-imagery-and-air-photos/tutorial-fundamentals-remote-sensing/9309)
 * [_Newcomers Earth Observation Guide_](https://business.esa.int/newcomers-earth-observation-guide)
@@ -8,7 +8,7 @@ There are a number of Earth-observation (EO) concepts that crop up in the discus
 
 ## Cell
 
-A cell is a single sample from a sensor encoded as a scalar value asssociated with a specific spatiotemporal location and time. It can be thought of as an image pixel associated with a place and time. 
+A cell is a single sample from a sensor encoded as a scalar value associated with a specific spatiotemporal location and time. It can be thought of as an image pixel associated with a place and time.
 
 ## Cell Type
 
@@ -35,15 +35,15 @@ See the section on [“NoData” Handling](nodata-handling.md) for additional di
 
 ## NoData
 
-A "NoData" (or N/A) value is a specifically identified value for a cell type used to indicate the absence of data. See the section on @ref:[“NoData” Handling](nodata-handling.md) for additional discussion on NoData
+A "NoData" (or N/A) value is a specifically identified value for a cell type used to indicate the absence of data. See the section on @ref:[“NoData” Handling](nodata-handling.md) for additional discussion on "NoData".
 
 ## Scene
 
-A scene (or granule) is a discrete instance of EO data with a specific extent (region), date-time, and projection/CRS. 
+A scene (or granule) is a discrete instance of EO data with a specific extent (region), date-time, and projection/CRS.
 
 ## Coordinate Reference System (CRS)
 
-A coordinate reference system (or spatial reference system) is a set of mathematical constructs used to map cells to specific locations on the Earth (or other surface). A CRS typcially accompanies any EO data so it can be precicely located.
+A coordinate reference system (or spatial reference system) is a set of mathematical constructs used to map cells to specific locations on the Earth (or other surface). A CRS typically accompanies any EO data so it can be precisely located.
 
 ## Extent
 
@@ -51,17 +51,17 @@ An extent (or bounding box) is a rectangular region specifying the geospatial co
 
 ## Tile
 
-A tile (sometimes called a "chip") is a rectangular subset of a @ref:[scene](concepts.md#scene). A tile can conceptually be though of as a two-dimensional array.
+A tile (sometimes called a "chip") is a rectangular subset of a @ref:[scene](concepts.md#scene). A tile can conceptually be thought of as a two-dimensional array.
 
 Some EO data has many bands or channels. Tiles in this context are conceptually a three-dimensional array, with the extra dimension representing the bands.
 
-Tiles are often square and the dimensions are some power of two, for example 256 by 256. 
+Tiles are often square and the dimensions are some power of two, for example 256 by 256.
 
 The tile is the primary discretization unit used in RasterFrames. Each band of a scene is in a separate column. The scene's overall @ref:[extent](concepts.md#extent) is carved up into smaller extents for each tile. Each row of the DataFrame contains a two-dimensional tile per band column.
 
 ## Projected Extent
 
-An extent paired with a CRS
+An extent paired with a CRS.
 
 ## Projected Raster
 
