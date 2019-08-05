@@ -78,8 +78,41 @@ spark.stop()
 
 ## Installing GDAL 
 
-GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to @ref:[read](raster-read.md) those formats.  If you are using the @ref:[Jupyter Notebook image](getting-started.md#jupyter-notebook), GDAL is already installed for you. Otherwise follow the instructions below.
+GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to @ref:[read](raster-read.md) those formats.  If you are using the @ref:[Jupyter Notebook image](getting-started.md#jupyter-notebook), GDAL is already installed for you. Otherwise follow the instructions below. Version 2.4.1 or greater is required.
 
-__TODO__ Verify notebook env has GDAL? 
+### Installing on MacOS
 
-__TODO__ How to install it.
+Using [homebrew](https://brew.sh/):
+
+```bash
+brew install gdal
+```
+
+### Installing on Linux
+
+Using [`apt-get`](https://wiki.debian.org/Apt):
+
+```bash
+sudo apt-get update 
+sudo apt-get install gdal-bin
+```
+
+### Testing For GDAL
+
+```bash
+gdalinfo --formats
+```
+
+To support GeoTIFF and JPEG2000 formats, you should look for the following drivers from the output above:
+
+* `GTiff -raster- (rw+vs): GeoTIFF`
+* `JPEG2000 -raster,vector- (rwv): JPEG-2000 part 1 (ISO/IEC 15444-1), based on Jasper library`
+
+Do the following to see if RasterFrames was able to find GDAL:
+
+```python
+from pyrasterframes.utils import gdal_version
+print(gdal_version())
+```
+
+This will print out somethin like "GDAL x.y.z, released 20yy/mm/dd". If it reports `unavailable`, then GDAL isn't installed in a place where the RasterFrames runtime was able to find it. Please [file an issue](https://github.com/locationtech/rasterframes/issues) to get help resolving it.

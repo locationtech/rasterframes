@@ -1,7 +1,7 @@
 // task to create documentation PDF
 lazy val makePDF = taskKey[File]("Build PDF version of documentation")
 lazy val pdfFileName = settingKey[String]("Name of the PDF file generated")
-pdfFileName := s"${name.value}-${version.value}.pdf"
+pdfFileName := s"RasterFrames-Users-Manual-${version.value}.pdf"
 
 makePDF := {
   import scala.sys.process._
@@ -78,4 +78,4 @@ makePDF := {
   output
 }
 
-//makePDF := makePDF.dependsOn(Compile / paradox).value
+makePDF := makePDF.dependsOn(Compile / paradox).value
