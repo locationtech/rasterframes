@@ -148,12 +148,13 @@ display(sample[1])
 
 ## Changing a Tile's NoData Values
 
-One way to mask a tile is to make a new tile with a user defined NoData value. We will explore this method below. First, lets create a rasterframe from a tile with values of 0, 1, 2, and 3.
+One way to mask a tile is to make a new tile with a user defined NoData value. We will explore this method below. First, lets create a rasterframe from a tile with values of 0, 1, 2, and 3. We will use numpy to create a 100x100 Tile with columns of 0, 1, 2, and 3.
 
 ```python create_dummy_tile
 tile_size = 100
 x = np.zeros((tile_size, tile_size), dtype='int16')
 
+# setting the values of the columns
 for i in range(4):
     x[:, i*tile_size//4:(i+1)*tile_size//4] = i
 x = Tile(x)
