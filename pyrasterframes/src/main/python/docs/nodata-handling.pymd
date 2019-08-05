@@ -241,7 +241,6 @@ When performing a local operation between tile columns with cell types `int` and
 rf_added = rf.withColumn('xy_sum', rf_local_add('y', 'x'))
 rf_added.select(rf_cell_type('xy_sum'), rf_cell_type('y'), rf_cell_type('x')).distinct().show()
 ```
-
 Combining tile columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 3 tile columns: one without a defined NoData value, one with a NoData value of 1, and one with a NoData value of 2.
 
 
