@@ -20,7 +20,6 @@
  */
 
 package org.locationtech.rasterframes.expressions.localops
-
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -30,9 +29,11 @@ import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
+import org.locationtech.rasterframes.util.DataBiasedOp
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, rhs) - Performs cell-wise addition between two tiles or a tile and a scalar.",
+  usage = "_FUNC_(tile, rhs) - Performs cell-wise addition between two tiles or a tile and a scalar. " +
+    "Unlike a regular 'add', this considers `<data> + <nodata> = <data>.",
   arguments = """
   Arguments:
     * tile - left-hand-side tile
@@ -44,12 +45,12 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
+case class BiasedAdd(left: Expression, right: Expression) extends BinaryLocalRasterOp
   with CodegenFallback {
-  override val nodeName: String = "rf_local_add"
-  override protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localAdd(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
+  override val nodeName: String = "rf_local_biased_add"
+  override protected def op(left: Tile, right: Tile): Tile = DataBiasedOp.BiasedAdd(left, right)
+  override protected def op(left: Tile, right: Double): Tile = DataBiasedOp.BiasedAdd(left, right)
+  override protected def op(left: Tile, right: Int): Tile = DataBiasedOp.BiasedAdd(left, right)
 
   override def eval(input: InternalRow): Any = {
     if(input == null) null
@@ -64,10 +65,10 @@ case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
     }
   }
 }
-object Add {
+object BiasedAdd {
   def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
-    new Column(Add(left.expr, right.expr)).as[Tile]
+    new Column(BiasedAdd(left.expr, right.expr)).as[Tile]
 
   def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(Add(tile.expr, lit(value).expr)).as[Tile]
+    new Column(BiasedAdd(tile.expr, lit(value).expr)).as[Tile]
 }
