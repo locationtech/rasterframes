@@ -23,6 +23,7 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.nio.file.Paths
 
 import geotrellis.proj4._
+import geotrellis.raster.ProjectedRaster
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
@@ -43,7 +44,7 @@ class GeoTiffDataSourceSpec
       assert(rf.count() > 10)
     }
 
-    it("should lay out tiles correctly"){
+    it("should lay out tiles correctly") {
 
       val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
 
@@ -85,6 +86,9 @@ class GeoTiffDataSourceSpec
 
       assert(result === expected)
     }
+  }
+
+  describe("GeoTiff writing") {
 
     it("should write GeoTIFF RF to parquet") {
       val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
@@ -132,12 +136,30 @@ class GeoTiffDataSourceSpec
     }
 
     it("should round trip unstructured raster from COG"){
-      val df = spark.read.format("raster")
-        .load(getClass.getResource("/LC08_B7_Memphis_COG.tiff").toURI.toASCIIString())
+      import spark.implicits._
+      import org.locationtech.rasterframes.datasource.raster._
+
+      val df = spark.read.raster.withTileDimensions(64, 64).load(singlebandCogPath.toASCIIString)
+
+      val resourceCols = 963 // from gdalinfo
+      val resourceRows = 754
+      val resourceExtent = Extent(752325.0, 3872685.0, 781215.0, 3895305.0)
 
       df.count() should be > 0L
 
       val crs = df.select(rf_crs(col("proj_raster"))).first()
+
+      val totalExtentRow = df.select(rf_extent($"proj_raster").alias("ext"))
+        .agg(
+          min($"ext.xmin").alias("xmin"),
+          min($"ext.ymin").alias("ymin"),
+          max($"ext.xmax").alias("xmax"),
+          max($"ext.ymax").alias("ymax")
+        ).first()
+      val dfExtent = Extent(totalExtentRow.getDouble(0), totalExtentRow.getDouble(1), totalExtentRow.getDouble(2), totalExtentRow.getDouble(3))
+      logger.info(s"Dataframe extent: ${dfExtent.toString()}")
+
+      dfExtent shouldBe (resourceExtent)
 
       noException shouldBe thrownBy {
         df.write.geotiff.withCRS(crs).save("target/unstructured_cog.tif")
@@ -150,56 +172,15 @@ class GeoTiffDataSourceSpec
       }
       inCols should be (963)
       inRows should be (754) //from gdalinfo
-      inExtent should be (Extent(752325.0, 3872685.0, 781215.0, 3895305.0))
+      inExtent should be (resourceExtent)
 
       val outputTif = SinglebandGeoTiff("target/unstructured_cog.tif")
       outputTif.imageData.cols should be (inCols)
       outputTif.imageData.rows should be (inRows)
-      outputTif.extent should be (inExtent)
+      outputTif.extent should be (resourceExtent)
       outputTif.cellType should be (inCellType)
 
     }
-
-    /*
-    it("should round trip jasons favorite unstructured raster round trip okay") {
-      import org.locationtech.rasterframes.datasource.raster._
-      import spark.implicits._
-
-      val jasonsRasterPath = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/17/03/2019193/" +
-                            "MCD43A4.A2019193.h17v03.006.2019202033615_B06.TIF"
-      val df = spark.read.raster
-          .withTileDimensions(233, 133)
-          .from(Seq(jasonsRasterPath))
-        .load()
-
-      logger.debug("Read local file metadata")
-      val (inCols, inRows) = {
-        val in = readSingleband("MCD43A4.A2019193.h17v03.006.2019202033615_B06.TIF")
-        (in.cols, in.rows)
-      }
-      inCols should be (2400)  // from GDAL
-      inRows should be (2400)  // from GDAL
-
-      val outPath = "datasources/target/rf_mcd43a4.A2019193.h17v03.tif"
-
-      // now take actions on the read df
-      logger.debug("Actions on raster ref dataframe")
-      df.count() should be > 100L
-      val crs = df.select(rf_crs($"proj_raster")).first()
-      logger.debug("Write full res geotiff from dataframe")
-      df.write.geotiff.withCRS(crs).save(outPath)
-
-      // compare written file to path
-      logger.debug("Inspect written geotiff metadata")
-      val (outCols, outRows) = {
-        val outputTif = SinglebandGeoTiff(outPath)
-        (outputTif.cols, outputTif.rows)
-      }
-      outCols should be (inCols)
-      outRows should be (inRows)
-      // todo check extent and crs just for grins.
-
-    }*/
 
     it("should write GeoTIFF without layer") {
       import org.locationtech.rasterframes.datasource.raster._
