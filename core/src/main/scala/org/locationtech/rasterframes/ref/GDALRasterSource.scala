@@ -23,12 +23,14 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
+import com.azavea.gdal.GDALWarp
+import com.typesafe.scalalogging.LazyLogging
+import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.raster.io.geotiff.Tags
+import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes.ref.RasterSource.URIRasterSource
-import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
 
 case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSource {
 
@@ -66,4 +68,18 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
 
   override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
     gdal.readBounds(bounds, bands)
+}
+
+object GDALRasterSource extends LazyLogging {
+  def gdalVersion(): String = if (hasGDAL) GDALWarp.get_version_info("--version").trim else "not available"
+
+  @transient
+  lazy val hasGDAL: Boolean = try {
+    val _ = new GDALWarp()
+    true
+  } catch {
+    case _: UnsatisfiedLinkError =>
+      logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader for GeoTIFF format.")
+      false
+  }
 }

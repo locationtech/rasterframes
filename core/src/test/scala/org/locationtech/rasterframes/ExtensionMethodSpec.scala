@@ -25,7 +25,7 @@ import geotrellis.proj4.LatLng
 import geotrellis.raster.{ByteCellType, GridBounds, TileLayout}
 import geotrellis.spark.tiling.{CRSWorldExtent, LayoutDefinition}
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
-import org.apache.spark.sql.{Encoder, Encoders}
+import org.apache.spark.sql.Encoders
 import org.locationtech.rasterframes.util.SubdivideSupport
 
 /**

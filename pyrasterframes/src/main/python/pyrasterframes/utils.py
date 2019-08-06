@@ -22,8 +22,9 @@ import glob
 from pyspark.sql import SparkSession
 import os
 import sys
+from . import RFContext
 
-__all__ = ["create_rf_spark_session", "find_pyrasterframes_jar_dir", "find_pyrasterframes_assembly"]
+__all__ = ["create_rf_spark_session", "find_pyrasterframes_jar_dir", "find_pyrasterframes_assembly", "gdal_version"]
 
 
 def find_pyrasterframes_jar_dir():
@@ -92,3 +93,8 @@ def create_rf_spark_session():
     except TypeError as te:
         print("Error setting up SparkSession; cannot find the pyrasterframes assembly jar\n", te)
         return None
+
+
+def gdal_version():
+    fcn = RFContext.active().lookup("buildInfo")
+    return fcn()["GDAL"]
