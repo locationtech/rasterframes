@@ -115,4 +115,4 @@ from pyrasterframes.utils import gdal_version
 print(gdal_version())
 ```
 
-This will print out somethin like "GDAL x.y.z, released 20yy/mm/dd". If it reports `unavailable`, then GDAL isn't installed in a place where the RasterFrames runtime was able to find it. Please [file an issue](https://github.com/locationtech/rasterframes/issues) to get help resolving it.
+This will print out something like "GDAL x.y.z, released 20yy/mm/dd". If it reports `not available`, then GDAL isn't installed in a place where the RasterFrames runtime was able to find it. Please [file an issue](https://github.com/locationtech/rasterframes/issues) to get help resolving it.

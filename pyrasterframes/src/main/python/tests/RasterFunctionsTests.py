@@ -98,6 +98,8 @@ class RasterFunctions(TestEnvironment):
 
     def test_agg_local_mean(self):
         from pyspark.sql import Row
+        from pyrasterframes.rf_types import Tile
+        import numpy as np
 
         # this is really testing the nodata propagation in the agg  local summation
         ct = CellType.int8().with_no_data_value(4)
