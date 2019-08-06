@@ -8,7 +8,7 @@ To learn more, please see the @ref:[Getting Started](getting-started.md) section
 
 The source code can be found on GitHub at [locationtech/rasterframes](https://github.com/locationtech/rasterframes).
 
-<img src="RasterFramePipeline.svg" width="600px"/>
+<img src="RasterFramePipeline.png" width="600px"/>
 
 <hr/>
 
@@ -24,7 +24,7 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 ## Related Links
 
-* [Gitter Channel](https://gitter.im/s22s/raster-frames)&nbsp;&nbsp;[![Join the chat at https://gitter.im/s22s/raster-frames](https://badges.gitter.im/s22s/raster-frames.svg)](https://gitter.im/s22s/raster-frames?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+* [Gitter Channel](https://gitter.im/s22s/raster-frames)
 * [Scala API Documentation](latest/api/index.html)
 * [GitHub Repository](https://github.com/locationtech/rasterframes)
 * [Astraea, Inc.](http://www.astraea.earth/), the company behind RasterFrames
