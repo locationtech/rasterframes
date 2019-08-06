@@ -29,11 +29,7 @@ import org.apache.spark.sql.rf.RasterSourceUDT
 import org.locationtech.rasterframes.TestEnvironment
 import org.locationtech.rasterframes.model.TileDimensions
 
-/**
- *
- *
- * @since 8/22/18
- */
+
 class RasterSourceSpec extends TestEnvironment with TestData {
   def sub(e: Extent) = {
     val c = e.center
@@ -112,7 +108,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
   }
 
-  if(RasterSource.IsGDAL.hasGDAL) {
+  if(GDALRasterSource.hasGDAL) {
     describe("GDAL Rastersource") {
       val gdal = GDALRasterSource(cogPath)
       val jvm = JVMGeoTiffRasterSource(cogPath)

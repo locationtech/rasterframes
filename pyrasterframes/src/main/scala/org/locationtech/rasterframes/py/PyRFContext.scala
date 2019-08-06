@@ -31,7 +31,7 @@ import org.apache.spark.sql._
 import org.locationtech.rasterframes
 import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.model.LazyCRS
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{GDALRasterSource, RasterRef, RasterSource}
 import org.locationtech.rasterframes.util.KryoSupport
 import org.locationtech.rasterframes.{RasterFunctions, _}
 import spray.json._
@@ -53,6 +53,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     RFBuildInfo.toMap.foreach {
       case (k, v) => retval.put(k, String.valueOf(v))
     }
+    retval.put("GDAL", GDALRasterSource.gdalVersion())
     retval
   }
 

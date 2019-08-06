@@ -121,6 +121,7 @@ class GeoTiffDataSource
             rf_dimensions(tileCol)
           ))
         .first()
+      logger.debug(s"Contructed TileLayerMetadata: ${tlm.toString}")
 
       val c = ProjectedRasterDefinition(tlm)
 
