@@ -146,6 +146,37 @@ And the original SCL data. The bright yellow is a cloudy region in the original 
 display(sample[1])
 ```
 
+## NoData and Local Arithmatic
+
+Let's now explore how the presence of NoData affects local arithmatic operations. To demonstrate the behaviour, lets create two tiles. One tile will have values of 0 and 1, and the other will have values of just 0. 
+
+
+```python
+tile_size = 100
+x = np.zeros((tile_size, tile_size), dtype='int16')
+x[:,tile_size//2:] = 1
+x = Tile(x)
+y = Tile(np.zeros((tile_size, tile_size), dtype='int16'))
+
+rf = spark.createDataFrame([Row(x=x, y=y)])
+print('x')
+display(x)
+print('y')
+display(y)
+```
+
+Now, let's create a new column from `x` with the value of 1 changed to NoData. Then, we will add this new column with NoData to the `y` column. As shown below, the result of the sum also has NoData (represented in white). In general for arithmatic operations, Data + NoData = NoData. To see more information about possible operations on Tile columns, see the @ref:[local map algebra](local-algebra.md) doc.
+
+```python
+masked_rf = rf.withColumn('x_nd', rf_mask_by_value('x', 'x', lit(1)) )
+masked_rf = masked_rf.withColumn('x_nd_y_sum', rf_local_add('x_nd', 'y'))
+row = masked_rf.collect()[0]
+print('x with NoData')
+display(row.x_nd)
+print('x with NoData and y sum')
+display(row.x_nd_y_sum)
+```
+
 ## Changing a Tile's NoData Values
 
 One way to mask a tile is to make a new tile with a user defined NoData value. We will explore this method below. First, lets create a rasterframe from a tile with values of 0, 1, 2, and 3. We will use numpy to create a 100x100 Tile with columns of 0, 1, 2, and 3.
@@ -191,6 +222,52 @@ And the tile named `tile_nd_2` has the values of 1 and 2 masked out. This is bec
 display(collected[0].tile_nd_2)
 ```
 
+
+## Combining Tiles with Different Data Types
+
+RasterFrames supports having Tile columns with multiple cell types in a single RasterFrame. It is important to understand how these different cell types interact. 
+
+Let's first create a RasterFrame that has columns of `float` and `int` cell type. 
+
+```python
+x = Tile((np.ones((100, 100))*2).astype('float'))
+y = Tile((np.ones((100, 100))*3.0).astype('int32'))
+rf = spark.createDataFrame([Row(x=x, y=y)])
+
+rf.select(rf_cell_type('y'), rf_cell_type('x')).distinct().show()
+```
+
+When performing a local operation between tile columns with cell types `int` and type `float`, the resulting tile cell type will be `float`. If two tiles of different sized integer cell types are added together in the same way, the resulting cell type will be the same as the largest of the two integer cell types.
+
+```python
+rf_added = rf.withColumn('xy_sum', rf_local_add('y', 'x'))
+rf_added.select(rf_cell_type('xy_sum'), rf_cell_type('y'), rf_cell_type('x')).distinct().show()
+```
+
+Combining tile columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 2 tile columns: one with a NoData value of 1, and one with a NoData value of 2.
+
+```python
+x = Tile((np.ones((100, 100))*3).astype('int16'))
+rf = spark.createDataFrame([Row(x=x)])
+
+rf_nd = rf.withColumn('x_nd_1', rf_convert_cell_type('x', get_nodata_ct(1))) \
+          .withColumn('x_nd_2', rf_convert_cell_type('x', get_nodata_ct(2)))
+```
+
+Let's try adding the tile columns with different NoData values. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has a NoData value of 1. 
+
+```python
+rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_2', 'x_nd_1'))
+rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
+```
+
+Reversing the order of the sum changes the NoData value of the resulting column to 2.  
+
+```python
+rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_1', 'x_nd_2'))
+rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
+```
+
 ## Nodata Values in Aggregation
 
 Let's use the same tile as before to demonstrate how NoData values affect tile aggregations
@@ -219,44 +296,4 @@ The results of `rf_tile_sum` vary on the tiles that were masked. This is because
 
 ```python
 masked_rf.select(rf_tile_sum('tile'), rf_tile_sum('tile_nd_1'), rf_tile_sum('tile_nd_2')).show()
-```
-
-
-## Combining Tiles with Different Data Types
-
-RasterFrames supports having Tile columns with multiple cell types in a single RasterFrame. It is important to understand how these different cell types interact. 
-
-Let's first create a RasterFrame that has columns of `float` and `int` cell type. 
-
-```python
-x = Tile((np.ones((100, 100))*2).astype('float'))
-y = Tile((np.ones((100, 100))*3.0).astype('int32'))
-rf = spark.createDataFrame([Row(x=x, y=y)])
-
-rf.select(rf_cell_type('y'), rf_cell_type('x')).distinct().show()
-```
-
-When performing a local operation between tile columns with cell types `int` and type `float`, the resulting tile cell type will be `float`. If two tiles of different sized integer cell types are added together in the same way, the resulting cell type will be the same as the largest of the two integer cell types.
-
-```python
-rf_added = rf.withColumn('xy_sum', rf_local_add('y', 'x'))
-rf_added.select(rf_cell_type('xy_sum'), rf_cell_type('y'), rf_cell_type('x')).distinct().show()
-```
-Combining tile columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 3 tile columns: one without a defined NoData value, one with a NoData value of 1, and one with a NoData value of 2.
-
-
-```python
-x = Tile((np.ones((100, 100))*3).astype('int16'))
-
-rf = spark.createDataFrame([Row(x=x)])
-
-rf_nd = rf.withColumn('x_nd_1', rf_convert_cell_type('x', get_nodata_ct(1))) \
-          .withColumn('x_nd_2', rf_convert_cell_type('x', get_nodata_ct(2)))
-```
-
-Let's try adding the tile column without a defined NoData value to a tile column with a defined NoData value. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has no defined NoData value. 
-
-```python
-rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_1', 'x'))
-rf_nd_sum.select(rf_cell_type('x_nd_sum'), rf_cell_type('x'), rf_cell_type('x_nd_1')).distinct().show()
 ```
