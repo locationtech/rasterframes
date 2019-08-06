@@ -77,7 +77,7 @@ rf = spark.read.raster(catalog=cat, catalog_col_names=['red', 'green', 'blue'])
 rf.write.geotiff(outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
 ```
 
-Wiew it with `rasterio` to check the results:
+View it with `rasterio` to check the results:
 
 ```python view_geotiff
 import rasterio
