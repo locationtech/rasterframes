@@ -28,7 +28,7 @@ import org.locationtech.rasterframes.model.TileDimensions
 import geotrellis.proj4.{CRS, Transform}
 import geotrellis.raster._
 import geotrellis.raster.reproject.{Reproject, ReprojectRasterExtent}
-import geotrellis.spark.tiling.{FloatingLayoutScheme, LayoutLevel}
+import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
@@ -76,7 +76,10 @@ class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: TileDimensions) ex
   override def evaluate(buffer: Row): Any = {
     import org.locationtech.rasterframes.encoders.CatalystSerializer._
     val buf = buffer.to[BufferRecord]
-    val LayoutLevel(_, layout) = FloatingLayoutScheme(destDims.cols, destDims.rows).levelFor(buf.extent, buf.cellSize)
+
+    val re = RasterExtent(buf.extent, buf.cellSize)
+    val layout = LayoutDefinition(re, destDims.cols, destDims.rows)
+
     val kb = KeyBounds(layout.mapTransform(buf.extent))
     TileLayerMetadata(buf.cellType, layout, buf.extent, destCRS, kb).toRow
   }

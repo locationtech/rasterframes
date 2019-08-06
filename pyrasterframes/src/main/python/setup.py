@@ -153,7 +153,7 @@ setup(
         'shapely',
         'pandas',
         'rasterio',
-        'boto3'
+        'boto3',
     ],
     packages=[
         'pyrasterframes',
