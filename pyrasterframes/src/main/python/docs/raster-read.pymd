@@ -21,7 +21,7 @@ rf.printSchema()
 
 The file at the address above is a valid [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/), which RasterFrames fully supports. RasterFrames will take advantage of the optimizations in the COG format to enable more efficient reading compared to vanilla GeoTIFFs.
 
-Let's unpack the `proj_raster` column and look at the contents in more detail. It contains a [_CRS_][CRS], a spatial _extent_ measured in that CRS, and a two-dimensional array of numeric values called a _tile_.
+Let's unpack the `proj_raster` column and look at the contents in more detail. It contains a @ref:[_CRS_][CRS], a spatial @ref:[_extent_][Extent] measured in that CRS, and a two-dimensional array of numeric values called a @ref:[_tile_][Tile].
 
 ```python unpack_schema
 crs = rf.select(rf_crs("proj_raster").alias("value")).first()
@@ -180,4 +180,6 @@ mb2 = spark.read.raster(catalog=spark.createDataFrame(mb_cat),
 mb2.printSchema()
 ```
 
-[CRS]: https://en.wikipedia.org/wiki/Spatial_reference_system
+[CRS]: concepts.md#coordinate-reference-system--crs
+[Extent]: concepts.md#extent
+[Tile]: concpets.md#tile
