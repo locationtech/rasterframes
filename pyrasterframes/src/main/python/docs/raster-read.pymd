@@ -182,4 +182,4 @@ mb2.printSchema()
 
 [CRS]: concepts.md#coordinate-reference-system--crs
 [Extent]: concepts.md#extent
-[Tile]: concpets.md#tile
+[Tile]: concepts.md#tile
