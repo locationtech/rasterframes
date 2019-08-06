@@ -59,30 +59,20 @@ You can also use RasterFrames in the following environments:
 
 See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.
 
-### `pyspark` shell or app
+### `pyspark` shell 
 
-You can use RasterFrames in a `pyspark` shell or when submitting a `pyspark` app via a Python script. To set up the `pyspark` environment, prepare your call with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip. 
+You can use RasterFrames in a `pyspark` shell. To set up the `pyspark` environment, prepare your call with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. For RasterFrames support you need to pass arguments pointing to the various Java dependencies. You will also need the Python source zip, even if you have pip installed the package. You can download the source zip here: https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip.
 
-You can either [build](https://github.com/locationtech/rasterframes/blob/develop/README.md) the artifacts or download them:
-
- * Python zip: https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip
- * Assembly JAR:
-    * The assembly JAR is embedded in the wheel file publised on pypi. Download the wheel from https://pypi.org/project/pyrasterframes/#files
-    * The wheel file is just a [zip file with .whl extension](https://www.python.org/dev/peps/pep-0427/); you can extract the assembly JAR with a command like this: `unzip -j  $PYRF_WHEEL  $(zipinfo -1 $PYRF_WHEEL | grep jar)`
-
-
-#### Shell 
-
-The `pyspark` shell command will look something like this, replacing the `--jars` argument with the assembly jar and the `--py-files` with the source zip (not the wheel). To submit a script, add a .py file as the final argument
+The `pyspark` shell command will look something like this.
 
 ```bash
    pyspark \
     --master local[*] \
-    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --py-files pyrasterframes_2.11-${VERSION}-python.zip \
+    --packages org.locationtech.rasterframes:rasterframes_2.11:${VERSION},org.locationtech.rasterframes:pyrasterframes_2.11:${VERSION},org.locationtech.rasterframes:rasterframes-datasource_2.11:${VERSION}
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \ # these configs improve serialization performance
     --conf spark.kryo.registrator=org.locationtech.rasterframes.util.RFKryoRegistrator \
-    --conf spark.kryoserializer.buffer.max=500m \
-    --jars pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar \
-    --py-files pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
+    --conf spark.kryoserializer.buffer.max=500m 
 ```
 
 Then in the `pyspark` shell, import the module and call `withRasterFrames` on the SparkSession.
@@ -103,33 +93,6 @@ SparkSession available as 'spark'.
 ```
 
 Now you have the configured SparkSession with RasterFrames enabled.
-
-#### Submitting Apps
-
-Prepare the call to `spark-submit` in much the same way as using the `pyspark` shell. In the python script you submit, you will use the SparkSession builder pattern and add some RasterFrames extras to it. You have more flexibility in setting up configurations in either your script or in the `spark-submit` call. 
-
-```python, evaluate=False
-# contents of app.py
-
-from pyspark.sql import SparkSession
-import pyrasterframes
-spark = (SparkSession.builder
-             .appName("My RasterFrames app")
-             .config('spark.some_config', some_val) # app configurations
-             .withKryoSerialization() # sets spark.serializer and spark.kryo configs
-             .getOrCreate()).withRasterFrames()
-df = spark.read.raster('...')
-```
-
-To submit, use a call like:
-
-```bash 
-$ spark-submit \
-    --master spark://sparkmaster:7077 \
-    --jars pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar \
-    --py-files pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip \
-    app.py
-```
 
 ## Installing GDAL 
 
