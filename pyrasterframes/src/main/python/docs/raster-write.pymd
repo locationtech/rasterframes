@@ -66,7 +66,7 @@ Fortunately, we can use the cluster computing capability to downsample the data 
 
 ```python write_geotiff
 outfile = os.path.join('/tmp', 'geotiff-overview.tif')
-spark_df.write.geotiff('file://' + outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
+spark_df.write.geotiff(outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
 ```
 
 View it with `rasterio` to check the results:
@@ -82,6 +82,10 @@ with rasterio.open(outfile) as src:
 ```
 
 If there are many tile or projected raster columns in the DataFrame, the GeoTIFF writer will write each one as a separate band in the file. Each band in the output will be tagged the input column names for reference.
+
+```python, echo=False
+os.remove(outfile)
+```
 
 ## GeoTrellis Layers
 
