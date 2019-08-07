@@ -88,7 +88,7 @@ df = df.withColumn('centroid', st_centroid(df.geometry))
 df.select('name', 'geometry', 'naive_centroid', 'centroid').show(4)
 ```
 
-The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in MODIS catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter only those within approximately 500 km of a selected point.
+The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter only those within approximately 500 km of a selected point.
 
 ```python, evaluate=True
 from pyrasterframes.rasterfunctions import st_geometry, st_bufferPoint, st_intersects, st_point
