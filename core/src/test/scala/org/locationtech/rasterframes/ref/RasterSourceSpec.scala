@@ -106,6 +106,12 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val src = RasterSource(localSrc)
       assert(!src.extent.isEmpty)
     }
+    it("should interpret no scheme as file://"){
+      val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString()
+      val schemelessUri = new URI(localSrc)
+      val src = RasterSource(schemelessUri)
+      assert(!src.extent.isEmpty)
+    }
   }
 
   if(GDALRasterSource.hasGDAL) {
