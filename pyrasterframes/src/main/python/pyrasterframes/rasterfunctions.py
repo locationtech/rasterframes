@@ -36,9 +36,16 @@ def _context_call(name, *args):
     return f(*args)
 
 
-def _parse_cell_type(cell_type_str):
-    """ Convert the string cell type to the expected CellType object."""
-    return _context_call('_parse_cell_type', cell_type_str)
+def _parse_cell_type(cell_type_arg):
+    """ Convert the cell type representation to the expected JVM CellType object."""
+
+    def to_jvm(ct):
+        return _context_call('_parse_cell_type', ct)
+
+    if isinstance(cell_type_arg, str):
+        return to_jvm(cell_type_arg)
+    elif isinstance(cell_type_arg, CellType):
+        return to_jvm(cell_type_arg.cell_type_name)
 
 
 def rf_cell_types():

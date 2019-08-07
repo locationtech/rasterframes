@@ -15,6 +15,9 @@ import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 from IPython.display import display
+import pandas as pd
+import numpy as np
+from pyrasterframes.rf_types import Tile
 
 spark = pyrasterframes.get_spark_session()
 ```
@@ -130,31 +133,175 @@ We can verify that the number of NoData cells in the resulting `blue_masked` col
 masked.select(rf_no_data_cells('blue_masked'), rf_tile_sum('mask')).show(10)
 ```
 
-It's also nice to view a sample.
+It's also nice to view a sample. The white regions are areas of NoData.
 
-```python show_masked
+```python, caption='Blue band masked against selected SCL values'
 sample = masked.orderBy(-rf_no_data_cells('blue_masked')).select(rf_tile('blue_masked'), rf_tile('scl')).first()
 display(sample[0])
 ```
 
-And the original SCL data.
+And the original SCL data. The bright yellow is a cloudy region in the original image.
 
-```python show_scl
+```python, caption='SCL tile for above'
 display(sample[1])
 ```
 
-## NoData in Arithmetic Operations
+## NoData and Local Arithmatic
 
-local algebra example; same celltype what happens to nodata 
-Possibly use st_geomFromWkt and rf_rasterize to create something to work from
-
-agg
+Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behaviour, lets create two tiles. One tile will have values of 0 and 1, and the other will have values of just 0. 
 
 
-## Dealing with Multiple Cell Types
+```python
+tile_size = 100
+x = np.zeros((tile_size, tile_size), dtype='int16')
+x[:,tile_size//2:] = 1
+x = Tile(x)
+y = Tile(np.zeros((tile_size, tile_size), dtype='int16'))
 
-Quick demo of one ND tile one raw tile
+rf = spark.createDataFrame([Row(x=x, y=y)])
+print('x')
+display(x)
+```
 
-Quick demo of ND in two different cell types
+```python
+print('y')
+display(y)
+```
+
+Now, let's create a new column from `x` with the value of 1 changed to NoData. Then, we will add this new column with NoData to the `y` column. As shown below, the result of the sum also has NoData (represented in white). In general for local algebra operations, Data + NoData = NoData. 
+
+```python
+masked_rf = rf.withColumn('x_nd', rf_mask_by_value('x', 'x', lit(1)) )
+masked_rf = masked_rf.withColumn('x_nd_y_sum', rf_local_add('x_nd', 'y'))
+row = masked_rf.collect()[0]
+print('x with NoData')
+display(row.x_nd)
+```
+
+```python
+print('x with NoData plus y')
+display(row.x_nd_y_sum)
+```
+To see more information about possible operations on Tile columns, see the @ref:[local map algebra](local-algebra.md) page and @ref:[function reference](reference.md#local-map-algebra).
+
+## Changing a Tile's NoData Values
+
+One way to mask a tile is to make a new tile with a user defined NoData value. We will explore this method below. First, lets create a DataFrame from a tile with values of 0, 1, 2, and 3. We will use numpy to create a 100x100 Tile with vertical bands containing values 0, 1, 2, and 3.
+
+```python create_dummy_tile, caption='Dummy Tile'
+tile_size = 100
+x = np.zeros((tile_size, tile_size), dtype='int16')
+
+# setting the values of the columns
+for i in range(4):
+    x[:, i*tile_size//4:(i+1)*tile_size//4] = i
+x = Tile(x)
+
+rf = spark.createDataFrame([Row(tile=x)])
+display(x)
+```
+
+First, we mask the value of 1 by making a new column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a tile with the cell type 'uint16ud2'.
+
+```python
+def get_nodata_ct(nd_val):
+	return CellType('uint16').with_no_data_value(nd_val)
+
+masked_rf = rf.withColumn('tile_nd_1', 
+                           rf_convert_cell_type('tile', get_nodata_ct(1))) \
+              .withColumn('tile_nd_2',
+                          rf_convert_cell_type('tile_nd_1', get_nodata_ct(2))) \
+```
+
+```python
+collected = masked_rf.collect()
+```
+
+Let's look at the new Tiles we created. The tile named `tile_nd_1` has the 1 values masked out as expected. 
+
+```python
+display(collected[0].tile_nd_1)
+```
+
+And the tile named `tile_nd_2` has the values of 1 and 2 masked out. This is because we created the tile by setting a new user defined NoData value to `tile_nd_1` the values previously masked out in `tile_nd_1` stayed masked when creating `tile_nd_2`.
+
+```python
+display(collected[0].tile_nd_2)
+```
 
 
+## Combining Tiles with Different Data Types
+
+RasterFrames supports having Tile columns with multiple cell types in a single DataFrame. It is important to understand how these different cell types interact. 
+
+Let's first create a RasterFrame that has columns of `float` and `int` cell type. 
+
+```python
+x = Tile((np.ones((100, 100))*2).astype('float'))
+y = Tile((np.ones((100, 100))*3.0).astype('int32'))
+rf = spark.createDataFrame([Row(x=x, y=y)])
+
+rf.select(rf_cell_type('x'), rf_cell_type('y')).distinct().show()
+```
+
+When performing a local operation between tile columns with cell types `int` and type `float`, the resulting tile cell type will be `float`. In local algebra over two tiles of different "sized" cell types, the resulting cell type will be the largest of the two input tiles' cell types.
+
+```python
+rf.select(
+    rf_cell_type('x'), 
+    rf_cell_type('y'),
+    rf_cell_type(rf_local_add('x', 'y').alias('xy_sum')), 
+    ).show(1)
+```
+
+Combining tile columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 2 tile columns: one with a NoData value of 1, and one with a NoData value of 2.
+
+```python
+x_nd_1 = Tile((np.ones((100, 100))*3), get_nodata_ct(1))
+x_nd_2 = Tile((np.ones((100, 100))*3), get_nodata_ct(2))
+rf_nd = spark.createDataFrame([Row(x_nd_1=x_nd_1, x_nd_2=x_nd_2)])
+```
+
+Let's try adding the tile columns with different NoData values. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has a NoData value of 1. 
+
+```python
+rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_2', 'x_nd_1'))
+rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
+```
+
+Reversing the order of the sum changes the NoData value of the resulting column to 2.  
+
+```python
+rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_1', 'x_nd_2'))
+rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
+```
+
+## NoData Values in Aggregation
+
+Let's use the same tile as before to demonstrate how NoData values affect tile aggregations.
+
+```python
+tile_size = 100
+x = np.zeros((tile_size, tile_size), dtype='int16')
+for i in range(4):
+    x[:, i*tile_size//4:(i+1)*tile_size//4] = i
+x = Tile(x)
+
+rf = spark.createDataFrame([Row(tile=x)])
+display(x)
+```
+
+First we create the two new masked tile columns as before. One with only the value of 1 masked, and the other with and values of 1 and 2 masked. 
+
+```python
+masked_rf = rf.withColumn('tile_nd_1', 
+                           rf_convert_cell_type('tile', get_nodata_ct(1))) \
+              .withColumn('tile_nd_2',
+                          rf_convert_cell_type('tile_nd_1', get_nodata_ct(2)))
+```
+
+The results of `rf_tile_sum` vary on the tiles that were masked. This is because any cells with NoData values are ignored in the aggregation. Note that `tile_nd_2` has the lowest sum, since it has the fewest amount of data cells.
+
+```python
+masked_rf.select(rf_tile_sum('tile'), rf_tile_sum('tile_nd_1'), rf_tile_sum('tile_nd_2')).show()
+```
