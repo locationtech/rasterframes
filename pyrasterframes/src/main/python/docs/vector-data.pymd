@@ -22,7 +22,7 @@ The properties of each feature are available as columns of the DataFrame, along 
 
 ## GeoPandas and RasterFrames
 
-You can also convert a [GeoPandas][GeoPandas] GeoDataFrame to a Spark DataFrame, preserving the geometry column. This means that any vector format that can be read with [OGR][OGR] can be converted to a Spark DataFrame. In the example below, we expect the same schema as `df` defined above by the GeoJSON reader. Note that in a geopandas DataFrame there can be heterogeneous geometry types in the column, but this may fail Spark's schema inference.
+You can also convert a [GeoPandas][GeoPandas] GeoDataFrame to a Spark DataFrame, preserving the geometry column. This means that any vector format that can be read with [OGR][OGR] can be converted to a Spark DataFrame. In the example below, we expect the same schema as `df` defined above by the GeoJSON reader. Note that in a GeoPandas DataFrame there can be heterogeneous geometry types in the column, but this may fail Spark's schema inference.
 
 ```python
 import geopandas
