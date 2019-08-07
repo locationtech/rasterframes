@@ -129,13 +129,18 @@ object RasterSource extends LazyLogging {
       } else false
 
     /** Extractor for determining if a scheme indicates GDAL preference.  */
-    def unapply(source: URI): Boolean =
-      gdalOnly(source) || ((preferGdal || source.getScheme.startsWith("gdal")) && GDALRasterSource.hasGDAL)
+    def unapply(source: URI): Boolean = {
+      lazy val schemeIsGdal = Option(source.getScheme())
+        .exists(_.startsWith("gdal"))
+
+      gdalOnly(source) || ((preferGdal || schemeIsGdal) && GDALRasterSource.hasGDAL)
+    }
   }
 
   object IsDefaultGeoTiff {
     def unapply(source: URI): Boolean = source.getScheme match {
-      case "file" | "http" | "https" | "s3" | "" => true
+      case "file" | "http" | "https" | "s3" => true
+      case null | ""                        ⇒ true
       case _                                => false
     }
   }
