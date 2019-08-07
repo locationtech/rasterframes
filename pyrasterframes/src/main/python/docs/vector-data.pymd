@@ -1,6 +1,6 @@
 # Vector Data
 
-RasterFrames provides a variety of ways to work with spatial vector (points, lines, and polygons) data alongside raster data. There is a convenience DataSource for geojson format, as well as the ability to convert from [GeoPandas][GeoPandas] to Spark. Representation of vector geometries in pyspark is through [Shapely][Shapely] which provides a great deal of flexibility. RasterFrames also provides access to Spark functions for working with geometries.
+RasterFrames provides a variety of ways to work with spatial vector (points, lines, and polygons) data alongside raster data. There is a convenience DataSource for GeoJSON format, as well as the ability to convert from [GeoPandas][GeoPandas] to Spark. Representation of vector geometries in pyspark is through [Shapely][Shapely] which provides a great deal of flexibility. RasterFrames also provides access to Spark functions for working with geometries.
 
 ## GeoJSON DataSource
 
@@ -18,11 +18,11 @@ df = spark.read.geojson(SparkFiles.get('admin1-us.geojson'))
 df.printSchema()
 ```
 
-The properties of each feature are available as columns of the dataframe, along with the geometry. 
+The properties of each feature are available as columns of the dataframe, along with the geometry.
 
 ## GeoPandas and RasterFrames
 
-You can also convert a [GeoPandas][GeoPandas] GeoDataFrame to a Spark DataFrame, preserving the geometry column. This means that any vector format that can be read with [OGR][OGR] can be converted to a Spark DataFrame. In the example below, we expect the same schema as `df` defined above by the geojson reader. Note that in a geopandas dataframe there can be heterogeneous geometry types in the column, but this may fail Spark's schema inference. 
+You can also convert a [GeoPandas][GeoPandas] GeoDataFrame to a Spark DataFrame, preserving the geometry column. This means that any vector format that can be read with [OGR][OGR] can be converted to a Spark DataFrame. In the example below, we expect the same schema as `df` defined above by the GeoJSON reader. Note that in a geopandas dataframe there can be heterogeneous geometry types in the column, but this may fail Spark's schema inference.
 
 ```python
 import geopandas
@@ -43,7 +43,7 @@ df2.printSchema()
 
 ## Shapely Geometry Support
 
-The geometry column will have a Spark user-defined type that is compatible with [Shapely][Shapely] when working on the Python side. This means that when the data is collected to the driver, it will be a Shapely geometry object. 
+The geometry column will have a Spark user-defined type that is compatible with [Shapely][Shapely] when working on the Python side. This means that when the data is collected to the driver, it will be a Shapely geometry object.
 
 ```python
 the_first = df.first()
@@ -83,7 +83,7 @@ As documented in the @ref:[function reference](reference.md), the various user-d
 
 
 ```python
-from pyrasterframes.rasterfunctions import st_centroid 
+from pyrasterframes.rasterfunctions import st_centroid
 df = df.withColumn('centroid', st_centroid(df.geometry))
 df.select('name', 'geometry', 'naive_centroid', 'centroid').show(4)
 ```
@@ -102,7 +102,7 @@ l8_filtered = l8.filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(50
 ```
 
 ```python, evaluate=False, echo=False
-# suppressed due to run time. 
+# suppressed due to run time.
 l8_filtered.count()
 ```
 
