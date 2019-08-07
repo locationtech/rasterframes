@@ -155,7 +155,7 @@ pipeline.getStages()
 
 ## Train the Model
 
-Push the "go button"! This will actually run each step of the Pipeline we created including fitting the decision tree model. We filter the dataframe for only tiles intersecting the label raster, because the label shapes are relatively sparse over the imagery. It would be logically equivalent to either include or exclude this, but it is more efficient to do this filter because it will mean less data going into the pipeline.
+Push the "go button"! This will actually run each step of the Pipeline we created including fitting the decision tree model. We filter the DataFrame for only tiles intersecting the label raster, because the label shapes are relatively sparse over the imagery. It would be logically equivalent to either include or exclude this, but it is more efficient to do this filter because it will mean less data going into the pipeline.
 
 ```python, train
 model = pipeline.fit(df_mask.filter(rf_tile_sum('label') > 0).cache())

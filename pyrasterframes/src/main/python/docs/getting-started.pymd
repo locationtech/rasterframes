@@ -24,7 +24,7 @@ from pyspark.sql.functions import lit
 # Read a MODIS surface reflectance granule
 df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 
-# Add 3 element-wise, show some rows of the dataframe
+# Add 3 element-wise, show some rows of the DataFrame
 df.select(rf_local_add(df.proj_raster, lit(3))).show(5, False)
 
 ```
@@ -72,11 +72,11 @@ df = spark.read.raster('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_
 
 Now you have the configured SparkSession with RasterFrames enabled.
 
-```python, echo=False 
+```python, echo=False
 spark.stop()
 ```
 
-## Installing GDAL 
+## Installing GDAL
 
 GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to @ref:[read](raster-read.md) those formats.  If you are using the @ref:[Jupyter Notebook image](getting-started.md#jupyter-notebook), GDAL is already installed for you. Otherwise follow the instructions below. Version 2.4.1 or greater is required.
 
@@ -93,7 +93,7 @@ brew install gdal
 Using [`apt-get`](https://wiki.debian.org/Apt):
 
 ```bash
-sudo apt-get update 
+sudo apt-get update
 sudo apt-get install gdal-bin
 ```
 
