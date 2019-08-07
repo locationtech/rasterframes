@@ -8,6 +8,8 @@ However, there are times in any analysis where writing a representative sample o
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 from IPython.display import display
+import os.path
+
 spark = pyrasterframes.get_spark_session()
 ```
 
@@ -19,10 +21,10 @@ In an IPython or Jupyter interpreter, a `Tile` object will be displayed as an im
 
 ```python tile_sample
 def scene(band):
+    b = str(band).zfill(2) # converts int 2 to '02'
     return 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/' \
-             'MCD43A4.A2019059.h11v08.006.2019072203257_B{}.TIF'.format(band)
-raster_url = scene('02')
-spark_df = spark.read.raster(raster_url)
+             'MCD43A4.A2019059.h11v08.006.2019072203257_B{}.TIF'.format(b)
+spark_df = spark.read.raster(scene(2), tile_dimensions=(128, 128))
 tile = spark_df.select(rf_tile('proj_raster').alias('tile')).first()['tile']
 tile
 ```
@@ -40,8 +42,7 @@ In the example below, notice the result is limited to a small subset. For more d
 ```python to_pandas, evaluate=True
 import pyrasterframes.rf_ipython
 
-pandas_df = spark.read.raster(raster_url, tile_dimensions=(64, 64)) \
-                .select(
+pandas_df = spark_df.select(
                     rf_extent('proj_raster').alias('extent'),
                     rf_tile('proj_raster').alias('tile'),
                 ).limit(5).toPandas()
@@ -55,41 +56,32 @@ pandas_df
 
 @@include[df-samples-output.md](static/df-samples-output.md)
 
-
 ## GeoTIFFs
 
 GeoTIFF is one of the most common file formats for spatial data, providing flexibility in data encoding, representation, and storage. RasterFrames provides a specialized Spark DataFrame writer for rendering a RasterFrame to a GeoTIFF.
 
 One downside to GeoTIFF is that it is not a big data native format. To create a GeoTIFF all the data to be encoded has to be in the memory of one compute node (in Spark parlance, this is a "collect"), limiting it's maximum size substantially compared to that of a full cluster environment. When rendering GeoTIFFs in RasterFrames, you either need to specify the dimensions of the output raster, or be aware of how big the collected data will end up being.
 
-Fortunately, we can use the cluster computing capability to downsample the data (using nearest-neighbor) into a more manageable size. For sake of example, let's render a simple RGB overview image of our scene as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)):
+Fortunately, we can use the cluster computing capability to downsample the data into a more manageable size. For sake of example, let's render an overview our scene's red band as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)). 
 
 ```python write_geotiff
-import os.path
-from docs import docs_dir
-cat = """
-red,green,blue
-{},{},{}
-""".format(scene('01'), scene('04'), scene('03'))
-outfile = os.path.join(docs_dir(), 'geotiff-overview.tif')
-rf = spark.read.raster(catalog=cat, catalog_col_names=['red', 'green', 'blue'])
-rf.write.geotiff(outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
+outfile = os.path.join('/tmp', 'geotiff-overview.tif')
+spark_df.write.geotiff('file://' + outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
 ```
 
 View it with `rasterio` to check the results:
 
 ```python view_geotiff
 import rasterio
-import numpy as np
 from rasterio.plot import show, show_hist
 
 with rasterio.open(outfile) as src:
-    cells = np.clip(src.read(), 0, 1800).astype('float32')
-    show(cells)
-    show_hist(src, bins=50, lw=0.0, stacked=False, alpha=0.3,
+    show(src, adjust='linear')
+    show_hist(src, bins=50, lw=0.0, stacked=False, alpha=0.6,
         histtype='stepfilled', title="Overview Histogram")
 ```
 
+If there are many tile or projected raster columns in the DataFrame, the GeoTIFF writer will write each one as a separate band in the file. Each band in the output will be tagged the input column names for reference.
 
 ## GeoTrellis Layers
 
