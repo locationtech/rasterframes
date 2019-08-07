@@ -45,7 +45,6 @@ pandas_df = spark.read.raster(raster_url, tile_dimensions=(64, 64)) \
                     rf_extent('proj_raster').alias('extent'),
                     rf_tile('proj_raster').alias('tile'),
                 ).limit(5).toPandas()
-pandas_df.dtypes
 ```
 
 Viewing the DataFrame in Jupyter looks like this.
