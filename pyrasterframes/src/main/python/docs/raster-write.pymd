@@ -85,7 +85,7 @@ If there are many tile or projected raster columns in the DataFrame, the GeoTIFF
 
 ## GeoTrellis Layers
 
-[GeoTrellis][GeoTrellis] is one of the key libraries that RasterFrames builds upon. It provides a Scala language API to working with large raster data with Apache Spark. Ingesting raster data into a Layer is one of the key concepts for creating a dataset for processing on Spark. RasterFrames write data from an appropriate DataFrame into a [GeoTrellis Layer](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html). RasterFrames provides a `geotrellis` DataSource that supports both reading and writing of GeoTrellis layers.
+[GeoTrellis][GeoTrellis] is one of the key libraries that RasterFrames builds upon. It provides a Scala language API to working with large raster data with Apache Spark. Ingesting raster data into a Layer is one of the key concepts for creating a dataset for processing on Spark. RasterFrames writes data from an appropriate DataFrame into a [GeoTrellis Layer](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html). RasterFrames provides a `geotrellis` DataSource that supports both @ref:[reading](raster-read.md#geotrellis) and writing of GeoTrellis layers.
 
 > An example is forthcoming.
 
