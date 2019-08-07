@@ -2,9 +2,9 @@
 
 ## What is NoData?
 
-In raster operations, the preservation and correct processing of missing observations is very important. In [most dataframes and scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. A great deal of raster data is stored for space efficiency. This typically leads to use of integral values and a "sentinel" value to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value. 
+In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. A great deal of raster data is stored for space efficiency. This typically leads to use of integral values and a "sentinel" value to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
 
-RasterFrames provides a variety of functions to inspect and manage NoData within `tile`s. 
+RasterFrames provides a variety of functions to inspect and manage NoData within `tile`s.
 
 ## Cell Types
 
@@ -40,7 +40,7 @@ spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif
 
 ### Understanding Cell Types and NoData
 
-Use the methods on the `CellType` class to learn more about a specific cell type. Take for example the cell type of our sample data above.
+We can use the methods on the `CellType` class to learn more about a specific cell type. Take, for example, the cell type of our sample data above.
 
 ```python
 ct = CellType('uint16raw')
@@ -55,13 +55,13 @@ ct = CellType('uint16')
 ct, ct.is_floating_point(), ct.has_no_data(), ct.no_data_value()
 ```
 
-In this case, the minimum value of 0 is designated as the NoData value. For integral valued cell types, the NoData is typically zero, the maximum, or the minimum value for the underlying data type. The NoData value can also be a user-defined value. In that case the value is designated with a `ud`. 
+In this case, the minimum value of 0 is designated as the NoData value. For integral-valued cell types, the NoData is typically zero, the maximum, or the minimum value for the underlying data type. The NoData value can also be a user-defined value. In that case the value is designated with a `ud`.
 
 ```python
 CellType.uint16().with_no_data_value(99).cell_type_name
 ```
 
-Floating point types by default have `NaN` as the NoData value. However a user-defined NoData can be set. 
+Floating point types have `NaN` as the NoData value by default. However, a user-defined NoData can be set.
 
 ```python float_ud
 print(CellType.float32().no_data_value())
@@ -70,9 +70,12 @@ print(CellType.float32().with_no_data_value(-99.9).no_data_value())
 
 ## Masking
 
-Let's continue the example above with Sentinel-2 data. Band 2 is blue and has no defined NoData. The quality information is in a separate file called the scene classification (SCL), which delineates areas of missing data and probable clouds. For much more information on that, see the [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm). Figure 3 tells us how to interpret the scene classification. For this example, we will exclude NoData, defective pixels, probable clouds, and cirrus clouds: values 0, 1, 8, 9, and 10.
+Let's continue the example above with Sentinel-2 data. Band 2 is blue and has no defined NoData. The quality information is in a separate file called the scene classification (SCL), which delineates areas of missing data and probable clouds. For more information on that, see the [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm). Figure 3 tells us how to interpret the scene classification. For this example, we will exclude NoData, defective pixels, probable clouds, and cirrus clouds: values 0, 1, 8, 9, and 10.
 
-The first step is to create a catalog with our band of interest and the SCL band. We read the data from the catalog and now the blue band and SCL tiles are aligned across rows.
+![Scene Classification Values](static/rasterframes-scene-classification-labels.png)
+Credit: [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm)
+
+The first step is to create a catalog with our band of interest and the SCL band. We read the data from the catalog, so the blue band and SCL tiles are aligned across rows.
 
 ```python blue_scl_cat
 from pyspark.sql import Row
@@ -85,7 +88,7 @@ unmasked.printSchema()
 unmasked.select(rf_cell_type('blue'), rf_cell_type('scl')).distinct().show()
 ```
 
-Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create a new tile column containing our indicator of unwanted pixels, as defined above.
+Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create new tile columns that are indicators of unwanted pixels, as defined above. Since the mask column is bit type, the addition is equivalent to a logical or, so the true values are 1.
 
 ```python def_mask
 from pyspark.sql.functions import lit
@@ -94,7 +97,7 @@ mask_part = unmasked.withColumn('nodata', rf_local_equal('scl', lit(0))) \
                     .withColumn('defect', rf_local_equal('scl', lit(1))) \
                     .withColumn('cloud8', rf_local_equal('scl', lit(8))) \
                     .withColumn('cloud9', rf_local_equal('scl', lit(9))) \
-                    .withColumn('cirrus', rf_local_equal('scl', lit(10))) 
+                    .withColumn('cirrus', rf_local_equal('scl', lit(10)))
 
 one_mask = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
                     .withColumn('mask', rf_local_add('mask', 'cloud8')) \
@@ -104,13 +107,13 @@ one_mask = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
 one_mask.select(rf_cell_type('mask')).distinct().show()
 ```
 
-Now we will use the @ref:[`rf_mask_by_value`](reference.md#rf-mask-by-value) to designate the cloudy and other unwanted pixels as NoData in the blue column. Because there is not a NoData already defined, we will choose one. Note that in this particular example the minimum value is greater than zero, so we can use 0 as the NoData value.
+Because there is not a NoData already defined, we will choose one. In this particular example, the minimum value is greater than zero, so we can use 0 as the NoData value.
 
 ```python pick_nd
 one_mask.agg(rf_agg_stats('blue').min.alias('blue_min')).show()
 ```
 
-We can now construct the cell type string for our blue band's cell type, but designating 0 as NoData.
+We can now construct the cell type string for our blue band's cell type, designating 0 as NoData.
 
 ```python get_ct_string
 blue_ct = one_mask.select(rf_cell_type('blue')).distinct().first()[0][0]
@@ -118,16 +121,16 @@ masked_blue_ct = CellType(blue_ct).with_no_data_value(0)
 masked_blue_ct.cell_type_name
 ```
 
-Convert the cell type and apply the mask. Since the mask column is bit type, the addition done above was equivalent to a logical or. So the true values are 1.
+Now we will use the @ref:[`rf_mask_by_value`](reference.md#rf-mask-by-value) to designate the cloudy and other unwanted pixels as NoData in the blue column by converting the cell type and applying the mask.
 
-```python mask_blu 
+```python mask_blu
 with_nd = rf_convert_cell_type('blue', masked_blue_ct.cell_type_name)
-masked = one_mask.withColumn('blue_masked', 
+masked = one_mask.withColumn('blue_masked',
                              rf_mask_by_value(with_nd, 'mask', lit(1))) \
                  .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
 ```
 
-We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the bit-type `mask` tile.
+We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the bit-type `mask` tile to ensure our logic is correct.
 
 ```python
 masked.select(rf_no_data_cells('blue_masked'), rf_tile_sum('mask')).show(10)
@@ -148,7 +151,7 @@ display(sample[1])
 
 ## NoData and Local Arithmatic
 
-Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behaviour, lets create two tiles. One tile will have values of 0 and 1, and the other will have values of just 0. 
+Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behaviour, lets create two tiles. One tile will have values of 0 and 1, and the other will have values of just 0.
 
 
 ```python
@@ -168,7 +171,7 @@ print('y')
 display(y)
 ```
 
-Now, let's create a new column from `x` with the value of 1 changed to NoData. Then, we will add this new column with NoData to the `y` column. As shown below, the result of the sum also has NoData (represented in white). In general for local algebra operations, Data + NoData = NoData. 
+Now, let's create a new column from `x` with the value of 1 changed to NoData. Then, we will add this new column with NoData to the `y` column. As shown below, the result of the sum also has NoData (represented in white). In general for local algebra operations, Data + NoData = NoData.
 
 ```python
 masked_rf = rf.withColumn('x_nd', rf_mask_by_value('x', 'x', lit(1)) )
@@ -207,7 +210,7 @@ First, we mask the value of 1 by making a new column with the user defined cell 
 def get_nodata_ct(nd_val):
 	return CellType('uint16').with_no_data_value(nd_val)
 
-masked_rf = rf.withColumn('tile_nd_1', 
+masked_rf = rf.withColumn('tile_nd_1',
                            rf_convert_cell_type('tile', get_nodata_ct(1))) \
               .withColumn('tile_nd_2',
                           rf_convert_cell_type('tile_nd_1', get_nodata_ct(2))) \
@@ -217,7 +220,7 @@ masked_rf = rf.withColumn('tile_nd_1',
 collected = masked_rf.collect()
 ```
 
-Let's look at the new Tiles we created. The tile named `tile_nd_1` has the 1 values masked out as expected. 
+Let's look at the new Tiles we created. The tile named `tile_nd_1` has the 1 values masked out as expected.
 
 ```python
 display(collected[0].tile_nd_1)
@@ -232,9 +235,9 @@ display(collected[0].tile_nd_2)
 
 ## Combining Tiles with Different Data Types
 
-RasterFrames supports having Tile columns with multiple cell types in a single DataFrame. It is important to understand how these different cell types interact. 
+RasterFrames supports having Tile columns with multiple cell types in a single DataFrame. It is important to understand how these different cell types interact.
 
-Let's first create a RasterFrame that has columns of `float` and `int` cell type. 
+Let's first create a RasterFrame that has columns of `float` and `int` cell type.
 
 ```python
 x = Tile((np.ones((100, 100))*2).astype('float'))
@@ -248,9 +251,9 @@ When performing a local operation between tile columns with cell types `int` and
 
 ```python
 rf.select(
-    rf_cell_type('x'), 
+    rf_cell_type('x'),
     rf_cell_type('y'),
-    rf_cell_type(rf_local_add('x', 'y').alias('xy_sum')), 
+    rf_cell_type(rf_local_add('x', 'y').alias('xy_sum')),
     ).show(1)
 ```
 
@@ -262,14 +265,14 @@ x_nd_2 = Tile((np.ones((100, 100))*3), get_nodata_ct(2))
 rf_nd = spark.createDataFrame([Row(x_nd_1=x_nd_1, x_nd_2=x_nd_2)])
 ```
 
-Let's try adding the tile columns with different NoData values. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has a NoData value of 1. 
+Let's try adding the tile columns with different NoData values. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has a NoData value of 1.
 
 ```python
 rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_2', 'x_nd_1'))
 rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
 ```
 
-Reversing the order of the sum changes the NoData value of the resulting column to 2.  
+Reversing the order of the sum changes the NoData value of the resulting column to 2.
 
 ```python
 rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_1', 'x_nd_2'))
@@ -291,10 +294,10 @@ rf = spark.createDataFrame([Row(tile=x)])
 display(x)
 ```
 
-First we create the two new masked tile columns as before. One with only the value of 1 masked, and the other with and values of 1 and 2 masked. 
+First we create the two new masked tile columns as before. One with only the value of 1 masked, and the other with and values of 1 and 2 masked.
 
 ```python
-masked_rf = rf.withColumn('tile_nd_1', 
+masked_rf = rf.withColumn('tile_nd_1',
                            rf_convert_cell_type('tile', get_nodata_ct(1))) \
               .withColumn('tile_nd_2',
                           rf_convert_cell_type('tile_nd_1', get_nodata_ct(2)))
