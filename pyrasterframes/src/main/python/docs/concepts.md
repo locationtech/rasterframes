@@ -1,14 +1,18 @@
 # Concepts
 
-There are a number of Earth-observation (EO) concepts that crop up in the discussion of RasterFrames features. We'll cover these briefly in the sections below. However, here are a few links providing a more extensive introduction to working with Earth observation data. 
+There are a number of Earth-observation (EO) concepts that crop up in the discussion of RasterFrames features. We'll cover these briefly in the sections below. However, here are a few links providing a more extensive introduction to working with Earth observation data.
 
 * [_Fundamentals of Remote Sensing_](https://www.nrcan.gc.ca/maps-tools-and-publications/satellite-imagery-and-air-photos/tutorial-fundamentals-remote-sensing/9309)
 * [_Newcomers Earth Observation Guide_](https://business.esa.int/newcomers-earth-observation-guide)
 * [_Earth Observation Markets and Applications_](https://www.ofcom.org.uk/__data/assets/pdf_file/0021/82047/introduction_eo_for_ofcom_june_2015_no_video.pdf)
 
+## Raster
+
+A raster is a regular grid of numeric values. A raster can be thought of as an image, as is the case if the values in the grid represent brightness along a greyscale. More generally a raster can measure many different phenomena or encode a variety of different discrete classifications.
+
 ## Cell
 
-A cell is a single sample from a sensor encoded as a scalar value asssociated with a specific spatiotemporal location and time. It can be thought of as an image pixel associated with a place and time. 
+A cell is a single row and column intersection in the raster grid. It is a single pixel in an image. A cell's value often represents one sample from a sensor encoded as a scalar value associated with a specific location and time. 
 
 ## Cell Type
 
@@ -18,7 +22,7 @@ A numeric cell value may be encoded in a number of different computer numeric fo
 * integral vs floating-point
 
 
-The cell types most frequent in RasterFrames are as follows:
+The most frequently encountered cell types in RasterFrames are below.
 
 | Name | Abbreviation | Description | Range |
 | --- | --- | --- | --- |
@@ -31,38 +35,32 @@ The cell types most frequent in RasterFrames are as follows:
 | Float | `float32` | 32-bit floating-point | -3.4028235E38 to 3.4028235E38 |
 | Double | `float64` | 64-bit floating-point | -1.7976931348623157E308 to 1.7976931348623157E308 |
 
-See the section on [“NoData” Handling](nodata-handling.md) for additional discussion on cell types.
+See the section on [“NoData” Handling](nodata-handling.md) for additional discussion on cell types and more exhaustive coverage of available cell types.
 
 ## NoData
 
-A "NoData" (or N/A) value is a specifically identified value for a cell type used to indicate the absence of data. See the section on @ref:[“NoData” Handling](nodata-handling.md) for additional discussion on NoData
+A "NoData" (or N/A) value is a specifically identified value for a cell type used to indicate the absence of data. See the section on @ref:[“NoData” Handling](nodata-handling.md) for additional discussion on "NoData".
 
 ## Scene
 
-A scene (or granule) is a discrete instance of EO data with a specific extent (region), date-time, and projection/CRS. 
+A scene (or granule) is a discrete instance of EO @ref:[raster data](concepts.md#raster) with a specific extent (region), date-time, and map projection (or CRS).
 
 ## Coordinate Reference System (CRS)
 
-A coordinate reference system (or spatial reference system) is a set of mathematical constructs used to map cells to specific locations on the Earth (or other surface). A CRS typcially accompanies any EO data so it can be precicely located.
+A [coordinate reference system (or spatial reference system)][CRS] is a set of mathematical constructs used to translate locations on the three-dimensional surface of the earth to the two dimensional raster grid. A CRS typically accompanies any EO data so it can be precisely located. 
 
 ## Extent
 
-An extent (or bounding box) is a rectangular region specifying the geospatial coverage of a two-dimensional array of cells in a singular CRS.
+An extent (or bounding box) is a rectangular region specifying the geospatial coverage of a @ref:[raster](concepts.md#raster) or @ref:[tile](concepts.md#tile), a two-dimensional array of @ref:[cells](concepts.md#cell) within a single CRS.
 
 ## Tile
 
-A tile (sometimes called a "chip") is a rectangular subset of a @ref:[scene](concepts.md#scene). A tile can conceptually be though of as a two-dimensional array.
+A tile (sometimes called a "chip") is a rectangular subset of a @ref:[scene](concepts.md#scene). As a scene is a raster, a tile is also a raster. A tile can conceptually be thought of as a two-dimensional array. 
 
 Some EO data has many bands or channels. Tiles in this context are conceptually a three-dimensional array, with the extra dimension representing the bands.
 
-Tiles are often square and the dimensions are some power of two, for example 256 by 256. 
+Tiles are often square and the dimensions are some power of two, for example 256 by 256.
 
 The tile is the primary discretization unit used in RasterFrames. Each band of a scene is in a separate column. The scene's overall @ref:[extent](concepts.md#extent) is carved up into smaller extents for each tile. Each row of the DataFrame contains a two-dimensional tile per band column.
 
-## Projected Extent
-
-An extent paired with a CRS
-
-## Projected Raster
-
-A tile or scene paired with a CRS and extent.
+[CRS]: https://en.wikipedia.org/wiki/Spatial_reference_system

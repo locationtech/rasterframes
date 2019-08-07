@@ -110,7 +110,7 @@ To support GeoTIFF and JPEG2000 formats, you should look for the following drive
 
 Do the following to see if RasterFrames was able to find GDAL:
 
-```python
+```python, evaluate=False
 from pyrasterframes.utils import gdal_version
 print(gdal_version())
 ```
