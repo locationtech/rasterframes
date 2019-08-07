@@ -10,7 +10,7 @@ ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
 
 For the Scala documentation on these functions, see @scaladoc[`RasterFunctions`][RasterFunctions]. The full Scala API documentation can be found [here][scaladoc].
 
-# List of Available SQL and Python Functions
+## List of Available SQL and Python Functions
 
 @@toc { depth=3 }
 
