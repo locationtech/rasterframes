@@ -153,7 +153,13 @@ sbt 'pySetup test --addopts "-k test_tile_creation"'
 Or to build a specific document:
 
 ```bash
-sbt 'pySetup pweave -f docs/raster-io.pymd'
+sbt 'pySetup pweave -s docs/raster-io.pymd'
+```
+
+Or to build a specific document with desired output format:
+
+```bash
+sbt 'pySetup pweave -f notebook -s docs/numpy-pandas.pymd'
 ```
 
 *Note: You may need to run `sbt pyrasterframes/package` at least once for certain `pySetup` commands to work.*
