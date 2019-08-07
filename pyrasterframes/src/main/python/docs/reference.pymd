@@ -76,7 +76,7 @@ Get the cell type of the `tile`. The cell type can be changed with @ref:[rf_conv
 
     Tile rf_tile(ProjectedRasterTile proj_raster)
 
-Get the `tile` from the `ProjectedRasterTile` or `RasterSource` type tile column.
+Get the fully realized (non-lazy) `tile` from the `ProjectedRasterTile` or `RasterSource` type tile column.
 
 ### rf_extent
 
