@@ -15,7 +15,7 @@ spark = pyrasterframes.get_spark_session()
 
 When collecting a _tile_ (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) to the Python Spark driver, we have some convenience methods to quickly visualize the _tile_.
 
-In an IPython or Jupyter interpreter, a `Tile` object will be displayed as an image with limited metadata. In the example below, the displayed tile is mostly white due to cloud cover.
+In an IPython or Jupyter interpreter, a `Tile` object will be displayed as an image with limited metadata.
 
 ```python tile_sample
 def scene(band):
