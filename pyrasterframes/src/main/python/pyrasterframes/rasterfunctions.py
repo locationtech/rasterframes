@@ -98,12 +98,10 @@ def rf_rasterize(geometry_col, bounds_col, value_col, num_cols, num_rows):
                        num_rows))
 
 
-def st_reproject(geometry_col, src_crs_name, dst_crs_name):
-    """Reproject a column of geometry given the CRS names of the source and destination.
-    Currently supported registries are EPSG, ESRI, WORLD, NAD83, & NAD27.
-    An example of a valid CRS name is EPSG:3005."""
+def st_reproject(geometry_col, src_crs, dst_crs):
+    """Reproject a column of geometry given the CRSs of the source and destination."""
     jfcn = RFContext.active().lookup('st_reproject')
-    return Column(jfcn(_to_java_column(geometry_col), src_crs_name, dst_crs_name))
+    return Column(jfcn(_to_java_column(geometry_col), _to_java_column(src_crs), _to_java_column(dst_crs)))
 
 
 def rf_explode_tiles(*tile_cols):
@@ -519,6 +517,12 @@ def rf_resample(tile_col, scale_factor_col):
 def rf_crs(tile_col):
     """Get the CRS of a RasterSource or ProjectedRasterTile"""
     return _apply_column_function('rf_crs', tile_col)
+
+
+def rf_mk_crs(crs_text):
+    """Resolve CRS from text identifier. Supported registries are EPSG, ESRI, WORLD, NAD83, & NAD27.
+    An example of a valid CRS name is EPSG:3005."""
+    return Column(_context_call('_make_crs_literal', crs_text))
 
 
 def st_extent(geom_col):

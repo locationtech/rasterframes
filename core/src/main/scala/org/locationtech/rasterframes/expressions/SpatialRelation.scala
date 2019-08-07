@@ -30,7 +30,6 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
 import org.apache.spark.sql.jts.AbstractGeometryUDT
-import org.apache.spark.sql.rf.WithTypeConformity
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
 
@@ -48,7 +47,7 @@ abstract class SpatialRelation extends BinaryExpression
       case r: InternalRow ⇒
         expr.dataType match {
           case udt: AbstractGeometryUDT[_] ⇒ udt.deserialize(r)
-          case dt if dt.conformsTo(schemaOf[Extent]) =>
+          case dt if dt.conformsTo[Extent] =>
             val extent = r.to[Extent]
             extent.jtsGeom
         }

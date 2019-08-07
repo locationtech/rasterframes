@@ -1,6 +1,9 @@
 import scala.sys.process.Process
 import PythonBuildPlugin.autoImport.pyWhl
 
+lazy val includeNotebooks = settingKey[Boolean]("Whether to build documentation into notebooks and include them")
+includeNotebooks := true
+
 Docker / packageName := "rasterframes-notebook"
 
 Docker / version := version.value
@@ -20,7 +23,13 @@ Docker / mappings := Def.sequential(
     val dockerAssets = (dockerSrc ** "*") pair Path.relativeTo(dockerSrc)
 
     val py = (LocalProject("pyrasterframes") / pyWhl).value
-    val _ = (LocalProject("pyrasterframes") / pySetup).toTask(" notebooks").value
+
+    Def.taskDyn {
+      val withNB = includeNotebooks.value
+      if (withNB)
+        (LocalProject("pyrasterframes") / pySetup).toTask(" notebooks")
+      else Def.task(0)
+    }.value
 
     val nbFiles = ((LocalProject("pyrasterframes") / Python / doc / target).value ** "*.ipynb").get()
 

@@ -124,7 +124,9 @@ trait TestData {
     readSingleband(s"NAIP-VA-b$band.tiff")
   }
 
-  def rgbCogSample = readMultiband("LC08_RGB_Norfolk_COG.tiff")
+  def rgbCogSample  = readMultiband("LC08_RGB_Norfolk_COG.tiff")
+
+  def rgbCogSamplePath = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
 
   def sampleTileLayerRDD(implicit spark: SparkSession): TileLayerRDD[SpatialKey] = {
     val rf = sampleGeoTiff.projectedRaster.toLayer(128, 128)
@@ -144,6 +146,7 @@ trait TestData {
 
   lazy val localSentinel: URI = getClass.getResource("/B01.jp2").toURI
   lazy val cogPath: URI = getClass.getResource("/LC08_RGB_Norfolk_COG.tiff").toURI
+  lazy val singlebandCogPath: URI = getClass.getResource("/LC08_B7_Memphis_COG.tiff").toURI
   lazy val nonCogPath: URI = getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI
 
   lazy val l8B1SamplePath: URI = l8SamplePath(1)

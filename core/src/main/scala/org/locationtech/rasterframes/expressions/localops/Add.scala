@@ -30,7 +30,6 @@ import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.util.DataBiasedOp.BiasedAdd
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, rhs) - Performs cell-wise addition between two tiles or a tile and a scalar.",
@@ -48,9 +47,9 @@ import org.locationtech.rasterframes.util.DataBiasedOp.BiasedAdd
 case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
   with CodegenFallback {
   override val nodeName: String = "rf_local_add"
-  override protected def op(left: Tile, right: Tile): Tile = BiasedAdd(left, right)
-  override protected def op(left: Tile, right: Double): Tile = BiasedAdd(left, right)
-  override protected def op(left: Tile, right: Int): Tile = BiasedAdd(left, right)
+  override protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
+  override protected def op(left: Tile, right: Double): Tile = left.localAdd(right)
+  override protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
 
   override def eval(input: InternalRow): Any = {
     if(input == null) null

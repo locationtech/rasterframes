@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
-import com.azavea.gdal.GDALWarp
 import com.github.blemale.scaffeine.Scaffeine
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
@@ -120,32 +119,23 @@ object RasterSource extends LazyLogging {
 
     /** Determine if we should prefer GDAL for all types. */
     private val preferGdal: Boolean = org.locationtech.rasterframes.rfConfig.getBoolean("prefer-gdal")
-    @transient
-    lazy val hasGDAL: Boolean = try {
-      val _ = new GDALWarp()
-      true
-    } catch {
-      case _: UnsatisfiedLinkError =>
-        logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader.")
-        false
-    }
 
-    val gdalOnlyExtensions = Seq(".jp2", ".mrf", ".hdf")
+    val gdalOnlyExtensions = Seq(".jp2", ".mrf", ".hdf", ".vrt")
 
     def gdalOnly(source: URI): Boolean =
       if (gdalOnlyExtensions.exists(source.getPath.toLowerCase.endsWith)) {
-        require(hasGDAL, s"Can only read $source if GDAL is available")
+        require(GDALRasterSource.hasGDAL, s"Can only read $source if GDAL is available")
         true
       } else false
 
     /** Extractor for determining if a scheme indicates GDAL preference.  */
     def unapply(source: URI): Boolean =
-      gdalOnly(source) || ((preferGdal || source.getScheme.startsWith("gdal+")) && hasGDAL)
+      gdalOnly(source) || ((preferGdal || source.getScheme.startsWith("gdal")) && GDALRasterSource.hasGDAL)
   }
 
   object IsDefaultGeoTiff {
     def unapply(source: URI): Boolean = source.getScheme match {
-      case "file" | "http" | "https" | "s3" => true
+      case "file" | "http" | "https" | "s3" | "" => true
       case _                                => false
     }
   }

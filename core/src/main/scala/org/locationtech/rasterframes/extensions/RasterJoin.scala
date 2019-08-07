@@ -20,48 +20,15 @@
  */
 
 package org.locationtech.rasterframes.extensions
-import geotrellis.proj4.CRS
-import geotrellis.raster._
-import geotrellis.raster.reproject.Reproject
-import geotrellis.vector.Extent
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.functions.reproject_and_merge
 import org.locationtech.rasterframes.util._
 
 import scala.util.Random
 
 object RasterJoin {
-  private val projOpts = Reproject.Options.DEFAULT
-
-  val reproject_and_merge_f: (Row, Row, Seq[Tile], Seq[Row], Seq[Row], Row) => Tile = (leftExtentEnc: Row, leftCRSEnc: Row, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[Row], leftDimsEnc: Row) => {
-    if (tiles.isEmpty) null
-    else {
-      require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
-
-      val leftExtent = leftExtentEnc.to[Extent]
-      val leftDims = leftDimsEnc.to[TileDimensions]
-      val leftCRS = leftCRSEnc.to[CRS]
-      val rightExtents = rightExtentEnc.map(_.to[Extent])
-      val rightCRSs = rightCRSEnc.map(_.to[CRS])
-
-      val cellType = tiles.map(_.cellType).reduceOption(_ union _).getOrElse(tiles.head.cellType)
-
-      val dest: Tile = ArrayTile.empty(cellType, leftDims.cols, leftDims.rows)
-      //is there a GT function to do all this?
-      tiles.zip(rightExtents).zip(rightCRSs).map {
-        case ((tile, extent), crs) =>
-          tile.reproject(extent, crs, leftCRS, projOpts)
-      }.foldLeft(dest)((d, t) =>
-        d.merge(leftExtent, t.extent, t.tile, projOpts.method)
-      )
-    }
-  }
-
-  // NB: Don't be tempted to make this a `val`. Spark will barf if `withRasterFrames` hasn't been called first.
-  def reproject_and_merge = udf(reproject_and_merge_f).withName("reproject_and_merge")
 
   def apply(left: DataFrame, right: DataFrame): DataFrame = {
     val df = apply(left, right, left("extent"), left("crs"), right("extent"), right("crs"))

@@ -127,9 +127,6 @@ package object expressions {
 
     registry.registerExpression[DebugRender.RenderAscii]("rf_render_ascii")
     registry.registerExpression[DebugRender.RenderMatrix]("rf_render_matrix")
-
-    // TODO: Replace registration in `org.locationtech.rasterframes.functions.register`
-    // TODO: with this once String columns are supported as well.
-    // registry.registerExpression[transformers.ReprojectGeometry]("st_reproject")
+    registry.registerExpression[transformers.ReprojectGeometry]("st_reproject")
   }
 }

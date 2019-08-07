@@ -324,6 +324,8 @@ object ZeroSevenCompatibilityKit {
     def ub[A, B](f: A => B)(a: Seq[A]): B = f(a.head)
     /** Binary expression builder builder. */
     def bb[A, B](f: (A, A) => B)(a: Seq[A]): B = f(a.head, a.last)
+    /** Trinary expression builder builder. */
+    def tb[A, B](f: (A, A, A) => B)(a: Seq[A]): B = f(a.head, a.tail.head, a.last)
 
     // Expression-oriented functions have a different registration scheme
     // Currently have to register with the `builtin` registry due to Spark data hiding.
@@ -361,11 +363,11 @@ object ZeroSevenCompatibilityKit {
     registry.registerFunc("rf_localAggMin", ub(LocalTileOpAggregate.LocalMinUDAF.apply))
     registry.registerFunc("rf_localAggCount", ub(LocalCountAggregate.LocalDataCellsUDAF.apply))
     registry.registerFunc("rf_localAggMean", ub(LocalMeanAggregate.apply))
+    registry.registerFunc("rf_reprojectGeometry", tb(ReprojectGeometry.apply))
 
     sqlContext.udf.register("rf_makeConstantTile", F.makeConstantTile)
     sqlContext.udf.register("rf_tileZeros", F.tileZeros)
     sqlContext.udf.register("rf_tileOnes", F.tileOnes)
     sqlContext.udf.register("rf_cellTypes", F.cellTypes)
-    sqlContext.udf.register("rf_reprojectGeometry", F.reprojectGeometryCRSName)
   }
 }

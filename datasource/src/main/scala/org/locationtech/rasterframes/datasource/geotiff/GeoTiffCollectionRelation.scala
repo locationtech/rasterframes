@@ -37,6 +37,7 @@ import org.locationtech.rasterframes.datasource.geotiff.GeoTiffCollectionRelatio
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.util._
 
+private[geotiff]
 case class GeoTiffCollectionRelation(sqlContext: SQLContext, uri: URI, bandCount: Int) extends BaseRelation with PrunedScan {
 
   override def schema: StructType = StructType(Seq(

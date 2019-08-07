@@ -52,7 +52,8 @@ class PweaveDocs(distutils.cmd.Command):
     description = 'Pweave PyRasterFrames documentation scripts'
     user_options = [
         # The format is (long option, short option, description).
-        ('files=', 'f', 'Specific files to pweave. Defaults to all in `docs` directory.'),
+        ('files=', 's', 'Specific files to pweave. Defaults to all in `docs` directory.'),
+        ('format=', 'f', 'Output format type. Defaults to `markdown`')
     ]
 
     def initialize_options(self):
@@ -62,20 +63,22 @@ class PweaveDocs(distutils.cmd.Command):
             lambda x: not path.basename(x)[:1] == '_',
             glob(path.join(here, 'docs', '*.pymd'))
         )
+        self.format = 'markdown'
 
     def finalize_options(self):
         """Post-process options."""
         import re
         if isinstance(self.files, str):
             self.files = filter(lambda s: len(s) > 0, re.split(',', self.files))
-
-    def doctype(self):
-        return "markdown"
+            # `html` doesn't do quite what one expects... only replaces code blocks, leaving markdown in place
+            if self.format is 'html':
+                self.format = 'pandoc2html'
 
     def run(self):
         """Run pweave."""
         import traceback
         import pweave
+        bad_words = ["Error"]
 
         for file in self.files:
             name = path.splitext(path.basename(file))[0]
@@ -83,16 +86,29 @@ class PweaveDocs(distutils.cmd.Command):
             try:
                 pweave.weave(
                     file=str(file),
-                    doctype=self.doctype()
+                    doctype=self.format
                 )
+                if self.format == 'markdown':
+                    dest = path.splitext(file)[0] + '.md'
+                    if not path.exists(dest):
+                        raise FileNotFoundError("Markdown file '%s' didn't get created as expected" % dest)
+                    with open(dest, "r") as result:
+                        for (n, line) in enumerate(result):
+                            for word in bad_words:
+                                if word in line:
+                                    raise ChildProcessError("Error detected on line %s in %s:\n%s" % (n + 1, dest, line))
+
             except Exception:
                 print(_divided('%s Failed:' % file))
                 print(traceback.format_exc())
                 exit(1)
 
+
 class PweaveNotebooks(PweaveDocs):
-    def doctype(self):
-        return "notebook"
+    def initialize_options(self):
+        super().initialize_options()
+        self.format = 'notebook'
+
 
 setup(
     name='pyrasterframes',
@@ -128,13 +144,16 @@ setup(
         'setuptools>=0.8',
         'ipython==6.2.1',
         "ipykernel==4.8.0",
-        'Pweave==0.30.3'
+        'Pweave==0.30.3',
     ],
     tests_require=[
         'pytest==3.4.2',
         'pypandoc',
         'numpy>=1.7',
+        'shapely',
         'pandas',
+        'rasterio',
+        'boto3',
     ],
     packages=[
         'pyrasterframes',

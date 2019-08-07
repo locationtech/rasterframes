@@ -22,14 +22,16 @@ package org.locationtech.rasterframes.py
 
 import java.nio.ByteBuffer
 
+import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, MultibandTile}
 import geotrellis.spark.io._
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.vector.Extent
 import org.apache.spark.sql._
+import org.locationtech.rasterframes
 import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.model.LazyCRS
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{GDALRasterSource, RasterRef, RasterSource}
 import org.locationtech.rasterframes.util.KryoSupport
 import org.locationtech.rasterframes.{RasterFunctions, _}
 import spray.json._
@@ -51,6 +53,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     RFBuildInfo.toMap.foreach {
       case (k, v) => retval.put(k, String.valueOf(v))
     }
+    retval.put("GDAL", GDALRasterSource.gdalVersion())
     retval
   }
 
@@ -188,10 +191,8 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def rf_local_unequal_int(col: Column, scalar: Int): Column = rf_local_unequal[Int](col, scalar)
 
-  def st_reproject(geometryCol: Column, srcName: String, dstName: String): Column = {
-    val src = LazyCRS(srcName)
-    val dst = LazyCRS(dstName)
-    st_reproject(geometryCol, src, dst)
+  def _make_crs_literal(crsText: String): Column = {
+    rasterframes.encoders.serialized_literal[CRS](LazyCRS(crsText))
   }
 
   // return toRaster, get just the tile, and make an array out of it

@@ -33,10 +33,8 @@ import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import org.scalatest.{FunSpec, Matchers}
 
-class RasterFunctionsSpec extends FunSpec
-  with TestEnvironment with Matchers with RasterMatchers {
+class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
   import spark.implicits._
 
   val extent = Extent(10, 20, 30, 40)

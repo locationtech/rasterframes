@@ -25,7 +25,7 @@ appended to PySpark classes.
 
 from __future__ import absolute_import
 from pyspark import SparkContext
-from pyspark.sql import SparkSession, DataFrame, DataFrameReader
+from pyspark.sql import SparkSession, DataFrame, DataFrameReader, DataFrameWriter
 from pyspark.sql.column import _to_java_column
 
 # Import RasterFrameLayer types and functions
@@ -102,6 +102,12 @@ def _aliased_reader(df_reader, format_key, path, **options):
     """ Loads the file of the given type at the given path."""
     return df_reader.format(format_key).load(path, **options)
 
+
+def _aliased_writer(df_writer, format_key, path, **options):
+    """ Saves the dataframe to a file of the given type at the given path."""
+    return df_writer.format(format_key).save(path, **options)
+
+
 def _raster_reader(
         df_reader,
         path=None,
@@ -167,8 +173,42 @@ def _raster_reader(
         .load(path, **options)
 
 
-# Patch new method on SparkSession to mirror Scala approach
+def _geotiff_writer(
+    df_writer,
+    path=None,
+    crs=None,
+    raster_dimensions=None,
+    **options):
+
+    def set_dims(parts):
+        parts = [int(p) for p in parts]
+        assert len(parts) == 2, "Expected dimensions specification to have exactly two components"
+        assert all([p > 0 for p in parts]), "Expected all components in dimensions to be positive integers"
+        options.update({
+            "imageWidth": parts[0],
+            "imageHeight": parts[1]
+        })
+        parts = [int(p) for p in parts]
+        assert all([p > 0 for p in parts]), 'nice message'
+
+    if raster_dimensions is not None:
+        if isinstance(raster_dimensions, (list, tuple)):
+            set_dims(raster_dimensions)
+        elif isinstance(raster_dimensions, str):
+            set_dims(raster_dimensions.split(','))
+
+    if crs is not None:
+        options.update({
+            "crs": crs
+        })
+
+    return _aliased_writer(df_writer, "geotiff", path, **options)
+
+
+# Patch RasterFrames initialization method on SparkSession to mirror Scala approach
 SparkSession.withRasterFrames = _rf_init
+
+# Patch Kryo serialization initialization method on SparkSession.Builder to mirror Scala approach
 SparkSession.Builder.withKryoSerialization = _kryo_init
 
 # Add the 'asLayer' method to pyspark DataFrame
@@ -180,8 +220,7 @@ DataFrame.raster_join = _raster_join
 # Add DataSource convenience methods to the DataFrameReader
 DataFrameReader.raster = _raster_reader
 DataFrameReader.geojson = lambda df_reader, path: _aliased_reader(df_reader, "geojson", path)
-
-
-# Legacy readers
 DataFrameReader.geotiff = lambda df_reader, path: _layer_reader(df_reader, "geotiff", path)
+DataFrameWriter.geotiff = _geotiff_writer
 DataFrameReader.geotrellis = lambda df_reader, path: _layer_reader(df_reader, "geotrellis", path)
+DataFrameWriter.geotrellis = lambda df_writer, path: _aliased_writer(df_writer, "geotrellis", path)

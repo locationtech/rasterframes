@@ -5,7 +5,8 @@ In this example we will demonstrate how to fit and score a supervised learning m
 ```python, setup, echo=False
 from IPython.core.display import display
 from pyrasterframes.utils import create_rf_spark_session
-from pyrasterframes.rasterfunctions import * 
+from pyrasterframes.rasterfunctions import *
+from pyspark.sql.functions import lit 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -71,7 +72,7 @@ print('Found ', len(crses), 'distinct CRS.')
 crs = crses[0][0]
 
 label_df = spark.read.geojson(os.path.join(resource_dir_uri(), 'luray-labels.geojson')) \
-					 .select('id', st_reproject('geometry', 'EPSG:4326', crs).alias('geometry')) \
+					 .select('id', st_reproject('geometry', lit('EPSG:4326'), lit(crs)).alias('geometry')) \
 					 .hint('broadcast')
 
 df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry')) 

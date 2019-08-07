@@ -245,4 +245,41 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
     }
   }
+
+  describe("RasterSource breaks up scenes into tiles") {
+    val modis_df = spark.read.raster
+      .withTileDimensions(128, 128)
+      .withLazyTiles(true)
+      .load(remoteMODIS.toASCIIString())
+
+    val l8_df = spark.read.raster
+      .withTileDimensions(32, 33)
+      .withLazyTiles(true)
+      .load(remoteL8.toASCIIString())
+
+    ignore("should have at most four tile dimensions reading MODIS; ignore until fix #242") {
+      val dims = modis_df.select(rf_dimensions($"proj_raster")).distinct().collect()
+      dims.length should be > (0)
+      dims.length should be <= (4)
+    }
+
+    it("should have at most four tile dimensions reading landsat") {
+      val dims = l8_df.select(rf_dimensions($"proj_raster")).distinct().collect()
+      dims.length should be > (0)
+      dims.length should be <= (4)
+    }
+
+    ignore("should have consistent tile resolution reading MODIS; ignore until fix #242") {
+      val res = modis_df.select((rf_extent($"proj_raster").getField("xmax") - rf_extent($"proj_raster").getField("xmin")) /
+        rf_dimensions($"proj_raster").getField("cols")).distinct().collect()
+      res.length should be (1)
+    }
+
+    it("should have consistent tile resolution reading Landsat") {
+      val res = l8_df.select((rf_extent($"proj_raster").getField("xmax") - rf_extent($"proj_raster").getField("xmin")) /
+        rf_dimensions($"proj_raster").getField("cols")).distinct().collect()
+      res.length should be (1)
+    }
+
+  }
 }

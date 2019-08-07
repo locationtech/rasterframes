@@ -87,10 +87,22 @@ Fetches the extent (bounding box or envelope) of a `ProjectedRasterTile` or `Ras
 
 ### rf_crs
 
-    Struct[String] rf_crs(ProjectedRasterTile proj_raster)
-    Struct[String] rf_crs(RasterSource proj_raster)
+    Struct rf_crs(ProjectedRasterTile proj_raster)
+    Struct rf_crs(RasterSource proj_raster)
 
-Fetch the [proj4](https://proj4.org/) string representation of the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns.
+Fetch CRS structure representing the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns.
+
+### rf_mk_crs
+
+    Struct rf_mk_crs(String crsText)   
+
+Construct a CRS structure from one of its string representations. Three froms are supported:
+
+* [EPSG code](https://www.epsg-registry.org/): `EPSG:<integer>`
+* [Proj4 string](https://proj.org/): `+proj <proj4 parameters>`
+* [WKT String](http://www.geoapi.org/3.0/javadoc/org/opengis/referencing/doc-files/WKT.html) with embedded EPSG code: `GEOGCS["<name>", <datum>, <prime meridian>, <angular unit> {,<twin axes>} {,<authority>}]` 
+
+Example: `SELECT rf_mk_crs('EPSG:4326')`
 
 ### rf_convert_cell_type
 
@@ -116,7 +128,6 @@ Functions to create a new Tile column, either from scratch or from existing data
 ```
 Tile rf_make_zeros_tile(Int tile_columns, Int tile_rows, String cell_type_name)
 ```
-
 
 Create a `tile` of shape `tile_columns` by `tile_rows` full of zeros, with the specified cell type. See function @ref:[`rf_cell_types`](reference.md#rf-cell-types) for valid values. All arguments are literal values and not column expressions.
 
@@ -226,6 +237,8 @@ If input `tile` had a NoData value already, the behaviour depends on if its cell
 ## Local Map Algebra
 
 [Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single tile (unary), between a `tile` and a scalar, between two `tile`s, or across many `tile`s.
+
+When these operations encounter a NoData value in either operand, the cell in the resulting `tile` will have a NoData.
 
 The binary local map algebra functions have similar variations in the Python API depending on the left hand side type:
 
@@ -524,6 +537,8 @@ Aggregates over all of the rows in DataFrame of `tile` and returns a count of ea
 ## Tile Local Aggregate Statistics
 
 Local statistics compute the element-wise statistics across a DataFrame or group of `tile`s, resulting in a `tile` that has the same dimension.
+
+When these functions encounter a NoData in a cell location, it will be ignored. 
 
 ### rf_agg_local_max
 

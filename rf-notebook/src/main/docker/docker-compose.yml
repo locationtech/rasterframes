@@ -7,11 +7,12 @@ services:
       # jupyter notebook port
       - "8888:8888"
       # spark UI ports
-      - "4040:4040"
-      - "4041:4041"
-      - "4042:4042"
-      - "4043:4043"
-      - "4044:4044"
+      - "44040:4040"
+      - "44041:4041"
+      - "44042:4042"
+      - "44043:4043"
+      - "44044:4044"
 # To save locally at './work' from the container:
     volumes:
       - ../../../src/main/notebooks:/home/jovyan/work
+      - ~/.rf_cache:/home/jovyan/.rf_cache

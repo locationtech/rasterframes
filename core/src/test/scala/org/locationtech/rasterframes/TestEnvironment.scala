@@ -40,12 +40,12 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   override def sparkMaster: String = "local[*]"
 
   override implicit def sc: SparkContext = { _sc.setLogLevel("ERROR"); _sc }
-  //p.setProperty(“spark.driver.allowMultipleContexts”, “true”)
 
   lazy val sqlContext: SQLContext = {
     val session = SparkSession.builder
       .config(_sc.getConf)
       .config("spark.sql.crossJoin.enabled", true)
+      .withKryoSerialization
       .getOrCreate()
     session.sqlContext.withRasterFrames
   }
