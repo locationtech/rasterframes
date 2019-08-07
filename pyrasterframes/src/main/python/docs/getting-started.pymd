@@ -1,6 +1,10 @@
 # Getting Started
 
-There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames, and @ref:[several languages](languages.md) with which you can use it. Let's start with the simplest: the Python shell. Python 3.6 or greater is recommended.
+There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames, and @ref:[several languages](languages.md) with which you can use it. Let's start with the simplest: the Python shell.  To get started you will need:
+
+1. [Python](https://www.python.org/) installed. Version 3.6 or greater is recommended.
+1. [`pip`](https://pip.pypa.io/en/stable/installing/) installed. If you are using Python 3, `pip` may already be installed.
+1. Java [JDK 8](https://openjdk.java.net/install/index.html) installed on your system and `java` on your system `PATH` or `JAVA_HOME` pointing to a Java installation.
 
 ## pip install pyrasterframes
 
@@ -26,13 +30,13 @@ df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/201
 
 # Add 3 element-wise, show some rows of the DataFrame
 df.select(rf_local_add(df.proj_raster, lit(3))).show(5, False)
-
 ```
 
 This example is extended in the [getting started Jupyter notebook](https://nbviewer.jupyter.org/github/locationtech/rasterframes/blob/develop/rf-notebook/src/main/notebooks/Getting%20Started.ipynb).
 
-To understand more about how and why RasterFrames represents Earth observation in DataFrames, read the project @ref:[description](description.md). For more hands-on examples, see the chapters about @ref:[reading](raster-io.md) and @ref:[processing](raster-processing.md) with RasterFrames.
+## Next Steps
 
+To understand more about how and why RasterFrames represents Earth observation in DataFrames, read about the @ref:[core concepts](concepts.md) and the project @ref:[description](description.md). For more hands-on examples, see the chapters about @ref:[reading](raster-io.md) and @ref:[processing](raster-processing.md) with RasterFrames.
 
 ## Other Options
 
@@ -43,31 +47,49 @@ You can also use RasterFrames in the following environments:
 
 ### Jupyter Notebook
 
-**TODO** User facing quick instructions e.g. how to pull and run docker hub hosted container
+ RasterFrames provides a Docker image for a Jupyter notebook server whose default kernel is already set up for running RasterFrames. To use it:
 
-See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on running a Jupyter notebook server within a Docker container that has a fully set up environment.
+ 1. Install [docker](https://docs.docker.com/install/)
+ 1. Pull the image: `docker pull s22s/rasterframes-notebook`
+ 1. Run a container with the image, for example: 
 
-### `pyspark` shell or app
+      docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/notebooks  rasterframes-notebook:latest
 
-To initialize RasterFrames in a `pyspark` shell, prepare to call pyspark with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. To these you will add the PyRasterFrames assembly JAR and the python source zip.
+ 1. In a browser, open `localhost:8808` in the example above. 
 
-**TODO** how to build or download those artifacts.
+See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.
+
+### `pyspark` shell 
+
+You can use RasterFrames in a `pyspark` shell. To set up the `pyspark` environment, prepare your call with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. For RasterFrames support you need to pass arguments pointing to the various Java dependencies. You will also need the Python source zip, even if you have pip installed the package. You can download the source zip here: https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip.
+
+The `pyspark` shell command will look something like this.
 
 ```bash
    pyspark \
-    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --master local[*] \
+    --py-files pyrasterframes_2.11-${VERSION}-python.zip \
+    --packages org.locationtech.rasterframes:rasterframes_2.11:${VERSION},org.locationtech.rasterframes:pyrasterframes_2.11:${VERSION},org.locationtech.rasterframes:rasterframes-datasource_2.11:${VERSION}
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \ # these configs improve serialization performance
     --conf spark.kryo.registrator=org.locationtech.rasterframes.util.RFKryoRegistrator \
-    --conf spark.kryoserializer.buffer.max=500m \
-    --jars pyrasterframes/target/scala-2.11/pyrasterframes-assembly-${VERSION}.jar \
-    --py-files pyrasterframes/target/scala-2.11/pyrasterframes-python-${VERSION}.zip
+    --conf spark.kryoserializer.buffer.max=500m 
 ```
 
-Then in the pyspark shell, import the module and call `withRasterFrames` on the SparkSession.
+Then in the `pyspark` shell, import the module and call `withRasterFrames` on the SparkSession.
 
 ```python, evaluate=False
-import pyrasterframes
-spark = spark.withRasterFrames()
-df = spark.read.raster('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 2.3.2
+      /_/
+
+Using Python version 3.7.3 (default, Mar 27 2019 15:43:19)
+SparkSession available as 'spark'.
+>>> import pyrasterframes
+>>> spark = spark.withRasterFrames()
+>>> df = spark.read.raster('https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF')
 ```
 
 Now you have the configured SparkSession with RasterFrames enabled.

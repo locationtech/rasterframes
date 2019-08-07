@@ -106,6 +106,13 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val src = RasterSource(localSrc)
       assert(!src.extent.isEmpty)
     }
+    it("should interpret no scheme as file://"){
+      val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString()
+      val schemelessUri = new URI(localSrc)
+      schemelessUri.getScheme should be (null)
+      val src = RasterSource(schemelessUri)
+      assert(!src.extent.isEmpty)
+    }
   }
 
   if(GDALRasterSource.hasGDAL) {
@@ -131,6 +138,15 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         val gdal = GDALRasterSource(archiveURI)
 
         gdal.bandCount should be (3)
+      }
+
+      it("should interpret no scheme as file://") {
+        val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString()
+        val schemelessUri = new URI(localSrc)
+        val gdal = GDALRasterSource(schemelessUri)
+        val jvm = JVMGeoTiffRasterSource(schemelessUri)
+        gdal.extent should be (jvm.extent)
+        gdal.cellSize should be(jvm.cellSize)
       }
     }
   }

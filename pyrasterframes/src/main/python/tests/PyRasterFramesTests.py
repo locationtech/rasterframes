@@ -470,6 +470,13 @@ class RasterSource(TestEnvironment):
         print(path_count.toPandas())
         self.assertTrue(path_count.count() == 3)
 
+    def test_raster_source_reader_schemeless(self):
+        import os.path
+        path = os.path.join(self.resource_dir, "L8-B8-Robinson-IL.tiff")
+        self.assertTrue(not path.startswith('file://'))
+        df = self.spark.read.raster(path)
+        self.assertTrue(df.count() > 0)
+
     def test_raster_source_catalog_reader(self):
         import pandas as pd
 
