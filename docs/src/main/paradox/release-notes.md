@@ -42,7 +42,7 @@
 
 #### Known issues
 
-* [#188](https://github.com/locationtech/rasterframes/issues/188): Error on deserialization of a `Tile` with a `bool` cell type to the Python side results; see issue description for work around.
+* [#188](https://github.com/locationtech/rasterframes/issues/188): Error on deserialization of a `Tile` with a `bool` cell type to the Python side; see issue description for work around.
    
 ## 0.7.x
 
