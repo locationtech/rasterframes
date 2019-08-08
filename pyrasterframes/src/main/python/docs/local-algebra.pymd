@@ -12,7 +12,7 @@ import os
 spark = create_rf_spark_session()
 ```
 
-[Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single `tile`,  between a `tile` and a scalar, between two `tile`s, or among many `tile`s. These operations are common in processing of earth observation and other image data.
+[Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single _tile_,  between a _tile_ and a scalar, between two _tiles_, or among many _tiles_. These operations are common in processing of earth observation and other image data.
 
 <img src="https://gisgeography.com/wp-content/uploads/2015/05/Local-Operation-Raster.png" alt="local op" style="width:200px;"/>
 
@@ -44,12 +44,12 @@ Observe how the bands we need to use to compute the index are arranged as column
 
 ### Local Map Algebra
 
-RasterFrames provides a wide variety of local map algebra functions. There are several different broad categories, based on how many tiles the function takes as input:
+RasterFrames provides a wide variety of local map algebra functions. There are several different broad categories, based on how many _tiles_ the function takes as input:
 
- * A function on a single Tile is a unary operation; example: @ref:[rf_log](reference.md#rf-log);
- * A function on two Tiles is a binary operation; example: @ref:[rf_local_multiply](reference.md#rf-local-multiply);
- * A function on a Tile and a scalar is a binary operation; example: @ref:[rf_local_less](reference.md#rf-local-less); or
- * A function on many Tiles is a n-ary operation; example: @ref:[rf_agg_local_min](reference.md#rf-agg-local-min)
+ * A function on a single _tile_ is a unary operation; example: @ref:[rf_log](reference.md#rf-log);
+ * A function on two _tiles_ is a binary operation; example: @ref:[rf_local_multiply](reference.md#rf-local-multiply);
+ * A function on a _tile_ and a scalar is a binary operation; example: @ref:[rf_local_less](reference.md#rf-local-less); or
+ * A function on many _tiles_ is a n-ary operation; example: @ref:[rf_agg_local_min](reference.md#rf-agg-local-min)
 
 We can express the normalized difference with a combination of `rf_local_divide`, `rf_local_subtract`, and `rf_local_add`. Since the normalized difference is so common, there is a convenience method `rf_normalized_difference`, which we use in this example. We will append a new column to the DataFrame, which will apply the map alegbra function to each row.
 

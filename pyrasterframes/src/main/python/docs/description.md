@@ -25,15 +25,15 @@ RasterFrames builds upon several other LocationTech projects:
 
 ![LocationTech Stack](static/rasterframes-locationtech-stack.png)
 
-RasterFrames introduces georectified raster imagery to Spark SQL. It quantizes scenes into chunks called @ref:[_tiles_](concepts.md#tile). Each tile contains a 2-D matrix of @ref:[_cell_](concepts.md#tile) or pixel values along with information on how to numerically interpret those cells. 
+RasterFrames introduces georectified raster imagery to Spark SQL. It quantizes scenes into chunks called @ref:[_tiles_](concepts.md#tile). Each _tile_ contains a 2-D matrix of @ref:[_cell_](concepts.md#cell) or pixel values along with information on how to numerically interpret those _cells_.
 
-As shown in the figure below, a "RasterFrame" is a Spark DataFrame with one or more columns of type @ref:[`tile`](concepts.md#tile). A `tile` column typically represents a single frequency band of sensor data, such as "blue" or "near infrared", but can also be quality assurance information, land classification assignments, or any other raster spatial data. Along with `tile` columns there is typically an @ref:[`extent`](concepts.md#extent) specifying the geographic location of the data, the map projection of that geometry (@ref:[`crs`](concepts.md#coordinate-reference-system--crs-)), and a `timestamp` column representing the acquisition time. These columns can all be used in the `WHERE` clause when filtering.
+As shown in the figure below, a "RasterFrame" is a Spark DataFrame with one or more columns of type @ref:[_tile_](concepts.md#tile). A _tile_ column typically represents a single frequency band of sensor data, such as "blue" or "near infrared", but can also be quality assurance information, land classification assignments, or any other raster spatial data. Along with _tile_ columns there is typically an @ref:[`extent`](concepts.md#extent) specifying the geographic location of the data, the map projection of that geometry (@ref:[`crs`](concepts.md#coordinate-reference-system--crs-)), and a `timestamp` column representing the acquisition time. These columns can all be used in the `WHERE` clause when filtering.
 
 @@include[RasterFrame Example](static/rasterframe-sample.md)
 
 RasterFrames also includes support for working with vector data, such as [GeoJSON][GeoJSON]. RasterFrames vector data operations let you filter with geospatial relationships like contains or intersects, mask cells, convert vectors to rasters, and more.
 
-Raster data can be read from a @ref:[number of sources](raster-io.md). Through the flexible Spark SQL DataSource API, RasterFrames can be constructed from collections of imagery (including Cloud Optimized GeoTIFFs or [COGS][COGS]), [GeoTrellis Layers][GTLayer], and from catalogs of large datasets like Landsat 8 and MODIS data sets on the @ref:[AWS Public Data Set (PDS)](raster-catalogs.md#using-external-catalogs). 
+Raster data can be read from a @ref:[number of sources](raster-io.md). Through the flexible Spark SQL DataSource API, RasterFrames can be constructed from collections of imagery (including Cloud Optimized GeoTIFFs or [COGS][COGS]), [GeoTrellis Layers][GTLayer], and from catalogs of large datasets like Landsat 8 and MODIS data sets on the @ref:[AWS Public Data Set (PDS)](raster-catalogs.md#using-external-catalogs).
 
 [R]:https://www.rdocumentation.org/packages/base/versions/3.5.1/topics/data.frame
 [Pandas]:https://pandas.pydata.org/

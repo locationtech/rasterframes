@@ -1,6 +1,6 @@
 # Raster Catalogs
 
-While much interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _catalogs_ of raster data are to be processed. In its simplest form, a _catalog_ is a list of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The _catalog_ is input into the `raster` DataSource, described in the @ref:[next page](raster-read.pymd), which creates tiles from the rasters at the referenced URLs.
+While much interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _catalogs_ of raster data are to be processed. In its simplest form, a _catalog_ is a list of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The _catalog_ is input into the `raster` DataSource, described in the @ref:[next page](raster-read.pymd), which creates _tiles_ from the rasters at the referenced URLs.
 
 A _catalog_ can have one or two dimensions:
 
@@ -75,7 +75,7 @@ my_cat_df.printSchema()
 
 ## Using External Catalogs
 
-The concept of a _catalog_ is much more powerful when we consider examples beyond constructing the DataFrame, and instead read the data from an external source. Here's an extended example of reading an cloud-hosted CSV file containing MODIS scene metadata and transforming it into a _catalog_. The metadata describing the content of each URL is an important aspect of processing raster data. 
+The concept of a _catalog_ is much more powerful when we consider examples beyond constructing the DataFrame, and instead read the data from an external source. Here's an extended example of reading an cloud-hosted CSV file containing MODIS scene metadata and transforming it into a _catalog_. The metadata describing the content of each URL is an important aspect of processing raster data.
 
 ```python
 from pyspark import SparkFiles
@@ -86,7 +86,7 @@ spark.sparkContext.addFile("https://modis-pds.s3.amazonaws.com/MCD43A4.006/2018-
 scene_list = spark.read \
     .format("csv") \
     .option("header", "true") \
-    .load(SparkFiles.get("2018-07-04_scenes.txt")) 
+    .load(SparkFiles.get("2018-07-04_scenes.txt"))
 scene_list.head(3)
 ```
 

@@ -44,7 +44,7 @@ You can also see that the single raster has been broken out into many arbitrary 
 rf.groupby(rf.proj_raster_path).count().show()
 ```
 
-Let's select a single tile and view it. The tile preview image as well as the string representation provide some basic information about the tile: it's dimensions as number of columns and rows, and the cell type, or data type of all the cells in the tile. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
+Let's select a single _tile_ and view it. The _tile_ preview image as well as the string representation provide some basic information about the _tile_: it's dimensions as number of columns and rows, and the cell type, or data type of all the cells in the _tile_. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
 
 ```python show_tile_sample
 tile = rf.select(rf_tile("proj_raster")).first()[0]
@@ -144,7 +144,7 @@ spark.read.raster(uri, lazy_tiles=False) \
     .select('proj_raster.tile').show(1, False)
 ```
 
-In the initial examples on this page, you may have noticed that the realized (non-lazy) tiles are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized tile from the lazy representation.
+In the initial examples on this page, you may have noticed that the realized (non-lazy) _tiles_ are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized _tile_ from the lazy representation.
 
 ## Multiband Rasters
 
@@ -204,7 +204,7 @@ The catalog will give details on the particular layers available for query. We c
 gt_layer = spark.read.geotrellis(path='scheme://path-to-gt-catalog', layer=layer_name, zoom=zoom_level)
 ```
 
-This will return a RasterFrame with additional metadata inherited from the GeoTrellis TileLayerMetadata, such as the SpatialKey. The TileLayerMetadata is also stored as json in the metadata of the tile column.
+This will return a RasterFrame with additional metadata inherited from the GeoTrellis `TileLayerMetadata`, such as the `SpatialKey`. The `TileLayerMetadata` is also stored as JSON in the metadata of the _tile_ column.
 
 [CRS]: concepts.md#coordinate-reference-system--crs
 [Extent]: concepts.md#extent

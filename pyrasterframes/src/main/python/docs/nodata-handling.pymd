@@ -4,7 +4,7 @@
 
 In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. A great deal of raster data is stored for space efficiency. This typically leads to use of integral values and a "sentinel" value to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
 
-RasterFrames provides a variety of functions to inspect and manage NoData within `tile`s.
+RasterFrames provides a variety of functions to inspect and manage NoData within _tiles_.
 
 ## Cell Types
 
@@ -76,7 +76,7 @@ Let's continue the example above with Sentinel-2 data. Band 2 is blue and has no
 
 Credit: [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm)
 
-The first step is to create a catalog with our band of interest and the SCL band. We read the data from the catalog, so the blue band and SCL tiles are aligned across rows.
+The first step is to create a catalog with our band of interest and the SCL band. We read the data from the catalog, so the blue band and SCL _tiles_ are aligned across rows.
 
 ```python blue_scl_cat
 from pyspark.sql import Row
@@ -89,7 +89,7 @@ unmasked.printSchema()
 unmasked.select(rf_cell_type('blue'), rf_cell_type('scl')).distinct().show()
 ```
 
-Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create new tile columns that are indicators of unwanted pixels, as defined above. Since the mask column is bit type, the addition is equivalent to a logical or, so the true values are 1.
+Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create new _tile_ columns that are indicators of unwanted pixels, as defined above. Since the mask column is bit type, the addition is equivalent to a logical or, so the true values are 1.
 
 ```python def_mask
 from pyspark.sql.functions import lit
@@ -131,7 +131,7 @@ masked = one_mask.withColumn('blue_masked',
                  .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
 ```
 
-We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the bit-type `mask` tile to ensure our logic is correct.
+We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the bit-type `mask` _tile_ to ensure our logic is correct.
 
 ```python
 masked.select(rf_no_data_cells('blue_masked'), rf_tile_sum('mask')).show(10)
@@ -152,7 +152,7 @@ display(sample[1])
 
 ## NoData and Local Arithmatic
 
-Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behaviour, lets create two tiles. One tile will have values of 0 and 1, and the other will have values of just 0.
+Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behaviour, lets create two _tiles_. One _tile_ will have values of 0 and 1, and the other will have values of just 0.
 
 
 ```python
@@ -186,11 +186,11 @@ display(row.x_nd)
 print('x with NoData plus y')
 display(row.x_nd_y_sum)
 ```
-To see more information about possible operations on Tile columns, see the @ref:[local map algebra](local-algebra.md) page and @ref:[function reference](reference.md#local-map-algebra).
+To see more information about possible operations on _tile_ columns, see the @ref:[local map algebra](local-algebra.md) page and @ref:[function reference](reference.md#local-map-algebra).
 
 ## Changing a Tile's NoData Values
 
-One way to mask a tile is to make a new tile with a user defined NoData value. We will explore this method below. First, lets create a DataFrame from a tile with values of 0, 1, 2, and 3. We will use numpy to create a 100x100 Tile with vertical bands containing values 0, 1, 2, and 3.
+One way to mask a _tile_ is to make a new _tile_ with a user defined NoData value. We will explore this method below. First, lets create a DataFrame from a _tile_ with values of 0, 1, 2, and 3. We will use numpy to create a 100x100 _tile_ with vertical bands containing values 0, 1, 2, and 3.
 
 ```python create_dummy_tile, caption='Dummy Tile'
 tile_size = 100
@@ -205,7 +205,7 @@ rf = spark.createDataFrame([Row(tile=x)])
 display(x)
 ```
 
-First, we mask the value of 1 by making a new column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a tile with the cell type 'uint16ud2'.
+First, we mask the value of 1 by making a new column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a _tile_ with the cell type 'uint16ud2'.
 
 ```python
 def get_nodata_ct(nd_val):
@@ -221,13 +221,13 @@ masked_rf = rf.withColumn('tile_nd_1',
 collected = masked_rf.collect()
 ```
 
-Let's look at the new Tiles we created. The tile named `tile_nd_1` has the 1 values masked out as expected.
+Let's look at the new _tiles_ we created. The _tile_ named `tile_nd_1` has the 1 values masked out as expected.
 
 ```python
 display(collected[0].tile_nd_1)
 ```
 
-And the tile named `tile_nd_2` has the values of 1 and 2 masked out. This is because we created the tile by setting a new user defined NoData value to `tile_nd_1` the values previously masked out in `tile_nd_1` stayed masked when creating `tile_nd_2`.
+And the _tile_ named `tile_nd_2` has the values of 1 and 2 masked out. This is because we created the _tile_ by setting a new user defined NoData value to `tile_nd_1` the values previously masked out in `tile_nd_1` stayed masked when creating `tile_nd_2`.
 
 ```python
 display(collected[0].tile_nd_2)
@@ -236,7 +236,7 @@ display(collected[0].tile_nd_2)
 
 ## Combining Tiles with Different Data Types
 
-RasterFrames supports having Tile columns with multiple cell types in a single DataFrame. It is important to understand how these different cell types interact.
+RasterFrames supports having _tile_ columns with multiple cell types in a single DataFrame. It is important to understand how these different cell types interact.
 
 Let's first create a RasterFrame that has columns of `float` and `int` cell type.
 
@@ -248,7 +248,7 @@ rf = spark.createDataFrame([Row(x=x, y=y)])
 rf.select(rf_cell_type('x'), rf_cell_type('y')).distinct().show()
 ```
 
-When performing a local operation between tile columns with cell types `int` and type `float`, the resulting tile cell type will be `float`. In local algebra over two tiles of different "sized" cell types, the resulting cell type will be the largest of the two input tiles' cell types.
+When performing a local operation between _tile_ columns with cell types `int` and type `float`, the resulting _tile_ cell type will be `float`. In local algebra over two _tiles_ of different "sized" cell types, the resulting cell type will be the largest of the two input _tiles'_ cell types.
 
 ```python
 rf.select(
@@ -258,7 +258,7 @@ rf.select(
     ).show(1)
 ```
 
-Combining tile columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 2 tile columns: one with a NoData value of 1, and one with a NoData value of 2.
+Combining _tile_ columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 2 _tile_ columns: one with a NoData value of 1, and one with a NoData value of 2.
 
 ```python
 x_nd_1 = Tile((np.ones((100, 100))*3), get_nodata_ct(1))
@@ -266,7 +266,7 @@ x_nd_2 = Tile((np.ones((100, 100))*3), get_nodata_ct(2))
 rf_nd = spark.createDataFrame([Row(x_nd_1=x_nd_1, x_nd_2=x_nd_2)])
 ```
 
-Let's try adding the tile columns with different NoData values. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has a NoData value of 1.
+Let's try adding the _tile_ columns with different NoData values. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has a NoData value of 1.
 
 ```python
 rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_2', 'x_nd_1'))
@@ -282,7 +282,7 @@ rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
 
 ## NoData Values in Aggregation
 
-Let's use the same tile as before to demonstrate how NoData values affect tile aggregations.
+Let's use the same _tile_ as before to demonstrate how NoData values affect _tile_ aggregations.
 
 ```python
 tile_size = 100
@@ -295,7 +295,7 @@ rf = spark.createDataFrame([Row(tile=x)])
 display(x)
 ```
 
-First we create the two new masked tile columns as before. One with only the value of 1 masked, and the other with and values of 1 and 2 masked.
+First we create the two new masked _tile_ columns as before. One with only the value of 1 masked, and the other with and values of 1 and 2 masked.
 
 ```python
 masked_rf = rf.withColumn('tile_nd_1',
@@ -304,7 +304,7 @@ masked_rf = rf.withColumn('tile_nd_1',
                           rf_convert_cell_type('tile_nd_1', get_nodata_ct(2)))
 ```
 
-The results of `rf_tile_sum` vary on the tiles that were masked. This is because any cells with NoData values are ignored in the aggregation. Note that `tile_nd_2` has the lowest sum, since it has the fewest amount of data cells.
+The results of `rf_tile_sum` vary on the _tiles_ that were masked. This is because any cells with NoData values are ignored in the aggregation. Note that `tile_nd_2` has the lowest sum, since it has the fewest amount of data cells.
 
 ```python
 masked_rf.select(rf_tile_sum('tile'), rf_tile_sum('tile_nd_1'), rf_tile_sum('tile_nd_2')).show()
