@@ -39,6 +39,10 @@
 * Introduced `LocalCellStatistics` class to wrap together results from `LocalStatsAggregate`.
 * _Breaking_: `TileDimensions` moved from `astraea.spark.rasterframes` to `org.locationtech.rasterframes.model`.
 * _Breaking_: Renamed `RasterFrame.withBounds` to `RasterFrameLayer.withGeometry` for consistency with DataSource schemas.
+
+#### Known issues
+
+* [#188](https://github.com/locationtech/rasterframes/issues/188): Error on deserialization of a `Tile` with a `bool` cell type to the Python side; see issue description for work around.
    
 ## 0.7.x
 
