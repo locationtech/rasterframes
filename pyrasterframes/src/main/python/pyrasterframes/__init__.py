@@ -223,4 +223,5 @@ DataFrameReader.geojson = lambda df_reader, path: _aliased_reader(df_reader, "ge
 DataFrameReader.geotiff = lambda df_reader, path: _layer_reader(df_reader, "geotiff", path)
 DataFrameWriter.geotiff = _geotiff_writer
 DataFrameReader.geotrellis = lambda df_reader, path: _layer_reader(df_reader, "geotrellis", path)
+DataFrameReader.geotrellis_catalog = lambda df_reader, path: _aliased_reader(df_reader, "geotrellis-catalog", path)
 DataFrameWriter.geotrellis = lambda df_writer, path: _aliased_writer(df_writer, "geotrellis", path)

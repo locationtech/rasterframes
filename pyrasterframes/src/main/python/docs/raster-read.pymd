@@ -193,7 +193,7 @@ mb2.printSchema()
 A GeoTrellis catalog is a set of GeoTrellis layers. We can read a dataframe giving details of the content of a catalog using the following. The scheme is typically `hdfs` or a cloud storage provider like `s3` or `wasb`.
 
 ```python, evaluate=False
-gt_cat = spark.read.format('geotrellis-catalog').load('scheme://path-to-gt-catalog')
+gt_cat = spark.read.geotrellis_catalog('scheme://path-to-gt-catalog')
 ```
 
 ### GeoTrellis Layers
