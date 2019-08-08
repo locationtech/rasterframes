@@ -2,7 +2,8 @@ FROM s22s/pyspark-notebook:spark-2.3.3-hadoop-2.7
 
 MAINTAINER Astraea, Inc.
 
-ENV RF_LIB_LOC /usr/local/rasterframes
+ENV RF_LIB_LOC=/usr/local/rasterframes \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/conda/lib"
 
 USER root
 
@@ -13,11 +14,6 @@ EXPOSE 4040 4041 4042 4043 4044
 # Sphinx (for Notebook->html)
 RUN conda install --quiet --yes \
     anaconda sphinx nbsphinx shapely numpy folium geopandas geojsonio
-
-RUN apt-get update && \
-    apt-get install -y gdal-bin && \
-    apt autoremove && \
-    apt-get clean all
 
 # Cleanup pip residuals
 RUN rm -rf /home/$NB_USER/.local && \

@@ -33,11 +33,14 @@ class GeoTiffWriter(TestEnvironment):
 
     def test_identity_write(self):
         rf = self.spark.read.geotiff(self.img_uri)
+        rf_count = rf.count()
+        self.assertTrue(rf_count > 0)
 
         dest = self._tmpfile()
         rf.write.geotiff(dest)
 
-        rf2 = self.spark.read.geotiff('file://' + dest)
+        rf2 = self.spark.read.geotiff(dest)
+
         self.assertEqual(rf2.count(), rf.count())
 
         os.remove(dest)
@@ -47,7 +50,7 @@ class GeoTiffWriter(TestEnvironment):
         dest_file = self._tmpfile()
         rf.write.geotiff(dest_file, crs='EPSG:32616')
 
-        rf2 = self.spark.read.raster('file://' + dest_file)
+        rf2 = self.spark.read.raster(dest_file)
         self.assertEqual(rf2.count(), rf.count())
 
         with rasterio.open(self.img_uri) as source:
@@ -55,6 +58,22 @@ class GeoTiffWriter(TestEnvironment):
                 self.assertEqual((dest.width, dest.height), (source.width, source.height))
                 self.assertEqual(dest.bounds, source.bounds)
                 self.assertEqual(dest.crs, source.crs)
+
+        os.remove(dest_file)
+
+    def test_unstructured_write_schemeless(self):
+        # should be able to write a projected raster tile column to path like '/data/foo/file.tif'
+        from pyrasterframes.rasterfunctions import rf_agg_stats, rf_crs
+        rf = self.spark.read.raster(self.img_uri)
+        max = rf.agg(rf_agg_stats('proj_raster').max.alias('max')).first()['max']
+        crs = rf.select(rf_crs('proj_raster').crsProj4.alias('c')).first()['c']
+
+        dest_file = self._tmpfile()
+        self.assertTrue(not dest_file.startswith('file://'))
+        rf.write.geotiff(dest_file, crs=crs)
+
+        with rasterio.open(dest_file) as src:
+            self.assertEqual(src.read().max(), max)
 
         os.remove(dest_file)
 

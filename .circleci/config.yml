@@ -204,4 +204,4 @@ workflows:
       - it
       - itWithoutGdal
       - docs
-      - staticAnalysis
+#      - staticAnalysis

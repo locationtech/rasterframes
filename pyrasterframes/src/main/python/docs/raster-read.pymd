@@ -148,11 +148,11 @@ In the initial examples on this page, you may have noticed that the realized (no
 
 ## Multiband Rasters
 
-A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated as different bands. The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could represent other phenomena such as measurement time, quality indications, or additional measurements. 
+A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated as different @ref:[bands](concepts.md#band). The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could represent other phenomena such as measurement time, quality indications, or additional measurements.
 
 Multiband rasters files have a strictly ordered set of bands, which are typically indexed from 1. Some files have metadata tags associated with each band. Some files have a color interpetation metadata tag indicating how to interpret the bands.
 
-When reading a multiband raster or a _Catalog_ describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, **indexed from zero**, passing a list of integers into the `band_indexes` parameter of the `raster` reader.
+When reading a multiband raster or a _catalog_ describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, **indexed from zero**, as a list of integers into the `band_indexes` parameter of the `raster` reader.
 
 For example, we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting DataFrame still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
 
