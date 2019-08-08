@@ -93,7 +93,7 @@ scene_list.head(3)
 Observe the scenes list file has URIs to `index.html` files in the download_url column. The image URI's are in the same directory. The filenames are of the form `${gid}_B${band}.TIF`. The next code chunk builds these URIs, which completes our catalog.
 
 ```python
-modis_catalog = scene_list
+modis_catalog = scene_list \
     .withColumn('base_url',
         F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',)
     ) \
