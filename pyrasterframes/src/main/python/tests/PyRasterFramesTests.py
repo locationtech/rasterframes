@@ -66,6 +66,10 @@ class CellTypeHandling(unittest.TestCase):
         self.assertTrue(np.isnan(CellType.float32().no_data_value()))
 
         self.assertEqual(CellType("float32ud-98").no_data_value(), -98.0)
+        self.assertEqual(CellType("float32ud-98").no_data_value(), -98)
+        self.assertEqual(CellType("int32ud-98").no_data_value(), -98.0)
+        self.assertEqual(CellType("int32ud-98").no_data_value(), -98)
+
         self.assertTrue(math.isnan(CellType.float64().no_data_value()))
         self.assertEqual(CellType.uint8().no_data_value(), 0)
 

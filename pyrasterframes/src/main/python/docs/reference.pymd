@@ -126,26 +126,29 @@ Functions to create a new Tile column, either from scratch or from existing data
 ### rf_make_zeros_tile
 
 ```
-Tile rf_make_zeros_tile(Int tile_columns, Int tile_rows, String cell_type_name)
+Tile rf_make_zeros_tile(Int tile_columns, Int tile_rows, [CellType cell_type])
+Tile rf_make_zeros_tile(Int tile_columns, Int tile_rows, [String cell_type_name])
 ```
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of zeros, with the specified cell type. See function @ref:[`rf_cell_types`](reference.md#rf-cell-types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of zeros, with the optional cell type; default is float64. See @ref:[this discussion](nodata-handling.md#cell-types) on cell types for info on the `cell_type` argument. All arguments are literal values and not column expressions.
 
 ### rf_make_ones_tile
 
 ```
-Tile rf_make_ones_tile(Int tile_columns, Int tile_rows, String cell_type_name)
+Tile rf_make_ones_tile(Int tile_columns, Int tile_rows, [CellType cell_type])
+Tile rf_make_ones_tile(Int tile_columns, Int tile_rows, [String cell_type_name])
 ```
 
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the specified cell type. See function @ref:[`rf_cell_types`](reference.md#rf-cell-types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the optional cell type; default is float64. See @ref:[this discussion](nodata-handling.md#cell-types) on cell types for info on the `cell_type` argument. All arguments are literal values and not column expressions.
 
 ### rf_make_constant_tile
 
-    Tile rf_make_constant_tile(Numeric constant, Int tile_columns, Int tile_rows,  String cell_type_name)
+    Tile rf_make_constant_tile(Numeric constant, Int tile_columns, Int tile_rows,  [CellType cell_type])
+    Tile rf_make_constant_tile(Numeric constant, Int tile_columns, Int tile_rows,  [String cell_type_name])
 
 
-Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with the specified cell type. See function @ref:[`rf_cell_types`](reference.md#rf-cell-types) for valid values. All arguments are literal values and not column expressions.
+Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with the optional cell type; default is float64. See @ref:[this discussion](nodata-handling.md#cell-types) on cell types for info on the `cell_type` argument. All arguments are literal values and not column expressions.
 
 
 ### rf_rasterize
@@ -182,9 +185,14 @@ Python only. Create a `tile` from a Spark SQL [Array](http://spark.apache.org/do
 
 ### rf_assemble_tile
 
-    Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, String cellType)
+    Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, [CellType cell_type])
+    Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, [String cell_type_name])
 
-Python only. Create a Tile from  a column of cell data with location indices. This function is the inverse of @ref:[`rf_explode_tiles`](reference.md#rf-explode-tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  The `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. Valid values for `cellType` can be found with function @ref:[`rf_cell_types`](reference.md#rf-cell-types).
+SQL:  `Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows)`
+
+Create `tile`s of dimension `numCols` by `numRows` from  a column of cell data with location indices. This function is the inverse of @ref:[`rf_explode_tiles`](reference.md#rf-explode-tiles). Intended use is with a `groupby`, producing one row with a new `tile` per group.  In Python, the `numCols`, `numRows` and `cellType` arguments are literal values, others are column expressions. 
+See @ref:[this discussion](nodata-handling.md#cell-types) on cell types for info on the optional `cell_type` argument. The default is float64.
+SQL implementation does not accept a cell_type argument. It returns a float64 cell type `tile` by default.
 
 ## Masking and NoData
 
