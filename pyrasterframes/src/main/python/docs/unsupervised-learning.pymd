@@ -53,7 +53,7 @@ df.printSchema()
 
 ## Create ML Pipeline
 
-SparkML requires that each observation be in its own row, and features for each observation be packed into a single `Vector`. For this unsupervised learning problem, we will treat each _pixel_ as an observation and each band as a feature. The first step is to "explode" the _tiles_ into a single row per pixel. In the scala API, a pixel is called a `cell`.
+SparkML requires that each observation be in its own row, and features for each observation be packed into a single `Vector`. For this unsupervised learning problem, we will treat each _pixel_ as an observation and each band as a feature. The first step is to "explode" the _tiles_ into a single row per pixel. In RasterFrames, generally a pixel is called a @ref:[`cell`](concepts.md#cell).
 
 ```python
 exploder = TileExploder()
