@@ -146,7 +146,7 @@ In the initial examples on this page, we used @ref:[`rf_tile`](reference.md#rf-t
 
 ## Multiband Rasters
 
-A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated as different bands. The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could represent other phenomena such as measurement time, quality indications, or additional measurements.
+A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated as different @ref:[bands](concepts.md#band). The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could represent other phenomena such as measurement time, quality indications, or additional measurements.
 
 When reading a multiband raster or a _Catalog_ describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, indexed from zero, passing a list of integers into the `band_indexes` parameter of the `raster` reader.
 

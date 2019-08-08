@@ -1,15 +1,15 @@
 # Raster Catalogs
 
-While much interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _Catalogs_ of raster data are to be processed. In its simplest form, a _Catalog_ is a listing of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This listing can be manifested as a DataFrame, CSV file or CSV string. The _Catalog_ is input into the `raster` DataSource, described in the next page.
+While much interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _catalogs_ of raster data are to be processed. In its simplest form, a _catalog_ is a list of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The _catalog_ is input into the `raster` DataSource, described in the @ref:[next page](raster-read.pymd), which creates tiles from the rasters at the referenced URLs.
 
-A _Catalog_ can have one or two dimensions:
+A _catalog_ can have one or two dimensions:
 
-* One-D: A single column containing one or many URLs across the rows. All referenced rasters represent the same content type. For example, a column of URLs to Landsat 8 NIR rasters covering Europe. Each row represents different places and times.
-* Two-D: Many columns containing raster URLs. Each column references the same content type, and each row represents the same place and time. For example, red-, green-, and blue-band columns for scenes covering Europe. Each row represents a single spatiotemporal location (or scene) with the same dimensions, extent, [_CRS_][CRS], etc across the row.
+* One-D: A single column contains raster URLs across the rows. All referenced rasters represent the same @ref:[band](concepts.md#band). For example, a column of URLs to Landsat 8 near-infrared rasters covering Europe. Each row represents different places and times.
+* Two-D: Many columns containing raster URLs. Each column references the same band, and each row represents the same place and time. For example, red-, green-, and blue-band columns for scenes covering Europe. Each row represents a single @ref:[scene](concepts.md#scene) with the same resolution, extent, [_CRS_][CRS], etc across the row.
 
 ## Creating a Catalog
 
-This section will provide some examples of creating your own _Catalogs_, as well as introduce some experimental _Catalogs_ built into RasterFrames. Reading raster data represented by a _Catalog_ is covered in more detail in the @ref:[next page](raster-read.md).
+This section will provide some examples of creating your own _catalogs_, as well as introduce some experimental _catalogs_ built into RasterFrames. Reading raster data represented by a _catalog_ is covered in more detail in the @ref:[next page](raster-read.md).
 
 ```python, echo=False
 from IPython.display import display
@@ -25,30 +25,37 @@ A single URL is the simplest form of a catalog.
 
 ```python
 from pyspark.sql import Row
-my_cat = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF"
-# or
-my_cat_df = spark.createDataFrame([Row(B01=my_cat)])
+
+file_uri = "/data/raster/myfile.tif"
+# Pandas DF
+my_cat = pd.DataFrame({'B01': [file_uri]})
+
+# equivalent Spark DF
+my_cat = spark.createDataFrame([Row(B01=file_uri)])
+
+#equivalent CSV string
+my_cat = "B01\n{}".format(file_uri)
 ```
 
-A single column represents the same content type with different observations along the rows. In this example it is band 1 of MODIS, which is visible red. In the example the location of the images is the same (h04v09) but the dates differ.
+A single column represents the same content type with different observations along the rows. In this example it is band 1 of MODIS surface reflectance, which is visible red. In the example the location of the images is the same, indicated by the granule identifier `h04v09`, but the dates differ: 2018185 (July 4, 2018) and 2018188 (July 7, 2018).
 
 ```python
 scene1_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF"
 scene2_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF"
 
-# As CSV string
-my_cat = '\n'.join(['B01', scene1_B01, scene2_B01])
-# or
-my_cat_df = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
-my_cat_df.printSchema()
-# or
-pandas_cat = pd.DataFrame([{'B01': scene1_B01}, {'B01': scene2_B01}])
-my_cat = spark.createDataFrame(pandas_cat)
+# a pandas DF
+one_d_cat = pd.DataFrame({'B01': [scene1_B01, scene2_B01]})
+
+# equivalent spark DF
+one_d_cat = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
+
+# equivalent CSV string
+one_d_cat = '\n'.join(['B01', scene1_B01, scene2_B01])
 ```
 
 ### Two-D
 
-Example of a multiple columns representing multiple content types (bands) across multiple scenes. In each row, the scene is the same. The first column is band 1 and the second is band 2, near infrared.
+Example of a multiple columns representing multiple content types (bands) across multiple scenes. In each row, the scene is the same: granule id `h04v09` on July 4 or July 7, 2018. The first column is band 1, red,  and the second is band 2, near infrared.
 
 ```python
 scene1_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF"
@@ -68,7 +75,7 @@ my_cat_df.printSchema()
 
 ## Using External Catalogs
 
-The simplest example of an external _Catalog_ is a DataFrame (or a transformation of) in one of the formats above. Here's an extended example of reading an external CSV file of MODIS scenes and transforming it into a _Catalog_. The metadata describing the content of each URL is an important aspect of processing raster data. This example includes some minimal metadata.
+The concept of a _catalog_ is much more powerful when we consider examples beyond constructing the DataFrame, and instead read the data from an external source. Here's an extended example of reading an cloud-hosted CSV file containing MODIS scene metadata and transforming it into a _catalog_. The metadata describing the content of each URL is an important aspect of processing raster data. 
 
 ```python
 from pyspark import SparkFiles
@@ -76,28 +83,29 @@ from pyspark.sql import functions as F
 
 spark.sparkContext.addFile("https://modis-pds.s3.amazonaws.com/MCD43A4.006/2018-07-04_scenes.txt")
 
-# The scenes list file has index URIs in the download_url column, for example:
-#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/index.html
-# Image URIs take the form:
-#    https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF
-
-modis_catalog = spark.read \
+scene_list = spark.read \
     .format("csv") \
     .option("header", "true") \
-    .load(SparkFiles.get("2018-07-04_scenes.txt")) \
+    .load(SparkFiles.get("2018-07-04_scenes.txt")) 
+scene_list.head(3)
+```
+
+Observe the scenes list file has URIs to `index.html` files in the download_url column. The image URI's are in the same directory. The filenames are of the form `${gid}_B${band}.TIF`. The next code chunk builds these URIs, which completes our catalog.
+
+```python
+modis_catalog = scene_list \
     .withColumn('base_url',
         F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',)
     ) \
     .withColumn('B01' , F.concat('base_url', F.lit("_B01.TIF"))) \
     .withColumn('B02' , F.concat('base_url', F.lit("_B02.TIF"))) \
     .withColumn('B03' , F.concat('base_url', F.lit("_B03.TIF")))
-# ... and so on.
-modis_catalog.printSchema()
+modis_catalog.head(3)
 ```
 
 ## Using Built-in Experimental Catalogs
 
-RasterFrames comes with two experimental catalogs over the AWS PDS [Landsat 8][Landsat] and [MODIS][MODIS] repositories. They are created by downloading the latest scene lists and transforming as in the prior example.
+RasterFrames comes with two experimental catalogs over the AWS PDS [Landsat 8][Landsat] and [MODIS][MODIS] repositories. They are created by downloading the latest scene lists and building up the appropriate band URI columns as in the prior example.
 
 > Note: The first time you run these may take some time, as the catalogs are large. However, they are cached and subsequent invocations should be faster.
 
