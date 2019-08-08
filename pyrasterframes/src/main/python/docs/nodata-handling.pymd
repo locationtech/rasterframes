@@ -40,7 +40,7 @@ spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif
 
 ### Understanding Cell Types and NoData
 
-We can use the methods on the `CellType` class to learn more about a specific cell type. Take, for example, the cell type of our sample data above.
+We can use the methods on the `CellType` class to learn more about a specific cell type. Let's consider the cell type of our sample data above.
 
 ```python
 ct = CellType('uint16raw')
