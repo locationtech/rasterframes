@@ -72,7 +72,7 @@ print(CellType.float32().with_no_data_value(-99.9).no_data_value())
 
 Let's continue the example above with Sentinel-2 data. Band 2 is blue and has no defined NoData. The quality information is in a separate file called the scene classification (SCL), which delineates areas of missing data and probable clouds. For more information on that, see the [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm). Figure 3 tells us how to interpret the scene classification. For this example, we will exclude NoData, defective pixels, probable clouds, and cirrus clouds: values 0, 1, 8, 9, and 10.
 
-![Scene Classification Values](static/rasterframes-scene-classification-labels.png)
+![Sentinel-2 Scene Classification Values](static/sentinel-2-scene-classification-labels.png)
 Credit: [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm)
 
 The first step is to create a catalog with our band of interest and the SCL band. We read the data from the catalog, so the blue band and SCL tiles are aligned across rows.
