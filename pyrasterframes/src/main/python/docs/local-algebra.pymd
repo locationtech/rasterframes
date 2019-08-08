@@ -51,7 +51,7 @@ RasterFrames provides a wide variety of local map algebra functions. There are s
  * A function on a Tile and a scalar is a binary operation; example: @ref:[rf_local_less](reference.md#rf-local-less); or
  * A function on many Tiles is a n-ary operation; example: @ref:[rf_agg_local_min](reference.md#rf-agg-local-min)
 
-We can express the normalized difference with a combination of `rf_local_divide`, `rf_local_subtract`, and `rf_local_add`. Since the normalized difference is so common there is a convenience method `rf_normalized_difference` which we use in this example. We will append a new column to the DataFrame, which will apply the map alegbra function to each row.
+We can express the normalized difference with a combination of `rf_local_divide`, `rf_local_subtract`, and `rf_local_add`. Since the normalized difference is so common, there is a convenience method `rf_normalized_difference`, which we use in this example. We will append a new column to the DataFrame, which will apply the map alegbra function to each row.
 
 ```python
 df = df.withColumn('ndvi', rf_normalized_difference(df.nir, df.red))
