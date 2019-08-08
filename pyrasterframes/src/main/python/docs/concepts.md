@@ -45,6 +45,10 @@ A "NoData" (or N/A) value is a specifically identified value for a cell type use
 
 A scene (or granule) is a discrete instance of EO @ref:[raster data](concepts.md#raster) with a specific extent (region), date-time, and map projection (or CRS).
 
+## Band
+
+A @ref:[scene](concepts.md#scene) frequently defines many different measurements captured a the same date-time, over the same extent, and meant to be processed together. These different measurements are referred to as bands. The name comes from the varying bandwidths of light and electromagnetic radiation measured in many EO datasets. 
+
 ## Coordinate Reference System (CRS)
 
 A [coordinate reference system (or spatial reference system)][CRS] is a set of mathematical constructs used to translate locations on the three-dimensional surface of the earth to the two dimensional raster grid. A CRS typically accompanies any EO data so it can be precisely located. 
@@ -57,10 +61,10 @@ An extent (or bounding box) is a rectangular region specifying the geospatial co
 
 A tile (sometimes called a "chip") is a rectangular subset of a @ref:[scene](concepts.md#scene). As a scene is a raster, a tile is also a raster. A tile can conceptually be thought of as a two-dimensional array. 
 
-Some EO data has many bands or channels. Tiles in this context are conceptually a three-dimensional array, with the extra dimension representing the bands.
+Some EO data has many @ref:[bands](concepts.md#band) or channels. Within RasterFrames, this third dimension is handled across columns of the DataFrame, such that the tiles within DataFrames are all two-dimensional arrays.
 
 Tiles are often square and the dimensions are some power of two, for example 256 by 256.
 
-The tile is the primary discretization unit used in RasterFrames. Each band of a scene is in a separate column. The scene's overall @ref:[extent](concepts.md#extent) is carved up into smaller extents for each tile. Each row of the DataFrame contains a two-dimensional tile per band column.
+The tile is the primary discretization unit used in RasterFrames. The scene's overall @ref:[extent](concepts.md#extent) is carved up into smaller extents and spread across rows. 
 
 [CRS]: https://en.wikipedia.org/wiki/Spatial_reference_system
