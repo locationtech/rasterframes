@@ -1,6 +1,6 @@
 # NumPy and Pandas
 
-In the Python Spark API, the work of distributed computing over the DataFrame is done on many executors (the Spark term for workers) inside Java virual machines (JVM). Most calls to `pyspark` are passed to a Java process via the `py4j` library. The user can also ask for data inside the JVM to be brought over to the Python driver (the Spark term for the client application). When dealing with _tiles_, the driver will recieve this data a lightweight wrapper object around a NumPy ndarray. It is also possible to write lambda functions against NumPy arrays and evaluate them in the Spark DataFrame. 
+In the Python Spark API, the work of distributed computing over the DataFrame is done on many executors (the Spark term for workers) inside Java virual machines (JVM). Most calls to `pyspark` are passed to a Java process via the `py4j` library. The user can also ask for data inside the JVM to be brought over to the Python driver (the Spark term for the client application). When dealing with _tiles_, the driver will recieve this data a lightweight wrapper object around a NumPy ndarray. It is also possible to write lambda functions against NumPy arrays and evaluate them in the Spark DataFrame.
 
 ## Performance Considerations
 
@@ -8,7 +8,7 @@ When working with large, distributed datasets in Spark care is required when inv
 
 When many _actions_ are invoked, a lot of data can flow from executors to the driver. In `pyspark` the data then has to move from the driver JVM to the Python process running the driver. When that happens if there are any _tiles_ in the data, they will be converted to a Python [`Tile`](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/main/python/pyrasterframes/rf_types.py) object. In practical work with Earth observation data, the _tiles_ are frequently 256 by 256 arrays, which may be 100kb or more each. Individually they are small, a DataFrame can easily have dozens of such tile columns and millions of rows.
 
-All of this discussion reinforces important principle for working with Spark: understanding the cost of an _action_ is important; and use of @ref:[aggreates](aggregation.md), summaries, or samples to manage the cost of _actions_. 
+All of this discussion reinforces important principle for working with Spark: understanding the cost of an _action_ is important; and use of @ref:[aggreates](aggregation.md), summaries, or samples to manage the cost of _actions_.
 
 ## The `Tile` Class
 
@@ -30,7 +30,7 @@ t.cells.shape, t.cells.nbytes
 
 ## DataFrame `toPandas`
 
-As discussed in the @ref:[raster writing chapter](raster-write.md#dataframe-samples), a pretty display of Pandas DataFrame containing _tiles_ is available by importing the `rf_ipython` submodule. In addition, as discussed in the @ref:[vector data chapter](vector-data.md), any geometry type in the Spark dataframe will be converted into a Shapely geometry. Taken together, we can can easily get the spatial information and raster data as a NumPy array, all within a Pandas DataFrame.
+As discussed in the @ref:[raster writing chapter](raster-write.md#dataframe-samples), a pretty display of Pandas DataFrame containing _tiles_ is available by importing the `rf_ipython` submodule. In addition, as discussed in the @ref:[vector data chapter](vector-data.md), any geometry type in the Spark DataFrame will be converted into a Shapely geometry. Taken together, we can can easily get the spatial information and raster data as a NumPy array, all within a Pandas DataFrame.
 
 ```python spark_session,  echo=False
 import pyrasterframes
@@ -49,7 +49,7 @@ cat = spark.read.format('aws-pds-modis-catalog').load() \
                     (col('granule_id') == 'h11v04') &
                     (col('acquisition_date') > lit('2018-02-19')) &
                     (col('acquisition_date') < lit('2018-02-22'))
-                ) 
+                )
 
 spark_df = spark.read.raster(catalog=cat, catalog_col_names=['B01']) \
                 .select(
@@ -106,9 +106,9 @@ import pandas as pd
 from shapely.geometry import Point
 
 pandas_df = pd.DataFrame([
-        { 
-            'tile': Tile(np.random.randn(100, 100)), 
-            'geom': Point(-90 + 90 * np.random.random((2, 1))) 
+        {
+            'tile': Tile(np.random.randn(100, 100)),
+            'geom': Point(-90 + 90 * np.random.random((2, 1)))
         }  for _ in range(10)
     ])
 

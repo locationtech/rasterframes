@@ -28,7 +28,7 @@ from pyspark.sql.functions import lit
 # Read a MODIS surface reflectance granule
 df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 
-# Add 3 element-wise, show some rows of the dataframe
+# Add 3 element-wise, show some rows of the DataFrame
 df.select(rf_local_add(df.proj_raster, lit(3))).show(5, False)
 ```
 
@@ -52,9 +52,7 @@ You can also use RasterFrames in the following environments:
  1. Install [docker](https://docs.docker.com/install/)
  1. Pull the image: `docker pull s22s/rasterframes-notebook`
  1. Run a container with the image, for example: 
-
-      docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/notebooks  rasterframes-notebook:latest
-
+      `docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/notebooks  rasterframes-notebook:latest`
  1. In a browser, open `localhost:8808` in the example above. 
 
 See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.
@@ -94,7 +92,11 @@ SparkSession available as 'spark'.
 
 Now you have the configured SparkSession with RasterFrames enabled.
 
-## Installing GDAL 
+```python, echo=False
+spark.stop()
+```
+
+## Installing GDAL
 
 GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to @ref:[read](raster-read.md) those formats.  If you are using the @ref:[Jupyter Notebook image](getting-started.md#jupyter-notebook), GDAL is already installed for you. Otherwise follow the instructions below. Version 2.4.1 or greater is required.
 
@@ -111,7 +113,7 @@ brew install gdal
 Using [`apt-get`](https://wiki.debian.org/Apt):
 
 ```bash
-sudo apt-get update 
+sudo apt-get update
 sudo apt-get install gdal-bin
 ```
 

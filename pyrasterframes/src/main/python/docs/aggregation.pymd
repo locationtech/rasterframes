@@ -28,19 +28,19 @@ SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as tile
 rf.select("id", rf_render_matrix("tile")).show(10, False)
 ```
 
-In this code block we are using the @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) function to compute the tile aggregate mean of cells in each row of column `tile`. The mean of each tile is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.
+In this code block, we are using the @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) function to compute the tile aggregate mean of cells in each row of column `tile`. The mean of each tile is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.
 
 ```python
 rf.select(F.col('id'), rf_tile_mean(F.col('tile'))).show(10, False)
 ```
 
-In this code block we are using the @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) function to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
+In this code block, we are using the @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) function to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
 
 ```python
 rf.agg(rf_agg_mean(F.col('tile'))).show(10, False)
 ```
 
-In this code block we are using the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function to compute the element-wise local aggregate mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
+In this code block, we are using the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function to compute the element-wise local aggregate mean across the two rows. In this example it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the `tile`.
 
 To compute an element-wise local aggregate, tiles need have the same dimensions as in the example below where both tiles have 5 rows and 5 columns. If we tried to compute an element-wise local aggregate over the DataFrame without equal tile dimensions, we would get a runtime error.
 

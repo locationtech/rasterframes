@@ -11,14 +11,14 @@ import pyrasterframes.rf_ipython
 spark = pyrasterframes.get_spark_session()
 ```
 
-In this example we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will start with our @ref:[built-in MODIS data catalog](raster-catalogs.md#using-built-in-experimental-catalogs).
+In this example, we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will start with our @ref:[built-in MODIS data catalog](raster-catalogs.md#using-built-in-experimental-catalogs).
 
 ```python catalog
 cat = spark.read.format('aws-pds-modis-catalog').load().repartition(200)
 cat.printSchema()
 ```
 
-We will summarize the change in NDVI over 2018 in the Cuyahoga Valley National Park in Ohio USA. First, we will retrieve open vector data delineating the park boundary from the US National Park Service's LandsNet.
+We will summarize the change in NDVI over 2018 in the Cuyahoga Valley National Park in Ohio, USA. First, we will retrieve open vector data delineating the park boundary from the US National Park Service's LandsNet.
 
 ```python get_park_boundary
 import requests
@@ -35,48 +35,48 @@ park_geo = park_df[park_df.UNIT_CODE=='CUVA'].geometry[0]
 park_geo.wkt[:100]
 ```
 
-The entire park boundary is contained in MODIS granule h11 v4. We will simply filter on this granule, rather than using a proper @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). The time period selected should show the change in plant vigor as leaves emerge over the spring into early summer.
+The entire park boundary is contained in MODIS granule h11 v4. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). The time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer.
 
 ```python query_catalog
 from pyspark.sql.functions import lit
 park_cat = cat.filter(
                     (cat.granule_id == 'h11v04') &
                     (cat.acquisition_date > lit('2018-02-19')) &
-                    (cat.acquisition_date < lit('2018-07-01')) 
+                    (cat.acquisition_date < lit('2018-07-01'))
             )
 park_cat.printSchema()
 ```
 
 ## Catalog Read
 
-Now we have a catalog with several months of MODIS data for a single granule. However the granule is larger than our park boundary. We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed @ref:[earlier](local-algebra.md#computing-ndvi).
+Now we have a catalog with several months of MODIS data for a single granule. However, the granule is larger than our park boundary. We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed in a @ref:[previous section](local-algebra.md#computing-ndvi).
 
 ```python read_catalog
 raster_cols = ['B01', 'B02',] # red and near-infrared respectively
-park_rf = spark.read.raster(catalog=park_cat.select(['acquisition_date', 'granule_id'] + raster_cols), 
+park_rf = spark.read.raster(catalog=park_cat.select(['acquisition_date', 'granule_id'] + raster_cols),
                             catalog_col_names=raster_cols,
                            ) \
-                    .withColumn('park', st_geomFromWKT(lit(park_geo.wkt))) 
+                    .withColumn('park', st_geomFromWKT(lit(park_geo.wkt)))
 park_rf.createOrReplaceTempView('catalog_read')
 park_rf.printSchema()
 ```
 
 ## Vector and Raster Data Interaction
 
-Now we have the vector representation of the park boundary alongside the tiles of red and near infrared bands. Next we need to create a tile representation of the park to allow us to limit the time series analysis to pixels within the park. This is similar to the masking operation demonstrated in @ref:[NoData handling](nodata-handling.md#masking).
+Now we have the vector representation of the park boundary alongside the _tiles_ of red and near infrared bands. Next, we need to create a _tile_ representation of the park to allow us to limit the time series analysis to pixels within the park. This is similar to the masking operation demonstrated in @ref:[NoData handling](nodata-handling.md#masking).
 
-We do this using two SQL transformation. This demonstrates that we can use any `rf_` or `st_` function in SQL. The first one will reproject the park boundary from coordinates to the MODIS sinusoidal projection. The second one will create a new tile aligned with the imagery containing value 1 where the pixels are contained within the park and NoData elsewhere.
+We do this using two SQL transformations. The first one will reproject the park boundary from coordinates to the MODIS sinusoidal projection. The second one will create a new _tile_ aligned with the imagery containing a value of 1 where the pixels are contained within the park and NoData elsewhere. The code demonstrates that we can use any `rf_` or `st_` function in SQL. For a more thorough demonstration of how Python and SQL codes compare in RasterFrames, see the @ref:[language support section](languages.md).
 
 ```python burn_in
 cr_1 = spark.sql("""
-SELECT *, 
+SELECT *,
     st_reproject(park, 'EPSG:4326', rf_crs(B01).crsProj4) as park_native
 FROM catalog_read
 """)
 cr_1.createOrReplaceTempView('cr_1')
 
 cr_2 = spark.sql("""
-SELECT *, 
+SELECT *,
     rf_rasterize(park_native, rf_geometry(B01), 1, rf_dimensions(B01).cols, rf_dimensions(B01).rows) as park_tile
 FROM cr_1
 """).where(rf_tile_sum('park_tile') > 0)
@@ -85,7 +85,7 @@ cr_2.printSchema()
 
 ## Create Time Series
 
-Next we will compute NDVI as the normalized difference of near infrared (band 2) and red (band 1). The tiles are masked by the `park_tile`. We will then aggregate across the remaining values to arrive at an average NDVI for each week of the year. Note that the computation is creating a weighted average, weighting by the number of valid observations per week.
+Next, we will compute NDVI as the normalized difference of near infrared (band 2) and red (band 1). The _tiles_ are masked by the `park_tile`. We will then aggregate across the remaining values to arrive at an average NDVI for each week of the year. Note that the computation is creating a weighted average, which is weighted by the number of valid observations per week.
 
 ```python ndvi_time_series
 from pyspark.sql.functions import col, year, weekofyear, month
@@ -93,7 +93,7 @@ from pyspark.sql.functions import sum as sql_sum
 
 rf_ndvi = cr_2.withColumn('ndvi', rf_normalized_difference('B02', 'B01')) \
               .withColumn('ndvi_masked', rf_mask('ndvi', 'park_tile'))
-                  
+
 time_series = rf_ndvi \
         .withColumn('ndvi_wt', rf_tile_sum('ndvi_masked')) \
         .withColumn('wt', rf_data_cells('ndvi_masked')) \
@@ -103,7 +103,7 @@ time_series = rf_ndvi \
 
 ```
 
-Finally we will take a look at the NDVI over time.
+Finally, we will take a look at the NDVI over time.
 
 ```python time_series_display
 import matplotlib.pyplot as plt
