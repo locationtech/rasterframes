@@ -112,11 +112,13 @@ print("Within set sum of squared errors: %s" % metric)
 We can recreate the tiled data structure using the metadata added by the `TileExploder` pipeline stage.
 
 ```python
+from pyrasterframes.rf_types import CellType
+
 tile_dims = df.select(rf_dimensions(df.b1).alias('dims')).first()['dims']
 retiled = clustered.groupBy('extent', 'crs') \
     .agg(
         rf_assemble_tile('column_index', 'row_index', 'prediction',
-            tile_dims['cols'], tile_dims['rows'], 'int8').alias('prediction')
+            tile_dims['cols'], tile_dims['rows'], CellType.int8()).alias('prediction')
 )
 
 retiled.printSchema()

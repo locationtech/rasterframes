@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.ref
 import java.lang.Math.ceil
 import java.net.URI
 
-import com.azavea.gdal.GDALWarp
 import org.locationtech.rasterframes
 import org.locationtech.rasterframes.util.time
 import org.locationtech.rasterframes.{NOMINAL_TILE_SIZE, TestData, TestEnvironment}
