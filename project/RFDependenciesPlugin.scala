@@ -46,7 +46,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `geotrellis-contrib-vlm` = "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "2.11.0"
     val `geotrellis-contrib-gdal` = "com.azavea.geotrellis" %% "geotrellis-contrib-gdal" % "2.11.0"
 
-    val scaffeine = "com.github.blemale" %% "scaffeine" % "2.5.0"
+    val scaffeine = "com.github.blemale" %% "scaffeine" % "2.6.0"
   }
   import autoImport._
 

@@ -23,10 +23,9 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
-import org.locationtech.rasterframes.TestData
+import org.locationtech.rasterframes._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.locationtech.rasterframes.TestEnvironment
 import org.locationtech.rasterframes.model.TileDimensions
 
 
@@ -57,7 +56,20 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val dims = TileDimensions(63, 63)
       val ext = rs.layoutExtents(dims).head
       val bounds = rs.layoutBounds(dims).head
-      rs.rasterExtent.gridBoundsFor(ext, false) should be (bounds)
+      rs.rasterExtent.gridBoundsFor(ext) should be (bounds)
+    }
+    it("should compute layout extents from scene with fractional gsd") {
+
+      val rs = RasterSource(remoteMODIS)
+
+      val dims = rs.layoutExtents(NOMINAL_TILE_DIMS)
+        .map(e => rs.rasterExtent.gridBoundsFor(e, false))
+        .map(b => (b.width, b.height))
+        .distinct
+      forEvery(dims) { d =>
+        d._1 should be <= NOMINAL_TILE_SIZE
+        d._2 should be <= NOMINAL_TILE_SIZE
+      }
     }
   }
 
@@ -80,9 +92,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       }
       withClue("remoteCOGMultiband") {
         val src = RasterSource(remoteCOGMultiband)
-        //println("CoG size", src.size, src.dimensions)
         val raster = src.read(sub(src.extent))
-        //println("Subtile size", raster.size, raster.dimensions)
         assert(raster.size > 0 && raster.size < src.size)
       }
     }
@@ -107,7 +117,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       assert(!src.extent.isEmpty)
     }
     it("should interpret no scheme as file://"){
-      val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString()
+      val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString
       val schemelessUri = new URI(localSrc)
       schemelessUri.getScheme should be (null)
       val src = RasterSource(schemelessUri)
@@ -141,7 +151,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       }
 
       it("should interpret no scheme as file://") {
-        val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString()
+        val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString
         val schemelessUri = new URI(localSrc)
         val gdal = GDALRasterSource(schemelessUri)
         val jvm = JVMGeoTiffRasterSource(schemelessUri)
@@ -151,7 +161,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
   }
 
-  describe("RasterSourceToTiles Expression") {
+  describe("RasterSource tile construction") {
     it("should read all tiles") {
       val src = RasterSource(remoteMODIS)
 
@@ -167,11 +177,6 @@ class RasterSourceSpec extends TestEnvironment with TestData {
       val totalCells = subrasters.map(_.size).sum
 
       assert(totalCells === src.size)
-
-//      subrasters.zipWithIndex.foreach{case (r, i) ⇒
-//        // TODO: how to test?
-//        GeoTiff(r, src.crs).write(s"target/$i.tiff")
-//      }
     }
   }
 }

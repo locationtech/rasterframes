@@ -144,7 +144,7 @@ class GeoTiffDataSource
     }
 
     val tags = Tags(
-      RFBuildInfo.toMap.filter(_._1.startsWith("rf")).mapValues(_.toString),
+      RFBuildInfo.toMap.filter(_._1.toLowerCase().contains("version")).mapValues(_.toString),
       tileCols.map(c => Map("RF_COL" -> c.columnName)).toList
     )
 

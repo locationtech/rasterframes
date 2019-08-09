@@ -161,28 +161,52 @@ class RasterRefSpec extends TestEnvironment with TestData {
         val data = buf.toByteArray
         val in = new ObjectInputStream(new ByteArrayInputStream(data))
         val recovered = in.readObject()
-        assert(subRaster === recovered)
+        subRaster should be (recovered)
       }
     }
   }
 
-  describe("CreateRasterRefs") {
-    it("should convert and expand RasterSource") {
-      new Fixture {
-        import spark.implicits._
-        val df = Seq(src).toDF("src")
-        val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), $"src"))
-        assert(refs.count() > 1)
+  describe("RasterRef creation") {
+    it("should realize subiles of proper size") {
+      val src = RasterSource(remoteMODIS)
+      val dims = src
+        .layoutExtents(NOMINAL_TILE_DIMS)
+        .map(e => RasterRef(src, 0, Some(e)))
+        .map(_.dimensions)
+        .distinct
+
+      forEvery(dims) { d =>
+        d._1 should be <= NOMINAL_TILE_SIZE
+        d._2 should be <= NOMINAL_TILE_SIZE
       }
     }
+  }
 
-    it("should work with tile realization") {
-      new Fixture {
-        import spark.implicits._
-        val df = Seq(src).toDF("src")
-        val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), $"src"))
-        assert(refs.count() > 1)
+  describe("RasterSourceToRasterRefs") {
+    it("should convert and expand RasterSource") {
+      val src = RasterSource(remoteMODIS)
+      import spark.implicits._
+      val df = Seq(src).toDF("src")
+      val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), $"src"))
+      refs.count() should be (1)
+    }
+
+    it("should properly realize subtiles") {
+      val src = RasterSource(remoteMODIS)
+      import spark.implicits._
+      val df = Seq(src).toDF("src")
+      val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), $"src") as "proj_raster")
+
+      refs.count() shouldBe > (1L)
+
+
+      val dims = refs.select(rf_dimensions($"proj_raster")).distinct().collect()
+      forEvery(dims) { r =>
+        r.cols should be <=NOMINAL_TILE_SIZE
+        r.rows should be <=NOMINAL_TILE_SIZE
       }
+
+      dims.foreach(println)
     }
   }
 }
