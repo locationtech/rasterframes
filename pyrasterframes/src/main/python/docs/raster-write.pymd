@@ -62,7 +62,7 @@ GeoTIFF is one of the most common file formats for spatial data, providing flexi
 
 One downside to GeoTIFF is that it is not a big data native format. To create a GeoTIFF all the data to be encoded has to be in the memory of one compute node (in Spark parlance, this is a "collect"), limiting it's maximum size substantially compared to that of a full cluster environment. When rendering GeoTIFFs in RasterFrames, you either need to specify the dimensions of the output raster, or be aware of how big the collected data will end up being.
 
-Fortunately, we can use the cluster computing capability to downsample the data into a more manageable size. For sake of example, let's render an overview our scene's red band as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)). 
+Fortunately, we can use the cluster computing capability to downsample the data into a more manageable size. For sake of example, let's render an overview our scene's red band as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)).
 
 ```python write_geotiff
 outfile = os.path.join('/tmp', 'geotiff-overview.tif')
@@ -81,7 +81,7 @@ with rasterio.open(outfile) as src:
         histtype='stepfilled', title="Overview Histogram")
 ```
 
-If there are many tile or projected raster columns in the DataFrame, the GeoTIFF writer will write each one as a separate band in the file. Each band in the output will be tagged the input column names for reference.
+If there are many _tile_ or projected raster columns in the DataFrame, the GeoTIFF writer will write each one as a separate band in the file. Each band in the output will be tagged the input column names for reference.
 
 ```python, echo=False
 os.remove(outfile)
