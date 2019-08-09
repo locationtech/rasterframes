@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.nio.file.Paths
 
 import geotrellis.proj4._
-import geotrellis.raster.ProjectedRaster
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
@@ -117,8 +116,10 @@ class GeoTiffDataSourceSpec
 
       val crs = df.select(rf_crs($"proj_raster")).first()
 
+      val out = Paths.get("target", "unstructured.tif").toString
+
       noException shouldBe thrownBy {
-        df.write.geotiff.withCRS(crs).save("unstructured.tif")
+        df.write.geotiff.withCRS(crs).save(out)
       }
 
       val (inCols, inRows) = {
@@ -128,7 +129,7 @@ class GeoTiffDataSourceSpec
       inCols should be (774)
       inRows should be (500) //from gdalinfo
 
-      val outputTif = SinglebandGeoTiff("unstructured.tif")
+      val outputTif = SinglebandGeoTiff(out)
       outputTif.imageData.cols should be (inCols)
       outputTif.imageData.rows should be (inRows)
 
@@ -156,13 +157,16 @@ class GeoTiffDataSourceSpec
           max($"ext.xmax").alias("xmax"),
           max($"ext.ymax").alias("ymax")
         ).first()
+
       val dfExtent = Extent(totalExtentRow.getDouble(0), totalExtentRow.getDouble(1), totalExtentRow.getDouble(2), totalExtentRow.getDouble(3))
       logger.info(s"Dataframe extent: ${dfExtent.toString()}")
 
-      dfExtent shouldBe (resourceExtent)
+      dfExtent shouldBe resourceExtent
+
+      val out = Paths.get("target", "unstructured_cog.tif").toString
 
       noException shouldBe thrownBy {
-        df.write.geotiff.withCRS(crs).save("target/unstructured_cog.tif")
+        df.write.geotiff.withCRS(crs).save(out)
       }
 
       val (inCols, inRows, inExtent, inCellType) = {
@@ -174,12 +178,11 @@ class GeoTiffDataSourceSpec
       inRows should be (754) //from gdalinfo
       inExtent should be (resourceExtent)
 
-      val outputTif = SinglebandGeoTiff("target/unstructured_cog.tif")
+      val outputTif = SinglebandGeoTiff(out)
       outputTif.imageData.cols should be (inCols)
       outputTif.imageData.rows should be (inRows)
       outputTif.extent should be (resourceExtent)
       outputTif.cellType should be (inCellType)
-
     }
 
     it("should write GeoTIFF without layer") {
@@ -228,12 +231,13 @@ red,green,blue
 ${s(1)},${s(4)},${s(3)}
 """
       val scene = spark.read.raster.fromCSV(cat, "red", "green", "blue").load()
+      val out = Paths.get("target", "geotiff-overview.tif").toString
       scene.write.geotiff
         .withCRS(LatLng)
         .withDimensions(256, 256)
-        .save("geotiff-overview.tif")
+        .save(out)
 
-      val outTif = MultibandGeoTiff("geotiff-overview.tif")
+      val outTif = MultibandGeoTiff(out)
       outTif.bandCount should be (3)
     }
   }
