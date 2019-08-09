@@ -1,6 +1,6 @@
 # Raster Catalogs
 
-While much interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _catalogs_ of raster data are to be processed. In its simplest form, a _catalog_ is a list of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The _catalog_ is input into the `raster` DataSource, described in the @ref:[next page](raster-read.pymd), which creates tiles from the rasters at the referenced URLs.
+While much interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _catalogs_ of raster data are to be processed. In its simplest form, a _catalog_ is a list of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The _catalog_ is input into the `raster` DataSource, described in the @ref:[next page](raster-read.md), which creates tiles from the rasters at the referenced URLs.
 
 A _catalog_ can have one or two dimensions:
 
