@@ -133,7 +133,7 @@ sbt pyrasterframes/package # alias 'pyBuild'
 
 Observe the output messages such as:
 
-    [info] Python .whl file written to '/Users/monty/rasterframes/pyrasterframes/target/python/dist/pyrasterframes-0.8.0.dev0-py2.py3-none-any.whl'
+    [info] Python .whl file written to '/Users/monty/rasterframes/pyrasterframes/target/python/dist/pyrasterframes-${VERSION}-py2.py3-none-any.whl'
     
 This wheel is suitable for publishing to a package index. See [packaging.python.org](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives).
 
@@ -162,4 +162,4 @@ Or to build a specific document with desired output format:
 sbt 'pySetup pweave -f notebook -s docs/numpy-pandas.pymd'
 ```
 
-*Note: You may need to run `sbt pyrasterframes/package` at least once for certain `pySetup` commands to work.*
+*Note: You may need to run `sbt pyrasterframes/package` and/or `sbt pyTest` at least once for certain `pySetup` commands to work.*

@@ -77,7 +77,7 @@ object PythonBuildPlugin extends AutoPlugin {
     val pyDest = (packageBin / artifactPath).value
     val whl = pyWhl.value
     IO.copyFile(whl, pyDest)
-    log.info(s"Maven Python .zip artifact written to '$pyDest'")
+    log.info(s"Maven Python artifact written to '$pyDest'")
     pyDest
   }.dependsOn(pyWhl)
 
