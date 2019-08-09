@@ -150,10 +150,9 @@ And the original SCL data. The bright yellow is a cloudy region in the original 
 display(sample[1])
 ```
 
-## NoData and Local Arithmatic
+## NoData and Local Arithmetic
 
 Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behaviour, lets create two tiles. One tile will have values of 0 and 1, and the other will have values of just 0.
-
 
 ```python
 tile_size = 100
@@ -241,8 +240,8 @@ RasterFrames supports having Tile columns with multiple cell types in a single D
 Let's first create a RasterFrame that has columns of `float` and `int` cell type.
 
 ```python
-x = Tile((np.ones((100, 100))*2).astype('float'))
-y = Tile((np.ones((100, 100))*3.0).astype('int32'))
+x = Tile((np.ones((100, 100))*2), CellType.float64())
+y = Tile((np.ones((100, 100))*3), CellType.int32())
 rf = spark.createDataFrame([Row(x=x, y=y)])
 
 rf.select(rf_cell_type('x'), rf_cell_type('y')).distinct().show()
@@ -286,10 +285,10 @@ Let's use the same tile as before to demonstrate how NoData values affect tile a
 
 ```python
 tile_size = 100
-x = np.zeros((tile_size, tile_size), dtype='int16')
+x = np.zeros((tile_size, tile_size))
 for i in range(4):
     x[:, i*tile_size//4:(i+1)*tile_size//4] = i
-x = Tile(x)
+x = Tile(x, CellType.int16())
 
 rf = spark.createDataFrame([Row(tile=x)])
 display(x)
