@@ -21,7 +21,7 @@
 import pyrasterframes.rf_types
 
 
-def tile_to_png(tile):
+def tile_to_png(tile, fig_size=None):
     """ Provide image of Tile."""
     if tile.cells is None:
         return None
@@ -31,10 +31,11 @@ def tile_to_png(tile):
     from matplotlib.figure import Figure
 
     # Set up matplotlib objects
-    [width, height] = tile.dimensions()
-    dpi = 300
-    nominal_size = 5.5  # approx full size for a 256x256 tile
-    fig = Figure(figsize=(nominal_size * width / dpi,   nominal_size * height / dpi))
+    nominal_size = 4  # approx full size for a 256x256 tile
+    if fig_size is None:
+        fig_size = (nominal_size, nominal_size)
+
+    fig = Figure(figsize=fig_size)
     canvas = FigureCanvas(fig)
     axis = fig.add_subplot(1, 1, 1)
 
@@ -43,18 +44,19 @@ def tile_to_png(tile):
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
 
-    axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()))  # compact metadata as title
+    axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()),
+                   fontsize=fig_size[0]*4)  # compact metadata as title
 
     with io.BytesIO() as output:
         canvas.print_png(output)
         return output.getvalue()
 
 
-def tile_to_html(tile):
+def tile_to_html(tile, fig_size=None):
     """ Provide HTML string representation of Tile image."""
     import base64
     b64_img_html = '<img src="data:image/png;base64,{}" />'
-    png_bits = tile_to_png(tile)
+    png_bits = tile_to_png(tile, fig_size)
     b64_png = base64.b64encode(png_bits).decode('utf-8').replace('\n', '')
     return b64_img_html.format(b64_png)
 
@@ -76,7 +78,7 @@ def pandas_df_to_html(df):
 
     def _safe_tile_to_html(t):
         if isinstance(t, pyrasterframes.rf_types.Tile):
-            return tile_to_html(t)
+            return tile_to_html(t, fig_size=(2, 2))
         else:
             # handles case where objects in a column are not all Tile type
             return t.__repr__()
