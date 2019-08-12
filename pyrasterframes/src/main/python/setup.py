@@ -136,18 +136,18 @@ setup(
     },
     install_requires=[
         'pytz',
-        'Shapely',
+        'Shapely>=1.6.0',
         'pyspark<2.4',
         'numpy>=1.7',
-        'pandas',
+        'pandas>=0.25.0',
     ],
     setup_requires=[
         'pytz',
-        'Shapely',
+        'Shapely>=1.6.0',
         'pyspark<2.4',
         'numpy>=1.7',
         'matplotlib<3.0.0',
-        'pandas',
+        'pandas>=0.25.0',
         'geopandas',
         'requests',
         'pytest-runner',
@@ -156,15 +156,15 @@ setup(
         'ipykernel==4.8.0',
         'Pweave==0.30.3',
         'fiona==1.8.6',
-        'rasterio',  # for docs
+        'rasterio>=1.0.0',  # for docs
     ],
     tests_require=[
         'pytest==3.4.2',
         'pypandoc',
         'numpy>=1.7',
-        'Shapely',
-        'pandas',
-        'rasterio',
+        'Shapely>=1.6.0',
+        'pandas>=0.25.0',
+        'rasterio>=1.0.0',
         'boto3',
     ],
     packages=[
