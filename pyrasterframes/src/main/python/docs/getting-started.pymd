@@ -52,7 +52,7 @@ You can also use RasterFrames in the following environments:
  1. Install [docker](https://docs.docker.com/install/)
  1. Pull the image: `docker pull s22s/rasterframes-notebook`
  1. Run a container with the image, for example:
-      `docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/notebooks  rasterframes-notebook:latest`
+      `docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/jovyan/work rasterframes-notebook:latest`
  1. In a browser, open `localhost:8808` in the example above.
 
 See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.

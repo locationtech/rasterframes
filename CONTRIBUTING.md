@@ -71,6 +71,6 @@ and respond as necessary.
 
 Help, questions and community dialog are supported via Gitter:
 
- * https://gitter.im/s22s/raster-frames
+ * https://gitter.im/locationtech/rasterframes
 
 Commercial support is available by writing to info@astraea.earth

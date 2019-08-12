@@ -30,13 +30,13 @@ df.select(rf_local_add(df.tile, lit(3))).show(5, False)
 
 ## Support
 
-Reach out to us on [gitter](https://gitter.im/s22s/raster-frames)!
+Reach out to us on [gitter](https://gitter.im/s22s/locationtech/rasterframes)!
 
 Issue tracking is through [github](https://github.com/locationtech/rasterframes/issues). 
 
 ## Contributing
 
-Community contributions are always welcome. To get started, please review our [contribution guidelines](https://github.com/locationtech/rasterframes/blob/develop/CONTRIBUTING.md), [code of conduct](https://github.com/locationtech/rasterframes/blob/develop/CODE_OF_CONDUCT.md), and [developer's guide](../../../README.md).  Reach out to us on [gitter](https://gitter.im/s22s/raster-frames) so the community can help you get started!
+Community contributions are always welcome. To get started, please review our [contribution guidelines](https://github.com/locationtech/rasterframes/blob/develop/CONTRIBUTING.md), [code of conduct](https://github.com/locationtech/rasterframes/blob/develop/CODE_OF_CONDUCT.md), and [developer's guide](../../../README.md).  Reach out to us on [gitter](https://gitter.im/locationtech/rasterframes) so the community can help you get started!
 
 
 
