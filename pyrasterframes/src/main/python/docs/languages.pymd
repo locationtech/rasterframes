@@ -115,6 +115,11 @@ SELECT month, ndvi_stats.* FROM (
 
 ## Scala
 
+The latest Scala API documentation is available here:
+
+* @ref:[Scala API Documentation](http://rasterframes.io/latest/api/index.html) 
+
+
 ### Step 1: Load the catalog
 
 ```scala
