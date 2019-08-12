@@ -69,7 +69,7 @@ def sql(stmt):
 
 ### Step 1: Load the catalog
 
-```python, step_1_sql
+```python, step_1_sql, results=hidden
 sql("CREATE OR REPLACE TEMPORARY VIEW modis USING `aws-pds-modis-catalog`")
 ```
 
@@ -87,7 +87,7 @@ sql('DESCRIBE red_nir_monthly_2017').show()
 
 ### Step 3: Read tiles
 
-```python, step_3_sql
+```python, step_3_sql, results=hidden
 sql("""
 CREATE OR REPLACE TEMPORARY VIEW red_nir_tiles_monthly_2017
 USING raster
@@ -117,7 +117,7 @@ SELECT month, ndvi_stats.* FROM (
 
 The latest Scala API documentation is available here:
 
-* @ref:[Scala API Documentation](http://rasterframes.io/latest/api/index.html) 
+* [Scala API Documentation](https://rasterframes.io/latest/api/index.html) 
 
 
 ### Step 1: Load the catalog

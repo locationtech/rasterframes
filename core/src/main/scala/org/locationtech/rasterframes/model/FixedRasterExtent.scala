@@ -19,7 +19,7 @@ package org.locationtech.rasterframes.model
 import geotrellis.raster._
 import geotrellis.vector._
 
-import scala.math.{ceil, max, min}
+import scala.math.ceil
 
 /**
   * This class is a copy of the GeoTrellis 2.x `RasterExtent`,

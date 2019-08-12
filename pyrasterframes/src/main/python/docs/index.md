@@ -16,7 +16,7 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 ## Detailed Contents
 
-@@ toc { depth=2 }
+@@ toc { depth=3 }
 
 @@@
 
