@@ -16,7 +16,7 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 ## Detailed Contents
 
-@@ toc { depth=2 }
+@@ toc { depth=3 }
 
 @@@
 
@@ -24,7 +24,7 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 ## Related Links
 
-* [Gitter Channel](https://gitter.im/s22s/raster-frames)
+* [Gitter Channel](https://gitter.im/locationtech/rasterframes)
 * [Scala API Documentation](latest/api/index.html)
 * [GitHub Repository](https://github.com/locationtech/rasterframes)
 * [Astraea, Inc.](http://www.astraea.earth/), the company behind RasterFrames

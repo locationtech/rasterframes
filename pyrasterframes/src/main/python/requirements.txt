@@ -1,7 +1,8 @@
 pytz
-shapely
+Shapely>=1.6.0
 pyspark==2.3.3  # See issue # 154
 numpy>=1.7
-pandas
+pandas>=0.25.0
 matplotlib<3.0.0  # no python 2.7 support after v2.x.x
 ipython==6.2.1
+rasterio>=1.0.0
