@@ -87,7 +87,7 @@ class PweaveDocs(distutils.cmd.Command):
         import pweave
         bad_words = ["Error"]
 
-        for file in sorted(self.files):
+        for file in sorted(self.files, reverse=True):
             name = path.splitext(path.basename(file))[0]
             dest = self.dest_file(file)
 
