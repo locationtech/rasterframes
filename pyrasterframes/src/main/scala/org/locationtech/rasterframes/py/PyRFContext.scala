@@ -231,4 +231,9 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     val ref = RasterRef(src, bandIndex, Some(extent))
     ref.tile.toArrayTile().toBytes()
   }
+
+  def _dfToMarkdown(df: DataFrame, numRows: Int, truncate: Boolean): String = {
+    import rasterframes.util.DFWithPrettyPrint
+    df.toMarkdown(numRows, truncate)
+  }
 }

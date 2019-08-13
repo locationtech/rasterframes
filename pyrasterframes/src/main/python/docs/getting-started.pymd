@@ -14,22 +14,29 @@ $ python3 -m pip install pyrasterframes
 
 Then in a python interpreter of your choice, you can get a [`pyspark` `SparkSession`](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.SparkSession) using the [`local[*]` master](https://spark.apache.org/docs/latest/submitting-applications.html#master-urls).
 
-```python
+
+```python, setup, echo=False
+from pyrasterframes import rf_ipython
+```
+
+```python, version 
 import pyrasterframes
 spark = pyrasterframes.get_spark_session()
 ```
 
 Then, you can read a raster and work with it in a Spark DataFrame.
 
-```python
-from pyrasterframes.rasterfunctions import rf_local_add
+```python, local_add, results='raw'
+from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import lit
 
 # Read a MODIS surface reflectance granule
 df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 
 # Add 3 element-wise, show some rows of the DataFrame
-df.select(rf_local_add(df.proj_raster, lit(3))).show(5, False)
+df.withColumn('added', rf_local_add(df.proj_raster, lit(3))) \
+  .select(rf_crs('added'), rf_extent('added'), rf_tile('added')) \
+  .show(3)
 ```
 
 This example is extended in the [getting started Jupyter notebook](https://nbviewer.jupyter.org/github/locationtech/rasterframes/blob/develop/rf-notebook/src/main/notebooks/Getting%20Started.ipynb).
@@ -75,7 +82,7 @@ The `pyspark` shell command will look something like this.
 
 Then in the `pyspark` shell, import the module and call `withRasterFrames` on the SparkSession.
 
-```python, evaluate=False
+```python, shell, evaluate=False
 Welcome to
       ____              __
      / __/__  ___ _____/ /__
@@ -91,10 +98,6 @@ SparkSession available as 'spark'.
 ```
 
 Now you have the configured SparkSession with RasterFrames enabled.
-
-```python, echo=False
-spark.stop()
-```
 
 ## Installing GDAL
 
@@ -130,7 +133,7 @@ To support GeoTIFF and JPEG2000 formats, you should look for the following drive
 
 Do the following to see if RasterFrames was able to find GDAL:
 
-```python, evaluate=False
+```python, gdal_version, evaluate=False
 from pyrasterframes.utils import gdal_version
 print(gdal_version())
 ```

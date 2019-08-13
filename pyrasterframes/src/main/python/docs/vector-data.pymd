@@ -6,6 +6,7 @@ RasterFrames provides a variety of ways to work with spatial vector (points, lin
 
 ```python, setup, echo=False
 import pyrasterframes
+import pyrasterframes.rf_ipython
 from pyrasterframes.utils import create_rf_spark_session
 spark = create_rf_spark_session()
 ```
@@ -72,7 +73,7 @@ df.printSchema()
 
 We can take a look at a sample of the data. Notice the geometry columns print as well known text (wkt).
 
-```python, show_centroid
+```python, show_centroid, results='raw'
 df.show(4)
 ```
 
@@ -82,7 +83,7 @@ df.show(4)
 As documented in the @ref:[function reference](reference.md), various user-defined functions implemented by GeoMesa are also available for use. The example below uses a GeoMesa user-defined function to compute the centroid of a geometry. It is logically equivalent to the example above, but more efficient.
 
 
-```python, native_centroid
+```python, native_centroid, results='raw'
 from pyrasterframes.rasterfunctions import st_centroid
 df = df.withColumn('centroid', st_centroid(df.geometry))
 df.select('name', 'geometry', 'naive_centroid', 'centroid').show(4)

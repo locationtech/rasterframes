@@ -19,7 +19,8 @@
 #
 
 import os
-
+from pyspark.sql import DataFrame
+from pyrasterframes import RFContext
 
 def docs_dir():
     return os.path.dirname(os.path.realpath(__file__))

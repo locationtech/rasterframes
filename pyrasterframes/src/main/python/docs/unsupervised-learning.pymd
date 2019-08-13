@@ -7,6 +7,7 @@ In this example, we will demonstrate how to fit and score an unsupervised learni
 ```python, setup, echo=False
 from IPython.core.display import display
 from docs import resource_dir_uri
+import pyrasterframes.rf_ipython
 from pyrasterframes.utils import create_rf_spark_session
 
 import os
@@ -31,7 +32,7 @@ from pyspark.ml import Pipeline
 The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from [the I/O page](raster-io.html#Single-Scene--Multiple-Bands). In the catalog, each row represents a distinct area and time, and each column is the URI to a band's image product. The function `resource_dir_uri` gives a local file system path to the sample Landsat data. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
 
 
-```python, catalog, term=True
+```python, catalog
 filenamePattern = "L8-B{}-Elkton-VA.tiff"
 catalog_df = pd.DataFrame([
     {'b' + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
@@ -89,7 +90,7 @@ model = pipeline.fit(df)
 
 We can use the `transform` function to score the training data in the fitted _pipeline_ model. This will add a column called `prediction` with the closest cluster identifier.
 
-```python, transform
+```python, transform, results='raw'
 clustered = model.transform(df)
 clustered.show(8)
 ```
@@ -122,6 +123,9 @@ retiled = clustered.groupBy('extent', 'crs') \
 )
 
 retiled.printSchema()
+```
+
+```python, results='raw'
 retiled.show()
 ```
 

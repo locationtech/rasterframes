@@ -6,6 +6,7 @@ In this example we will demonstrate how to fit and score a supervised learning m
 from IPython.core.display import display
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
+import pyrasterframes.rf_ipython
 from pyspark.sql.functions import lit
 import pandas as pd
 import numpy as np
@@ -23,7 +24,7 @@ The first step is to create a Spark DataFrame of our imagery data. To achieve th
 
 The imagery for feature data will come from [eleven bands of 60 meter resolution Sentinel-2](https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/resolutions/spatial) imagery. We also will use the [scene classification (SCL)](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm) data to identify high quality, non-cloudy pixels.
 
-```python, read_bands, term=True
+```python, read_bands
 uri_base = 's3://s22s-test-geotiffs/luray_snp/{}.tif'
 bands = ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B11', 'B12']
 cols = ['SCL'] + bands
@@ -88,7 +89,7 @@ FROM df_joined
 
 To filter only for good quality pixels, we follow roughly the same procedure as demonstrated in the @ref:[quality masking](nodata-handling.md#masking) section of the chapter on NoData. Instead of actually setting NoData values in the unwanted cells of any of the imagery bands, we will just on filter out the mask cell values later in the process.
 
-```python make_mask
+```python, make_mask
 from pyspark.sql.functions import lit
 
 mask_part = df_labeled.withColumn('nodata', rf_local_equal('scl', lit(0))) \
@@ -181,18 +182,18 @@ print("\nAccuracy:", accuracy)
 
 As an example of using the flexibility provided by DataFrames, the code below computes and displays the confusion matrix. The categories down the rows are the predictions, and the truth labels are across the columns.
 
-```python confusion_mtrx
+```python, confusion_mtrx, results='raw'
 prediction_df.groupBy(classifier.getPredictionCol()) \
     .pivot(classifier.getLabelCol()) \
     .count() \
-	.sort(classifier.getPredictionCol()).show(20, False)
+	.sort(classifier.getPredictionCol()).show(truncate=False)
 ```
 
 ## Visualize Prediction
 
 Because the pipeline included a `TileExploder`, we will recreate the tiled data structure. The explosion transformation includes metadata enabling us to recreate the _tiles_. See the @ref:[`rf_assemble_tile`](reference.md#rf-assemble-tile) function documentation for more details. In this case, the pipeline is scoring on all areas, regardless of whether they intersect the label polygons. This is simply done by removing the `label` column, as @ref:[discussed above](supervised-learning.md#create-ml-pipeline).
 
-```python assemble_prediction
+```python, assemble_prediction
 scored = model.transform(df_mask.drop('label'))
 scored.createOrReplaceTempView('scored')
 
@@ -211,7 +212,7 @@ retiled.printSchema()
 
 Take a look at a sample of the resulting output and the corresponding area's red-green-blue composite image.
 
-```python display_rgb
+```python, display_rgb
 sample = retiled.select('prediction', 'red', 'grn', 'blu') \
     .sort(-rf_tile_sum(rf_local_equal('prediction', lit(3.0)))) \
     .first()
@@ -228,6 +229,6 @@ plt.imshow((sample_rgb -  mins)/ (np.nanmax(sample_rgb, axis=(0,1)) - mins))
 
 Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow).
 
-```python display_prediction
+```python, display_prediction
 display(sample_prediction)
 ```

@@ -31,7 +31,7 @@ def tile_to_png(tile, fig_size=None):
     from matplotlib.figure import Figure
 
     # Set up matplotlib objects
-    nominal_size = 4  # approx full size for a 256x256 tile
+    nominal_size = 2  # approx full size for a 256x256 tile
     if fig_size is None:
         fig_size = (nominal_size, nominal_size)
 
@@ -106,7 +106,18 @@ try:
     # modifications to currently running ipython session, if we are in one; these enable nicer visualization for Pandas
     if get_ipython() is not None:
         import pandas
-        html_formatter = get_ipython().display_formatter.formatters['text/html']
+        import pyspark.sql
+        ip = get_ipython()
+        html_formatter = ip.display_formatter.formatters['text/html']
         html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
+
+        # See if we're in documentation mode and register a custom show implementation.
+        if ip.__class__.__name__ == 'InProcessInteractiveShell':
+            def _df_show_markdown(df, numRows=5, truncate=True, vertical=False):
+                from pyrasterframes import RFContext
+                print(RFContext.active().call("_dfToMarkdown", df._jdf, numRows, truncate))
+
+            pyspark.sql.DataFrame.show = _df_show_markdown
+
 except ImportError:
     pass
