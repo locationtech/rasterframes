@@ -1,6 +1,6 @@
 <img src="docs/src/main/paradox/_template/images/RasterFramesLogo.png" width="300px"/><sup style="vertical-align: top;">&reg;</sup>
 
- [![Join the chat at https://gitter.im/locationtech/rasterframes](https://badges.gitter.im/locationtech/rasterframes.svg)](https://gitter.im/s22s/raster-frames?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+ [![Join the chat at https://gitter.im/locationtech/rasterframes](https://badges.gitter.im/locationtech/rasterframes.svg)](https://gitter.im/locationtech/rasterframes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 RasterFrames® brings together Earth-observation (EO) data access, cloud computing, and DataFrame-based data science. The recent explosion of EO data from public and private satellite operators presents both a huge opportunity as well as a challenge to the data analysis community. It is _Big Data_ in the truest sense, and its footprint is rapidly getting bigger. 
 
@@ -13,7 +13,7 @@ Please see the [Getting Started](http://rasterframes.io/getting-started.html) se
 ## User Resources
 
 * [RasterFrames Users' Manual](http://rasterframes.io/)
-* [RasterFrames Jupyter Notebook Docker Image](https://hub.docker.com/r/s22s/rasterframes-notebooks/)
+* [RasterFrames Jupyter Notebook Docker Image](https://hub.docker.com/r/s22s/rasterframes-notebook/)
 * [Gitter Channel](https://gitter.im/locationtech/rasterframes)
 * [Submit an Issue](https://github.com/locationtech/rasterframes/issues) 
 
