@@ -80,7 +80,7 @@ class PweaveDocs(distutils.cmd.Command):
         import pweave
         bad_words = ["Error"]
 
-        for file in self.files:
+        for file in sorted(self.files):
             name = path.splitext(path.basename(file))[0]
             print(_divided('Running %s' % name))
             try:
