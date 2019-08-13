@@ -4,7 +4,7 @@ In this example, we will demonstrate how to fit and score an unsupervised learni
 
 ## Imports and Data Preparation
 
-```python, echo=False
+```python, setup, echo=False
 from IPython.core.display import display
 from docs import resource_dir_uri
 from pyrasterframes.utils import create_rf_spark_session
@@ -18,7 +18,7 @@ import pandas as pd
 
 We import various Spark components that we need to construct our `Pipeline`.
 
-```python, echo=True
+```python, imports, echo=True
 from pyrasterframes import TileExploder
 from pyrasterframes.rasterfunctions import rf_assemble_tile, rf_crs, rf_extent, rf_tile, rf_dimensions
 
@@ -31,7 +31,7 @@ from pyspark.ml import Pipeline
 The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from [the I/O page](raster-io.html#Single-Scene--Multiple-Bands). In the catalog, each row represents a distinct area and time, and each column is the URI to a band's image product. The function `resource_dir_uri` gives a local file system path to the sample Landsat data. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
 
 
-```python, term=True
+```python, catalog, term=True
 filenamePattern = "L8-B{}-Elkton-VA.tiff"
 catalog_df = pd.DataFrame([
     {'b' + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
@@ -55,13 +55,13 @@ df.printSchema()
 
 SparkML requires that each observation be in its own row, and features for each observation be packed into a single `Vector`. For this unsupervised learning problem, we will treat each _pixel_ as an observation and each band as a feature. The first step is to "explode" the _tiles_ into a single row per pixel. In RasterFrames, generally a pixel is called a @ref:[`cell`](concepts.md#cell).
 
-```python
+```python, exploder
 exploder = TileExploder()
 ```
 
 To "vectorize" the the band columns, we use the SparkML `VectorAssembler`. Each of the seven bands is a different feature.
 
-```python
+```python, assembler
 assembler = VectorAssembler() \
     .setInputCols(list(catalog_df.columns)) \
     .setOutputCol("features")
@@ -69,13 +69,13 @@ assembler = VectorAssembler() \
 
 For this problem, we will use the K-means clustering algorithm and configure our model to have 5 clusters.
 
-```python
+```python, kmeans
 kmeans = KMeans().setK(5).setFeaturesCol('features')
 ```
 
 We can combine the above stages into a single _pipeline_.
 
-```python
+```python, pipeline
 pipeline = Pipeline().setStages([exploder, assembler, kmeans])
 ```
 
@@ -83,26 +83,26 @@ pipeline = Pipeline().setStages([exploder, assembler, kmeans])
 
 Fitting the _pipeline_ actually executes exploding the _tiles_, assembling the features _vectors_, and fitting the K-means clustering model.
 
-```python
+```python, fit
 model = pipeline.fit(df)
 ```
 
 We can use the `transform` function to score the training data in the fitted _pipeline_ model. This will add a column called `prediction` with the closest cluster identifier.
 
-```python
+```python, transform
 clustered = model.transform(df)
 clustered.show(8)
 ```
 
 If we want to inspect the model statistics, the SparkML API requires us to go through this unfortunate contortion:
 
-```python
+```python, cluster_stats
 cluster_stage = model.stages[2]
 ```
 
 We can then compute the sum of squared distances of points to their nearest center, which is elemental to most cluster quality metrics.
 
-```python
+```python, distance
 metric = cluster_stage.computeCost(clustered)
 print("Within set sum of squared errors: %s" % metric)
 ```
@@ -111,12 +111,14 @@ print("Within set sum of squared errors: %s" % metric)
 
 We can recreate the tiled data structure using the metadata added by the `TileExploder` pipeline stage.
 
-```python
+```python, assemble
+from pyrasterframes.rf_types import CellType
+
 tile_dims = df.select(rf_dimensions(df.b1).alias('dims')).first()['dims']
 retiled = clustered.groupBy('extent', 'crs') \
     .agg(
         rf_assemble_tile('column_index', 'row_index', 'prediction',
-            tile_dims['cols'], tile_dims['rows'], 'int8').alias('prediction')
+            tile_dims['cols'], tile_dims['rows'], CellType.int8()).alias('prediction')
 )
 
 retiled.printSchema()
@@ -125,6 +127,6 @@ retiled.show()
 
 The resulting output is shown below.
 
-```python
+```python, viz
 display(retiled.select('prediction').first()['prediction'])
 ```

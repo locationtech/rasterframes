@@ -53,7 +53,8 @@ class PweaveDocs(distutils.cmd.Command):
     user_options = [
         # The format is (long option, short option, description).
         ('files=', 's', 'Specific files to pweave. Defaults to all in `docs` directory.'),
-        ('format=', 'f', 'Output format type. Defaults to `markdown`')
+        ('format=', 'f', 'Output format type. Defaults to `markdown`'),
+        ('quick=', 'q', 'Check to see if the source file is newer than existing output before building. Defaults to `False`.')
     ]
 
     def initialize_options(self):
@@ -64,6 +65,7 @@ class PweaveDocs(distutils.cmd.Command):
             glob(path.join(here, 'docs', '*.pymd'))
         )
         self.format = 'markdown'
+        self.quick = False
 
     def finalize_options(self):
         """Post-process options."""
@@ -73,6 +75,11 @@ class PweaveDocs(distutils.cmd.Command):
             # `html` doesn't do quite what one expects... only replaces code blocks, leaving markdown in place
             if self.format is 'html':
                 self.format = 'pandoc2html'
+        if isinstance(self.quick, str):
+            self.quick = self.quick == 'True' or self.quick == 'true'
+
+    def dest_file(self, src_file):
+        return path.splitext(src_file)[0] + '.md'
 
     def run(self):
         """Run pweave."""
@@ -82,26 +89,27 @@ class PweaveDocs(distutils.cmd.Command):
 
         for file in sorted(self.files):
             name = path.splitext(path.basename(file))[0]
-            print(_divided('Running %s' % name))
-            try:
-                pweave.weave(
-                    file=str(file),
-                    doctype=self.format
-                )
-                if self.format == 'markdown':
-                    dest = path.splitext(file)[0] + '.md'
-                    if not path.exists(dest):
-                        raise FileNotFoundError("Markdown file '%s' didn't get created as expected" % dest)
-                    with open(dest, "r") as result:
-                        for (n, line) in enumerate(result):
-                            for word in bad_words:
-                                if word in line:
-                                    raise ChildProcessError("Error detected on line %s in %s:\n%s" % (n + 1, dest, line))
+            dest = self.dest_file(file)
 
-            except Exception:
-                print(_divided('%s Failed:' % file))
-                print(traceback.format_exc())
-                exit(1)
+            if (not self.quick) or (not path.exists(dest)) or (path.getmtime(dest) < path.getmtime(file)):
+                print(_divided('Running %s' % name))
+                try:
+                    pweave.weave(file=str(file), doctype=self.format)
+                    if self.format == 'markdown':
+                        if not path.exists(dest):
+                            raise FileNotFoundError("Markdown file '%s' didn't get created as expected" % dest)
+                        with open(dest, "r") as result:
+                            for (n, line) in enumerate(result):
+                                for word in bad_words:
+                                    if word in line:
+                                        raise ChildProcessError("Error detected on line %s in %s:\n%s" % (n + 1, dest, line))
+
+                except Exception:
+                    print(_divided('%s Failed:' % file))
+                    print(traceback.format_exc())
+                    exit(1)
+            else:
+                print(_divided('Skipping %s' % file))
 
 
 class PweaveNotebooks(PweaveDocs):
@@ -109,6 +117,8 @@ class PweaveNotebooks(PweaveDocs):
         super().initialize_options()
         self.format = 'notebook'
 
+    def dest_file(self, src_file):
+        return path.splitext(src_file)[0] + '.ipynb'
 
 setup(
     name='pyrasterframes',
@@ -126,18 +136,18 @@ setup(
     },
     install_requires=[
         'pytz',
-        'Shapely',
+        'Shapely>=1.6.0',
         'pyspark<2.4',
         'numpy>=1.7',
-        'pandas',
+        'pandas>=0.25.0',
     ],
     setup_requires=[
         'pytz',
-        'Shapely',
+        'Shapely>=1.6.0',
         'pyspark<2.4',
         'numpy>=1.7',
         'matplotlib<3.0.0',
-        'pandas',
+        'pandas>=0.25.0',
         'geopandas',
         'requests',
         'pytest-runner',
@@ -146,15 +156,15 @@ setup(
         'ipykernel==4.8.0',
         'Pweave==0.30.3',
         'fiona==1.8.6',
-        'rasterio',  # for docs
+        'rasterio>=1.0.0',  # for docs
     ],
     tests_require=[
         'pytest==3.4.2',
         'pypandoc',
         'numpy>=1.7',
-        'Shapely',
-        'pandas',
-        'rasterio',
+        'Shapely>=1.6.0',
+        'pandas>=0.25.0',
+        'rasterio>=1.0.0',
         'boto3',
     ],
     packages=[

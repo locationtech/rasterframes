@@ -33,7 +33,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.locationtech.rasterframes.model.{TileContext, TileDimensions}
+import org.locationtech.rasterframes.model.{FixedRasterExtent, TileContext, TileDimensions}
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, rfConfig}
 
 import scala.concurrent.duration.Duration
@@ -68,7 +68,7 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
 
   protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
 
-  def rasterExtent = RasterExtent(extent, cols, rows)
+  def rasterExtent = FixedRasterExtent(extent, cols, rows)
 
   def cellSize = CellSize(extent, cols, rows)
 

@@ -19,7 +19,7 @@ import pyrasterframes
 spark = pyrasterframes.get_spark_session()
 ```
 
-Then you can read a raster and work with it in a Spark DataFrame.
+Then, you can read a raster and work with it in a Spark DataFrame.
 
 ```python
 from pyrasterframes.rasterfunctions import rf_local_add
@@ -51,13 +51,13 @@ You can also use RasterFrames in the following environments:
 
  1. Install [docker](https://docs.docker.com/install/)
  1. Pull the image: `docker pull s22s/rasterframes-notebook`
- 1. Run a container with the image, for example: 
-      `docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/notebooks  rasterframes-notebook:latest`
- 1. In a browser, open `localhost:8808` in the example above. 
+ 1. Run a container with the image, for example:
+      `docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/jovyan/work rasterframes-notebook:latest`
+ 1. In a browser, open `localhost:8808` in the example above.
 
 See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.
 
-### `pyspark` shell 
+### `pyspark` shell
 
 You can use RasterFrames in a `pyspark` shell. To set up the `pyspark` environment, prepare your call with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. For RasterFrames support you need to pass arguments pointing to the various Java dependencies. You will also need the Python source zip, even if you have pip installed the package. You can download the source zip here: https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip.
 
@@ -67,10 +67,10 @@ The `pyspark` shell command will look something like this.
    pyspark \
     --master local[*] \
     --py-files pyrasterframes_2.11-${VERSION}-python.zip \
-    --packages org.locationtech.rasterframes:rasterframes_2.11:${VERSION},org.locationtech.rasterframes:pyrasterframes_2.11:${VERSION},org.locationtech.rasterframes:rasterframes-datasource_2.11:${VERSION}
+    --packages org.locationtech.rasterframes:rasterframes_2.11:${VERSION},org.locationtech.rasterframes:pyrasterframes_2.11:${VERSION},org.locationtech.rasterframes:rasterframes-datasource_2.11:${VERSION} \
     --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \ # these configs improve serialization performance
     --conf spark.kryo.registrator=org.locationtech.rasterframes.util.RFKryoRegistrator \
-    --conf spark.kryoserializer.buffer.max=500m 
+    --conf spark.kryoserializer.buffer.max=500m
 ```
 
 Then in the `pyspark` shell, import the module and call `withRasterFrames` on the SparkSession.

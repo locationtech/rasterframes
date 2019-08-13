@@ -53,12 +53,12 @@ def rf_cell_types():
     return [CellType(str(ct)) for ct in _context_call('rf_cell_types')]
 
 
-def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type_str):
+def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type):
     """Create a Tile from  a column of cell data with location indices"""
     jfcn = RFContext.active().lookup('rf_assemble_tile')
     return Column(
         jfcn(_to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col), num_cols, num_rows,
-             _parse_cell_type(cell_type_str)))
+             _parse_cell_type(cell_type)))
 
 
 def rf_array_to_tile(array_col, num_cols, num_rows):
@@ -73,22 +73,22 @@ def rf_convert_cell_type(tile_col, cell_type):
     return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
 
 
-def rf_make_constant_tile(scalar_value, num_cols, num_rows, cell_type):
+def rf_make_constant_tile(scalar_value, num_cols, num_rows, cell_type=CellType.float64()):
     """Constructor for constant tile column"""
     jfcn = RFContext.active().lookup('rf_make_constant_tile')
-    return Column(jfcn(scalar_value, num_cols, num_rows, cell_type))
+    return Column(jfcn(scalar_value, num_cols, num_rows, _parse_cell_type(cell_type)))
 
 
-def rf_make_zeros_tile(num_cols, num_rows, cell_type='float64'):
+def rf_make_zeros_tile(num_cols, num_rows, cell_type=CellType.float64()):
     """Create column of constant tiles of zero"""
     jfcn = RFContext.active().lookup('rf_make_zeros_tile')
-    return Column(jfcn(num_cols, num_rows, cell_type))
+    return Column(jfcn(num_cols, num_rows, _parse_cell_type(cell_type)))
 
 
-def rf_make_ones_tile(num_cols, num_rows, cell_type='float64'):
+def rf_make_ones_tile(num_cols, num_rows, cell_type=CellType.float64()):
     """Create column of constant tiles of one"""
     jfcn = RFContext.active().lookup('rf_make_ones_tile')
-    return Column(jfcn(num_cols, num_rows, cell_type))
+    return Column(jfcn(num_cols, num_rows, _parse_cell_type(cell_type)))
 
 
 def rf_rasterize(geometry_col, bounds_col, value_col, num_cols, num_rows):

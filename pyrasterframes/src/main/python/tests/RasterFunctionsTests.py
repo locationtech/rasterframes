@@ -35,7 +35,6 @@ class RasterFunctions(TestEnvironment):
                          "org.apache.spark.serializer.KryoSerializer")
         print("GDAL version", gdal_version())
 
-
     def test_identify_columns(self):
         cols = self.rf.tile_columns()
         self.assertEqual(len(cols), 1, '`tileColumns` did not find the proper number of columns.')
@@ -48,9 +47,11 @@ class RasterFunctions(TestEnvironment):
         print("Temporal key column: ", col)
 
     def test_tile_creation(self):
+        from pyrasterframes.rf_types import CellType
+
         base = self.spark.createDataFrame([1, 2, 3, 4], 'integer')
         tiles = base.select(rf_make_constant_tile(3, 3, 3, "int32"), rf_make_zeros_tile(3, 3, "int32"),
-                            rf_make_ones_tile(3, 3, "int32"))
+                            rf_make_ones_tile(3, 3, CellType.int32()))
         tiles.show()
         self.assertEqual(tiles.count(), 4)
 
@@ -249,3 +250,18 @@ class RasterFunctions(TestEnvironment):
 
         self.assertTrue(df.select(rf_for_all(df.should_exist).alias('se')).take(1)[0].se)
         self.assertTrue(not df.select(rf_for_all(df.should_not_exist).alias('se')).take(1)[0].se)
+
+    def test_cell_type_in_functions(self):
+        from pyrasterframes.rf_types import CellType
+        ct = CellType.float32()
+        ct_str = CellType.float32().with_no_data_value(-999).cell_type_name  # NB int ND into float celltype
+
+        df = self.rf.withColumn('ct_str', rf_convert_cell_type('tile', ct_str)) \
+                    .withColumn('ct', rf_convert_cell_type('tile', ct)) \
+                    .withColumn('make', rf_make_constant_tile(99, 3, 4, CellType.int8()))
+
+        result = df.select('ct', 'ct_str', 'make').first()
+
+        self.assertEqual(result['ct'].cell_type, ct)
+        self.assertEqual(result['ct_str'].cell_type, CellType(ct_str))
+        self.assertEqual(result['make'].cell_type, CellType.int8())

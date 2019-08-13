@@ -1,14 +1,14 @@
 # NumPy and Pandas
 
-In the Python Spark API, the work of distributed computing over the DataFrame is done on many executors (the Spark term for workers) inside Java virual machines (JVM). Most calls to `pyspark` are passed to a Java process via the `py4j` library. The user can also ask for data inside the JVM to be brought over to the Python driver (the Spark term for the client application). When dealing with _tiles_, the driver will recieve this data a lightweight wrapper object around a NumPy ndarray. It is also possible to write lambda functions against NumPy arrays and evaluate them in the Spark DataFrame.
+In the Python Spark API, the work of distributed computing over the DataFrame is done on many executors (the Spark term for workers) inside Java virtual machines (JVM). Most calls to `pyspark` are passed to a Java process via the `py4j` library. The user can also ask for data inside the JVM to be brought over to the Python driver (the Spark term for the client application). When dealing with _tiles_, the driver will receive this data as a lightweight wrapper object around a NumPy ndarray. It is also possible to write lambda functions against NumPy arrays and evaluate them in the Spark DataFrame.
 
 ## Performance Considerations
 
-When working with large, distributed datasets in Spark care is required when invoking _actions_ on the data. In general _transformations_ are lazily evaluated in Spark, meaning the code runs fast and it doesn't move any data around. But _actions_ cause the evaluation to happen, meaning all the lazily planned _transformations_ are going to be computed and data is going to be processed and moved around. In general, if a [`pyspark` function](https://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html) returns a DataFrame, it is probably a _transformation_ and otherwise it is an _action_.
+When working with large, distributed datasets in Spark, attention is required when invoking _actions_ on the data. In general, _transformations_ are lazily evaluated in Spark, meaning the code runs fast and it doesn't move any data around. But _actions_ cause the evaluation to happen, meaning all the lazily planned _transformations_ are going to be computed and data is going to be processed and moved around. In general, if a [`pyspark` function](https://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html) returns a DataFrame, it is probably a _transformation_, and if not, it is an _action_.
 
-When many _actions_ are invoked, a lot of data can flow from executors to the driver. In `pyspark` the data then has to move from the driver JVM to the Python process running the driver. When that happens if there are any _tiles_ in the data, they will be converted to a Python [`Tile`](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/main/python/pyrasterframes/rf_types.py) object. In practical work with Earth observation data, the _tiles_ are frequently 256 by 256 arrays, which may be 100kb or more each. Individually they are small, a DataFrame can easily have dozens of such tile columns and millions of rows.
+When many _actions_ are invoked, a lot of data can flow from executors to the driver. In `pyspark`, the data then has to move from the driver JVM to the Python process running the driver. When that happens, if there are any _tiles_ in the data, they will be converted to a Python [`Tile`](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/main/python/pyrasterframes/rf_types.py) object. In practical work with Earth observation data, the _tiles_ are frequently 256 by 256 arrays, which may be 100kb or more each. Individually they are small, but a DataFrame can easily have dozens of such _tile_ columns and millions of rows.
 
-All of this discussion reinforces important principle for working with Spark: understanding the cost of an _action_ is important; and use of @ref:[aggreates](aggregation.md), summaries, or samples to manage the cost of _actions_.
+All of this discussion reinforces two important principles for working with Spark: understanding the cost of an _action_ and using @ref:[aggreates](aggregation.md), summaries, or samples to manage the cost of _actions_.
 
 ## The `Tile` Class
 
@@ -30,7 +30,7 @@ t.cells.shape, t.cells.nbytes
 
 ## DataFrame `toPandas`
 
-As discussed in the @ref:[raster writing chapter](raster-write.md#dataframe-samples), a pretty display of Pandas DataFrame containing _tiles_ is available by importing the `rf_ipython` submodule. In addition, as discussed in the @ref:[vector data chapter](vector-data.md), any geometry type in the Spark DataFrame will be converted into a Shapely geometry. Taken together, we can can easily get the spatial information and raster data as a NumPy array, all within a Pandas DataFrame.
+As discussed in the @ref:[raster writing chapter](raster-write.md#dataframe-samples), a pretty display of Pandas DataFrame containing _tiles_ is available by importing the `rf_ipython` submodule. In addition, as discussed in the @ref:[vector data chapter](vector-data.md), any geometry type in the Spark DataFrame will be converted into a Shapely geometry. Taken together, we can easily get the spatial information and raster data as a NumPy array, all within a Pandas DataFrame.
 
 ```python spark_session,  echo=False
 import pyrasterframes
@@ -65,9 +65,9 @@ pandas_df.iloc[0].apply(lambda v: type(v))
 
 ## User Defined Functions
 
-As we demonstrated with @ref:[vector data](vector-data.md#shapely-geometry-support), we can also make use of the `Tile` type to create [user-defined functions (UDF)](https://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.functions.udf) that can take a _tile_ as input, return a _tile_ as output, or both. Here is a trivial and **inefficient** example of doing both. A serious performance implication of user defined functions in Python is that all the executors must move the Java objects to Python, evaluate the function, then move the Python objects back to Java. Use the many @ref:[built-in functions](reference.md) wherever possible, and ask the [community](https://gitter.im/s22s/raster-frames) if you have an idea for a function that should be included.
+As we demonstrated with @ref:[vector data](vector-data.md#shapely-geometry-support), we can also make use of the `Tile` type to create [user-defined functions (UDF)](https://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.functions.udf) that can take a _tile_ as input, return a _tile_ as output, or both. Here is a trivial and **inefficient** example of doing both. A serious performance implication of user defined functions in Python is that all the executors must move the Java objects to Python, evaluate the function, and then move the Python objects back to Java. Use the many @ref:[built-in functions](reference.md) wherever possible, and ask the [community](https://gitter.im/locationtech/rasterframes) if you have an idea for a function that should be included.
 
-We will demonstrate creating a UDF that is logically equivalent to a built in function. We'll quickly show that the resulting _tiles_ are approximately equivalent. The reason they are not exactly the same is because one is computed in Python and the other is computed in Java.
+We will demonstrate an example of creating a UDF that is logically equivalent to a built-in function. We'll quickly show that the resulting _tiles_ are approximately equivalent. The reason they are not exactly the same is that one is computed in Python and the other is computed in Java.
 
 ```python udf
 from pyrasterframes.rf_types import TileUDT
@@ -89,7 +89,7 @@ print(type(diff))
 np.abs(diff.cells).max()
 ```
 
-We can also inspect an image of the difference between the two _tiles_; it is just random noise. Both tiles have the same structure of NoData, the white areas.
+We can also inspect an image of the difference between the two _tiles_, which is just random noise. Both _tiles_ have the same structure of NoData, as exhibited by the white areas.
 
 ```python udf_diff_noise_tile
 display(diff)
@@ -99,7 +99,7 @@ display(diff)
 
 You can also create a Spark DataFrame with a column full of `Tile` objects or Shapely geomtery objects.
 
-The example below will create a Pandas DataFrame with ten rows of noise tiles and random Points. We will then create a Spark DataFrame from it.
+The example below will create a Pandas DataFrame with ten rows of noise _tiles_ and random `Point`s. We will then create a Spark DataFrame from it.
 
 ```python create_spark_df
 import pandas as pd

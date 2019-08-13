@@ -69,7 +69,6 @@ To set up an environment whereby you can easily test/evaluate your code blocks d
    [info] Running 'python setup.py build bdist_wheel' in '<src-root>/pyrasterframes/target/python'
    ... more noise ...
    [info] Python .whl file written to '<src-root>/pyrasterframes/target/python/dist/pyrasterframes-0.8.0.dev0-py2.py3-none-any.whl'
-   [info] Maven Python .zip artifact written to '<src-root>/pyrasterframes/target/scala-2.11/pyrasterframes-python-0.8.0-SNAPSHOT.zip' 
     [success] Total time: 83 s, completed Jul 5, 2019 12:25:48 PM
     sbt:RasterFrames>
     ```

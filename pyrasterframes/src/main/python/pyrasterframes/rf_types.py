@@ -261,7 +261,11 @@ class CellType(object):
     def with_no_data_value(self, no_data):
         if self.has_no_data() and self.no_data_value() == no_data:
             return self
-        return CellType(self.base_cell_type_name() + 'ud' + str(no_data))
+        if self.is_floating_point():
+            no_data = str(float(no_data))
+        else:
+            no_data = str(int(no_data))
+        return CellType(self.base_cell_type_name() + 'ud' + no_data)
 
     def __eq__(self, other):
         if type(other) is type(self):
