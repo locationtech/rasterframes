@@ -19,9 +19,10 @@
 #
 
 import pyrasterframes.rf_types
+import numpy as np
 
 
-def tile_to_png(tile, fig_size=None):
+def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_size=None):
     """ Provide image of Tile."""
     if tile.cells is None:
         return None
@@ -39,13 +40,25 @@ def tile_to_png(tile, fig_size=None):
     canvas = FigureCanvas(fig)
     axis = fig.add_subplot(1, 1, 1)
 
-    axis.imshow(tile.cells)
+    arr = tile.cells
+
+    def normalize_cells(cells, lower_percentile=lower_percentile, upper_percentile=upper_percentile):
+        assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles'
+        lower = np.percentile(cells, lower_percentile)
+        upper = np.percentile(cells, upper_percentile)
+        cells = np.clip(cells, lower, upper)
+        return (cells - lower) / (upper - lower)
+
+    axis.imshow(normalize_cells(arr))
     axis.set_aspect('equal')
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
 
-    axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()),
-                   fontsize=fig_size[0]*4)  # compact metadata as title
+    if title is None:
+        axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()),
+                       fontsize=fig_size[0]*4)  # compact metadata as title
+    else:
+        axis.set_title(title, fontsize=fig_size[0]*4)  # compact metadata as title
 
     with io.BytesIO() as output:
         canvas.print_png(output)
