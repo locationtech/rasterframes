@@ -52,19 +52,19 @@ You can also use RasterFrames in the following environments:
 1. Jupyter Notebook
 1. `pyspark` shell
 
-### Jupyter Notebook
+### Using Jupyter Notebook
 
  RasterFrames provides a Docker image for a Jupyter notebook server whose default kernel is already set up for running RasterFrames. To use it:
 
- 1. Install [docker](https://docs.docker.com/install/)
+ 1. Install [Docker](https://docs.docker.com/install/)
  1. Pull the image: `docker pull s22s/rasterframes-notebook`
  1. Run a container with the image, for example:
       `docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/jovyan/work rasterframes-notebook:latest`
  1. In a browser, open `localhost:8808` in the example above.
 
-See [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.
+See the [RasterFrames Notebook README](https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md) for instructions on building the Docker image for this Jupyter notebook server.
 
-### `pyspark` shell
+### Using `pyspark` shell
 
 You can use RasterFrames in a `pyspark` shell. To set up the `pyspark` environment, prepare your call with the appropriate `--master` and other `--conf` arguments for your cluster manager and environment. For RasterFrames support you need to pass arguments pointing to the various Java dependencies. You will also need the Python source zip, even if you have pip installed the package. You can download the source zip here: https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip.
 
@@ -138,4 +138,4 @@ from pyrasterframes.utils import gdal_version
 print(gdal_version())
 ```
 
-This will print out something like "GDAL x.y.z, released 20yy/mm/dd". If it reports `not available`, then GDAL isn't installed in a place where the RasterFrames runtime was able to find it. Please [file an issue](https://github.com/locationtech/rasterframes/issues) to get help resolving it.
+This will print out something like "GDAL x.y.z, released 20yy/mm/dd". If it reports "not available", then GDAL is not installed in a place where the RasterFrames runtime was able to find it. Please [file an issue](https://github.com/locationtech/rasterframes/issues) to get help resolving this problem.
