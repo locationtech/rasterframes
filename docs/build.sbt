@@ -41,9 +41,9 @@ makePDF := {
   work.mkdirs()
 
   val prepro = files.zipWithIndex.map { case (f, i) ⇒
-    val dest = work / f"$i%02d.md"
+    val dest = work / f"$i%02d-${f.getName}%s"
     // Filter cross links and add a newline
-    (Seq("sed", "-e", """s/@ref:\[\([^]]*\)\](.*)/_\1_/g;s/@@.*//g""", f.toString) #> dest).!
+    (Seq("sed", "-e", """s/@ref://g;s/@@.*//g""", f.toString) #> dest).!
     // Add newline at the end of the file so as to make pandoc happy
     ("echo" #>> dest).!
     ("echo \\pagebreak" #>> dest).!
@@ -55,7 +55,7 @@ makePDF := {
   val header = (Compile / sourceDirectory).value / "latex" / "header.latex"
 
   val args = "pandoc" ::
-    "--from=markdown" ::
+    "--from=markdown+pipe_tables" ::
     "--to=pdf" ::
     "-t" :: "latex" ::
     "-s" ::
@@ -64,7 +64,6 @@ makePDF := {
     "-V" :: "author:Astraea, Inc." ::
     "-V" :: "geometry:margin=0.75in" ::
     "-V" :: "papersize:letter" ::
-    "-V" :: "links-as-notes" ::
     "--include-in-header" :: header.toString ::
     "-o" :: output.toString ::
     prepro.map(_.toString).toList
