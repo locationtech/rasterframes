@@ -1,8 +1,8 @@
 # Reading Raster Data
 
-```python, echo=False
-import pyrasterframes.rf_ipython
+```python, setup, echo=False
 from IPython.display import display
+import pyrasterframes.rf_ipython
 import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
@@ -26,18 +26,16 @@ The file at the address above is a valid [Cloud Optimized GeoTIFF (COG)](https:/
 
 Let's unpack the `proj_raster` column and look at the contents in more detail. It contains a @ref:[_CRS_][CRS], a spatial @ref:[_extent_][Extent] measured in that CRS, and a two-dimensional array of numeric values called a @ref:[_tile_][Tile].
 
-```python, raster_parts
+```python, select_crs
 crs = rf.select(rf_crs("proj_raster").alias("value")).first()
+print("CRS", crs.value.crsProj4)
+```
 
+```python, raster_parts, results='raw'
 parts = rf.select(
     rf_extent("proj_raster").alias("extent"),
     rf_tile("proj_raster").alias("tile")
 )
-
-print("CRS", crs.value.crsProj4)
-```
-
-```python,  show_parts, results='raw'
 parts.show(5, truncate=False)
 ```
 
@@ -115,7 +113,7 @@ MODIS data products are delivered on a regular, consistent grid, making identifi
 
 For example, MODIS data right above the equator is all grid coordinates with `v07`.
 
-```python catalog_filtering, results='raw'
+```python, catalog_filtering, results='raw'
 equator = modis_catalog.where(F.col('gid').like('%v07%')) 
 equator.select('date', 'gid') \
     .show(10, truncate=False)
@@ -170,7 +168,7 @@ When reading a multiband raster or a _catalog_ describing multiband rasters, you
 
 For example, we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting DataFrame still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
 
-```python Multiband
+```python, multiband
 mb = spark.read.raster('s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
                        band_indexes=[0, 1, 2, 3],
                       )
@@ -183,7 +181,7 @@ You can also pass a `catalog` and `band_indexes` together into the `raster` read
 
 Here is a trivial example with a _catalog_ over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.
 
-```python multiband_catalog
+```python, multiband_catalog
 import pandas as pd
 mb_cat = pd.DataFrame([
     {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
@@ -206,7 +204,7 @@ mb2.printSchema()
 
 A GeoTrellis catalog is a set of GeoTrellis layers. We can read a DataFrame giving details of the content of a catalog using the syntax below. The scheme is typically `hdfs` or `file`, or a cloud storage provider like `s3`.
 
-```python, evaluate=False
+```python, geotrellis_cat, evaluate=False
 gt_cat = spark.read.geotrellis_catalog('scheme://path-to-gt-catalog')
 ```
 
@@ -214,7 +212,7 @@ gt_cat = spark.read.geotrellis_catalog('scheme://path-to-gt-catalog')
 
 The catalog will give details on the individual layers available for query. We can read each layer with the URI to the catalog, the layer name, and the desired zoom level.
 
-```python, evaluate=False
+```python, geotrellis, evaluate=False
 gt_layer = spark.read.geotrellis(path='scheme://path-to-gt-catalog', layer=layer_name, zoom=zoom_level)
 ```
 

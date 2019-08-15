@@ -2,13 +2,13 @@
 
 ## What is NoData?
 
-In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. A great deal of raster data is stored for space efficiency. This typically leads to use of integral values and a "sentinel" value to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
+In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. However, a great deal of raster data is stored for space efficiency, which typically leads to use of integral values with a ["sentinel" value](https://en.wikipedia.org/wiki/Sentinel_value) designated to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
 
 RasterFrames provides a variety of functions to inspect and manage NoData within _tiles_.
 
 ## Cell Types
 
-To understand how NoData is handled in RasterFrames, we first need to understand the different underlying types of data called cell types. The cell types are GeoTrellis `CellType`s, so the [GeoTrellis documentation](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#working-with-cell-values) is a valuable resource on how these are defined.
+To understand how NoData is handled in RasterFrames, we first need to understand the different underlying types of data called cell types. RasterFrames cell types are GeoTrellis `CellType`s, so the [GeoTrellis documentation](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#working-with-cell-values) is a valuable resource on how these are defined.
 
 ```python setup, echo=False
 import pyrasterframes
@@ -52,7 +52,7 @@ ct = CellType('uint16raw')
 ct, ct.is_floating_point(), ct.has_no_data()
 ```
 
-We can see that for the above data source, there is no defined NoData value. This means that each value is interpreted as a valid observation. Often such data is meant to be combined with another band indicating the quality of observations at each location. The lack of NoData is indicated by the `raw` at the end of the type name. Consider also the `uint16` cell type.
+We can see that for the above data source, there is no defined NoData value. This means that each value is interpreted as a valid observation. Often such data is meant to be combined with another band indicating the quality of observations at each location. The lack of NoData is indicated by the `raw` at the end of the type name. Consider for contrast the `uint16` cell type.
 
 ```python, non_raw_example
 from pyrasterframes.rf_types import CellType
@@ -60,7 +60,7 @@ ct = CellType('uint16')
 ct, ct.is_floating_point(), ct.has_no_data(), ct.no_data_value()
 ```
 
-In this case, the minimum value of 0 is designated as the NoData value. For integral-valued cell types, the NoData is typically zero, the maximum, or the minimum value for the underlying data type. The NoData value can also be a user-defined value. In that case the value is designated with a `ud`.
+In this case, the minimum value of 0 is designated as the NoData value. For integral-valued cell types, the NoData is typically zero, the maximum, or the minimum value for the underlying data type. The NoData value can also be a user-defined value. In that case the value is designated with `ud`.
 
 ```python, cell_type_name
 CellType.uint16().with_no_data_value(99).cell_type_name
@@ -75,7 +75,7 @@ print(CellType.float32().with_no_data_value(-99.9).no_data_value())
 
 ## Masking
 
-Let's continue the example above with Sentinel-2 data. Band 2 is blue and has no defined NoData. The quality information is in a separate file called the scene classification (SCL), which delineates areas of missing data and probable clouds. For more information on that, see the [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm). Figure 3 tells us how to interpret the scene classification. For this example, we will exclude NoData, defective pixels, probable clouds, and cirrus clouds: values 0, 1, 8, 9, and 10.
+Let's continue the example above with Sentinel-2 data. Band 2 is blue and has no defined NoData. The quality information is in a separate file called the scene classification (SCL), which delineates areas of missing data and probable clouds. For more information on this, see the [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm). Figure 3 tells us how to interpret the scene classification. For this example, we will exclude NoData, defective pixels, probable clouds, and cirrus clouds: values 0, 1, 8, 9, and 10.
 
 ![Sentinel-2 Scene Classification Values](static/sentinel-2-scene-classification-labels.png)
 
@@ -97,7 +97,7 @@ unmasked.printSchema()
 unmasked.select(rf_cell_type('blue'), rf_cell_type('scl')).distinct().show()
 ```
 
-Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create new _tile_ columns that are indicators of unwanted pixels, as defined above. Since the mask column is bit type, the addition is equivalent to a logical or, so the true values are 1.
+Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create new _tile_ columns that are indicators of unwanted pixels, as defined above. Since the mask column is an integer type, the addition is equivalent to a logical or, so the boolean true values are 1.
 
 ```python, def_mask, results='raw'
 from pyspark.sql.functions import lit
@@ -139,7 +139,7 @@ masked = one_mask.withColumn('blue_masked',
                  .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
 ```
 
-We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the bit-type `mask` _tile_ to ensure our logic is correct.
+We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the boolean `mask` _tile_ to ensure our logic is correct.
 
 ```python, show_masked, results='raw'
 masked.select(rf_no_data_cells('blue_masked'), rf_tile_sum('mask')).show(10)
@@ -160,7 +160,7 @@ display(sample[1])
 
 ## NoData and Local Arithmetic
 
-Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behaviour, lets create two _tiles_. One _tile_ will have values of 0 and 1, and the other will have values of just 0.
+Let's now explore how the presence of NoData affects @ref:[local map algebra](local-algebra.md) operations. To demonstrate the behavior, lets create two _tiles_. One _tile_ will have values of 0 and 1, and the other will have values of just 0.
 
 ```python, local_arith
 tile_size = 100
@@ -212,7 +212,7 @@ rf = spark.createDataFrame([Row(tile=x)])
 display(x)
 ```
 
-First, we mask the value of 1 by making a new column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a _tile_ with the cell type 'uint16ud2'.
+First, we mask the value of 1 by making a new _tile_ column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a _tile_ column with the cell type 'uint16ud2'.
 
 ```python, masked_rf
 def get_nodata_ct(nd_val):
@@ -234,7 +234,7 @@ Let's look at the new _tiles_ we created. The _tile_ named `tile_nd_1` has the 1
 display(collected[0].tile_nd_1)
 ```
 
-And the _tile_ named `tile_nd_2` has the values of 1 and 2 masked out. This is because we created the _tile_ by setting a new user defined NoData value to `tile_nd_1` the values previously masked out in `tile_nd_1` stayed masked when creating `tile_nd_2`.
+And the _tile_ named `tile_nd_2` has the values of 1 and 2 masked out. This is because we created the _tile_ by setting a new user defined NoData value to `tile_nd_1`, and the values previously masked out in `tile_nd_1` stayed masked when creating `tile_nd_2`.
 
 ```python, display_5
 display(collected[0].tile_nd_2)
@@ -243,7 +243,7 @@ display(collected[0].tile_nd_2)
 
 ## Combining Tiles with Different Data Types
 
-RasterFrames supports having _tile_ columns with multiple cell types in a single DataFrame. It is important to understand how these different cell types interact.
+RasterFrames supports having _tile_ columns with different cell types in a single DataFrame. It is important to understand how these different cell types interact.
 
 Let's first create a RasterFrame that has columns of `float` and `int` cell type.
 
@@ -255,7 +255,7 @@ rf = spark.createDataFrame([Row(x=x, y=y)])
 rf.select(rf_cell_type('x'), rf_cell_type('y')).distinct().show()
 ```
 
-When performing a local operation between _tile_ columns with cell types `int` and type `float`, the resulting _tile_ cell type will be `float`. In local algebra over two _tiles_ of different "sized" cell types, the resulting cell type will be the largest of the two input _tiles'_ cell types.
+When performing a local operation between _tile_ columns with cell types `int` and  `float`, the resulting _tile_ cell type will be `float`. In local algebra over two _tiles_ of different "sized" cell types, the resulting cell type will be the larger of the two input _tiles'_ cell types.
 
 ```python, show_2, results='raw'
 rf.select(
@@ -265,7 +265,7 @@ rf.select(
     ).show(1)
 ```
 
-Combining _tile_ columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create 2 _tile_ columns: one with a NoData value of 1, and one with a NoData value of 2.
+Combining _tile_ columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create two _tile_ columns: one with a NoData value of 1, and one with a NoData value of 2 (using our previously defined `get_nodata_ct` function).
 
 ```python, create_ones
 x_nd_1 = Tile((np.ones((100, 100))*3), get_nodata_ct(1))

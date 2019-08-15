@@ -100,24 +100,34 @@ def pandas_df_to_html(df):
     pd.set_option('display.max_colwidth', default_max_colwidth)
     return return_html
 
+def spark_df_to_markdown(df, num_rows=5, truncate=True, vertical=False):
+    from pyrasterframes import RFContext
+    return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
 
 try:
     from IPython import get_ipython
+    from IPython.display import display_png, display_markdown, display
     # modifications to currently running ipython session, if we are in one; these enable nicer visualization for Pandas
     if get_ipython() is not None:
         import pandas
         import pyspark.sql
+        from pyrasterframes.rf_types import Tile
         ip = get_ipython()
+
         html_formatter = ip.display_formatter.formatters['text/html']
         html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
 
+        markdown_formatter = ip.display_formatter.formatters['text/markdown']
+        html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
+
+        Tile.show = lambda t: display_png(t._repr_png_(), raw=True)
+
         # See if we're in documentation mode and register a custom show implementation.
-        if ip.__class__.__name__ == 'InProcessInteractiveShell':
-            def _df_show_markdown(df, numRows=5, truncate=True, vertical=False):
-                from pyrasterframes import RFContext
-                print(RFContext.active().call("_dfToMarkdown", df._jdf, numRows, truncate))
+        if 'InProcessInteractiveShell' in ip.__class__.__name__:
+            pyspark.sql.DataFrame._repr_markdown_ = spark_df_to_markdown
+            pyspark.sql.DataFrame.show = lambda df, num_rows=5, truncate=True: display_markdown(spark_df_to_markdown(df, num_rows, truncate), raw=True)
 
-            pyspark.sql.DataFrame.show = _df_show_markdown
-
-except ImportError:
+except ImportError as e:
+    print(e)
+    raise e
     pass
