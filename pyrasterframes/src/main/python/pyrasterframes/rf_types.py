@@ -358,11 +358,36 @@ class Tile(object):
         """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
         return [self.cells.shape[1], self.cells.shape[0]]
 
-
     def _repr_png_(self):
         """Provide default PNG rendering in IPython and Jupyter"""
         from pyrasterframes.rf_ipython import tile_to_png
         return tile_to_png(self)
+
+    def show(self, lower_percentile=1, upper_percentile=99, axis=None):
+            """"""
+
+            if axis is None:
+                import matplotlib.pyplot as plt
+                axis = plt.gca()
+
+            arr = self.cells
+
+            def normalize_cells(cells, lower_percentile=lower_percentile, upper_percentile=upper_percentile):
+                assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles'
+                lower = np.percentile(cells, lower_percentile)
+                upper = np.percentile(cells, upper_percentile)
+                cells_clipped = np.clip(cells, lower, upper)
+                return (cells_clipped - lower) / (upper - lower)
+
+            axis.set_aspect('equal')
+            axis.xaxis.set_ticks([])
+            axis.yaxis.set_ticks([])
+
+            axis.imshow(normalize_cells(arr))
+
+            return axis
+
+
 
 
 class TileUDT(UserDefinedType):

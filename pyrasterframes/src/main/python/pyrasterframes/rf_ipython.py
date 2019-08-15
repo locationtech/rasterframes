@@ -40,16 +40,7 @@ def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_s
     canvas = FigureCanvas(fig)
     axis = fig.add_subplot(1, 1, 1)
 
-    arr = tile.cells
-
-    def normalize_cells(cells, lower_percentile=lower_percentile, upper_percentile=upper_percentile):
-        assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles'
-        lower = np.percentile(cells, lower_percentile)
-        upper = np.percentile(cells, upper_percentile)
-        cells = np.clip(cells, lower, upper)
-        return (cells - lower) / (upper - lower)
-
-    axis.imshow(normalize_cells(arr))
+    tile.show(lower_percentile, upper_percentile, axis=axis)
     axis.set_aspect('equal')
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
@@ -69,7 +60,7 @@ def tile_to_html(tile, fig_size=None):
     """ Provide HTML string representation of Tile image."""
     import base64
     b64_img_html = '<img src="data:image/png;base64,{}" />'
-    png_bits = tile_to_png(tile, fig_size)
+    png_bits = tile_to_png(tile, fig_size=fig_size)
     b64_png = base64.b64encode(png_bits).decode('utf-8').replace('\n', '')
     return b64_img_html.format(b64_png)
 
