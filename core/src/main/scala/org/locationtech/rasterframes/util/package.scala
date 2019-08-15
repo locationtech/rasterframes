@@ -36,6 +36,7 @@ import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
 import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, NamedExpression}
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql._
@@ -180,6 +181,27 @@ package object util {
       }
       buf.append("]")
       buf.toString()
+    }
+  }
+
+  implicit class DFWithPrettyPrint(val df: Dataset[_]) extends AnyVal {
+    def toMarkdown(numRows: Int = 5, truncate: Boolean = false): String = {
+      import df.sqlContext.implicits._
+      val cols = df.columns
+      val header = cols.mkString("| ", " | ", " |") + "\n" + ("|---" * cols.length) + "|\n"
+      val stringifiers = cols
+        .map(c => s"`$c`")
+        .map(c => df.col(c).cast(StringType))
+        .map(c => if (truncate) substring(c, 1, 40) else c)
+      val cat = concat_ws(" | ", stringifiers: _*)
+      val body = df
+        .select(cat).limit(numRows)
+        .as[String]
+        .collect()
+        .map(_.replaceAll("\\[", "\\\\["))
+        .map(_.replace('\n', '↩'))
+        .mkString("| ", " |\n| ", " |")
+      header + body
     }
   }
 

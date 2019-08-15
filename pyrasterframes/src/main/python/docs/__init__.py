@@ -19,6 +19,9 @@
 #
 
 import os
+from pyspark.sql import DataFrame
+from pyrasterframes import RFContext
+from pweave import PwebPandocFormatter
 
 
 def docs_dir():
@@ -37,3 +40,12 @@ def resource_dir():
 
 def resource_dir_uri():
     return 'file://' + resource_dir()
+
+
+class PegdownMarkdownFormatter(PwebPandocFormatter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    # Pegdown doesn't support the width and label options.
+    def make_figure_string(self, figname, width, label, caption=""):
+        return "![%s](%s)" % (caption, figname)

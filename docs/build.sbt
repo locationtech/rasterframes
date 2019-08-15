@@ -8,7 +8,6 @@ makePDF := {
 
   // Get the python source directory configured in the root project.
   val base = (Compile / paradox / sourceDirectories).value.find(_.toString.contains("python")).head
-  println(base)
 
   // Hard coded lacking any simple  way of determining order.
   val files = Seq(

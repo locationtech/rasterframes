@@ -57,6 +57,7 @@ class PweaveDocs(distutils.cmd.Command):
         ('quick=', 'q', 'Check to see if the source file is newer than existing output before building. Defaults to `False`.')
     ]
 
+
     def initialize_options(self):
         """Set default values for options."""
         # Each user option must be listed here with their default value.
@@ -73,7 +74,8 @@ class PweaveDocs(distutils.cmd.Command):
         if isinstance(self.files, str):
             self.files = filter(lambda s: len(s) > 0, re.split(',', self.files))
             # `html` doesn't do quite what one expects... only replaces code blocks, leaving markdown in place
-            if self.format is 'html':
+            print("format.....", self.format)
+            if self.format == 'html':
                 self.format = 'pandoc2html'
         if isinstance(self.quick, str):
             self.quick = self.quick == 'True' or self.quick == 'true'
@@ -85,7 +87,15 @@ class PweaveDocs(distutils.cmd.Command):
         """Run pweave."""
         import traceback
         import pweave
+        from docs import PegdownMarkdownFormatter
+
         bad_words = ["Error"]
+        pweave.rcParams["chunk"]["defaultoptions"].update({'wrap': False, 'dpi': 100})
+        if self.format == 'markdown':
+            pweave.PwebFormats.formats['markdown'] = {
+                'class': PegdownMarkdownFormatter,
+                'description': 'Pegdown compatible markdown'
+            }
 
         for file in sorted(self.files, reverse=True):
             name = path.splitext(path.basename(file))[0]
@@ -109,7 +119,7 @@ class PweaveDocs(distutils.cmd.Command):
                     print(traceback.format_exc())
                     exit(1)
             else:
-                print(_divided('Skipping %s' % file))
+                print(_divided('Skipping %s' % name))
 
 
 class PweaveNotebooks(PweaveDocs):

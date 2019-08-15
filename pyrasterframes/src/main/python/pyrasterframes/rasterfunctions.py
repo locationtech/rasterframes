@@ -91,11 +91,11 @@ def rf_make_ones_tile(num_cols, num_rows, cell_type=CellType.float64()):
     return Column(jfcn(num_cols, num_rows, _parse_cell_type(cell_type)))
 
 
-def rf_rasterize(geometry_col, bounds_col, value_col, num_cols, num_rows):
+def rf_rasterize(geometry_col, bounds_col, value_col, num_cols_col, num_rows_col):
     """Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value."""
     jfcn = RFContext.active().lookup('rf_rasterize')
-    return Column(jfcn(_to_java_column(geometry_col), _to_java_column(bounds_col), _to_java_column(value_col), num_cols,
-                       num_rows))
+    return Column(jfcn(_to_java_column(geometry_col), _to_java_column(bounds_col),
+                       _to_java_column(value_col), _to_java_column(num_cols_col),  _to_java_column(num_rows_col)))
 
 
 def st_reproject(geometry_col, src_crs, dst_crs):

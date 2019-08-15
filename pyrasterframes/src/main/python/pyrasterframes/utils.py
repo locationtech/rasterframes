@@ -76,12 +76,12 @@ Try running 'sbt pyrasterframes/clean pyrasterframes/package' first. """.format(
     return jarpath[0]
 
 
-def create_rf_spark_session():
+def create_rf_spark_session(master="local[*]"):
     """ Create a SparkSession with pyrasterframes enabled and configured. """
     jar_path = find_pyrasterframes_assembly()
 
     spark = (SparkSession.builder
-             .master("local[*]")
+             .master(master)
              .appName("RasterFrames")
              .config('spark.jars', jar_path)
              .withKryoSerialization()

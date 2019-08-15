@@ -67,7 +67,7 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
       // Not sure why implicit resolution isn't handling this properly.
       implicit val enc = Encoders.tuple(crsEncoder, Encoders.STRING, crsEncoder, Encoders.scalaDouble)
       val df = Seq((pe.crs, "fred", pe.crs, 34.0)).toDF("c1", "s", "c2", "n")
-      df.crsColumns.size should be (2)
+      df.crsColumns.size should be(2)
     }
 
     it("should split TileLayout") {
@@ -92,10 +92,10 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
 
     it("should split key") {
       val s1 = SpatialKey(0, 0).subdivide(2)
-      assert(s1 === Seq(SpatialKey(0,0), SpatialKey(1,0), SpatialKey(0,1), SpatialKey(1,1)))
+      assert(s1 === Seq(SpatialKey(0, 0), SpatialKey(1, 0), SpatialKey(0, 1), SpatialKey(1, 1)))
 
       val s2 = SpatialKey(2, 3).subdivide(3)
-      assert(s2 === Seq(SpatialKey(6,9), SpatialKey(7,9), SpatialKey(8,9), SpatialKey(6,10), SpatialKey(7,10), SpatialKey(8,10), SpatialKey(6,11), SpatialKey(7,11), SpatialKey(8,11)))
+      assert(s2 === Seq(SpatialKey(6, 9), SpatialKey(7, 9), SpatialKey(8, 9), SpatialKey(6, 10), SpatialKey(7, 10), SpatialKey(8, 10), SpatialKey(6, 11), SpatialKey(7, 11), SpatialKey(8, 11)))
     }
 
     it("should split TileLayerMetadata[SpatialKey]") {
@@ -107,7 +107,12 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
 
       val divided = tlm.subdivide(2)
 
-      assert(divided.tileLayout.tileDimensions === (tileSize/2, tileSize/2))
+      assert(divided.tileLayout.tileDimensions === (tileSize / 2, tileSize / 2))
+    }
+
+    it("should render Markdown") {
+      import org.locationtech.rasterframes.util._
+      rf.toMarkdown().count(_ == '|') shouldBe >=(3 * 5)
     }
   }
 }

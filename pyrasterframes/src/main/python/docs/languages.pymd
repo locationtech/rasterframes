@@ -45,7 +45,7 @@ red_nir_tiles_monthly_2017 = spark.read.raster(
 
 ### Step 4: Compute aggregates
 
-```python, step_4_python
+```python, step_4_python, results='raw'
 result = red_nir_tiles_monthly_2017 \
     .where(st_intersects(
         st_reproject(rf_geometry(col('red')), rf_crs(col('red')).crsProj4, rf_mk_crs('EPSG:4326')),
@@ -75,7 +75,7 @@ sql("CREATE OR REPLACE TEMPORARY VIEW modis USING `aws-pds-modis-catalog`")
 
 ### Step 2: Down-select data by month
 
-```python, step_2_sql
+```python, step_2_sql, results='raw'
 sql("""
 CREATE OR REPLACE TEMPORARY VIEW red_nir_monthly_2017 AS
 SELECT granule_id, month(acquisition_date) as month, B01 as red, B02 as nir
@@ -101,7 +101,7 @@ OPTIONS (
 
 ### Step 4: Compute aggregates
 
-```python, step_4_sql
+```python, step_4_sql, results='raw'
 sql("""
 SELECT month, ndvi_stats.* FROM (
     SELECT month, rf_agg_stats(rf_normalized_difference(nir, red)) as ndvi_stats

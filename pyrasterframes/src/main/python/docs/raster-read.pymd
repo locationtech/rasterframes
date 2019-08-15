@@ -2,6 +2,7 @@
 
 ```python, echo=False
 from IPython.display import display
+import pyrasterframes.rf_ipython
 import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
@@ -16,7 +17,7 @@ RasterFrames can also read from @ref:[GeoTrellis catalogs and layers](raster-rea
 
 The simplest way to use the `raster` reader is with a single raster from a single URI or file. In the examples that follow we'll be reading from a Sentinel-2 scene stored in an AWS S3 bucket.
 
-```python read_one_uri
+```python, read_one_uri
 rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
 rf.printSchema()
 ```
@@ -25,7 +26,7 @@ The file at the address above is a valid [Cloud Optimized GeoTIFF (COG)](https:/
 
 Let's unpack the `proj_raster` column and look at the contents in more detail. It contains a @ref:[_CRS_][CRS], a spatial @ref:[_extent_][Extent] measured in that CRS, and a two-dimensional array of numeric values called a @ref:[_tile_][Tile].
 
-```python unpack_schema
+```python, raster_parts
 crs = rf.select(rf_crs("proj_raster").alias("value")).first()
 
 parts = rf.select(
@@ -34,14 +35,16 @@ parts = rf.select(
 )
 
 print("CRS", crs.value.crsProj4)
-parts.show(5, False)
+```
 
+```python,  show_parts, results='raw'
+parts.show(5, truncate=False)
 ```
 
 You can also see that the single raster has been broken out into many arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per task.
 
-```python count_by_uri
-rf.groupby(rf.proj_raster_path).count().show()
+```python count_by_uri, results='raw'
+rf.groupby(rf.proj_raster_path).count().show(truncate=False)
 ```
 
 Let's select a single _tile_ and view it. The _tile_ preview image as well as the string representation provide some basic information about the _tile_: it's dimensions as number of columns and rows, and the cell type, or data type of all the cells in the _tile_. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
@@ -98,8 +101,10 @@ modis_catalog = spark.read \
 modis_catalog.printSchema()
 
 print("Available scenes: ", modis_catalog.count())
+```
 
-modis_catalog.show(5, truncate=False)
+```python, show_catalog, results='raw'
+modis_catalog.show(5, truncate=True)
 ```
 
 MODIS data products are delivered on a regular, consistent grid, making identification of a specific area over time easy using `(h,v)` grid coordinates.
@@ -108,14 +113,15 @@ MODIS data products are delivered on a regular, consistent grid, making identifi
 
 For example, MODIS data right above the equator is all grid coordinates with `v07`.
 
-```python catalog_filtering
-equator = modis_catalog.where(F.col('gid').like('%v07%'))
-equator.select('date', 'gid').show(10, False)
+```python catalog_filtering, results='raw'
+equator = modis_catalog.where(F.col('gid').like('%v07%')) 
+equator.select('date', 'gid') \
+    .show(10, truncate=False)
 ```
 
 Now that we have prepared our catalog, we simply pass the DataFrame or CSV string to the `raster` DataSource to load the imagery. The `catalog_col_names` parameter gives the columns that contain the URI's to be read.
 
-```python read_catalog
+```python, read_catalog
 rf = spark.read.raster(
     catalog=equator,
     catalog_col_names=['red', 'nir'],
@@ -125,8 +131,9 @@ rf.printSchema()
 
 Observe that the schema of the resulting DataFrame has a projected raster struct for each column passed in `catalog_col_names`. For reference, the URI is now in a column appended with `_path`. We can take a quick look at the representation of the data. We see again each row contains an arbitrary portion of the entire scene coverage. We also see that for two-D catalogs, each row contains the same spatial extent from within that coverage.
 
-```python cat_read_sample
-rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')).show(3, False)
+```python, cat_read_sample, results='raw'
+rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')) \
+    .show(3, truncate=True)
 ```
 
 ## Lazy Raster Reads
@@ -135,13 +142,18 @@ By default the raster reads are delayed as long as possible. The DataFrame will 
 
 Consider the following two reads of the same data source. In the first, the lazy case, there is a pointer to the URI, extent and band to read. This will not be evaluated until the cell values are absolutely required. The second case shows the option to force the raster to be fully read right away.
 
-```python lazy_demo
+```python, lazy_demo_1, results='raw'
 uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
 spark.read.raster(uri) \
-    .select('proj_raster.tile').show(1, False)
+    .select('proj_raster.tile') \
+    .show(1, truncate=False)
 
+```
+
+```python, lazy_demo_2, results='raw'
 spark.read.raster(uri, lazy_tiles=False) \
-    .select('proj_raster.tile').show(1, False)
+    .select('proj_raster.tile') \
+    .show(1, truncate=False)
 ```
 
 In the initial examples on this page, you may have noticed that the realized (non-lazy) _tiles_ are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized _tile_ from the lazy representation.
