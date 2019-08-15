@@ -43,13 +43,19 @@ scene1_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43
 scene2_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF"
 
 # a pandas DF
-one_d_cat = pd.DataFrame({'B01': [scene1_B01, scene2_B01]})
+one_d_cat_pd = pd.DataFrame({'B01': [scene1_B01, scene2_B01]})
 
 # equivalent spark DF
-one_d_cat = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
+one_d_cat_df = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
 
 # equivalent CSV string
-one_d_cat = '\n'.join(['B01', scene1_B01, scene2_B01])
+one_d_cat_csv = '\n'.join(['B01', scene1_B01, scene2_B01])
+```
+
+This is what it looks like in DataFrame form:
+
+```python, view_spark_cat_1
+one_d_cat_df.show(truncate=False)
 ```
 
 ### Two-D
@@ -63,19 +69,25 @@ scene2_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43
 scene2_B02 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B02.TIF"
 
 # Pandas DF
-my_cat = pd.DataFrame([
+two_d_cat_pd = pd.DataFrame([
     {'B01': [scene1_B01], 'B02': [scene1_B02]},
     {'B01': [scene2_B01], 'B02': [scene2_B02]}
 ])     
 
 # or
-my_cat_df = spark.createDataFrame([
+two_d_cat_df = spark.createDataFrame([
     Row(B01=scene1_B01, B02=scene1_B02),
     Row(B01=scene2_B01, B02=scene2_B02)
 ])
     
 # As CSV string
-my_cat = '\n'.join(['B01,B02', scene1_B01 + "," + scene1_B02, scene2_B01 + "," + scene2_B02])
+tow_d_cat_csv = '\n'.join(['B01,B02', scene1_B01 + "," + scene1_B02, scene2_B01 + "," + scene2_B02])
+```
+
+This is what it looks like in DataFrame form:
+
+```python, view_spark_cat_1
+two_d_cat_df.show(truncate=False)
 ```
 
 ## Using External Catalogs

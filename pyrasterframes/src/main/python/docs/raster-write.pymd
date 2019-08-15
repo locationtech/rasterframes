@@ -93,7 +93,7 @@ os.remove(outfile)
 
 [GeoTrellis][GeoTrellis] is one of the key libraries upon which RasterFrames is built. It provides a Scala language API for working with geospatial raster data.  GeoTrellis defines a [tile layer storage](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html) format for persisting imagery mosaics. RasterFrames can write data from a `RasterFrameLayer` into a [GeoTrellis Layer](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html). RasterFrames provides a `geotrellis` DataSource that supports both @ref:[reading](raster-read.md#geotrellis-layers) and @ref:[writing](raster-write.md#geotrellis-layers) GeoTrellis layers.
 
-> An example is forthcoming. In the mean time referencing the [`GeoTrellisDataSourceSpec` test code](https://github.com/locationtech/rasterframes/blob/develop/datasource/src/test/scala/org/locationtech/rasterframes/datasource/geotrellis/GeoTrellisDataSourceSpec.scala) may help
+> An example is forthcoming. In the mean time referencing the [`GeoTrellisDataSourceSpec` test code](https://github.com/locationtech/rasterframes/blob/develop/datasource/src/test/scala/org/locationtech/rasterframes/datasource/geotrellis/GeoTrellisDataSourceSpec.scala) may help.
 
 ## Parquet
 

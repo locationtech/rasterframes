@@ -31,6 +31,8 @@
     .md-left { float: left; }
     .md-right { float: right; }
     .md-clear { clear: both; }
+    table { font-size: 80%; }
+    code { font-size: 0.75em !important; }
   </style>
 </head>
 
@@ -132,7 +134,7 @@
               <div class="row site-footer-content">
                 <div class="small-12 text-center large-9 column">
                   <div class="copyright">
-                    <span class="text">&copy; $page.properties.("date.year")$
+                    <span class="text">Copyright &copy; $page.properties.("date.year")$
                     <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
                   </div>
                 </div>

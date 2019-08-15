@@ -30,7 +30,12 @@ red_nir_monthly_2017 = modis \
         col('B01').alias('red'),
         col('B02').alias('nir')
     ) \
-    .where((year('acquisition_date') == 2017) & (dayofmonth('acquisition_date') == 15) & (col('granule_id') == 'h21v09'))
+    .where(
+        (year('acquisition_date') == 2017) & 
+        (dayofmonth('acquisition_date') == 15) & 
+        (col('granule_id') == 'h21v09')
+    )
+red_nir_monthly_2017.printSchema()    
 ```
 
 ### Step 3: Read tiles

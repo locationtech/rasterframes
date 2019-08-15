@@ -39,8 +39,8 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 @@@ index
 * [Overview](description.md)
-* [Concepts](concepts.md)
 * [Getting Started](getting-started.md)
+* [Concepts](concepts.md)
 * [Raster Data I/O](raster-io.md)
 * [Vector Data](vector-data.md)
 * [Raster Processing](raster-processing.md)
