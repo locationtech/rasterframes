@@ -363,8 +363,15 @@ class Tile(object):
         from pyrasterframes.rf_ipython import tile_to_png
         return tile_to_png(self)
 
-    def show(self, lower_percentile=1, upper_percentile=99, axis=None):
-            """"""
+    def show(self, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
+            """
+            Display an image of the tile
+            :param lower_percentile: between 0 and 100 inclusive. Specifies to clip values below this percentile
+            :param upper_percentile: between 0 and 100 inclusive. Specifies to clip values above this percentile
+            :param axis: MatPlotLib axis object to plot onto. Creates new axis if None
+            :param imshow_args: parameters to pass into matplotlib.pyplot.imshow
+            :return created or modified axis object
+            """
 
             if axis is None:
                 import matplotlib.pyplot as plt
@@ -383,7 +390,7 @@ class Tile(object):
             axis.xaxis.set_ticks([])
             axis.yaxis.set_ticks([])
 
-            axis.imshow(normalize_cells(arr))
+            axis.imshow(normalize_cells(arr), **imshow_args)
 
             return axis
 
