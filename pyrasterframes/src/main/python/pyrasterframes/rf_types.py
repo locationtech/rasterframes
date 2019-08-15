@@ -366,11 +366,19 @@ class Tile(object):
     def show(self, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
             """
             Display an image of the tile
-            :param lower_percentile: between 0 and 100 inclusive. Specifies to clip values below this percentile
-            :param upper_percentile: between 0 and 100 inclusive. Specifies to clip values above this percentile
-            :param axis: MatPlotLib axis object to plot onto. Creates new axis if None
-            :param imshow_args: parameters to pass into matplotlib.pyplot.imshow
-            :return created or modified axis object
+
+            Parameters
+            ----------
+            lower_percentile: between 0 and 100 inclusive.
+                              Specifies to clip values below this percentile
+            upper_percentile: between 0 and 100 inclusive.
+                              Specifies to clip values above this percentile
+            axis : matplotlib axis object to plot onto. Creates new axis if None
+            imshow_args : parameters to pass into matplotlib.pyplot.imshow
+                          see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.imshow.html
+            Returns
+            -------
+            created or modified axis object
             """
 
             if axis is None:
