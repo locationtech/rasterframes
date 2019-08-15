@@ -57,15 +57,6 @@ class PweaveDocs(distutils.cmd.Command):
         ('quick=', 'q', 'Check to see if the source file is newer than existing output before building. Defaults to `False`.')
     ]
 
-    from pweave import PwebPandocFormatter
-
-    class PegdownMarkdownFormatter(PwebPandocFormatter):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-
-        # Pegdown doesn't support the width and label options.
-        def make_figure_string(self, figname, width, label, caption=""):
-            return "![%s](%s)" % (caption, figname)
 
     def initialize_options(self):
         """Set default values for options."""
@@ -96,6 +87,8 @@ class PweaveDocs(distutils.cmd.Command):
         """Run pweave."""
         import traceback
         import pweave
+        from docs import PegdownMarkdownFormatter
+
         bad_words = ["Error"]
         pweave.rcParams["chunk"]["defaultoptions"].update({'wrap': False, 'dpi': 100})
         if self.format == 'markdown':
