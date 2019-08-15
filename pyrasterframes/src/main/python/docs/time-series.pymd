@@ -95,8 +95,8 @@ time_series = rf_ndvi \
         .withColumn('ndvi_wt', rf_tile_sum('ndvi_masked')) \
         .withColumn('wt', rf_data_cells('ndvi_masked')) \
         .groupby(year('acquisition_date').alias('year'), weekofyear('acquisition_date').alias('week')) \
-        .agg(sql_sum('ndvi_wt').alias('ndvi_wt'), sql_sum('wt').alias('wt')) \
-        .withColumn('ndvi', col('ndvi_wt') / col('wt'))
+        .agg(sql_sum('ndvi_wt').alias('ndvi_wt_wk'), sql_sum('wt').alias('wt_wk')) \
+        .withColumn('ndvi', col('ndvi_wt_wk') / col('wt_wk'))
 time_series.printSchema()
 time_series.persist()
 ```
@@ -114,4 +114,4 @@ plt.ylabel('NDVI')
 plt.title('Cuyahoga Valley NP Green-up')
 ```
 
-We can see two fairly clear elbows in the curve at week 17 and week 21, indicating the start and end of the green up period. Estimation of such parameters is one technique [phenology](https://en.wikipedia.org/wiki/Phenology) researchers use to monitor changes in climate and environment!
+We can see two fairly clear elbows in the curve at week 17 and week 21, indicating the start and end of the green up period. Estimation of such parameters is one technique [phenology](https://en.wikipedia.org/wiki/Phenology) researchers use to monitor changes in climate and environment.

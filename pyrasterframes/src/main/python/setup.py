@@ -97,7 +97,7 @@ class PweaveDocs(distutils.cmd.Command):
         import traceback
         import pweave
         bad_words = ["Error"]
-        pweave.rcParams["chunk"]["defaultoptions"].update({'wrap': False, 'dpi': 100})
+        pweave.rcParams["chunk"]["defaultoptions"].update({'wrap': False, 'dpi': 175})
         if self.format == 'markdown':
             pweave.PwebFormats.formats['markdown'] = {
                 'class': PegdownMarkdownFormatter,

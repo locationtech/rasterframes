@@ -93,6 +93,7 @@ object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
     "2018-03-12",
     "2018-03-13",
     "2018-03-14",
+    "2018-03-15",
     "2018-05-16",
     "2018-05-17",
     "2018-05-18",
