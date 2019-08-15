@@ -47,16 +47,6 @@ def _divided(msg):
     return divider + '\n' + msg + '\n' + divider
 
 
-from pweave import PwebPandocFormatter
-
-class PegdownMarkdownFormatter(PwebPandocFormatter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    # Pegdown doesn't support the width and label options.
-    def make_figure_string(self, figname, width, label, caption=""):
-        return "![%s](%s)" % (caption, figname)
-
 class PweaveDocs(distutils.cmd.Command):
     """A custom command to run documentation scripts through pweave."""
     description = 'Pweave PyRasterFrames documentation scripts'
@@ -66,6 +56,7 @@ class PweaveDocs(distutils.cmd.Command):
         ('format=', 'f', 'Output format type. Defaults to `markdown`'),
         ('quick=', 'q', 'Check to see if the source file is newer than existing output before building. Defaults to `False`.')
     ]
+
 
     def initialize_options(self):
         """Set default values for options."""
@@ -96,6 +87,8 @@ class PweaveDocs(distutils.cmd.Command):
         """Run pweave."""
         import traceback
         import pweave
+        from docs import PegdownMarkdownFormatter
+
         bad_words = ["Error"]
         pweave.rcParams["chunk"]["defaultoptions"].update({'wrap': False, 'dpi': 175})
         if self.format == 'markdown':
@@ -104,7 +97,7 @@ class PweaveDocs(distutils.cmd.Command):
                 'description': 'Pegdown compatible markdown'
             }
 
-        for file in self.files:
+        for file in sorted(self.files, reverse=True):
             name = path.splitext(path.basename(file))[0]
             dest = self.dest_file(file)
 

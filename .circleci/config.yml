@@ -191,6 +191,7 @@ workflows:
             branches:
               only:
                 - /feature\/.*docs.*/
+                - /docs\/.*/
 
   nightly:
     triggers:
