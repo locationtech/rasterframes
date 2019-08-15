@@ -183,6 +183,7 @@ setup(
         'pandas>=0.25.0',
         'rasterio>=1.0.0',
         'boto3',
+        'Pweave==0.30.3',
     ],
     packages=[
         'pyrasterframes',
