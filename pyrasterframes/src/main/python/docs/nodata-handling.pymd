@@ -2,7 +2,7 @@
 
 ## What is NoData?
 
-In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. However, a great deal of raster data is stored for space efficiency, which typically leads to use of integral values with a ["sentinel" value](https://en.wikipedia.org/wiki/Sentinel_value) designated to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
+In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and in scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. However, a great deal of raster data is stored for space efficiency, which typically leads to use of integral values with a ["sentinel" value](https://en.wikipedia.org/wiki/Sentinel_value) designated to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
 
 RasterFrames provides a variety of functions to inspect and manage NoData within _tiles_.
 
