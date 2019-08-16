@@ -45,7 +45,8 @@ object RFAssemblyPlugin extends AutoPlugin {
   override def projectSettings = Seq(
     test in assembly := {},
     autoImport.assemblyExcludedJarPatterns := Seq(
-      "scalatest.*".r
+      "scalatest.*".r,
+      "junit.*".r
     ),
     assemblyShadeRules in assembly := {
       val shadePrefixes = Seq(
