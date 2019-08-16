@@ -1,15 +1,15 @@
 # Raster Catalogs
 
-While much interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _catalogs_ of raster data are to be processed. In its simplest form, a _catalog_ is a list of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The _catalog_ is input into the `raster` DataSource, described in the @ref:[next page](raster-read.md), which creates _tiles_ from the rasters at the referenced URLs.
+While interesting processing can be done on a @ref:[single raster file](raster-read.md#single-raster), RasterFrames shines when _catalogs_ of raster data are to be processed. In its simplest form, a _catalog_ is a list of @ref:[URLs referencing raster files](raster-read.md#uri-formats). This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The _catalog_ is input into the `raster` DataSource described in the @ref:[next page](raster-read.md), which creates _tiles_ from the rasters at the referenced URLs.
 
 A _catalog_ can have one or two dimensions:
 
 * One-D: A single column contains raster URLs across the rows. All referenced rasters represent the same @ref:[band](concepts.md#band). For example, a column of URLs to Landsat 8 near-infrared rasters covering Europe. Each row represents different places and times.
-* Two-D: Many columns containing raster URLs. Each column references the same band, and each row represents the same place and time. For example, red-, green-, and blue-band columns for scenes covering Europe. Each row represents a single @ref:[scene](concepts.md#scene) with the same resolution, extent, [_CRS_][CRS], etc across the row.
+* Two-D: Many columns contain raster URLs. Each column references the same band, and each row represents the same place and time. For example, red-, green-, and blue-band columns for scenes covering Europe. Each row represents a single @ref:[scene](concepts.md#scene) with the same resolution, extent, [_CRS_][CRS], etc across the row.
 
 ## Creating a Catalog
 
-This section will provide some examples of creating your own _catalogs_, as well as introduce some experimental _catalogs_ built into RasterFrames. Reading raster data represented by a _catalog_ is covered in more detail in the @ref:[next page](raster-read.md).
+This section will provide some examples of _catalogs_ creation, as well as introduce some experimental _catalogs_ built into RasterFrames. Reading raster data represented by a _catalog_ is covered in more detail in the @ref:[next page](raster-read.md).
 
 ```python, setup, echo=False
 from pyrasterframes.utils import create_rf_spark_session
@@ -24,13 +24,12 @@ spark = create_rf_spark_session()
 A single URL is the simplest form of a catalog.
 
 ```python, oned_onerow_catalog
-from pyspark.sql import Row
-
 file_uri = "/data/raster/myfile.tif"
 # Pandas DF
 my_cat = pd.DataFrame({'B01': [file_uri]})
 
 # equivalent Spark DF
+from pyspark.sql import Row
 my_cat = spark.createDataFrame([Row(B01=file_uri)])
 
 #equivalent CSV string
@@ -44,18 +43,24 @@ scene1_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43
 scene2_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF"
 
 # a pandas DF
-one_d_cat = pd.DataFrame({'B01': [scene1_B01, scene2_B01]})
+one_d_cat_pd = pd.DataFrame({'B01': [scene1_B01, scene2_B01]})
 
 # equivalent spark DF
-one_d_cat = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
+one_d_cat_df = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
 
 # equivalent CSV string
-one_d_cat = '\n'.join(['B01', scene1_B01, scene2_B01])
+one_d_cat_csv = '\n'.join(['B01', scene1_B01, scene2_B01])
+```
+
+This is what it looks like in DataFrame form:
+
+```python, view_spark_cat_1
+one_d_cat_df.show(truncate=False)
 ```
 
 ### Two-D
 
-Example of a multiple columns representing multiple content types (bands) across multiple scenes. In each row, the scene is the same: granule id `h04v09` on July 4 or July 7, 2018. The first column is band 1, red,  and the second is band 2, near infrared.
+In this example, multiple columns representing multiple content types (bands) across multiple scenes. In each row, the scene is the same: granule id `h04v09` on July 4 or July 7, 2018. The first column is band 1, red,  and the second is band 2, near infrared.
 
 ```python, twod_catalog
 scene1_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF"
@@ -63,19 +68,31 @@ scene1_B02 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43
 scene2_B01 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF"
 scene2_B02 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B02.TIF"
 
+# Pandas DF
+two_d_cat_pd = pd.DataFrame([
+    {'B01': [scene1_B01], 'B02': [scene1_B02]},
+    {'B01': [scene2_B01], 'B02': [scene2_B02]}
+])     
 
-# As CSV string
-my_cat = '\n'.join(['B01,B02', scene1_B01 + "," + scene1_B02, scene2_B01 + "," + scene2_B02])
 # or
-my_cat_df = spark.createDataFrame([
+two_d_cat_df = spark.createDataFrame([
     Row(B01=scene1_B01, B02=scene1_B02),
-    Row(B01=scene2_B01, B02=scene2_B02)])
-my_cat_df.printSchema()
+    Row(B01=scene2_B01, B02=scene2_B02)
+])
+    
+# As CSV string
+tow_d_cat_csv = '\n'.join(['B01,B02', scene1_B01 + "," + scene1_B02, scene2_B01 + "," + scene2_B02])
+```
+
+This is what it looks like in DataFrame form:
+
+```python, view_spark_cat_1
+two_d_cat_df.show(truncate=False)
 ```
 
 ## Using External Catalogs
 
-The concept of a _catalog_ is much more powerful when we consider examples beyond constructing the DataFrame, and instead read the data from an external source. Here's an extended example of reading an cloud-hosted CSV file containing MODIS scene metadata and transforming it into a _catalog_. The metadata describing the content of each URL is an important aspect of processing raster data.
+The concept of a _catalog_ is much more powerful when we consider examples beyond constructing the DataFrame, and instead read the data from an external source. Here's an extended example of reading a cloud-hosted CSV file containing MODIS scene metadata and transforming it into a _catalog_. The metadata describing the content of each URL is an important aspect of processing raster data.
 
 ```python, remote_csv, results='raw'
 from pyspark import SparkFiles
@@ -103,17 +120,17 @@ modis_catalog = scene_list \
 modis_catalog.show(4, truncate=True)
 ```
 
-## Using Built-in Experimental Catalogs
+## Using Built-in Catalogs
 
 RasterFrames comes with two experimental catalogs over the AWS PDS [Landsat 8][Landsat] and [MODIS][MODIS] repositories. They are created by downloading the latest scene lists and building up the appropriate band URI columns as in the prior example.
 
-> Note: The first time you run these may take some time, as the catalogs are large. However, they are cached and subsequent invocations should be faster.
+> Note: The first time you run these may take some time, as the catalogs are large and have to be downloaded. However, they are cached and subsequent invocations should be faster.
 
 ### MODIS
 
 ```python, evaluate=False
-modis_catalog2 = spark.read.format('aws-pds-modis-catalog').load()
-modis_catalog2.printSchema()
+modis_catalog = spark.read.format('aws-pds-modis-catalog').load()
+modis_catalog.printSchema()
 ```
 ```
 root

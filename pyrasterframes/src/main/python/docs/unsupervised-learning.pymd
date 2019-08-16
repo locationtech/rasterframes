@@ -14,12 +14,12 @@ import os
 
 spark = create_rf_spark_session()
 
-import pandas as pd
 ```
 
-We import various Spark components that we need to construct our `Pipeline`.
+We import various Spark components needed to construct our `Pipeline`.
 
 ```python, imports, echo=True
+import pandas as pd
 from pyrasterframes import TileExploder
 from pyrasterframes.rasterfunctions import rf_assemble_tile, rf_crs, rf_extent, rf_tile, rf_dimensions
 
@@ -37,7 +37,7 @@ filenamePattern = "L8-B{}-Elkton-VA.tiff"
 catalog_df = pd.DataFrame([
     {'b' + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
 ])
-df = spark.read.raster(catalog=catalog_df.to_csv(index=None), catalog_col_names=catalog_df.columns)
+df = spark.read.raster(catalog=catalog_df, catalog_col_names=catalog_df.columns)
 df = df.select(
     rf_crs(df.b1).alias('crs'),
     rf_extent(df.b1).alias('extent'),
@@ -95,7 +95,7 @@ clustered = model.transform(df)
 clustered.show(8)
 ```
 
-If we want to inspect the model statistics, the SparkML API requires us to go through this unfortunate contortion:
+If we want to inspect the model statistics, the SparkML API requires us to go through this unfortunate contortion to access the clustering results:
 
 ```python, cluster_stats
 cluster_stage = model.stages[2]

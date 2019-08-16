@@ -62,7 +62,7 @@ To manually initialize PyRasterFrames in a `pyspark` shell, prepare to call pysp
    
 ```
 
-Then in the pyspark shell or app, import the module and call `withRasterFrames` on the SparkSession.
+Then in the PySpark shell or script, import the module and call `withRasterFrames` on the SparkSession.
 
 ```python
 from pyrasterframes.utils import create_rf_spark_session

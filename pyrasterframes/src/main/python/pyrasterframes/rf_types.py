@@ -308,7 +308,7 @@ class Tile(object):
             return False
 
     def __str__(self):
-        return "Tile(dimensions={}, cell_type={}, cells={})" \
+        return "Tile(dimensions={}, cell_type={}, cells=\n{})" \
             .format(self.dimensions(), self.cell_type, self.cells)
 
     def __repr__(self):
@@ -357,7 +357,6 @@ class Tile(object):
     def dimensions(self):
         """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
         return [self.cells.shape[1], self.cells.shape[0]]
-
 
     def _repr_png_(self):
         """Provide default PNG rendering in IPython and Jupyter"""

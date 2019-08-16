@@ -11,10 +11,12 @@ The standard mechanism by which any data is brought in and out of a Spark Datafr
     - `geotiff`: a simplified reader for reading a single GeoTIFF file
     - `geotrellis`: for reading a [GeoTrellis layer][GTLayer]
 * @ref:[Raster Writers](raster-write.md)
-    - You can write @ref:[Tile](raster-write.md#tile-samples) and @ref:[DataFrame](raster-write.md#dataframe-samples) samples
     - @ref:[`geotiff`](raster-write.md#geotiffs): beta writer to GeoTiff file format
     - @ref:[`geotrellis`](raster-write.md#geotrellis-layers): creating a [GeoTrellis layer][GTLayer]
     - @ref:[`parquet`](raster-write.md#parquet): general purpose writer for [Parquet][Parquet]
+
+
+Furthermore, when in a Jupyter Notebook environment, you can view @ref:[Tile](raster-write.md#tile-samples) and @ref:[DataFrame](raster-write.md#dataframe-samples) samples.
 
 There is also support for @ref:[vector data](vector-data.md) for masking and data labeling.
 
