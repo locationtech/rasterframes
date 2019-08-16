@@ -10,6 +10,7 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot
     - $HOME/.rf_cache
+    - $HOME/.cache/coursier
 
 scala:
   - 2.11.11

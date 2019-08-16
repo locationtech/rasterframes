@@ -29,9 +29,6 @@ _save_cache: &save_cache
     - ~/.ivy2/cache
     - ~/.sbt
 
-before_script:
-  - ulimit -c unlimited -S
-
 jobs:
   test:
     <<: *defaults
@@ -68,6 +65,7 @@ jobs:
           <<: *restore_cache
 
       - run: ulimit -c unlimited -S
+      - run: pip3 install --user -r pyrasterframes/src/main/python/requirements.txt
       - run:
           command: cat /dev/null | sbt makeSite
           no_output_timeout: 30m
