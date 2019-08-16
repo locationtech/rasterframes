@@ -21,6 +21,7 @@
 
 addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("previewSite", "docs/previewSite")
+addCommandAlias("ghpagesPushSite", "docs/ghpagesPushSite")
 addCommandAlias("console", "datasource/console")
 
 // Prefer our own IntegrationTest config definition, which inherits from Test.
@@ -36,6 +37,7 @@ lazy val root = project
 lazy val `rf-notebook` = project
   .dependsOn(pyrasterframes)
   .enablePlugins(RFAssemblyPlugin, DockerPlugin)
+  .settings(publish / skip := true)
 
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)
