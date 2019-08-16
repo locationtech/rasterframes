@@ -144,17 +144,6 @@ def pandas_df_to_html(df):
     return return_html
 
 
-try:
-    from IPython import get_ipython
-    # modifications to currently running ipython session, if we are in one; these enable nicer visualization for Pandas
-    if get_ipython() is not None:
-        import pandas
-        html_formatter = get_ipython().display_formatter.formatters['text/html']
-        html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
-except ImportError:
-    pass
-
-
 def spark_df_to_markdown(df, num_rows=5, truncate=True, vertical=False):
     from pyrasterframes import RFContext
     return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
