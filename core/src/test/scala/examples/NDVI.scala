@@ -20,7 +20,7 @@
 package examples
 import java.nio.file.{Files, Paths}
 
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.raster._
 import geotrellis.raster.render._
 import geotrellis.raster.io.geotiff.{GeoTiff, SinglebandGeoTiff}
@@ -46,8 +46,8 @@ object NDVI extends App {
 
   import spark.implicits._
 
-  def redBand = readTiff("L8-B4-Elkton-VA.tiff").projectedRaster.toRF("red_band")
-  def nirBand = readTiff("L8-B5-Elkton-VA.tiff").projectedRaster.toRF("nir_band")
+  def redBand = readTiff("L8-B4-Elkton-VA.tiff").projectedRaster.toLayer("red_band")
+  def nirBand = readTiff("L8-B5-Elkton-VA.tiff").projectedRaster.toLayer("nir_band")
 
   val ndvi = udf((red: Tile, nir: Tile) => {
     val redd = red.convert(DoubleConstantNoDataCellType)
@@ -55,7 +55,7 @@ object NDVI extends App {
     (nird - redd) / (nird + redd)
   })
 
-  val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", ndvi($"red_band", $"nir_band")).asRF
+  val rf = redBand.spatialJoin(nirBand).withColumn("ndvi", ndvi($"red_band", $"nir_band")).asLayer
 
   rf.printSchema()
 

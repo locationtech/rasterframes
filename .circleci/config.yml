@@ -5,7 +5,7 @@ _defaults: &defaults
   environment:
     TERM: dumb
   docker:
-    - image: circleci/openjdk:8-jdk
+    - image: s22s/rasterframes-circleci:latest
 
 _setenv: &setenv
   name: set CloudRepo credentials
@@ -19,17 +19,127 @@ _delenv: &unsetenv
 
 _restore_cache: &restore_cache
   keys:
-    - v2-dependencies-{{ checksum "build.sbt" }}
-    - v2-dependencies-
+    - v3-dependencies-{{ checksum "build.sbt" }}
+    - v3-dependencies-
 
 _save_cache: &save_cache
-  key: v2-dependencies--{{ checksum "build.sbt" }}
+  key: v3-dependencies--{{ checksum "build.sbt" }}
   paths:
+    - ~/.cache/coursier
     - ~/.ivy2/cache
     - ~/.sbt
-    - ~/.rf_cache
+    - ~/.local
 
 jobs:
+  test:
+    <<: *defaults
+    resource_class: large
+    steps:
+      - checkout
+      - run: *setenv
+      - restore_cache:
+          <<: *restore_cache
+
+      - run: ulimit -c unlimited -S
+      - run: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
+      - run:
+          command: |
+            mkdir -p /tmp/core_dumps
+            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+          when: on_fail
+
+      - store_artifacts:
+          path: /tmp/core_dumps
+
+      - run: *unsetenv
+      - save_cache:
+          <<: *save_cache
+
+  docs:
+    <<: *defaults
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run: *setenv
+
+      - restore_cache:
+          <<: *restore_cache
+
+      - run: ulimit -c unlimited -S
+      - run: pip3 install --quiet --user -r pyrasterframes/src/main/python/requirements.txt
+      - run:
+          command: cat /dev/null | sbt makeSite
+          no_output_timeout: 30m
+
+      - run:
+          command: |
+            mkdir -p /tmp/core_dumps
+            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+          when: on_fail
+
+      - store_artifacts:
+          path: /tmp/core_dumps
+
+      - store_artifacts:
+          path: docs/target/site
+          destination: rf-site
+
+      - run: *unsetenv
+
+      - save_cache:
+          <<: *save_cache
+
+  it:
+    <<: *defaults
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run: *setenv
+
+      - restore_cache:
+          <<: *restore_cache
+
+      - run: ulimit -c unlimited -S
+      - run:
+          command: cat /dev/null | sbt it:test
+          no_output_timeout: 30m
+
+      - run:
+          command: |
+            mkdir -p /tmp/core_dumps
+            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+          when: on_fail
+
+      - store_artifacts:
+          path: /tmp/core_dumps
+
+      - run: *unsetenv
+
+      - save_cache:
+          <<: *save_cache
+
+  itWithoutGdal:
+    working_directory: ~/repo
+    environment:
+      TERM: dumb
+    docker:
+      - image: circleci/openjdk:8-jdk
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run: *setenv
+
+      - restore_cache:
+          <<: *restore_cache
+
+      - run:
+          command: cat /dev/null | sbt it:test
+          no_output_timeout: 30m
+      - run: *unsetenv
+
+      - save_cache:
+          <<: *save_cache
+
   staticAnalysis:
     <<: *defaults
 
@@ -59,56 +169,6 @@ jobs:
           path: pyrasterframes/target/scala-2.11/dependency-check-report.html
           destination: dependency-check-report-pyrasterframes.html
 
-  test:
-    <<: *defaults
-    resource_class: large
-    steps:
-      - checkout
-      - run: *setenv
-      - restore_cache:
-          <<: *restore_cache
-
-      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
-      - run: cat /dev/null | sbt test
-
-      - run: *unsetenv
-      - save_cache:
-          <<: *save_cache
-
-  publish:
-    <<: *defaults
-    resource_class: large
-    steps:
-      - checkout
-      - run: *setenv
-      - restore_cache:
-          <<: *restore_cache
-
-      - run: sudo apt-get install python-pip pandoc && pip install setuptools # required for pyrasterframes testing
-      - run: cat /dev/null | sbt test
-      - run: cat /dev/null | sbt publish
-
-      - run: *unsetenv
-      - save_cache:
-          <<: *save_cache
-
-  it:
-    <<: *defaults
-    resource_class: xlarge
-    steps:
-      - checkout
-      - run: *setenv
-
-      - restore_cache:
-          <<: *restore_cache
-
-      - run:
-          command: cat /dev/null | sbt it:test
-          no_output_timeout: 30m
-      - run: *unsetenv
-
-      - save_cache:
-          <<: *save_cache
 
 workflows:
   version: 2
@@ -119,20 +179,29 @@ workflows:
           filters:
             branches:
               only:
-                - /astraea\/feature\/.*-its/
-      - publish:
+                - /feature\/.*-its/
+      - itWithoutGdal:
           filters:
             branches:
               only:
-                - astraea/develop
-  nightlyReleaseAstraea:
+                - /feature\/.*-its/
+      - docs:
+          filters:
+            branches:
+              only:
+                - /feature\/.*docs.*/
+                - /docs\/.*/
+
+  nightly:
     triggers:
       - schedule:
           cron: "0 8 * * *"
           filters:
             branches:
               only:
-                - astraea/develop
+                - develop
     jobs:
       - it
-      - staticAnalysis
+      - itWithoutGdal
+      - docs
+#      - staticAnalysis

@@ -1,0 +1,269 @@
+[
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.locationtech.rasterframes.bench.CRSBench.logicalEqualsFalse",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx2048M",
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 13.076857373851485,
+            "scoreError" : 1.6593497203225103,
+            "scoreConfidence" : [
+                11.417507653528975,
+                14.736207094173995
+            ],
+            "scorePercentiles" : {
+                "0.0" : 12.633328785860648,
+                "50.0" : 13.200439575276704,
+                "90.0" : 13.659196200240215,
+                "95.0" : 13.659196200240215,
+                "99.0" : 13.659196200240215,
+                "99.9" : 13.659196200240215,
+                "99.99" : 13.659196200240215,
+                "99.999" : 13.659196200240215,
+                "99.9999" : 13.659196200240215,
+                "100.0" : 13.659196200240215
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    13.659196200240215,
+                    12.665249239331997,
+                    13.200439575276704,
+                    13.226073068547855,
+                    12.633328785860648
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.locationtech.rasterframes.bench.CRSBench.logicalEqualsTrue",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx2048M",
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 0.2775587837304895,
+            "scoreError" : 0.015896893581796353,
+            "scoreConfidence" : [
+                0.2616618901486931,
+                0.29345567731228583
+            ],
+            "scorePercentiles" : {
+                "0.0" : 0.2724269842972383,
+                "50.0" : 0.2775487008943729,
+                "90.0" : 0.2816631615036355,
+                "95.0" : 0.2816631615036355,
+                "99.0" : 0.2816631615036355,
+                "99.9" : 0.2816631615036355,
+                "99.99" : 0.2816631615036355,
+                "99.999" : 0.2816631615036355,
+                "99.9999" : 0.2816631615036355,
+                "100.0" : 0.2816631615036355
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    0.28157426698598376,
+                    0.2816631615036355,
+                    0.27458080497121706,
+                    0.2775487008943729,
+                    0.2724269842972383
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.locationtech.rasterframes.bench.CRSBench.logicalLazyEqualsFalse",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx2048M",
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 13.143184640034391,
+            "scoreError" : 0.6865674500293741,
+            "scoreConfidence" : [
+                12.456617190005018,
+                13.829752090063765
+            ],
+            "scorePercentiles" : {
+                "0.0" : 12.925994808467195,
+                "50.0" : 13.17768387931118,
+                "90.0" : 13.341295384511856,
+                "95.0" : 13.341295384511856,
+                "99.0" : 13.341295384511856,
+                "99.9" : 13.341295384511856,
+                "99.99" : 13.341295384511856,
+                "99.999" : 13.341295384511856,
+                "99.9999" : 13.341295384511856,
+                "100.0" : 13.341295384511856
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    13.341295384511856,
+                    13.17768387931118,
+                    12.925994808467195,
+                    12.995056782282637,
+                    13.27589234559909
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.locationtech.rasterframes.bench.CRSBench.logicalLazyEqualsTrue",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx2048M",
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 0.03659740987415034,
+            "scoreError" : 0.0011385555881718446,
+            "scoreConfidence" : [
+                0.035458854285978496,
+                0.037735965462322184
+            ],
+            "scorePercentiles" : {
+                "0.0" : 0.036314017083098636,
+                "50.0" : 0.0364980924818408,
+                "90.0" : 0.03691511396572689,
+                "95.0" : 0.03691511396572689,
+                "99.0" : 0.03691511396572689,
+                "99.9" : 0.03691511396572689,
+                "99.99" : 0.03691511396572689,
+                "99.999" : 0.03691511396572689,
+                "99.9999" : 0.03691511396572689,
+                "100.0" : 0.03691511396572689
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    0.036314017083098636,
+                    0.03635019813669222,
+                    0.0364980924818408,
+                    0.03691511396572689,
+                    0.03690962770339316
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.21",
+        "benchmark" : "org.locationtech.rasterframes.bench.CRSBench.resolveCRS",
+        "mode" : "avgt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Contents/Home/jre/bin/java",
+        "jvmArgs" : [
+            "-Xmx2048M",
+            "-Xmx4g"
+        ],
+        "jdkVersion" : "1.8.0_171",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "25.171-b11",
+        "warmupIterations" : 8,
+        "warmupTime" : "10 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "10 s",
+        "measurementBatchSize" : 1,
+        "primaryMetric" : {
+            "score" : 0.06517305542168148,
+            "scoreError" : 0.005310236878903678,
+            "scoreConfidence" : [
+                0.05986281854277779,
+                0.07048329230058516
+            ],
+            "scorePercentiles" : {
+                "0.0" : 0.06355938701044708,
+                "50.0" : 0.06512777854120488,
+                "90.0" : 0.06700762802360496,
+                "95.0" : 0.06700762802360496,
+                "99.0" : 0.06700762802360496,
+                "99.9" : 0.06700762802360496,
+                "99.99" : 0.06700762802360496,
+                "99.999" : 0.06700762802360496,
+                "99.9999" : 0.06700762802360496,
+                "100.0" : 0.06700762802360496
+            },
+            "scoreUnit" : "us/op",
+            "rawData" : [
+                [
+                    0.06700762802360496,
+                    0.06512777854120488,
+                    0.06418521981870606,
+                    0.06598526371444442,
+                    0.06355938701044708
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+

@@ -19,8 +19,8 @@ package org.apache.spark.sql.rf
 
 import java.sql.{Date, Timestamp}
 
-import astraea.spark.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
-import astraea.spark.rasterframes.rules._
+import org.locationtech.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
+import org.locationtech.rasterframes.rules._
 import org.apache.spark.sql.catalyst.CatalystTypeConverters.{convertToScala, createToScalaConverter}
 import org.apache.spark.sql.catalyst.expressions
 import org.apache.spark.sql.catalyst.expressions.{Attribute, EmptyRow, Expression, Literal}
@@ -30,6 +30,7 @@ import org.apache.spark.sql.sources.Filter
 import org.apache.spark.sql.types.{DateType, StringType, TimestampType}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.geomesa.spark.jts.rules.GeometryLiteral
+import org.locationtech.rasterframes.rules.{SpatialFilters, TemporalFilters}
 
 /**
  * This is a copy of [[org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter]], modified to add our spatial predicates.
