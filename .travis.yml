@@ -10,6 +10,7 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot
     - $HOME/.rf_cache
+    - $HOME/.cache/coursier
 
 scala:
   - 2.11.11
@@ -24,7 +25,7 @@ addons:
       - pandoc
 
 install:
-  - pip install rasterio shapely pandas numpy
+  - pip install rasterio shapely pandas numpy pweave
   - wget -O - https://piccolo.link/sbt-1.2.8.tgz | tar xzf -
 
 script:

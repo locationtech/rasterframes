@@ -42,7 +42,7 @@ import org.locationtech.rasterframes.model.TileContext
 case class RealizeTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def dataType: DataType = TileType
 
-  override def nodeName: String = "rf_realize_tile"
+  override def nodeName: String = "rf_tile"
   implicit val tileSer = TileUDT.tileSerializer
 
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =

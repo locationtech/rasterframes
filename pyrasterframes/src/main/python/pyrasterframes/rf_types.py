@@ -308,7 +308,7 @@ class Tile(object):
             return False
 
     def __str__(self):
-        return "Tile(dimensions={}, cell_type={}, cells={})" \
+        return "Tile(dimensions={}, cell_type={}, cells=\n{})" \
             .format(self.dimensions(), self.cell_type, self.cells)
 
     def __repr__(self):

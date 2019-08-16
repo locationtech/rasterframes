@@ -1,11 +1,12 @@
 # Vector Data
 
-RasterFrames provides a variety of ways to work with spatial vector (points, lines, and polygons) data alongside raster data. There is a convenience DataSource for GeoJSON format, as well as the ability to convert from [GeoPandas][GeoPandas] to Spark. Representation of vector geometries in pyspark is through [Shapely][Shapely] which provides a great deal of flexibility. RasterFrames also provides access to Spark functions for working with geometries.
+RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data. There is a convenience DataSource for the GeoJSON format, as well as the ability to convert from [GeoPandas][GeoPandas] to Spark. Representation of vector geometries in PySpark is through [Shapely][Shapely], providing a great deal of interoperability. RasterFrames also provides access to Spark functions for working with geometries.
 
 ## GeoJSON DataSource
 
 ```python, setup, echo=False
 import pyrasterframes
+import pyrasterframes.rf_ipython
 from pyrasterframes.utils import create_rf_spark_session
 spark = create_rf_spark_session()
 ```
@@ -18,11 +19,11 @@ df = spark.read.geojson(SparkFiles.get('admin1-us.geojson'))
 df.printSchema()
 ```
 
-The properties of each feature are available as columns of the DataFrame, along with the geometry.
+The properties of each discrete geometry are available as columns of the DataFrame, along with the geometry itself.
 
 ## GeoPandas and RasterFrames
 
-You can also convert a [GeoPandas][GeoPandas] GeoDataFrame to a Spark DataFrame, preserving the geometry column. This means that any vector format that can be read with [OGR][OGR] can be converted to a Spark DataFrame. In the example below, we expect the same schema as `df` defined above by the GeoJSON reader. Note that in a GeoPandas DataFrame there can be heterogeneous geometry types in the column, but this may fail Spark's schema inference.
+You can also convert a [GeoPandas][GeoPandas] GeoDataFrame to a Spark DataFrame, preserving the geometry column. This means that any vector format that can be read with [OGR][OGR] can be converted to a Spark DataFrame. In the example below, we expect the same schema as the DataFrame defined above by the GeoJSON reader. Note that in a GeoPandas DataFrame there can be heterogeneous geometry types in the column, which may fail Spark's schema inference.
 
 ```python, read_and_normalize
 import geopandas
@@ -43,7 +44,7 @@ df2.printSchema()
 
 ## Shapely Geometry Support
 
-The `geometry` column will have a Spark user-defined type that is compatible with [Shapely][Shapely] when working on the Python side. This means that when the data is collected to the driver, it will be a Shapely geometry object.
+The `geometry` column will have a Spark user-defined type that is compatible with [Shapely][Shapely] when working with Python via PySpark. This means that when the data is collected to the driver, it will be a Shapely geometry object.
 
 ```python, show_geom
 the_first = df.first()
@@ -72,7 +73,7 @@ df.printSchema()
 
 We can take a look at a sample of the data. Notice the geometry columns print as well known text (wkt).
 
-```python, show_centroid
+```python, show_centroid, results='raw'
 df.show(4)
 ```
 
@@ -82,13 +83,13 @@ df.show(4)
 As documented in the @ref:[function reference](reference.md), various user-defined functions implemented by GeoMesa are also available for use. The example below uses a GeoMesa user-defined function to compute the centroid of a geometry. It is logically equivalent to the example above, but more efficient.
 
 
-```python, native_centroid
+```python, native_centroid, results='raw'
 from pyrasterframes.rasterfunctions import st_centroid
 df = df.withColumn('centroid', st_centroid(df.geometry))
 df.select('name', 'geometry', 'naive_centroid', 'centroid').show(4)
 ```
 
-The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter only those within approximately 500 km of a selected point.
+The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter to those within approximately 500 km of a selected point.
 
 ```python, evaluate=True
 from pyrasterframes.rasterfunctions import st_geometry, st_bufferPoint, st_intersects, st_point

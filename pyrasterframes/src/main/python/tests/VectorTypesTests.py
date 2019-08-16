@@ -97,7 +97,7 @@ class VectorTypes(TestEnvironment):
             pandas_df_out.poly_len.values
         )
 
-    def test_rasterize(self):
+    def test_geometry_udf(self):
         from geomesa_pyspark.types import PolygonUDT
         # simple test that raster contents are not invalid
 
@@ -117,12 +117,25 @@ class VectorTypes(TestEnvironment):
         area_result = area.collect()
         self.assertTrue(all([r[0] for r in area_result]))
 
-        cols = 194
-        rows = 250
-        with_raster = with_poly.withColumn('rasterized', rf_rasterize('poly', 'geometry', lit(16), cols, rows))
-        # expect a 4 by 4 cell
+    def test_rasterize(self):
+        from geomesa_pyspark.types import PolygonUDT
+
+        @udf(PolygonUDT())
+        def buffer(g, d):
+            return g.buffer(d)
+
+        # start with known polygon, the tile extents, **negative buffered**  by 10 cells
+        buf_cells = 10
+        with_poly = self.rf.withColumn('poly', buffer(self.rf.geometry, lit(-15 * buf_cells)))  # cell res is 15x15
+
+        # rasterize value 16 into buffer shape.
+        cols = 194  # from dims of tile
+        rows = 250  # from dims of tile
+        with_raster = with_poly.withColumn('rasterized',
+                                          rf_rasterize('poly', 'geometry', lit(16), lit(cols), lit(rows)))
         result = with_raster.select(rf_tile_sum(rf_local_equal_int(with_raster.rasterized, 16)),
                                     rf_tile_sum(with_raster.rasterized))
+        #
         expected_burned_in_cells = (cols - 2 * buf_cells) * (rows - 2 * buf_cells)
         self.assertEqual(result.first()[0], float(expected_burned_in_cells))
         self.assertEqual(result.first()[1], 16. * expected_burned_in_cells)

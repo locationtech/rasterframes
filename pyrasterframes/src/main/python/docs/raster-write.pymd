@@ -1,8 +1,8 @@
 # Writing Raster Data
 
-RasterFrames is oriented toward large scale analyses of spatial data. The primary output of these analyses could be a @ref:[statistical summary](aggregation.md), a @ref:[machine learning model](machine-learning.md), or some other result that is generally much smaller than the input data set.
+RasterFrames is oriented toward large scale analyses of spatial data. The primary output of these analyses could be a @ref:[statistical summary](aggregation.md), a @ref:[machine learning model](machine-learning.md), or some other result that is generally much smaller than the input dataset.
 
-However, there are times in any analysis where writing a representative sample of the work in progress provides invaluable feedback on the current state of the process and results.
+However, there are times in any analysis where writing a representative sample of the work in progress provides valuable feedback on the current state of the process and results.
 
 ```python imports, echo=False
 import pyrasterframes
@@ -15,7 +15,7 @@ spark = pyrasterframes.get_spark_session()
 
 ## Tile Samples
 
-When collecting a _tile_ (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) to the Python Spark driver, we have some convenience methods to quickly visualize the _tile_.
+We have some convenience methods to quickly visualize _tile_s (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) when inspecting a subset of the data in a Notebook.
 
 In an IPython or Jupyter interpreter, a `Tile` object will be displayed as an image with limited metadata.
 
@@ -37,7 +37,7 @@ display(tile) # IPython.display function
 
 Within an IPython or Jupyter interpreter, a Pandas DataFrame containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of a Pandas DataFrame.
 
-In the example below, notice the result is limited to a small subset. For more discussion about why this is important, see the @ref:[Pandas and NumPy discussion](numpy-pandas.md).
+In the example below, notice the result is limited to a small subset. For more information about why this is important, see the @ref:[Pandas and NumPy discussion](numpy-pandas.md).
 
 ```python to_pandas, evaluate=True
 import pyrasterframes.rf_ipython
@@ -60,23 +60,25 @@ pandas_df
 
 GeoTIFF is one of the most common file formats for spatial data, providing flexibility in data encoding, representation, and storage. RasterFrames provides a specialized Spark DataFrame writer for rendering a RasterFrame to a GeoTIFF.
 
-One downside to GeoTIFF is that it is not a big data native format. To create a GeoTIFF all the data to be encoded has to be in the memory of one compute node (in Spark parlance, this is a "collect"), limiting it's maximum size substantially compared to that of a full cluster environment. When rendering GeoTIFFs in RasterFrames, you either need to specify the dimensions of the output raster, or be aware of how big the collected data will end up being.
+One downside to GeoTIFF is that it is not a big data native format. To create a GeoTIFF, all the data to be encoded has to be in the memory of one computer (in Spark parlance, this is a "collect"), limiting it's maximum size substantially compared to that of a full cluster environment. When rendering GeoTIFFs in RasterFrames, you must either specify the dimensions of the output raster, or deliberately limit the size of the collected data.
 
-Fortunately, we can use the cluster computing capability to downsample the data into a more manageable size. For sake of example, let's render an overview our scene's red band as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)).
+Fortunately, we can use the cluster computing capability to downsample the data into a more manageable size. For sake of example, let's render an overview of a scene's red band as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)).
 
 ```python write_geotiff
 outfile = os.path.join('/tmp', 'geotiff-overview.tif')
 spark_df.write.geotiff(outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
 ```
 
-View it with `rasterio` to check the results:
+We can view the written file with `rasterio`:
 
 ```python view_geotiff
 import rasterio
 from rasterio.plot import show, show_hist
 
 with rasterio.open(outfile) as src:
+    # View raster
     show(src, adjust='linear')
+    # View data distribution
     show_hist(src, bins=50, lw=0.0, stacked=False, alpha=0.6,
         histtype='stepfilled', title="Overview Histogram")
 ```
@@ -89,13 +91,13 @@ os.remove(outfile)
 
 ## GeoTrellis Layers
 
-[GeoTrellis][GeoTrellis] is one of the key libraries that RasterFrames builds upon. It provides a Scala language API to working with large raster data with Apache Spark. Ingesting raster data into a Layer is one of the key concepts for creating a dataset for processing on Spark. RasterFrames writes data from an appropriate DataFrame into a [GeoTrellis Layer](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html). RasterFrames provides a `geotrellis` DataSource that supports both @ref:[reading](raster-read.md#geotrellis) and writing of GeoTrellis layers.
+[GeoTrellis][GeoTrellis] is one of the key libraries upon which RasterFrames is built. It provides a Scala language API for working with geospatial raster data.  GeoTrellis defines a [tile layer storage](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html) format for persisting imagery mosaics. RasterFrames can write data from a `RasterFrameLayer` into a [GeoTrellis Layer](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html). RasterFrames provides a `geotrellis` DataSource that supports both @ref:[reading](raster-read.md#geotrellis-layers) and @ref:[writing](raster-write.md#geotrellis-layers) GeoTrellis layers.
 
-> An example is forthcoming.
+> An example is forthcoming. In the mean time referencing the [`GeoTrellisDataSourceSpec` test code](https://github.com/locationtech/rasterframes/blob/develop/datasource/src/test/scala/org/locationtech/rasterframes/datasource/geotrellis/GeoTrellisDataSourceSpec.scala) may help.
 
 ## Parquet
 
-You can write the Spark DataFrame to an [Apache Parquet][Parquet] "file". This format is designed to work across different projects in the Hadoop ecosystem. It also provides a variety of optimizations for query against data written in the format.
+You can write a RasterFrame to the [Apache Parquet][Parquet] format. This format is designed to efficiently persist and query columnar data in distributed file system, such as HDFS. It also provides benefits when working in single node (or "local") mode, such as tailoring organization for defined query patterns.
 
 ```python write_parquet, evaluate=False
 spark_df.withColumn('exp', rf_expm1('proj_raster')) \

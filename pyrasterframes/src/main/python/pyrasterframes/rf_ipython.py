@@ -19,10 +19,9 @@
 #
 
 import pyrasterframes.rf_types
-import numpy as np
 
 
-def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_size=None):
+def tile_to_png(tile, fig_size=None):
     """ Provide image of Tile."""
     if tile.cells is None:
         return None
@@ -32,7 +31,7 @@ def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_s
     from matplotlib.figure import Figure
 
     # Set up matplotlib objects
-    nominal_size = 4  # approx full size for a 256x256 tile
+    nominal_size = 2  # approx full size for a 256x256 tile
     if fig_size is None:
         fig_size = (nominal_size, nominal_size)
 
@@ -40,16 +39,15 @@ def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_s
     canvas = FigureCanvas(fig)
     axis = fig.add_subplot(1, 1, 1)
 
-    tile.show(lower_percentile, upper_percentile, axis=axis)
+    data = tile.cells
+
+    axis.imshow(data)
     axis.set_aspect('equal')
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
 
-    if title is None:
-        axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()),
-                       fontsize=fig_size[0]*4)  # compact metadata as title
-    else:
-        axis.set_title(title, fontsize=fig_size[0]*4)  # compact metadata as title
+    axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()),
+                   fontsize=fig_size[0]*4)  # compact metadata as title
 
     with io.BytesIO() as output:
         canvas.print_png(output)
@@ -60,7 +58,7 @@ def tile_to_html(tile, fig_size=None):
     """ Provide HTML string representation of Tile image."""
     import base64
     b64_img_html = '<img src="data:image/png;base64,{}" />'
-    png_bits = tile_to_png(tile, fig_size=fig_size)
+    png_bits = tile_to_png(tile, fig_size)
     b64_png = base64.b64encode(png_bits).decode('utf-8').replace('\n', '')
     return b64_img_html.format(b64_png)
 
@@ -104,13 +102,34 @@ def pandas_df_to_html(df):
     pd.set_option('display.max_colwidth', default_max_colwidth)
     return return_html
 
+def spark_df_to_markdown(df, num_rows=5, truncate=True, vertical=False):
+    from pyrasterframes import RFContext
+    return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
 
 try:
     from IPython import get_ipython
+    from IPython.display import display_png, display_markdown, display
     # modifications to currently running ipython session, if we are in one; these enable nicer visualization for Pandas
     if get_ipython() is not None:
         import pandas
-        html_formatter = get_ipython().display_formatter.formatters['text/html']
+        import pyspark.sql
+        from pyrasterframes.rf_types import Tile
+        ip = get_ipython()
+
+        html_formatter = ip.display_formatter.formatters['text/html']
         html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
-except ImportError:
+
+        markdown_formatter = ip.display_formatter.formatters['text/markdown']
+        html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
+
+        Tile.show = lambda t: display_png(t._repr_png_(), raw=True)
+
+        # See if we're in documentation mode and register a custom show implementation.
+        if 'InProcessInteractiveShell' in ip.__class__.__name__:
+            pyspark.sql.DataFrame._repr_markdown_ = spark_df_to_markdown
+            pyspark.sql.DataFrame.show = lambda df, num_rows=5, truncate=True: display_markdown(spark_df_to_markdown(df, num_rows, truncate), raw=True)
+
+except ImportError as e:
+    print(e)
+    raise e
     pass

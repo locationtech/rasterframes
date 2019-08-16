@@ -280,6 +280,11 @@ trait RasterFunctions {
       udf(F.rasterize(_: Geometry, _: Geometry, _: Int, cols, rows)).apply(geometry, bounds, value)
     )
 
+  def rf_rasterize(geometry: Column, bounds: Column, value: Column, cols: Column, rows: Column): TypedColumn[Any, Tile] =
+    withTypedAlias("rf_rasterize", geometry)(
+      udf(F.rasterize).apply(geometry, bounds, value, cols, rows)
+    )
+
   /** Reproject a column of geometry from one CRS to another.
     * @param sourceGeom Geometry column to reproject
     * @param srcCRS Native CRS of `sourceGeom` as a literal

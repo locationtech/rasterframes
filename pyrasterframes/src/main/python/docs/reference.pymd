@@ -1,6 +1,6 @@
 # Function Reference
 
-RasterFrames provides SQL and Python bindings to many UDFs using the `Tile` column type. In Spark SQL, the functions are already registered in the SQL engine; they are usually prefixed with `rf_`. In Python, they are available in the `pyrasterframes.rasterfunctions` module.
+RasterFrames provides a rich set of columnar function for processing geospatial raster data. In Spark SQL, the functions are already registered in the SQL engine; they are usually prefixed with `rf_`. In Python, they are available in the `pyrasterframes.rasterfunctions` module.
 
 The convention in this document will be to define the function signature as below, with its return type, the function name, and named arguments with their types.
 
@@ -30,7 +30,7 @@ become available for use with DataFrames. You can view all of the available func
 
 ## Vector Operations
 
-Various LocationTech GeoMesa user-defined functions (UDFs) to deal with `geomtery` type columns are provided in the SQL engine and within the `pyrasterframes.rasterfunctions` Python module. These are documented in the [LocationTech GeoMesa Spark SQL documentation](https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#). These functions are all prefixed with `st_`.
+Various LocationTech GeoMesa user-defined functions (UDFs) dealing with `geomtery` type columns are provided in the SQL engine and within the `pyrasterframes.rasterfunctions` Python module. These are documented in the [LocationTech GeoMesa Spark SQL documentation](https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#). These functions are all prefixed with `st_`.
 
 RasterFrames provides some additional functions for vector geometry operations.
 
@@ -39,7 +39,7 @@ RasterFrames provides some additional functions for vector geometry operations.
     Geometry st_reproject(Geometry geom, String origin_crs, String destination_crs)
 
 
-Reproject the vector `geom` from `origin_crs` to `destination_crs`. Both `_crs` arguments are either [proj4](https://proj4.org/usage/quickstart.html) strings, [EPSG codes](https://www.epsg-registry.org/) codes or [OGC WKT](https://www.opengeospatial.org/standards/wkt-crs) for coordinate reference systems.
+Reproject the vector `geom` from `origin_crs` to `destination_crs`. Both `_crs` arguments are either [proj4](https://proj4.org/usage/quickstart.html) strings, [EPSG codes](https://www.epsg-registry.org/) or [OGC WKT](https://www.opengeospatial.org/standards/wkt-crs) for coordinate reference systems.
 
 
 ### st_extent
@@ -76,7 +76,7 @@ Get the cell type of the `tile`. The cell type can be changed with @ref:[rf_conv
 
     Tile rf_tile(ProjectedRasterTile proj_raster)
 
-Get the fully realized (non-lazy) `tile` from the `ProjectedRasterTile` or `RasterSource` type tile column.
+Get the fully realized (non-lazy) `tile` from a `ProjectedRasterTile` struct column.
 
 ### rf_extent
 
@@ -96,7 +96,7 @@ Fetch CRS structure representing the coordinate reference system of a `Projected
 
     Struct rf_mk_crs(String crsText)   
 
-Construct a CRS structure from one of its string representations. Three froms are supported:
+Construct a CRS structure from one of its string representations. Three forms are supported:
 
 * [EPSG code](https://www.epsg-registry.org/): `EPSG:<integer>`
 * [Proj4 string](https://proj.org/): `+proj <proj4 parameters>`
@@ -256,7 +256,7 @@ The binary local map algebra functions have similar variations in the Python API
 
 The SQL API does not require the `rf_local_op_double` or `rf_local_op_int` forms (just `rf_local_op`).
 
-Local map algebra operations for more than two tiles are implemented to work across rows in the data frame. As such, they are @ref:[aggregate functions](reference.md#tile-local-aggregate-statistics).
+Local map algebra operations for more than two `tile`s are implemented to work across rows in the DataFrame. As such, they are @ref:[aggregate functions](reference.md#tile-local-aggregate-statistics).
 
 ### rf_local_add
 
@@ -546,43 +546,43 @@ Aggregates over all of the rows in DataFrame of `tile` and returns a count of ea
 
 Local statistics compute the element-wise statistics across a DataFrame or group of `tile`s, resulting in a `tile` that has the same dimension.
 
-When these functions encounter a NoData in a cell location, it will be ignored. 
+When these functions encounter NoData in a cell location, it will be ignored. 
 
 ### rf_agg_local_max
 
     Tile rf_agg_local_max(Tile tile)
 
-Compute the cell-local maximum operation over Tiles in a column.
+Compute the cell-local maximum operation over `tile`s in a column.
 
 ### rf_agg_local_min
 
     Tile rf_agg_local_min(Tile tile)
 
-Compute the cell-local minimum operation over Tiles in a column.
+Compute the cell-local minimum operation over `tile`s in a column.
 
 ### rf_agg_local_mean
 
     Tile rf_agg_local_mean(Tile tile)
 
-Compute the cell-local mean operation over Tiles in a column.
+Compute the cell-local mean operation over `tile`s in a column.
 
 ### rf_agg_local_data_cells
 
     Tile rf_agg_local_data_cells(Tile tile)
 
-Compute the cell-local count of data cells over Tiles in a column. Returned `tile` has a cell type of `int32`.
+Compute the cell-local count of data cells over `tile`s in a column. Returned `tile` has a cell type of `int32`.
 
 ### rf_agg_local_no_data_cells
 
     Tile rf_agg_local_no_data_cells(Tile tile)
 
-Compute the cell-local count of NoData cells over Tiles in a column. Returned `tile` has a cell type of `int32`.
+Compute the cell-local count of NoData cells over `tile`s in a column. Returned `tile` has a cell type of `int32`.
 
 ### rf_agg_local_stats
 
     Struct[Tile, Tile, Tile, Tile, Tile] rf_agg_local_stats(Tile tile)
 
-Compute cell-local aggregate count, minimum, maximum, mean, and variance for a column of Tiles. Returns a struct of five `tile`s.
+Compute cell-local aggregate count, minimum, maximum, mean, and variance for a column of `tile`s. Returns a struct of five `tile`s.
 
 
 ## Converting Tiles
@@ -599,7 +599,7 @@ Create a row for each cell in `tile` columns. Many `tile` columns can be passed 
 
     Int, Int, Numeric* rf_explode_tiles_sample(Double sample_frac, Long seed, Tile* tile)
 
-Python only. As with @ref:[`rf_explode_tiles`](reference.md#rf-explode-tiles), but taking a randomly sampled subset of cells. Equivalent to the below, but this implementation is optimized for speed. Parameter `sample_frac` should be between 0.0 and 1.0.
+Python only. As with @ref:[`rf_explode_tiles`](reference.md#rf-explode-tiles), but taking a randomly sampled subset of cells. Equivalent to the `rf_explode-tiles`, but allows a random subset of the data to be selected. Parameter `sample_frac` should be between 0.0 and 1.0.
 
 ### rf_tile_to_array_int
 

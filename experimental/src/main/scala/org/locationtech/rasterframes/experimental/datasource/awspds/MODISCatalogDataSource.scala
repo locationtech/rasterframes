@@ -75,9 +75,50 @@ object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
   final val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
   override def maxCacheFileAgeHours: Int = Int.MaxValue
 
-  // List of missing days
+  // List of missing days in PDS
   private val blacklist = Seq[String](
-    //"2018-05-06"
+    "2018-02-27",
+    "2018-02-28",
+    "2018-03-01",
+    "2018-03-02",
+    "2018-03-03",
+    "2018-03-04",
+    "2018-03-05",
+    "2018-03-06",
+    "2018-03-07",
+    "2018-03-08",
+    "2018-03-09",
+    "2018-03-10",
+    "2018-03-11",
+    "2018-03-12",
+    "2018-03-13",
+    "2018-03-14",
+    "2018-03-15",
+    "2018-05-16",
+    "2018-05-17",
+    "2018-05-18",
+    "2018-05-19",
+    "2018-05-20",
+    "2018-05-21",
+    "2018-06-01",
+    "2018-06-04",
+    "2018-07-29",
+    "2018-08-03",
+    "2018-08-04",
+    "2018-08-05",
+    "2018-10-01",
+    "2018-10-02",
+    "2018-10-03",
+    "2018-10-22",
+    "2018-10-23",
+    "2018-11-12",
+    "2018-12-19",
+    "2018-12-20",
+    "2018-12-21",
+    "2018-12-22",
+    "2018-12-23",
+    "2018-12-24",
+    "2019-03-18"
   )
 
   private def sceneFiles(start: LocalDate, end: LocalDate, useBlacklist: Boolean) = {

@@ -8,7 +8,7 @@ There are a number of Earth-observation (EO) concepts that crop up in the discus
 
 ## Raster
 
-A raster is a regular grid of numeric values. A raster can be thought of as an image, as is the case if the values in the grid represent brightness along a greyscale. More generally a raster can measure many different phenomena or encode a variety of different discrete classifications.
+A raster is a regular grid of numeric values. A raster can be thought of as an image, as is the case if the values in the grid represent brightness along a greyscale. More generally, a raster can measure many different phenomena or encode a variety of different discrete classifications.
 
 ## Cell
 
@@ -17,6 +17,7 @@ A cell is a single row and column intersection in the raster grid. It is a singl
 ## Cell Type
 
 A numeric cell value may be encoded in a number of different computer numeric formats. There are typically three characteristics used to describe a cell type:
+
 * word size (bit-width)
 * signed vs unsigned
 * integral vs floating-point
@@ -47,7 +48,7 @@ A scene (or granule) is a discrete instance of EO @ref:[raster data](concepts.md
 
 ## Band
 
-A @ref:[scene](concepts.md#scene) frequently defines many different measurements captured a the same date-time, over the same extent, and meant to be processed together. These different measurements are referred to as bands. The name comes from the varying bandwidths of light and electromagnetic radiation measured in many EO datasets. 
+A @ref:[scene](concepts.md#scene) frequently defines many different measurements captured at the same date-time, over the same extent, and meant to be processed together. These different measurements are referred to as bands. The name comes from the varying bandwidths of light and electromagnetic radiation measured in many EO datasets. 
 
 ## Coordinate Reference System (CRS)
 

@@ -1,7 +1,8 @@
 # Reading Raster Data
 
-```python, echo=False
+```python, setup, echo=False
 from IPython.display import display
+import pyrasterframes.rf_ipython
 import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
@@ -16,44 +17,46 @@ RasterFrames can also read from @ref:[GeoTrellis catalogs and layers](raster-rea
 
 The simplest way to use the `raster` reader is with a single raster from a single URI or file. In the examples that follow we'll be reading from a Sentinel-2 scene stored in an AWS S3 bucket.
 
-```python read_one_uri
+```python, read_one_uri
 rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
 rf.printSchema()
 ```
 
-The file at the address above is a valid [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/), which RasterFrames fully supports. RasterFrames will take advantage of the optimizations in the COG format to enable more efficient reading compared to vanilla GeoTIFFs.
+The file at the address above is a valid [Cloud Optimized GeoTIFF (COG)](https://www.cogeo.org/), which RasterFrames fully supports. RasterFrames will take advantage of the optimizations in the COG format to enable more efficient reading compared to non-COG GeoTIFFs.
 
 Let's unpack the `proj_raster` column and look at the contents in more detail. It contains a @ref:[_CRS_][CRS], a spatial @ref:[_extent_][Extent] measured in that CRS, and a two-dimensional array of numeric values called a @ref:[_tile_][Tile].
 
-```python unpack_schema
+```python, select_crs
 crs = rf.select(rf_crs("proj_raster").alias("value")).first()
+print("CRS", crs.value.crsProj4)
+```
 
+```python, raster_parts, results='raw'
 parts = rf.select(
     rf_extent("proj_raster").alias("extent"),
     rf_tile("proj_raster").alias("tile")
 )
-
-print("CRS", crs.value.crsProj4)
-parts.show(5, False)
-
+parts.show(5, truncate=False)
 ```
 
-You can also see that the single raster has been broken out into many arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per task.
+You can also see that the single raster has been broken out into many arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per task. The following code fragment shows us how many subtiles were created from a single source image.
 
-```python count_by_uri
-rf.groupby(rf.proj_raster_path).count().show()
+```python, count_by_uri, results='raw'
+rf.groupby(rf.proj_raster_path).count().show(truncate=False)
 ```
 
-Let's select a single _tile_ and view it. The _tile_ preview image as well as the string representation provide some basic information about the _tile_: it's dimensions as number of columns and rows, and the cell type, or data type of all the cells in the _tile_. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
+Let's select a single _tile_ and view it. The _tile_ preview image as well as the string representation provide some basic information about the _tile_: its dimensions as numbers of columns and rows and the cell type, or data type of all the cells in the _tile_. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
 
-```python show_tile_sample
+```python, show_tile_sample
 tile = rf.select(rf_tile("proj_raster")).first()[0]
 display(tile)
 ```
 
 ## URI Formats
 
-RasterFrames relies on three different IO drivers, selected based on a combination of scheme, file extentions, and library availability. GDAL is used first if a compatible version of GDAL (>= 2.4) is installed. It is the only driver that can read non-GeoTIFF files. If GDAL is not available, either the _Java I/O_ or _Hadoop_ driver will be selected, depending on scheme.
+RasterFrames relies on three different I/O drivers, selected based on a combination of scheme, file extentions, and library availability. GDAL is used by default if a compatible version of GDAL (>= 2.4) is installed, and if GDAL supports the specified scheme. If GDAL is not available, either the _Java I/O_ or _Hadoop_ driver will be selected, depending on scheme.
+
+Note: The GDAL driver is the only one that can read non-GeoTIFF files. 
 
 
 | Prefix              | GDAL        | Java I/O | Hadoop   |
@@ -70,14 +73,14 @@ RasterFrames relies on three different IO drivers, selected based on a combinati
 | `wasb://`           | `/vsiaz/`   | no       | yes      |
 | `wasbs://`          | no          | no       | yes      |
 
-Specific [GDAL Virtual File System drivers](https://gdal.org/user/virtual_file_systems.html) can be selected using the `gdal://<vsidrv>//` syntax. For example If you have a `archive.zip` file containing a GeoTiff named `my-file-inside.tif`, you can address it with `gdal://vsizip//path/to/archive.zip/my-file-inside.tif`. Another example would be a MRF file in an S3 bucket on AWS: `gdal://vsis3/my-bucket/prefix/to/raster.mrf`. See the GDAL documentation for the format of the URIs after the `gdal:/` scheme. The `gdal:/` scheme is stripped off before passing the rest of the path to GDAL.
+Specific [GDAL Virtual File System drivers](https://gdal.org/user/virtual_file_systems.html) can be selected using the `gdal://<vsidrv>//` syntax. For example If you have a `archive.zip` file containing a GeoTiff named `my-file-inside.tif`, you can address it with `gdal://vsizip//path/to/archive.zip/my-file-inside.tif`. Another example would be a MRF file in an S3 bucket on AWS: `gdal://vsis3/my-bucket/prefix/to/raster.mrf`. See the GDAL documentation for the format of the URIs after the `gdal:/` scheme.
 
 
 ## Raster Catalogs
 
-Considering the definition of a @ref:[_Catalog_](raster-catalogs.md) previously discussed, let's read the raster data contained in the catalog URIs. We will start with the @ref:[external catalog](raster-catalogs.md#using-external-catalogs) of MODIS surface reflectance that we previously demonstrated.
+Consider the definition of a @ref:[_Catalog_](raster-catalogs.md) previously discussed, let's read the raster data contained in the catalog URIs. We will start with the @ref:[external catalog](raster-catalogs.md#using-external-catalogs) of MODIS surface reflectance.
 
-```python catalog_prep
+```python, catalog_prep
 from pyspark import SparkFiles
 from pyspark.sql import functions as F
 
@@ -98,24 +101,27 @@ modis_catalog = spark.read \
 modis_catalog.printSchema()
 
 print("Available scenes: ", modis_catalog.count())
-
-modis_catalog.show(5, truncate=False)
 ```
 
-MODIS data products are delivered on a regular, consistent grid, making identification of a specific area over time easy using `(h,v)` grid coordinates.
+```python, show_catalog, results='raw'
+modis_catalog.show(5, truncate=True)
+```
+
+MODIS data products are delivered on a regular, consistent grid, making identification of a specific area over time easy using [`(h,v)`](https://modis-land.gsfc.nasa.gov/MODLAND_grid.html) grid coordinates (see below).
 
 ![MODIS Grid](https://modis-land.gsfc.nasa.gov/images/MODIS_sinusoidal_grid1.gif)
 
 For example, MODIS data right above the equator is all grid coordinates with `v07`.
 
-```python catalog_filtering
-equator = modis_catalog.where(F.col('gid').like('%v07%'))
-equator.select('date', 'gid').show(10, False)
+```python, catalog_filtering, results='raw'
+equator = modis_catalog.where(F.col('gid').like('%v07%')) 
+equator.select('date', 'gid') \
+    .show(10, truncate=False)
 ```
 
 Now that we have prepared our catalog, we simply pass the DataFrame or CSV string to the `raster` DataSource to load the imagery. The `catalog_col_names` parameter gives the columns that contain the URI's to be read.
 
-```python read_catalog
+```python, read_catalog
 rf = spark.read.raster(
     catalog=equator,
     catalog_col_names=['red', 'nir'],
@@ -123,32 +129,38 @@ rf = spark.read.raster(
 rf.printSchema()
 ```
 
-Observe that the schema of the resulting DataFrame has a projected raster struct for each column passed in `catalog_col_names`. For reference, the URI is now in a column appended with `_path`. We can take a quick look at the representation of the data. We see again each row contains an arbitrary portion of the entire scene coverage. We also see that for two-D catalogs, each row contains the same spatial extent from within that coverage.
+Observe the schema of the resulting DataFrame has a projected raster struct for each column passed in `catalog_col_names`. For reference, the URI is now in a column appended with `_path`. Taking a quick look at the representation of the data, we see again each row contains an arbitrary portion of the entire scene coverage. We also see that for two-D catalogs, each row contains the same spatial extent for all tiles in that row.
 
-```python cat_read_sample
-rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')).show(3, False)
+```python, cat_read_sample, results='raw'
+rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')) \
+    .show(3, truncate=True)
 ```
 
-## Lazy Raster Reads
+## Lazy Raster Reading
 
-By default the raster reads are delayed as long as possible. The DataFrame will contain metadata and pointers to the appropriate portion of the data until reading of the source raster data is absolutely necessary. This can save a lot of computation and I/O time for two reasons. One is that a _catalog_ may contain millions of rows. Second is that the `raster` DataSource attempts to ensure filters are processed before reading raster data.
+By default, reading raster pixel values is delayed until it is absolutely needed. The DataFrame will contain metadata and pointers to the appropriate portion of the data until reading of the source raster data is absolutely necessary. This can save a significant of computation and I/O time for two reasons. First, a catalog may contain a large number of rows. Second, the `raster` DataSource attempts to apply spatial preciates (e.g. `where`/`WHERE` clauses with `st_intersects`, et al.) at row creation, reducing the chance of unneeded data being fetched.
 
-Consider the following two reads of the same data source. In the first, the lazy case, there is a pointer to the URI, extent and band to read. This will not be evaluated until the cell values are absolutely required. The second case shows the option to force the raster to be fully read right away.
+Consider the following two reads of the same data source. In the first, the lazy case, there is a pointer to the URI, extent and band to read. This will not be evaluated until the cell values are absolutely required. The second case shows the option to force the raster to be fully loaded right away.
 
-```python lazy_demo
+```python, lazy_demo_1, results='raw'
 uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
 spark.read.raster(uri) \
-    .select('proj_raster.tile').show(1, False)
+    .select('proj_raster.tile') \
+    .show(1, truncate=False)
 
+```
+
+```python, lazy_demo_2, results='raw'
 spark.read.raster(uri, lazy_tiles=False) \
-    .select('proj_raster.tile').show(1, False)
+    .select('proj_raster.tile') \
+    .show(1, truncate=False)
 ```
 
 In the initial examples on this page, you may have noticed that the realized (non-lazy) _tiles_ are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized _tile_ from the lazy representation.
 
 ## Multiband Rasters
 
-A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated as different @ref:[bands](concepts.md#band). The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could represent other phenomena such as measurement time, quality indications, or additional measurements.
+A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated for different spectral @ref:[bands](concepts.md#band). The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could measure other phenomena such as time, quality indications, or additional gas concentrations, etc.
 
 Multiband rasters files have a strictly ordered set of bands, which are typically indexed from 1. Some files have metadata tags associated with each band. Some files have a color interpetation metadata tag indicating how to interpret the bands.
 
@@ -156,20 +168,20 @@ When reading a multiband raster or a _catalog_ describing multiband rasters, you
 
 For example, we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting DataFrame still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
 
-```python Multiband
+```python, multiband
 mb = spark.read.raster('s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
                        band_indexes=[0, 1, 2, 3],
                       )
 mb.printSchema()
 ```
 
-If a band is passed into `band_index` that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but it will be full of `null` values.
+If a band is passed into `band_indexes` that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but the column will be full of `null` values.
 
 You can also pass a `catalog` and `band_indexes` together into the `raster` reader. This will create a projected raster column for the combination of all items passed into `catalog_col_names` and `band_indexes`. Again if a band in `band_indexes` exceeds the number of bands in a raster, it will have a `null` value for the corresponding column.
 
-Here is a trivial example with a _Catalog_ over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.
+Here is a trivial example with a _catalog_ over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.
 
-```python multiband_catalog
+```python, multiband_catalog
 import pandas as pd
 mb_cat = pd.DataFrame([
     {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
@@ -188,23 +200,23 @@ mb2.printSchema()
 
 ### GeoTrellis Catalogs
 
-[GeoTrellis][GeoTrellis] is one of the key libraries that RasterFrames builds upon. It provides a Scala language API to working with large raster data with Apache Spark. RasterFrames provides a DataSource that supports both reading and @ref:[writing](raster-write.md#geotrellis-layers) with GeoTrellis.
+[GeoTrellis][GeoTrellis] is one of the key libraries upon which RasterFrames is built. It provides a Scala language API for working with geospatial raster data.  GeoTrellis defines a [tile layer storage](https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html) format for persisting imagery mosaics. RasterFrames provides a DataSource supporting both @ref:[reading](raster-read.md#geotrellis-layers) and @ref:[writing](raster-write.md#geotrellis-layers) GeoTrellis layers.
 
-A GeoTrellis catalog is a set of GeoTrellis layers. We can read a dataframe giving details of the content of a catalog using the following. The scheme is typically `hdfs` or a cloud storage provider like `s3` or `wasb`.
+A GeoTrellis catalog is a set of GeoTrellis layers. We can read a DataFrame giving details of the content of a catalog using the syntax below. The scheme is typically `hdfs` or `file`, or a cloud storage provider like `s3`.
 
-```python, evaluate=False
+```python, geotrellis_cat, evaluate=False
 gt_cat = spark.read.geotrellis_catalog('scheme://path-to-gt-catalog')
 ```
 
 ### GeoTrellis Layers
 
-The catalog will give details on the particular layers available for query. We can read the layer with the same URI to the catalog, the layer name, and the desired zoom level.
+The catalog will give details on the individual layers available for query. We can read each layer with the URI to the catalog, the layer name, and the desired zoom level.
 
-```python, evaluate=False
+```python, geotrellis, evaluate=False
 gt_layer = spark.read.geotrellis(path='scheme://path-to-gt-catalog', layer=layer_name, zoom=zoom_level)
 ```
 
-This will return a RasterFrame with additional metadata inherited from the GeoTrellis `TileLayerMetadata`, such as the `SpatialKey`. The `TileLayerMetadata` is also stored as JSON in the metadata of the _tile_ column.
+This will return a RasterFrame with additional [GeoTrellis-specific metadata](https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html#layouts-and-tile-layers), inherited from GeoTrellis, stored as JSON in the metadata of the _tile_ column.
 
 [CRS]: concepts.md#coordinate-reference-system--crs
 [Extent]: concepts.md#extent
