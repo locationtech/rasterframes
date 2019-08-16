@@ -29,8 +29,6 @@ def tile_to_png(tile, fig_size=None):
     import io
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
-    import matplotlib.colors as colors
-    from matplotlib import cm
 
     # Set up matplotlib objects
     nominal_size = 2  # approx full size for a 256x256 tile
@@ -42,9 +40,8 @@ def tile_to_png(tile, fig_size=None):
     axis = fig.add_subplot(1, 1, 1)
 
     data = tile.cells
-    norm = colors.LogNorm(data.min(), data.max())
 
-    axis.imshow(data, norm=norm, cmap=cm.get_cmap("RdBu"))
+    axis.imshow(data)
     axis.set_aspect('equal')
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
