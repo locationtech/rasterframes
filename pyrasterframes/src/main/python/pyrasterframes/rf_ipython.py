@@ -21,12 +21,15 @@
 import pyrasterframes.rf_types
 import numpy as np
 
-def plot_tile(tile, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
+
+def plot_tile(tile, normalize, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
     """
     Display an image of the tile
 
     Parameters
     ----------
+    normalize: if True, will normalize the data between using
+               lower_percentile and upper_percentile as bounds
     lower_percentile: between 0 and 100 inclusive.
                       Specifies to clip values below this percentile
     upper_percentile: between 0 and 100 inclusive.
@@ -45,10 +48,11 @@ def plot_tile(tile, lower_percentile=1, upper_percentile=99, axis=None, **imshow
 
     arr = tile.cells
 
-    def normalize_cells(cells, lower_percentile=lower_percentile, upper_percentile=upper_percentile):
-        assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles'
-        lower = np.percentile(cells, lower_percentile)
-        upper = np.percentile(cells, upper_percentile)
+    def normalize_cells(cells):
+        assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles {}, {}'.format(lower_percentile, upper_percentile)
+        sans_mask = np.array(cells)
+        lower = np.nanpercentile(sans_mask, lower_percentile)
+        upper = np.nanpercentile(sans_mask, upper_percentile)
         cells_clipped = np.clip(cells, lower, upper)
         return (cells_clipped - lower) / (upper - lower)
 
@@ -56,7 +60,12 @@ def plot_tile(tile, lower_percentile=1, upper_percentile=99, axis=None, **imshow
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
 
-    axis.imshow(normalize_cells(arr), **imshow_args)
+    if normalize:
+        cells = normalize_cells(arr)
+    else:
+        cells = arr
+
+    axis.imshow(cells, **imshow_args)
 
     return axis
 
@@ -71,7 +80,7 @@ def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_s
     from matplotlib.figure import Figure
 
     # Set up matplotlib objects
-    nominal_size = 4  # approx full size for a 256x256 tile
+    nominal_size = 3  # approx full size for a 256x256 tile
     if fig_size is None:
         fig_size = (nominal_size, nominal_size)
 
@@ -79,7 +88,7 @@ def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_s
     canvas = FigureCanvas(fig)
     axis = fig.add_subplot(1, 1, 1)
 
-    plot_tile(tile, lower_percentile, upper_percentile, axis=axis)
+    plot_tile(tile, True, lower_percentile, upper_percentile, axis=axis)
     axis.set_aspect('equal')
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
@@ -164,8 +173,9 @@ try:
         markdown_formatter = ip.display_formatter.formatters['text/markdown']
         html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
 
-        Tile.show = lambda tile, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args: \
-            plot_tile(tile, lower_percentile, upper_percentile, axis, **imshow_args)
+        Tile.show = lambda tile, normalize=False, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args: \
+            plot_tile(tile, normalize, lower_percentile, upper_percentile, axis, **imshow_args)
+        Tile.show.__doc__ = plot_tile.__doc__
 
         # See if we're in documentation mode and register a custom show implementation.
         if 'InProcessInteractiveShell' in ip.__class__.__name__:

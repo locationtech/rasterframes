@@ -45,11 +45,11 @@ import pyrasterframes.rf_ipython
 from pyspark.sql.functions import lit, col
 
 cat = spark.read.format('aws-pds-modis-catalog').load() \
-                .filter(
-                    (col('granule_id') == 'h11v04') &
-                    (col('acquisition_date') > lit('2018-02-19')) &
-                    (col('acquisition_date') < lit('2018-02-22'))
-                )
+        .filter(
+            (col('granule_id') == 'h11v04') &
+            (col('acquisition_date') > lit('2018-02-19')) &
+            (col('acquisition_date') < lit('2018-02-22'))
+        )
 
 spark_df = spark.read.raster(catalog=cat, catalog_col_names=['B01']) \
                 .select(
@@ -92,7 +92,7 @@ np.abs(diff.cells).max()
 We can also inspect an image of the difference between the two _tiles_, which is just random noise. Both _tiles_ have the same structure of NoData, as exhibited by the white areas.
 
 ```python udf_diff_noise_tile
-display(diff)
+diff.show(0, 100)
 ```
 
 ## Creating a Spark DataFrame
@@ -105,12 +105,11 @@ The example below will create a Pandas DataFrame with ten rows of noise _tiles_ 
 import pandas as pd
 from shapely.geometry import Point
 
-pandas_df = pd.DataFrame([
-        {
-            'tile': Tile(np.random.randn(100, 100)),
-            'geom': Point(-90 + 90 * np.random.random((2, 1)))
-        }  for _ in range(10)
-    ])
+pandas_df = pd.DataFrame([{
+    'tile': Tile(np.random.randn(100, 100)),
+    'geom': Point(-90 + 90 * np.random.random((2, 1)))
+    } for _ in range(10)
+])
 
 spark_df = spark.createDataFrame(pandas_df)
 
