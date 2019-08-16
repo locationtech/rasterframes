@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Aggregation · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="active page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="active page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li><a href="raster-processing.html">Raster Processing</a></li>
+  <li>Aggregation</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#aggregation" name="aggregation" class="anchor"><span class="anchor-link"></span></a>Aggregation</h1>
+<p>There are three types of aggregate functions: <em>tile</em> aggregate, DataFrame aggregate, and element-wise local aggregate. In the <a href="reference.html#tile-statistics">tile aggregate functions</a>, we are computing a statistical summary per row of a <em>tile</em> column in a DataFrame. In the <a href="reference.html#aggregate-tile-statistics">DataFrame aggregate functions</a>, we are computing statistical summaries over all of the cell values <em>and</em> across all of the rows in the DataFrame or group. In the <a href="reference.html#tile-local-aggregate-statistics">element-wise local aggregate functions</a>, we are computing the element-wise statistical summary across a DataFrame or group of <em>tiles</em>.</p>
+<h2><a href="#tile-mean-example" name="tile-mean-example" class="anchor"><span class="anchor-link"></span></a>Tile Mean Example</h2>
+<p>We can illustrate aggregate differences by computing an aggregate mean. First, we create a sample DataFrame of 2 <em>tiles</em> where the first <em>tile</em> is composed of 25 values of 1.0 and the second <em>tile</em> is composed of 25 values of 3.0.</p>
+<pre class="prettyprint"><code class="language-python">import pyspark.sql.functions as F
+
+rf = spark.sql(&quot;&quot;&quot;
+SELECT 1 as id, rf_make_ones_tile(5, 5, &#39;float32&#39;) as tile
+UNION
+SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, &#39;float32&#39;), 3) as tile
+&quot;&quot;&quot;)
+
+tiles = rf.select(&quot;tile&quot;).collect()
+print(tiles[0][&#39;tile&#39;].cells)
+print(tiles[1][&#39;tile&#39;].cells)
+</code></pre>
+<pre><code>[[3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]]
+[[1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]]
+</code></pre>
+<p>We use the <a href="reference.html#rf-tile-mean"><code>rf_tile_mean</code></a> function to compute the <em>tile</em> aggregate mean of cells in each row of column <code>tile</code>. The mean of each <em>tile</em> is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.</p>
+<pre class="prettyprint"><code class="language-python">rf.select(F.col(&#39;id&#39;), rf_tile_mean(F.col(&#39;tile&#39;))).show()
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>id </th>
+      <th>rf_tile_mean(tile) </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2 </td>
+      <td>3.0 </td>
+    </tr>
+    <tr>
+      <td>1 </td>
+      <td>1.0 </td>
+    </tr>
+  </tbody>
+</table>
+<p>We use the <a href="reference.html#rf-agg-mean"><code>rf_agg_mean</code></a> function to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.</p>
+<pre class="prettyprint"><code class="language-python">rf.agg(rf_agg_mean(F.col(&#39;tile&#39;))).show()
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>rf_agg_mean(tile) </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2.0 </td>
+    </tr>
+  </tbody>
+</table>
+<p>We use the <a href="reference.html#rf-agg-local-mean"><code>rf_agg_local_mean</code></a> function to compute the element-wise local aggregate mean across the two rows. For this aggregation, we are computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the <em>tile</em>.</p>
+<p>To compute an element-wise local aggregate, <em>tiles</em> need to have the same dimensions. In this case, both <em>tiles</em> have 5 rows and 5 columns. If we tried to compute an element-wise local aggregate over the DataFrame without equal <em>tile</em> dimensions, we would get a runtime error.</p>
+<pre class="prettyprint"><code class="language-python">t = rf.agg(rf_agg_local_mean(F.col(&#39;tile&#39;)).alias(&#39;local_mean&#39;)) \
+    .collect()[0][&#39;local_mean&#39;]
+print(t.cells)
+</code></pre>
+<pre><code>[[2.0 2.0 2.0 2.0 2.0]
+ [2.0 2.0 2.0 2.0 2.0]
+ [2.0 2.0 2.0 2.0 2.0]
+ [2.0 2.0 2.0 2.0 2.0]
+ [2.0 2.0 2.0 2.0 2.0]]
+</code></pre>
+<h2><a href="#cell-counts-example" name="cell-counts-example" class="anchor"><span class="anchor-link"></span></a>Cell Counts Example</h2>
+<p>We can also count the total number of data and NoData cells over all the <em>tiles</em> in a DataFrame using <a href="reference.html#rf-agg-data-cells"><code>rf_agg_data_cells</code></a> and <a href="reference.html#rf-agg-no-data-cells"><code>rf_agg_no_data_cells</code></a>. There are ~3.8 million data cells and ~1.9 million NoData cells in this DataFrame. See the section on <a href="nodata-handling.html">&ldquo;NoData&rdquo; handling</a> for additional discussion on handling missing data.</p>
+<pre class="prettyprint"><code class="language-python">rf = spark.read.raster(&#39;https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF&#39;)
+stats = rf.agg(rf_agg_data_cells(&#39;proj_raster&#39;), rf_agg_no_data_cells(&#39;proj_raster&#39;))
+
+stats.show()
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>rf_agg_data_cells(proj_raster) </th>
+      <th>rf_agg_no_data_cells(proj_raster) </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>3820886 </td>
+      <td>1927114 </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#statistical-summaries" name="statistical-summaries" class="anchor"><span class="anchor-link"></span></a>Statistical Summaries</h2>
+<p>The statistical summary functions return a summary of cell values: number of data cells, number of NoData cells, minimum, maximum, mean, and variance, which can be computed as a <em>tile</em> aggregate, a DataFrame aggregate, or an element-wise local aggregate.</p>
+<p>The <a href="reference.html#rf-tile-stats"><code>rf_tile_stats</code></a> function computes summary statistics separately for each row in a <em>tile</em> column as shown below.</p>
+<pre class="prettyprint"><code class="language-python">rf = spark.read.raster(&#39;https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif&#39;)
+stats = rf.select(rf_tile_stats(&#39;proj_raster&#39;).alias(&#39;stats&#39;))
+
+stats.printSchema()
+</code></pre>
+<pre><code>root
+ |-- stats: struct (nullable = true)
+ |    |-- data_cells: long (nullable = false)
+ |    |-- no_data_cells: long (nullable = false)
+ |    |-- min: double (nullable = false)
+ |    |-- max: double (nullable = false)
+ |    |-- mean: double (nullable = false)
+ |    |-- variance: double (nullable = false)
+</code></pre>
+<pre class="prettyprint"><code class="language-python">stats.select(&#39;stats.min&#39;, &#39;stats.max&#39;, &#39;stats.mean&#39;, &#39;stats.variance&#39;).show(10, truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>min </th>
+      <th>max </th>
+      <th>mean </th>
+      <th>variance </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>199.0 </td>
+      <td>5331.0 </td>
+      <td>455.5312957763667 </td>
+      <td>68728.44405841625 </td>
+    </tr>
+    <tr>
+      <td>187.0 </td>
+      <td>1911.0 </td>
+      <td>310.51860046386815 </td>
+      <td>13849.46165963797 </td>
+    </tr>
+    <tr>
+      <td>181.0 </td>
+      <td>1530.0 </td>
+      <td>259.9732513427734 </td>
+      <td>3501.4270036255507 </td>
+    </tr>
+    <tr>
+      <td>170.0 </td>
+      <td>2535.0 </td>
+      <td>292.7441253662109 </td>
+      <td>11137.773410618069 </td>
+    </tr>
+    <tr>
+      <td>152.0 </td>
+      <td>3641.0 </td>
+      <td>290.0180511474609 </td>
+      <td>14295.314752891418 </td>
+    </tr>
+    <tr>
+      <td>141.0 </td>
+      <td>6978.0 </td>
+      <td>340.25186157226574 </td>
+      <td>43086.958507887095 </td>
+    </tr>
+    <tr>
+      <td>56.0 </td>
+      <td>7948.0 </td>
+      <td>471.29193115234267 </td>
+      <td>153175.9037898743 </td>
+    </tr>
+    <tr>
+      <td>3.0 </td>
+      <td>4555.0 </td>
+      <td>384.79944490131635 </td>
+      <td>72702.9732439353 </td>
+    </tr>
+    <tr>
+      <td>211.0 </td>
+      <td>5184.0 </td>
+      <td>414.1865997314456 </td>
+      <td>49377.492844724824 </td>
+    </tr>
+    <tr>
+      <td>213.0 </td>
+      <td>6917.0 </td>
+      <td>402.6273956298835 </td>
+      <td>34983.111089689366 </td>
+    </tr>
+  </tbody>
+</table>
+<p>The <a href="reference.html#rf-agg-stats"><code>rf_agg_stats</code></a> function aggregates over all of the <em>tiles</em> in a DataFrame and returns a statistical summary of all cell values as shown below.</p>
+<pre class="prettyprint"><code class="language-python">rf.agg(rf_agg_stats(&#39;proj_raster&#39;).alias(&#39;stats&#39;)) \
+    .select(&#39;stats.min&#39;, &#39;stats.max&#39;, &#39;stats.mean&#39;, &#39;stats.variance&#39;) \
+    .show()
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>min </th>
+      <th>max </th>
+      <th>mean </th>
+      <th>variance </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>3.0 </td>
+      <td>12103.0 </td>
+      <td>542.1327946489893 </td>
+      <td>685615.201702677 </td>
+    </tr>
+  </tbody>
+</table>
+<p>The <a href="reference.html#rf-agg-local-stats"><code>rf_agg_local_stats</code></a> function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks has unequal <em>tile</em> dimensions, so a different DataFrame is used in this code block to avoid a runtime error.</p>
+<pre class="prettyprint"><code class="language-python">rf = spark.sql(&quot;&quot;&quot;
+SELECT 1 as id, rf_make_ones_tile(5, 5, &#39;float32&#39;) as tile
+UNION
+SELECT 2 as id, rf_make_constant_tile(3, 5, 5, &#39;float32&#39;) as tile
+UNION
+SELECT 3 as id, rf_make_constant_tile(5, 5, 5, &#39;float32&#39;) as tile
+&quot;&quot;&quot;).agg(rf_agg_local_stats(&#39;tile&#39;).alias(&#39;stats&#39;))
+
+agg_local_stats = rf.select(&#39;stats.min&#39;, &#39;stats.max&#39;, &#39;stats.mean&#39;, &#39;stats.variance&#39;).collect()
+
+for r in agg_local_stats:
+    for stat in r.asDict():
+        print(stat, &#39;:\n&#39;, r[stat], &#39;\n&#39;)
+</code></pre>
+<pre><code>min :
+ Tile(dimensions=[5, 5], cell_type=CellType(float32, nan), cells=
+[[1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]
+ [1.0 1.0 1.0 1.0 1.0]]) 
+
+max :
+ Tile(dimensions=[5, 5], cell_type=CellType(float32, nan), cells=
+[[5.0 5.0 5.0 5.0 5.0]
+ [5.0 5.0 5.0 5.0 5.0]
+ [5.0 5.0 5.0 5.0 5.0]
+ [5.0 5.0 5.0 5.0 5.0]
+ [5.0 5.0 5.0 5.0 5.0]]) 
+
+mean :
+ Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
+[[3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]
+ [3.0 3.0 3.0 3.0 3.0]]) 
+
+variance :
+ Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
+[[2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
+  2.666666666666666]
+ [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
+  2.666666666666666]
+ [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
+  2.666666666666666]
+ [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
+  2.666666666666666]
+ [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
+  2.666666666666666]])
+</code></pre>
+<h2><a href="#histogram" name="histogram" class="anchor"><span class="anchor-link"></span></a>Histogram</h2>
+<p>The <a href="reference.html#rf-tile-histogram"><code>rf_tile_histogram</code></a> function computes a count of cell values within each row of <em>tile</em> and outputs a <code>bins</code> array with the schema below. In the graph below, we have plotted each bin&rsquo;s <code>value</code> on the x-axis and <code>count</code> on the y-axis for the <em>tile</em> in the first row of the DataFrame.</p>
+<pre class="prettyprint"><code class="language-python">import matplotlib.pyplot as plt
+
+rf = spark.read.raster(&#39;https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF&#39;)
+
+hist_df = rf.select(rf_tile_histogram(&#39;proj_raster&#39;)[&#39;bins&#39;].alias(&#39;bins&#39;))
+hist_df.printSchema()
+
+bins_row = hist_df.first()
+values = [int(bin[&#39;value&#39;]) for bin in bins_row.bins]
+counts = [int(bin[&#39;count&#39;]) for bin in bins_row.bins]
+
+plt.hist(values, weights=counts, bins=100)
+plt.show()
+</code></pre>
+<pre><code>root
+ |-- bins: array (nullable = true)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- value: double (nullable = false)
+ |    |    |-- count: long (nullable = false)
+</code></pre>
+<p><img src="figures/aggregation_tile_histogram_1.png" /></p>
+<p>The <a href="reference.html#rf-agg-approx-histogram"><code>rf_agg_approx_histogram</code></a> function computes a count of cell values across all of the rows of <em>tile</em> in a DataFrame or group. In the example below, the range of the y-axis is significantly wider than the range of the y-axis on the previous histogram since this histogram was computed for all cell values in the DataFrame.</p>
+<pre class="prettyprint"><code class="language-python">bins_list = rf.agg(
+    rf_agg_approx_histogram(&#39;proj_raster&#39;)[&#39;bins&#39;].alias(&#39;bins&#39;)
+    ).collect()
+values = [int(row[&#39;value&#39;]) for row in bins_list[0].bins]
+counts = [int(row[&#39;count&#39;]) for row in bins_list[0].bins]
+
+plt.hist(values, weights=counts, bins=100)
+plt.show()
+</code></pre>
+<p><img src="figures/aggregation_agg_histogram_1.png" /></p>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="time-series.html">Time Series</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="aggregation.html#aggregation" class="header">Aggregation</a>
+  <ul>
+    <li><a href="aggregation.html#tile-mean-example" class="header">Tile Mean Example</a></li>
+    <li><a href="aggregation.html#cell-counts-example" class="header">Cell Counts Example</a></li>
+    <li><a href="aggregation.html#statistical-summaries" class="header">Statistical Summaries</a></li>
+    <li><a href="aggregation.html#histogram" class="header">Histogram</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

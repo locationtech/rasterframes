@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Local Map Algebra · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="active page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="active page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li><a href="raster-processing.html">Raster Processing</a></li>
+  <li>Local Map Algebra</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#local-map-algebra" name="local-map-algebra" class="anchor"><span class="anchor-link"></span></a>Local Map Algebra</h1>
+<p><a href="https://gisgeography.com/map-algebra-global-zonal-focal-local/">Local map algebra</a> raster operations are element-wise operations on a single <em>tile</em>, between a <em>tile</em> and a scalar, between two <em>tiles</em>, or among many <em>tiles</em>. These operations are common in processing of earth observation imagery and other image data.</p>
+<img src="https://gisgeography.com/wp-content/uploads/2015/05/Local-Operation-Raster.png" alt="local op" style="width:200px;"/>
+<p>Credit: <a href="https://gisgeography.com">GISGeography</a></p>
+<h2><a href="#computing-ndvi" name="computing-ndvi" class="anchor"><span class="anchor-link"></span></a>Computing NDVI</h2>
+<p>Here is an example of computing the Normalized Differential Vegetation Index (NDVI). NDVI is a vegetation index which emphasizes differences in relative biomass and vegetation health. The term <em>index</em> in Earth observation means a combination of many raster bands into a single band that highlights a phenomenon of interest. Various indices have proven useful visual tools and frequently appear as features in machine learning models using Earth observation data.</p>
+<blockquote>
+  <p>NDVI is often used worldwide to monitor drought, monitor and predict agricultural production, assist in predicting hazardous fire zones, and map desert encroachment. The NDVI is preferred for global vegetation monitoring because it helps to compensate for changing illumination conditions, surface slope, aspect, and other extraneous factors (Lillesand. <em>Remote sensing and image interpretation</em>. 2004)</p>
+</blockquote>
+<p>We will apply the <a href="raster-catalogs.html">catalog pattern</a> for defining the data we wish to process. To compute NDVI we need to compute local algebra on the <em>red</em> and <em>near infrared</em> (nir) bands: </p>
+<pre><code>       nir - red
+NDVI = ---------
+       nir + red
+</code></pre>
+<p>This form of <code>(x - y) / (x + y)</code> is common in remote sensing and is called a normalized difference. It is used with other band pairs to highlight water, snow, and other phenomena.</p>
+<pre class="prettyprint"><code class="language-python">bands = {4: &#39;red&#39;, 8: &#39;nir&#39;}
+uri_pattern = &#39;https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B0{}.tif&#39;
+catalog_df = pd.DataFrame([
+    {bands[b_num]: uri_pattern.format(b_num) for b_num in bands.keys()}
+])
+df = spark.read.raster(catalog=catalog_df.to_csv(index=None),
+                       catalog_col_names=list(catalog_df.columns))
+df.printSchema()
+</code></pre>
+<pre><code>root
+ |-- red_path: string (nullable = false)
+ |-- nir_path: string (nullable = false)
+ |-- red: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- nir: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+</code></pre>
+<p>Observe how the bands we need to use to compute the index are arranged as columns of our resulting DataFrame. The rows or observations are various spatial extents within the entire coverage area.</p>
+<p>RasterFrames provides a wide variety of local map algebra functions. There are several different broad categories, based on how many <em>tiles</em> the function takes as input:</p>
+<ul>
+  <li>A function on a single <em>tile</em> is a unary operation; example: <a href="reference.html#rf-log">rf_log</a>;</li>
+  <li>A function on two <em>tiles</em> is a binary operation; example: <a href="reference.html#rf-local-multiply">rf_local_multiply</a>;</li>
+  <li>A function on a <em>tile</em> and a scalar is a binary operation; example: <a href="reference.html#rf-local-less">rf_local_less</a>; or</li>
+  <li>A function on many <em>tiles</em> is a n-ary operation; example: <a href="reference.html#rf-agg-local-min">rf_agg_local_min</a></li>
+</ul>
+<p>We can express the normalized difference with a combination of <code>rf_local_divide</code>, <code>rf_local_subtract</code>, and <code>rf_local_add</code>. Since the normalized difference is so common, there is a convenience method <code>rf_normalized_difference</code>, which we use in this example. We will append a new column to the DataFrame, which will apply the map alegbra function to each row.</p>
+<pre class="prettyprint"><code class="language-python">df = df.withColumn(&#39;ndvi&#39;, rf_normalized_difference(df.nir, df.red))
+df.printSchema()
+</code></pre>
+<pre><code>root
+ |-- red_path: string (nullable = false)
+ |-- nir_path: string (nullable = false)
+ |-- red: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- nir: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- ndvi: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+</code></pre>
+<p>We can inspect a sample of the data. Yellow indicates very healthy vegetation, and purple represents bare soil or impervious surfaces.</p>
+<pre class="prettyprint"><code class="language-python">t = df.select(rf_tile(&#39;ndvi&#39;).alias(&#39;ndvi&#39;)).first()[&#39;ndvi&#39;]
+display(t)
+</code></pre>
+<p><img src="figures/local-algebra_show_tile_1.png" /></p>
+<p>We continue examining NDVI in the <a href="time-series.html">time series</a> section.</p>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="nodata-handling.html">&ldquo;NoData&rdquo; Handling</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="local-algebra.html#local-map-algebra" class="header">Local Map Algebra</a>
+  <ul>
+    <li><a href="local-algebra.html#computing-ndvi" class="header">Computing NDVI</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

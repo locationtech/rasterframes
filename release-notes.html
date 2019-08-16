@@ -15,7 +15,7 @@ gtag('config', 'UA-106630615-1');
 <title>Release&nbsp;Notes · RasterFrames</title>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="js/page.js"></script>
@@ -31,6 +31,8 @@ gtag('config', 'UA-106630615-1');
 .md-left { float: left; }
 .md-right { float: right; }
 .md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
 </style>
 </head>
 
@@ -45,27 +47,31 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC4
+0.8.0
 </div>
 </div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
-  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
   <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
   </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
   <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="active page">Release&nbsp;Notes</a></li>
 </ul>
@@ -100,27 +106,31 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC4
+0.8.0
 </div>
 </div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
-  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
   <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
   </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
   <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="active page">Release&nbsp;Notes</a></li>
 </ul>
@@ -149,17 +159,45 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
 <h3><a href="#0-8-0" name="0-8-0" class="anchor"><span class="anchor-link"></span></a>0.8.0</h3>
 <ul>
-  <li>Added new tile functions <code>round</code>, <code>log</code>, <code>log10</code>, <code>log2</code>, <code>log1p</code>, <code>exp</code>, <code>exp10</code>, <code>exp2</code>, <code>expm1</code>, <code>resample</code>, <code>resample</code>.</li>
+  <li>Super-duper new Python-centric <a href="https://rasterframes.io/">RasterFrames Users&rsquo; Manual</a>!</li>
+  <li>Upgraded to the following core dependencies: Spark 2.3.3, GeoTrellis 2.3.0, GeoMesa 2.2.1, JTS 1.16.0.</li>
+  <li>Build <code>pyrasterframes</code> binary distribution for pip installation.</li>
+  <li>Added support for rendering RasterFrame types in IPython/Jupyter.</li>
+  <li>Added new tile functions <code>rf_round</code>, <code>rf_abs</code>, <code>rf_log</code>, <code>rf_log10</code>, <code>rf_log2</code>, <code>rf_log1p</code>, <code>rf_exp</code>, <code>rf_exp10</code>, <code>rf_exp2</code>, <code>rf_expm1</code>, <code>rf_resample</code>.</li>
+  <li>Support Python-side Tile User-Defined Type backed by <a href="https://www.numpy.org/">numpy</a> <code>ndarray</code> or <code>ma.MaskedArray</code>.</li>
+  <li>Support Python-side <a href="https://pypi.org/project/Shapely/">Shapely</a> geometry User-Defined Type.</li>
+  <li>SQL API support for <code>rf_assemble_tile</code> and <code>rf_array_to_tile</code>.</li>
   <li>Introduced at the source level the concept of a <code>RasterSource</code> and <code>RasterRef</code>, enabling lazy/delayed read of sub-scene tiles.</li>
-  <li><em>Deprecation</em>: Tile column functions (in <code>RasterFunctions</code>) and SQL registered names have all been renamed to follow <code>snake_case</code> conventions, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.</li>
   <li>Added <code>withKryoSerialization</code> extension methods on <code>SparkSession.Builder</code> and <code>SparkConf</code>.</li>
+  <li>Added <code>rf_render_matrix</code> debugging function.</li>
+  <li>Added <code>RasterFrameLayer.withExtent</code> extension method.</li>
+  <li>Added <code>SinglebandGeoTiff.toDF</code> extension method.</li>
+  <li>Added <code>DataFrame.rasterJoin</code> extension method for merging two dataframes with tiles in disparate CRSs.</li>
+  <li>Added <code>rf_crs</code> for <code>ProjectedRasterTile</code> columns.</li>
+  <li>Added <code>st_extent</code> (for <code>Geometry</code> types) and <code>rf_extent</code> (for <code>ProjectedRasterTile</code> and <code>RasterSource</code> columns).</li>
+  <li>Added <code>st_geometry</code> (for <code>Extent</code> types) and <code>rf_geometry</code> (for <code>ProjectedRasterTile</code> and <code>RasterSource</code> columns).</li>
+  <li>Reworked build scripts for RasterFrames Jupyter Notebook.</li>
+  <li><em>Breaking</em>: The type <code>RasterFrame</code> renamed <code>RasterFrameLayer</code> to be reflect its intended purpose.</li>
+  <li><em>Breaking</em>: All <code>asRF</code> methods renamed to <code>asLayer</code>.</li>
+  <li><em>Breaking</em>: Root package changed from <code>org.locationtech.rasterframes</code> to <code>org.locationtech.rasterframes</code>.</li>
+  <li><em>Breaking</em>: Removed <code>envelope</code>, in lieu of <code>st_extent</code>, <code>rf_extent</code> or <code>st_envelope</code></li>
+  <li><em>Breaking</em>: Renamed <code>rf_extent_geometry</code> to <code>st_geometry</code></li>
+  <li><em>Breaking</em>: Renamed <code>rf_tile_dimensions</code> to <code>rf_dimensions</code></li>
+  <li><em>Breaking</em>: Renamed <code>rf_reproject_geometry</code> to <code>st_reproject</code></li>
+  <li><em>Breaking</em>: With the upgrade to JTS 1.16.0, all imports of <code>com.vividsolutions.jts</code> need to be changed to <code>org.locationtech.jts</code>.</li>
+  <li><em>Deprecation</em>: Tile column functions (in <code>RasterFunctions</code>) and SQL registered names have all been renamed to follow <code>snake_case</code> conventions, with an <code>rf_</code> prefix, matching SQL and Python. A temporary compatibility shim is included so that code built against 0.7.1 and earlier still work. These will be marked as deprecated.</li>
   <li><em>Breaking</em>: In Scala and SQL, <code>..._scalar</code> functions (e.g. <code>local_add_scalar</code>) have been removed. Non-scalar forms now dynamically detect type of right hand side.</li>
-  <li><em>Breaking</em>: <code>tileToArray</code> has been replaced with <code>tile_to_array_double</code> and <code>tile_to_array_int</code>.</li>
-  <li>Added <code>render_matrix</code> debugging function.</li>
-  <li><em>Breaking</em>: renamed <code>agg_histogram</code> to <code>agg_approx_histogram</code>, <code>local_agg_stats</code> to <code>agg_local_stats</code>, <code>local_agg_max</code> to <code>agg_local_max</code>, <code>local_agg_min</code> to <code>agg_local_min</code>, <code>local_agg_mean</code> to <code>agg_local_mean</code>, <code>local_agg_data_cells</code> to <code>agg_local_data_cells</code>, <code>local_agg_no_data_cells</code> to <code>agg_local_no_data_cells</code>.</li>
-  <li><em>Breaking</em>: <code>CellHistogram</code> no longer carries along approximate statistics, due to confusing behavior. Use <code>agg_stats</code> instead.</li>
+  <li><em>Breaking</em>: <code>tileToArray</code> has been replaced with <code>_tile_to_array_double</code> and <code>_tile_to_array_int</code>.</li>
+  <li><em>Breaking</em>: Renamed <code>bounds_geometry</code> to <code>rf_extent_geometry</code>.</li>
+  <li><em>Breaking</em>: renamed <code>agg_histogram</code> to <code>rf_agg_approx_histogram</code>, <code>local_agg_stats</code> to <code>rf_agg_local_stats</code>, <code>local_agg_max</code> to <code>rf_agg_local_max</code>, <code>local_agg_min</code> to <code>rf_agg_local_min</code>, <code>local_agg_mean</code> to <code>rf_agg_local_mean</code>, <code>local_agg_data_cells</code> to <code>rf_agg_local_data_cells</code>, <code>local_agg_no_data_cells</code> to <code>rf_agg_local_no_data_cells</code>.</li>
+  <li><em>Breaking</em>: <code>CellHistogram</code> no longer carries along approximate statistics, due to confusing behavior. Use <code>rf_agg_stats</code> instead.</li>
   <li>Introduced <code>LocalCellStatistics</code> class to wrap together results from <code>LocalStatsAggregate</code>.</li>
-  <li><em>Breaking</em>: <code>TileDimensions</code> moved from <code>astraea.spark.rasterframes</code> to <code>astraea.spark.rasterframes.model</code>.</li>
+  <li><em>Breaking</em>: <code>TileDimensions</code> moved from <code>astraea.spark.rasterframes</code> to <code>org.locationtech.rasterframes.model</code>.</li>
+  <li><em>Breaking</em>: Renamed <code>RasterFrame.withBounds</code> to <code>RasterFrameLayer.withGeometry</code> for consistency with DataSource schemas.</li>
+</ul>
+<h4><a href="#known-issues" name="known-issues" class="anchor"><span class="anchor-link"></span></a>Known issues</h4>
+<ul>
+  <li><a href="https://github.com/locationtech/rasterframes/issues/188">#188</a>: Error on deserialization of a <code>Tile</code> with a <code>bool</code> cell type to the Python side; see issue description for work around.</li>
 </ul>
 <h2><a href="#0-7-x" name="0-7-x" class="anchor"><span class="anchor-link"></span></a>0.7.x</h2>
 <h3><a href="#0-7-1" name="0-7-1" class="anchor"><span class="anchor-link"></span></a>0.7.1</h3>
@@ -332,7 +370,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2019
+<span class="text">Copyright &copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Reading Raster Data · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="active page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="active page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li><a href="raster-io.html">Raster Data I/O</a></li>
+  <li>Reading Raster Data</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#reading-raster-data" name="reading-raster-data" class="anchor"><span class="anchor-link"></span></a>Reading Raster Data</h1>
+<p>RasterFrames registers a DataSource named <code>raster</code> that enables reading of GeoTIFFs (and other formats when <a href="getting-started.html#installing-gdal">GDAL is installed</a>) from arbitrary URIs. The <code>raster</code> DataSource operates on either a single raster file location or another DataFrame, called a <em>catalog</em>, containing pointers to many raster file locations.</p>
+<p>RasterFrames can also read from <a href="raster-read.html#geotrellis">GeoTrellis catalogs and layers</a>.</p>
+<h2><a href="#single-raster" name="single-raster" class="anchor"><span class="anchor-link"></span></a>Single Raster</h2>
+<p>The simplest way to use the <code>raster</code> reader is with a single raster from a single URI or file. In the examples that follow we&rsquo;ll be reading from a Sentinel-2 scene stored in an AWS S3 bucket.</p>
+<pre class="prettyprint"><code class="language-python">rf = spark.read.raster(&#39;https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif&#39;)
+rf.printSchema()
+</code></pre>
+<pre><code>root
+ |-- proj_raster_path: string (nullable = false)
+ |-- proj_raster: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+</code></pre>
+<p>The file at the address above is a valid <a href="https://www.cogeo.org/">Cloud Optimized GeoTIFF (COG)</a>, which RasterFrames fully supports. RasterFrames will take advantage of the optimizations in the COG format to enable more efficient reading compared to non-COG GeoTIFFs.</p>
+<p>Let&rsquo;s unpack the <code>proj_raster</code> column and look at the contents in more detail. It contains a <a href="concepts.html#coordinate-reference-system--crs"><em>CRS</em></a>, a spatial <a href="concepts.html#extent"><em>extent</em></a> measured in that CRS, and a two-dimensional array of numeric values called a <a href="concepts.html#tile"><em>tile</em></a>.</p>
+<pre class="prettyprint"><code class="language-python">crs = rf.select(rf_crs(&quot;proj_raster&quot;).alias(&quot;value&quot;)).first()
+print(&quot;CRS&quot;, crs.value.crsProj4)
+</code></pre>
+<pre><code>CRS +proj=utm +zone=17 +datum=WGS84 +units=m +no_defs
+</code></pre>
+<pre class="prettyprint"><code class="language-python">parts = rf.select(
+    rf_extent(&quot;proj_raster&quot;).alias(&quot;extent&quot;),
+    rf_tile(&quot;proj_raster&quot;).alias(&quot;tile&quot;)
+)
+parts.show(5, truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>extent </th>
+      <th>tile </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[699960.0, 4284660.0, 715320.0, 4300020.0] </td>
+      <td>[uint16raw, (256,256), [533,521,519,538,553,462,443,423,403,467,&hellip;,243,246,252,243,248,246,255,245,252,254]] </td>
+    </tr>
+    <tr>
+      <td>[715320.0, 4284660.0, 730680.0, 4300020.0] </td>
+      <td>[uint16raw, (256,256), [269,265,262,278,268,264,272,277,303,308,&hellip;,266,243,243,238,233,242,278,290,285,303]] </td>
+    </tr>
+    <tr>
+      <td>[730680.0, 4284660.0, 746040.0, 4300020.0] </td>
+      <td>[uint16raw, (256,256), [211,221,213,231,265,325,320,235,252,346,&hellip;,291,345,330,336,311,328,332,344,375,404]] </td>
+    </tr>
+    <tr>
+      <td>[746040.0, 4284660.0, 761400.0, 4300020.0] </td>
+      <td>[uint16raw, (256,256), [222,218,221,223,220,219,213,211,215,209,&hellip;,246,297,341,326,629,340,377,482,481,323]] </td>
+    </tr>
+    <tr>
+      <td>[761400.0, 4284660.0, 776760.0, 4300020.0] </td>
+      <td>[uint16raw, (256,256), [302,307,311,261,211,204,223,217,218,210,&hellip;,410,272,245,207,233,231,228,236,242,226]] </td>
+    </tr>
+  </tbody>
+</table>
+<p>You can also see that the single raster has been broken out into many arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per task. The following code fragment shows us how many subtiles were created from a single source image.</p>
+<pre class="prettyprint"><code class="language-python">rf.groupby(rf.proj_raster_path).count().show(truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>proj_raster_path </th>
+      <th>count </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif">https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif</a> </td>
+      <td>64 </td>
+    </tr>
+  </tbody>
+</table>
+<p>Let&rsquo;s select a single <em>tile</em> and view it. The <em>tile</em> preview image as well as the string representation provide some basic information about the <em>tile</em>: its dimensions as numbers of columns and rows and the cell type, or data type of all the cells in the <em>tile</em>. For more about cell types, refer to <a href="nodata-handling.html#cell-types">this discussion</a>.</p>
+<pre class="prettyprint"><code class="language-python">tile = rf.select(rf_tile(&quot;proj_raster&quot;)).first()[0]
+display(tile)
+</code></pre>
+<p><img src="figures/raster-read_show_tile_sample_1.png" /></p>
+<h2><a href="#uri-formats" name="uri-formats" class="anchor"><span class="anchor-link"></span></a>URI Formats</h2>
+<p>RasterFrames relies on three different I/O drivers, selected based on a combination of scheme, file extentions, and library availability. GDAL is used by default if a compatible version of GDAL (&gt;= 2.4) is installed, and if GDAL supports the specified scheme. If GDAL is not available, either the <em>Java I/O</em> or <em>Hadoop</em> driver will be selected, depending on scheme.</p>
+<p>Note: The GDAL driver is the only one that can read non-GeoTIFF files. </p>
+<table>
+  <thead>
+    <tr>
+      <th>Prefix </th>
+      <th>GDAL </th>
+      <th>Java I/O </th>
+      <th>Hadoop </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>gdal://&lt;vsidrv&gt;//</code> </td>
+      <td>yes </td>
+      <td>no </td>
+      <td>no </td>
+    </tr>
+    <tr>
+      <td><code>file://</code> </td>
+      <td>yes </td>
+      <td>yes </td>
+      <td>no </td>
+    </tr>
+    <tr>
+      <td><code>http://</code> </td>
+      <td>yes </td>
+      <td>yes </td>
+      <td>no </td>
+    </tr>
+    <tr>
+      <td><code>https://</code> </td>
+      <td>yes </td>
+      <td>yes </td>
+      <td>no </td>
+    </tr>
+    <tr>
+      <td><code>ftp://</code> </td>
+      <td><code>/vsicurl/</code> </td>
+      <td>yes </td>
+      <td>no </td>
+    </tr>
+    <tr>
+      <td><code>hdfs://</code> </td>
+      <td><code>/vsihdfs/</code> </td>
+      <td>no </td>
+      <td>yes </td>
+    </tr>
+    <tr>
+      <td><code>s3://</code> </td>
+      <td><code>/vsis3/</code> </td>
+      <td>yes </td>
+      <td>no </td>
+    </tr>
+    <tr>
+      <td><code>s3n://</code> </td>
+      <td>no </td>
+      <td>no </td>
+      <td>yes </td>
+    </tr>
+    <tr>
+      <td><code>s3a://</code> </td>
+      <td>no </td>
+      <td>no </td>
+      <td>yes </td>
+    </tr>
+    <tr>
+      <td><code>wasb://</code> </td>
+      <td><code>/vsiaz/</code> </td>
+      <td>no </td>
+      <td>yes </td>
+    </tr>
+    <tr>
+      <td><code>wasbs://</code> </td>
+      <td>no </td>
+      <td>no </td>
+      <td>yes </td>
+    </tr>
+  </tbody>
+</table>
+<p>Specific <a href="https://gdal.org/user/virtual_file_systems.html">GDAL Virtual File System drivers</a> can be selected using the <code>gdal://&lt;vsidrv&gt;//</code> syntax. For example If you have a <code>archive.zip</code> file containing a GeoTiff named <code>my-file-inside.tif</code>, you can address it with <code>gdal://vsizip//path/to/archive.zip/my-file-inside.tif</code>. Another example would be a MRF file in an S3 bucket on AWS: <code>gdal://vsis3/my-bucket/prefix/to/raster.mrf</code>. See the GDAL documentation for the format of the URIs after the <code>gdal:/</code> scheme.</p>
+<h2><a href="#raster-catalogs" name="raster-catalogs" class="anchor"><span class="anchor-link"></span></a>Raster Catalogs</h2>
+<p>Consider the definition of a <a href="raster-catalogs.html"><em>Catalog</em></a> previously discussed, let&rsquo;s read the raster data contained in the catalog URIs. We will start with the <a href="raster-catalogs.html#using-external-catalogs">external catalog</a> of MODIS surface reflectance.</p>
+<pre class="prettyprint"><code class="language-python">from pyspark import SparkFiles
+from pyspark.sql import functions as F
+
+cat_filename = &quot;2018-07-04_scenes.txt&quot;
+spark.sparkContext.addFile(&quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/{}&quot;.format(cat_filename))
+
+modis_catalog = spark.read \
+    .format(&quot;csv&quot;) \
+    .option(&quot;header&quot;, &quot;true&quot;) \
+    .load(SparkFiles.get(cat_filename)) \
+    .withColumn(&#39;base_url&#39;,
+        F.concat(F.regexp_replace(&#39;download_url&#39;, &#39;index.html$&#39;, &#39;&#39;), &#39;gid&#39;,)
+    ) \
+    .drop(&#39;download_url&#39;) \
+    .withColumn(&#39;red&#39; , F.concat(&#39;base_url&#39;, F.lit(&quot;_B01.TIF&quot;))) \
+    .withColumn(&#39;nir&#39; , F.concat(&#39;base_url&#39;, F.lit(&quot;_B02.TIF&quot;)))
+
+modis_catalog.printSchema()
+
+print(&quot;Available scenes: &quot;, modis_catalog.count())
+</code></pre>
+<pre><code>root
+ |-- date: string (nullable = true)
+ |-- gid: string (nullable = true)
+ |-- base_url: string (nullable = true)
+ |-- red: string (nullable = true)
+ |-- nir: string (nullable = true)
+
+Available scenes:  297
+</code></pre>
+<pre class="prettyprint"><code class="language-python">modis_catalog.show(5, truncate=True)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>date </th>
+      <th>gid </th>
+      <th>base_url </th>
+      <th>red </th>
+      <th>nir </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h04v09.006.201819403285 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h01v09.006.201819403281 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h06v03.006.201819403280 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h03v09.006.201819403282 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h08v09.006.201819403283 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+  </tbody>
+</table>
+<p>MODIS data products are delivered on a regular, consistent grid, making identification of a specific area over time easy using <a href="https://modis-land.gsfc.nasa.gov/MODLAND_grid.html"><code>(h,v)</code></a> grid coordinates (see below).</p>
+<p><img src="https://modis-land.gsfc.nasa.gov/images/MODIS_sinusoidal_grid1.gif" alt="MODIS Grid" /></p>
+<p>For example, MODIS data right above the equator is all grid coordinates with <code>v07</code>.</p>
+<pre class="prettyprint"><code class="language-python">equator = modis_catalog.where(F.col(&#39;gid&#39;).like(&#39;%v07%&#39;)) 
+equator.select(&#39;date&#39;, &#39;gid&#39;) \
+    .show(10, truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>date </th>
+      <th>gid </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h07v07.006.2018194033213 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h08v07.006.2018194033224 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h09v07.006.2018194033547 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h26v07.006.2018194033904 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h12v07.006.2018194033912 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h10v07.006.2018194033728 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h03v07.006.2018194033448 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h11v07.006.2018194033519 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h15v07.006.2018194033647 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td>MCD43A4.A2018185.h18v07.006.2018194033733 </td>
+    </tr>
+  </tbody>
+</table>
+<p>Now that we have prepared our catalog, we simply pass the DataFrame or CSV string to the <code>raster</code> DataSource to load the imagery. The <code>catalog_col_names</code> parameter gives the columns that contain the URI&rsquo;s to be read.</p>
+<pre class="prettyprint"><code class="language-python">rf = spark.read.raster(
+    catalog=equator,
+    catalog_col_names=[&#39;red&#39;, &#39;nir&#39;],
+)
+rf.printSchema()
+</code></pre>
+<pre><code>root
+ |-- red_path: string (nullable = false)
+ |-- nir_path: string (nullable = false)
+ |-- red: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- nir: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- date: string (nullable = true)
+ |-- gid: string (nullable = true)
+ |-- base_url: string (nullable = true)
+</code></pre>
+<p>Observe the schema of the resulting DataFrame has a projected raster struct for each column passed in <code>catalog_col_names</code>. For reference, the URI is now in a column appended with <code>_path</code>. Taking a quick look at the representation of the data, we see again each row contains an arbitrary portion of the entire scene coverage. We also see that for two-D catalogs, each row contains the same spatial extent for all tiles in that row.</p>
+<pre class="prettyprint"><code class="language-python">rf.select(&#39;gid&#39;, rf_extent(&#39;red&#39;), rf_extent(&#39;nir&#39;), rf_tile(&#39;red&#39;), rf_tile(&#39;nir&#39;)) \
+    .show(3, truncate=True)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>gid </th>
+      <th>rf_extent(red) </th>
+      <th>rf_extent(nir) </th>
+      <th>rf_tile(red) </th>
+      <th>rf_tile(nir) </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MCD43A4.A2018185.h07v07.006.201819403321 </td>
+      <td>[-1.2231455716333E7, 2105292.9839019594, </td>
+      <td>[-1.2231455716333E7, 2105292.9839019594, </td>
+      <td>[int16ud32767, (256,256), [-2147483648,- </td>
+      <td>[int16ud32767, (256,256), [-2147483648,- </td>
+    </tr>
+    <tr>
+      <td>MCD43A4.A2018185.h07v07.006.201819403321 </td>
+      <td>[-1.211284766090196E7, 2105292.983901959 </td>
+      <td>[-1.211284766090196E7, 2105292.983901959 </td>
+      <td>[int16ud32767, (256,256), [-2147483648,- </td>
+      <td>[int16ud32767, (256,256), [-2147483648,- </td>
+    </tr>
+    <tr>
+      <td>MCD43A4.A2018185.h07v07.006.201819403321 </td>
+      <td>[-1.199423960547092E7, 2105292.983901959 </td>
+      <td>[-1.199423960547092E7, 2105292.983901959 </td>
+      <td>[int16ud32767, (256,256), [-2147483648,- </td>
+      <td>[int16ud32767, (256,256), [-2147483648,- </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#lazy-raster-reading" name="lazy-raster-reading" class="anchor"><span class="anchor-link"></span></a>Lazy Raster Reading</h2>
+<p>By default, reading raster pixel values is delayed until it is absolutely needed. The DataFrame will contain metadata and pointers to the appropriate portion of the data until reading of the source raster data is absolutely necessary. This can save a significant of computation and I/O time for two reasons. First, a catalog may contain a large number of rows. Second, the <code>raster</code> DataSource attempts to apply spatial preciates (e.g. <code>where</code>/<code>WHERE</code> clauses with <code>st_intersects</code>, et al.) at row creation, reducing the chance of unneeded data being fetched.</p>
+<p>Consider the following two reads of the same data source. In the first, the lazy case, there is a pointer to the URI, extent and band to read. This will not be evaluated until the cell values are absolutely required. The second case shows the option to force the raster to be fully loaded right away.</p>
+<pre class="prettyprint"><code class="language-python">uri = &#39;https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif&#39;
+spark.read.raster(uri) \
+    .select(&#39;proj_raster.tile&#39;) \
+    .show(1, truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>tile </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>RasterRefTile(RasterRef(GDALRasterSource(<a href="https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif),0,Some(Extent(699960.0">https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif),0,Some(Extent(699960.0</a>, 4284660.0, 715320.0, 4300020.0)))) </td>
+    </tr>
+  </tbody>
+</table>
+<pre class="prettyprint"><code class="language-python">spark.read.raster(uri, lazy_tiles=False) \
+    .select(&#39;proj_raster.tile&#39;) \
+    .show(1, truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>tile </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[uint16raw, (256,256), [533,521,519,538,553,462,443,423,403,467,&hellip;,243,246,252,243,248,246,255,245,252,254]] </td>
+    </tr>
+  </tbody>
+</table>
+<p>In the initial examples on this page, you may have noticed that the realized (non-lazy) <em>tiles</em> are shown, but we did not change <code>lazy_tiles</code>. Instead, we used <a href="reference.html#rf-tile"><code>rf_tile</code></a> to explicitly request the realized <em>tile</em> from the lazy representation.</p>
+<h2><a href="#multiband-rasters" name="multiband-rasters" class="anchor"><span class="anchor-link"></span></a>Multiband Rasters</h2>
+<p>A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated for different spectral <a href="concepts.html#band">bands</a>. The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could measure other phenomena such as time, quality indications, or additional gas concentrations, etc.</p>
+<p>Multiband rasters files have a strictly ordered set of bands, which are typically indexed from 1. Some files have metadata tags associated with each band. Some files have a color interpetation metadata tag indicating how to interpret the bands.</p>
+<p>When reading a multiband raster or a <em>catalog</em> describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, <strong>indexed from zero</strong>, as a list of integers into the <code>band_indexes</code> parameter of the <code>raster</code> reader.</p>
+<p>For example, we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting DataFrame still represent distinct spatial extents, with a projected raster column for each band specified by <code>band_indexes</code>.</p>
+<pre class="prettyprint"><code class="language-python">mb = spark.read.raster(&#39;s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif&#39;,
+                       band_indexes=[0, 1, 2, 3],
+                      )
+mb.printSchema()
+</code></pre>
+<pre><code>root
+ |-- proj_raster_path: string (nullable = false)
+ |-- proj_raster_b0: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- proj_raster_b1: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- proj_raster_b2: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- proj_raster_b3: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+</code></pre>
+<p>If a band is passed into <code>band_indexes</code> that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but the column will be full of <code>null</code> values.</p>
+<p>You can also pass a <code>catalog</code> and <code>band_indexes</code> together into the <code>raster</code> reader. This will create a projected raster column for the combination of all items passed into <code>catalog_col_names</code> and <code>band_indexes</code>. Again if a band in <code>band_indexes</code> exceeds the number of bands in a raster, it will have a <code>null</code> value for the corresponding column.</p>
+<p>Here is a trivial example with a <em>catalog</em> over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.</p>
+<pre class="prettyprint"><code class="language-python">import pandas as pd
+mb_cat = pd.DataFrame([
+    {&#39;foo&#39;: &#39;s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif&#39;,
+     &#39;bar&#39;: &#39;s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif&#39;,
+    },
+])
+mb2 = spark.read.raster(catalog=spark.createDataFrame(mb_cat),
+                       catalog_col_names=[&#39;foo&#39;, &#39;bar&#39;],
+                       band_indexes=[0, 1],
+                       tile_dimensions=(64,64)
+                      )
+mb2.printSchema()
+</code></pre>
+<pre><code>root
+ |-- foo_path: string (nullable = false)
+ |-- bar_path: string (nullable = false)
+ |-- foo_b0: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- foo_b1: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- bar_b0: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- bar_b1: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+</code></pre>
+<h2><a href="#geotrellis" name="geotrellis" class="anchor"><span class="anchor-link"></span></a>GeoTrellis</h2>
+<h3><a href="#geotrellis-catalogs" name="geotrellis-catalogs" class="anchor"><span class="anchor-link"></span></a>GeoTrellis Catalogs</h3>
+<p><a href="https://geotrellis.readthedocs.io/en/latest/">GeoTrellis</a> is one of the key libraries upon which RasterFrames is built. It provides a Scala language API for working with geospatial raster data. GeoTrellis defines a <a href="https://geotrellis.readthedocs.io/en/latest/guide/tile-backends.html">tile layer storage</a> format for persisting imagery mosaics. RasterFrames provides a DataSource supporting both <a href="raster-read.html#geotrellis-layers">reading</a> and <a href="raster-write.html#geotrellis-layers">writing</a> GeoTrellis layers.</p>
+<p>A GeoTrellis catalog is a set of GeoTrellis layers. We can read a DataFrame giving details of the content of a catalog using the syntax below. The scheme is typically <code>hdfs</code> or <code>file</code>, or a cloud storage provider like <code>s3</code>.</p>
+<pre class="prettyprint"><code class="language-python">gt_cat = spark.read.geotrellis_catalog(&#39;scheme://path-to-gt-catalog&#39;)
+</code></pre>
+<h3><a href="#geotrellis-layers" name="geotrellis-layers" class="anchor"><span class="anchor-link"></span></a>GeoTrellis Layers</h3>
+<p>The catalog will give details on the individual layers available for query. We can read each layer with the URI to the catalog, the layer name, and the desired zoom level.</p>
+<pre class="prettyprint"><code class="language-python">gt_layer = spark.read.geotrellis(path=&#39;scheme://path-to-gt-catalog&#39;, layer=layer_name, zoom=zoom_level)
+</code></pre>
+<p>This will return a RasterFrame with additional <a href="https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html#layouts-and-tile-layers">GeoTrellis-specific metadata</a>, inherited from GeoTrellis, stored as JSON in the metadata of the <em>tile</em> column.</p>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="raster-write.html">Writing Raster Data</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="raster-read.html#reading-raster-data" class="header">Reading Raster Data</a>
+  <ul>
+    <li><a href="raster-read.html#single-raster" class="header">Single Raster</a></li>
+    <li><a href="raster-read.html#uri-formats" class="header">URI Formats</a></li>
+    <li><a href="raster-read.html#raster-catalogs" class="header">Raster Catalogs</a></li>
+    <li><a href="raster-read.html#lazy-raster-reading" class="header">Lazy Raster Reading</a></li>
+    <li><a href="raster-read.html#multiband-rasters" class="header">Multiband Rasters</a></li>
+    <li><a href="raster-read.html#geotrellis" class="header">GeoTrellis</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

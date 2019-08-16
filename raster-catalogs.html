@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Raster Catalogs · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="active page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="active page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li><a href="raster-io.html">Raster Data I/O</a></li>
+  <li>Raster Catalogs</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#raster-catalogs" name="raster-catalogs" class="anchor"><span class="anchor-link"></span></a>Raster Catalogs</h1>
+<p>While interesting processing can be done on a <a href="raster-read.html#single-raster">single raster file</a>, RasterFrames shines when <em>catalogs</em> of raster data are to be processed. In its simplest form, a <em>catalog</em> is a list of <a href="raster-read.html#uri-formats">URLs referencing raster files</a>. This list can be a Spark DataFrame, Pandas DataFrame, CSV file or CSV string. The <em>catalog</em> is input into the <code>raster</code> DataSource described in the <a href="raster-read.html">next page</a>, which creates <em>tiles</em> from the rasters at the referenced URLs.</p>
+<p>A <em>catalog</em> can have one or two dimensions:</p>
+<ul>
+  <li>One-D: A single column contains raster URLs across the rows. All referenced rasters represent the same <a href="concepts.html#band">band</a>. For example, a column of URLs to Landsat 8 near-infrared rasters covering Europe. Each row represents different places and times.</li>
+  <li>Two-D: Many columns contain raster URLs. Each column references the same band, and each row represents the same place and time. For example, red-, green-, and blue-band columns for scenes covering Europe. Each row represents a single <a href="concepts.html#scene">scene</a> with the same resolution, extent, <a href="https://en.wikipedia.org/wiki/Spatial_reference_system"><em>CRS</em></a>, etc across the row.</li>
+</ul>
+<h2><a href="#creating-a-catalog" name="creating-a-catalog" class="anchor"><span class="anchor-link"></span></a>Creating a Catalog</h2>
+<p>This section will provide some examples of <em>catalogs</em> creation, as well as introduce some experimental <em>catalogs</em> built into RasterFrames. Reading raster data represented by a <em>catalog</em> is covered in more detail in the <a href="raster-read.html">next page</a>.</p>
+<h3><a href="#one-d" name="one-d" class="anchor"><span class="anchor-link"></span></a>One-D</h3>
+<p>A single URL is the simplest form of a catalog.</p>
+<pre class="prettyprint"><code class="language-python">file_uri = &quot;/data/raster/myfile.tif&quot;
+# Pandas DF
+my_cat = pd.DataFrame({&#39;B01&#39;: [file_uri]})
+
+# equivalent Spark DF
+from pyspark.sql import Row
+my_cat = spark.createDataFrame([Row(B01=file_uri)])
+
+#equivalent CSV string
+my_cat = &quot;B01\n{}&quot;.format(file_uri)
+</code></pre>
+<p>A single column represents the same content type with different observations along the rows. In this example it is band 1 of MODIS surface reflectance, which is visible red. In the example the location of the images is the same, indicated by the granule identifier <code>h04v09</code>, but the dates differ: 2018185 (July 4, 2018) and 2018188 (July 7, 2018).</p>
+<pre class="prettyprint"><code class="language-python">scene1_B01 = &quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF&quot;
+scene2_B01 = &quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF&quot;
+
+# a pandas DF
+one_d_cat_pd = pd.DataFrame({&#39;B01&#39;: [scene1_B01, scene2_B01]})
+
+# equivalent spark DF
+one_d_cat_df = spark.createDataFrame([Row(B01=scene1_B01), Row(B01=scene2_B01)])
+
+# equivalent CSV string
+one_d_cat_csv = &#39;\n&#39;.join([&#39;B01&#39;, scene1_B01, scene2_B01])
+</code></pre>
+<p>This is what it looks like in DataFrame form:</p>
+<pre class="prettyprint"><code class="language-python">one_d_cat_df.show(truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>B01 </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF">https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF</a> </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF">https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF</a> </td>
+    </tr>
+  </tbody>
+</table>
+<h3><a href="#two-d" name="two-d" class="anchor"><span class="anchor-link"></span></a>Two-D</h3>
+<p>In this example, multiple columns representing multiple content types (bands) across multiple scenes. In each row, the scene is the same: granule id <code>h04v09</code> on July 4 or July 7, 2018. The first column is band 1, red, and the second is band 2, near infrared.</p>
+<pre class="prettyprint"><code class="language-python">scene1_B01 = &quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF&quot;
+scene1_B02 = &quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B02.TIF&quot;
+scene2_B01 = &quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF&quot;
+scene2_B02 = &quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B02.TIF&quot;
+
+# Pandas DF
+two_d_cat_pd = pd.DataFrame([
+    {&#39;B01&#39;: [scene1_B01], &#39;B02&#39;: [scene1_B02]},
+    {&#39;B01&#39;: [scene2_B01], &#39;B02&#39;: [scene2_B02]}
+])     
+
+# or
+two_d_cat_df = spark.createDataFrame([
+    Row(B01=scene1_B01, B02=scene1_B02),
+    Row(B01=scene2_B01, B02=scene2_B02)
+])
+    
+# As CSV string
+tow_d_cat_csv = &#39;\n&#39;.join([&#39;B01,B02&#39;, scene1_B01 + &quot;,&quot; + scene1_B02, scene2_B01 + &quot;,&quot; + scene2_B02])
+</code></pre>
+<p>This is what it looks like in DataFrame form:</p>
+<pre class="prettyprint"><code class="language-python">two_d_cat_df.show(truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>B01 </th>
+      <th>B02 </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF">https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B01.TIF</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B02.TIF">https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/MCD43A4.A2018185.h04v09.006.2018194032851_B02.TIF</a> </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF">https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B01.TIF</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B02.TIF">https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43A4.A2018188.h04v09.006.2018198232008_B02.TIF</a> </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#using-external-catalogs" name="using-external-catalogs" class="anchor"><span class="anchor-link"></span></a>Using External Catalogs</h2>
+<p>The concept of a <em>catalog</em> is much more powerful when we consider examples beyond constructing the DataFrame, and instead read the data from an external source. Here&rsquo;s an extended example of reading a cloud-hosted CSV file containing MODIS scene metadata and transforming it into a <em>catalog</em>. The metadata describing the content of each URL is an important aspect of processing raster data.</p>
+<pre class="prettyprint"><code class="language-python">from pyspark import SparkFiles
+from pyspark.sql import functions as F
+
+spark.sparkContext.addFile(&quot;https://modis-pds.s3.amazonaws.com/MCD43A4.006/2018-07-04_scenes.txt&quot;)
+
+scene_list = spark.read \
+    .format(&quot;csv&quot;) \
+    .option(&quot;header&quot;, &quot;true&quot;) \
+    .load(SparkFiles.get(&quot;2018-07-04_scenes.txt&quot;))
+scene_list.show(4, truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>date </th>
+      <th>download_url </th>
+      <th>gid </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/index.html">https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018185/index.html</a> </td>
+      <td>MCD43A4.A2018185.h04v09.006.2018194032851 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/01/09/2018185/index.html">https://modis-pds.s3.amazonaws.com/MCD43A4.006/01/09/2018185/index.html</a> </td>
+      <td>MCD43A4.A2018185.h01v09.006.2018194032819 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/06/03/2018185/index.html">https://modis-pds.s3.amazonaws.com/MCD43A4.006/06/03/2018185/index.html</a> </td>
+      <td>MCD43A4.A2018185.h06v03.006.2018194032807 </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43A4.006/03/09/2018185/index.html">https://modis-pds.s3.amazonaws.com/MCD43A4.006/03/09/2018185/index.html</a> </td>
+      <td>MCD43A4.A2018185.h03v09.006.2018194032826 </td>
+    </tr>
+  </tbody>
+</table>
+<p>Observe the scenes list file has URIs to <code>index.html</code> files in the download_url column. The image URI&rsquo;s are in the same directory. The filenames are of the form <code>${gid}_B${band}.TIF</code>. The next code chunk builds these URIs, which completes our catalog.</p>
+<pre class="prettyprint"><code class="language-python">modis_catalog = scene_list \
+    .withColumn(&#39;base_url&#39;,
+        F.concat(F.regexp_replace(&#39;download_url&#39;, &#39;index.html$&#39;, &#39;&#39;), &#39;gid&#39;,)
+    ) \
+    .withColumn(&#39;B01&#39; , F.concat(&#39;base_url&#39;, F.lit(&quot;_B01.TIF&quot;))) \
+    .withColumn(&#39;B02&#39; , F.concat(&#39;base_url&#39;, F.lit(&quot;_B02.TIF&quot;))) \
+    .withColumn(&#39;B03&#39; , F.concat(&#39;base_url&#39;, F.lit(&quot;_B03.TIF&quot;)))
+modis_catalog.show(4, truncate=True)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>date </th>
+      <th>download_url </th>
+      <th>gid </th>
+      <th>base_url </th>
+      <th>B01 </th>
+      <th>B02 </th>
+      <th>B03 </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>MCD43A4.A2018185.h04v09.006.201819403285 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>MCD43A4.A2018185.h01v09.006.201819403281 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>MCD43A4.A2018185.h06v03.006.201819403280 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+    <tr>
+      <td>2018-07-04 00:00:00 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>MCD43A4.A2018185.h03v09.006.201819403282 </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#using-built-in-catalogs" name="using-built-in-catalogs" class="anchor"><span class="anchor-link"></span></a>Using Built-in Catalogs</h2>
+<p>RasterFrames comes with two experimental catalogs over the AWS PDS <a href="https://docs.opendata.aws/landsat-pds/readme.html">Landsat 8</a> and <a href="https://docs.opendata.aws/modis-pds/readme.html">MODIS</a> repositories. They are created by downloading the latest scene lists and building up the appropriate band URI columns as in the prior example.</p>
+<blockquote>
+  <p>Note: The first time you run these may take some time, as the catalogs are large and have to be downloaded. However, they are cached and subsequent invocations should be faster.</p>
+</blockquote>
+<h3><a href="#modis" name="modis" class="anchor"><span class="anchor-link"></span></a>MODIS</h3>
+<pre class="prettyprint"><code class="language-python">modis_catalog = spark.read.format(&#39;aws-pds-modis-catalog&#39;).load()
+modis_catalog.printSchema()
+</code></pre>
+<pre><code>root
+ |-- product_id: string (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- granule_id: string (nullable = false)
+ |-- gid: string (nullable = false)
+ |-- B01: string (nullable = true)
+ |-- B01qa: string (nullable = true)
+ |-- B02: string (nullable = true)
+ |-- B02qa: string (nullable = true)
+ |-- B03: string (nullable = true)
+ |-- B03aq: string (nullable = true)
+ |-- B04: string (nullable = true)
+ |-- B04qa: string (nullable = true)
+ |-- B05: string (nullable = true)
+ |-- B05qa: string (nullable = true)
+ |-- B06: string (nullable = true)
+ |-- B06qa: string (nullable = true)
+ |-- B07: string (nullable = true)
+ |-- B07qa: string (nullable = true)
+</code></pre>
+<h3><a href="#landsat-8" name="landsat-8" class="anchor"><span class="anchor-link"></span></a>Landsat 8</h3>
+<p>The Landsat 8 catalog includes a richer set of metadata describing the contents of each scene.</p>
+<pre class="prettyprint"><code class="language-python">l8 = spark.read.format(&#39;aws-pds-l8-catalog&#39;).load()
+l8.printSchema()
+</code></pre>
+<pre><code>root
+ |-- product_id: string (nullable = false)
+ |-- entity_id: string (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- cloud_cover_pct: float (nullable = false)
+ |-- processing_level: string (nullable = false)
+ |-- path: short (nullable = false)
+ |-- row: short (nullable = false)
+ |-- bounds_wgs84: struct (nullable = false)
+ |    |-- minX: double (nullable = false)
+ |    |-- maxX: double (nullable = false)
+ |    |-- minY: double (nullable = false)
+ |    |-- maxY: double (nullable = false)
+ |-- B1: string (nullable = true)
+ |-- B2: string (nullable = true)
+ |-- B3: string (nullable = true)
+ |-- B4: string (nullable = true)
+ |-- B5: string (nullable = true)
+ |-- B6: string (nullable = true)
+ |-- B7: string (nullable = true)
+ |-- B8: string (nullable = true)
+ |-- B9: string (nullable = true)
+ |-- B10: string (nullable = true)
+ |-- B11: string (nullable = true)
+ |-- BQA: string (nullable = true)
+</code></pre>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="raster-read.html">Reading Raster Data</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="raster-catalogs.html#raster-catalogs" class="header">Raster Catalogs</a>
+  <ul>
+    <li><a href="raster-catalogs.html#creating-a-catalog" class="header">Creating a Catalog</a></li>
+    <li><a href="raster-catalogs.html#using-external-catalogs" class="header">Using External Catalogs</a></li>
+    <li><a href="raster-catalogs.html#using-built-in-catalogs" class="header">Using Built-in Catalogs</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

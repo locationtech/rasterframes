@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Supervised Machine Learning · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a>
+    <ul>
+      <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a></li>
+      <li><a href="supervised-learning.html" class="active page">Supervised Machine Learning</a></li>
+    </ul></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a>
+    <ul>
+      <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a></li>
+      <li><a href="supervised-learning.html" class="active page">Supervised Machine Learning</a></li>
+    </ul></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li><a href="raster-processing.html">Raster Processing</a></li>
+  <li><a href="machine-learning.html">Machine Learning</a></li>
+  <li>Supervised Machine Learning</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#supervised-machine-learning" name="supervised-machine-learning" class="anchor"><span class="anchor-link"></span></a>Supervised Machine Learning</h1>
+<p>In this example we will demonstrate how to fit and score a supervised learning model with a sample of Sentinel-2 data and hand-drawn vector labels over different <a href="https://en.wikipedia.org/wiki/Land_cover">land cover</a> types.</p>
+<h2><a href="#create-and-read-raster-catalog" name="create-and-read-raster-catalog" class="anchor"><span class="anchor-link"></span></a>Create and Read Raster Catalog</h2>
+<p>The first step is to create a Spark DataFrame containing our imagery data. To achieve that we will create <a href="raster-catalogs.html#creating-a-catalog">a catalog DataFrame</a>. In the catalog, each row represents a distinct area and time, and each column is the URI to a band&rsquo;s image product. In this example our catalog just has one row. After reading the catalog, the resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.</p>
+<p>The imagery for feature data will come from <a href="https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/resolutions/spatial">eleven bands of 60 meter resolution Sentinel-2</a> imagery. We also will use the <a href="https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm">scene classification (SCL)</a> data to identify high quality, non-cloudy pixels.</p>
+<pre class="prettyprint"><code class="language-python">uri_base = &#39;s3://s22s-test-geotiffs/luray_snp/{}.tif&#39;
+bands = [&#39;B01&#39;, &#39;B02&#39;, &#39;B03&#39;, &#39;B04&#39;, &#39;B05&#39;, &#39;B06&#39;, &#39;B07&#39;, &#39;B08&#39;, &#39;B09&#39;, &#39;B11&#39;, &#39;B12&#39;]
+cols = [&#39;SCL&#39;] + bands
+
+catalog_df = pd.DataFrame([
+    {b: uri_base.format(b) for b in cols}
+])
+
+df = spark.read.raster(catalog=catalog_df,
+					   catalog_col_names=cols,
+					   tile_dimensions=(128, 128)
+					   ).repartition(100)
+
+df = df.select(
+    rf_crs(df.B01).alias(&#39;crs&#39;),
+    rf_extent(df.B01).alias(&#39;extent&#39;),
+    rf_tile(df.SCL).alias(&#39;scl&#39;),
+    rf_tile(df.B01).alias(&#39;B01&#39;),
+    rf_tile(df.B02).alias(&#39;B02&#39;),
+    rf_tile(df.B03).alias(&#39;B03&#39;),
+    rf_tile(df.B04).alias(&#39;B04&#39;),
+    rf_tile(df.B05).alias(&#39;B05&#39;),
+    rf_tile(df.B06).alias(&#39;B06&#39;),
+    rf_tile(df.B07).alias(&#39;B07&#39;),
+    rf_tile(df.B08).alias(&#39;B08&#39;),
+    rf_tile(df.B09).alias(&#39;B09&#39;),
+    rf_tile(df.B11).alias(&#39;B11&#39;),
+    rf_tile(df.B12).alias(&#39;B12&#39;),
+)
+df.printSchema()
+</code></pre>
+<pre><code>root
+ |-- crs: struct (nullable = true)
+ |    |-- crsProj4: string (nullable = false)
+ |-- extent: struct (nullable = true)
+ |    |-- xmin: double (nullable = false)
+ |    |-- ymin: double (nullable = false)
+ |    |-- xmax: double (nullable = false)
+ |    |-- ymax: double (nullable = false)
+ |-- scl: tile (nullable = true)
+ |-- B01: tile (nullable = true)
+ |-- B02: tile (nullable = true)
+ |-- B03: tile (nullable = true)
+ |-- B04: tile (nullable = true)
+ |-- B05: tile (nullable = true)
+ |-- B06: tile (nullable = true)
+ |-- B07: tile (nullable = true)
+ |-- B08: tile (nullable = true)
+ |-- B09: tile (nullable = true)
+ |-- B11: tile (nullable = true)
+ |-- B12: tile (nullable = true)
+</code></pre>
+<h2><a href="#data-prep" name="data-prep" class="anchor"><span class="anchor-link"></span></a>Data Prep</h2>
+<h3><a href="#label-data" name="label-data" class="anchor"><span class="anchor-link"></span></a>Label Data</h3>
+<p>The land classification labels are based on a small set of hand drawn polygons in the GeoJSON file <a href="https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/test/resources/luray-labels.geojson">here</a>. The property <code>id</code> indicates the type of land cover in each area. For these integer values, 1 is forest, 2 is cropland, and 3 is developed areas.</p>
+<p>We will create a very small Spark DataFrame of the label shapes and then join it to the raster DataFrame. Such joins are typically expensive, but in this case both datasets are quite small. To speed up the join for the small vector DataFrame, we put the <code>broadcast</code> hint on it, which will tell Spark to put a copy of it on each Spark executor.</p>
+<p>After the raster and vector data are joined, we will convert the vector shapes into <em>tiles</em> using the <a href="reference.html#rf-rasterize"><code>rf_rasterize</code></a> function. This procedure is sometimes called &ldquo;burning in&rdquo; a geometry into a raster. The values in the resulting <em>tile</em> cells are the <code>id</code> property of the GeoJSON, which we will use as labels in our supervised learning task. In areas where the geometry does not intersect, the cells will contain NoData.</p>
+<pre class="prettyprint"><code class="language-python">crses = df.select(&#39;crs.crsProj4&#39;).distinct().collect()
+print(&#39;Found &#39;, len(crses), &#39;distinct CRS.&#39;)
+crs = crses[0][0]
+
+label_df = spark.read.geojson(os.path.join(resource_dir_uri(), &#39;luray-labels.geojson&#39;)) \
+					 .select(&#39;id&#39;, st_reproject(&#39;geometry&#39;, lit(&#39;EPSG:4326&#39;), lit(crs)).alias(&#39;geometry&#39;)) \
+					 .hint(&#39;broadcast&#39;)
+
+df_joined = df.join(label_df, st_intersects(st_geometry(&#39;extent&#39;), &#39;geometry&#39;))
+
+df_joined.createOrReplaceTempView(&#39;df_joined&#39;)
+df_labeled = spark.sql(&quot;&quot;&quot;
+SELECT *, rf_rasterize(geometry, st_geometry(extent), id, rf_dimensions(B01).cols, rf_dimensions(B01).rows) AS label
+FROM df_joined
+&quot;&quot;&quot;)
+</code></pre>
+<pre><code>Found  1 distinct CRS.
+</code></pre>
+<h2><a href="#masking-poor-quality-cells" name="masking-poor-quality-cells" class="anchor"><span class="anchor-link"></span></a>Masking Poor Quality Cells</h2>
+<p>To filter only for good quality pixels, we follow roughly the same procedure as demonstrated in the <a href="nodata-handling.html#masking">quality masking</a> section of the chapter on NoData. Instead of actually setting NoData values in the unwanted cells of any of the imagery bands, we will just filter out the mask cell values later in the process.</p>
+<pre class="prettyprint"><code class="language-python">from pyspark.sql.functions import lit
+
+mask_part = df_labeled.withColumn(&#39;nodata&#39;, rf_local_equal(&#39;scl&#39;, lit(0))) \
+              .withColumn(&#39;defect&#39;, rf_local_equal(&#39;scl&#39;, lit(1))) \
+              .withColumn(&#39;cloud8&#39;, rf_local_equal(&#39;scl&#39;, lit(8))) \
+              .withColumn(&#39;cloud9&#39;, rf_local_equal(&#39;scl&#39;, lit(9))) \
+              .withColumn(&#39;cirrus&#39;, rf_local_equal(&#39;scl&#39;, lit(10)))
+
+df_mask_inv = mask_part.withColumn(&#39;mask&#39;, rf_local_add(&#39;nodata&#39;, &#39;defect&#39;)) \
+                   .withColumn(&#39;mask&#39;, rf_local_add(&#39;mask&#39;, &#39;cloud8&#39;)) \
+                   .withColumn(&#39;mask&#39;, rf_local_add(&#39;mask&#39;, &#39;cloud9&#39;)) \
+                   .withColumn(&#39;mask&#39;, rf_local_add(&#39;mask&#39;, &#39;cirrus&#39;)) \
+                   .drop(&#39;nodata&#39;, &#39;defect&#39;, &#39;cloud8&#39;, &#39;cloud9&#39;, &#39;cirrus&#39;)
+# at this point the mask contains 0 for good cells and 1 for defect, etc
+# convert cell type and set value 1 to NoData
+df_mask = df_mask_inv.withColumn(&#39;mask&#39;,
+  rf_with_no_data(rf_convert_cell_type(&#39;mask&#39;, &#39;uint8&#39;), 1.0)
+)
+
+df_mask.printSchema()
+</code></pre>
+<pre><code>root
+ |-- crs: struct (nullable = true)
+ |    |-- crsProj4: string (nullable = false)
+ |-- extent: struct (nullable = true)
+ |    |-- xmin: double (nullable = false)
+ |    |-- ymin: double (nullable = false)
+ |    |-- xmax: double (nullable = false)
+ |    |-- ymax: double (nullable = false)
+ |-- scl: tile (nullable = true)
+ |-- B01: tile (nullable = true)
+ |-- B02: tile (nullable = true)
+ |-- B03: tile (nullable = true)
+ |-- B04: tile (nullable = true)
+ |-- B05: tile (nullable = true)
+ |-- B06: tile (nullable = true)
+ |-- B07: tile (nullable = true)
+ |-- B08: tile (nullable = true)
+ |-- B09: tile (nullable = true)
+ |-- B11: tile (nullable = true)
+ |-- B12: tile (nullable = true)
+ |-- id: long (nullable = true)
+ |-- geometry: geometry (nullable = true)
+ |-- label: tile (nullable = true)
+ |-- mask: tile (nullable = true)
+</code></pre>
+<h2><a href="#create-ml-pipeline" name="create-ml-pipeline" class="anchor"><span class="anchor-link"></span></a>Create ML Pipeline</h2>
+<p>We import various Spark components that we need to construct our <a href="https://spark.apache.org/docs/latest/ml-pipeline.html">Pipeline</a>. These are the objects that will work in sequence to conduct the data preparation and modeling.</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes import TileExploder
+from pyrasterframes.rf_types import NoDataFilter
+
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.classification import DecisionTreeClassifier
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+from pyspark.ml import Pipeline
+</code></pre>
+<p>SparkML requires that each observation be in its own row, and those observations be packed into a single <a href="https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#module-pyspark.ml.linalg"><code>Vector</code></a> object. The first step is to &ldquo;explode&rdquo; the <em>tiles</em> into a single row per cell or pixel with the <code>TileExploder</code> (see also <a href="reference.html#rf_explode_tiles"><code>rf_explode_tiles</code></a>). If a <em>tile</em> cell contains a NoData it will become a null value after the exploder stage. Then we use the <code>NoDataFilter</code> to filter out any rows that missing or null values, which will cause an error during training. Finally we use the SparkML <code>VectorAssembler</code> to create that <code>Vector</code>.</p>
+<p>Recall above we set undesirable pixels to NoData, so the <code>NoDataFilter</code> will remove them at this stage. We apply the filter to the <code>mask</code> column and the <code>label</code> column, the latter being used during training. When it is time to score the model, the pipeline will ignore the fact that there is no <code>label</code> column on the input DataFrame.</p>
+<pre class="prettyprint"><code class="language-python">exploder = TileExploder()
+
+noDataFilter = NoDataFilter() \
+  .setInputCols([&#39;label&#39;, &#39;mask&#39;])
+
+assembler = VectorAssembler() \
+  .setInputCols(bands) \
+  .setOutputCol(&quot;features&quot;)
+</code></pre>
+<p>We are going to use a decision tree for classification. You can swap out one of the other multi-class classification algorithms if you like. With the algorithm selected we can assemble our modeling pipeline.</p>
+<pre class="prettyprint"><code class="language-python">classifier = DecisionTreeClassifier() \
+  .setLabelCol(&#39;label&#39;) \
+  .setFeaturesCol(assembler.getOutputCol())
+
+pipeline = Pipeline() \
+  .setStages([exploder, noDataFilter, assembler, classifier])
+
+pipeline.getStages()
+</code></pre>
+<pre><code>[TileExploder_492bb6c75a65d03fcdc1,
+ NoDataFilter_4839bd02d3350c005e3f,
+ VectorAssembler_44e1841963792bb0b257,
+ DecisionTreeClassifier_4bf6950768b31724654c]
+</code></pre>
+<h2><a href="#train-the-model" name="train-the-model" class="anchor"><span class="anchor-link"></span></a>Train the Model</h2>
+<p>The next step is to actually run each step of the Pipeline we created, including fitting the decision tree model. We filter the DataFrame for only <em>tiles</em> intersecting the label raster because the label shapes are relatively sparse over the imagery. It would be logically equivalent to either include or exclude thi step, but it is more efficient to filter because it will mean less data going into the pipeline.</p>
+<pre class="prettyprint"><code class="language-python">model = pipeline.fit(df_mask.filter(rf_tile_sum(&#39;label&#39;) &gt; 0).cache())
+</code></pre>
+<h2><a href="#model-evaluation" name="model-evaluation" class="anchor"><span class="anchor-link"></span></a>Model Evaluation</h2>
+<p>To view the model&rsquo;s performance, we first call the pipeline&rsquo;s <code>transform</code> method on the training dataset. This transformed dataset will have the model&rsquo;s prediction included in each row. We next construct an evaluator and pass it the transformed dataset to easily compute the performance metric. We can also create custom metrics using a variety of DataFrame or SQL transformations.</p>
+<pre class="prettyprint"><code class="language-python">prediction_df = model.transform(df_mask) \
+                       .drop(assembler.getOutputCol()).cache()
+prediction_df.printSchema()
+
+eval = MulticlassClassificationEvaluator(predictionCol=classifier.getPredictionCol(),
+										 labelCol=classifier.getLabelCol(),
+										 metricName=&#39;accuracy&#39;)
+
+accuracy = eval.evaluate(prediction_df)
+print(&quot;\nAccuracy:&quot;, accuracy)
+</code></pre>
+<pre><code>root
+ |-- crs: struct (nullable = true)
+ |    |-- crsProj4: string (nullable = false)
+ |-- extent: struct (nullable = true)
+ |    |-- xmin: double (nullable = false)
+ |    |-- ymin: double (nullable = false)
+ |    |-- xmax: double (nullable = false)
+ |    |-- ymax: double (nullable = false)
+ |-- id: long (nullable = true)
+ |-- geometry: geometry (nullable = true)
+ |-- column_index: integer (nullable = false)
+ |-- row_index: integer (nullable = false)
+ |-- scl: double (nullable = false)
+ |-- B01: double (nullable = false)
+ |-- B02: double (nullable = false)
+ |-- B03: double (nullable = false)
+ |-- B04: double (nullable = false)
+ |-- B05: double (nullable = false)
+ |-- B06: double (nullable = false)
+ |-- B07: double (nullable = false)
+ |-- B08: double (nullable = false)
+ |-- B09: double (nullable = false)
+ |-- B11: double (nullable = false)
+ |-- B12: double (nullable = false)
+ |-- label: double (nullable = false)
+ |-- mask: double (nullable = false)
+ |-- rawPrediction: vector (nullable = true)
+ |-- probability: vector (nullable = true)
+ |-- prediction: double (nullable = false)
+
+
+Accuracy: 0.9752298457564015
+</code></pre>
+<p>As an example of using the flexibility provided by DataFrames, the code below computes and displays the confusion matrix. </p>
+<pre class="prettyprint"><code class="language-python">prediction_df.groupBy(classifier.getPredictionCol()) \
+    .pivot(classifier.getLabelCol()) \
+    .count() \
+	.sort(classifier.getPredictionCol()).show(truncate=False)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>prediction </th>
+      <th>1.0 </th>
+      <th>2.0 </th>
+      <th>3.0 </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0 </td>
+      <td>6616 </td>
+      <td>7 </td>
+      <td>48 </td>
+    </tr>
+    <tr>
+      <td>2.0 </td>
+      <td>2 </td>
+      <td>1755 </td>
+      <td>58 </td>
+    </tr>
+    <tr>
+      <td>3.0 </td>
+      <td>49 </td>
+      <td>162 </td>
+      <td>4464 </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#visualize-prediction" name="visualize-prediction" class="anchor"><span class="anchor-link"></span></a>Visualize Prediction</h2>
+<p>Because the pipeline included a <code>TileExploder</code>, we will recreate the tiled data structure. The explosion transformation includes metadata enabling us to recreate the <em>tiles</em>. See the <a href="reference.html#rf-assemble-tile"><code>rf_assemble_tile</code></a> function documentation for more details. In this case, the pipeline is scoring on all areas, regardless of whether they intersect the label polygons. This is simply done by removing the <code>label</code> column, as <a href="supervised-learning.html#create-ml-pipeline">discussed above</a>.</p>
+<pre class="prettyprint"><code class="language-python">scored = model.transform(df_mask.drop(&#39;label&#39;))
+scored.createOrReplaceTempView(&#39;scored&#39;)
+
+retiled = spark.sql(&quot;&quot;&quot;
+SELECT extent, crs,
+    rf_assemble_tile(column_index, row_index, prediction, 128, 128) as prediction,
+    rf_assemble_tile(column_index, row_index, B04, 128, 128) as red,
+    rf_assemble_tile(column_index, row_index, B03, 128, 128) as grn,
+    rf_assemble_tile(column_index, row_index, B02, 128, 128) as blu
+FROM scored
+GROUP BY extent, crs
+&quot;&quot;&quot;)
+
+retiled.printSchema()
+</code></pre>
+<pre><code>root
+ |-- extent: struct (nullable = true)
+ |    |-- xmin: double (nullable = false)
+ |    |-- ymin: double (nullable = false)
+ |    |-- xmax: double (nullable = false)
+ |    |-- ymax: double (nullable = false)
+ |-- crs: struct (nullable = true)
+ |    |-- crsProj4: string (nullable = false)
+ |-- prediction: tile (nullable = true)
+ |-- red: tile (nullable = true)
+ |-- grn: tile (nullable = true)
+ |-- blu: tile (nullable = true)
+</code></pre>
+<p>Take a look at a sample of the resulting output and the corresponding area&rsquo;s red-green-blue composite image.</p>
+<pre class="prettyprint"><code class="language-python">sample = retiled.select(&#39;prediction&#39;, &#39;red&#39;, &#39;grn&#39;, &#39;blu&#39;) \
+    .sort(-rf_tile_sum(rf_local_equal(&#39;prediction&#39;, lit(3.0)))) \
+    .first()
+
+sample_prediction = sample[&#39;prediction&#39;]
+
+red = sample[&#39;red&#39;].cells
+grn = sample[&#39;grn&#39;].cells
+blu = sample[&#39;blu&#39;].cells
+sample_rgb = np.concatenate([red[ :, :, None], grn[:, :, None] , blu[ :, :, None]], axis=2)
+mins = np.nanmin(sample_rgb, axis=(0,1))
+plt.imshow((sample_rgb -  mins)/ (np.nanmax(sample_rgb, axis=(0,1)) - mins))
+</code></pre>
+<pre><code>/anaconda3/lib/python3.6/site-packages/numpy/core/_methods.py:29: RuntimeWarning: invalid value encountered in reduce
+  return umr_minimum(a, axis, None, out, keepdims)
+</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x117614e48&gt;
+</code></pre>
+<p><img src="figures/supervised-learning_display_rgb_1.png" /></p>
+<p>Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow).</p>
+<pre class="prettyprint"><code class="language-python">display(sample_prediction)
+</code></pre>
+<p><img src="figures/supervised-learning_display_prediction_1.png" /></p>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="numpy-pandas.html">NumPy and Pandas</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="supervised-learning.html#supervised-machine-learning" class="header">Supervised Machine Learning</a>
+  <ul>
+    <li><a href="supervised-learning.html#create-and-read-raster-catalog" class="header">Create and Read Raster Catalog</a></li>
+    <li><a href="supervised-learning.html#data-prep" class="header">Data Prep</a></li>
+    <li><a href="supervised-learning.html#masking-poor-quality-cells" class="header">Masking Poor Quality Cells</a></li>
+    <li><a href="supervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
+    <li><a href="supervised-learning.html#train-the-model" class="header">Train the Model</a></li>
+    <li><a href="supervised-learning.html#model-evaluation" class="header">Model Evaluation</a></li>
+    <li><a href="supervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

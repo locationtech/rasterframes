@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>API Languages · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="active page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="active page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>API Languages</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#api-languages" name="api-languages" class="anchor"><span class="anchor-link"></span></a>API Languages</h1>
+<p>One of the great powers of RasterFrames, afforded by Spark SQL, is the ability to express computation in multiple programming languages. This documentation focuses on Python because it is the most commonly used language in data science and GIS analytics. However, Scala (the implementation language of RasterFrames) and SQL are also fully supported. Examples in Python can be mechanically translated into the other two languages without much difficulty once the naming conventions are understood. In the sections below we will show the same example program in each language. We will compute the average NDVI per month for a single <em>tile</em> in Tanzania.</p>
+<h2><a href="#python" name="python" class="anchor"><span class="anchor-link"></span></a>Python</h2>
+<h3><a href="#step-1-load-the-catalog" name="step-1-load-the-catalog" class="anchor"><span class="anchor-link"></span></a>Step 1: Load the catalog</h3>
+<pre class="prettyprint"><code class="language-python">modis = spark.read.format(&#39;aws-pds-modis-catalog&#39;).load()
+</code></pre>
+<h3><a href="#step-2-down-select-data-by-month" name="step-2-down-select-data-by-month" class="anchor"><span class="anchor-link"></span></a>Step 2: Down-select data by month</h3>
+<pre class="prettyprint"><code class="language-python">red_nir_monthly_2017 = modis \
+    .select(
+        col(&#39;granule_id&#39;),
+        month(&#39;acquisition_date&#39;).alias(&#39;month&#39;),
+        col(&#39;B01&#39;).alias(&#39;red&#39;),
+        col(&#39;B02&#39;).alias(&#39;nir&#39;)
+    ) \
+    .where(
+        (year(&#39;acquisition_date&#39;) == 2017) &amp; 
+        (dayofmonth(&#39;acquisition_date&#39;) == 15) &amp; 
+        (col(&#39;granule_id&#39;) == &#39;h21v09&#39;)
+    )
+red_nir_monthly_2017.printSchema()
+</code></pre>
+<pre><code>root
+ |-- granule_id: string (nullable = false)
+ |-- month: integer (nullable = false)
+ |-- red: string (nullable = true)
+ |-- nir: string (nullable = true)
+</code></pre>
+<h3><a href="#step-3-read-tiles" name="step-3-read-tiles" class="anchor"><span class="anchor-link"></span></a>Step 3: Read tiles</h3>
+<pre class="prettyprint"><code class="language-python">red_nir_tiles_monthly_2017 = spark.read.raster(
+    catalog=red_nir_monthly_2017,
+    catalog_col_names=[&#39;red&#39;, &#39;nir&#39;],
+    tile_dimensions=(256, 256)
+)
+</code></pre>
+<h3><a href="#step-4-compute-aggregates" name="step-4-compute-aggregates" class="anchor"><span class="anchor-link"></span></a>Step 4: Compute aggregates</h3>
+<pre class="prettyprint"><code class="language-python">result = red_nir_tiles_monthly_2017 \
+    .where(st_intersects(
+        st_reproject(rf_geometry(col(&#39;red&#39;)), rf_crs(col(&#39;red&#39;)).crsProj4, rf_mk_crs(&#39;EPSG:4326&#39;)),
+        st_makePoint(lit(34.870605), lit(-4.729727)))
+    ) \
+    .groupBy(&#39;month&#39;) \
+    .agg(rf_agg_stats(rf_normalized_difference(col(&#39;nir&#39;), col(&#39;red&#39;))).alias(&#39;ndvi_stats&#39;)) \
+    .orderBy(col(&#39;month&#39;)) \
+    .select(&#39;month&#39;, &#39;ndvi_stats.*&#39;)
+result.show()
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>month </th>
+      <th>data_cells </th>
+      <th>no_data_cells </th>
+      <th>min </th>
+      <th>max </th>
+      <th>mean </th>
+      <th>variance </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1 </td>
+      <td>65267 </td>
+      <td>13 </td>
+      <td>-0.2519809825673534 </td>
+      <td>0.8644836272040303 </td>
+      <td>0.4062197426115297 </td>
+      <td>0.014052143780240473 </td>
+    </tr>
+    <tr>
+      <td>2 </td>
+      <td>65265 </td>
+      <td>15 </td>
+      <td>-0.21232123212321233 </td>
+      <td>0.8872390789756832 </td>
+      <td>0.46739547393654163 </td>
+      <td>0.011785911926331244 </td>
+    </tr>
+    <tr>
+      <td>3 </td>
+      <td>64186 </td>
+      <td>1094 </td>
+      <td>-0.36211340206185566 </td>
+      <td>0.9208261617900172 </td>
+      <td>0.5809354401199841 </td>
+      <td>0.011565190994422658 </td>
+    </tr>
+    <tr>
+      <td>4 </td>
+      <td>64003 </td>
+      <td>1277 </td>
+      <td>-0.17252657399836469 </td>
+      <td>0.922397476340694 </td>
+      <td>0.5251178588259107 </td>
+      <td>0.010838388803375454 </td>
+    </tr>
+    <tr>
+      <td>5 </td>
+      <td>60722 </td>
+      <td>4558 </td>
+      <td>-0.19951338199513383 </td>
+      <td>0.916626036079961 </td>
+      <td>0.4644951934303207 </td>
+      <td>0.012128022419874457 </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#sql" name="sql" class="anchor"><span class="anchor-link"></span></a>SQL</h2>
+<p>For convenience, we&rsquo;re going to evaluate SQL from the Python environment. The SQL fragments should work in the <code>spark-sql</code> shell just the same.</p>
+<pre class="prettyprint"><code class="language-python">def sql(stmt):
+    return spark.sql(stmt)
+</code></pre>
+<h3><a href="#step-1-load-the-catalog" name="step-1-load-the-catalog" class="anchor"><span class="anchor-link"></span></a>Step 1: Load the catalog</h3>
+<pre class="prettyprint"><code class="language-python">sql(&quot;CREATE OR REPLACE TEMPORARY VIEW modis USING `aws-pds-modis-catalog`&quot;)
+</code></pre>
+<h3><a href="#step-2-down-select-data-by-month" name="step-2-down-select-data-by-month" class="anchor"><span class="anchor-link"></span></a>Step 2: Down-select data by month</h3>
+<pre class="prettyprint"><code class="language-python">sql(&quot;&quot;&quot;
+CREATE OR REPLACE TEMPORARY VIEW red_nir_monthly_2017 AS
+SELECT granule_id, month(acquisition_date) as month, B01 as red, B02 as nir
+FROM modis
+WHERE year(acquisition_date) = 2017 AND day(acquisition_date) = 15 AND granule_id = &#39;h21v09&#39;
+&quot;&quot;&quot;)
+sql(&#39;DESCRIBE red_nir_monthly_2017&#39;).show()
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>col_name </th>
+      <th>data_type </th>
+      <th>comment </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>granule_id </td>
+      <td>string </td>
+    </tr>
+    <tr>
+      <td>month </td>
+      <td>int </td>
+    </tr>
+    <tr>
+      <td>red </td>
+      <td>string </td>
+    </tr>
+    <tr>
+      <td>nir </td>
+      <td>string </td>
+    </tr>
+  </tbody>
+</table>
+<h3><a href="#step-3-read-tiles" name="step-3-read-tiles" class="anchor"><span class="anchor-link"></span></a>Step 3: Read tiles</h3>
+<pre class="prettyprint"><code class="language-python">sql(&quot;&quot;&quot;
+CREATE OR REPLACE TEMPORARY VIEW red_nir_tiles_monthly_2017
+USING raster
+OPTIONS (
+    catalogTable=&#39;red_nir_monthly_2017&#39;,
+    catalogColumns=&#39;red,nir&#39;,
+    tileDimensions=&#39;256,256&#39;
+    )
+&quot;&quot;&quot;)
+</code></pre>
+<h3><a href="#step-4-compute-aggregates" name="step-4-compute-aggregates" class="anchor"><span class="anchor-link"></span></a>Step 4: Compute aggregates</h3>
+<pre class="prettyprint"><code class="language-python">sql(&quot;&quot;&quot;
+SELECT month, ndvi_stats.* FROM (
+    SELECT month, rf_agg_stats(rf_normalized_difference(nir, red)) as ndvi_stats
+    FROM red_nir_tiles_monthly_2017
+    WHERE st_intersects(st_reproject(rf_geometry(red), rf_crs(red), &#39;EPSG:4326&#39;), st_makePoint(34.870605, -4.729727))
+    GROUP BY month
+    ORDER BY month
+)
+&quot;&quot;&quot;).show()
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>month </th>
+      <th>data_cells </th>
+      <th>no_data_cells </th>
+      <th>min </th>
+      <th>max </th>
+      <th>mean </th>
+      <th>variance </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1 </td>
+      <td>65267 </td>
+      <td>13 </td>
+      <td>-0.2519809825673534 </td>
+      <td>0.8644836272040303 </td>
+      <td>0.4062197426115297 </td>
+      <td>0.014052143780240473 </td>
+    </tr>
+    <tr>
+      <td>2 </td>
+      <td>65265 </td>
+      <td>15 </td>
+      <td>-0.21232123212321233 </td>
+      <td>0.8872390789756832 </td>
+      <td>0.46739547393654163 </td>
+      <td>0.011785911926331244 </td>
+    </tr>
+    <tr>
+      <td>3 </td>
+      <td>64186 </td>
+      <td>1094 </td>
+      <td>-0.36211340206185566 </td>
+      <td>0.9208261617900172 </td>
+      <td>0.5809354401199841 </td>
+      <td>0.011565190994422658 </td>
+    </tr>
+    <tr>
+      <td>4 </td>
+      <td>64003 </td>
+      <td>1277 </td>
+      <td>-0.17252657399836469 </td>
+      <td>0.922397476340694 </td>
+      <td>0.5251178588259107 </td>
+      <td>0.010838388803375454 </td>
+    </tr>
+    <tr>
+      <td>5 </td>
+      <td>60722 </td>
+      <td>4558 </td>
+      <td>-0.19951338199513383 </td>
+      <td>0.916626036079961 </td>
+      <td>0.4644951934303207 </td>
+      <td>0.012128022419874457 </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#scala" name="scala" class="anchor"><span class="anchor-link"></span></a>Scala</h2>
+<p>The latest Scala API documentation is available here:</p>
+<ul>
+  <li><a href="https://rasterframes.io/latest/api/index.html">Scala API Documentation</a></li>
+</ul>
+<h3><a href="#step-1-load-the-catalog" name="step-1-load-the-catalog" class="anchor"><span class="anchor-link"></span></a>Step 1: Load the catalog</h3>
+<pre class="prettyprint"><code class="language-scala">import geotrellis.proj4.LatLng
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.datasource.raster._
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+
+
+implicit val spark = SparkSession.builder()
+  .master(&quot;local[*]&quot;)
+  .appName(&quot;RasterFrames&quot;)
+  .withKryoSerialization
+  .getOrCreate()
+  .withRasterFrames
+
+import spark.implicits._
+
+val modis = spark.read.format(&quot;aws-pds-modis-catalog&quot;).load()
+</code></pre>
+<h3><a href="#step-2-down-select-data-by-month" name="step-2-down-select-data-by-month" class="anchor"><span class="anchor-link"></span></a>Step 2: Down-select data by month</h3>
+<pre class="prettyprint"><code class="language-scala">val red_nir_monthly_2017 = modis
+  .select($&quot;granule_id&quot;, month($&quot;acquisition_date&quot;) as &quot;month&quot;, $&quot;B01&quot; as &quot;red&quot;, $&quot;B02&quot; as &quot;nir&quot;)
+  .where(year($&quot;acquisition_date&quot;) === 2017 &amp;&amp; (dayofmonth($&quot;acquisition_date&quot;) === 15) &amp;&amp; $&quot;granule_id&quot; === &quot;h21v09&quot;)
+</code></pre>
+<h3><a href="#step-3-read-tiles" name="step-3-read-tiles" class="anchor"><span class="anchor-link"></span></a>Step 3: Read tiles</h3>
+<pre class="prettyprint"><code class="language-scala">val red_nir_tiles_monthly_2017 = spark.read.raster
+  .fromCatalog(red_nir_monthly_2017, &quot;red&quot;, &quot;nir&quot;)
+  .load()
+</code></pre>
+<h3><a href="#step-4-compute-aggregates" name="step-4-compute-aggregates" class="anchor"><span class="anchor-link"></span></a>Step 4: Compute aggregates</h3>
+<pre class="prettyprint"><code class="language-scala">val result = red_nir_tiles_monthly_2017
+  .where(st_intersects(
+    st_reproject(rf_geometry($&quot;red&quot;), rf_crs($&quot;red&quot;), LatLng),
+    st_makePoint(34.870605, -4.729727)
+  ))
+  .groupBy(&quot;month&quot;)
+  .agg(rf_agg_stats(rf_normalized_difference($&quot;nir&quot;, $&quot;red&quot;)) as &quot;ndvi_stats&quot;)
+  .orderBy(&quot;month&quot;)
+  .select(&quot;month&quot;, &quot;ndvi_stats.*&quot;)
+  
+result.show()  
+</code></pre>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="reference.html">Function Reference</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="languages.html#api-languages" class="header">API Languages</a>
+  <ul>
+    <li><a href="languages.html#python" class="header">Python</a></li>
+    <li><a href="languages.html#sql" class="header">SQL</a></li>
+    <li><a href="languages.html#scala" class="header">Scala</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

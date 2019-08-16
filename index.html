@@ -15,7 +15,7 @@ gtag('config', 'UA-106630615-1');
 <title>RasterFrames</title>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="js/page.js"></script>
@@ -31,6 +31,8 @@ gtag('config', 'UA-106630615-1');
 .md-left { float: left; }
 .md-right { float: right; }
 .md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
 </style>
 </head>
 
@@ -45,27 +47,31 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC4
+0.8.0
 </div>
 </div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
-  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
   <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
   </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
   <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
@@ -100,27 +106,31 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC4
+0.8.0
 </div>
 </div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
-  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
   <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
   </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
   <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
@@ -140,74 +150,292 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
 <h1><a href="#rasterframes" name="rasterframes" class="anchor"><span class="anchor-link"></span></a>RasterFrames</h1>
-<p>RasterFrames® brings together Earth-observing (EO) data analysis, big data computing, and DataFrame-based data science. The recent explosion of EO data from public and private satellite operators presents both a huge opportunity as well as a challenge to the data analysis community. It is <em>Big Data</em> in the truest sense, and its footprint is rapidly getting bigger. </p>
-<p>RasterFrames provides a DataFrame-centric view over arbitrary EO data, enabling spatiotemporal queries, map algebra raster operations, and compatibility with the ecosystem of Spark ML algorithms. By using DataFrames as the core cognitive and compute data model, it is able to deliver these features in a form that is accessible to general analysts while handling the rapidly growing data footprint.</p>
+<p>RasterFrames® brings together Earth-observation (EO) data access, cloud computing, and DataFrame-based data science. The recent explosion of EO data from public and private satellite operators presents both a huge opportunity and a huge challenge to the data analysis community. It is <em>Big Data</em> in the truest sense, and its footprint is rapidly getting bigger. </p>
+<p>RasterFrames provides a DataFrame-centric view over arbitrary raster data, enabling spatiotemporal queries, map algebra raster operations, and compatibility with the ecosystem of Spark ML algorithms. By using DataFrames as the core cognitive and compute data model, it is able to deliver these features in a form that is both accessible to general analysts and scalable along with the rapidly growing data footprint.</p>
 <p>To learn more, please see the <a href="getting-started.html">Getting Started</a> section of this manual.</p>
 <p>The source code can be found on GitHub at <a href="https://github.com/locationtech/rasterframes">locationtech/rasterframes</a>.</p>
-<img src="RasterFramePipeline.svg" width="600px"/>
+<img src="RasterFramePipeline.png" width="600px"/>
 <hr/><div class="md-left">
 <h2><a href="#detailed-contents" name="detailed-contents" class="anchor"><span class="anchor-link"></span></a>Detailed Contents</h2>
 <div class="toc ">
 <ul>
   <li><a href="index.html#related-links" class="header">Related Links</a></li>
-  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a>
+  <li><a href="description.html" class="page">Overview</a>
   <ul>
-    <li><a href="getting-started.html#quick-start" class="header">Quick Start</a></li>
-    <li><a href="getting-started.html#general-setup" class="header">General Setup</a></li>
+    <li><a href="description.html#context" class="header">Context</a></li>
+    <li><a href="description.html#benefit" class="header">Benefit</a></li>
+    <li><a href="description.html#architecture" class="header">Architecture</a></li>
   </ul></li>
-  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a>
+  <li><a href="getting-started.html" class="page">Getting Started</a>
   <ul>
-    <li><a href="creating-rasterframes.html#initialization" class="header">Initialization</a></li>
-    <li><a href="creating-rasterframes.html#reading-a-geotiff" class="header">Reading a GeoTIFF</a></li>
-    <li><a href="creating-rasterframes.html#reading-a-geotrellis-layer" class="header">Reading a GeoTrellis Layer</a></li>
-    <li><a href="creating-rasterframes.html#writing-a-geotrellis-layer" class="header">Writing a GeoTrellis Layer</a></li>
-    <li><a href="creating-rasterframes.html#using-geotrellis-apis" class="header">Using GeoTrellis APIs</a></li>
-    <li><a href="creating-rasterframes.html#inspecting-a-rasterframe" class="header">Inspecting a <code>RasterFrame</code></a></li>
+    <li><a href="getting-started.html#pip-install-pyrasterframes" class="header">pip install pyrasterframes</a></li>
+    <li><a href="getting-started.html#next-steps" class="header">Next Steps</a></li>
+    <li><a href="getting-started.html#other-options" class="header">Other Options</a>
+    <ul>
+      <li><a href="getting-started.html#using-jupyter-notebook" class="header">Using Jupyter Notebook</a></li>
+      <li><a href="getting-started.html#using-pyspark-shell" class="header">Using <code>pyspark</code> shell</a></li>
+    </ul></li>
+    <li><a href="getting-started.html#installing-gdal" class="header">Installing GDAL</a>
+    <ul>
+      <li><a href="getting-started.html#installing-on-macos" class="header">Installing on MacOS</a></li>
+      <li><a href="getting-started.html#installing-on-linux" class="header">Installing on Linux</a></li>
+      <li><a href="getting-started.html#testing-for-gdal" class="header">Testing For GDAL</a></li>
+    </ul></li>
   </ul></li>
-  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
+  <li><a href="concepts.html" class="page">Concepts</a>
   <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+    <li><a href="concepts.html#raster" class="header">Raster</a></li>
+    <li><a href="concepts.html#cell" class="header">Cell</a></li>
+    <li><a href="concepts.html#cell-type" class="header">Cell Type</a></li>
+    <li><a href="concepts.html#nodata" class="header">NoData</a></li>
+    <li><a href="concepts.html#scene" class="header">Scene</a></li>
+    <li><a href="concepts.html#band" class="header">Band</a></li>
+    <li><a href="concepts.html#coordinate-reference-system-crs-" class="header">Coordinate Reference System (CRS)</a></li>
+    <li><a href="concepts.html#extent" class="header">Extent</a></li>
+    <li><a href="concepts.html#tile" class="header">Tile</a></li>
   </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
   <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a>
+    <ul>
+      <li><a href="raster-catalogs.html#creating-a-catalog" class="header">Creating a Catalog</a></li>
+      <li><a href="raster-catalogs.html#using-external-catalogs" class="header">Using External Catalogs</a></li>
+      <li><a href="raster-catalogs.html#using-built-in-catalogs" class="header">Using Built-in Catalogs</a></li>
+    </ul></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a>
+    <ul>
+      <li><a href="raster-read.html#single-raster" class="header">Single Raster</a></li>
+      <li><a href="raster-read.html#uri-formats" class="header">URI Formats</a></li>
+      <li><a href="raster-read.html#raster-catalogs" class="header">Raster Catalogs</a></li>
+      <li><a href="raster-read.html#lazy-raster-reading" class="header">Lazy Raster Reading</a></li>
+      <li><a href="raster-read.html#multiband-rasters" class="header">Multiband Rasters</a></li>
+      <li><a href="raster-read.html#geotrellis" class="header">GeoTrellis</a></li>
+    </ul></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a>
+    <ul>
+      <li><a href="raster-write.html#tile-samples" class="header">Tile Samples</a></li>
+      <li><a href="raster-write.html#dataframe-samples" class="header">DataFrame Samples</a></li>
+      <li><a href="raster-write.html#geotiffs" class="header">GeoTIFFs</a></li>
+      <li><a href="raster-write.html#geotrellis-layers" class="header">GeoTrellis Layers</a></li>
+      <li><a href="raster-write.html#parquet" class="header">Parquet</a></li>
+    </ul></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a>
+  <li><a href="vector-data.html" class="page">Vector Data</a>
   <ul>
-    <li><a href="exporting-rasterframes.html#converting-to-array" class="header">Converting to Array</a></li>
-    <li><a href="exporting-rasterframes.html#writing-to-parquet" class="header">Writing to Parquet</a></li>
-    <li><a href="exporting-rasterframes.html#exporting-a-raster" class="header">Exporting a Raster</a></li>
-    <li><a href="exporting-rasterframes.html#exporting-to-a-geotrellis-layer" class="header">Exporting to a GeoTrellis Layer</a></li>
-    <li><a href="exporting-rasterframes.html#converting-to-rdd-and-tilelayerrdd" class="header">Converting to <code>RDD</code> and <code>TileLayerRDD</code></a></li>
+    <li><a href="vector-data.html#geojson-datasource" class="header">GeoJSON DataSource</a></li>
+    <li><a href="vector-data.html#geopandas-and-rasterframes" class="header">GeoPandas and RasterFrames</a></li>
+    <li><a href="vector-data.html#shapely-geometry-support" class="header">Shapely Geometry Support</a></li>
+    <li><a href="vector-data.html#geomesa-functions-and-spatial-relations" class="header">GeoMesa Functions and Spatial Relations</a></li>
+  </ul></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a>
+    <ul>
+      <li><a href="local-algebra.html#computing-ndvi" class="header">Computing NDVI</a></li>
+    </ul></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a>
+    <ul>
+      <li><a href="nodata-handling.html#what-is-nodata-" class="header">What is NoData?</a></li>
+      <li><a href="nodata-handling.html#cell-types" class="header">Cell Types</a></li>
+      <li><a href="nodata-handling.html#masking" class="header">Masking</a></li>
+      <li><a href="nodata-handling.html#nodata-and-local-arithmetic" class="header">NoData and Local Arithmetic</a></li>
+      <li><a href="nodata-handling.html#changing-a-tiles-nodata-values" class="header">Changing a Tile&rsquo;s NoData Values</a></li>
+      <li><a href="nodata-handling.html#combining-tiles-with-different-data-types" class="header">Combining Tiles with Different Data Types</a></li>
+      <li><a href="nodata-handling.html#nodata-values-in-aggregation" class="header">NoData Values in Aggregation</a></li>
+    </ul></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a>
+    <ul>
+      <li><a href="aggregation.html#tile-mean-example" class="header">Tile Mean Example</a></li>
+      <li><a href="aggregation.html#cell-counts-example" class="header">Cell Counts Example</a></li>
+      <li><a href="aggregation.html#statistical-summaries" class="header">Statistical Summaries</a></li>
+      <li><a href="aggregation.html#histogram" class="header">Histogram</a></li>
+    </ul></li>
+    <li><a href="time-series.html" class="page">Time Series</a>
+    <ul>
+      <li><a href="time-series.html#analysis-plan" class="header">Analysis Plan</a></li>
+      <li><a href="time-series.html#catalog-read" class="header">Catalog Read</a></li>
+      <li><a href="time-series.html#vector-and-raster-data-interaction" class="header">Vector and Raster Data Interaction</a></li>
+      <li><a href="time-series.html#create-time-series" class="header">Create Time Series</a></li>
+    </ul></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a>
+    <ul>
+      <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a></li>
+      <li><a href="supervised-learning.html" class="page">Supervised Machine Learning</a></li>
+    </ul></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a>
+  <ul>
+    <li><a href="numpy-pandas.html#performance-considerations" class="header">Performance Considerations</a></li>
+    <li><a href="numpy-pandas.html#the-tile-class" class="header">The <code>Tile</code> Class</a></li>
+    <li><a href="numpy-pandas.html#dataframe-topandas" class="header">DataFrame <code>toPandas</code></a></li>
+    <li><a href="numpy-pandas.html#user-defined-functions" class="header">User Defined Functions</a></li>
+    <li><a href="numpy-pandas.html#creating-a-spark-dataframe" class="header">Creating a Spark DataFrame</a></li>
+  </ul></li>
+  <li><a href="languages.html" class="page">API Languages</a>
+  <ul>
+    <li><a href="languages.html#python" class="header">Python</a>
+    <ul>
+      <li><a href="languages.html#step-1-load-the-catalog" class="header">Step 1: Load the catalog</a></li>
+      <li><a href="languages.html#step-2-down-select-data-by-month" class="header">Step 2: Down-select data by month</a></li>
+      <li><a href="languages.html#step-3-read-tiles" class="header">Step 3: Read tiles</a></li>
+      <li><a href="languages.html#step-4-compute-aggregates" class="header">Step 4: Compute aggregates</a></li>
+    </ul></li>
+    <li><a href="languages.html#sql" class="header">SQL</a>
+    <ul>
+      <li><a href="languages.html#step-1-load-the-catalog" class="header">Step 1: Load the catalog</a></li>
+      <li><a href="languages.html#step-2-down-select-data-by-month" class="header">Step 2: Down-select data by month</a></li>
+      <li><a href="languages.html#step-3-read-tiles" class="header">Step 3: Read tiles</a></li>
+      <li><a href="languages.html#step-4-compute-aggregates" class="header">Step 4: Compute aggregates</a></li>
+    </ul></li>
+    <li><a href="languages.html#scala" class="header">Scala</a>
+    <ul>
+      <li><a href="languages.html#step-1-load-the-catalog" class="header">Step 1: Load the catalog</a></li>
+      <li><a href="languages.html#step-2-down-select-data-by-month" class="header">Step 2: Down-select data by month</a></li>
+      <li><a href="languages.html#step-3-read-tiles" class="header">Step 3: Read tiles</a></li>
+      <li><a href="languages.html#step-4-compute-aggregates" class="header">Step 4: Compute aggregates</a></li>
+    </ul></li>
   </ul></li>
   <li><a href="reference.html" class="page">Function Reference</a>
   <ul>
     <li><a href="reference.html#list-of-available-sql-and-python-functions" class="header">List of Available SQL and Python Functions</a></li>
+    <li><a href="reference.html#vector-operations" class="header">Vector Operations</a>
+    <ul>
+      <li><a href="reference.html#st-reproject" class="header">st_reproject</a></li>
+      <li><a href="reference.html#st-extent" class="header">st_extent</a></li>
+      <li><a href="reference.html#st-geometry" class="header">st_geometry</a></li>
+    </ul></li>
+    <li><a href="reference.html#tile-metadata-and-mutation" class="header">Tile Metadata and Mutation</a>
+    <ul>
+      <li><a href="reference.html#rf-dimensions" class="header">rf_dimensions</a></li>
+      <li><a href="reference.html#rf-cell-type" class="header">rf_cell_type</a></li>
+      <li><a href="reference.html#rf-tile" class="header">rf_tile</a></li>
+      <li><a href="reference.html#rf-extent" class="header">rf_extent</a></li>
+      <li><a href="reference.html#rf-crs" class="header">rf_crs</a></li>
+      <li><a href="reference.html#rf-mk-crs" class="header">rf_mk_crs</a></li>
+      <li><a href="reference.html#rf-convert-cell-type" class="header">rf_convert_cell_type</a></li>
+      <li><a href="reference.html#rf-resample" class="header">rf_resample</a></li>
+    </ul></li>
+    <li><a href="reference.html#tile-creation" class="header">Tile Creation</a>
+    <ul>
+      <li><a href="reference.html#rf-make-zeros-tile" class="header">rf_make_zeros_tile</a></li>
+      <li><a href="reference.html#rf-make-ones-tile" class="header">rf_make_ones_tile</a></li>
+      <li><a href="reference.html#rf-make-constant-tile" class="header">rf_make_constant_tile</a></li>
+      <li><a href="reference.html#rf-rasterize" class="header">rf_rasterize</a></li>
+      <li><a href="reference.html#rf-array-to-tile" class="header">rf_array_to_tile</a></li>
+      <li><a href="reference.html#rf-assemble-tile" class="header">rf_assemble_tile</a></li>
+    </ul></li>
+    <li><a href="reference.html#masking-and-nodata" class="header">Masking and NoData</a>
+    <ul>
+      <li><a href="reference.html#rf-mask" class="header">rf_mask</a></li>
+      <li><a href="reference.html#rf-inverse-mask" class="header">rf_inverse_mask</a></li>
+      <li><a href="reference.html#rf-mask-by-value" class="header">rf_mask_by_value</a></li>
+      <li><a href="reference.html#rf-is-no-data-tile" class="header">rf_is_no_data_tile</a></li>
+      <li><a href="reference.html#rf-with-no-data" class="header">rf_with_no_data</a></li>
+    </ul></li>
+    <li><a href="reference.html#local-map-algebra" class="header">Local Map Algebra</a>
+    <ul>
+      <li><a href="reference.html#rf-local-add" class="header">rf_local_add</a></li>
+      <li><a href="reference.html#rf-local-subtract" class="header">rf_local_subtract</a></li>
+      <li><a href="reference.html#rf-local-multiply" class="header">rf_local_multiply</a></li>
+      <li><a href="reference.html#rf-local-divide" class="header">rf_local_divide</a></li>
+      <li><a href="reference.html#rf-normalized-difference" class="header">rf_normalized_difference</a></li>
+      <li><a href="reference.html#rf-local-less" class="header">rf_local_less</a></li>
+      <li><a href="reference.html#rf-local-less-equal" class="header">rf_local_less_equal</a></li>
+      <li><a href="reference.html#rf-local-greater" class="header">rf_local_greater</a></li>
+      <li><a href="reference.html#rf-local-greater-equal" class="header">rf_local_greater_equal</a></li>
+      <li><a href="reference.html#rf-local-equal" class="header">rf_local_equal</a></li>
+      <li><a href="reference.html#rf-local-unequal" class="header">rf_local_unequal</a></li>
+      <li><a href="reference.html#rf-round" class="header">rf_round</a></li>
+      <li><a href="reference.html#rf-abs" class="header">rf_abs</a></li>
+      <li><a href="reference.html#rf-exp" class="header">rf_exp</a></li>
+      <li><a href="reference.html#rf-exp10" class="header">rf_exp10</a></li>
+      <li><a href="reference.html#rf-exp2" class="header">rf_exp2</a></li>
+      <li><a href="reference.html#rf-expm1" class="header">rf_expm1</a></li>
+      <li><a href="reference.html#rf-log" class="header">rf_log</a></li>
+      <li><a href="reference.html#rf-log10" class="header">rf_log10</a></li>
+      <li><a href="reference.html#rf-log2" class="header">rf_log2</a></li>
+      <li><a href="reference.html#rf-log1p" class="header">rf_log1p</a></li>
+    </ul></li>
+    <li><a href="reference.html#tile-statistics" class="header">Tile Statistics</a>
+    <ul>
+      <li><a href="reference.html#rf-tile-sum" class="header">rf_tile_sum</a></li>
+      <li><a href="reference.html#rf-tile-mean" class="header">rf_tile_mean</a></li>
+      <li><a href="reference.html#rf-tile-min" class="header">rf_tile_min</a></li>
+      <li><a href="reference.html#rf-tile-max" class="header">rf_tile_max</a></li>
+      <li><a href="reference.html#rf-no-data-cells" class="header">rf_no_data_cells</a></li>
+      <li><a href="reference.html#rf-data-cells" class="header">rf_data_cells</a></li>
+      <li><a href="reference.html#rf-exists" class="header">rf_exists</a></li>
+      <li><a href="reference.html#rf-for-all" class="header">rf_for_all</a></li>
+      <li><a href="reference.html#rf-tile-stats" class="header">rf_tile_stats</a></li>
+      <li><a href="reference.html#rf-tile-histogram" class="header">rf_tile_histogram</a></li>
+    </ul></li>
+    <li><a href="reference.html#aggregate-tile-statistics" class="header">Aggregate Tile Statistics</a>
+    <ul>
+      <li><a href="reference.html#rf-agg-mean" class="header">rf_agg_mean</a></li>
+      <li><a href="reference.html#rf-agg-data-cells" class="header">rf_agg_data_cells</a></li>
+      <li><a href="reference.html#rf-agg-no-data-cells" class="header">rf_agg_no_data_cells</a></li>
+      <li><a href="reference.html#rf-agg-stats" class="header">rf_agg_stats</a></li>
+      <li><a href="reference.html#rf-agg-approx-histogram" class="header">rf_agg_approx_histogram</a></li>
+    </ul></li>
+    <li><a href="reference.html#tile-local-aggregate-statistics" class="header">Tile Local Aggregate Statistics</a>
+    <ul>
+      <li><a href="reference.html#rf-agg-local-max" class="header">rf_agg_local_max</a></li>
+      <li><a href="reference.html#rf-agg-local-min" class="header">rf_agg_local_min</a></li>
+      <li><a href="reference.html#rf-agg-local-mean" class="header">rf_agg_local_mean</a></li>
+      <li><a href="reference.html#rf-agg-local-data-cells" class="header">rf_agg_local_data_cells</a></li>
+      <li><a href="reference.html#rf-agg-local-no-data-cells" class="header">rf_agg_local_no_data_cells</a></li>
+      <li><a href="reference.html#rf-agg-local-stats" class="header">rf_agg_local_stats</a></li>
+    </ul></li>
+    <li><a href="reference.html#converting-tiles" class="header">Converting Tiles</a>
+    <ul>
+      <li><a href="reference.html#rf-explode-tiles" class="header">rf_explode_tiles</a></li>
+      <li><a href="reference.html#rf-explode-tiles-sample" class="header">rf_explode_tiles_sample</a></li>
+      <li><a href="reference.html#rf-tile-to-array-int" class="header">rf_tile_to_array_int</a></li>
+      <li><a href="reference.html#rf-tile-to-array-double" class="header">rf_tile_to_array_double</a></li>
+      <li><a href="reference.html#rf-render-ascii" class="header">rf_render_ascii</a></li>
+      <li><a href="reference.html#rf-render-matrix" class="header">rf_render_matrix</a></li>
+    </ul></li>
   </ul></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a>
   <ul>
-    <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a></li>
-    <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a></li>
-    <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a></li>
-    <li><a href="release-notes.html#0-5-x" class="header">0.5.x</a></li>
+    <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a>
+    <ul>
+      <li><a href="release-notes.html#0-8-0" class="header">0.8.0</a></li>
+    </ul></li>
+    <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a>
+    <ul>
+      <li><a href="release-notes.html#0-7-1" class="header">0.7.1</a></li>
+      <li><a href="release-notes.html#0-7-0" class="header">0.7.0</a></li>
+    </ul></li>
+    <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a>
+    <ul>
+      <li><a href="release-notes.html#0-6-1" class="header">0.6.1</a></li>
+      <li><a href="release-notes.html#0-6-0" class="header">0.6.0</a></li>
+    </ul></li>
+    <li><a href="release-notes.html#0-5-x" class="header">0.5.x</a>
+    <ul>
+      <li><a href="release-notes.html#0-5-12" class="header">0.5.12</a></li>
+      <li><a href="release-notes.html#0-5-11" class="header">0.5.11</a></li>
+      <li><a href="release-notes.html#0-5-10" class="header">0.5.10</a></li>
+      <li><a href="release-notes.html#0-5-9" class="header">0.5.9</a></li>
+      <li><a href="release-notes.html#0-5-8" class="header">0.5.8</a></li>
+      <li><a href="release-notes.html#0-5-7" class="header">0.5.7</a></li>
+      <li><a href="release-notes.html#0-5-6" class="header">0.5.6</a></li>
+      <li><a href="release-notes.html#0-5-5" class="header">0.5.5</a></li>
+    </ul></li>
   </ul></li>
 </ul>
 </div></div><div class="md-right">
 <h2><a href="#related-links" name="related-links" class="anchor"><span class="anchor-link"></span></a>Related Links</h2>
 <ul>
-  <li><a href="https://gitter.im/s22s/raster-frames">Gitter Channel</a>&nbsp;&nbsp;<a href="https://gitter.im/s22s/raster-frames?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/s22s/raster-frames.svg" alt="Join the chat at https://gitter.im/s22s/raster-frames" /></a></li>
-  <li><a href="latest/api/index.html">API Documentation</a></li>
+  <li><a href="https://gitter.im/locationtech/rasterframes">Gitter Channel</a></li>
+  <li><a href="latest/api/index.html">Scala API Documentation</a></li>
   <li><a href="https://github.com/locationtech/rasterframes">GitHub Repository</a></li>
-  <li><a href="http://www.astraea.earth/">Astraea, Inc.</a> (the company behind RasterFrames)</li>
+  <li><a href="http://www.astraea.earth/">Astraea, Inc.</a>, the company behind RasterFrames</li>
 </ul></div><div class="md-clear">
 <p>&nbsp;</p></div>
 <div class="nav-next">
-<p><strong>Next:</strong> <a href="getting-started.html">Getting&nbsp;Started</a></p>
+<p><strong>Next:</strong> <a href="description.html">Overview</a></p>
 </div>
 </div>
 <div class="large-3 show-for-large column" data-sticky-container>
@@ -259,7 +487,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2019
+<span class="text">Copyright &copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

@@ -12,10 +12,10 @@ gtag('js', new Date());
 gtag('config', 'UA-106630615-1');
 </script>
 
-<title>Getting&nbsp;Started · RasterFrames</title>
+<title>Getting Started · RasterFrames</title>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="js/page.js"></script>
@@ -31,6 +31,8 @@ gtag('config', 'UA-106630615-1');
 .md-left { float: left; }
 .md-right { float: right; }
 .md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
 </style>
 </head>
 
@@ -45,27 +47,31 @@ gtag('config', 'UA-106630615-1');
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC4
+0.8.0
 </div>
 </div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="active page">Getting&nbsp;Started</a></li>
-  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
   <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
   </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
   <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
@@ -100,27 +106,31 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <span class="home-icon">⌂</span>RasterFrames
 </a>
 <div class="version-number">
-0.8.0-RC4
+0.8.0
 </div>
 </div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html" class="active page">Getting&nbsp;Started</a></li>
-  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
-  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
-  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
-  <li><a href="apps/index.html" class="page">Applications</a>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
   <ul>
-    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
-    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
   </ul></li>
-  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
   <ul>
-    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
-    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
-    <li><a href="ml/classification.html" class="page">Classification</a></li>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
-  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
@@ -137,7 +147,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="nav-breadcrumbs">
 <ul>
   <li><a href="index.html">RasterFrames</a></li>
-  <li>Getting&nbsp;Started</li>
+  <li>Getting Started</li>
 </ul>
 </div>
 </div>
@@ -145,46 +155,130 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 
 <div class="page-content row">
 <div class="small-12 large-9 column" id="docs">
-<h1><a href="#getting-nbsp-started" name="getting-nbsp-started" class="anchor"><span class="anchor-link"></span></a>Getting&nbsp;Started</h1>
-<h2><a href="#quick-start" name="quick-start" class="anchor"><span class="anchor-link"></span></a>Quick Start</h2>
-<p>RasterFrames is available in in a Jupyter Notebook Docker container for quick experimentation.</p>
+<h1><a href="#getting-started" name="getting-started" class="anchor"><span class="anchor-link"></span></a>Getting Started</h1><div class="callout note "><div class="callout-title">Note</div>
+<p>If you are new to Earth-observing imagery, you might consider looking at the <a href="concepts.md">Concepts</a> section first.</p></div>
+<p>There are <a href="getting-started.html#other-options">several ways</a> to use RasterFrames, and <a href="languages.html">several languages</a> with which you can use it. </p>
+<p>The simplest way to get started with RasterFrames is via the the Python shell. To get started you will need:</p>
 <ol>
-  <li>Install <a href="https://www.docker.com/get-docker">Docker</a> for your OS flavor.</li>
-  <li>Run<br/> <code>docker run -it --rm -p 8888:8888 -p 4040-4044:4040-4044 s22s/rasterframes-notebooks</code></li>
+  <li><a href="https://www.python.org/">Python</a> installed. Version 3.6 or greater is recommended.</li>
+  <li><a href="https://pip.pypa.io/en/stable/installing/"><code>pip</code></a> installed. If you are using Python 3, <code>pip</code> may already be installed.</li>
+  <li>Java <a href="https://openjdk.java.net/install/index.html">JDK 8</a> installed on your system and <code>java</code> on your system <code>PATH</code> or <code>JAVA_HOME</code> pointing to a Java installation.</li>
 </ol>
-<p>Additional instructions can be found <a href="https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md">here</a>.</p>
-<h2><a href="#general-setup" name="general-setup" class="anchor"><span class="anchor-link"></span></a>General Setup</h2>
-<p><em>RasterFrames</em> is published via <a href="https://search.maven.org/search?q=g:org.locationtech.rasterframes">Maven Central</a> (click link to see latest versions).</p>
-<p>To use RasterFrames, add the following library dependencies:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes" % "0.8.0-RC4"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
-  &lt;groupId&gt;org.locationtech.rasterframes&lt;/groupId&gt;
-  &lt;artifactId&gt;rasterframes_2.11&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0-RC4&lt;/version&gt;
-&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.locationtech.rasterframes', name: 'rasterframes_2.11', version: '0.8.0-RC4'
-}</code></pre></dd></dl><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes-datasource" % "0.8.0-RC4"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
-  &lt;groupId&gt;org.locationtech.rasterframes&lt;/groupId&gt;
-  &lt;artifactId&gt;rasterframes-datasource_2.11&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0-RC4&lt;/version&gt;
-&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.locationtech.rasterframes', name: 'rasterframes-datasource_2.11', version: '0.8.0-RC4'
-}</code></pre></dd></dl>
-<p>Optional:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.locationtech.rasterframes" %% "rasterframes-experimental" % "0.8.0-RC4"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
-  &lt;groupId&gt;org.locationtech.rasterframes&lt;/groupId&gt;
-  &lt;artifactId&gt;rasterframes-experimental_2.11&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0-RC4&lt;/version&gt;
-&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.locationtech.rasterframes', name: 'rasterframes-experimental_2.11', version: '0.8.0-RC4'
-}</code></pre></dd></dl>
-<p>It assumes that SparkSQL 2.3.x is available in the runtime classpath. Here&rsquo;s how to add it explicitly:</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "org.apache.spark" % "spark-sql" % "2.3.2"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
-  &lt;groupId&gt;org.apache.spark&lt;/groupId&gt;
-  &lt;artifactId&gt;spark-sql&lt;/artifactId&gt;
-  &lt;version&gt;2.3.2&lt;/version&gt;
-&lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'org.apache.spark', name: 'spark-sql', version: '2.3.2'
-}</code></pre></dd></dl><div class="callout note "><div class="callout-title">Note</div>
-<p>Most of the following examples are shown using the Spark DataFrames API. However, many could also be rewritten to use the Spark SQL API instead. We hope to add more examples in that form in the future.</p></div>
+<h2><a href="#pip-install-pyrasterframes" name="pip-install-pyrasterframes" class="anchor"><span class="anchor-link"></span></a>pip install pyrasterframes</h2>
+<pre class="prettyprint"><code class="language-bash">$ python3 -m pip install pyrasterframes
+</code></pre>
+<p>Then in a python interpreter of your choice, you can get a <a href="https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.SparkSession"><code>pyspark</code> <code>SparkSession</code></a> using the <a href="https://spark.apache.org/docs/latest/submitting-applications.html#master-urls"><code>local[*]</code> master</a>.</p>
+<pre class="prettyprint"><code class="language-python">import pyrasterframes
+spark = pyrasterframes.get_spark_session()
+</code></pre>
+<p>Then, you can read a raster and work with it in a Spark DataFrame.</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes.rasterfunctions import *
+from pyspark.sql.functions import lit
+
+# Read a MODIS surface reflectance granule
+df = spark.read.raster(&#39;https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF&#39;)
+
+# Add 3 element-wise, show some rows of the DataFrame
+df.withColumn(&#39;added&#39;, rf_local_add(df.proj_raster, lit(3))) \
+  .select(rf_crs(&#39;added&#39;), rf_extent(&#39;added&#39;), rf_tile(&#39;added&#39;)) \
+  .show(3)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>rf_crs(added) </th>
+      <th>rf_extent(added) </th>
+      <th>rf_tile(added) </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=63 </td>
+      <td>[-7783653.637667, 993342.4642358534, -76 </td>
+      <td>[int16ud32767, (256,255), [3408,3471,311 </td>
+    </tr>
+    <tr>
+      <td>[+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=63 </td>
+      <td>[-7665045.582235853, 993342.4642358534, </td>
+      <td>[int16ud32767, (256,255), [2337,2346,258 </td>
+    </tr>
+    <tr>
+      <td>[+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=63 </td>
+      <td>[-7546437.526804707, 993342.4642358534, </td>
+      <td>[int16ud32767, (256,255), [2728,2784,278 </td>
+    </tr>
+  </tbody>
+</table>
+<p>This example is extended in the <a href="https://nbviewer.jupyter.org/github/locationtech/rasterframes/blob/develop/rf-notebook/src/main/notebooks/Getting%20Started.ipynb">getting started Jupyter notebook</a>.</p>
+<h2><a href="#next-steps" name="next-steps" class="anchor"><span class="anchor-link"></span></a>Next Steps</h2>
+<p>To understand more about how and why RasterFrames represents Earth observation in DataFrames, read about the <a href="concepts.html">core concepts</a> and the project <a href="description.html">description</a>. For more hands-on examples, see the chapters about <a href="raster-io.html">reading</a> and <a href="raster-processing.html">processing</a> with RasterFrames.</p>
+<h2><a href="#other-options" name="other-options" class="anchor"><span class="anchor-link"></span></a>Other Options</h2>
+<p>You can also use RasterFrames in the following environments:</p>
+<ol>
+  <li>Jupyter Notebook</li>
+  <li><code>pyspark</code> shell</li>
+</ol>
+<h3><a href="#using-jupyter-notebook" name="using-jupyter-notebook" class="anchor"><span class="anchor-link"></span></a>Using Jupyter Notebook</h3>
+<p>RasterFrames provides a Docker image for a Jupyter notebook server whose default kernel is already set up for running RasterFrames. To use it:</p>
+<ol>
+  <li>Install <a href="https://docs.docker.com/install/">Docker</a></li>
+  <li>Pull the image: <code>docker pull s22s/rasterframes-notebook</code></li>
+  <li>Run a container with the image, for example:  <code>docker run -p 8808:8888 -p 44040:4040 -v /path/to/notebooks:/home/jovyan/work rasterframes-notebook:latest</code></li>
+  <li>In a browser, open <code>localhost:8808</code> in the example above.</li>
+</ol>
+<p>See the <a href="https://github.com/locationtech/rasterframes/blob/develop/rf-notebook/README.md">RasterFrames Notebook README</a> for instructions on building the Docker image for this Jupyter notebook server.</p>
+<h3><a href="#using-pyspark-shell" name="using-pyspark-shell" class="anchor"><span class="anchor-link"></span></a>Using <code>pyspark</code> shell</h3>
+<p>You can use RasterFrames in a <code>pyspark</code> shell. To set up the <code>pyspark</code> environment, prepare your call with the appropriate <code>--master</code> and other <code>--conf</code> arguments for your cluster manager and environment. For RasterFrames support you need to pass arguments pointing to the various Java dependencies. You will also need the Python source zip, even if you have pip installed the package. You can download the source zip here: <a href="https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip">https://repo1.maven.org/maven2/org/locationtech/rasterframes/pyrasterframes_2.11/${VERSION}/pyrasterframes_2.11-${VERSION}-python.zip</a>.</p>
+<p>The <code>pyspark</code> shell command will look something like this.</p>
+<pre class="prettyprint"><code class="language-bash">   pyspark \
+    --master local[*] \
+    --py-files pyrasterframes_2.11-${VERSION}-python.zip \
+    --packages org.locationtech.rasterframes:rasterframes_2.11:${VERSION},org.locationtech.rasterframes:pyrasterframes_2.11:${VERSION},org.locationtech.rasterframes:rasterframes-datasource_2.11:${VERSION} \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \ # these configs improve serialization performance
+    --conf spark.kryo.registrator=org.locationtech.rasterframes.util.RFKryoRegistrator \
+    --conf spark.kryoserializer.buffer.max=500m
+</code></pre>
+<p>Then in the <code>pyspark</code> shell, import the module and call <code>withRasterFrames</code> on the SparkSession.</p>
+<pre class="prettyprint"><code class="language-python">Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  &#39;_/
+   /__ / .__/\_,_/_/ /_/\_\   version 2.3.2
+      /_/
+
+Using Python version 3.7.3 (default, Mar 27 2019 15:43:19)
+SparkSession available as &#39;spark&#39;.
+&gt;&gt;&gt; import pyrasterframes
+&gt;&gt;&gt; spark = spark.withRasterFrames()
+&gt;&gt;&gt; df = spark.read.raster(&#39;https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF&#39;)
+</code></pre>
+<p>Now you have the configured SparkSession with RasterFrames enabled.</p>
+<h2><a href="#installing-gdal" name="installing-gdal" class="anchor"><span class="anchor-link"></span></a>Installing GDAL</h2>
+<p>GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to <a href="raster-read.html">read</a> those formats. If you are using the <a href="getting-started.html#jupyter-notebook">Jupyter Notebook image</a>, GDAL is already installed for you. Otherwise follow the instructions below. Version 2.4.1 or greater is required.</p>
+<h3><a href="#installing-on-macos" name="installing-on-macos" class="anchor"><span class="anchor-link"></span></a>Installing on MacOS</h3>
+<p>Using <a href="https://brew.sh/">homebrew</a>:</p>
+<pre class="prettyprint"><code class="language-bash">brew install gdal
+</code></pre>
+<h3><a href="#installing-on-linux" name="installing-on-linux" class="anchor"><span class="anchor-link"></span></a>Installing on Linux</h3>
+<p>Using <a href="https://wiki.debian.org/Apt"><code>apt-get</code></a>:</p>
+<pre class="prettyprint"><code class="language-bash">sudo apt-get update
+sudo apt-get install gdal-bin
+</code></pre>
+<h3><a href="#testing-for-gdal" name="testing-for-gdal" class="anchor"><span class="anchor-link"></span></a>Testing For GDAL</h3>
+<pre class="prettyprint"><code class="language-bash">gdalinfo --formats
+</code></pre>
+<p>To support GeoTIFF and JPEG2000 formats, you should look for the following drivers from the output above:</p>
+<ul>
+  <li><code>GTiff -raster- (rw+vs): GeoTIFF</code></li>
+  <li><code>JPEG2000 -raster,vector- (rwv): JPEG-2000 part 1 (ISO/IEC 15444-1), based on Jasper library</code></li>
+</ul>
+<p>Do the following to see if RasterFrames was able to find GDAL:</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes.utils import gdal_version
+print(gdal_version())
+</code></pre>
+<p>This will print out something like &ldquo;GDAL x.y.z, released 20yy/mm/dd&rdquo;. If it reports &ldquo;not available&rdquo;, then GDAL is not installed in a place where the RasterFrames runtime was able to find it. Please <a href="https://github.com/locationtech/rasterframes/issues">file an issue</a> to get help resolving this problem.</p>
 <div class="nav-next">
-<p><strong>Next:</strong> <a href="pyrasterframes.html">RasterFrames&nbsp;in&nbsp;Python</a></p>
+<p><strong>Next:</strong> <a href="concepts.html">Concepts</a></p>
 </div>
 </div>
 <div class="large-3 show-for-large column" data-sticky-container>
@@ -193,10 +287,12 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="nav-title">On this page:</div>
 <div class="nav-toc">
 <ul>
-  <li><a href="getting-started.html#getting-nbsp-started" class="header">Getting&nbsp;Started</a>
+  <li><a href="getting-started.html#getting-started" class="header">Getting Started</a>
   <ul>
-    <li><a href="getting-started.html#quick-start" class="header">Quick Start</a></li>
-    <li><a href="getting-started.html#general-setup" class="header">General Setup</a></li>
+    <li><a href="getting-started.html#pip-install-pyrasterframes" class="header">pip install pyrasterframes</a></li>
+    <li><a href="getting-started.html#next-steps" class="header">Next Steps</a></li>
+    <li><a href="getting-started.html#other-options" class="header">Other Options</a></li>
+    <li><a href="getting-started.html#installing-gdal" class="header">Installing GDAL</a></li>
   </ul></li>
 </ul>
 </div>
@@ -236,7 +332,7 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
 <div class="row site-footer-content">
 <div class="small-12 text-center large-9 column">
 <div class="copyright">
-<span class="text">&copy; 2019
+<span class="text">Copyright &copy; 2019
 <a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
 </div>
 </div>

@@ -1,0 +1,844 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>RasterSource - org.locationtech.rasterframes.ref.RasterSource</title>
+          <meta name="description" content="RasterSource - org.locationtech.rasterframes.ref.RasterSource" />
+          <meta name="keywords" content="RasterSource org.locationtech.rasterframes.ref.RasterSource" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'org.locationtech.rasterframes.ref.RasterSource';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <a href="RasterSource$.html" title="See companion object"><img alt="Trait/Object" src="../../../../lib/trait_to_object_big.png" /></a>
+        <p id="owner"><a href="../../../package.html" class="extype" name="org">org</a>.<a href="../../package.html" class="extype" name="org.locationtech">locationtech</a>.<a href="../package.html" class="extype" name="org.locationtech.rasterframes">rasterframes</a>.<a href="package.html" class="extype" name="org.locationtech.rasterframes.ref">ref</a></p>
+        <h1><a href="RasterSource$.html" title="See companion object">RasterSource</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="RasterSource$.html" title="See companion object">object RasterSource</a>
+            | <a href="package.html" class="extype" name="org.locationtech.rasterframes.ref">package ref</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">RasterSource</span><span class="result"> extends <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Abstraction over fetching geospatial raster data.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@Experimental</span><span class="args">()</span>
+              
+        </dd><dt>Since</dt><dd><p>8/21/18</p></dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a>, <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>, <span class="extype" name="geotrellis.raster.Grid">Grid</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div><div class="toggleContainer block">
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="DelegatingRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.DelegatingRasterSource">DelegatingRasterSource</a>, <a href="GDALRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.GDALRasterSource">GDALRasterSource</a>, <a href="HadoopGeoTiffRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.HadoopGeoTiffRasterSource">HadoopGeoTiffRasterSource</a>, <a href="InMemoryRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.InMemoryRasterSource">InMemoryRasterSource</a>, <a href="JVMGeoTiffRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.JVMGeoTiffRasterSource">JVMGeoTiffRasterSource</a>, <a href="RangeReaderRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.RangeReaderRasterSource">RangeReaderRasterSource</a></div>
+          </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="org.locationtech.rasterframes.ref.RasterSource"><span>RasterSource</span></li><li class="in" name="org.locationtech.rasterframes.ref.ProjectedRasterLike"><span>ProjectedRasterLike</span></li><li class="in" name="geotrellis.raster.CellGrid"><span>CellGrid</span></li><li class="in" name="geotrellis.raster.Grid"><span>Grid</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="org.locationtech.rasterframes.ref.RasterSource#bandCount" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="bandCount:Int"></a>
+      <a id="bandCount:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bandCount</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@bandCount:Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#cellType" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="cellType:geotrellis.raster.CellType"></a>
+      <a id="cellType:CellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cellType</span><span class="result">: <a href="../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@cellType:geotrellis.raster.CellType" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterSource">RasterSource</a> → CellGrid</dd></dl></div>
+    </li><li name="geotrellis.raster.Grid#cols" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="cols:Int"></a>
+      <a id="cols:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cols</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@cols:Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#crs" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="crs:geotrellis.proj4.CRS"></a>
+      <a id="crs:CRS"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crs</span><span class="result">: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@crs:geotrellis.proj4.CRS" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterSource">RasterSource</a> → <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#extent" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="extent:geotrellis.vector.Extent"></a>
+      <a id="extent:Extent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">extent</span><span class="result">: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@extent:geotrellis.vector.Extent" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterSource">RasterSource</a> → <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#readBounds" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="readBounds(bounds:Traversable[geotrellis.raster.GridBounds],bands:Seq[Int]):Iterator[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]"></a>
+      <a id="readBounds(Traversable[GridBounds],Seq[Int]):Iterator[Raster[MultibandTile]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readBounds</span><span class="params">(<span name="bounds">bounds: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>]</span>, <span name="bands">bands: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@readBounds(bounds:Traversable[geotrellis.raster.GridBounds],bands:Seq[Int]):Iterator[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="geotrellis.raster.Grid#rows" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="rows:Int"></a>
+      <a id="rows:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rows</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@rows:Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#tags" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="tags:geotrellis.raster.io.geotiff.Tags"></a>
+      <a id="tags:Tags"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tags</span><span class="result">: <span class="extype" name="geotrellis.raster.io.geotiff.Tags">Tags</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@tags:geotrellis.raster.io.geotiff.Tags" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        <div id="values" class="values members">
+              <h3>Concrete Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@##():Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#cellSize" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cellSize:geotrellis.raster.CellSize"></a>
+      <a id="cellSize:CellSize"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cellSize</span><span class="result">: <span class="extype" name="geotrellis.raster.CellSize">CellSize</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@cellSize:geotrellis.raster.CellSize" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@clone():Object" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="geotrellis.raster.Grid#dimensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dimensions:(Int,Int)"></a>
+      <a id="dimensions:(Int,Int)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dimensions</span><span class="result">: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@dimensions:(Int,Int)" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="geotrellis.raster.Grid#gridBounds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="gridBounds:geotrellis.raster.GridBounds"></a>
+      <a id="gridBounds:GridBounds"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">gridBounds</span><span class="result">: <span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@gridBounds:geotrellis.raster.GridBounds" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#gridExtent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="gridExtent:geotrellis.raster.GridExtent"></a>
+      <a id="gridExtent:GridExtent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">gridExtent</span><span class="result">: <span class="extype" name="geotrellis.raster.GridExtent">GridExtent</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@gridExtent:geotrellis.raster.GridExtent" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#layoutBounds" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="layoutBounds(dims:org.locationtech.rasterframes.model.TileDimensions):Seq[geotrellis.raster.GridBounds]"></a>
+      <a id="layoutBounds(TileDimensions):Seq[GridBounds]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layoutBounds</span><span class="params">(<span name="dims">dims: <a href="../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@layoutBounds(dims:org.locationtech.rasterframes.model.TileDimensions):Seq[geotrellis.raster.GridBounds]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#layoutExtents" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="layoutExtents(dims:org.locationtech.rasterframes.model.TileDimensions):Seq[geotrellis.vector.Extent]"></a>
+      <a id="layoutExtents(TileDimensions):Seq[Extent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layoutExtents</span><span class="params">(<span name="dims">dims: <a href="../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@layoutExtents(dims:org.locationtech.rasterframes.model.TileDimensions):Seq[geotrellis.vector.Extent]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#rasterExtent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rasterExtent:org.locationtech.rasterframes.model.FixedRasterExtent"></a>
+      <a id="rasterExtent:FixedRasterExtent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rasterExtent</span><span class="result">: <a href="../model/FixedRasterExtent.html" class="extype" name="org.locationtech.rasterframes.model.FixedRasterExtent">FixedRasterExtent</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@rasterExtent:org.locationtech.rasterframes.model.FixedRasterExtent" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#read" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="read(extent:geotrellis.vector.Extent,bands:Seq[Int]):geotrellis.raster.Raster[geotrellis.raster.MultibandTile]"></a>
+      <a id="read(Extent,Seq[Int]):Raster[MultibandTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">read</span><span class="params">(<span name="extent">extent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="bands">bands: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol"><span class="name"><a href="RasterSource$.html">SINGLEBAND</a></span></span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@read(extent:geotrellis.vector.Extent,bands:Seq[Int]):geotrellis.raster.Raster[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#read" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="read(bounds:geotrellis.raster.GridBounds,bands:Seq[Int]):geotrellis.raster.Raster[geotrellis.raster.MultibandTile]"></a>
+      <a id="read(GridBounds,Seq[Int]):Raster[MultibandTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">read</span><span class="params">(<span name="bounds">bounds: <span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span></span>, <span name="bands">bands: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@read(bounds:geotrellis.raster.GridBounds,bands:Seq[Int]):geotrellis.raster.Raster[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#readAll" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="readAll(dims:org.locationtech.rasterframes.model.TileDimensions,bands:Seq[Int]):Seq[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]"></a>
+      <a id="readAll(TileDimensions,Seq[Int]):Seq[Raster[MultibandTile]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readAll</span><span class="params">(<span name="dims">dims: <a href="../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a> = <span class="symbol"><span class="name"><a href="../../../package.html">NOMINAL_TILE_DIMS</a></span></span></span>, <span name="bands">bands: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] = <span class="symbol"><span class="name"><a href="RasterSource$.html">SINGLEBAND</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@readAll(dims:org.locationtech.rasterframes.model.TileDimensions,bands:Seq[Int]):Seq[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.raster.Grid#size" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="size:Int"></a>
+      <a id="size:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">size</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@size:Int" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.ref.RasterSource#tileContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tileContext:org.locationtech.rasterframes.model.TileContext"></a>
+      <a id="tileContext:TileContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileContext</span><span class="result">: <a href="../model/TileContext.html" class="extype" name="org.locationtech.rasterframes.model.TileContext">TileContext</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@tileContext:org.locationtech.rasterframes.model.TileContext" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@toString():String" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterSource@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">
+              <h3>Inherited from <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a></h3>
+            </div><div class="parent" name="geotrellis.raster.CellGrid">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></h3>
+            </div><div class="parent" name="geotrellis.raster.Grid">
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.Grid">Grid</span></h3>
+            </div><div class="parent" name="scala.Serializable">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Time Series · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="active page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="active page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li><a href="raster-processing.html">Raster Processing</a></li>
+  <li>Time Series</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#time-series" name="time-series" class="anchor"><span class="anchor-link"></span></a>Time Series</h1>
+<h2><a href="#analysis-plan" name="analysis-plan" class="anchor"><span class="anchor-link"></span></a>Analysis Plan</h2>
+<p>In this example, we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will start with our <a href="raster-catalogs.html#using-built-in-experimental-catalogs">built-in MODIS data catalog</a>.</p>
+<pre class="prettyprint"><code class="language-python">cat = spark.read.format(&#39;aws-pds-modis-catalog&#39;).load().repartition(200)
+cat.printSchema()
+</code></pre>
+<pre><code>root
+ |-- product_id: string (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- granule_id: string (nullable = false)
+ |-- gid: string (nullable = false)
+ |-- B01: string (nullable = true)
+ |-- B01qa: string (nullable = true)
+ |-- B02: string (nullable = true)
+ |-- B02qa: string (nullable = true)
+ |-- B03: string (nullable = true)
+ |-- B03aq: string (nullable = true)
+ |-- B04: string (nullable = true)
+ |-- B04qa: string (nullable = true)
+ |-- B05: string (nullable = true)
+ |-- B05qa: string (nullable = true)
+ |-- B06: string (nullable = true)
+ |-- B06qa: string (nullable = true)
+ |-- B07: string (nullable = true)
+ |-- B07qa: string (nullable = true)
+</code></pre>
+<p>We will summarize the change in NDVI over 2018 in the Cuyahoga Valley National Park in Ohio, USA. First, we will retrieve open vector data delineating the park boundary from the US National Park Service&rsquo;s LandsNet.</p>
+<pre class="prettyprint"><code class="language-python">import requests
+import geopandas
+nps_data_query_url = &#39;https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/NPS_Park_Boundaries/FeatureServer/0/query?where=1%3D1&amp;outFields=*&amp;geometry=-82.451%2C41.075%2C-80.682%2C41.436&amp;geometryType=esriGeometryEnvelope&amp;inSR=4326&amp;spatialRel=esriSpatialRelIntersects&amp;outSR=4326&amp;f=json&#39;
+r = requests.get(nps_data_query_url)
+with open(&#39;/tmp/parks.geojson&#39;, &#39;wb&#39;) as f:
+    for chunk in r.iter_content(chunk_size=128):
+        f.write(chunk)
+
+park_df = geopandas.read_file(&#39;/tmp/parks.geojson&#39;)
+park_geo = park_df[park_df.UNIT_CODE==&#39;CUVA&#39;].geometry[0]
+
+park_geo.wkt[:100]
+</code></pre>
+<pre><code>&#39;MULTIPOLYGON (((-81.59532372518581 41.2449592448503, -81.59508738382451 41.2449029690835, -81.594625&#39;
+</code></pre>
+<p>The entire park boundary is contained in MODIS granule h11 v4. We will simply filter on this granule, rather than using a <a href="vector-data.html#geomesa-functions-and-spatial-relations">spatial relation</a>. The time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer.</p>
+<pre class="prettyprint"><code class="language-python">from pyspark.sql.functions import lit
+park_cat = cat.filter(
+                    (cat.granule_id == &#39;h11v04&#39;) &amp;
+                    (cat.acquisition_date &gt; lit(&#39;2018-02-19&#39;)) &amp;
+                    (cat.acquisition_date &lt; lit(&#39;2018-07-01&#39;))
+            )
+park_cat.printSchema()
+</code></pre>
+<pre><code>root
+ |-- product_id: string (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- granule_id: string (nullable = false)
+ |-- gid: string (nullable = false)
+ |-- B01: string (nullable = true)
+ |-- B01qa: string (nullable = true)
+ |-- B02: string (nullable = true)
+ |-- B02qa: string (nullable = true)
+ |-- B03: string (nullable = true)
+ |-- B03aq: string (nullable = true)
+ |-- B04: string (nullable = true)
+ |-- B04qa: string (nullable = true)
+ |-- B05: string (nullable = true)
+ |-- B05qa: string (nullable = true)
+ |-- B06: string (nullable = true)
+ |-- B06qa: string (nullable = true)
+ |-- B07: string (nullable = true)
+ |-- B07qa: string (nullable = true)
+</code></pre>
+<h2><a href="#catalog-read" name="catalog-read" class="anchor"><span class="anchor-link"></span></a>Catalog Read</h2>
+<p>Now we have a catalog with several months of MODIS data for a single granule. However, the granule is larger than our park boundary. We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed in a <a href="local-algebra.html#computing-ndvi">previous section</a>.</p>
+<pre class="prettyprint"><code class="language-python">raster_cols = [&#39;B01&#39;, &#39;B02&#39;,] # red and near-infrared respectively
+park_rf = spark.read.raster(
+    catalog=park_cat.select([&#39;acquisition_date&#39;, &#39;granule_id&#39;] + raster_cols),
+    catalog_col_names=raster_cols
+    ) \
+    .withColumn(&#39;park&#39;, st_geomFromWKT(lit(park_geo.wkt)))
+park_rf.printSchema()
+park_rf.persist()
+</code></pre>
+<pre><code>root
+ |-- B01_path: string (nullable = false)
+ |-- B02_path: string (nullable = false)
+ |-- B01: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- B02: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- granule_id: string (nullable = false)
+ |-- park: geometry (nullable = true)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>B01_path </th>
+      <th>B02_path </th>
+      <th>B01 </th>
+      <th>B02 </th>
+      <th>acquisition_date </th>
+      <th>granule_id </th>
+      <th>park </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-7783653.637667, 5441144.542901908, - </td>
+      <td>[[[-7783653.637667, 5441144.542901908, - </td>
+      <td>2018-06-26 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-7665045.582235907, 5441144.542901908 </td>
+      <td>[[[-7665045.582235907, 5441144.542901908 </td>
+      <td>2018-06-26 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-7546437.526804813, 5441144.542901908 </td>
+      <td>[[[-7546437.526804813, 5441144.542901908 </td>
+      <td>2018-06-26 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-7427829.47137372, 5441144.542901908, </td>
+      <td>[[[-7427829.47137372, 5441144.542901908, </td>
+      <td>2018-06-26 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-7309221.415942627, 5441144.542901908 </td>
+      <td>[[[-7309221.415942627, 5441144.542901908 </td>
+      <td>2018-06-26 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#vector-and-raster-data-interaction" name="vector-and-raster-data-interaction" class="anchor"><span class="anchor-link"></span></a>Vector and Raster Data Interaction</h2>
+<p>Now we have the vector representation of the park boundary alongside the <em>tiles</em> of red and near infrared bands. Next, we need to create a <em>tile</em> representation of the park to allow us to limit the time series analysis to pixels within the park. This is similar to the masking operation demonstrated in <a href="nodata-handling.html#masking">NoData handling</a>.</p>
+<p>We do this using two transformations. The first one will reproject the park boundary from coordinates to the MODIS sinusoidal projection. The second one will create a new <em>tile</em> aligned with the imagery containing a value of 1 where the pixels are contained within the park and NoData elsewhere. </p>
+<pre class="prettyprint"><code class="language-python">cr_1 = park_rf.withColumn(&#39;park_native&#39;, st_reproject(&#39;park&#39;, lit(&#39;EPSG:4326&#39;), rf_crs(&#39;B01&#39;)))
+
+cr_2 = cr_1 \
+    .withColumn(&#39;dims&#39;, rf_dimensions(&#39;B01&#39;)) \
+    .withColumn(&#39;park_tile&#39;, rf_rasterize(&#39;park_native&#39;, rf_geometry(&#39;B01&#39;), lit(1), &#39;dims.cols&#39;, &#39;dims.rows&#39;)) \
+    .where(rf_tile_sum(&#39;park_tile&#39;) &gt; 0)
+cr_2.printSchema()
+cr_2.persist()
+</code></pre>
+<pre><code>root
+ |-- B01_path: string (nullable = false)
+ |-- B02_path: string (nullable = false)
+ |-- B01: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- B02: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- acquisition_date: timestamp (nullable = false)
+ |-- granule_id: string (nullable = false)
+ |-- park: geometry (nullable = true)
+ |-- park_native: geometry (nullable = true)
+ |-- dims: struct (nullable = true)
+ |    |-- cols: short (nullable = false)
+ |    |-- rows: short (nullable = false)
+ |-- park_tile: tile (nullable = true)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>B01_path </th>
+      <th>B02_path </th>
+      <th>B01 </th>
+      <th>B02 </th>
+      <th>acquisition_date </th>
+      <th>granule_id </th>
+      <th>park </th>
+      <th>park_native </th>
+      <th>dims </th>
+      <th>park_tile </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>2018-06-26 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+      <td>MULTIPOLYGON (((-6821966.041332009 45862 </td>
+      <td>[255, 255] </td>
+      <td>[int32, (255,255), [-2147483648,-2147483 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>2018-03-21 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+      <td>MULTIPOLYGON (((-6821966.041332009 45862 </td>
+      <td>[255, 255] </td>
+      <td>[int32, (255,255), [-2147483648,-2147483 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>2018-05-05 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+      <td>MULTIPOLYGON (((-6821966.041332009 45862 </td>
+      <td>[255, 255] </td>
+      <td>[int32, (255,255), [-2147483648,-2147483 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>2018-04-25 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+      <td>MULTIPOLYGON (((-6821966.041332009 45862 </td>
+      <td>[255, 255] </td>
+      <td>[int32, (255,255), [-2147483648,-2147483 </td>
+    </tr>
+    <tr>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td><a href="https://modis-pds.s3.amazonaws.com/MCD43">https://modis-pds.s3.amazonaws.com/MCD43</a> </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>[[[-6834789.194218254, 4492280.099453161 </td>
+      <td>2018-03-30 00:00:00 </td>
+      <td>h11v04 </td>
+      <td>MULTIPOLYGON (((-81.5953237251858 41.244 </td>
+      <td>MULTIPOLYGON (((-6821966.041332009 45862 </td>
+      <td>[255, 255] </td>
+      <td>[int32, (255,255), [-2147483648,-2147483 </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#create-time-series" name="create-time-series" class="anchor"><span class="anchor-link"></span></a>Create Time Series</h2>
+<p>Next, we will compute NDVI as the normalized difference of near infrared (band 2) and red (band 1). The <em>tiles</em> are masked by the <code>park_tile</code>. We will then aggregate across the remaining values to arrive at an average NDVI for each week of the year. Note that the computation is creating a weighted average, which is weighted by the number of valid observations per week.</p>
+<pre class="prettyprint"><code class="language-python">from pyspark.sql.functions import col, year, weekofyear, month
+from pyspark.sql.functions import sum as sql_sum
+
+rf_ndvi = cr_2.withColumn(&#39;ndvi&#39;, rf_normalized_difference(&#39;B02&#39;, &#39;B01&#39;)) \
+              .withColumn(&#39;ndvi_masked&#39;, rf_mask(&#39;ndvi&#39;, &#39;park_tile&#39;))
+
+time_series = rf_ndvi \
+        .withColumn(&#39;ndvi_wt&#39;, rf_tile_sum(&#39;ndvi_masked&#39;)) \
+        .withColumn(&#39;wt&#39;, rf_data_cells(&#39;ndvi_masked&#39;)) \
+        .groupby(year(&#39;acquisition_date&#39;).alias(&#39;year&#39;), weekofyear(&#39;acquisition_date&#39;).alias(&#39;week&#39;)) \
+        .agg(sql_sum(&#39;ndvi_wt&#39;).alias(&#39;ndvi_wt_wk&#39;), sql_sum(&#39;wt&#39;).alias(&#39;wt_wk&#39;)) \
+        .withColumn(&#39;ndvi&#39;, col(&#39;ndvi_wt_wk&#39;) / col(&#39;wt_wk&#39;))
+time_series.printSchema()
+time_series.persist()
+</code></pre>
+<pre><code>root
+ |-- year: integer (nullable = false)
+ |-- week: integer (nullable = false)
+ |-- ndvi_wt_wk: double (nullable = true)
+ |-- wt_wk: long (nullable = true)
+ |-- ndvi: double (nullable = true)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>year </th>
+      <th>week </th>
+      <th>ndvi_wt_wk </th>
+      <th>wt_wk </th>
+      <th>ndvi </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2018 </td>
+      <td>22 </td>
+      <td>2989.185667726184 </td>
+      <td>3631 </td>
+      <td>0.8232403381234327 </td>
+    </tr>
+    <tr>
+      <td>2018 </td>
+      <td>14 </td>
+      <td>1737.7594904823848 </td>
+      <td>4304 </td>
+      <td>0.40375452845780313 </td>
+    </tr>
+    <tr>
+      <td>2018 </td>
+      <td>24 </td>
+      <td>3702.2496111309097 </td>
+      <td>4305 </td>
+      <td>0.859988295268504 </td>
+    </tr>
+    <tr>
+      <td>2018 </td>
+      <td>17 </td>
+      <td>1854.3401048091341 </td>
+      <td>4305 </td>
+      <td>0.43074102318446783 </td>
+    </tr>
+    <tr>
+      <td>2018 </td>
+      <td>8 </td>
+      <td>1813.5892706994578 </td>
+      <td>4266 </td>
+      <td>0.42512641132195444 </td>
+    </tr>
+  </tbody>
+</table>
+<p>Finally, we will take a look at the NDVI over time.</p>
+<pre class="prettyprint"><code class="language-python">import matplotlib.pyplot as plt
+
+time_series_pdf = time_series.toPandas()
+time_series_pdf = time_series_pdf.sort_values(&#39;week&#39;)
+plt.plot(time_series_pdf[&#39;week&#39;], time_series_pdf[&#39;ndvi&#39;], &#39;go-&#39;)
+plt.xlabel(&#39;Week of year, 2018&#39;)
+plt.ylabel(&#39;NDVI&#39;)
+plt.title(&#39;Cuyahoga Valley NP Green-up&#39;)
+</code></pre>
+<pre><code>Text(0.5,1,&#39;Cuyahoga Valley NP Green-up&#39;)
+</code></pre>
+<p><img src="figures/time-series_time_series_display_1.png" /></p>
+<p>We can see two fairly clear elbows in the curve at week 17 and week 21, indicating the start and end of the green up period. Estimation of such parameters is one technique <a href="https://en.wikipedia.org/wiki/Phenology">phenology</a> researchers use to monitor changes in climate and environment.</p>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="machine-learning.html">Machine Learning</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="time-series.html#time-series" class="header">Time Series</a>
+  <ul>
+    <li><a href="time-series.html#analysis-plan" class="header">Analysis Plan</a></li>
+    <li><a href="time-series.html#catalog-read" class="header">Catalog Read</a></li>
+    <li><a href="time-series.html#vector-and-raster-data-interaction" class="header">Vector and Raster Data Interaction</a></li>
+    <li><a href="time-series.html#create-time-series" class="header">Create Time Series</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>NumPy and Pandas · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="active page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="active page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>NumPy and Pandas</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#numpy-and-pandas" name="numpy-and-pandas" class="anchor"><span class="anchor-link"></span></a>NumPy and Pandas</h1>
+<p>In the Python Spark API, the work of distributed computing over the DataFrame is done on many executors (the Spark term for workers) inside Java virtual machines (JVM). Most calls to <code>pyspark</code> are passed to a Java process via the <code>py4j</code> library. The user can also ask for data inside the JVM to be brought over to the Python driver (the Spark term for the client application). When dealing with <em>tiles</em>, the driver will receive this data as a lightweight wrapper object around a NumPy ndarray. It is also possible to write lambda functions against NumPy arrays and evaluate them in the Spark DataFrame.</p>
+<h2><a href="#performance-considerations" name="performance-considerations" class="anchor"><span class="anchor-link"></span></a>Performance Considerations</h2>
+<p>When working with large, distributed datasets in Spark, attention is required when invoking <em>actions</em> on the data. In general, <em>transformations</em> are lazily evaluated in Spark, meaning the code runs fast and it doesn&rsquo;t move any data around. But <em>actions</em> cause the evaluation to happen, meaning all the lazily planned <em>transformations</em> are going to be computed and data is going to be processed and moved around. In general, if a <a href="https://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html"><code>pyspark</code> function</a> returns a DataFrame, it is probably a <em>transformation</em>, and if not, it is an <em>action</em>.</p>
+<p>When many <em>actions</em> are invoked, a lot of data can flow from executors to the driver. In <code>pyspark</code>, the data then has to move from the driver JVM to the Python process running the driver. When that happens, if there are any <em>tiles</em> in the data, they will be converted to a Python <a href="https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/main/python/pyrasterframes/rf_types.py"><code>Tile</code></a> object. In practical work with Earth observation data, the <em>tiles</em> are frequently 256 by 256 arrays, which may be 100kb or more each. Individually they are small, but a DataFrame can easily have dozens of such <em>tile</em> columns and millions of rows.</p>
+<p>All of this discussion reinforces two important principles for working with Spark: understanding the cost of an <em>action</em> and using <a href="aggregation.html">aggreates</a>, summaries, or samples to manage the cost of <em>actions</em>.</p>
+<h2><a href="#the-tile-class" name="the-tile-class" class="anchor"><span class="anchor-link"></span></a>The <code>Tile</code> Class</h2>
+<p>In Python, <em>tiles</em> are represented with the <code>rf_types.Tile</code> class. This is a NumPy <code>ndarray</code> with two dimensions, along with some additional metadata allowing correct conversion to the GeoTrellis <a href="nodata-handling.html#cell-types">cell type</a>.</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes.rf_types import Tile
+import numpy as np
+
+t = Tile(np.random.randn(4, 4))
+print(str(t))
+</code></pre>
+<pre><code>Tile(dimensions=[4, 4], cell_type=CellType(float64, nan), cells=
+[[0.1654776817951314 -1.2300303378066708 1.176789038172676
+  1.3664856251949207]
+ [-0.6298510426478051 0.898778253111927 -0.40337580966809616
+  1.4001511407338667]
+ [1.216872496248298 3.833247470560771 0.3889889314227702
+  0.8464386222069948]
+ [1.8289410375955606 0.1504975754282035 -1.043970969631868
+  -1.128979147872449]])
+</code></pre>
+<p>You can access the NumPy array with the <code>cells</code> member of <code>Tile</code>.</p>
+<pre class="prettyprint"><code class="language-python">t.cells.shape, t.cells.nbytes
+</code></pre>
+<pre><code>((4, 4), 128)
+</code></pre>
+<h2><a href="#dataframe-topandas" name="dataframe-topandas" class="anchor"><span class="anchor-link"></span></a>DataFrame <code>toPandas</code></h2>
+<p>As discussed in the <a href="raster-write.html#dataframe-samples">raster writing chapter</a>, a pretty display of Pandas DataFrame containing <em>tiles</em> is available by importing the <code>rf_ipython</code> submodule. In addition, as discussed in the <a href="vector-data.html">vector data chapter</a>, any geometry type in the Spark DataFrame will be converted into a Shapely geometry. Taken together, we can easily get the spatial information and raster data as a NumPy array, all within a Pandas DataFrame.</p>
+<pre class="prettyprint"><code class="language-python">import pyrasterframes.rf_ipython
+from pyspark.sql.functions import lit, col
+
+cat = spark.read.format(&#39;aws-pds-modis-catalog&#39;).load() \
+                .filter(
+                    (col(&#39;granule_id&#39;) == &#39;h11v04&#39;) &amp;
+                    (col(&#39;acquisition_date&#39;) &gt; lit(&#39;2018-02-19&#39;)) &amp;
+                    (col(&#39;acquisition_date&#39;) &lt; lit(&#39;2018-02-22&#39;))
+                )
+
+spark_df = spark.read.raster(catalog=cat, catalog_col_names=[&#39;B01&#39;]) \
+                .select(
+                    &#39;acquisition_date&#39;,
+                    &#39;granule_id&#39;,
+                    rf_tile(&#39;B01&#39;).alias(&#39;tile&#39;),
+                    rf_geometry(&#39;B01&#39;).alias(&#39;tile_geom&#39;)
+                    )
+
+pandas_df = spark_df.limit(10).toPandas()
+pandas_df.iloc[0].apply(lambda v: type(v))
+</code></pre>
+<pre><code>acquisition_date    &lt;class &#39;pandas._libs.tslibs.timestamps.Timesta...
+granule_id                                              &lt;class &#39;str&#39;&gt;
+tile                           &lt;class &#39;pyrasterframes.rf_types.Tile&#39;&gt;
+tile_geom                  &lt;class &#39;shapely.geometry.polygon.Polygon&#39;&gt;
+Name: 0, dtype: object
+</code></pre>
+<h2><a href="#user-defined-functions" name="user-defined-functions" class="anchor"><span class="anchor-link"></span></a>User Defined Functions</h2>
+<p>As we demonstrated with <a href="vector-data.html#shapely-geometry-support">vector data</a>, we can also make use of the <code>Tile</code> type to create <a href="https://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.functions.udf">user-defined functions (UDF)</a> that can take a <em>tile</em> as input, return a <em>tile</em> as output, or both. Here is a trivial and <strong>inefficient</strong> example of doing both. A serious performance implication of user defined functions in Python is that all the executors must move the Java objects to Python, evaluate the function, and then move the Python objects back to Java. Use the many <a href="reference.html">built-in functions</a> wherever possible, and ask the <a href="https://gitter.im/locationtech/rasterframes">community</a> if you have an idea for a function that should be included.</p>
+<p>We will demonstrate an example of creating a UDF that is logically equivalent to a built-in function. We&rsquo;ll quickly show that the resulting <em>tiles</em> are approximately equivalent. The reason they are not exactly the same is that one is computed in Python and the other is computed in Java.</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes.rf_types import TileUDT
+from pyspark.sql.functions import udf
+
+@udf(TileUDT())
+def my_udf(t):
+    import numpy as np
+    return Tile(np.log1p(t.cells))
+
+udf_df = spark_df.limit(1).select(
+            my_udf(&#39;tile&#39;).alias(&#39;udf_result&#39;),
+            rf_log1p(&#39;tile&#39;).alias(&#39;built_in_result&#39;)
+        ).toPandas()
+
+row = udf_df.iloc[0]
+diff = row[&#39;udf_result&#39;] - row[&#39;built_in_result&#39;]
+print(type(diff))
+np.abs(diff.cells).max()
+</code></pre>
+<pre><code>&lt;class &#39;pyrasterframes.rf_types.Tile&#39;&gt;
+</code></pre>
+<pre><code>4.764826915248932e-07
+</code></pre>
+<p>We can also inspect an image of the difference between the two <em>tiles</em>, which is just random noise. Both <em>tiles</em> have the same structure of NoData, as exhibited by the white areas.</p>
+<pre class="prettyprint"><code class="language-python">display(diff)
+</code></pre>
+<p><img src="figures/numpy-pandas_udf_diff_noise_tile_1.png" /></p>
+<h2><a href="#creating-a-spark-dataframe" name="creating-a-spark-dataframe" class="anchor"><span class="anchor-link"></span></a>Creating a Spark DataFrame</h2>
+<p>You can also create a Spark DataFrame with a column full of <code>Tile</code> objects or Shapely geomtery objects.</p>
+<p>The example below will create a Pandas DataFrame with ten rows of noise <em>tiles</em> and random <code>Point</code>s. We will then create a Spark DataFrame from it.</p>
+<pre class="prettyprint"><code class="language-python">import pandas as pd
+from shapely.geometry import Point
+
+pandas_df = pd.DataFrame([
+        {
+            &#39;tile&#39;: Tile(np.random.randn(100, 100)),
+            &#39;geom&#39;: Point(-90 + 90 * np.random.random((2, 1)))
+        }  for _ in range(10)
+    ])
+
+spark_df = spark.createDataFrame(pandas_df)
+
+spark_df.printSchema()
+spark_df.count()
+</code></pre>
+<pre><code>root
+ |-- tile: tile (nullable = true)
+ |-- geom: point (nullable = true)
+</code></pre>
+<pre><code>10
+</code></pre>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="languages.html">API Languages</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="numpy-pandas.html#numpy-and-pandas" class="header">NumPy and Pandas</a>
+  <ul>
+    <li><a href="numpy-pandas.html#performance-considerations" class="header">Performance Considerations</a></li>
+    <li><a href="numpy-pandas.html#the-tile-class" class="header">The <code>Tile</code> Class</a></li>
+    <li><a href="numpy-pandas.html#dataframe-topandas" class="header">DataFrame <code>toPandas</code></a></li>
+    <li><a href="numpy-pandas.html#user-defined-functions" class="header">User Defined Functions</a></li>
+    <li><a href="numpy-pandas.html#creating-a-spark-dataframe" class="header">Creating a Spark DataFrame</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

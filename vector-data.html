@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Vector Data · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+table { font-size: 80%; }
+code { font-size: 0.75em !important; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="active page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="description.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="concepts.html" class="page">Concepts</a></li>
+  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
+  <ul>
+    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
+    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
+    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
+  </ul></li>
+  <li><a href="vector-data.html" class="active page">Vector Data</a></li>
+  <li><a href="raster-processing.html" class="page">Raster Processing</a>
+  <ul>
+    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
+    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="aggregation.html" class="page">Aggregation</a></li>
+    <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>Vector Data</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#vector-data" name="vector-data" class="anchor"><span class="anchor-link"></span></a>Vector Data</h1>
+<p>RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data. There is a convenience DataSource for the GeoJSON format, as well as the ability to convert from <a href="http://geopandas.org">GeoPandas</a> to Spark. Representation of vector geometries in PySpark is through <a href="https://shapely.readthedocs.io/en/latest/manual.html">Shapely</a>, providing a great deal of interoperability. RasterFrames also provides access to Spark functions for working with geometries.</p>
+<h2><a href="#geojson-datasource" name="geojson-datasource" class="anchor"><span class="anchor-link"></span></a>GeoJSON DataSource</h2>
+<pre class="prettyprint"><code class="language-python">from pyspark import SparkFiles
+spark.sparkContext.addFile(&#39;https://raw.githubusercontent.com/datasets/geo-admin1-us/master/data/admin1-us.geojson&#39;)
+
+df = spark.read.geojson(SparkFiles.get(&#39;admin1-us.geojson&#39;))
+df.printSchema()
+</code></pre>
+<pre><code>root
+ |-- geometry: geometry (nullable = true)
+ |-- ISO3166-1-Alpha-3: string (nullable = true)
+ |-- country: string (nullable = true)
+ |-- id: string (nullable = true)
+ |-- name: string (nullable = true)
+ |-- state_code: string (nullable = true)
+</code></pre>
+<p>The properties of each discrete geometry are available as columns of the DataFrame, along with the geometry itself.</p>
+<h2><a href="#geopandas-and-rasterframes" name="geopandas-and-rasterframes" class="anchor"><span class="anchor-link"></span></a>GeoPandas and RasterFrames</h2>
+<p>You can also convert a <a href="http://geopandas.org">GeoPandas</a> GeoDataFrame to a Spark DataFrame, preserving the geometry column. This means that any vector format that can be read with <a href="https://gdal.org/drivers/vector/index.html">OGR</a> can be converted to a Spark DataFrame. In the example below, we expect the same schema as the DataFrame defined above by the GeoJSON reader. Note that in a GeoPandas DataFrame there can be heterogeneous geometry types in the column, which may fail Spark&rsquo;s schema inference.</p>
+<pre class="prettyprint"><code class="language-python">import geopandas
+from shapely.geometry import MultiPolygon
+
+def poly_or_mp_to_mp(g):
+    &quot;&quot;&quot; Normalize polygons or multipolygons to all be multipolygons. &quot;&quot;&quot;
+    if isinstance(g, MultiPolygon):
+        return g
+    else:
+        return MultiPolygon([g])
+
+gdf = geopandas.read_file(&#39;https://raw.githubusercontent.com/datasets/geo-admin1-us/master/data/admin1-us.geojson&#39;)
+gdf.geometry = gdf.geometry.apply(poly_or_mp_to_mp)
+df2 = spark.createDataFrame(gdf)
+df2.printSchema()
+</code></pre>
+<pre><code>root
+ |-- name: string (nullable = true)
+ |-- country: string (nullable = true)
+ |-- ISO3166-1-Alpha-3: string (nullable = true)
+ |-- state_code: string (nullable = true)
+ |-- id: string (nullable = true)
+ |-- geometry: struct (nullable = true)
+ |    |-- __geom__: long (nullable = true)
+ |    |-- _is_empty: boolean (nullable = true)
+ |    |-- _ndim: long (nullable = true)
+</code></pre>
+<h2><a href="#shapely-geometry-support" name="shapely-geometry-support" class="anchor"><span class="anchor-link"></span></a>Shapely Geometry Support</h2>
+<p>The <code>geometry</code> column will have a Spark user-defined type that is compatible with <a href="https://shapely.readthedocs.io/en/latest/manual.html">Shapely</a> when working with Python via PySpark. This means that when the data is collected to the driver, it will be a Shapely geometry object.</p>
+<pre class="prettyprint"><code class="language-python">the_first = df.first()
+print(type(the_first[&#39;geometry&#39;]))
+</code></pre>
+<pre><code>&lt;class &#39;shapely.geometry.polygon.Polygon&#39;&gt;
+</code></pre>
+<p>Since it is a geometry we can do things like this:</p>
+<pre class="prettyprint"><code class="language-python">the_first[&#39;geometry&#39;].wkt
+</code></pre>
+<pre><code>&#39;POLYGON ((-71.14789974636884 41.64758738867177, -71.1203820461734 41.49465098730397, -71.85382564969197 41.32003632258973, -71.79295081245215 41.46661652278563, -71.8009089830251 42.01324982356905, -71.37915178087496 42.02436025651181, -71.30507361518457 41.76241242122431, -71.14789974636884 41.64758738867177))&#39;
+</code></pre>
+<p>You can also write user-defined functions that take geometries as input, output, or both, via user defined types in the <a href="https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/main/python/geomesa_pyspark/types.py">geomesa_pyspark.types</a> module. Here is a simple example of a user-defined function that uses both a geometry input and output to compute the centroid of a geometry.</p>
+<pre class="prettyprint"><code class="language-python">from pyspark.sql.functions import udf
+from geomesa_pyspark.types import PointUDT
+
+@udf(PointUDT())
+def get_centroid(g):
+    return g.centroid
+
+df = df.withColumn(&#39;naive_centroid&#39;, get_centroid(df.geometry))
+df.printSchema()
+</code></pre>
+<pre><code>root
+ |-- geometry: geometry (nullable = true)
+ |-- ISO3166-1-Alpha-3: string (nullable = true)
+ |-- country: string (nullable = true)
+ |-- id: string (nullable = true)
+ |-- name: string (nullable = true)
+ |-- state_code: string (nullable = true)
+ |-- naive_centroid: point (nullable = true)
+</code></pre>
+<p>We can take a look at a sample of the data. Notice the geometry columns print as well known text (wkt).</p>
+<pre class="prettyprint"><code class="language-python">df.show(4)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>geometry </th>
+      <th>ISO3166-1-Alpha-3 </th>
+      <th>country </th>
+      <th>id </th>
+      <th>name </th>
+      <th>state_code </th>
+      <th>naive_centroid </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>POLYGON ((-71.14789974636884 41.64758738 </td>
+      <td>USA </td>
+      <td>United States of America </td>
+      <td>USA-3539 </td>
+      <td>Rhode Island </td>
+      <td>RI </td>
+      <td>POINT (-71.52928731203043 41.68199156750 </td>
+    </tr>
+    <tr>
+      <td>POLYGON ((-80.05653928497765 26.88, -80. </td>
+      <td>USA </td>
+      <td>United States of America </td>
+      <td>USA-3542 </td>
+      <td>Florida </td>
+      <td>FL </td>
+      <td>POINT (-82.50257410032164 28.61692830512 </td>
+    </tr>
+    <tr>
+      <td>POLYGON ((-94.62861121293412 36.54058645 </td>
+      <td>USA </td>
+      <td>United States of America </td>
+      <td>USA-3533 </td>
+      <td>Oklahoma </td>
+      <td>OK </td>
+      <td>POINT (-97.5041982257254 35.581496016431 </td>
+    </tr>
+    <tr>
+      <td>POLYGON ((-89.59940914585667 48.01027395 </td>
+      <td>USA </td>
+      <td>United States of America </td>
+      <td>USA-3514 </td>
+      <td>Minnesota </td>
+      <td>MN </td>
+      <td>POINT (-94.17743611908642 46.36007316339 </td>
+    </tr>
+  </tbody>
+</table>
+<h2><a href="#geomesa-functions-and-spatial-relations" name="geomesa-functions-and-spatial-relations" class="anchor"><span class="anchor-link"></span></a>GeoMesa Functions and Spatial Relations</h2>
+<p>As documented in the <a href="reference.html">function reference</a>, various user-defined functions implemented by GeoMesa are also available for use. The example below uses a GeoMesa user-defined function to compute the centroid of a geometry. It is logically equivalent to the example above, but more efficient.</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes.rasterfunctions import st_centroid
+df = df.withColumn(&#39;centroid&#39;, st_centroid(df.geometry))
+df.select(&#39;name&#39;, &#39;geometry&#39;, &#39;naive_centroid&#39;, &#39;centroid&#39;).show(4)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>name </th>
+      <th>geometry </th>
+      <th>naive_centroid </th>
+      <th>centroid </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Rhode Island </td>
+      <td>POLYGON ((-71.14789974636884 41.64758738 </td>
+      <td>POINT (-71.52928731203043 41.68199156750 </td>
+      <td>POINT (-71.52928731203043 41.68199156750 </td>
+    </tr>
+    <tr>
+      <td>Florida </td>
+      <td>POLYGON ((-80.05653928497765 26.88, -80. </td>
+      <td>POINT (-82.50257410032164 28.61692830512 </td>
+      <td>POINT (-82.50257410032164 28.61692830512 </td>
+    </tr>
+    <tr>
+      <td>Oklahoma </td>
+      <td>POLYGON ((-94.62861121293412 36.54058645 </td>
+      <td>POINT (-97.5041982257254 35.581496016431 </td>
+      <td>POINT (-97.5041982257254 35.581496016431 </td>
+    </tr>
+    <tr>
+      <td>Minnesota </td>
+      <td>POLYGON ((-89.59940914585667 48.01027395 </td>
+      <td>POINT (-94.17743611908642 46.36007316339 </td>
+      <td>POINT (-94.17743611908642 46.36007316339 </td>
+    </tr>
+  </tbody>
+</table>
+<p>The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the <a href="raster-catalogs.html#using-built-in-experimental-catalogs">built-in Landsat catalog</a> which provides an extent. We will convert the extent to a polygon and filter to those within approximately 500 km of a selected point.</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes.rasterfunctions import st_geometry, st_bufferPoint, st_intersects, st_point
+from pyspark.sql.functions import lit
+l8 = spark.read.format(&#39;aws-pds-l8-catalog&#39;).load()
+
+l8 = l8.withColumn(&#39;geom&#39;, st_geometry(l8.bounds_wgs84))
+l8 = l8.withColumn(&#39;paducah&#39;, st_point(lit(-88.6275), lit(37.072222)))
+
+l8_filtered = l8.filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(500000.0))))
+</code></pre>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="raster-processing.html">Raster Processing</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="vector-data.html#vector-data" class="header">Vector Data</a>
+  <ul>
+    <li><a href="vector-data.html#geojson-datasource" class="header">GeoJSON DataSource</a></li>
+    <li><a href="vector-data.html#geopandas-and-rasterframes" class="header">GeoPandas and RasterFrames</a></li>
+    <li><a href="vector-data.html#shapely-geometry-support" class="header">Shapely Geometry Support</a></li>
+    <li><a href="vector-data.html#geomesa-functions-and-spatial-relations" class="header">GeoMesa Functions and Spatial Relations</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">Copyright &copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

@@ -1,0 +1,136 @@
+# Unsupervised Machine Learning
+
+In this example, we will demonstrate how to fit and score an unsupervised learning model with a [sample of Landsat 8 data](https://github.com/locationtech/rasterframes/tree/develop/pyrasterframes/src/test/resources).
+
+## Imports and Data Preparation
+
+```python, setup, echo=False
+from IPython.core.display import display
+from docs import resource_dir_uri
+import pyrasterframes.rf_ipython
+from pyrasterframes.utils import create_rf_spark_session
+
+import os
+
+spark = create_rf_spark_session()
+
+```
+
+We import various Spark components needed to construct our `Pipeline`.
+
+```python, imports, echo=True
+import pandas as pd
+from pyrasterframes import TileExploder
+from pyrasterframes.rasterfunctions import rf_assemble_tile, rf_crs, rf_extent, rf_tile, rf_dimensions
+
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.clustering import KMeans
+from pyspark.ml import Pipeline
+
+```
+
+The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from [the I/O page](raster-io.html#Single-Scene--Multiple-Bands). In the catalog, each row represents a distinct area and time, and each column is the URI to a band's image product. The function `resource_dir_uri` gives a local file system path to the sample Landsat data. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
+
+
+```python, catalog
+filenamePattern = "L8-B{}-Elkton-VA.tiff"
+catalog_df = pd.DataFrame([
+    {'b' + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
+])
+df = spark.read.raster(catalog=catalog_df, catalog_col_names=catalog_df.columns)
+df = df.select(
+    rf_crs(df.b1).alias('crs'),
+    rf_extent(df.b1).alias('extent'),
+    rf_tile(df.b1).alias('b1'),
+    rf_tile(df.b2).alias('b2'),
+    rf_tile(df.b3).alias('b3'),
+    rf_tile(df.b4).alias('b4'),
+    rf_tile(df.b5).alias('b5'),
+    rf_tile(df.b6).alias('b6'),
+    rf_tile(df.b7).alias('b7'),
+)
+df.printSchema()
+```
+
+## Create ML Pipeline
+
+SparkML requires that each observation be in its own row, and features for each observation be packed into a single `Vector`. For this unsupervised learning problem, we will treat each _pixel_ as an observation and each band as a feature. The first step is to "explode" the _tiles_ into a single row per pixel. In RasterFrames, generally a pixel is called a @ref:[`cell`](concepts.md#cell).
+
+```python, exploder
+exploder = TileExploder()
+```
+
+To "vectorize" the the band columns, we use the SparkML `VectorAssembler`. Each of the seven bands is a different feature.
+
+```python, assembler
+assembler = VectorAssembler() \
+    .setInputCols(list(catalog_df.columns)) \
+    .setOutputCol("features")
+```
+
+For this problem, we will use the K-means clustering algorithm and configure our model to have 5 clusters.
+
+```python, kmeans
+kmeans = KMeans().setK(5).setFeaturesCol('features')
+```
+
+We can combine the above stages into a single _pipeline_.
+
+```python, pipeline
+pipeline = Pipeline().setStages([exploder, assembler, kmeans])
+```
+
+## Fit the Model and Score
+
+Fitting the _pipeline_ actually executes exploding the _tiles_, assembling the features _vectors_, and fitting the K-means clustering model.
+
+```python, fit
+model = pipeline.fit(df)
+```
+
+We can use the `transform` function to score the training data in the fitted _pipeline_ model. This will add a column called `prediction` with the closest cluster identifier.
+
+```python, transform, results='raw'
+clustered = model.transform(df)
+clustered.show(8)
+```
+
+If we want to inspect the model statistics, the SparkML API requires us to go through this unfortunate contortion to access the clustering results:
+
+```python, cluster_stats
+cluster_stage = model.stages[2]
+```
+
+We can then compute the sum of squared distances of points to their nearest center, which is elemental to most cluster quality metrics.
+
+```python, distance
+metric = cluster_stage.computeCost(clustered)
+print("Within set sum of squared errors: %s" % metric)
+```
+
+## Visualize Prediction
+
+We can recreate the tiled data structure using the metadata added by the `TileExploder` pipeline stage.
+
+```python, assemble
+from pyrasterframes.rf_types import CellType
+
+tile_dims = df.select(rf_dimensions(df.b1).alias('dims')).first()['dims']
+retiled = clustered.groupBy('extent', 'crs') \
+    .agg(
+        rf_assemble_tile('column_index', 'row_index', 'prediction',
+            tile_dims['cols'], tile_dims['rows'], CellType.int8()).alias('prediction')
+)
+
+retiled.printSchema()
+```
+
+```python, results='raw'
+retiled.show()
+```
+
+The resulting output is shown below.
+
+```python, viz
+display(retiled.select('prediction').first()['prediction'])
+```
