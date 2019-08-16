@@ -363,47 +363,6 @@ class Tile(object):
         from pyrasterframes.rf_ipython import tile_to_png
         return tile_to_png(self)
 
-    def show(self, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
-            """
-            Display an image of the tile
-
-            Parameters
-            ----------
-            lower_percentile: between 0 and 100 inclusive.
-                              Specifies to clip values below this percentile
-            upper_percentile: between 0 and 100 inclusive.
-                              Specifies to clip values above this percentile
-            axis : matplotlib axis object to plot onto. Creates new axis if None
-            imshow_args : parameters to pass into matplotlib.pyplot.imshow
-                          see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.imshow.html
-            Returns
-            -------
-            created or modified axis object
-            """
-
-            if axis is None:
-                import matplotlib.pyplot as plt
-                axis = plt.gca()
-
-            arr = self.cells
-
-            def normalize_cells(cells, lower_percentile=lower_percentile, upper_percentile=upper_percentile):
-                assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles'
-                lower = np.percentile(cells, lower_percentile)
-                upper = np.percentile(cells, upper_percentile)
-                cells_clipped = np.clip(cells, lower, upper)
-                return (cells_clipped - lower) / (upper - lower)
-
-            axis.set_aspect('equal')
-            axis.xaxis.set_ticks([])
-            axis.yaxis.set_ticks([])
-
-            axis.imshow(normalize_cells(arr), **imshow_args)
-
-            return axis
-
-
-
 
 class TileUDT(UserDefinedType):
     @classmethod

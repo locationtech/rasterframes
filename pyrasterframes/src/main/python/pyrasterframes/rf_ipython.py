@@ -19,9 +19,49 @@
 #
 
 import pyrasterframes.rf_types
+import numpy as np
+
+def plot_tile(tile, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
+    """
+    Display an image of the tile
+
+    Parameters
+    ----------
+    lower_percentile: between 0 and 100 inclusive.
+                      Specifies to clip values below this percentile
+    upper_percentile: between 0 and 100 inclusive.
+                      Specifies to clip values above this percentile
+    axis : matplotlib axis object to plot onto. Creates new axis if None
+    imshow_args : parameters to pass into matplotlib.pyplot.imshow
+                  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.imshow.html
+    Returns
+    -------
+    created or modified axis object
+    """
+
+    if axis is None:
+        import matplotlib.pyplot as plt
+        axis = plt.gca()
+
+    arr = tile.cells
+
+    def normalize_cells(cells, lower_percentile=lower_percentile, upper_percentile=upper_percentile):
+        assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles'
+        lower = np.percentile(cells, lower_percentile)
+        upper = np.percentile(cells, upper_percentile)
+        cells_clipped = np.clip(cells, lower, upper)
+        return (cells_clipped - lower) / (upper - lower)
+
+    axis.set_aspect('equal')
+    axis.xaxis.set_ticks([])
+    axis.yaxis.set_ticks([])
+
+    axis.imshow(normalize_cells(arr), **imshow_args)
+
+    return axis
 
 
-def tile_to_png(tile, fig_size=None):
+def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_size=None):
     """ Provide image of Tile."""
     if tile.cells is None:
         return None
@@ -31,7 +71,7 @@ def tile_to_png(tile, fig_size=None):
     from matplotlib.figure import Figure
 
     # Set up matplotlib objects
-    nominal_size = 2  # approx full size for a 256x256 tile
+    nominal_size = 4  # approx full size for a 256x256 tile
     if fig_size is None:
         fig_size = (nominal_size, nominal_size)
 
@@ -39,15 +79,16 @@ def tile_to_png(tile, fig_size=None):
     canvas = FigureCanvas(fig)
     axis = fig.add_subplot(1, 1, 1)
 
-    data = tile.cells
-
-    axis.imshow(data)
+    plot_tile(tile, lower_percentile, upper_percentile, axis=axis)
     axis.set_aspect('equal')
     axis.xaxis.set_ticks([])
     axis.yaxis.set_ticks([])
 
-    axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()),
-                   fontsize=fig_size[0]*4)  # compact metadata as title
+    if title is None:
+        axis.set_title('{}, {}'.format(tile.dimensions(), tile.cell_type.__repr__()),
+                       fontsize=fig_size[0]*4)  # compact metadata as title
+    else:
+        axis.set_title(title, fontsize=fig_size[0]*4)  # compact metadata as title
 
     with io.BytesIO() as output:
         canvas.print_png(output)
@@ -58,7 +99,7 @@ def tile_to_html(tile, fig_size=None):
     """ Provide HTML string representation of Tile image."""
     import base64
     b64_img_html = '<img src="data:image/png;base64,{}" />'
-    png_bits = tile_to_png(tile, fig_size)
+    png_bits = tile_to_png(tile, fig_size=fig_size)
     b64_png = base64.b64encode(png_bits).decode('utf-8').replace('\n', '')
     return b64_img_html.format(b64_png)
 
@@ -102,6 +143,18 @@ def pandas_df_to_html(df):
     pd.set_option('display.max_colwidth', default_max_colwidth)
     return return_html
 
+
+try:
+    from IPython import get_ipython
+    # modifications to currently running ipython session, if we are in one; these enable nicer visualization for Pandas
+    if get_ipython() is not None:
+        import pandas
+        html_formatter = get_ipython().display_formatter.formatters['text/html']
+        html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
+except ImportError:
+    pass
+
+
 def spark_df_to_markdown(df, num_rows=5, truncate=True, vertical=False):
     from pyrasterframes import RFContext
     return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
@@ -122,7 +175,8 @@ try:
         markdown_formatter = ip.display_formatter.formatters['text/markdown']
         html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
 
-        Tile.show = lambda t: display_png(t._repr_png_(), raw=True)
+        Tile.show = lambda tile, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args: \
+            plot_tile(tile, lower_percentile, upper_percentile, axis, **imshow_args)
 
         # See if we're in documentation mode and register a custom show implementation.
         if 'InProcessInteractiveShell' in ip.__class__.__name__:
@@ -130,6 +184,4 @@ try:
             pyspark.sql.DataFrame.show = lambda df, num_rows=5, truncate=True: display_markdown(spark_df_to_markdown(df, num_rows, truncate), raw=True)
 
 except ImportError as e:
-    print(e)
-    raise e
     pass
