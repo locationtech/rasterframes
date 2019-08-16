@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Classification · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../js/page.js"></script>
+<script type="text/javascript" src="../js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="../lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="../css/page.css"/>
+
+<link rel="icon" href="../images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="i../mages/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="../index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="../pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="../creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="../spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="../apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="../apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="../apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="../ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="../ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="../ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="../ml/classification.html" class="active page">Classification</a></li>
+  </ul></li>
+  <li><a href="../exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="../reference.html" class="page">Function Reference</a></li>
+  <li><a href="../release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="../images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="../index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="../images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="../index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="../pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="../creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="../spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="../apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="../apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="../apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="../ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="../ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="../ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="../ml/classification.html" class="active page">Classification</a></li>
+  </ul></li>
+  <li><a href="../exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="../reference.html" class="page">Function Reference</a></li>
+  <li><a href="../release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="../index.html">RasterFrames</a></li>
+  <li><a href="../ml/index.html">Machine Learning</a></li>
+  <li>Classification</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#classification" name="classification" class="anchor"><span class="anchor-link"></span></a>Classification</h1>
+<p>In this example we will do some simple cell classification based on multiband imagery and a target/label raster. As a part of the process we&rsquo;ll explore the cross-validation support in SparkML.</p>
+<h2><a href="#setup" name="setup" class="anchor"><span class="anchor-link"></span></a>Setup</h2>
+<p>First some setup:</p>
+<pre class="prettyprint"><code class="language-scala">import astraea.spark.rasterframes._
+import astraea.spark.rasterframes.ml.{NoDataFilter, TileExploder}
+import geotrellis.raster._
+import geotrellis.raster.render._
+import geotrellis.raster.io.geotiff.SinglebandGeoTiff
+import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.classification.DecisionTreeClassifier
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
+import org.apache.spark.sql._
+
+implicit val spark = SparkSession.builder().
+  withKryoSerialization.
+  master(&quot;local[*]&quot;).appName(getClass.getName).getOrCreate().withRasterFrames
+spark.sparkContext.setLogLevel(&quot;ERROR&quot;)
+
+import spark.implicits._
+
+// Utility for reading imagery from our test data set
+def readTiff(name: String): SinglebandGeoTiff = SinglebandGeoTiff(s&quot;../core/src/test/resources/$name&quot;)
+</code></pre>
+<h2><a href="#loading-data" name="loading-data" class="anchor"><span class="anchor-link"></span></a>Loading Data</h2>
+<p>The first step is to load multiple bands of imagery and construct a single RasterFrame from them. To do this we:</p>
+<ol>
+  <li>Identify the GeoTIFF filename.</li>
+  <li>Read the TIFF raster</li>
+  <li>Convert to a raster frame of <code>tileSize</code> sized tiles, with an appropriate column name</li>
+  <li>Use the RasterFrames <code>spatialJoin</code> function to create a new RasterFrame with a column for each band</li>
+</ol>
+<pre class="prettyprint"><code class="language-scala">val filenamePattern = &quot;L8-%s-Elkton-VA.tiff&quot;
+val bandNumbers = 2 to 7
+val bandColNames = bandNumbers.map(b ⇒ s&quot;band_$b&quot;).toArray
+val tileSize = 10
+
+// For each identified band, load the associated image file
+val joinedRF = bandNumbers.
+  map { b ⇒ (b, filenamePattern.format(&quot;B&quot; + b)) }.
+  map { case (b, f) ⇒ (b, readTiff(f)) }.
+  map { case (b, t) ⇒ t.projectedRaster.toRF(tileSize, tileSize, s&quot;band_$b&quot;) }.
+  reduce(_ spatialJoin _)
+</code></pre>
+<p>We should see a single <code>spatial_key</code> column along with 6 columns of tiles.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; joinedRF.printSchema()
+root
+ |-- spatial_key: struct (nullable = true)
+ |    |-- col: integer (nullable = false)
+ |    |-- row: integer (nullable = false)
+ |-- band_2: tile (nullable = true)
+ |-- band_3: tile (nullable = true)
+ |-- band_4: tile (nullable = true)
+ |-- band_5: tile (nullable = true)
+ |-- band_6: tile (nullable = true)
+ |-- band_7: tile (nullable = true)
+
+</code></pre>
+<p>Similarly pull we pull in the target label data. When load the target label raster we have to convert the cell type to <code>Double</code> to meet expectations of SparkML. </p>
+<pre class="prettyprint"><code class="language-scala">val targetCol = &quot;target&quot;
+
+val target = readTiff(filenamePattern.format(&quot;Labels&quot;)).
+  mapTile(_.convert(DoubleConstantNoDataCellType)).
+  projectedRaster.
+  toRF(tileSize, tileSize, targetCol)
+</code></pre>
+<p>Take a peek at what kind of label data we have to work with.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; target.select(agg_stats(target(targetCol))).show
++----------+-------------+---+---+------------------+------------------+
+|data_cells|no_data_cells|min|max|              mean|          variance|
++----------+-------------+---+---+------------------+------------------+
+|      1626|        30674|0.0|2.0|0.8031980319803198|0.2798421711154381|
++----------+-------------+---+---+------------------+------------------+
+
+</code></pre>
+<p>Join the target label RasterFrame with the band tiles to create our analytics base table</p>
+<pre class="prettyprint"><code class="language-scala">val abt = joinedRF.spatialJoin(target)
+
+</code></pre>
+<h2><a href="#ml-pipeline" name="ml-pipeline" class="anchor"><span class="anchor-link"></span></a>ML Pipeline</h2>
+<p>The data preparation modeling pipeline is next. SparkML requires that each observation be in its own row, and those observations be packed into a single <code>Vector</code> type. The first step is to &ldquo;explode&rdquo; the tiles into a single row per cell/pixel. Then we filter out any rows that have <code>NoData</code> values (which will cause an error during training). Finally we use the SparkML <code>VectorAssembler</code> to create that <code>Vector</code>. </p>
+<pre class="prettyprint"><code class="language-scala">val exploder = new TileExploder()
+
+val noDataFilter = new NoDataFilter().
+  setInputCols(bandColNames :+ targetCol)
+
+val assembler = new VectorAssembler().
+  setInputCols(bandColNames).
+  setOutputCol(&quot;features&quot;)
+</code></pre>
+<p>We are going to use a decision tree for classification. You can swap out one of the other multi-class classification algorithms if you like. With the algorithm selected we can assemble our modeling pipeline.</p>
+<pre class="prettyprint"><code class="language-scala">val classifier = new DecisionTreeClassifier().
+  setLabelCol(targetCol).
+  setFeaturesCol(assembler.getOutputCol)
+
+val pipeline = new Pipeline().
+  setStages(Array(exploder, noDataFilter, assembler, classifier))
+</code></pre>
+<h2><a href="#cross-validation" name="cross-validation" class="anchor"><span class="anchor-link"></span></a>Cross Validation</h2>
+<p>To extend the sophistication of the example we are going to use the SparkML support for cross-validation and hyper-parameter tuning. The first step is to configure how we&rsquo;re going to evaluate our model&rsquo;s performance. Then we define the hyperparmeter(s) we&rsquo;re going to vary and evaluate. Finally we configure the cross validator. </p>
+<pre class="prettyprint"><code class="language-scala">val evaluator = new MulticlassClassificationEvaluator().
+  setLabelCol(targetCol).
+  setPredictionCol(&quot;prediction&quot;).
+  setMetricName(&quot;accuracy&quot;)
+
+val paramGrid = new ParamGridBuilder().
+  addGrid(classifier.maxDepth, Array(2, 3, 4)).
+  build()
+
+val trainer = new CrossValidator().
+  setEstimator(pipeline).
+  setEvaluator(evaluator).
+  setEstimatorParamMaps(paramGrid).
+  setNumFolds(4)
+</code></pre>
+<p>Push the &ldquo;go button&rdquo;:</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; val model = trainer.fit(abt)
+model: org.apache.spark.ml.tuning.CrossValidatorModel = cv_fc7cc9e49394
+</code></pre>
+<h2><a href="#model-evaluation" name="model-evaluation" class="anchor"><span class="anchor-link"></span></a>Model Evaluation</h2>
+<p>To view the model&rsquo;s performance we format the <code>paramGrid</code> settings used for each model and render the parameter/performance association.</p>
+<pre class="prettyprint"><code class="language-scala">val metrics = model.getEstimatorParamMaps.
+  map(_.toSeq.map(p ⇒ s&quot;${p.param.name} = ${p.value}&quot;)).
+  map(_.mkString(&quot;, &quot;)).
+  zip(model.avgMetrics)
+</code></pre>
+<pre class="prettyprint"><code class="language-scala">scala&gt; metrics.toSeq.toDF(&quot;params&quot;, &quot;metric&quot;).show(false)
++------------+------------------+
+|params      |metric            |
++------------+------------------+
+|maxDepth = 2|0.9602839559962448|
+|maxDepth = 3|0.9850291835043165|
+|maxDepth = 4|0.9856287038880095|
++------------+------------------+
+
+</code></pre>
+<p>Finally, we score the original data set (including the cells without target values) and add up class membership results.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; val scored = model.bestModel.transform(joinedRF)
+scored: org.apache.spark.sql.DataFrame = [spatial_key: struct&lt;col: int, row: int&gt;, column_index: int ... 11 more fields]
+
+scala&gt; scored.groupBy($&quot;prediction&quot; as &quot;class&quot;).count().show
++-----+-----+
+|class|count|
++-----+-----+
+|  0.0| 7186|
+|  1.0|15730|
+|  2.0| 9384|
++-----+-----+
+
+</code></pre>
+<h2><a href="#visualizing-results" name="visualizing-results" class="anchor"><span class="anchor-link"></span></a>Visualizing Results</h2>
+<p>The predictions are in a DataFrame with each row representing a separate pixel. To assemble a raster to visualize the class assignments, we have to go through a multi-stage process to get the data back in tile form, and from there to combined raster form.</p>
+<p>First, we get the DataFrame back into RasterFrame form:</p>
+<pre class="prettyprint"><code class="language-scala">val tlm = joinedRF.tileLayerMetadata.left.get
+
+val retiled = scored.groupBy($&quot;spatial_key&quot;).agg(
+  assemble_tile(
+    $&quot;column_index&quot;, $&quot;row_index&quot;, $&quot;prediction&quot;,
+    tlm.tileCols, tlm.tileRows, ByteConstantNoDataCellType
+  )
+)
+
+val rf = retiled.asRF($&quot;spatial_key&quot;, tlm)
+</code></pre>
+<p>To render our visualization, we convert to a raster first, and then use an <code>IndexedColorMap</code> to assign each discrete class a different color, and finally rendering to a PNG file.</p>
+<pre class="prettyprint"><code class="language-scala">val raster = rf.toRaster($&quot;prediction&quot;, 186, 169)
+
+val clusterColors = IndexedColorMap.fromColorMap(
+  ColorRamps.Viridis.toColorMap((0 until 3).toArray)
+)
+
+raster.tile.renderPng(clusterColors).write(&quot;target/scala-2.11/tut/ml/classified.png&quot;)
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th>Color Composite </th>
+      <th>Target Labels </th>
+      <th>Class Assignments </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="L8-RGB-VA.png" /> </td>
+      <td><img src="target-labels.png" /> </td>
+      <td><img src="classified.png" /> </td>
+    </tr>
+  </tbody>
+</table>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="../exporting-rasterframes.html">Exporting&nbsp;RasterFrames</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="../ml/classification.html#classification" class="header">Classification</a>
+  <ul>
+    <li><a href="../ml/classification.html#setup" class="header">Setup</a></li>
+    <li><a href="../ml/classification.html#loading-data" class="header">Loading Data</a></li>
+    <li><a href="../ml/classification.html#ml-pipeline" class="header">ML Pipeline</a></li>
+    <li><a href="../ml/classification.html#cross-validation" class="header">Cross Validation</a></li>
+    <li><a href="../ml/classification.html#model-evaluation" class="header">Model Evaluation</a></li>
+    <li><a href="../ml/classification.html#visualizing-results" class="header">Visualizing Results</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">&copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="../lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="../js/magellan.js"></script>
+
+<style type="text/css">@import "../lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

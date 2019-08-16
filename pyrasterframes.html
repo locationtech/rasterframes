@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>RasterFrames&nbsp;in&nbsp;Python · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="active page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="active page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>RasterFrames&nbsp;in&nbsp;Python</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#rasterframes-nbsp-in-nbsp-python" name="rasterframes-nbsp-in-nbsp-python" class="anchor"><span class="anchor-link"></span></a>RasterFrames&nbsp;in&nbsp;Python</h1>
+<p>RasterFrames includes Python bindings for using the library from within <a href="https://spark.apache.org/docs/latest/api/python/pyspark.html">PySpark</a>. While creating Python documentation on parity with Scala is forthcoming, these resources should help in the meantime:</p>
+<ul>
+  <li><a href="https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/python/README.rst">PyRasterFrames README</a></li>
+  <li><a href="https://github.com/locationtech/rasterframes/tree/develop/pyrasterframes/python/examples">PyRasterFrames Examples</a></li>
+  <li><a href="https://github.com/locationtech/rasterframes/blob/develop/deployment/README.md">RasterFrames Jupyter Notebook</a></li>
+  <li><a href="reference.html">PyRasterFrames Functions</a></li>
+</ul>
+<p>Most features available in the Scala API are exposed in the Python API, refer to the <a href="reference.html">function reference</a>. Defining a <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.functions.udf">udf</a> using a <code>Tile</code> column through the Python API is not yet supported. </p>
+<p>If there&rsquo;s a specific feature that appears to be missing in the Python version <a href="https://github.com/locationtech/rasterframes/issues">please submit an issue</a> so that we might address it for you.</p>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="creating-rasterframes.html">Creating&nbsp;RasterFrames</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">&copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

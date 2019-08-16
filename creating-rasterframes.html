@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Creating&nbsp;RasterFrames · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="active page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="active page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="reference.html" class="page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>Creating&nbsp;RasterFrames</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#creating-nbsp-rasterframes" name="creating-nbsp-rasterframes" class="anchor"><span class="anchor-link"></span></a>Creating&nbsp;RasterFrames</h1>
+<h2><a href="#initialization" name="initialization" class="anchor"><span class="anchor-link"></span></a>Initialization</h2>
+<p>There are a couple of setup steps necessary anytime you want to work with RasterFrames. the first is to import the API symbols into scope:</p>
+<pre class="prettyprint"><code class="language-scala">import astraea.spark.rasterframes._
+import org.apache.spark.sql._
+</code></pre>
+<p>Next, initialize the <code>SparkSession</code>, and call the <code>withRasterFrames</code> method on it:</p>
+<pre class="prettyprint"><code class="language-scala">implicit val spark = SparkSession.builder().
+  master(&quot;local&quot;).appName(&quot;RasterFrames&quot;).
+  config(&quot;spark.ui.enabled&quot;, &quot;false&quot;).
+  withKryoSerialization.
+  getOrCreate().
+  withRasterFrames
+</code></pre>
+<p>And, as is standard Spark SQL practice, we import additional DataFrame support:</p>
+<pre class="prettyprint"><code class="language-scala">import spark.implicits._
+</code></pre>
+<p>Now we are ready to create a RasterFrame.</p>
+<h2><a href="#reading-a-geotiff" name="reading-a-geotiff" class="anchor"><span class="anchor-link"></span></a>Reading a GeoTIFF</h2>
+<p>The most straightforward way to create a <code>RasterFrame</code> is to read a <a href="https://en.wikipedia.org/wiki/GeoTIFF">GeoTIFF</a> file using a RasterFrame <a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources"><code>DataSource</code></a> designed for this purpose. <a href="http://www.cogeo.org/">Cloud Optimized GeoTIFF</a> files are preferred, as they don&rsquo;t require re-tiling and can be read in a more memory-efficient way.</p>
+<p>First add the following import:</p>
+<pre class="prettyprint"><code class="language-scala">import astraea.spark.rasterframes.datasource.geotiff._
+import java.io.File
+</code></pre>
+<p>(This is what adds the <code>.geotiff</code> method to <code>spark.read</code> below.)</p>
+<p>Then we use the <code>DataFrameReader</code> provided by <code>spark.read</code> to read the GeoTIFF:</p>
+<pre class="prettyprint"><code class="language-scala">val samplePath = new File(&quot;../core/src/test/resources/LC08_RGB_Norfolk_COG.tiff&quot;)
+// samplePath: java.io.File = ../core/src/test/resources/LC08_RGB_Norfolk_COG.tiff
+
+val tiffRF = spark.read.
+  geotiff.
+  loadRF(samplePath.toURI)
+// tiffRF: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, extent: struct&lt;xmin: double, ymin: double ... 2 more fields&gt; ... 5 more fields]
+</code></pre>
+<p>Let&rsquo;s inspect the structure of what we get back:</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; tiffRF.printSchema()
+root
+ |-- spatial_key: struct (nullable = false)
+ |    |-- col: integer (nullable = false)
+ |    |-- row: integer (nullable = false)
+ |-- extent: struct (nullable = true)
+ |    |-- xmin: double (nullable = false)
+ |    |-- ymin: double (nullable = false)
+ |    |-- xmax: double (nullable = false)
+ |    |-- ymax: double (nullable = false)
+ |-- crs: struct (nullable = true)
+ |    |-- crsProj4: string (nullable = false)
+ |-- metadata: map (nullable = true)
+ |    |-- key: string
+ |    |-- value: string (valueContainsNull = false)
+ |-- tile_1: tile (nullable = false)
+ |-- tile_2: tile (nullable = false)
+ |-- tile_3: tile (nullable = false)
+
+</code></pre>
+<p>As reported by Spark, RasterFrames extracts 6 columns from the GeoTIFF we selected. Some of these columns are dependent on the contents of the source data, and some are are always available. Let&rsquo;s take a look at these in more detail.</p>
+<ul>
+  <li><code>spatial_key</code>: GeoTrellis assigns a <code>SpatialKey</code> or a <code>SpaceTimeKey</code> to each tile, mapping it to the layer grid from which it came. If it has a <code>SpaceTimeKey</code>, RasterFrames will split it into a <code>SpatialKey</code> and a <code>TemporalKey</code> (the latter with column name <code>temporal_key</code>).</li>
+  <li><code>extent</code>: The bounding box of the tile in the tile&rsquo;s native CRS.</li>
+  <li><code>metadata</code>: The TIFF format header tags found in the file.</li>
+  <li><code>tile</code> or <code>tile_n</code> (where <code>n</code> is a band number): For singleband GeoTIFF files, the <code>tile</code> column contains the cell data split into tiles. For multiband tiles, each column with <code>tile_</code> prefix contains each of the sources bands, in the order they were stored.</li>
+</ul>
+<p>See the section <a href="#inspecting-a--code-rasterframe--code-">Inspecting a <code>RasterFrame</code></a> (below) for more details on accessing the RasterFrame&rsquo;s metadata.</p>
+<h2><a href="#reading-a-geotrellis-layer" name="reading-a-geotrellis-layer" class="anchor"><span class="anchor-link"></span></a>Reading a GeoTrellis Layer</h2>
+<p>If your imagery is already ingested into a <a href="https://docs.geotrellis.io/en/latest/guide/spark.html#writing-layers">GeoTrellis layer</a>, you can use the RasterFrames GeoTrellis DataSource. There are two parts to this GeoTrellis Layer support. The first is the GeoTrellis Catalog DataSource, which lists the GeoTrellis layers available at a URI. The second part is the actual RasterFrame reader for pulling a layer into a RasterFrame.</p>
+<p>Before we show how all of this works we need to have a GeoTrellis layer to work with. We can create one with the RasterFrame we constructed above.</p>
+<pre class="prettyprint"><code class="language-scala">import astraea.spark.rasterframes.datasource.geotrellis._
+import java.nio.file.Files
+
+val base = Files.createTempDirectory(&quot;rf-&quot;).toUri
+val layer = Layer(base, &quot;sample&quot;, 0)
+tiffRF.write.geotrellis.asLayer(layer).save()
+</code></pre>
+<p>Now we can point our catalog reader at the base directory and see what was saved:</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; val cat = spark.read.geotrellisCatalog(base)
+cat: org.apache.spark.sql.DataFrame = [index: int, layer: struct&lt;base: struct&lt;uri: string&gt;, id: struct&lt;name: string, zoom: int&gt;&gt; ... 10 more fields]
+
+scala&gt; cat.printSchema
+root
+ |-- index: integer (nullable = false)
+ |-- layer: struct (nullable = true)
+ |    |-- base: struct (nullable = false)
+ |    |    |-- uri: string (nullable = false)
+ |    |-- id: struct (nullable = false)
+ |    |    |-- name: string (nullable = true)
+ |    |    |-- zoom: integer (nullable = false)
+ |-- format: string (nullable = true)
+ |-- keyClass: string (nullable = true)
+ |-- layerType: string (nullable = true)
+ |-- path: string (nullable = true)
+ |-- valueClass: string (nullable = true)
+ |-- bounds: struct (nullable = true)
+ |    |-- maxKey: struct (nullable = true)
+ |    |    |-- col: long (nullable = true)
+ |    |    |-- row: long (nullable = true)
+ |    |-- minKey: struct (nullable = true)
+ |    |    |-- col: long (nullable = true)
+ |    |    |-- row: long (nullable = true)
+ |-- cellType: string (nullable = true)
+ |-- crs: string (nullable = true)
+ |-- extent: struct (nullable = true)
+ |    |-- xmax: double (nullable = true)
+ |    |-- xmin: double (nullable = true)
+ |    |-- ymax: double (nullable = true)
+ |    |-- ymin: double (nullable = true)
+ |-- layoutDefinition: struct (nullable = true)
+ |    |-- extent: struct (nullable = true)
+ |    |    |-- xmax: double (nullable = true)
+ |    |    |-- xmin: double (nullable = true)
+ |    |    |-- ymax: double (nullable = true)
+ |    |    |-- ymin: double (nullable = true)
+ |    |-- tileLayout: struct (nullable = true)
+ |    |    |-- layoutCols: long (nullable = true)
+ |    |    |-- layoutRows: long (nullable = true)
+ |    |    |-- tileCols: long (nullable = true)
+ |    |    |-- tileRows: long (nullable = true)
+
+
+scala&gt; cat.show()
++-----+--------------------+------+--------------------+-------------+--------+--------------------+----------------+--------+--------------------+--------------------+--------------------+
+|index|               layer|format|            keyClass|    layerType|    path|          valueClass|          bounds|cellType|                 crs|              extent|    layoutDefinition|
++-----+--------------------+------+--------------------+-------------+--------+--------------------+----------------+--------+--------------------+--------------------+--------------------+
+|    0|[[file:///var/fol...|  file|geotrellis.spark....|AvroLayerType|sample/0|geotrellis.raster...|[[4, 3], [0, 0]]|  uint16|+proj=utm +zone=1...|[395295.0, 364455...|[[402855.0, 36445...|
++-----+--------------------+------+--------------------+-------------+--------+--------------------+----------------+--------+--------------------+--------------------+--------------------+
+
+</code></pre>
+<p>As you can see, there&rsquo;s a lot of information stored in each row of the catalog. Most of this is associated with how the layer is discretized. However, there may be other application specific metadata serialized with a layer that can be use to filter the catalog entries or select a specific one. But for now, we&rsquo;re just going to load a RasterFrame in from the catalog using a convenience function.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; val firstLayer = cat.select(geotrellis_layer).first
+firstLayer: astraea.spark.rasterframes.datasource.geotrellis.Layer = Layer(file:///var/folders/lr/7lb0jzbj1x951n71lpcc2cy40000gn/T/rf-1169550113288929925/,Layer(name = &quot;sample&quot;, zoom = 0))
+
+scala&gt; val rfAgain = spark.read.geotrellis.loadRF(firstLayer)
+rfAgain: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, bounds: polygon ... 3 more fields]
+
+scala&gt; rfAgain.show()
++-----------+--------------------+--------------------+--------------------+--------------------+
+|spatial_key|              bounds|              tile_1|              tile_2|              tile_3|
++-----------+--------------------+--------------------+--------------------+--------------------+
+|     [4, 3]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [4, 2]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [4, 1]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 1]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 0]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 1]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 0]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 0]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 1]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 1]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 0]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 3]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [0, 2]|POLYGON ((364455 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 2]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [4, 0]|POLYGON ((395175 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 3]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [2, 2]|POLYGON ((379815 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [1, 3]|POLYGON ((372135 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 3]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
+|     [3, 2]|POLYGON ((387495 ...|geotrellis.raster...|geotrellis.raster...|geotrellis.raster...|
++-----------+--------------------+--------------------+--------------------+--------------------+
+
+</code></pre>
+<p>If you already know the <code>LayerId</code> of what you&rsquo;re wanting to read, you can bypass working with the catalog:</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; val anotherRF = spark.read.geotrellis.loadRF(layer)
+anotherRF: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, bounds: polygon ... 3 more fields]
+</code></pre>
+<h2><a href="#writing-a-geotrellis-layer" name="writing-a-geotrellis-layer" class="anchor"><span class="anchor-link"></span></a>Writing a GeoTrellis Layer</h2>
+<p>See <a href="creating-rasterframes.html#exporting-to-a-geotrellis-layer">Exporting to a GeoTrellis Layer</a>.</p>
+<h2><a href="#using-geotrellis-apis" name="using-geotrellis-apis" class="anchor"><span class="anchor-link"></span></a>Using GeoTrellis APIs</h2>
+<p>If you are used to working directly with the GeoTrellis APIs, there are a number of additional ways to create a <code>RasterFrame</code>, as enumerated in the sections below.</p>
+<p>First, some more <code>import</code>s:</p>
+<pre class="prettyprint"><code class="language-scala">import geotrellis.raster.io.geotiff.SinglebandGeoTiff
+import geotrellis.spark.io._
+</code></pre>
+<h3><a href="#from-projectedextent" name="from-projectedextent" class="anchor"><span class="anchor-link"></span></a>From <code>ProjectedExtent</code></h3>
+<p>The simplest mechanism for getting a RasterFrame is to use the <code>toRF(tileCols, tileRows)</code> extension method on <code>ProjectedRaster</code>.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; val scene = SinglebandGeoTiff(&quot;../core/src/test/resources/L8-B8-Robinson-IL.tiff&quot;)
+scene: geotrellis.raster.io.geotiff.SinglebandGeoTiff = SinglebandGeoTiff(geotrellis.raster.io.geotiff.UInt16GeoTiffTile@5a7412b0,Extent(431902.5, 4313647.5, 443512.5, 4321147.5),EPSG:32616,Tags(Map(AREA_OR_POINT -&gt; POINT),List(Map())),GeoTiffOptions(geotrellis.raster.io.geotiff.Striped@39449f7f,DeflateCompression(-1),1,None,PixelInterleave,None,Tiff),List())
+
+scala&gt; val rf = scene.projectedRaster.toRF(128, 128)
+rf: astraea.spark.rasterframes.RasterFrame = [spatial_key: struct&lt;col: int, row: int&gt;, tile: tile]
+
+scala&gt; rf.show(5, false)
++-----------+--------------------------------------------------------+
+|spatial_key|tile                                                    |
++-----------+--------------------------------------------------------+
+|[0, 0]     |geotrellis.raster.UShortConstantNoDataArrayTile@4b50be41|
+|[1, 1]     |geotrellis.raster.UShortConstantNoDataArrayTile@2a66d7dd|
+|[6, 1]     |geotrellis.raster.UShortConstantNoDataArrayTile@6f3117fa|
+|[3, 1]     |geotrellis.raster.UShortConstantNoDataArrayTile@4d19f78c|
+|[4, 2]     |geotrellis.raster.UShortConstantNoDataArrayTile@3f5ead8 |
++-----------+--------------------------------------------------------+
+only showing top 5 rows
+
+</code></pre>
+<h3><a href="#from-tilelayerrdd" name="from-tilelayerrdd" class="anchor"><span class="anchor-link"></span></a>From <code>TileLayerRDD</code></h3>
+<p>Another option is to use a GeoTrellis <a href="https://docs.geotrellis.io/en/latest/guide/tile-backends.html"><code>LayerReader</code></a>, to get a <code>TileLayerRDD</code> for which there&rsquo;s also a <code>toRF</code> extension method.</p>
+<pre class="prettyprint"><code class="language-scala">import geotrellis.spark._
+val tiledLayer: TileLayerRDD[SpatialKey] = ???
+val rf = tiledLayer.toRF
+</code></pre>
+<h2><a href="#inspecting-a-rasterframe" name="inspecting-a-rasterframe" class="anchor"><span class="anchor-link"></span></a>Inspecting a <code>RasterFrame</code></h2>
+<p><code>RasterFrame</code> has a number of methods providing access to metadata about the contents of the RasterFrame.</p>
+<h3><a href="#tile-column-names" name="tile-column-names" class="anchor"><span class="anchor-link"></span></a>Tile Column Names</h3>
+<pre class="prettyprint"><code class="language-scala">rf.tileColumns.map(_.toString)
+// res7: Seq[String] = ArraySeq(tile)
+</code></pre>
+<h3><a href="#spatial-key-column-name" name="spatial-key-column-name" class="anchor"><span class="anchor-link"></span></a>Spatial Key Column Name</h3>
+<pre class="prettyprint"><code class="language-scala">rf.spatialKeyColumn.toString
+// res8: String = spatial_key
+</code></pre>
+<h3><a href="#temporal-key-column" name="temporal-key-column" class="anchor"><span class="anchor-link"></span></a>Temporal Key Column</h3>
+<p>Returns an <code>Option[Column]</code> since not all RasterFrames have an explicit temporal dimension.</p>
+<pre class="prettyprint"><code class="language-scala">rf.temporalKeyColumn.map(_.toString)
+// res9: Option[String] = None
+</code></pre>
+<h3><a href="#tile-layer-metadata" name="tile-layer-metadata" class="anchor"><span class="anchor-link"></span></a>Tile Layer Metadata</h3>
+<p>The Tile Layer Metadata defines how the spatial/spatiotemporal domain is discretized into tiles, and what the key bounds are.</p>
+<pre class="prettyprint"><code class="language-scala">scala&gt; import spray.json._
+import spray.json._
+
+scala&gt; // NB: The `fold` is required because an `Either` is returned, depending on the key type.
+     | rf.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
+res11: String =
+{
+  &quot;extent&quot;: {
+    &quot;xmin&quot;: 431902.5,
+    &quot;ymin&quot;: 4313647.5,
+    &quot;xmax&quot;: 443512.5,
+    &quot;ymax&quot;: 4321147.5
+  },
+  &quot;layoutDefinition&quot;: {
+    &quot;extent&quot;: {
+      &quot;xmin&quot;: 431902.5,
+      &quot;ymin&quot;: 4313467.5,
+      &quot;xmax&quot;: 445342.5,
+      &quot;ymax&quot;: 4321147.5
+    },
+    &quot;tileLayout&quot;: {
+      &quot;layoutCols&quot;: 7,
+      &quot;layoutRows&quot;: 4,
+      &quot;tileCols&quot;: 128,
+      &quot;tileRows&quot;: 128
+    }
+  },
+  &quot;bounds&quot;: {
+    &quot;minKey&quot;: {
+      &quot;col&quot;: 0,
+      &quot;row&quot;: 0
+    },
+    &quot;maxKey&quot;: {
+      &quot;col&quot;: 6,
+      &quot;row&quot;: 3
+    }
+  },
+  &quot;cellType&quot;: &quot;uint16&quot;,
+  &quot;crs&quot;: &quot;+proj=utm +zone=16 +datum=WGS84 +units=m +no_defs &quot;
+}
+</code></pre>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="spatial-queries.html">Spatial&nbsp;Queries</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="creating-rasterframes.html#creating-nbsp-rasterframes" class="header">Creating&nbsp;RasterFrames</a>
+  <ul>
+    <li><a href="creating-rasterframes.html#initialization" class="header">Initialization</a></li>
+    <li><a href="creating-rasterframes.html#reading-a-geotiff" class="header">Reading a GeoTIFF</a></li>
+    <li><a href="creating-rasterframes.html#reading-a-geotrellis-layer" class="header">Reading a GeoTrellis Layer</a></li>
+    <li><a href="creating-rasterframes.html#writing-a-geotrellis-layer" class="header">Writing a GeoTrellis Layer</a></li>
+    <li><a href="creating-rasterframes.html#using-geotrellis-apis" class="header">Using GeoTrellis APIs</a></li>
+    <li><a href="creating-rasterframes.html#inspecting-a-rasterframe" class="header">Inspecting a <code>RasterFrame</code></a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">&copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

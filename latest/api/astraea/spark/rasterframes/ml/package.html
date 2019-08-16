@@ -1,0 +1,215 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>ml - astraea.spark.rasterframes.ml</title>
+          <meta name="description" content="ml - astraea.spark.rasterframes.ml" />
+          <meta name="keywords" content="ml astraea.spark.rasterframes.ml" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'astraea.spark.rasterframes.ml.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="astraea">astraea</a>.<a href="../../package.html" class="extype" name="astraea.spark">spark</a>.<a href="../package.html" class="extype" name="astraea.spark.rasterframes">rasterframes</a></p>
+        <h1>ml</h1><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ml.package" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ml</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="astraea.spark.rasterframes.ml.NoDataFilter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="NoDataFilterextendsTransformerwithParameters.HasInputColswithDefaultParamsWritable"></a>
+      <a id="NoDataFilter:NoDataFilter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="NoDataFilter.html"><span class="name">NoDataFilter</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.ml.Transformer">Transformer</span> with <a href="Parameters$$HasInputCols.html" class="extype" name="astraea.spark.rasterframes.ml.Parameters.HasInputCols">HasInputCols</a> with <span class="extype" name="org.apache.spark.ml.util.DefaultParamsWritable">DefaultParamsWritable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ml.package@NoDataFilterextendsTransformerwithParameters.HasInputColswithDefaultParamsWritable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Transformer filtering out rows containing NoData/NA values in
+any of the specified columns.</p><div class="fullcomment"><div class="comment cmt"><p>Transformer filtering out rows containing NoData/NA values in
+any of the specified columns.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/21/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ml.TileColumnSupport" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="TileColumnSupportextendsAnyRef"></a>
+      <a id="TileColumnSupport:TileColumnSupport"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TileColumnSupport.html"><span class="name">TileColumnSupport</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ml.package@TileColumnSupportextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Utility mix-in for separating out tile columns from non-tile columns.</p><div class="fullcomment"><div class="comment cmt"><p>Utility mix-in for separating out tile columns from non-tile columns.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>3/6/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ml.TileExploder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TileExploderextendsTransformerwithDefaultParamsWritablewithTileColumnSupport"></a>
+      <a id="TileExploder:TileExploder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TileExploder.html"><span class="name">TileExploder</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.ml.Transformer">Transformer</span> with <span class="extype" name="org.apache.spark.ml.util.DefaultParamsWritable">DefaultParamsWritable</span> with <a href="TileColumnSupport.html" class="extype" name="astraea.spark.rasterframes.ml.TileColumnSupport">TileColumnSupport</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ml.package@TileExploderextendsTransformerwithDefaultParamsWritablewithTileColumnSupport" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">SparkML Transformer for expanding tiles into single cell rows with
+additional columns containing source row/column indexes.</p><div class="fullcomment"><div class="comment cmt"><p>SparkML Transformer for expanding tiles into single cell rows with
+additional columns containing source row/column indexes.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/21/17</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="astraea.spark.rasterframes.ml.NoDataFilter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NoDataFilter"></a>
+      <a id="NoDataFilter:NoDataFilter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="NoDataFilter$.html"><span class="name">NoDataFilter</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.ml.util.DefaultParamsReadable">DefaultParamsReadable</span>[<a href="NoDataFilter.html" class="extype" name="astraea.spark.rasterframes.ml.NoDataFilter">NoDataFilter</a>] with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ml.package@NoDataFilter" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.ml.Parameters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Parameters"></a>
+      <a id="Parameters:Parameters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Parameters$.html"><span class="name">Parameters</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ml.package@Parameters" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Mix-ins for common SparkML transformer parameters
+</p><div class="fullcomment"><div class="comment cmt"><p>Mix-ins for common SparkML transformer parameters
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/21/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ml.TileExploder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TileExploder"></a>
+      <a id="TileExploder:TileExploder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TileExploder$.html"><span class="name">TileExploder</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.ml.util.DefaultParamsReadable">DefaultParamsReadable</span>[<a href="TileExploder.html" class="extype" name="astraea.spark.rasterframes.ml.TileExploder">TileExploder</a>] with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ml.package@TileExploder" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

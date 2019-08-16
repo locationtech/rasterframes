@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments)};
+gtag('js', new Date());
+
+gtag('config', 'UA-106630615-1');
+</script>
+
+<title>Function Reference · RasterFrames</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data, empowered by the map algebra and tile layer operations of GeoTrellis'/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
+<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
+
+<style>
+.md-left { float: left; }
+.md-right { float: right; }
+.md-clear { clear: both; }
+</style>
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="reference.html" class="active page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
+<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
+ -->
+<a href="http://www.astraea.earth" class="logo show-for-medium">
+<img style="max-height: 40px;" src="images/astraea.png"/>
+</a>
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>RasterFrames
+</a>
+<div class="version-number">
+0.8.0-RC4
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html" class="page">Getting&nbsp;Started</a></li>
+  <li><a href="pyrasterframes.html" class="page">RasterFrames&nbsp;in&nbsp;Python</a></li>
+  <li><a href="creating-rasterframes.html" class="page">Creating&nbsp;RasterFrames</a></li>
+  <li><a href="spatial-queries.html" class="page">Spatial&nbsp;Queries</a></li>
+  <li><a href="apps/index.html" class="page">Applications</a>
+  <ul>
+    <li><a href="apps/geotrellis-ops.html" class="page">GeoTrellis Operations</a></li>
+    <li><a href="apps/ndvi.html" class="page">Computing NDVI</a></li>
+  </ul></li>
+  <li><a href="ml/index.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="ml/statistics.html" class="page">Raster Statistics</a></li>
+    <li><a href="ml/clustering.html" class="page">Clustering</a></li>
+    <li><a href="ml/classification.html" class="page">Classification</a></li>
+  </ul></li>
+  <li><a href="exporting-rasterframes.html" class="page">Exporting&nbsp;RasterFrames</a></li>
+  <li><a href="reference.html" class="active page">Function Reference</a></li>
+  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">RasterFrames</a></li>
+  <li>Function Reference</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#function-reference" name="function-reference" class="anchor"><span class="anchor-link"></span></a>Function Reference</h1>
+<p>For the most up to date list of User Defined Functions using Tiles, look at API documentation for <a href="http://rasterframes.io/latest/api/astraea/spark/rasterframes/RasterFunctions.html"><code>RasterFunctions</code></a>. </p>
+<p>The full Scala API documentation can be found <a href="latest/api/index.html">here</a>.</p>
+<p>RasterFrames also provides SQL and Python bindings to many UDFs using the <code>Tile</code> column type. In Spark SQL, the functions are already registered in the SQL engine; they are usually prefixed with <code>rf_</code>. In Python, they are available in the <code>pyrasterframes.rasterfunctions</code> module. </p>
+<p>The convention in this document will be to define the function signature as below, with its return type, the function name, and named arguments with their types.</p>
+<pre><code>ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
+</code></pre>
+<h2><a href="#list-of-available-sql-and-python-functions" name="list-of-available-sql-and-python-functions" class="anchor"><span class="anchor-link"></span></a>List of Available SQL and Python Functions</h2>
+<p>The convention in this document will be to define the function signature as below, with its return type, the function name, and named arguments with their types.</p>
+<pre><code>ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
+</code></pre>
+<div class="toc ">
+<ul>
+  <li><a href="reference.html#vector-operations" class="header">Vector Operations</a>
+  <ul>
+    <li><a href="reference.html#reproject-geometry" class="header">reproject_geometry</a></li>
+    <li><a href="reference.html#envelope" class="header">envelope</a></li>
+  </ul></li>
+  <li><a href="reference.html#tile-metadata-and-mutation" class="header">Tile Metadata and Mutation</a>
+  <ul>
+    <li><a href="reference.html#cell-types" class="header">cell_types</a></li>
+    <li><a href="reference.html#tile-dimensions" class="header">tile_dimensions</a></li>
+    <li><a href="reference.html#cell-type" class="header">cell_type</a></li>
+    <li><a href="reference.html#convert-cell-type" class="header">convert_cell_type</a></li>
+    <li><a href="reference.html#resample" class="header">resample</a></li>
+  </ul></li>
+  <li><a href="reference.html#tile-creation" class="header">Tile Creation</a>
+  <ul>
+    <li><a href="reference.html#tile-zeros" class="header">tile_zeros</a></li>
+    <li><a href="reference.html#tile-ones" class="header">tile_ones</a></li>
+    <li><a href="reference.html#make-constant-tile" class="header">make_constant_tile</a></li>
+    <li><a href="reference.html#rasterize" class="header">rasterize</a></li>
+    <li><a href="reference.html#array-to-tile" class="header">array_to_tile</a></li>
+    <li><a href="reference.html#assemble-tile" class="header">assemble_tile</a></li>
+  </ul></li>
+  <li><a href="reference.html#masking-and-nodata" class="header">Masking and Nodata</a>
+  <ul>
+    <li><a href="reference.html#mask" class="header">mask</a></li>
+    <li><a href="reference.html#inverse-mask" class="header">inverse_mask</a></li>
+    <li><a href="reference.html#mask-by-value" class="header">mask_by_value</a></li>
+    <li><a href="reference.html#is-no-data-tile" class="header">is_no_data_tile</a></li>
+    <li><a href="reference.html#with-no-data" class="header">with_no_data</a></li>
+  </ul></li>
+  <li><a href="reference.html#map-algebra" class="header">Map Algebra</a>
+  <ul>
+    <li><a href="reference.html#local-add" class="header">local_add</a></li>
+    <li><a href="reference.html#local-add-scalar" class="header">local_add_scalar</a></li>
+    <li><a href="reference.html#local-add-scalar-int" class="header">local_add_scalar_int</a></li>
+    <li><a href="reference.html#local-subtract" class="header">local_subtract</a></li>
+    <li><a href="reference.html#local-multiply" class="header">local_multiply</a></li>
+    <li><a href="reference.html#local-divide" class="header">local_divide</a></li>
+    <li><a href="reference.html#normalized-difference" class="header">normalized_difference</a></li>
+    <li><a href="reference.html#local-less" class="header">local_less</a></li>
+    <li><a href="reference.html#local-less-equal" class="header">local_less_equal</a></li>
+    <li><a href="reference.html#local-greater" class="header">local_greater</a></li>
+    <li><a href="reference.html#local-greater-equal" class="header">local_greater_equal</a></li>
+    <li><a href="reference.html#local-equal" class="header">local_equal</a></li>
+    <li><a href="reference.html#local-unequal" class="header">local_unequal</a></li>
+    <li><a href="reference.html#round" class="header">round</a></li>
+    <li><a href="reference.html#exp" class="header">exp</a></li>
+    <li><a href="reference.html#exp10" class="header">exp10</a></li>
+    <li><a href="reference.html#exp2" class="header">exp2</a></li>
+    <li><a href="reference.html#expm1" class="header">expm1</a></li>
+    <li><a href="reference.html#log" class="header">log</a></li>
+    <li><a href="reference.html#log10" class="header">log10</a></li>
+    <li><a href="reference.html#log2" class="header">log2</a></li>
+    <li><a href="reference.html#log1p" class="header">log1p</a></li>
+  </ul></li>
+  <li><a href="reference.html#tile-statistics" class="header">Tile Statistics</a>
+  <ul>
+    <li><a href="reference.html#tile-sum" class="header">tile_sum</a></li>
+    <li><a href="reference.html#tile-mean" class="header">tile_mean</a></li>
+    <li><a href="reference.html#tile-min" class="header">tile_min</a></li>
+    <li><a href="reference.html#tile-max" class="header">tile_max</a></li>
+    <li><a href="reference.html#no-data-cells" class="header">no_data_cells</a></li>
+    <li><a href="reference.html#data-cells" class="header">data_cells</a></li>
+    <li><a href="reference.html#tile-stats" class="header">tile_stats</a></li>
+    <li><a href="reference.html#tile-histogram" class="header">tile_histogram</a></li>
+  </ul></li>
+  <li><a href="reference.html#aggregate-tile-statistics" class="header">Aggregate Tile Statistics</a>
+  <ul>
+    <li><a href="reference.html#agg-mean" class="header">agg_mean</a></li>
+    <li><a href="reference.html#agg-data-cells" class="header">agg_data_cells</a></li>
+    <li><a href="reference.html#agg-no-data-cells" class="header">agg_no_data_cells</a></li>
+    <li><a href="reference.html#agg-stats" class="header">agg_stats</a></li>
+    <li><a href="reference.html#agg-approx-histogram" class="header">agg_approx_histogram</a></li>
+  </ul></li>
+  <li><a href="reference.html#tile-local-aggregate-statistics" class="header">Tile Local Aggregate Statistics</a>
+  <ul>
+    <li><a href="reference.html#agg-local-max" class="header">agg_local_max</a></li>
+    <li><a href="reference.html#agg-local-min" class="header">agg_local_min</a></li>
+    <li><a href="reference.html#agg-local-mean" class="header">agg_local_mean</a></li>
+    <li><a href="reference.html#agg-local-data-cells" class="header">agg_local_data_cells</a></li>
+    <li><a href="reference.html#agg-local-no-data-cells" class="header">agg_local_no_data_cells</a></li>
+    <li><a href="reference.html#agg-local-stats" class="header">agg_local_stats</a></li>
+  </ul></li>
+  <li><a href="reference.html#converting-tiles" class="header">Converting Tiles</a>
+  <ul>
+    <li><a href="reference.html#explode-tiles" class="header">explode_tiles</a></li>
+    <li><a href="reference.html#explode-tiles-sample" class="header">explode_tiles_sample</a></li>
+    <li><a href="reference.html#tile-to-int-array" class="header">tile_to_int_array</a></li>
+    <li><a href="reference.html#tile-to-double-array" class="header">tile_to_double_array</a></li>
+    <li><a href="reference.html#render-ascii" class="header">render_ascii</a></li>
+  </ul></li>
+</ul>
+</div>
+<h3><a href="#vector-operations" name="vector-operations" class="anchor"><span class="anchor-link"></span></a>Vector Operations</h3>
+<p>Various LocationTech GeoMesa UDFs to deal with <code>geomtery</code> type columns are also provided in the SQL engine and within the <code>pyrasterframes.rasterfunctions</code> Python module. These are documented in the <a href="https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#">LocationTech GeoMesa Spark SQL documentation</a>. These functions are all prefixed with <code>st_</code>.</p>
+<p>RasterFrames provides two additional functions for vector geometry.</p>
+<h4><a href="#reproject-geometry" name="reproject-geometry" class="anchor"><span class="anchor-link"></span></a>reproject_geometry</h4>
+<p><em>Python</em>:  Geometry reproject_geometry(Geometry geom, String origin_crs, String destination_crs)</p>
+<p><em>SQL</em>: <code>rf_reproject_geometry</code></p>
+<p>Reproject the vector <code>geom</code> from <code>origin_crs</code> to <code>destination_crs</code>. Both <code>_crs</code> arguments are either <a href="https://proj4.org/usage/quickstart.html">proj4</a> strings, <a href="https://www.epsg-registry.org/">EPSG codes</a> codes or <a href="https://www.opengeospatial.org/standards/wkt-crs">OGC WKT</a> for coordinate reference systems. </p>
+<h4><a href="#envelope" name="envelope" class="anchor"><span class="anchor-link"></span></a>envelope</h4>
+<p><em>Python</em>:</p>
+<pre><code>Struct[Double minX, Double maxX, Double minY, Double maxY] envelope(Geometry geom)
+</code></pre>
+<p>Python only. Extracts the bounding box (envelope) of the geometry.</p>
+<p>See also GeoMesa <a href="https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#st-envelope">st_envelope</a> which returns a Geometry type.</p>
+<h3><a href="#tile-metadata-and-mutation" name="tile-metadata-and-mutation" class="anchor"><span class="anchor-link"></span></a>Tile Metadata and Mutation</h3>
+<p>Functions to access and change the particulars of a <code>tile</code>: its shape and the data type of its cells. See below section on <a href="reference.html#masking-and-nodata">masking and nodata</a> for additional discussion of cell types.</p>
+<h4><a href="#cell-types" name="cell-types" class="anchor"><span class="anchor-link"></span></a>cell_types</h4>
+<p><em>Python</em>:</p>
+<pre><code>Array[String] cell_types()
+</code></pre>
+<p><em>SQL</em>: <code>rf_cell_types</code></p>
+<p>Print an array of possible cell type names, as below. These names are used in other functions. See <a href="reference.html#masking-and-nodata">discussion on nodata</a> for additional details.</p>
+<table>
+  <thead>
+    <tr>
+      <th>cell_types </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>bool </td>
+    </tr>
+    <tr>
+      <td>int8raw </td>
+    </tr>
+    <tr>
+      <td>int8 </td>
+    </tr>
+    <tr>
+      <td>uint8raw </td>
+    </tr>
+    <tr>
+      <td>uint8 </td>
+    </tr>
+    <tr>
+      <td>int16raw </td>
+    </tr>
+    <tr>
+      <td>int16 </td>
+    </tr>
+    <tr>
+      <td>uint16raw </td>
+    </tr>
+    <tr>
+      <td>uint16 </td>
+    </tr>
+    <tr>
+      <td>int32raw </td>
+    </tr>
+    <tr>
+      <td>int32 </td>
+    </tr>
+    <tr>
+      <td>float32raw</td>
+    </tr>
+    <tr>
+      <td>float32 </td>
+    </tr>
+    <tr>
+      <td>float64raw</td>
+    </tr>
+    <tr>
+      <td>float64 </td>
+    </tr>
+  </tbody>
+</table>
+<h4><a href="#tile-dimensions" name="tile-dimensions" class="anchor"><span class="anchor-link"></span></a>tile_dimensions</h4>
+<p><em>Python</em>:</p>
+<pre><code>Struct[Int, Int] tile_dimensions(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_dimensions</code></p>
+<p>Get number of columns and rows in the <code>tile</code>, as a Struct of <code>cols</code> and <code>rows</code>.</p>
+<h4><a href="#cell-type" name="cell-type" class="anchor"><span class="anchor-link"></span></a>cell_type</h4>
+<p><em>Python</em>:</p>
+<pre><code>Struct[String] cell_type(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_cell_type</code></p>
+<p>Get the cell type of the <code>tile</code>. Available cell types can be retrieved with the <a href="reference.html#cell-types">cell_types</a> function.</p>
+<h4><a href="#convert-cell-type" name="convert-cell-type" class="anchor"><span class="anchor-link"></span></a>convert_cell_type</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile convert_cell_type(Tile tileCol, String cellType)
+</code></pre>
+<p><em>SQL</em>: <code>rf_convert_cell_type</code></p>
+<p>Convert <code>tileCol</code> to a different cell type.</p>
+<h4><a href="#resample" name="resample" class="anchor"><span class="anchor-link"></span></a>resample</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile resample(Tile tile, Double factor)
+Tile resample(Tile tile, Int factor)
+Tile resample(Tile tile, Tile shape_tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_resample</code></p>
+<p>Change the tile dimension. Passing a numeric <code>factor</code> will scale the number of columns and rows in the tile: 1.0 is the same number of columns and row; less than one downsamples the tile; and greater than one upsamples the tile. Passing a <code>shape_tile</code> as the second argument outputs <code>tile</code> having the same number of columns and rows as <code>shape_tile</code>. All resampling is by nearest neighbor method. </p>
+<h3><a href="#tile-creation" name="tile-creation" class="anchor"><span class="anchor-link"></span></a>Tile Creation</h3>
+<p>Functions to create a new Tile column, either from scratch or from existing data not yet in a <code>tile</code>.</p>
+<h4><a href="#tile-zeros" name="tile-zeros" class="anchor"><span class="anchor-link"></span></a>tile_zeros</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile tile_zeros(Int tile_columns, Int tile_rows, String cell_type_name)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_zeros</code></p>
+<p>Create a <code>tile</code> of shape <code>tile_columns</code> by <code>tile_rows</code> full of zeros, with the specified cell type. See function <a href="reference.html#cell-types"><code>cell_types</code></a> for valid values. All arguments are literal values and not column expressions.</p>
+<h4><a href="#tile-ones" name="tile-ones" class="anchor"><span class="anchor-link"></span></a>tile_ones</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile tile_ones(Int tile_columns, Int tile_rows, String cell_type_name)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_ones</code></p>
+<p>Create a <code>tile</code> of shape <code>tile_columns</code> by <code>tile_rows</code> full of ones, with the specified cell type. See function <a href="reference.html#cell-types"><code>cell_types</code></a> for valid values. All arguments are literal values and not column expressions.</p>
+<h4><a href="#make-constant-tile" name="make-constant-tile" class="anchor"><span class="anchor-link"></span></a>make_constant_tile</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile make_constant_tile(Numeric constant, Int tile_columns, Int tile_rows,  String cell_type_name)
+</code></pre>
+<p><em>SQL</em>: <code>rf_make_constant_tile</code></p>
+<p>Create a <code>tile</code> of shape <code>tile_columns</code> by <code>tile_rows</code> full of <code>constant</code>, with the specified cell type. See function <a href="reference.html#cell-types"><code>cell_types</code></a> for valid values. All arguments are literal values and not column expressions.</p>
+<h4><a href="#rasterize" name="rasterize" class="anchor"><span class="anchor-link"></span></a>rasterize</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile rasterize(Geometry geom, Geometry tile_bounds, Int value, Int tile_columns, Int tile_rows)
+</code></pre>
+<p><em>SQL</em>: <code>rf_rasterize</code></p>
+<p>Convert a vector Geometry <code>geom</code> into a Tile representation. The <code>value</code> will be &ldquo;burned-in&rdquo; to the returned <code>tile</code> where the <code>geom</code> intersects the <code>tile_bounds</code>. Returned <code>tile</code> will have shape <code>tile_columns</code> by <code>tile_rows</code>. Values outside the <code>geom</code> will be assigned a nodata value. Returned <code>tile</code> has cell type <code>int32</code>, note that <code>value</code> is of type Int.</p>
+<p>Parameters <code>tile_columns</code> and <code>tile_rows</code> are literals, not column expressions. The others are column expressions.</p>
+<p>Example use. In the code snip below, you can visualize the <code>tri</code> and <code>b</code> geometries with tools like <a href="https://arthur-e.github.io/Wicket/sandbox-gmaps3.html">Wicket</a>. The result is a right triangle burned into the <code>tile</code>, with nodata values shown as ∘.</p>
+<pre class="prettyprint"><code class="language-python">spark.sql(&quot;&quot;&quot;
+SELECT rf_render_ascii(
+        rf_rasterize(tri, b, 8, 10, 10))
+
+FROM 
+  ( SELECT st_geomFromWKT(&#39;POLYGON((1.5 0.5, 1.5 1.5, 0.5 0.5, 1.5 0.5))&#39;) AS tri,
+           st_geomFromWKT(&#39;POLYGON((0.0 0.0, 2.0 0.0, 2.0 2.0, 0.0 2.0, 0.0 0.0))&#39;) AS b
+   ) r
+&quot;&quot;&quot;).show(1, False)
+
+-----------
+|∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘ ∘∘
+∘∘∘∘∘∘  ∘∘
+∘∘∘∘∘   ∘∘
+∘∘∘∘    ∘∘
+∘∘∘     ∘∘
+∘∘∘∘∘∘∘∘∘∘
+∘∘∘∘∘∘∘∘∘∘|
+-----------
+</code></pre>
+<h4><a href="#array-to-tile" name="array-to-tile" class="anchor"><span class="anchor-link"></span></a>array_to_tile</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile array_to_tile(Array arrayCol, Int numCols, Int numRows)
+</code></pre>
+<p>Python only. Create a <code>tile</code> from a Spark SQL <a href="http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, filling values in row-major order.</p>
+<h4><a href="#assemble-tile" name="assemble-tile" class="anchor"><span class="anchor-link"></span></a>assemble_tile</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, String cellType)
+</code></pre>
+<p>Python only. Create a Tile from a column of cell data with location indices. This function is the inverse of <a href="reference.html#explode-tiles"><code>explode_tiles</code></a>. Intended use is with a <code>groupby</code>, producing one row with a new <code>tile</code> per group. The <code>numCols</code>, <code>numRows</code> and <code>cellType</code> arguments are literal values, others are column expressions. Valid values for <code>cellType</code> can be found with function <a href="reference.html#cell-types"><code>cell_types</code></a>.</p>
+<h3><a href="#masking-and-nodata" name="masking-and-nodata" class="anchor"><span class="anchor-link"></span></a>Masking and Nodata</h3>
+<p>In raster operations, the preservation and correct processing of missing operations is very important. The idea of missing data is often expressed as a null or NaN. In raster data, missing observations are often termed NODATA; we will style them as nodata in this document. RasterFrames provides a variety of functions to manage and inspect nodata within <code>tile</code>s. </p>
+<p>See also statistical summaries to get the count of data and nodata values per <code>tile</code> and aggregate in a <code>tile</code> column: <a href="reference.html#data-cells"><code>data_cells</code></a>, <a href="reference.html#no-data-cells"><code>no_data_cells</code></a>, <a href="reference.html#agg-data-cells"><code>agg_data_cells</code></a>, <a href="reference.html#agg-no-data-cells"><code>agg_no_data_cells</code></a>.</p>
+<p>It is important to note that not all cell types support the nodata representation: these are <code>bool</code> and when the cell type string ends in <code>raw</code>.</p>
+<p>For integral valued cell types, the nodata is marked by a special sentinel value. This can be a default, typically zero or the minimum value for the underlying data type. The nodata value can also be a user-defined value. For example if the value 4 is to be interpreted as nodata, the cell type will read &lsquo;int32ud4&rsquo;. </p>
+<p>For float cell types, the nodata can either be NaN or a user-defined value; for example <code>&#39;float32ud-999.9&#39;</code> would mean the value -999.9 is interpreted as a nodata.</p>
+<p>For more reading about cell types and ndodata, see the <a href="https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html?#working-with-cell-values">GeoTrellis documentation</a>.</p>
+<h4><a href="#mask" name="mask" class="anchor"><span class="anchor-link"></span></a>mask</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile mask(Tile tile, Tile mask)
+</code></pre>
+<p><em>SQL</em>: <code>rf_mask</code></p>
+<p>Where the <code>mask</code> contains nodata, replace values in the <code>tile</code> with nodata.</p>
+<p>Returned <code>tile</code> cell type will be coerced to one supporting nodata if it does not already.</p>
+<h4><a href="#inverse-mask" name="inverse-mask" class="anchor"><span class="anchor-link"></span></a>inverse_mask</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile inverse_mask(Tile tile, Tile mask)
+</code></pre>
+<p><em>SQL</em>: <code>rf_inverse_mask</code></p>
+<p>Where the <code>mask</code> <em>does not</em> contain nodata, replace values in <code>tile</code> with nodata. </p>
+<h4><a href="#mask-by-value" name="mask-by-value" class="anchor"><span class="anchor-link"></span></a>mask_by_value</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
+</code></pre>
+<p><em>SQL</em>: <code>rf_mask_by_value</code></p>
+<p>Generate a <code>tile</code> with the values from <code>data_tile</code>, with nodata in cells where the <code>mask_tile</code> is equal to <code>mask_value</code>. </p>
+<h4><a href="#is-no-data-tile" name="is-no-data-tile" class="anchor"><span class="anchor-link"></span></a>is_no_data_tile</h4>
+<p><em>Python</em>:</p>
+<pre><code>Boolean is_no_data_tile(tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_is_no_data_tile</code></p>
+<p>Returns true if <code>tile</code> contains only nodata. By definition returns false if cell type does not support nodata.</p>
+<h4><a href="#with-no-data" name="with-no-data" class="anchor"><span class="anchor-link"></span></a>with_no_data</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile with_no_data(Tile tile, Double no_data_value)
+</code></pre>
+<p>Python only. Return a <code>tile</code> column marking as nodata all cells equal to <code>no_data_value</code>.</p>
+<p>The <code>no_data_value</code> argument is a literal Double, not a Column expression.</p>
+<p>If input <code>tile</code> had a nodata value already, the behaviour depends on if its cell type is floating point or not. For floating point cell type <code>tile</code>, nodata values on the input <code>tile</code> remain nodata values on the output. For integral cell type <code>tile</code>s, the previous nodata values become literal values. </p>
+<h3><a href="#map-algebra" name="map-algebra" class="anchor"><span class="anchor-link"></span></a>Map Algebra</h3>
+<p><a href="https://gisgeography.com/map-algebra-global-zonal-focal-local/">Map algebra</a> raster operations are element-wise operations between a <code>tile</code> and a scalar, between two <code>tile</code>s, or among many <code>tile</code>s. </p>
+<p>Some of these functions have similar variations in the Python API:</p>
+<ul>
+  <li><code>local_op</code>: applies <code>op</code> to two columns; the right hand side can be a <code>tile</code> or a numeric column.</li>
+  <li><code>local_op_scalar</code>: applies <code>op</code> to a <code>tile</code> and a literal scalar, coercing the <code>tile</code> to a floating point type</li>
+  <li><code>local_op_scalar_int</code>: applies <code>op</code> to a <code>tile</code> and a literal scalar, without coercing the <code>tile</code> to a floating point type</li>
+</ul>
+<p>We will provide all these variations for <code>local_add</code> and then suppress the rest in this document.</p>
+<p>The SQL API does not require the <code>local_op_scalar</code> or <code>local_op_scalar_int</code> forms.</p>
+<h4><a href="#local-add" name="local-add" class="anchor"><span class="anchor-link"></span></a>local_add</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_add(Tile tile1, Tile rhs)
+Tile local_add(Tile tile1, Int rhs)
+Tile local_add(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_local_add</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise sum of <code>tile1</code> and <code>rhs</code>.</p>
+<h4><a href="#local-add-scalar" name="local-add-scalar" class="anchor"><span class="anchor-link"></span></a>local_add_scalar</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile local_add_scalar(Tile tile, Double scalar)
+</code></pre>
+<p><em>SQL</em>: <code>rf_local_add_scalar</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise sum of <code>tile</code> and <code>scalar</code>. If <code>tile</code> is integral type, it will be coerced to floating before addition; returns float valued <code>tile</code>.</p>
+<h4><a href="#local-add-scalar-int" name="local-add-scalar-int" class="anchor"><span class="anchor-link"></span></a>local_add_scalar_int</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile local_add_scalar_int(Tile tile, Int scalar)
+</code></pre>
+<p><em>SQL</em>: <code>rf_local_add_scalar_int</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise sum of <code>tile</code> and <code>scalar</code>. If <code>tile</code> is integral type, returns integral type <code>tile</code>.</p>
+<h4><a href="#local-subtract" name="local-subtract" class="anchor"><span class="anchor-link"></span></a>local_subtract</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_subtract(Tile tile1, Tile rhs)
+Tile local_subtract(Tile tile1, Int rhs)
+Tile local_subtract(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_local_subtract</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise difference of <code>tile1</code> and <code>rhs</code>.</p>
+<h4><a href="#local-multiply" name="local-multiply" class="anchor"><span class="anchor-link"></span></a>local_multiply</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_multiply(Tile tile1, Tile rhs)
+Tile local_multiply(Tile tile1, Int rhs)
+Tile local_multiply(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_local_multiply</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise product of <code>tile1</code> and <code>rhs</code>. This is <strong>not</strong> the matrix multiplication of <code>tile1</code> and <code>rhs</code>.</p>
+<h4><a href="#local-divide" name="local-divide" class="anchor"><span class="anchor-link"></span></a>local_divide</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_divide(Tile tile1, Tile rhs)
+Tile local_divide(Tile tile1, Int rhs)
+Tile local_divide(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_local_divide</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise quotient of <code>tile1</code> and <code>rhs</code>. </p>
+<h4><a href="#normalized-difference" name="normalized-difference" class="anchor"><span class="anchor-link"></span></a>normalized_difference</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile normalized_difference(Tile tile1, Tile tile2)
+</code></pre>
+<p><em>SQL</em>: <code>rf_normalized_difference</code></p>
+<p>Compute the normalized difference of the the two <code>tile</code>s: <code>(tile1 - tile2) / (tile1 + tile2)</code>. Result is always floating point cell type. This function has no scalar variant. </p>
+<h4><a href="#local-less" name="local-less" class="anchor"><span class="anchor-link"></span></a>local_less</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_less(Tile tile1, Tile rhs)
+Tile local_less(Tile tile1, Int rhs)
+Tile local_less(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_less</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise evaluation of <code>tile1</code> is less than <code>rhs</code>. </p>
+<h4><a href="#local-less-equal" name="local-less-equal" class="anchor"><span class="anchor-link"></span></a>local_less_equal</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_less_equal(Tile tile1, Tile rhs)
+Tile local_less_equal(Tile tile1, Int rhs)
+Tile local_less_equal(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_less_equal</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise evaluation of <code>tile1</code> is less than or equal to <code>rhs</code>. </p>
+<h4><a href="#local-greater" name="local-greater" class="anchor"><span class="anchor-link"></span></a>local_greater</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_greater(Tile tile1, Tile rhs)
+Tile local_greater(Tile tile1, Int rhs)
+Tile local_greater(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_greater</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise evaluation of <code>tile1</code> is greater than <code>rhs</code>. </p>
+<h4><a href="#local-greater-equal" name="local-greater-equal" class="anchor"><span class="anchor-link"></span></a>local_greater_equal</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_greater_equal(Tile tile1, Tile rhs)
+Tile local_greater_equal(Tile tile1, Int rhs)
+Tile local_greater_equal(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_greater_equal</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise evaluation of <code>tile1</code> is greater than or equal to <code>rhs</code>. </p>
+<h4><a href="#local-equal" name="local-equal" class="anchor"><span class="anchor-link"></span></a>local_equal</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_equal(Tile tile1, Tile rhs)
+Tile local_equal(Tile tile1, Int rhs)
+Tile local_equal(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_equal</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise equality of <code>tile1</code> and <code>rhs</code>. </p>
+<h4><a href="#local-unequal" name="local-unequal" class="anchor"><span class="anchor-link"></span></a>local_unequal</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile local_unequal(Tile tile1, Tile rhs)
+Tile local_unequal(Tile tile1, Int rhs)
+Tile local_unequal(Tile tile1, Double rhs)
+</code></pre>
+<p><em>SQL</em>: <code>rf_unequal</code></p>
+<p>Returns a <code>tile</code> column containing the element-wise inequality of <code>tile1</code> and <code>rhs</code>. </p>
+<h4><a href="#round" name="round" class="anchor"><span class="anchor-link"></span></a>round</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile round(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_round</code></p>
+<p>Round cell values to the nearest integer without changing the cell type.</p>
+<h4><a href="#exp" name="exp" class="anchor"><span class="anchor-link"></span></a>exp</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile exp(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_exp</code></p>
+<p>Performs cell-wise exponential.</p>
+<h4><a href="#exp10" name="exp10" class="anchor"><span class="anchor-link"></span></a>exp10</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile exp10(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_exp10</code></p>
+<p>Compute 10 to the power of cell values.</p>
+<h4><a href="#exp2" name="exp2" class="anchor"><span class="anchor-link"></span></a>exp2</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile exp2(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_exp2</code></p>
+<p>Compute 2 to the power of cell values.</p>
+<h4><a href="#expm1" name="expm1" class="anchor"><span class="anchor-link"></span></a>expm1</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile expm1(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_expm1</code></p>
+<p>Performs cell-wise exponential, then subtract one. Inverse of <a href="reference.html#log1p"><code>log1p</code></a>.</p>
+<h4><a href="#log" name="log" class="anchor"><span class="anchor-link"></span></a>log</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile log(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_log</code></p>
+<p>Performs cell-wise natural logarithm.</p>
+<h4><a href="#log10" name="log10" class="anchor"><span class="anchor-link"></span></a>log10</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile log10(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_log10</code></p>
+<p>Performs cell-wise logarithm with base 10.</p>
+<h4><a href="#log2" name="log2" class="anchor"><span class="anchor-link"></span></a>log2</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile log2(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_log2</code></p>
+<p>Performs cell-wise logarithm with base 2.</p>
+<h4><a href="#log1p" name="log1p" class="anchor"><span class="anchor-link"></span></a>log1p</h4>
+<p><em>Python</em>: </p>
+<pre><code>Tile log1p(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_log1p</code></p>
+<p>Performs natural logarithm of cell values plus one. Inverse of <a href="reference.html#expm1"><code>expm1</code></a>.</p>
+<h3><a href="#tile-statistics" name="tile-statistics" class="anchor"><span class="anchor-link"></span></a>Tile Statistics</h3>
+<p>The following functions compute a statistical summary per row of a <code>tile</code> column. The statistics are computed across the cells of a single <code>tile</code>, within each DataFrame Row. Consider the following example.</p>
+<pre class="prettyprint"><code class="language-python">import pyspark.functions as F
+spark.sql(&quot;&quot;&quot;
+ SELECT 1 as id, rf_tile_ones(5, 5, &#39;float32&#39;) as t 
+ UNION
+ SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, &#39;float32&#39;), 3) as t 
+ &quot;&quot;&quot;).select(F.col(&#39;id&#39;), tile_sum(F.col(&#39;t&#39;))).show()
+
+
++---+-----------+
+| id|tile_sum(t)|
++---+-----------+
+|  2|       75.0|
+|  1|       25.0|
++---+-----------+
+</code></pre>
+<h4><a href="#tile-sum" name="tile-sum" class="anchor"><span class="anchor-link"></span></a>tile_sum</h4>
+<p><em>Python</em>:</p>
+<pre><code>Double tile_sum(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_sum</code></p>
+<p>Computes the sum of cells in each row of column <code>tile</code>, ignoring nodata values.</p>
+<h4><a href="#tile-mean" name="tile-mean" class="anchor"><span class="anchor-link"></span></a>tile_mean</h4>
+<p><em>Python</em>:</p>
+<pre><code>Double tile_mean(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_mean</code></p>
+<p>Computes the mean of cells in each row of column <code>tile</code>, ignoring nodata values.</p>
+<h4><a href="#tile-min" name="tile-min" class="anchor"><span class="anchor-link"></span></a>tile_min</h4>
+<p><em>Python</em>:</p>
+<pre><code>Double tile_min(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_min</code></p>
+<p>Computes the min of cells in each row of column <code>tile</code>, ignoring nodata values.</p>
+<h4><a href="#tile-max" name="tile-max" class="anchor"><span class="anchor-link"></span></a>tile_max</h4>
+<p><em>Python</em>:</p>
+<pre><code>Double tile_max(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_max</code></p>
+<p>Computes the max of cells in each row of column <code>tile</code>, ignoring nodata values.</p>
+<h4><a href="#no-data-cells" name="no-data-cells" class="anchor"><span class="anchor-link"></span></a>no_data_cells</h4>
+<p><em>Python</em>:</p>
+<pre><code>Long no_data_cells(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_no_data_cells</code></p>
+<p>Return the count of nodata cells in the <code>tile</code>.</p>
+<h4><a href="#data-cells" name="data-cells" class="anchor"><span class="anchor-link"></span></a>data_cells</h4>
+<p><em>Python</em>:</p>
+<pre><code>Long data_cells(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_data_cells</code></p>
+<p>Return the count of data cells in the <code>tile</code>.</p>
+<h4><a href="#tile-stats" name="tile-stats" class="anchor"><span class="anchor-link"></span></a>tile_stats</h4>
+<p><em>Python</em>:</p>
+<pre><code>Struct[Long, Long, Double, Double, Double, Double] tile_stats(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>tile_stats</code></p>
+<p>Computes the following statistics of cells in each row of column <code>tile</code>: data cell count, nodata cell count, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance are computed ignoring nodata values. </p>
+<h4><a href="#tile-histogram" name="tile-histogram" class="anchor"><span class="anchor-link"></span></a>tile_histogram</h4>
+<p><em>Python</em>:</p>
+<pre><code>Struct[Struct[Long, Long, Double, Double, Double, Double], Array[Struct[Double, Long]]] tile_histogram(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_histogram</code></p>
+<p>Computes a statistical summary of cell values within each row of <code>tile</code>. Resulting column has the below schema. Note that several of the other <code>tile</code> statistics functions are convenience methods to extract parts of this result. Related is the <a href="reference.html#agg-approx-histogram"><code>agg_approx_histogram</code></a> which computes the statistics across all rows in a group.</p>
+<pre><code> |-- tile_histogram: struct (nullable = true)
+ |    |-- stats: struct (nullable = true)
+ |    |    |-- dataCells: long (nullable = false)
+ |    |    |-- noDataCells: long (nullable = false)
+ |    |    |-- min: double (nullable = false)
+ |    |    |-- max: double (nullable = false)
+ |    |    |-- mean: double (nullable = false)
+ |    |    |-- variance: double (nullable = false)
+ |    |-- bins: array (nullable = true)
+ |    |    |-- element: struct (containsNull = true)
+ |    |    |    |-- value: double (nullable = false)
+ |    |    |    |-- count: long (nullable = false)
+</code></pre>
+<h3><a href="#aggregate-tile-statistics" name="aggregate-tile-statistics" class="anchor"><span class="anchor-link"></span></a>Aggregate Tile Statistics</h3>
+<p>These functions compute statistical summaries over all of the cell values <em>and</em> across all the rows in the DataFrame or group. Example use below computes a single double-valued mean per month, across all data cells in the <code>red_band</code> <code>tile</code> type column. This would return at most twelve rows.</p>
+<pre class="prettyprint"><code class="language-python">from pyspark.functions import month
+from pyrasterframes.functions import agg_mean
+rf.groupby(month(rf.datetime)).agg(agg_mean(rf.red_band).alias(&#39;red_mean_monthly&#39;))
+</code></pre>
+<p>Continuing our example from the <a href="reference.html#tile-statistics">Tile Statistics</a> section, consider the following. Note that only a single row is returned. It is averaging 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows.</p>
+<pre class="prettyprint"><code class="language-python ">spark.sql(&quot;&quot;&quot;
+SELECT 1 as id, rf_tile_ones(5, 5, &#39;float32&#39;) as t 
+UNION
+SELECT 2 as id, rf_local_multiply_scalar(rf_tile_ones(5, 5, &#39;float32&#39;), 3) as t 
+&quot;&quot;&quot;).agg(agg_mean(F.col(&#39;t&#39;))).show(10, False)
+
++-----------+
+|agg_mean(t)|
++-----------+
+|2.0        |
++-----------+
+</code></pre>
+<h4><a href="#agg-mean" name="agg-mean" class="anchor"><span class="anchor-link"></span></a>agg_mean</h4>
+<p><em>Python</em>:</p>
+<pre><code>Double agg_mean(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <a href="reference.html#agg-stats"><code>rf_agg_stats</code></a><code>(tile).mean</code></p>
+<p>Aggregates over the <code>tile</code> and return the mean of cell values, ignoring nodata. Equivalent to <a href="reference.html#agg-stats"><code>agg_stats</code></a><code>.mean</code>.</p>
+<h4><a href="#agg-data-cells" name="agg-data-cells" class="anchor"><span class="anchor-link"></span></a>agg_data_cells</h4>
+<p><em>Python</em>:</p>
+<pre><code>Long agg_data_cells(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <a href="reference.html#agg-stats"><code>rf_agg_stats</code></a><code>(tile).dataCells</code></p>
+<p>Aggregates over the <code>tile</code> and return the count of data cells. Equivalent to <a href="reference.html#agg-stats"><code>agg_stats</code></a><code>.dataCells</code>. C.F. <code>data_cells</code>; equivalent code:</p>
+<pre class="prettyprint"><code class="language-python">rf.select(agg_data_cells(rf.tile).alias(&#39;agg_data_cell&#39;)).show()
+# Equivalent to
+rf.agg(F.sum(data_cells(rf.tile)).alias(&#39;agg_data_cell&#39;)).show()
+</code></pre>
+<h4><a href="#agg-no-data-cells" name="agg-no-data-cells" class="anchor"><span class="anchor-link"></span></a>agg_no_data_cells</h4>
+<p><em>Python</em>:</p>
+<pre><code>Long agg_no_data_cells(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <a href="reference.html#agg-stats"><code>rf_agg_stats</code></a><code>(tile).noDataCells</code></p>
+<p>Aggregates over the <code>tile</code> and return the count of nodata cells. Equivalent to <a href="reference.html#agg-stats"><code>agg_stats</code></a><code>.noDataCells</code>. C.F. <a href="reference.html#no-data-cells"><code>no_data_cells</code></a> a row-wise count of no data cells.</p>
+<h4><a href="#agg-stats" name="agg-stats" class="anchor"><span class="anchor-link"></span></a>agg_stats</h4>
+<p><em>Python</em>: </p>
+<pre><code>Struct[Long, Long, Double, Double, Double, Double] agg_stats(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_stats</code></p>
+<p>Aggregates over the <code>tile</code> and returns statistical summaries of cell values: number of data cells, number of nodata cells, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance ignore the presence of nodata. </p>
+<h4><a href="#agg-approx-histogram" name="agg-approx-histogram" class="anchor"><span class="anchor-link"></span></a>agg_approx_histogram</h4>
+<p><em>Python</em>:</p>
+<pre><code>Struct[Struct[Long, Long, Double, Double, Double, Double], Array[Struct[Double, Long]]] agg_approx_histogram(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_approx_histogram</code></p>
+<p>Aggregates over the <code>tile</code> return statistical summaries of the cell values, including a histogram, in the below schema. The <code>bins</code> array is of tuples of histogram values and counts. Typically values are plotted on the x-axis and counts on the y-axis. </p>
+<p>Note that several of the other cell value statistics functions are convenience methods to extract parts of this result. Related is the <a href="reference.html#tile-histogram"><code>tile_histogram</code></a> function which operates on a single row at a time.</p>
+<pre><code> |-- agg_approx_histogram: struct (nullable = true)
+ |    |-- stats: struct (nullable = true)
+ |    |    |-- dataCells: long (nullable = false)
+ |    |    |-- noDataCells: long (nullable = false)
+ |    |    |-- min: double (nullable = false)
+ |    |    |-- max: double (nullable = false)
+ |    |    |-- mean: double (nullable = false)
+ |    |    |-- variance: double (nullable = false)
+ |    |-- bins: array (nullable = true)
+ |    |    |-- element: struct (containsNull = true)
+ |    |    |    |-- value: double (nullable = false)
+ |    |    |    |-- count: long (nullable = false)
+</code></pre>
+<h3><a href="#tile-local-aggregate-statistics" name="tile-local-aggregate-statistics" class="anchor"><span class="anchor-link"></span></a>Tile Local Aggregate Statistics</h3>
+<p>Local statistics compute the element-wise statistics across a DataFrame or group of <code>tile</code>s, resulting in a <code>tile</code> that has the same dimension. </p>
+<p>Consider again our example for Tile Statistics and Aggregate Tile Statistics, this time apply <a href="reference.html#agg-local-mean"><code>agg_local_mean</code></a>. We see that it is computing the element-wise mean across the two rows. In this case it is computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the <code>tile</code>.</p>
+<pre class="prettyprint"><code class="language-python">import pyspark.functions as F
+lam = spark.sql(&quot;&quot;&quot;
+SELECT 1 as id, rf_tile_ones(5, 5, &#39;float32&#39;) as t 
+UNION
+SELECT 2 as id, rf_local_multiply(rf_tile_ones(5, 5, &#39;float32&#39;), 3) as t 
+&quot;&quot;&quot;).agg(local_agg_mean(F.col(&#39;t&#39;)).alias(&#39;l&#39;)) \
+
+## local_agg_mean returns a tile
+lam.select(tile_dimensions(lam.l)).show()
+## 
++------------------+
+|tile_dimensions(l)|
++------------------+
+|            [5, 5]|
++------------------+ 
+##
+
+lam.select(explode_tiles(lam.l)).show(10, False)
+##
++------------+---------+---+
+|column_index|row_index|l  |
++------------+---------+---+
+|0           |0        |2.0|
+|1           |0        |2.0|
+|2           |0        |2.0|
+|3           |0        |2.0|
+|4           |0        |2.0|
+|0           |1        |2.0|
+|1           |1        |2.0|
+|2           |1        |2.0|
+|3           |1        |2.0|
+|4           |1        |2.0|
++------------+---------+---+
+only showing top 10 rows
+</code></pre>
+<h4><a href="#agg-local-max" name="agg-local-max" class="anchor"><span class="anchor-link"></span></a>agg_local_max</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile agg_local_max(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_local_max</code></p>
+<p>Compute the cell-local maximum operation over Tiles in a column. </p>
+<h4><a href="#agg-local-min" name="agg-local-min" class="anchor"><span class="anchor-link"></span></a>agg_local_min</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile agg_local_min(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_local_min</code></p>
+<p>Compute the cell-local minimum operation over Tiles in a column. </p>
+<h4><a href="#agg-local-mean" name="agg-local-mean" class="anchor"><span class="anchor-link"></span></a>agg_local_mean</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile agg_local_mean(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_local_mean</code></p>
+<p>Compute the cell-local mean operation over Tiles in a column. </p>
+<h4><a href="#agg-local-data-cells" name="agg-local-data-cells" class="anchor"><span class="anchor-link"></span></a>agg_local_data_cells</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile agg_local_data_cells(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_local_data_cells</code></p>
+<p>Compute the cell-local count of data cells over Tiles in a column. Returned <code>tile</code> has a cell type of <code>int32</code>.</p>
+<h4><a href="#agg-local-no-data-cells" name="agg-local-no-data-cells" class="anchor"><span class="anchor-link"></span></a>agg_local_no_data_cells</h4>
+<p><em>Python</em>:</p>
+<pre><code>Tile agg_local_no_data_cells(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_local_no_data_cells</code></p>
+<p>Compute the cell-local count of nodata cells over Tiles in a column. Returned <code>tile</code> has a cell type of <code>int32</code>.</p>
+<h4><a href="#agg-local-stats" name="agg-local-stats" class="anchor"><span class="anchor-link"></span></a>agg_local_stats</h4>
+<p><em>Python</em>:</p>
+<pre><code>Struct[Tile, Tile, Tile, Tile, Tile] agg_local_stats(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_agg_local_stats</code></p>
+<p>Compute cell-local aggregate count, minimum, maximum, mean, and variance for a column of Tiles. Returns a struct of five <code>tile</code>s.</p>
+<h3><a href="#converting-tiles" name="converting-tiles" class="anchor"><span class="anchor-link"></span></a>Converting Tiles</h3>
+<p>RasterFrames provides several ways to convert a <code>tile</code> into other data structures. See also functions for <a href="reference.html#tile-creation">creating tiles</a>.</p>
+<h4><a href="#explode-tiles" name="explode-tiles" class="anchor"><span class="anchor-link"></span></a>explode_tiles</h4>
+<p><em>Python</em>:</p>
+<pre><code>Int, Int, Numeric* explode_tiles(Tile* tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_explode_tiles</code></p>
+<p>Create a row for each cell in <code>tile</code> columns. Many <code>tile</code> columns can be passed in, and the returned DataFrame will have one numeric column per input. There will also be columns for <code>column_index</code> and <code>row_index</code>. Inverse of <a href="reference.html#assemble-tile"><code>assemble_tile</code></a>. When using this function, be sure to have a unique identifier for rows in order to successfully invert the operation.</p>
+<h4><a href="#explode-tiles-sample" name="explode-tiles-sample" class="anchor"><span class="anchor-link"></span></a>explode_tiles_sample</h4>
+<p><em>Python</em>:</p>
+<pre><code>Int, Int, Numeric* explode_tiles_sample(Double sample_frac, Long seed, Tile* tile)
+</code></pre>
+<p>Python only. As with <a href="reference.html#explode-tiles"><code>explode_tiles</code></a>, but taking a randomly sampled subset of cells. Equivalent to the below, but this implementation is optimized for speed. Parameter <code>sample_frac</code> should be between 0.0 and 1.0. </p>
+<pre class="prettyprint"><code class="language-python">df.select(df.id, explode_tiles(df.tile1, df.tile2, df.tile3)) \
+    .sample(False, 0.05, 8675309)
+# Equivalent result, faster
+df.select(df.id, explode_tiles_sample(0.05, 8675309, df.tile1, df.tile2, df.tile3)) \
+</code></pre>
+<h4><a href="#tile-to-int-array" name="tile-to-int-array" class="anchor"><span class="anchor-link"></span></a>tile_to_int_array</h4>
+<p><em>Python</em>:</p>
+<pre><code>Array tile_to_int_array(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_to_int_array</code></p>
+<p>Convert Tile column to Spark SQL <a href="http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, in row-major order. Float cell types will be coerced to integral type by flooring.</p>
+<h4><a href="#tile-to-double-array" name="tile-to-double-array" class="anchor"><span class="anchor-link"></span></a>tile_to_double_array</h4>
+<p><em>Python</em>:</p>
+<pre><code>Array tile_to_double_arry(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_tile_to_double_array</code></p>
+<p>Convert tile column to Spark <a href="http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, in row-major order. Integral cell types will be coerced to floats.</p>
+<h4><a href="#render-ascii" name="render-ascii" class="anchor"><span class="anchor-link"></span></a>render_ascii</h4>
+<p><em>Python</em>:</p>
+<pre><code>String render_ascii(Tile tile)
+</code></pre>
+<p><em>SQL</em>: <code>rf_render_ascii</code></p>
+<p>Pretty print the tile values as plain text.</p>
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="release-notes.html">Release&nbsp;Notes</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="reference.html#function-reference" class="header">Function Reference</a>
+  <ul>
+    <li><a href="reference.html#list-of-available-sql-and-python-functions" class="header">List of Available SQL and Python Functions</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+<div class="small-12 text-center large-9 column">
+<div class="copyright">
+<span class="text">&copy; 2019
+<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</footer>
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+
+</html>

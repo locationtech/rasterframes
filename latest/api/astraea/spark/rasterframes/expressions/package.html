@@ -1,0 +1,463 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>expressions - astraea.spark.rasterframes.expressions</title>
+          <meta name="description" content="expressions - astraea.spark.rasterframes.expressions" />
+          <meta name="keywords" content="expressions astraea.spark.rasterframes.expressions" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'astraea.spark.rasterframes.expressions.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="astraea">astraea</a>.<a href="../../package.html" class="extype" name="astraea.spark">spark</a>.<a href="../package.html" class="extype" name="astraea.spark.rasterframes">rasterframes</a></p>
+        <h1>expressions</h1><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expressions</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Module of Catalyst expressions for efficiently working with tiles.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>10/10/17</p></dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="astraea.spark.rasterframes.expressions"><span>expressions</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="astraea.spark.rasterframes.expressions.BinaryLocalRasterOp" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BinaryLocalRasterOpextendsBinaryExpressionwithLazyLogging"></a>
+      <a id="BinaryLocalRasterOp:BinaryLocalRasterOp"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="BinaryLocalRasterOp.html"><span class="name">BinaryLocalRasterOp</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@BinaryLocalRasterOpextendsBinaryExpressionwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Operation combining two tiles or a tile and a scalar into a new tile.</p>
+    </li><li name="astraea.spark.rasterframes.expressions.BinaryRasterOp" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BinaryRasterOpextendsBinaryExpressionwithLazyLogging"></a>
+      <a id="BinaryRasterOp:BinaryRasterOp"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="BinaryRasterOp.html"><span class="name">BinaryRasterOp</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@BinaryRasterOpextendsBinaryExpressionwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Operation combining two tiles into a new tile.</p>
+    </li><li name="astraea.spark.rasterframes.expressions.NullToValue" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="NullToValueextendsAnyRef"></a>
+      <a id="NullToValue:NullToValue"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="NullToValue.html"><span class="name">NullToValue</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@NullToValueextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.OnCellGridExpression" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="OnCellGridExpressionextendsUnaryExpression"></a>
+      <a id="OnCellGridExpression:OnCellGridExpression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="OnCellGridExpression.html"><span class="name">OnCellGridExpression</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@OnCellGridExpressionextendsUnaryExpression" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and RasterRefs
+as Grid types.</p><div class="fullcomment"><div class="comment cmt"><p>Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and RasterRefs
+as Grid types.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/4/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.OnTileContextExpression" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="OnTileContextExpressionextendsUnaryExpression"></a>
+      <a id="OnTileContextExpression:OnTileContextExpression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="OnTileContextExpression.html"><span class="name">OnTileContextExpression</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@OnTileContextExpressionextendsUnaryExpression" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements boilerplate for subtype expressions processing TileUDT (when ProjectedRasterTile), RasterSourceUDT, and
+RasterSource-shaped rows.</p><div class="fullcomment"><div class="comment cmt"><p>Implements boilerplate for subtype expressions processing TileUDT (when ProjectedRasterTile), RasterSourceUDT, and
+RasterSource-shaped rows.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/3/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.SpatialRelation" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="SpatialRelationextendsBinaryExpressionwithCodegenFallback"></a>
+      <a id="SpatialRelation:SpatialRelation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SpatialRelation.html"><span class="name">SpatialRelation</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SpatialRelationextendsBinaryExpressionwithCodegenFallback" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Determine if two spatial constructs intersect each other.</p><div class="fullcomment"><div class="comment cmt"><p>Determine if two spatial constructs intersect each other.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>12/28/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.TileAssembler" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TileAssemblerextendsTypedImperativeAggregate[astraea.spark.rasterframes.expressions.TileAssembler.TileBuffer]withImplicitCastInputTypeswithProductwithSerializable"></a>
+      <a id="TileAssembler:TileAssembler"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TileAssembler.html"><span class="name">TileAssembler</span></a><span class="params">(<span name="colIndex">colIndex: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="rowIndex">rowIndex: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="cellValue">cellValue: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="tileCols">tileCols: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="tileRows">tileRows: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="mutableAggBufferOffset">mutableAggBufferOffset: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a> = <span class="symbol">0</span></span>, <span name="inputAggBufferOffset">inputAggBufferOffset: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a> = <span class="symbol">0</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.aggregate.TypedImperativeAggregate">TypedImperativeAggregate</span>[<a href="TileAssembler$$TileBuffer.html" class="extype" name="astraea.spark.rasterframes.expressions.TileAssembler.TileBuffer">TileBuffer</a>] with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ImplicitCastInputTypes">ImplicitCastInputTypes</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@TileAssemblerextendsTypedImperativeAggregate[astraea.spark.rasterframes.expressions.TileAssembler.TileBuffer]withImplicitCastInputTypeswithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Aggregator for reassembling tiles from from exploded form
+</p><div class="fullcomment"><div class="comment cmt"><p>Aggregator for reassembling tiles from from exploded form
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/24/17</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.expressions.UnaryLocalRasterOp" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="UnaryLocalRasterOpextendsUnaryExpressionwithLazyLogging"></a>
+      <a id="UnaryLocalRasterOp:UnaryLocalRasterOp"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="UnaryLocalRasterOp.html"><span class="name">UnaryLocalRasterOp</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@UnaryLocalRasterOpextendsUnaryExpressionwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Operation on a tile returning a tile.</p>
+    </li><li name="astraea.spark.rasterframes.expressions.UnaryRasterAggregate" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="UnaryRasterAggregateextendsDeclarativeAggregate"></a>
+      <a id="UnaryRasterAggregate:UnaryRasterAggregate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="UnaryRasterAggregate.html"><span class="name">UnaryRasterAggregate</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate">DeclarativeAggregate</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@UnaryRasterAggregateextendsDeclarativeAggregate" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Mixin providing boilerplate for DeclarativeAggrates over tile-conforming columns.</p>
+    </li><li name="astraea.spark.rasterframes.expressions.UnaryRasterOp" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="UnaryRasterOpextendsUnaryExpression"></a>
+      <a id="UnaryRasterOp:UnaryRasterOp"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="UnaryRasterOp.html"><span class="name">UnaryRasterOp</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@UnaryRasterOpextendsUnaryExpression" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Boilerplate for expressions operating on a single Tile-like .</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="astraea.spark.rasterframes.expressions.SpatialRelation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SpatialRelation"></a>
+      <a id="SpatialRelation:SpatialRelation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SpatialRelation$.html"><span class="name">SpatialRelation</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@SpatialRelation" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.TileAssembler" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TileAssembler"></a>
+      <a id="TileAssembler:TileAssembler"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TileAssembler$.html"><span class="name">TileAssembler</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@TileAssembler" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.accessors" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="accessors"></a>
+      <a id="accessors:accessors"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="accessors/package.html"><span class="name">accessors</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@accessors" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.aggstats" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="aggstats"></a>
+      <a id="aggstats:aggstats"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="aggstats/package.html"><span class="name">aggstats</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@aggstats" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.generators" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="generators"></a>
+      <a id="generators:generators"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="generators/package.html"><span class="name">generators</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@generators" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.localops" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="localops"></a>
+      <a id="localops:localops"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="localops/package.html"><span class="name">localops</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@localops" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions#register" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="register(sqlContext:org.apache.spark.sql.SQLContext):Unit"></a>
+      <a id="register(SQLContext):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">register</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@register(sqlContext:org.apache.spark.sql.SQLContext):Unit" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.tilestats" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tilestats"></a>
+      <a id="tilestats:tilestats"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="tilestats/package.html"><span class="name">tilestats</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@tilestats" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.expressions.transformers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="transformers"></a>
+      <a id="transformers:transformers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="transformers/package.html"><span class="name">transformers</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.expressions.package@transformers" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

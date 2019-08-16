@@ -1,0 +1,265 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>ref - astraea.spark.rasterframes.ref</title>
+          <meta name="description" content="ref - astraea.spark.rasterframes.ref" />
+          <meta name="keywords" content="ref astraea.spark.rasterframes.ref" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'astraea.spark.rasterframes.ref.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="astraea">astraea</a>.<a href="../../package.html" class="extype" name="astraea.spark">spark</a>.<a href="../package.html" class="extype" name="astraea.spark.rasterframes">rasterframes</a></p>
+        <h1>ref</h1><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ref</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="astraea.spark.rasterframes.ref.HttpRangeReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HttpRangeReaderextendsRangeReaderwithLazyLogging"></a>
+      <a id="HttpRangeReader:HttpRangeReader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="HttpRangeReader.html"><span class="name">HttpRangeReader</span></a><span class="result"> extends <span class="extype" name="geotrellis.util.RangeReader">RangeReader</span> with <span class="extype" name="geotrellis.util.LazyLogging">LazyLogging</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@HttpRangeReaderextendsRangeReaderwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This class extends <span class="extype" name="RangeReader">RangeReader</span> by reading chunks out of a GeoTiff at the
+specified HTTP location.</p>
+    </li><li name="astraea.spark.rasterframes.ref.LayerSpace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="LayerSpaceextendsProductwithSerializable"></a>
+      <a id="LayerSpace:LayerSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="LayerSpace.html"><span class="name">LayerSpace</span></a><span class="params">(<span name="crs">crs: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="cellType">cellType: <a href="../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="layout">layout: <span class="extype" name="geotrellis.spark.tiling.LayoutDefinition">LayoutDefinition</span></span>, <span name="resampleMethod">resampleMethod: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../geotrellis/package.html">ResampleMethod.DEFAULT</a></span></span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@LayerSpaceextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">NB: This package is only a temporary home for this.</p><div class="fullcomment"><div class="comment cmt"><p>NB: This package is only a temporary home for this.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/5/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ref.ProjectedRasterLike" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ProjectedRasterLikeextendsCellGrid"></a>
+      <a id="ProjectedRasterLike:ProjectedRasterLike"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ProjectedRasterLike.html"><span class="name">ProjectedRasterLike</span></a><span class="result"> extends <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@ProjectedRasterLikeextendsCellGrid" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait declaring shape of a raster projected over a coordinate system.</p><div class="fullcomment"><div class="comment cmt"><p>Trait declaring shape of a raster projected over a coordinate system.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/3/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ref.RasterRef" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RasterRefextendsProjectedRasterLikewithProductwithSerializable"></a>
+      <a id="RasterRef:RasterRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterRef.html"><span class="name">RasterRef</span></a><span class="params">(<span name="source">source: <a href="RasterSource.html" class="extype" name="astraea.spark.rasterframes.ref.RasterSource">RasterSource</a></span>, <span name="subextent">subextent: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>)</span><span class="result"> extends <a href="ProjectedRasterLike.html" class="extype" name="astraea.spark.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@RasterRefextendsProjectedRasterLikewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A delayed-read projected raster implementation.</p><div class="fullcomment"><div class="comment cmt"><p>A delayed-read projected raster implementation.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/21/18</p></dd></dl></div>
+    </li><li name="astraea.spark.rasterframes.ref.RasterSource" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="RasterSourceextendsProjectedRasterLikewithSerializable"></a>
+      <a id="RasterSource:RasterSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterSource.html"><span class="name">RasterSource</span></a><span class="result"> extends <a href="ProjectedRasterLike.html" class="extype" name="astraea.spark.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@RasterSourceextendsProjectedRasterLikewithSerializable" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Abstraction over fetching geospatial raster data.</p><div class="fullcomment"><div class="comment cmt"><p>Abstraction over fetching geospatial raster data.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@Experimental</span><span class="args">()</span>
+              
+        </dd><dt>Since</dt><dd><p>8/21/18</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="astraea.spark.rasterframes.ref.HttpRangeReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HttpRangeReader"></a>
+      <a id="HttpRangeReader:HttpRangeReader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HttpRangeReader$.html"><span class="name">HttpRangeReader</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@HttpRangeReader" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The companion object of <a href="HttpRangeReader.html" class="extype" name="astraea.spark.rasterframes.ref.HttpRangeReader">HttpRangeReader</a></p>
+    </li><li name="astraea.spark.rasterframes.ref.LayerSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LayerSpace"></a>
+      <a id="LayerSpace:LayerSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="LayerSpace$.html"><span class="name">LayerSpace</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@LayerSpace" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.ref.RasterRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterRef"></a>
+      <a id="RasterRef:RasterRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterRef$.html"><span class="name">RasterRef</span></a><span class="result"> extends <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@RasterRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="astraea.spark.rasterframes.ref.RasterSource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterSource"></a>
+      <a id="RasterSource:RasterSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterSource$.html"><span class="name">RasterSource</span></a><span class="result"> extends <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#astraea.spark.rasterframes.ref.package@RasterSource" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
