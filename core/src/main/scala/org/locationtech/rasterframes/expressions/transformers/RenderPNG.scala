@@ -23,10 +23,10 @@ package org.locationtech.rasterframes.expressions.transformers
 
 import geotrellis.raster.Tile
 import geotrellis.raster.render.ColorRamp
-import org.apache.spark.sql.{Column, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.types.{ByteType, DataType, DataTypes}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.types.{BinaryType, DataType}
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
 
@@ -36,7 +36,7 @@ import org.locationtech.rasterframes.model.TileContext
   * @param ramp color ramp to use for non-composite tiles.
   */
 abstract class RenderPNG(child: Expression, ramp: Option[ColorRamp]) extends UnaryRasterOp with CodegenFallback with Serializable {
-  override def dataType: DataType = DataTypes.createArrayType(ByteType)
+  override def dataType: DataType = BinaryType
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     val png = ramp.map(tile.renderPng).getOrElse(tile.renderPng())
     png.bytes
@@ -58,8 +58,7 @@ object RenderPNG {
   }
 
   object RenderCompositePNG {
-    def apply(tile: Column): TypedColumn[Any, Array[Byte]] = {
-      new Column(RenderCompositePNG(tile.expr)).as[Array[Byte]]
-    }
+    def apply(red: Column, green: Column, blue: Column): TypedColumn[Any, Array[Byte]] =
+      new Column(RenderCompositePNG(RGBComposite(red.expr, green.expr, blue.expr))).as[Array[Byte]]
   }
 }

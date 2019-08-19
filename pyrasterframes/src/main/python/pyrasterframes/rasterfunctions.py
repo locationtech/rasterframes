@@ -348,6 +348,11 @@ def rf_render_matrix(tile_col):
     return _apply_column_function('rf_render_matrix', tile_col)
 
 
+def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
+    """Encode the three tile columns as an RGB PNG"""
+    return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
+
+
 def rf_no_data_cells(tile_col):
     """Count of NODATA cells"""
     return _apply_column_function('rf_no_data_cells', tile_col)

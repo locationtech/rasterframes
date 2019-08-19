@@ -46,6 +46,7 @@ trait ProjectedRasterTile extends FixedDelegatingTile with ProjectedRasterLike {
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
   def projectedRaster: ProjectedRaster[Tile] = ProjectedRaster[Tile](this, extent, crs)
   def mapTile(f: Tile => Tile): ProjectedRasterTile = ProjectedRasterTile(f(this), extent, crs)
+  override def convert(cellType: CellType): Tile = mapTile(_.convert(cellType))
 }
 
 object ProjectedRasterTile {
@@ -59,9 +60,6 @@ object ProjectedRasterTile {
   case class ConcreteProjectedRasterTile(t: Tile, extent: Extent, crs: CRS)
       extends ProjectedRasterTile {
     def delegate: Tile = t
-
-    override def convert(cellType: CellType): Tile =
-      ConcreteProjectedRasterTile(t.convert(cellType), extent, crs)
 
     override def toString: String = {
       val e = s"(${extent.xmin}, ${extent.ymin}, ${extent.xmax}, ${extent.ymax})"

@@ -21,34 +21,46 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import geotrellis.raster.{ArrayMultibandTile, Tile}
-import org.apache.spark.sql.{Column, TypedColumn}
+import geotrellis.raster.ArrayMultibandTile
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, TernaryExpression}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, TernaryExpression}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.expressions.row
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
   * Expression to combine the given tile columns into an 32-bit RGB composite.
-  * Tiles in each row will first be downsampled into 8-bits,
-  * bit shifted, and xor-d into a single 32-bit word.
+  * Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a single 32-bit word.
   * @param red tile column to represent red channel
   * @param green tile column to represent green channel
   * @param blue tile column to represent blue channel
   */
+@ExpressionDescription(
+  usage = "_FUNC_(red, green, blue) - Combines the given tile columns into an 32-bit RGB composite.",
+  arguments = """
+  Arguments:
+    * red - tile column representing the red channel
+    * green - tile column representing the green channel
+    * blue - tile column representing the blue channel"""
+)
 case class RGBComposite(red: Expression, green: Expression, blue: Expression) extends TernaryExpression
   with CodegenFallback {
 
-
   override def nodeName: String = "rf_rgb_composite"
 
-  override def dataType: DataType = TileType
+  override def dataType: DataType = if(
+    red.dataType.conformsTo[ProjectedRasterTile] ||
+    blue.dataType.conformsTo[ProjectedRasterTile] ||
+    green.dataType.conformsTo[ProjectedRasterTile]
+  ) red.dataType
+  else TileType
 
   override def children: Seq[Expression] = Seq(red, green, blue)
 
@@ -72,7 +84,9 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
 
     // Pick the first available TileContext, if any, and reassociate with the result
     val ctx = Seq(rc, gc, bc).flatten.headOption
-    val composite = ArrayMultibandTile(r, g, b).color()
+    val composite = ArrayMultibandTile(
+      r.rescale(0, 255), g.rescale(0, 255), b.rescale(0, 255)
+    ).color()
     ctx match {
       case Some(c) => c.toProjectRasterTile(composite).toInternalRow
       case None =>
@@ -83,6 +97,6 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
 }
 
 object RGBComposite {
-  def apply(redCol: Column, blueCol: Column, greenCol: Column): TypedColumn[Any, Tile] =
-    new Column(RGBComposite(redCol.expr, greenCol.expr, blueCol.expr)).as[Tile]
+  def apply(red: Column, green: Column, blue: Column): Column =
+    new Column(RGBComposite(red.expr, green.expr, blue.expr))
 }

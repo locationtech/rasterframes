@@ -326,12 +326,12 @@ trait RasterFunctions {
   def rf_render_matrix(col: Column): TypedColumn[Any, String] =
     DebugRender.RenderMatrix(col)
 
-  /** Convert a tile encoding an RGB composite into a PNG. */
-  def rf_render_png(rgbTile: Column): TypedColumn[Any, Array[Byte]] =
-    RenderCompositePNG(rgbTile)
+  /** Converts columns of tiles representing RGB channels into a PNG encoded byte array. */
+  def rf_render_png(red: Column, green: Column, blue: Column): TypedColumn[Any, Array[Byte]] =
+    RenderCompositePNG(red, green, blue)
 
-  /** Converts columns of tiles representing RGB chanels into a single RGB packged tile. */
-  def rf_rgb_composite(red: Column, green: Column, blue: Column): TypedColumn[Any, Tile] =
+  /** Converts columns of tiles representing RGB channels into a single RGB packaged tile. */
+  def rf_rgb_composite(red: Column, green: Column, blue: Column): Column =
     RGBComposite(red, green, blue)
 
   /** Cellwise less than value comparison between two tiles. */
