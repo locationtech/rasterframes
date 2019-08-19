@@ -21,13 +21,12 @@
 
 package org.locationtech.rasterframes.expressions.localops
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 
 
 @ExpressionDescription(
@@ -48,8 +47,7 @@ case class Log(child: Expression) extends UnaryLocalRasterOp with CodegenFallbac
   override def dataType: DataType = child.dataType
 }
 object Log {
-  def apply(tile: Column): TypedColumn[Any, Tile] =
-    new Column(Log(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Log(tile.expr))
 }
 
 @ExpressionDescription(
@@ -70,7 +68,7 @@ case class Log10(child: Expression) extends UnaryLocalRasterOp with CodegenFallb
   override def dataType: DataType = child.dataType
 }
 object Log10 {
-  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Log10(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Log10(tile.expr))
 }
 
 @ExpressionDescription(
@@ -91,7 +89,7 @@ case class Log2(child: Expression) extends UnaryLocalRasterOp with CodegenFallba
   override def dataType: DataType = child.dataType
 }
 object Log2{
-  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Log2(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Log2(tile.expr))
 }
 
 @ExpressionDescription(
@@ -112,5 +110,5 @@ case class Log1p(child: Expression) extends UnaryLocalRasterOp with CodegenFallb
   override def dataType: DataType = child.dataType
 }
 object Log1p{
-  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Log1p(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Log1p(tile.expr))
 }

@@ -68,6 +68,7 @@ package object expressions {
     registry.registerExpression[ExplodeTiles]("rf_explode_tiles")
     registry.registerExpression[GetCellType]("rf_cell_type")
     registry.registerExpression[SetCellType]("rf_convert_cell_type")
+    registry.registerExpression[SetNoDataValue]("rf_with_nodata")
     registry.registerExpression[GetDimensions]("rf_dimensions")
     registry.registerExpression[ExtentToGeometry]("st_geometry")
     registry.registerExpression[GetGeometry]("rf_geometry")

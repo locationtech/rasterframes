@@ -202,11 +202,9 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
       val dims = refs.select(rf_dimensions($"proj_raster")).distinct().collect()
       forEvery(dims) { r =>
-        r.cols should be <=NOMINAL_TILE_SIZE
-        r.rows should be <=NOMINAL_TILE_SIZE
+        r.cols should be <= NOMINAL_TILE_SIZE
+        r.rows should be <= NOMINAL_TILE_SIZE
       }
-
-      dims.foreach(println)
     }
   }
 }

@@ -506,7 +506,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val t1 = df.select(rf_agg_local_no_data_cells($"tile")).first()
       val t2 = df.selectExpr("rf_agg_local_no_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
       t1 should be (t2)
-      val t3 = df.select(rf_local_add(rf_agg_local_data_cells($"tile"), rf_agg_local_no_data_cells($"tile"))).first()
+      val t3 = df.select(rf_local_add(rf_agg_local_data_cells($"tile"), rf_agg_local_no_data_cells($"tile"))).as[Tile].first()
       t3 should be(three.toArrayTile())
       checkDocs("rf_agg_local_no_data_cells")
     }
