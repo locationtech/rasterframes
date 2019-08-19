@@ -62,11 +62,10 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     try {
       val refs = children.map { child ⇒
         val src = RasterSourceType.deserialize(child.eval(input))
-        subtileDims.map(dims =>
-          src
-            .layoutExtents(dims)
-            .map(e ⇒ bandIndexes.map(band2ref(src, Some(e))))
-        )
+        subtileDims.map(dims => {
+          val extents = src.layoutExtents(dims)
+          extents.map(e ⇒ bandIndexes.map(band2ref(src, Some(e))))
+        })
         .getOrElse(Seq(bandIndexes.map(band2ref(src, None))))
       }
       refs.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(_.toInternalRow)): _*))
