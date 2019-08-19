@@ -269,6 +269,21 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       dims.length should be <= (4)
     }
 
+    it("should read the correct size") {
+      val cat = Seq((
+        l8SamplePath(4).toASCIIString,
+        l8SamplePath(3).toASCIIString,
+        l8SamplePath(2).toASCIIString
+      )).toDF("red", "green", "blue")
+
+      val df = spark.read.raster
+        .withTileDimensions(256, 256)
+        .fromCatalog(cat, "red", "green", "blue").load()
+      val dims = df.select(rf_dimensions($"red")).first()
+
+      dims should be (TileDimensions(l8Sample(1).tile.dimensions))
+    }
+
     it("should provide MODIS tiles with requested size") {
       val res = modis_df
         .withColumn("dims", rf_dimensions($"proj_raster"))

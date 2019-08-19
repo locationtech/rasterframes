@@ -61,7 +61,7 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
     readBounds(Seq(bounds), bands).next()
 
   def read(extent: Extent, bands: Seq[Int] = SINGLEBAND): Raster[MultibandTile] =
-    read(rasterExtent.gridBoundsFor(extent, clamp = true), bands)
+    read(rasterExtent.gridBoundsFor(extent, clamp = false), bands)
 
   def readAll(dims: TileDimensions = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
     layoutBounds(dims).map(read(_, bands))

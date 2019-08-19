@@ -349,8 +349,13 @@ def rf_render_matrix(tile_col):
 
 
 def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
-    """Encode the three tile columns as an RGB PNG"""
+    """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
     return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
+
+
+def rf_rgb_composite(red_tile_col, green_tile_col, blue_tile_col):
+    """Converts columns of tiles representing RGB channels into a single RGB packaged tile."""
+    return _apply_column_function('rf_rgb_composite', red_tile_col, green_tile_col, blue_tile_col)
 
 
 def rf_no_data_cells(tile_col):

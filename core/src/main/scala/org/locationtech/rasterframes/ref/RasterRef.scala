@@ -48,7 +48,7 @@ case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Ext
   def cellType: CellType = source.cellType
   def tile: ProjectedRasterTile = ProjectedRasterTile(RasterRefTile(this), extent, crs)
 
-  protected lazy val grid: GridBounds = source.rasterExtent.gridBoundsFor(extent, true)
+  protected lazy val grid: GridBounds = source.rasterExtent.gridBoundsFor(extent, false)
   protected def srcExtent: Extent = extent
 
   protected lazy val realizedTile: Tile = {

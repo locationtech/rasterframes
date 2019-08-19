@@ -20,9 +20,10 @@
 
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.utils import gdal_version
+from pyrasterframes.rf_types import Tile
 from pyspark import Row
 from pyspark.sql.functions import *
-from pyspark.sql.types import *
+
 
 from . import TestEnvironment
 
@@ -268,12 +269,20 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['ct_str'].cell_type, CellType(ct_str))
         self.assertEqual(result['make'].cell_type, CellType.int8())
 
-    def test_render_png(self):
+    def test_render_composite(self):
         cat = self.spark.createDataFrame([
             Row(red=self.l8band_uri(4), green=self.l8band_uri(3), blue=self.l8band_uri(2))
         ])
-
         rf = self.spark.read.raster(catalog = cat, catalog_col_names=['red', 'green', 'blue'])
+
+        # Test composite construction
+        rgb = rf.select(rf_tile(rf_rgb_composite('red', 'green', 'blue')).alias('rgb')).first()['rgb']
+
+        # TODO: how to better test this?
+        self.assertIsInstance(rgb, Tile)
+        self.assertEqual(rgb.dimensions(), (186, 169))
+
+        ## Test PNG generation
         png_bytes = rf.select(rf_render_png('red', 'green', 'blue').alias('png')).first()['png']
         # Look for the PNG magic cookie
         self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
