@@ -34,6 +34,7 @@ import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
+import org.locationtech.rasterframes.expressions.transformers.RenderPNG.RenderCompositePNG
 import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
@@ -324,6 +325,14 @@ trait RasterFunctions {
   /** Render Tile cell values as numeric values, for debugging purposes. */
   def rf_render_matrix(col: Column): TypedColumn[Any, String] =
     DebugRender.RenderMatrix(col)
+
+  /** Convert a tile encoding an RGB composite into a PNG. */
+  def rf_render_png(rgbTile: Column): TypedColumn[Any, Array[Byte]] =
+    RenderCompositePNG(rgbTile)
+
+  /** Converts columns of tiles representing RGB chanels into a single RGB packged tile. */
+  def rf_rgb_composite(red: Column, green: Column, blue: Column): TypedColumn[Any, Tile] =
+    RGBComposite(red, green, blue)
 
   /** Cellwise less than value comparison between two tiles. */
   def rf_local_less(left: Column, right: Column): TypedColumn[Any, Tile] =

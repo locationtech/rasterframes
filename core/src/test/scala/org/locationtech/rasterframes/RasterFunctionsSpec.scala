@@ -792,4 +792,22 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     checkDocs("rf_resample")
   }
+  it("should composite") {
+    val red = TestData.l8Sample(4).toProjectedRasterTile
+    val green = TestData.l8Sample(3).toProjectedRasterTile
+    val blue = TestData.l8Sample(2).toProjectedRasterTile
+
+    val expected = ArrayMultibandTile(red, green, blue).color()
+
+    val df = Seq((red, green, blue)).toDF("red", "green", "blue")
+
+    val expr = df.select(rf_rgb_composite($"red", $"green", $"blue"))
+    import org.apache.spark.sql.execution.debug._
+
+    val nat_color = expr.first()
+
+    assertEqual(nat_color, expected)
+
+    checkDocs("rf_rgb_composite")
+  }
 }
