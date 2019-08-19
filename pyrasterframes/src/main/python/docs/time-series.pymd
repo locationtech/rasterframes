@@ -21,7 +21,7 @@ spark = pyrasterframes.get_spark_session("local[4]")
 In this example, we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will start with our @ref:[built-in MODIS data catalog](raster-catalogs.md#using-built-in-experimental-catalogs).
 
 ```python catalog
-cat = spark.read.format('aws-pds-modis-catalog').load().repartition(100)
+cat = spark.read.format('aws-pds-modis-catalog').load().repartition(200)
 cat.printSchema()
 ```
 
