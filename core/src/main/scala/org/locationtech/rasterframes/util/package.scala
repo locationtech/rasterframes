@@ -203,6 +203,25 @@ package object util {
         .mkString("| ", " |\n| ", " |")
       header + body
     }
+
+    def toHTML(numRows: Int = 5, truncate: Boolean = false): String = {
+      import df.sqlContext.implicits._
+      val cols = df.columns
+      val header = "<thead>\n" + cols.mkString("<tr><th>", "</th><th>", "</th></tr>\n") + "</thead>\n"
+      val stringifiers = cols
+        .map(c => s"`$c`")
+        .map(c => df.col(c).cast(StringType))
+        .map(c => if (truncate) substring(c, 1, 40) else c)
+      val cat = concat_ws("</td><td>", stringifiers: _*)
+      val body = df
+        .select(cat).limit(numRows)
+        .as[String]
+        .collect()
+        .mkString("<tr><td>", "</td></tr>\n<tr><td>", "</td></tr>\n")
+
+
+      "<table>\n" + header + "<tbody>\n" + body + "</tbody>\n" + "</table>"
+    }
   }
 
   object Shims {

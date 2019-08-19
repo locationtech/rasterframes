@@ -94,7 +94,7 @@ two_d_cat_df.show(truncate=False)
 
 The concept of a _catalog_ is much more powerful when we consider examples beyond constructing the DataFrame, and instead read the data from an external source. Here's an extended example of reading a cloud-hosted CSV file containing MODIS scene metadata and transforming it into a _catalog_. The metadata describing the content of each URL is an important aspect of processing raster data.
 
-```python, remote_csv, results='raw'
+```python, remote_csv
 from pyspark import SparkFiles
 from pyspark.sql import functions as F
 
@@ -104,12 +104,12 @@ scene_list = spark.read \
     .format("csv") \
     .option("header", "true") \
     .load(SparkFiles.get("2018-07-04_scenes.txt"))
-scene_list.show(4, truncate=False)
+display(scene_list)
 ```
 
 Observe the scenes list file has URIs to `index.html` files in the download_url column. The image URI's are in the same directory. The filenames are of the form `${gid}_B${band}.TIF`. The next code chunk builds these URIs, which completes our catalog.
 
-```python, show_remote_catalog, results='raw'
+```python, show_remote_catalog
 modis_catalog = scene_list \
     .withColumn('base_url',
         F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',)
@@ -117,7 +117,7 @@ modis_catalog = scene_list \
     .withColumn('B01' , F.concat('base_url', F.lit("_B01.TIF"))) \
     .withColumn('B02' , F.concat('base_url', F.lit("_B02.TIF"))) \
     .withColumn('B03' , F.concat('base_url', F.lit("_B03.TIF")))
-modis_catalog.show(4, truncate=True)
+display(modis_catalog)
 ```
 
 ## Using Built-in Catalogs

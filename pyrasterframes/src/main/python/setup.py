@@ -104,7 +104,7 @@ class PweaveDocs(distutils.cmd.Command):
             if (not self.quick) or (not path.exists(dest)) or (path.getmtime(dest) < path.getmtime(file)):
                 print(_divided('Running %s' % name))
                 try:
-                    pweave.weave(file=str(file), doctype=self.format, cache=True)
+                    pweave.weave(file=str(file), doctype=self.format)
                     if self.format == 'markdown':
                         if not path.exists(dest):
                             raise FileNotFoundError("Markdown file '%s' didn't get created as expected" % dest)

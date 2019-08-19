@@ -33,14 +33,16 @@ print(tiles[1]['tile'].cells)
 
 We use the @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) function to compute the _tile_ aggregate mean of cells in each row of column `tile`. The mean of each _tile_ is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.
 
-```python, tile_mean, results='raw'
-rf.select(F.col('id'), rf_tile_mean(F.col('tile'))).show()
+```python, tile_mean
+means = rf.select(F.col('id'), rf_tile_mean(F.col('tile')))
+display(means)
 ```
 
 We use the @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) function to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
 
-```python, agg_mean, results='raw'
-rf.agg(rf_agg_mean(F.col('tile'))).show()
+```python, agg_mean
+mean = rf.agg(rf_agg_mean(F.col('tile')))
+display(mean)
 ```
 
 We use the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function to compute the element-wise local aggregate mean across the two rows. For this aggregation, we are computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the _tile_.
@@ -57,11 +59,10 @@ print(t.cells)
 
 We can also count the total number of data and NoData cells over all the _tiles_ in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are ~3.8 million data cells and ~1.9 million NoData cells in this DataFrame. See the section on @ref:["NoData" handling](nodata-handling.md) for additional discussion on handling missing data.
 
-```python, cell_counts, results='raw'
+```python, cell_counts
 rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
 stats = rf.agg(rf_agg_data_cells('proj_raster'), rf_agg_no_data_cells('proj_raster'))
-
-stats.show()
+display(stats)
 ```
 
 ## Statistical Summaries
@@ -77,16 +78,16 @@ stats = rf.select(rf_tile_stats('proj_raster').alias('stats'))
 stats.printSchema()
 ```
 
-```python, show_stats, results='raw'
-stats.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').show(10, truncate=False)
+```python, show_stats
+display(stats.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance'))
 ```
 
 The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over all of the _tiles_ in a DataFrame and returns a statistical summary of all cell values as shown below.
 
-```python, agg_stats, results='raw'
-rf.agg(rf_agg_stats('proj_raster').alias('stats')) \
-    .select('stats.min', 'stats.max', 'stats.mean', 'stats.variance') \
-    .show()
+```python, agg_stats
+stats = rf.agg(rf_agg_stats('proj_raster').alias('stats')) \
+    .select('stats.min', 'stats.max', 'stats.mean', 'stats.variance')
+display(stats)   
 ```
 
 The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks has unequal _tile_ dimensions, so a different DataFrame is used in this code block to avoid a runtime error.

@@ -90,9 +90,9 @@ model = pipeline.fit(df)
 
 We can use the `transform` function to score the training data in the fitted _pipeline_ model. This will add a column called `prediction` with the closest cluster identifier.
 
-```python, transform, results='raw'
+```python, transform
 clustered = model.transform(df)
-clustered.show(8)
+display(clustered)
 ```
 
 If we want to inspect the model statistics, the SparkML API requires us to go through this unfortunate contortion to access the clustering results:
@@ -125,8 +125,8 @@ retiled = clustered.groupBy('extent', 'crs') \
 retiled.printSchema()
 ```
 
-```python, results='raw'
-retiled.show()
+```python, display
+display(retiled)
 ```
 
 The resulting output is shown below.

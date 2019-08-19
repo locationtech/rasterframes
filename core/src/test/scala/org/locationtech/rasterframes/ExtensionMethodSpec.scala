@@ -28,6 +28,8 @@ import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql.Encoders
 import org.locationtech.rasterframes.util.SubdivideSupport
 
+import scala.xml.parsing.XhtmlParser
+
 /**
  * Tests miscellaneous extension methods.
  *
@@ -113,6 +115,14 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
     it("should render Markdown") {
       import org.locationtech.rasterframes.util._
       rf.toMarkdown().count(_ == '|') shouldBe >=(3 * 5)
+    }
+
+    it("should render HTML") {
+      import org.locationtech.rasterframes.util._
+
+      noException shouldBe thrownBy {
+        XhtmlParser(scala.io.Source.fromString(rf.toHTML()))
+      }
     }
   }
 }
