@@ -44,6 +44,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
           |""".stripMargin)
       write(query)
       assert(query.select("cell_0", "cell_1").as[(Double, Double)].collect().forall(_ == ((1.0, 2.0))))
+      query.select("cell_0", "cell_1").count() should be (100L)
       val query2 = sql(
         """|select rf_dimensions(tiles) as dims, rf_explode_tiles(tiles) from (
            |select rf_make_constant_tile(1, 10, 10, 'int8raw') as tiles)
@@ -66,10 +67,11 @@ class ExplodeSpec extends TestEnvironment with TestData {
       assert(exploded.count() < 9)
     }
 
-    it("should explode tiles with random sampling in SQL API") {
+    ignore("should explode tiles with random sampling in SQL API") {
+      // was pretty much a WONT FIX from issue 97
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
       val exploded = df.selectExpr("rf_explode_tiles_sample(0.5, tile1, tile2)")
-      logger.info("rf_explode_tiles schema with double frac arg attempt" + exploded.schema.treeString)
+      logger.info("rf_explode_tiles schema with double frac arg \n" + exploded.schema.treeString)
       assert(exploded.columns.length === 4)
       assert(exploded.count() < 9)
 
