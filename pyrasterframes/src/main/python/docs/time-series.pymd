@@ -92,7 +92,7 @@ park_cat.printSchema()
 
 Now we have a catalog with several months of MODIS data for a single granule. However, the granule is larger than our park boundary. We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed in a @ref:[previous section](local-algebra.md#computing-ndvi).
 
-We then [reproject](https://gis.stackexchange.com/questions/247770/understanding-reprojection) the park geometry to the same @ref:[CRS][concepts.md#coordinate-reference-system--crs-] as the imagery. Then we will filter to only the _tiles_ intersecting the park.
+We then [reproject](https://gis.stackexchange.com/questions/247770/understanding-reprojection) the park geometry to the same @ref:[CRS](concepts.md#coordinate-reference-system--crs-) as the imagery. Then we will filter to only the _tiles_ intersecting the park.
 
 ```python read_catalog
 raster_cols = ['B01', 'B02',] # red and near-infrared respectively
