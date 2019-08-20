@@ -1,41 +1,79 @@
-import com.typesafe.sbt.SbtGit.git
+// task to create documentation PDF
+lazy val makePDF = taskKey[File]("Build PDF version of documentation")
+lazy val pdfFileName = settingKey[String]("Name of the PDF file generated")
+pdfFileName := s"RasterFrames-Users-Manual-${version.value}.pdf"
 
-enablePlugins(SiteScaladocPlugin, ParadoxPlugin, TutPlugin, GhpagesPlugin, ScalaUnidocPlugin)
+makePDF := {
+  import scala.sys.process._
 
-name := "rasterframes-docs"
+  // Get the python source directory configured in the root project.
+  val base = (Compile / paradox / sourceDirectories).value.find(_.toString.contains("python")).head
 
-libraryDependencies ++= Seq(
-  spark("mllib").value % Tut,
-  spark("sql").value % Tut
-)
+  // Hard coded lacking any simple  way of determining order.
+  val files = Seq(
+    "index.md",
+    "description.md",
+    "concepts.md",
+    "getting-started.md",
+    "raster-io.md",
+    "raster-catalogs.md",
+    "raster-read.md",
+    "raster-write.md",
+    "vector-data.md",
+    "raster-processing.md",
+    "local-algebra.md",
+    "nodata-handling.md",
+    "aggregation.md",
+    "time-series.md",
+    "machine-learning.md",
+    "unsupervised-learning.md",
+    "supervised-learning.md",
+    "numpy-pandas.md",
+    "languages.md",
+    "reference.md"
+  ).map(base ** _).flatMap(_.get)
 
-git.remoteRepo := "git@github.com:locationtech/rasterframes.git"
-apiURL := Some(url("http://rasterframes.io/latest/api"))
-autoAPIMappings := true
-ghpagesNoJekyll := true
+  val log = streams.value.log
+  log.info("Section ordering:")
+  files.foreach(f => log.info(" - " + f.getName))
 
-ScalaUnidoc / siteSubdirName := "latest/api"
-paradox / siteSubdirName := "."
+  val work = target.value / "makePDF"
+  work.mkdirs()
 
-addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
-addMappingsToSiteDir(Compile / paradox / mappings, paradox / siteSubdirName)
+  val prepro = files.zipWithIndex.map { case (f, i) ⇒
+    val dest = work / f"$i%02d-${f.getName}%s"
+    // Filter cross links and add a newline
+    (Seq("sed", "-e", """s/@ref://g;s/@@.*//g""", f.toString) #> dest).!
+    // Add newline at the end of the file so as to make pandoc happy
+    ("echo" #>> dest).!
+    ("echo \\pagebreak" #>> dest).!
+    dest
+  }
 
-paradoxProperties ++= Map(
-  "github.base_url" -> "https://github.com/locationtech/rasterframes",
-  "version" -> version.value,
-  "scaladoc.org.apache.spark.sql.gt" -> "http://rasterframes.io/latest"
-  //"scaladoc.geotrellis.base_url" -> "https://geotrellis.github.io/scaladocs/latest",
-  // "snip.pyexamples.base_dir" -> (baseDirectory.value + "/../pyrasterframes/python/test/examples")
-)
-paradoxTheme := Some(builtinParadoxTheme("generic"))
-//paradoxTheme / sourceDirectory := sourceDirectory.value / "main" / "paradox" / "_template"
+  val output = target.value / pdfFileName.value
 
-Compile / doc / scalacOptions++= Seq( "-J-Xmx6G", "-no-link-warnings")
+  val header = (Compile / sourceDirectory).value / "latex" / "header.latex"
 
-Tut / run / fork := true
+  val args = "pandoc" ::
+    "--from=markdown+pipe_tables" ::
+    "--to=pdf" ::
+    "-t" :: "latex" ::
+    "-s" ::
+    "--toc" ::
+    "-V" :: "title:RasterFrames Users' Manual" ::
+    "-V" :: "author:Astraea, Inc." ::
+    "-V" :: "geometry:margin=0.75in" ::
+    "-V" :: "papersize:letter" ::
+    "--include-in-header" :: header.toString ::
+    "-o" :: output.toString ::
+    prepro.map(_.toString).toList
 
-Tut / run / javaOptions := Seq("-Xmx8G", "-Dspark.ui.enabled=false")
+  log.info(s"Running: ${args.mkString(" ")}")
+  Process(args, base).!
 
-Compile / paradox := (Compile / paradox).dependsOn(tutQuick).value
-Compile / paradox / sourceDirectory := tutTargetDirectory.value
-makeSite := makeSite.dependsOn(Compile / unidoc).dependsOn(Compile / paradox).value
+  log.info("Wrote: " + output)
+
+  output
+}
+
+makePDF := makePDF.dependsOn(Compile / paradox).value

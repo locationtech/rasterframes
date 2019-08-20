@@ -1,19 +1,10 @@
 # Contributing to RasterFrames
 
-Thanks for your interest in this project.
+Community contributions are always welcome. To get started, please review this document, 
+the [code of conduct](https://github.com/locationtech/rasterframes/blob/develop/CODE_OF_CONDUCT.md), and reach out to 
+us on [gitter](https://gitter.im/locationtech/rasterframes) so the community can help you get started!
 
-## Project Description
-
-LocationTech RasterFrames brings the power of Spark DataFrames to geospatial
-raster data, empowered by the map algebra and tile layer operations of
-GeoTrellis. The underlying purpose of RasterFrames is to allow data scientists
-and software developers to process and analyze geospatial-temporal raster data
-with the same flexibility and ease as any other Spark Catalyst data type. At its
-core is a user-defined type (UDT) called TileUDT, which encodes a GeoTrellis
-Tile in a form the Spark Catalyst engine can process. Furthermore, we extend the
-definition of a DataFrame to encompass some additional invariants, allowing for
-geospatial operations within and between RasterFrames to occur, while still
-maintaining necessary geo-referencing constructs.
+The official home of RasterFrames under the Eclipse Foundation may be found here:
 
  * https://projects.eclipse.org/projects/locationtech.rasterframes
  
@@ -58,19 +49,10 @@ commands are as follows:
 * Build documentation: `sbt makeSite`
 * Spark shell with RasterFrames initialized: `sbt console`
 
- 
-## Contribution Process
-
-RasterFrames uses GitHub pull requests (PRs) for accepting contributions. 
-Please fork the repository, create a branch, and submit a PR based off the `master` branch.
-During the PR review process comments may be attached. Please look out for comments
-and respond as necessary.
- 
-
 ## Contact
 
 Help, questions and community dialog are supported via Gitter:
 
- * https://gitter.im/s22s/raster-frames
+ * https://gitter.im/locationtech/rasterframes
 
 Commercial support is available by writing to info@astraea.earth

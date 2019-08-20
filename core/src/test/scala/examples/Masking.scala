@@ -1,12 +1,11 @@
 package examples
 
-import astraea.spark.rasterframes._
+import org.locationtech.rasterframes._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import org.apache.spark.sql._
-import geotrellis.raster.{mask => _, _}
 import geotrellis.raster.render._
+import geotrellis.raster.{mask => _, _}
+import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import astraea.spark.rasterframes.stats.{CellHistogram=>CH}
 
 object Masking extends App {
 
@@ -25,18 +24,18 @@ object Masking extends App {
   val joinedRF = bandNumbers.
     map { b ⇒ (b, filenamePattern.format(b)) }.
     map { case (b, f) ⇒ (b, readTiff(f)) }.
-    map { case (b, t) ⇒ t.projectedRaster.toRF(s"band_$b") }.
+    map { case (b, t) ⇒ t.projectedRaster.toLayer(s"band_$b") }.
     reduce(_ spatialJoin _)
 
   val threshold = udf((t: Tile) => {
     t.convert(IntConstantNoDataCellType).map(x => if (x > 10500) x else NODATA)
   } )
 
-  val withMaskedTile = joinedRF.withColumn("maskTile", threshold(joinedRF("band_1"))).asRF
+  val withMaskedTile = joinedRF.withColumn("maskTile", threshold(joinedRF("band_1"))).asLayer
 
-  withMaskedTile.select(no_data_cells(withMaskedTile("maskTile"))).show()
+  withMaskedTile.select(rf_no_data_cells(withMaskedTile("maskTile"))).show()
 
-  val masked = withMaskedTile.withColumn("masked", mask(joinedRF("band_2"), joinedRF("maskTile"))).asRF
+  val masked = withMaskedTile.withColumn("masked", rf_mask(joinedRF("band_2"), joinedRF("maskTile"))).asLayer
 
   val maskRF = masked.toRaster(masked("masked"), 466, 428)
   val b2 = masked.toRaster(masked("band_2"), 466, 428)
