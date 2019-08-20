@@ -22,10 +22,9 @@
 package org.locationtech.rasterframes.expressions.localops
 
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes._
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp}
 
 @ExpressionDescription(
@@ -45,6 +44,5 @@ case class Abs(child: Expression) extends UnaryLocalRasterOp with NullToValue wi
 }
 
 object Abs {
-  def apply(tile: Column): TypedColumn[Any, Tile] =
-    new Column(Abs(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Abs(tile.expr))
 }

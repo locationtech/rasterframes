@@ -21,27 +21,38 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders._
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.expressions.row
-import geotrellis.raster.{CellType, Tile}
+import geotrellis.raster.CellType
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression}
+import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.rf.{TileUDT, WithTypeConformity}
+import org.apache.spark.sql.rf.{TileUDT}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
+import org.locationtech.rasterframes.expressions.row
 
 /**
  * Change the CellType of a Tile
  *
  * @since 9/11/18
  */
+
+@ExpressionDescription(
+  usage = "_FUNC_(tile, value) - Set the cell type for the given tile.",
+  arguments = """
+  Arguments:
+    * tile - left-hand-side tile
+    * rhs  - a cell type definition""",
+  examples = """
+  Examples:
+    > SELECT _FUNC_(tile, 1.5);
+       ..."""
+)
 case class SetCellType(tile: Expression, cellType: Expression)
   extends BinaryExpression with CodegenFallback {
   def left = tile
@@ -49,15 +60,13 @@ case class SetCellType(tile: Expression, cellType: Expression)
   override def nodeName: String = "set_cell_type"
   override def dataType: DataType = left.dataType
 
-  private val ctSchema = schemaOf[CellType]
-
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(left.dataType))
       TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     else
       right.dataType match {
         case StringType => TypeCheckSuccess
-        case t if t.conformsTo(ctSchema) => TypeCheckSuccess
+        case t if t.conformsTo[CellType] => TypeCheckSuccess
         case _ =>
           TypeCheckFailure(s"Expected CellType but received '${right.dataType.simpleString}'")
       }
@@ -68,7 +77,7 @@ case class SetCellType(tile: Expression, cellType: Expression)
       case StringType =>
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st if st.conformsTo(ctSchema) =>
+      case st if st.conformsTo[CellType] =>
         row(datum).to[CellType]
     }
   }
@@ -88,8 +97,8 @@ case class SetCellType(tile: Expression, cellType: Expression)
 }
 
 object SetCellType {
-  def apply(tile: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    new Column(new SetCellType(tile.expr, lit(cellType.name).expr)).as[Tile]
-  def apply(tile: Column, cellType: String): TypedColumn[Any, Tile] =
-    new Column(new SetCellType(tile.expr, lit(cellType).expr)).as[Tile]
+  def apply(tile: Column, cellType: CellType): Column =
+    new Column(new SetCellType(tile.expr, lit(cellType.name).expr))
+  def apply(tile: Column, cellType: String): Column =
+    new Column(new SetCellType(tile.expr, lit(cellType).expr))
 }

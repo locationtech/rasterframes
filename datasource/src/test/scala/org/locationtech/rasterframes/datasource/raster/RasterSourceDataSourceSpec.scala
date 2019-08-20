@@ -248,7 +248,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
   describe("RasterSource breaks up scenes into tiles") {
     val modis_df = spark.read.raster
-      .withTileDimensions(128, 128)
+      .withTileDimensions(256, 256)
       .withLazyTiles(true)
       .load(remoteMODIS.toASCIIString)
 
@@ -257,16 +257,16 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
       .withLazyTiles(true)
       .load(remoteL8.toASCIIString)
 
-    ignore("should have at most four tile dimensions reading MODIS; ignore until fix #242") {
+    it("should have at most four tile dimensions reading MODIS") {
       val dims = modis_df.select(rf_dimensions($"proj_raster")).distinct().collect()
-      dims.length should be > (0)
-      dims.length should be <= (4)
+      dims.length should be > 0
+      dims.length should be <= 4
     }
 
     it("should have at most four tile dimensions reading landsat") {
       val dims = l8_df.select(rf_dimensions($"proj_raster")).distinct().collect()
-      dims.length should be > (0)
-      dims.length should be <= (4)
+      dims.length should be > 0
+      dims.length should be <= 4
     }
 
     it("should read the correct size") {
@@ -290,8 +290,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .select($"dims".as[TileDimensions]).distinct().collect()
 
       forEvery(res) { r =>
-        r.cols should be <=128
-        r.rows should be <=128
+        r.cols should be <= 256
+        r.rows should be <= 256
       }
     }
 
@@ -301,8 +301,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .select($"dims".as[TileDimensions]).distinct().collect()
 
       forEvery(dims) { d =>
-        d.cols should be <=32
-        d.rows should be <=33
+        d.cols should be <= 32
+        d.rows should be <= 33
       }
     }
 

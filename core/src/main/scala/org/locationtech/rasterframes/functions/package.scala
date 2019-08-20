@@ -75,9 +75,6 @@ package object functions {
     arrayToTile(cols, rows).apply(a)
   }
 
-  /** Set the tile's no-data value. */
-  private[rasterframes] def withNoData(nodata: Double) = safeEval[Tile, Tile](_.withNoData(Some(nodata)))
-
   /** Constructor for constant tiles */
   private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {
     val cellType = CellType.fromName(cellTypeName)

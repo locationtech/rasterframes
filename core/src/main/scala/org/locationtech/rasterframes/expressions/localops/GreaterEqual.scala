@@ -21,13 +21,12 @@
 
 package org.locationtech.rasterframes.expressions.localops
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 
 @ExpressionDescription(
   usage = "_FUNC_(lhs, rhs) - Performs cell-wise greater-than-or-equal (>=) test between two tiles.",
@@ -48,9 +47,9 @@ case class GreaterEqual(left: Expression, right: Expression) extends BinaryLocal
 }
 
 object GreaterEqual {
-  def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
-    new Column(GreaterEqual(left.expr, right.expr)).as[Tile]
+  def apply(left: Column, right: Column): Column =
+    new Column(GreaterEqual(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(GreaterEqual(tile.expr, lit(value).expr)).as[Tile]
+  def apply[N: Numeric](tile: Column, value: N): Column =
+    new Column(GreaterEqual(tile.expr, lit(value).expr))
 }
