@@ -167,6 +167,7 @@ setup(
         'Pweave==0.30.3',
         'fiona==1.8.6',
         'rasterio>=1.0.0',  # for docs
+        'folium',
     ],
     tests_require=[
         'pytest==3.4.2',
