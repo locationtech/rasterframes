@@ -10,6 +10,15 @@ ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
 
 For the Scala documentation on these functions, see @scaladoc[`RasterFunctions`][RasterFunctions]. The full Scala API documentation can be found [here][scaladoc].
 
+```python imports, echo=False
+import pyrasterframes
+from pyrasterframes.rasterfunctions import *
+from IPython.display import display
+import os.path
+
+spark = pyrasterframes.get_spark_session()
+``
+
 ## List of Available SQL and Python Functions
 
 @@toc { depth=3 }
@@ -624,6 +633,20 @@ Pretty print the tile values as plain text.
     String rf_render_matrix(Tile tile)
 
 Render Tile cell values as numeric values, for debugging purposes.
+
+
+### rf_rgb_composite
+
+    Tile rf_rgb_composite(Tile red, Tile green, Tile blue)
+    
+Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer.
+
+
+### rf_render_png
+
+    Array rf_render_png(Tile red, Tile green, Tile blue)
+    
+Runs [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile columns and then encodes the result as a PNG byte array.
 
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html

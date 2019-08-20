@@ -4,6 +4,7 @@
 
 ### 0.8.1
 
+* Added: `rf_rgb_composite` and `rf_render_png`.
 * Fixed: Removed false return type garauntee in cases where an `Expression` accepts either `Tile` or `ProjectedRasterTile` [(#295)](https://github.com/locationtech/rasterframes/issues/295)
 
 ### 0.8.0
