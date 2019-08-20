@@ -75,10 +75,15 @@ jobs:
           command: |
             mkdir -p /tmp/core_dumps
             cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+            mkdir -p /tmp/markdown
+            cp /home/circleci/repo/pyrasterframes/target/python/docs/*.md /tmp/markdown 2> /dev/null || true
           when: on_fail
 
       - store_artifacts:
           path: /tmp/core_dumps
+
+      - store_artifacts:
+          path: /tmp/markdown
 
       - store_artifacts:
           path: docs/target/site
