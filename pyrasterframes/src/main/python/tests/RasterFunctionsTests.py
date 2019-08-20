@@ -265,3 +265,4 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['ct'].cell_type, ct)
         self.assertEqual(result['ct_str'].cell_type, CellType(ct_str))
         self.assertEqual(result['make'].cell_type, CellType.int8())
+

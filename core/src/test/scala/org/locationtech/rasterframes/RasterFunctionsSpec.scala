@@ -64,7 +64,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
 
-  def lazyPRT = RasterRef(RasterSource(TestData.l8samplePath), 0, None).tile
+  def lazyPRT = RasterRef(RasterSource(TestData.l8samplePath), 0, None, None).tile
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
