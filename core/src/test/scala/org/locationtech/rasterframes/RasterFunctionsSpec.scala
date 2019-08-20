@@ -96,6 +96,44 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
   }
 
+  describe("cell type operations") {
+    it("should convert cell type") {
+      val df = Seq((TestData.injectND(7)(three), TestData.injectND(12)(two))).toDF("three", "two")
+
+      val ct = df.select(
+        rf_convert_cell_type($"three", "uint16ud512") as "three",
+        rf_convert_cell_type($"two", "float32") as "two"
+      )
+
+      val (ct3, ct2) = ct.as[(Tile, Tile)].first()
+
+      ct3.cellType should be (UShortUserDefinedNoDataCellType(512))
+      ct2.cellType should be (FloatConstantNoDataCellType)
+
+      val (cnt3, cnt2) = ct.select(rf_no_data_cells($"three"), rf_no_data_cells($"two")).as[(Long, Long)].first()
+
+      cnt3 should be (7)
+      cnt2 should be (12)
+
+      checkDocs("rf_convert_cell_type")
+    }
+    it("should change NoData value") {
+      val df = Seq((TestData.injectND(7)(three), TestData.injectND(12)(two))).toDF("three", "two")
+
+      val ct = df.select(
+        rf_with_no_data($"three", 3) as "three",
+        rf_with_no_data($"two", 2) as "two"
+      )
+
+      val (cnt3, cnt2) = ct.select(rf_no_data_cells($"three"), rf_no_data_cells($"two")).as[(Long, Long)].first()
+
+      cnt3 should be ((cols * rows) - 7)
+      cnt2 should be ((cols * rows) - 12)
+
+      checkDocs("rf_with_no_data")
+    }
+  }
+
   describe("arithmetic tile operations") {
     it("should local_add") {
       val df = Seq((one, two)).toDF("one", "two")
@@ -336,6 +374,25 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       checkDocs("rf_no_data_cells")
     }
+    it("should properly count data and nodata cells on constant tiles") {
+      val rf = Seq(randPRT).toDF("tile")
+
+      val df = rf
+        .withColumn("make", rf_make_constant_tile(99, 3, 4, ByteConstantNoDataCellType))
+        .withColumn("make2", rf_with_no_data($"make", 99))
+
+      df.show(false)
+
+      val counts = df.select(
+        rf_no_data_cells($"make").alias("nodata1"),
+        rf_data_cells($"make").alias("data1"),
+        rf_no_data_cells($"make2").alias("nodata2"),
+        rf_data_cells($"make2").alias("data2")
+      ).as[(Long, Long, Long, Long)].first()
+
+      counts should be ((0l, 12l, 12l, 0l))
+    }
+
     it("should detect no-data tiles") {
       val df = Seq(nd).toDF("nd")
       df.select(rf_is_no_data_tile($"nd")).first() should be(true)
