@@ -279,7 +279,8 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(counts["data1"], 3 * 4)
         self.assertEqual(counts["nodata1"], 0)
         self.assertEqual(counts["data2"], 0)
-        self.assertEqual(counts["nodata2"], 3 * 4)        
+        self.assertEqual(counts["nodata2"], 3 * 4)
+        self.assertEqual(result['make2'].cell_type, CellType.int8().with_no_data_value(99))
 
     def test_render_composite(self):
         cat = self.spark.createDataFrame([
@@ -298,7 +299,6 @@ class RasterFunctions(TestEnvironment):
         png_bytes = rf.select(rf_render_png('red', 'green', 'blue').alias('png')).first()['png']
         # Look for the PNG magic cookie
         self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
-        self.assertEqual(result['make2'].cell_type, CellType.int8().with_no_data_value(99))
 
 
 
