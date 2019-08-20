@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Extent])
+case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[GridBounds])
   extends ProjectedRasterLike {
   def crs: CRS = source.crs
   def extent: Extent = subextent.getOrElse(source.extent)
@@ -48,12 +48,12 @@ case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Ext
   def cellType: CellType = source.cellType
   def tile: ProjectedRasterTile = ProjectedRasterTile(RasterRefTile(this), extent, crs)
 
-  protected lazy val grid: GridBounds = source.rasterExtent.gridBoundsFor(extent, false)
-  protected def srcExtent: Extent = extent
+  protected lazy val grid: GridBounds =
+    subgrid.getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
 
   protected lazy val realizedTile: Tile = {
-    RasterRef.log.trace(s"Fetching $srcExtent from band $bandIndex of $source")
-    source.read(srcExtent, Seq(bandIndex)).tile.band(0)
+    RasterRef.log.trace(s"Fetching $extent ($grid) from band $bandIndex of $source")
+    source.read(grid, Seq(bandIndex)).tile.band(0)
   }
 }
 
@@ -79,20 +79,24 @@ object RasterRef extends LazyLogging {
     override def schema: StructType = StructType(Seq(
       StructField("source", rsType, false),
       StructField("bandIndex", IntegerType, false),
-      StructField("subextent", schemaOf[Extent], true)
+      StructField("subextent", schemaOf[Extent], true),
+      StructField("subgrid", schemaOf[GridBounds], true)
     ))
 
     override def to[R](t: RasterRef, io: CatalystIO[R]): R = io.create(
       io.to(t.source)(RasterSourceUDT.rasterSourceSerializer),
       t.bandIndex,
-      t.subextent.map(io.to[Extent]).orNull
+      t.subextent.map(io.to[Extent]).orNull,
+      t.subgrid.map(io.to[GridBounds]).orNull
     )
 
     override def from[R](row: R, io: CatalystIO[R]): RasterRef = RasterRef(
       io.get[RasterSource](row, 0)(RasterSourceUDT.rasterSourceSerializer),
       io.getInt(row, 1),
       if (io.isNullAt(row, 2)) None
-      else Option(io.get[Extent](row, 2))
+      else Option(io.get[Extent](row, 2)),
+      if (io.isNullAt(row, 3)) None
+      else Option(io.get[GridBounds](row, 3))
     )
   }
 

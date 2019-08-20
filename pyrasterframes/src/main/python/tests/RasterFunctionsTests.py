@@ -256,18 +256,30 @@ class RasterFunctions(TestEnvironment):
 
     def test_cell_type_in_functions(self):
         from pyrasterframes.rf_types import CellType
-        ct = CellType.float32()
-        ct_str = CellType.float32().with_no_data_value(-999).cell_type_name  # NB int ND into float celltype
+        ct = CellType.float32().with_no_data_value(-999)
 
-        df = self.rf.withColumn('ct_str', rf_convert_cell_type('tile', ct_str)) \
-                    .withColumn('ct', rf_convert_cell_type('tile', ct)) \
-                    .withColumn('make', rf_make_constant_tile(99, 3, 4, CellType.int8()))
+        df = self.rf.withColumn('ct_str', rf_convert_cell_type('tile', ct.cell_type_name)) \
+            .withColumn('ct', rf_convert_cell_type('tile', ct)) \
+            .withColumn('make', rf_make_constant_tile(99, 3, 4, CellType.int8())) \
+            .withColumn('make2', rf_with_no_data('make', 99))
 
-        result = df.select('ct', 'ct_str', 'make').first()
+        result = df.select('ct', 'ct_str', 'make', 'make2').first()
 
         self.assertEqual(result['ct'].cell_type, ct)
-        self.assertEqual(result['ct_str'].cell_type, CellType(ct_str))
+        self.assertEqual(result['ct_str'].cell_type, ct)
         self.assertEqual(result['make'].cell_type, CellType.int8())
+
+        counts = df.select(
+            rf_no_data_cells('make').alias("nodata1"),
+            rf_data_cells('make').alias("data1"),
+            rf_no_data_cells('make2').alias("nodata2"),
+            rf_data_cells('make2').alias("data2")
+        ).first()
+
+        self.assertEqual(counts["data1"], 3 * 4)
+        self.assertEqual(counts["nodata1"], 0)
+        self.assertEqual(counts["data2"], 0)
+        self.assertEqual(counts["nodata2"], 3 * 4)        
 
     def test_render_composite(self):
         cat = self.spark.createDataFrame([
@@ -280,9 +292,13 @@ class RasterFunctions(TestEnvironment):
 
         # TODO: how to better test this?
         self.assertIsInstance(rgb, Tile)
-        self.assertEqual(rgb.dimensions(), (186, 169))
+        self.assertEqual(rgb.dimensions(), [186, 169])
 
         ## Test PNG generation
         png_bytes = rf.select(rf_render_png('red', 'green', 'blue').alias('png')).first()['png']
         # Look for the PNG magic cookie
         self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+        self.assertEqual(result['make2'].cell_type, CellType.int8().with_no_data_value(99))
+
+
+

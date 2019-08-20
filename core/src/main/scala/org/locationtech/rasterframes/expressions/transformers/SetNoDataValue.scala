@@ -48,7 +48,7 @@ import org.locationtech.rasterframes.expressions.{fpTile, row}
 )
 case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExpression with CodegenFallback with LazyLogging {
 
-  override val nodeName: String = "rf_set_nodata"
+  override val nodeName: String = "rf_with_no_data"
   override def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {

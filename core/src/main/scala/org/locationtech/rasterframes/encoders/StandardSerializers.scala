@@ -63,7 +63,30 @@ trait StandardSerializers {
       t.xmin, t.ymin, t.xmax, t.ymax
     )
     override def from[R](row: R, io: CatalystIO[R]): Extent = Extent(
-      io.getDouble(row, 0), io.getDouble(row, 1), io.getDouble(row, 2), io.getDouble(row, 3)
+      io.getDouble(row, 0),
+      io.getDouble(row, 1),
+      io.getDouble(row, 2),
+      io.getDouble(row, 3)
+    )
+  }
+
+  implicit val gridBoundsSerializer: CatalystSerializer[GridBounds] = new CatalystSerializer[GridBounds] {
+    override def schema: StructType = StructType(Seq(
+      StructField("colMin", IntegerType, false),
+      StructField("rowlMin", IntegerType, false),
+      StructField("colMax", IntegerType, false),
+      StructField("rowMax", IntegerType, false)
+    ))
+
+    override protected def to[R](t: GridBounds, io: CatalystIO[R]): R = io.create(
+      t.colMin, t.rowMin, t.colMax, t.rowMax
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): GridBounds = GridBounds(
+      io.getInt(t, 0),
+      io.getInt(t, 1),
+      io.getInt(t, 2),
+      io.getInt(t, 3)
     )
   }
 

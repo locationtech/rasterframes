@@ -50,7 +50,7 @@ import org.locationtech.rasterframes.expressions.row
     * rhs  - a cell type definition""",
   examples = """
   Examples:
-    > SELECT _FUNC_(tile, 1.5);
+    > SELECT _FUNC_(tile, 'int16ud0');
        ..."""
 )
 case class SetCellType(tile: Expression, cellType: Expression)
