@@ -107,6 +107,8 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val df = Seq[Tile](tile).toDF("tile")
       val arrayDF = df.select(rf_tile_to_array_double($"tile").as[Array[Double]])
       arrayDF.first().sum should be (110.0 +- 0.0001)
+
+      checkDocs("rf_tile_to_array_int")
     }
 
     it("should convert an array into a tile") {

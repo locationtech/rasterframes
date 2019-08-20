@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.model
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.Tile
-import geotrellis.vector.Extent
+import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
@@ -32,6 +32,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 case class TileContext(extent: Extent, crs: CRS) {
   def toProjectRasterTile(t: Tile): ProjectedRasterTile = ProjectedRasterTile(t, extent, crs)
+  def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
 }
 object TileContext {
   def apply(prt: ProjectedRasterTile): TileContext = new TileContext(prt.extent, prt.crs)

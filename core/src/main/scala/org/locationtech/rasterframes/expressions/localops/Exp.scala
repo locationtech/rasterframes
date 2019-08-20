@@ -21,13 +21,12 @@
 
 package org.locationtech.rasterframes.expressions.localops
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 
 
 @ExpressionDescription(
@@ -48,8 +47,7 @@ case class Exp(child: Expression) extends UnaryLocalRasterOp with CodegenFallbac
   override def dataType: DataType = child.dataType
 }
 object Exp {
-  def apply(tile: Column): TypedColumn[Any, Tile] =
-    new Column(Exp(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Exp(tile.expr))
 }
 
 @ExpressionDescription(
@@ -70,7 +68,7 @@ case class Exp10(child: Expression) extends UnaryLocalRasterOp with CodegenFallb
   override def dataType: DataType = child.dataType
 }
 object Exp10 {
-  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Exp10(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Exp10(tile.expr))
 }
 
 @ExpressionDescription(
@@ -91,7 +89,7 @@ case class Exp2(child: Expression) extends UnaryLocalRasterOp with CodegenFallba
   override def dataType: DataType = child.dataType
 }
 object Exp2{
-  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(Exp2(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(Exp2(tile.expr))
 }
 
 @ExpressionDescription(
@@ -112,5 +110,5 @@ case class ExpM1(child: Expression) extends UnaryLocalRasterOp with CodegenFallb
   override def dataType: DataType = child.dataType
 }
 object ExpM1{
-  def apply(tile: Column): TypedColumn[Any, Tile] = new Column(ExpM1(tile.expr)).as[Tile]
+  def apply(tile: Column): Column = new Column(ExpM1(tile.expr))
 }

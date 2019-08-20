@@ -60,6 +60,7 @@ object ProjectedRasterTile {
       extends ProjectedRasterTile {
     def delegate: Tile = t
 
+    // NB: Don't be tempted to move this into the parent trait. Will get stack overflow.
     override def convert(cellType: CellType): Tile =
       ConcreteProjectedRasterTile(t.convert(cellType), extent, crs)
 

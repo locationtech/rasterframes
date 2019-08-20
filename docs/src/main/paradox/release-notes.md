@@ -2,6 +2,10 @@
 
 ## 0.8.x
 
+### 0.8.1
+
+* Fixed: Removed false return type garauntee in cases where an `Expression` accepts either `Tile` or `ProjectedRasterTile` [(#295)](https://github.com/locationtech/rasterframes/issues/295)
+
 ### 0.8.0
 
 * Super-duper new Python-centric [RasterFrames Users' Manual](https://rasterframes.io/)!

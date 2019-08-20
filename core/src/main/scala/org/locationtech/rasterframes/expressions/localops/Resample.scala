@@ -21,16 +21,15 @@
 
 package org.locationtech.rasterframes.expressions.localops
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import geotrellis.raster.Tile
 import geotrellis.raster.resample.NearestNeighbor
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, factor) - Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less than one will downsample tile; greater than one will upsample. Uses nearest-neighbor value.",
@@ -67,9 +66,9 @@ case class Resample(left: Expression, right: Expression) extends BinaryLocalRast
   }
 }
 object Resample{
-  def apply(left: Column, right: Column): TypedColumn[Any, Tile] =
-    new Column(Resample(left.expr, right.expr)).as[Tile]
+  def apply(left: Column, right: Column): Column =
+    new Column(Resample(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): TypedColumn[Any, Tile] =
-    new Column(Resample(tile.expr, lit(value).expr)).as[Tile]
+  def apply[N: Numeric](tile: Column, value: N): Column =
+    new Column(Resample(tile.expr, lit(value).expr))
 }
