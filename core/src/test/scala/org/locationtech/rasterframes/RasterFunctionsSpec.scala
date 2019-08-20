@@ -374,14 +374,13 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       checkDocs("rf_no_data_cells")
     }
+
     it("should properly count data and nodata cells on constant tiles") {
       val rf = Seq(randPRT).toDF("tile")
 
       val df = rf
         .withColumn("make", rf_make_constant_tile(99, 3, 4, ByteConstantNoDataCellType))
         .withColumn("make2", rf_with_no_data($"make", 99))
-
-      df.show(false)
 
       val counts = df.select(
         rf_no_data_cells($"make").alias("nodata1"),

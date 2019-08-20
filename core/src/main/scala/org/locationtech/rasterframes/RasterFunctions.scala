@@ -231,9 +231,8 @@ trait RasterFunctions {
 
   /** Constructor for tile column with a single cell value. */
   def rf_make_constant_tile(value: Number, cols: Int, rows: Int, cellTypeName: String): TypedColumn[Any, Tile] = {
-    import org.apache.spark.sql.rf.TileUDT.tileSerializer
-    val constTile = encoders.serialized_literal(F.makeConstantTile(value, cols, rows, cellTypeName))
-    withTypedAlias(s"rf_make_constant_tile($value, $cols, $rows, $cellTypeName)")(constTile)
+    val constTile = udf(() => F.makeConstantTile(value, cols, rows, cellTypeName))
+    withTypedAlias(s"rf_make_constant_tile($value, $cols, $rows, $cellTypeName)")(constTile.apply())
   }
 
   /** Create a column constant tiles of zero */

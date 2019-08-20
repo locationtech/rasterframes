@@ -21,12 +21,12 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import geotrellis.raster._
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.apache.spark.sql.types.{DataType, LongType}
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.types.{DataType, LongType}
 import org.locationtech.rasterframes.model.TileContext
 
 @ExpressionDescription(
@@ -40,10 +40,11 @@ import org.locationtech.rasterframes.model.TileContext
        12"""
 )
 case class NoDataCells(child: Expression) extends UnaryRasterOp
-  with CodegenFallback {
+  with CodegenFallback with NullToValue {
   override def nodeName: String = "rf_no_data_cells"
   override def dataType: DataType = LongType
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = NoDataCells.op(tile)
+  override def na: Any = 0L
 }
 object NoDataCells {
   import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
