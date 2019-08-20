@@ -33,16 +33,17 @@ First we will get the vector data from LandsNet service by a REST query. The dat
 
 ```python get_park_boundary
 import requests
+nps_filepath = '/tmp/parks.geojson'
 nps_data_query_url = 'https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/' \
                      'NPS_Park_Boundaries/FeatureServer/0/query' \
                      '?geometry=-82.451,41.075,-80.682,41.436&inSR=4326&outSR=4326&f=geojson'
 r = requests.get(nps_data_query_url)
-with open('/tmp/parks.geojson', 'wb') as f:
+with open(nps_filepath,'wb') as f:
     f.write(r.content)
 ```
 
 ```python, folium_map, 
-m = folium.Map((41.25,-81.6), zoom_start=10).add_child(folium.GeoJson('/tmp/park.geojson')) 
+m = folium.Map((41.25,-81.6), zoom_start=10).add_child(folium.GeoJson(nps_filepath))
 ```
 
 ```python, folium_persist, echo=False
@@ -62,7 +63,7 @@ with open('docs/static/cuya.md', 'w') as md:
 Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry is "simplified" by combining vertices within about 100 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
 
 ```python read_cuya_vector
-park_vector = spark.read.geojson('/tmp/parks.geojson')
+park_vector = spark.read.geojson(nps_filepath)
 
 @udf(MultiPolygonUDT())
 def simplify(g, tol):
