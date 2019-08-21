@@ -38,7 +38,7 @@ import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf._
-import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.types.{StringType, StructField}
 import org.apache.spark.sql._
 import org.slf4j.LoggerFactory
 import spire.syntax.cfor._
@@ -184,15 +184,25 @@ package object util {
     }
   }
 
+  private val truncateWidth = rfConfig.getInt("max-truncate-row-element-length")
+
   implicit class DFWithPrettyPrint(val df: Dataset[_]) extends AnyVal {
+
+    def stringifyRowElements(cols: Seq[StructField], truncate: Boolean) = {
+      cols
+        .map(c => s"`${c.name}`")
+        .map(c => df.col(c).cast(StringType))
+        .map(c => if (truncate) {
+          when(length(c) > lit(truncateWidth), concat(substring(c, 1, truncateWidth), lit("...")))
+            .otherwise(c)
+        } else c)
+    }
+
     def toMarkdown(numRows: Int = 5, truncate: Boolean = false): String = {
       import df.sqlContext.implicits._
-      val cols = df.columns
-      val header = cols.mkString("| ", " | ", " |") + "\n" + ("|---" * cols.length) + "|\n"
-      val stringifiers = cols
-        .map(c => s"`$c`")
-        .map(c => df.col(c).cast(StringType))
-        .map(c => if (truncate) substring(c, 1, 40) else c)
+      val cols = df.schema.fields
+      val header = cols.map(_.name).mkString("| ", " | ", " |") + "\n" + ("|---" * cols.length) + "|\n"
+      val stringifiers = stringifyRowElements(cols, truncate)
       val cat = concat_ws(" | ", stringifiers: _*)
       val body = df
         .select(cat).limit(numRows)
@@ -206,19 +216,15 @@ package object util {
 
     def toHTML(numRows: Int = 5, truncate: Boolean = false): String = {
       import df.sqlContext.implicits._
-      val cols = df.columns
-      val header = "<thead>\n" + cols.mkString("<tr><th>", "</th><th>", "</th></tr>\n") + "</thead>\n"
-      val stringifiers = cols
-        .map(c => s"`$c`")
-        .map(c => df.col(c).cast(StringType))
-        .map(c => if (truncate) substring(c, 1, 40) else c)
+      val cols = df.schema.fields
+      val header = "<thead>\n" + cols.map(_.name).mkString("<tr><th>", "</th><th>", "</th></tr>\n") + "</thead>\n"
+      val stringifiers = stringifyRowElements(cols, truncate)
       val cat = concat_ws("</td><td>", stringifiers: _*)
       val body = df
         .select(cat).limit(numRows)
         .as[String]
         .collect()
         .mkString("<tr><td>", "</td></tr>\n<tr><td>", "</td></tr>\n")
-
 
       "<table>\n" + header + "<tbody>\n" + body + "</tbody>\n" + "</table>"
     }
