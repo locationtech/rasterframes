@@ -60,7 +60,7 @@ result = red_nir_tiles_monthly_2017 \
     .agg(rf_agg_stats(rf_normalized_difference(col('nir'), col('red'))).alias('ndvi_stats')) \
     .orderBy(col('month')) \
     .select('month', 'ndvi_stats.*')
-display(result)
+result
 ```
 
 ## SQL
@@ -87,7 +87,7 @@ SELECT granule_id, month(acquisition_date) as month, B01 as red, B02 as nir
 FROM modis
 WHERE year(acquisition_date) = 2017 AND day(acquisition_date) = 15 AND granule_id = 'h21v09'
 """)
-display(sql('DESCRIBE red_nir_monthly_2017'))
+sql('DESCRIBE red_nir_monthly_2017')
 ```
 
 ### Step 3: Read tiles
@@ -116,7 +116,7 @@ SELECT month, ndvi_stats.* FROM (
     ORDER BY month
 )
 """)
-display(grouped)
+grouped
 ```
 
 ## Scala

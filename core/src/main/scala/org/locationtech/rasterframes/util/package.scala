@@ -204,14 +204,19 @@ package object util {
       val header = cols.map(_.name).mkString("| ", " | ", " |") + "\n" + ("|---" * cols.length) + "|\n"
       val stringifiers = stringifyRowElements(cols, truncate)
       val cat = concat_ws(" | ", stringifiers: _*)
-      val body = df
-        .select(cat).limit(numRows)
+      val rows = df
+        .select(cat)
+        .limit(numRows)
         .as[String]
         .collect()
         .map(_.replaceAll("\\[", "\\\\["))
         .map(_.replace('\n', '↩'))
+
+      val body = rows
         .mkString("| ", " |\n| ", " |")
-      header + body
+
+      val caption = if (rows.length >= numRows) s"\n_Showing only top $numRows rows_.\n\n" else ""
+      caption + header + body
     }
 
     def toHTML(numRows: Int = 5, truncate: Boolean = false): String = {
@@ -220,13 +225,17 @@ package object util {
       val header = "<thead>\n" + cols.map(_.name).mkString("<tr><th>", "</th><th>", "</th></tr>\n") + "</thead>\n"
       val stringifiers = stringifyRowElements(cols, truncate)
       val cat = concat_ws("</td><td>", stringifiers: _*)
-      val body = df
+      val rows = df
         .select(cat).limit(numRows)
         .as[String]
         .collect()
+
+      val body = rows
         .mkString("<tr><td>", "</td></tr>\n<tr><td>", "</td></tr>\n")
 
-      "<table>\n" + header + "<tbody>\n" + body + "</tbody>\n" + "</table>"
+      val caption = if (rows.length >= numRows) s"<caption>Showing only top $numRows rows</caption>\n" else ""
+
+      "<table>\n" + caption + header + "<tbody>\n" + body + "</tbody>\n" + "</table>"
     }
   }
 

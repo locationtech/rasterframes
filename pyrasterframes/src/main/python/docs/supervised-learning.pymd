@@ -114,7 +114,7 @@ df_mask.printSchema()
 
 ## Create ML Pipeline
 
-We import various Spark components that we need to construct our [Pipeline](https://spark.apache.org/docs/latest/ml-pipeline.html). These are the objects that will work in sequence to conduct the data preparation and modeling.
+We import various Spark components that we need to construct our [`Pipeline`](https://spark.apache.org/docs/latest/ml-pipeline.html). These are the objects that will work in sequence to conduct the data preparation and modeling.
 
 ```python, imports, echo=True
 from pyrasterframes import TileExploder
@@ -186,7 +186,7 @@ cnf_mtrx = prediction_df.groupBy(classifier.getPredictionCol()) \
     .pivot(classifier.getLabelCol()) \
     .count() \
 	.sort(classifier.getPredictionCol())
-display(cnf_mtrx)	
+cnf_mtrx	
 ```
 
 ## Visualize Prediction

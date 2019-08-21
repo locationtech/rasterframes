@@ -74,7 +74,7 @@ For this problem, we will use the K-means clustering algorithm and configure our
 kmeans = KMeans().setK(5).setFeaturesCol('features')
 ```
 
-We can combine the above stages into a single _pipeline_.
+We can combine the above stages into a single [`Pipeline`](https://spark.apache.org/docs/latest/ml-pipeline.html).
 
 ```python, pipeline
 pipeline = Pipeline().setStages([exploder, assembler, kmeans])
@@ -92,7 +92,12 @@ We can use the `transform` function to score the training data in the fitted _pi
 
 ```python, transform
 clustered = model.transform(df)
-display(clustered)
+```
+
+Now let's take a look at some sample output.
+
+```python, view_predictions
+clustered.select('prediction', 'extent', 'column_index', 'row_index', 'features')
 ```
 
 If we want to inspect the model statistics, the SparkML API requires us to go through this unfortunate contortion to access the clustering results:
@@ -126,7 +131,7 @@ retiled.printSchema()
 ```
 
 ```python, display
-display(retiled)
+retiled
 ```
 
 The resulting output is shown below.
