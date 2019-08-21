@@ -153,7 +153,7 @@ def pandas_df_to_html(df):
     return return_html
 
 
-def spark_df_to_markdown(df, num_rows=5, truncate=True, vertical=False):
+def spark_df_to_markdown(df, num_rows=5, truncate=False, vertical=False):
     from pyrasterframes import RFContext
     return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
 

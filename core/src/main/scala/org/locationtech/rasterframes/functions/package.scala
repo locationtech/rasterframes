@@ -90,8 +90,6 @@ package object functions {
     }
   }
 
-
-
   /** Alias for constant tiles of zero */
   private[rasterframes] val tileZeros: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
     makeConstantTile(0, cols, rows, cellTypeName)
