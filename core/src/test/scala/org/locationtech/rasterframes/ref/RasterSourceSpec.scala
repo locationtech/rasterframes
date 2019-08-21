@@ -26,7 +26,7 @@ import java.net.URI
 import org.locationtech.rasterframes._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.model.{FixedRasterExtent, TileDimensions}
 
 
 class RasterSourceSpec extends TestEnvironment with TestData {
@@ -70,6 +70,21 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         d._1 should be <= NOMINAL_TILE_SIZE
         d._2 should be <= NOMINAL_TILE_SIZE
       }
+
+      val re = FixedRasterExtent(
+        Extent(1.4455356755667E7, -3335851.5589995002, 1.55673072753335E7, -2223901.039333),
+        2400, 2400
+      )
+
+      val divisions = re.gridBounds
+        .split(256, 256)
+        .map { gb => gb -> re.rasterExtentFor(gb) }
+        .map { case (originalGB, t) => (originalGB, t.extent)  }
+        .map { case (originalGB, e) => (originalGB, re.gridBoundsFor(e, clamp = false)) }
+        .map { case (ogb, gb) => ((ogb.width, ogb.height), (gb.width, gb.height)) }
+        .toSeq
+        .distinct
+        divisions.length should be(4)
     }
   }
 

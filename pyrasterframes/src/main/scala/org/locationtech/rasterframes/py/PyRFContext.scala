@@ -224,11 +224,11 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   type jInt = java.lang.Integer
   type jDouble = java.lang.Double
-  // NB: Tightly coupled to the `RFContext.resolve_raster_ref` method in `pyrasterframes.context`. */
+  // NB: Tightly coupled to the `RFContext.resolve_raster_ref` method in `pyrasterframes.rf_context`. */
   def _resolveRasterRef(srcBin: Array[Byte], bandIndex: jInt, xmin: jDouble, ymin: jDouble, xmax: jDouble, ymax: jDouble): AnyRef = {
     val src = KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(srcBin))
     val extent = Extent(xmin, ymin, xmax, ymax)
-    val ref = RasterRef(src, bandIndex, Some(extent))
+    val ref = RasterRef(src, bandIndex, Some(extent), None)
     ref.tile.toArrayTile().toBytes()
   }
 

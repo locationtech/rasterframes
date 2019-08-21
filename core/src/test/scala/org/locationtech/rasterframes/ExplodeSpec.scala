@@ -44,6 +44,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
           |""".stripMargin)
       write(query)
       assert(query.select("cell_0", "cell_1").as[(Double, Double)].collect().forall(_ == ((1.0, 2.0))))
+      query.select("cell_0", "cell_1").count() should be (100L)
       val query2 = sql(
         """|select rf_dimensions(tiles) as dims, rf_explode_tiles(tiles) from (
            |select rf_make_constant_tile(1, 10, 10, 'int8raw') as tiles)
@@ -64,6 +65,20 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val exploded = df.select(rf_explode_tiles_sample(0.5, $"tile1", $"tile2"))
       assert(exploded.columns.length === 4)
       assert(exploded.count() < 9)
+    }
+
+    ignore("should explode tiles with random sampling in SQL API") {
+      // was pretty much a WONT FIX from issue 97
+      val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
+      val exploded = df.selectExpr("rf_explode_tiles_sample(0.5, tile1, tile2)")
+      logger.info("rf_explode_tiles schema with double frac arg \n" + exploded.schema.treeString)
+      assert(exploded.columns.length === 4)
+      assert(exploded.count() < 9)
+
+      val explodedSeed = df.selectExpr("rf_explode_tiles_sample(0.5, 784505, tile1, tile2)")
+      assert(explodedSeed.columns.length === 4)
+      logger.info(s"Count with seed 784505: ${explodedSeed.count().toString}")
+      assert(explodedSeed.count() < 9)
     }
 
     it("should handle null tiles") {
@@ -107,6 +122,8 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val df = Seq[Tile](tile).toDF("tile")
       val arrayDF = df.select(rf_tile_to_array_double($"tile").as[Array[Double]])
       arrayDF.first().sum should be (110.0 +- 0.0001)
+
+      checkDocs("rf_tile_to_array_int")
     }
 
     it("should convert an array into a tile") {

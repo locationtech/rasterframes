@@ -47,9 +47,9 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   trait Fixture {
     val src = RasterSource(remoteCOGSingleband1)
-    val fullRaster = RasterRef(src, 0, None)
+    val fullRaster = RasterRef(src, 0, None, None)
     val subExtent = sub(src.extent)
-    val subRaster = RasterRef(src, 0, Some(subExtent))
+    val subRaster = RasterRef(src, 0, Some(subExtent), Some(src.rasterExtent.gridBoundsFor(subExtent)))
   }
 
   import spark.implicits._
@@ -171,7 +171,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       val src = RasterSource(remoteMODIS)
       val dims = src
         .layoutExtents(NOMINAL_TILE_DIMS)
-        .map(e => RasterRef(src, 0, Some(e)))
+        .map(e => RasterRef(src, 0, Some(e), None))
         .map(_.dimensions)
         .distinct
 
@@ -202,11 +202,9 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
       val dims = refs.select(rf_dimensions($"proj_raster")).distinct().collect()
       forEvery(dims) { r =>
-        r.cols should be <=NOMINAL_TILE_SIZE
-        r.rows should be <=NOMINAL_TILE_SIZE
+        r.cols should be <= NOMINAL_TILE_SIZE
+        r.rows should be <= NOMINAL_TILE_SIZE
       }
-
-      dims.foreach(println)
     }
   }
 }
