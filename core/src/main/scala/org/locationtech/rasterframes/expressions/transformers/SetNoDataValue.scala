@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.expressions.transformers
 
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -33,7 +32,7 @@ import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import org.locationtech.rasterframes.expressions.{fpTile, row}
+import org.locationtech.rasterframes.expressions.row
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, value) - Set the NoData value for the given tile.",
@@ -64,9 +63,10 @@ case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExp
   override protected def nullSafeEval(input1: Any, input2: Any): Any = {
     implicit val tileSer = TileUDT.tileSerializer
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(input1))
+
     val result = numberArgExtractor(right.dataType)(input2) match {
-      case DoubleArg(d) => op(fpTile(leftTile), d)
-      case IntegerArg(i) => op(leftTile, i)
+      case DoubleArg(d) => leftTile.withNoData(Some(d))
+      case IntegerArg(i) => leftTile.withNoData(Some(i.toDouble))
     }
 
     leftCtx match {
@@ -74,10 +74,8 @@ case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExp
       case None => result.toInternalRow
     }
   }
-
-  protected def op(left: Tile, right: Double): Tile = left.withNoData(Some(right))
-  protected def op(left: Tile, right: Int): Tile = left.withNoData(Some(right))
 }
+
 object SetNoDataValue {
   def apply(left: Column, right: Column): Column =
     new Column(SetNoDataValue(left.expr, right.expr))

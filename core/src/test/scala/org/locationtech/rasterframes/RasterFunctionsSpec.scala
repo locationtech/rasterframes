@@ -120,17 +120,20 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should change NoData value") {
       val df = Seq((TestData.injectND(7)(three), TestData.injectND(12)(two))).toDF("three", "two")
 
-      val ct = df.select(
+      val ndCT = df.select(
         rf_with_no_data($"three", 3) as "three",
-        rf_with_no_data($"two", 2) as "two"
+        rf_with_no_data($"two", 2.0) as "two"
       )
 
-      val (cnt3, cnt2) = ct.select(rf_no_data_cells($"three"), rf_no_data_cells($"two")).as[(Long, Long)].first()
+      val (cnt3, cnt2) = ndCT.select(rf_no_data_cells($"three"), rf_no_data_cells($"two")).as[(Long, Long)].first()
 
       cnt3 should be ((cols * rows) - 7)
       cnt2 should be ((cols * rows) - 12)
 
       checkDocs("rf_with_no_data")
+
+      // Should maintain original cell type.
+      ndCT.select(rf_cell_type($"two")).first().withDefaultNoData() should be(ct.withDefaultNoData())
     }
   }
 
