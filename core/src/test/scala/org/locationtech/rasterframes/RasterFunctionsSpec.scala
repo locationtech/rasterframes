@@ -120,17 +120,20 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should change NoData value") {
       val df = Seq((TestData.injectND(7)(three), TestData.injectND(12)(two))).toDF("three", "two")
 
-      val ct = df.select(
+      val ndCT = df.select(
         rf_with_no_data($"three", 3) as "three",
-        rf_with_no_data($"two", 2) as "two"
+        rf_with_no_data($"two", 2.0) as "two"
       )
 
-      val (cnt3, cnt2) = ct.select(rf_no_data_cells($"three"), rf_no_data_cells($"two")).as[(Long, Long)].first()
+      val (cnt3, cnt2) = ndCT.select(rf_no_data_cells($"three"), rf_no_data_cells($"two")).as[(Long, Long)].first()
 
       cnt3 should be ((cols * rows) - 7)
       cnt2 should be ((cols * rows) - 12)
 
       checkDocs("rf_with_no_data")
+
+      // Should maintain original cell type.
+      ndCT.select(rf_cell_type($"two")).first().withDefaultNoData() should be(ct.withDefaultNoData())
     }
   }
 
@@ -565,6 +568,48 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val t3 = df.select(rf_local_add(rf_agg_local_data_cells($"tile"), rf_agg_local_no_data_cells($"tile"))).as[Tile].first()
       t3 should be(three.toArrayTile())
       checkDocs("rf_agg_local_no_data_cells")
+    }
+  }
+
+  describe("array operations") {
+    it("should convert tile into array") {
+      val query = sql(
+        """select rf_tile_to_array_int(
+          |  rf_make_constant_tile(1, 10, 10, 'int8raw')
+          |) as intArray
+          |""".stripMargin)
+      query.as[Array[Int]].first.sum should be (100)
+
+      val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
+      val df = Seq[Tile](tile).toDF("tile")
+      val arrayDF = df.select(rf_tile_to_array_double($"tile").as[Array[Double]])
+      arrayDF.first().sum should be (110.0 +- 0.0001)
+
+      checkDocs("rf_tile_to_array_int")
+      checkDocs("rf_tile_to_array_double")
+    }
+
+    it("should convert an array into a tile") {
+      val tile = TestData.randomTile(10, 10, FloatCellType)
+      val df = Seq[Tile](tile, null).toDF("tile")
+      val arrayDF = df.withColumn("tileArray", rf_tile_to_array_double($"tile"))
+
+      val back = arrayDF.withColumn("backToTile", rf_array_to_tile($"tileArray", 10, 10))
+
+      val result = back.select($"backToTile".as[Tile]).first
+
+      assert(result.toArrayDouble() === tile.toArrayDouble())
+
+      // Same round trip, but with SQL expression for rf_array_to_tile
+      val resultSql = arrayDF.selectExpr("rf_array_to_tile(tileArray, 10, 10) as backToTile").as[Tile].first
+
+      assert(resultSql.toArrayDouble() === tile.toArrayDouble())
+
+      val hasNoData = back.withColumn("withNoData", rf_with_no_data($"backToTile", 0))
+
+      val result2 = hasNoData.select($"withNoData".as[Tile]).first
+
+      assert(result2.cellType.asInstanceOf[UserDefinedNoData[_]].noDataValue === 0)
     }
   }
 

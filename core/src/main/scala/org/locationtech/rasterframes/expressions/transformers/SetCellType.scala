@@ -57,7 +57,7 @@ case class SetCellType(tile: Expression, cellType: Expression)
   extends BinaryExpression with CodegenFallback {
   def left = tile
   def right = cellType
-  override def nodeName: String = "set_cell_type"
+  override def nodeName: String = "rf_convert_cell_type"
   override def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {

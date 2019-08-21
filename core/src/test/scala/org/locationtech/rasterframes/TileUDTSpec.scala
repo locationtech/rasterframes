@@ -20,7 +20,8 @@
  */
 
 package org.locationtech.rasterframes
-import geotrellis.raster.{CellType, Tile}
+import geotrellis.raster
+import geotrellis.raster.{CellType, NoNoData, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
@@ -98,6 +99,12 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
       forEveryConfig { tile =>
         val stringified = Seq(tile).toDF("tile").select($"tile".cast(StringType)).as[String].first()
         stringified should be(ShowableTile.show(tile))
+
+        if(!tile.cellType.isInstanceOf[NoNoData]) {
+          val withNd = tile.mutable
+          withNd.update(0, raster.NODATA)
+          ShowableTile.show(withNd) should include("--")
+        }
       }
     }
   }
