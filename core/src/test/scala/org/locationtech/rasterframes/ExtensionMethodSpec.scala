@@ -113,11 +113,13 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
     }
 
     it("should render Markdown") {
+      import org.apache.spark.sql.functions.lit
+
       val md = rf.toMarkdown()
       md.count(_ == '|') shouldBe >=(3 * 5)
       md.count(_ == '\n') should be >= 6
 
-      val md2 = rf.toMarkdown(truncate=true)
+      val md2 = rf.withColumn("long_string", lit("p" * 42)).toMarkdown(truncate=true)
       md2 should include ("...")
     }
 
