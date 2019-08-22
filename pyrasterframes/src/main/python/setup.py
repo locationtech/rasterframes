@@ -75,7 +75,7 @@ class PweaveDocs(distutils.cmd.Command):
             self.files = filter(lambda s: len(s) > 0, re.split(',', self.files))
             # `html` doesn't do quite what one expects... only replaces code blocks, leaving markdown in place
             print("format.....", self.format)
-            if self.format == 'html':
+            if self.format.strip() == 'html':
                 self.format = 'pandoc2html'
         if isinstance(self.quick, str):
             self.quick = self.quick == 'True' or self.quick == 'true'

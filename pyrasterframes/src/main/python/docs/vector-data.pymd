@@ -74,7 +74,7 @@ df.printSchema()
 We can take a look at a sample of the data. Notice the geometry columns print as well known text (wkt).
 
 ```python, show_centroid
-display(df.limit(4))
+df.limit(3)
 ```
 
 
@@ -87,7 +87,7 @@ As documented in the @ref:[function reference](reference.md), various user-defin
 from pyrasterframes.rasterfunctions import st_centroid
 df = df.withColumn('centroid', st_centroid(df.geometry))
 centroids = df.select('name', 'geometry', 'naive_centroid', 'centroid')
-display(centroids.limit(4))
+centroids.limit(3)
 ```
 
 The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter to those within approximately 500 km of a selected point.

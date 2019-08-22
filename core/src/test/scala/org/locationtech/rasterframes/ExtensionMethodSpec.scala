@@ -26,7 +26,7 @@ import geotrellis.raster.{ByteCellType, GridBounds, TileLayout}
 import geotrellis.spark.tiling.{CRSWorldExtent, LayoutDefinition}
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql.Encoders
-import org.locationtech.rasterframes.util.SubdivideSupport
+import org.locationtech.rasterframes.util._
 
 import scala.xml.parsing.XhtmlParser
 
@@ -113,13 +113,15 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
     }
 
     it("should render Markdown") {
-      import org.locationtech.rasterframes.util._
-      rf.toMarkdown().count(_ == '|') shouldBe >=(3 * 5)
+      val md = rf.toMarkdown()
+      md.count(_ == '|') shouldBe >=(3 * 5)
+      md.count(_ == '\n') should be >=(6)
+
+      val md2 = rf.toMarkdown(truncate=true)
+      md2 should include ("...")
     }
 
     it("should render HTML") {
-      import org.locationtech.rasterframes.util._
-
       noException shouldBe thrownBy {
         XhtmlParser(scala.io.Source.fromString(rf.toHTML()))
       }

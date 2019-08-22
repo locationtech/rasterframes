@@ -55,7 +55,7 @@ one_d_cat_csv = '\n'.join(['B01', scene1_B01, scene2_B01])
 This is what it looks like in DataFrame form:
 
 ```python, view_spark_cat_1
-one_d_cat_df.show(truncate=False)
+one_d_cat_df
 ```
 
 ### Two-D
@@ -87,7 +87,7 @@ tow_d_cat_csv = '\n'.join(['B01,B02', scene1_B01 + "," + scene1_B02, scene2_B01 
 This is what it looks like in DataFrame form:
 
 ```python, view_spark_cat_1
-two_d_cat_df.show(truncate=False)
+two_d_cat_df
 ```
 
 ## Using External Catalogs
@@ -104,10 +104,11 @@ scene_list = spark.read \
     .format("csv") \
     .option("header", "true") \
     .load(SparkFiles.get("2018-07-04_scenes.txt"))
-display(scene_list)
+scene_list
 ```
 
 Observe the scenes list file has URIs to `index.html` files in the download_url column. The image URI's are in the same directory. The filenames are of the form `${gid}_B${band}.TIF`. The next code chunk builds these URIs, which completes our catalog.
+
 
 ```python, show_remote_catalog
 modis_catalog = scene_list \
@@ -117,7 +118,7 @@ modis_catalog = scene_list \
     .withColumn('B01' , F.concat('base_url', F.lit("_B01.TIF"))) \
     .withColumn('B02' , F.concat('base_url', F.lit("_B02.TIF"))) \
     .withColumn('B03' , F.concat('base_url', F.lit("_B03.TIF")))
-display(modis_catalog)
+modis_catalog
 ```
 
 ## Using Built-in Catalogs

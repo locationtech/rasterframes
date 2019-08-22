@@ -169,23 +169,6 @@ Convert a vector Geometry `geom` into a Tile representation. The `value` will be
 
 Parameters `tile_columns` and `tile_rows` are literals, not column expressions. The others are column expressions.
 
-
-Example use. In the code snip below, you can visualize the `tri` and `b` geometries with tools like [Wicket](https://arthur-e.github.io/Wicket/sandbox-gmaps3.html). The result is a right triangle burned into the `tile`, with NoData values shown as ∘.
-
-
-```python
-spark.sql("""
-SELECT rf_render_ascii(
-        rf_rasterize(tri, b, 8, 10, 10))
-
-FROM
-  ( SELECT st_geomFromWKT('POLYGON((1.5 0.5, 1.5 1.5, 0.5 0.5, 1.5 0.5))') AS tri,
-           st_geomFromWKT('POLYGON((0.0 0.0, 2.0 0.0, 2.0 2.0, 0.0 2.0, 0.0 0.0))') AS b
-   ) r
-""").show(1, False)
-```
-
-
 ### rf_array_to_tile
 
     Tile rf_array_to_tile(Array arrayCol, Int numCols, Int numRows)

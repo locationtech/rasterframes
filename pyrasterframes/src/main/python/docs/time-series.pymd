@@ -54,7 +54,7 @@ m.save(temp_folium)
 with open(temp_folium, 'rb') as f:
     b64 = base64.b64encode(f.read())
 with open('docs/static/cuya.md', 'w') as md:
-    md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500"></iframe>'.format(b64.decode('utf-8')))
+    md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>'.format(b64.decode('utf-8')))
     # seems that the height is not correct?
 ```
 
