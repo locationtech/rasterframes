@@ -72,6 +72,11 @@ def rf_convert_cell_type(tile_col, cell_type):
     jfcn = RFContext.active().lookup('rf_convert_cell_type')
     return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
 
+def rf_interpret_cell_type_as(tile_col, cell_type):
+    """Change the interpretation of the tile_col's cell values according to specified cell_type"""
+    jfcn = RFContext.active().lookup('rf_interpret_cell_type_as')
+    return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
+
 
 def rf_make_constant_tile(scalar_value, num_cols, num_rows, cell_type=CellType.float64()):
     """Constructor for constant tile column"""

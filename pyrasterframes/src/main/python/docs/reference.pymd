@@ -106,9 +106,17 @@ Example: `SELECT rf_mk_crs('EPSG:4326')`
 
 ### rf_convert_cell_type
 
-    Tile rf_convert_cell_type(Tile tileCol, String cellType)
+    Tile rf_convert_cell_type(Tile tile_col, CellType cell_type)
+    Tile rf_convert_cell_type(Tile tile_col, String cell_type)
 
-Convert `tileCol` to a different cell type. Available cell types can be retrieved with the @ref:[rf_cell_types](reference.md#rf-cell-types) function.
+Convert `tile_col` to a different cell type. In Python you can pass a CellType object to `cell_type`.
+
+### rf_interpret_cell_type_as
+
+    Tile rf_interpret_cell_type_as(Tile tile_col, CellType cell_type)
+    Tile rf_interpret_cell_type_as(Tile tile_col, String cell_type)
+
+Change the interpretation of the `tile_col`'s cell values according to specified `cell_type`. In Python you can pass a CellType object to `cell_type`.
 
 ### rf_resample
 

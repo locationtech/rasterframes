@@ -279,3 +279,18 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(counts["data2"], 0)
         self.assertEqual(counts["nodata2"], 3 * 4)
 
+
+    def test_rf_interpret_cell_type_as(self):
+        from pyspark.sql import Row
+        from pyrasterframes.rf_types import Tile
+        import numpy as np
+
+        df = self.spark.createDataFrame([
+            Row(t=Tile(np.array([[1, 3, 4], [5, 0, 3]]), CellType.uint8().with_no_data_value(5)))
+        ])
+        df = df.withColumn('tile', rf_interpret_cell_type_as('t', 'uint8ud3')) # threes become ND
+        result = df.select(rf_tile_sum(rf_local_equal('t', lit(3))).alias('threes')).first()['threes']
+        self.assertEqual(result, 2)
+
+        result_5 = df.select(rf_tile_sum(rf_local_equal('t', lit(5))).alias('fives')).first()['fives']
+        self.assertEqual(result_5, 0)
