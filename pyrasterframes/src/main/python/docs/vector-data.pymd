@@ -86,7 +86,7 @@ As documented in the @ref:[function reference](reference.md), various user-defin
 ```python, native_centroid
 from pyrasterframes.rasterfunctions import st_centroid
 df = df.withColumn('centroid', st_centroid(df.geometry))
-centroids = df.select('name', 'geometry', 'naive_centroid', 'centroid')
+centroids = df.select('geometry', 'name', 'naive_centroid', 'centroid')
 centroids.limit(3)
 ```
 
@@ -101,13 +101,8 @@ l8 = l8.withColumn('geom', st_geometry(l8.bounds_wgs84))
 l8 = l8.withColumn('paducah', st_point(lit(-88.6275), lit(37.072222)))
 
 l8_filtered = l8.filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(500000.0))))
+l8_filtered.select('product_id', 'entity_id', 'acquisition_date', 'cloud_cover_pct')
 ```
-
-```python, evaluate=False, echo=False
-# suppressed due to run time.
-l8_filtered.count()
-```
-
 
 [GeoPandas]: http://geopandas.org
 [OGR]: https://gdal.org/drivers/vector/index.html

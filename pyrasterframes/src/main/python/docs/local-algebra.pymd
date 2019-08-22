@@ -34,13 +34,15 @@ We will apply the @ref:[catalog pattern](raster-catalogs.md) for defining the da
 This form of `(x - y) / (x + y)` is common in remote sensing and is called a normalized difference. It is used with other band pairs to highlight water, snow, and other phenomena.
 
 ```python, read_rasters
-bands = {4: 'red', 8: 'nir'}
+from pyspark.sql import Row
 uri_pattern = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B0{}.tif'
-catalog_df = pd.DataFrame([
-    {bands[b_num]: uri_pattern.format(b_num) for b_num in bands.keys()}
+catalog_df = spark.createDataFrame([
+    Row(red=uri_pattern.format(4), nir=uri_pattern.format(8))
 ])
-df = spark.read.raster(catalog=catalog_df.to_csv(index=None),
-                       catalog_col_names=list(catalog_df.columns))
+df = spark.read.raster(
+    catalog=catalog_df,
+    catalog_col_names=['red', 'nir']
+)
 df.printSchema()
 ```
 

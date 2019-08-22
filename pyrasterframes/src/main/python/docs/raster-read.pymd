@@ -95,7 +95,7 @@ modis_catalog = spark.read \
     .option("header", "true") \
     .load(SparkFiles.get(cat_filename)) \
     .withColumn('base_url',
-        F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid',)
+        F.concat(F.regexp_replace('download_url', 'index.html$', ''), 'gid')
     ) \
     .drop('download_url') \
     .withColumn('red' , F.concat('base_url', F.lit("_B01.TIF"))) \
@@ -126,7 +126,7 @@ Now that we have prepared our catalog, we simply pass the DataFrame or CSV strin
 ```python, read_catalog
 rf = spark.read.raster(
     catalog=equator,
-    catalog_col_names=['red', 'nir'],
+    catalog_col_names=['red', 'nir']
 )
 rf.printSchema()
 ```
@@ -134,7 +134,9 @@ rf.printSchema()
 Observe the schema of the resulting DataFrame has a projected raster struct for each column passed in `catalog_col_names`. For reference, the URI is now in a column appended with `_path`. Taking a quick look at the representation of the data, we see again each row contains an arbitrary portion of the entire scene coverage. We also see that for two-D catalogs, each row contains the same spatial extent for all tiles in that row.
 
 ```python, cat_read_sample
-sample = rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir'))
+sample = rf \
+    .select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')) \
+    .where(~rf_is_no_data_tile('red'))
 sample.limit(3)    
 ```
 
@@ -168,9 +170,10 @@ When reading a multiband raster or a _catalog_ describing multiband rasters, you
 For example, we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting DataFrame still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
 
 ```python, multiband
-mb = spark.read.raster('s3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
-                       band_indexes=[0, 1, 2, 3],
-                      )
+mb = spark.read.raster(
+    's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+    band_indexes=[0, 1, 2, 3],
+)
 mb.printSchema()
 ```
 
@@ -184,14 +187,15 @@ Here is a trivial example with a _catalog_ over multiband rasters. We specify tw
 import pandas as pd
 mb_cat = pd.DataFrame([
     {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
-     'bar': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+     'bar': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif'
     },
 ])
-mb2 = spark.read.raster(catalog=spark.createDataFrame(mb_cat),
-                       catalog_col_names=['foo', 'bar'],
-                       band_indexes=[0, 1],
-                       tile_dimensions=(64,64)
-                      )
+mb2 = spark.read.raster(
+    catalog=spark.createDataFrame(mb_cat),
+    catalog_col_names=['foo', 'bar'],
+    band_indexes=[0, 1],
+    tile_dimensions=(64,64)
+)
 mb2.printSchema()
 ```
 
