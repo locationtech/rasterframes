@@ -358,11 +358,6 @@ class Tile(object):
         """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
         return [self.cells.shape[1], self.cells.shape[0]]
 
-    def _repr_png_(self):
-        """Provide default PNG rendering in IPython and Jupyter"""
-        from pyrasterframes.rf_ipython import tile_to_png
-        return tile_to_png(self)
-
 
 class TileUDT(UserDefinedType):
     @classmethod

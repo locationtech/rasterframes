@@ -34,7 +34,7 @@ spark = pyrasterframes.get_spark_session()
 
 Then, you can read a raster and work with it in a Spark DataFrame.
 
-```python, local_add, results='raw'
+```python, local_add
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import lit
 
@@ -42,9 +42,9 @@ from pyspark.sql.functions import lit
 df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 
 # Add 3 element-wise, show some rows of the DataFrame
-df.withColumn('added', rf_local_add(df.proj_raster, lit(3))) \
-  .select(rf_crs('added'), rf_extent('added'), rf_tile('added')) \
-  .show(3)
+sample = df.withColumn('added', rf_local_add(df.proj_raster, lit(3))) \
+  .select(rf_crs('added'), rf_extent('added'), rf_tile('added'))
+sample
 ```
 
 This example is extended in the [getting started Jupyter notebook](https://nbviewer.jupyter.org/github/locationtech/rasterframes/blob/develop/rf-notebook/src/main/notebooks/Getting%20Started.ipynb).

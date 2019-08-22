@@ -33,6 +33,9 @@
     .md-clear { clear: both; }
     table { font-size: 80%; }
     code { font-size: 0.75em !important; }
+    table a {
+        word-break: break-all;
+    }
   </style>
 </head>
 
