@@ -110,13 +110,28 @@ def _aliased_writer(df_writer, format_key, path, **options):
 
 def _raster_reader(
         df_reader,
-        path=None,
-        catalog=None,
+        source=None,
         catalog_col_names=None,
         band_indexes=None,
         tile_dimensions=(256, 256),
         lazy_tiles=True,
         **options):
+    """
+    Returns a Spark DataFrame from a raster data files specified by URI pointers
+    The returned DataFrame will have a column of (CRS, Extent, Tile) for each URI read
+    Multiple bands from the same raster file are spread across rows of the DataFrame. See band_indexes param.
+    If bands from a scene are stored in separate files, provide a DataFrame to the `source` parameter. Each row in the returned DataFrame will contain one (CRS, Extent, Tile) for each item in `catalog_col_names`
+
+    For more details and example usage, consult https://rasterframes.io/raster-read.html
+
+    :param source: a string, list of strings, a pandas DataFrame or a Spark DataFrame giving URIs to the raster data to read
+    :param catalog_col_names: required if source is a DataFrame or CSV string. It is a list of strings giving the names of columns containing URIs to read
+    :param band_indexes: list of integers indicating which bands, zero-based, to read from the raster files specified; default is to read only the first band
+    :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows)
+    :param lazy_tiles: If true (default) only generate minimal references to tile contents; if false, fetch tile cell values
+    :param options: Additional keyword arguments to pass to the spark DataSource
+    :return:
+    """
 
     from pandas import DataFrame as PdDataFrame
 
@@ -140,6 +155,25 @@ def _raster_reader(
         "lazyTiles": lazy_tiles
     })
 
+    # Parse the `source` argument
+    path = None  # to pass into `path` param
+    if isinstance(source, list):
+        path = None
+        catalog = None
+        options.update(dict(paths='\n'.join(str(source))))
+    elif isinstance(source, str):
+        if '\n' in source or '\r' in source:
+            # then the `source` string is a catalog as a CSV (header is required)
+            path = None
+            catalog = source
+        else:
+            # interpret source as a single URI string
+            path = source
+            catalog = None
+    else:
+        # user has passed in some other type, we will interpret as a catalog
+        catalog = source
+
     if catalog is not None:
         if catalog_col_names is None:
             raise Exception("'catalog_col_names' required when DataFrame 'catalog' specified")
@@ -149,6 +183,9 @@ def _raster_reader(
                 "catalogColumns": to_csv(catalog_col_names)
             })
         elif isinstance(catalog, DataFrame):
+            # check catalog_col_names
+            assert all([c in catalog.columns for c in catalog_col_names]), \
+                "All items in catalog_col_names must be the name of a column in the catalog DataFrame."
             # Create a random view name
             tmp_name = temp_name()
             catalog.createOrReplaceTempView(tmp_name)
@@ -157,6 +194,10 @@ def _raster_reader(
                 "catalogColumns": to_csv(catalog_col_names)
             })
         elif isinstance(catalog, PdDataFrame):
+            # check catalog_col_names
+            assert all([c in catalog.columns for c in catalog_col_names]), \
+                "All items in catalog_col_names must be the name of a column in the catalog DataFrame."
+
             # Handle to active spark session
             session = SparkContext._active_spark_context._rf_context._spark_session
             # Create a random view name
