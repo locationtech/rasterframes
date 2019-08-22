@@ -130,7 +130,7 @@ class RasterSourceTest(TestEnvironment):
             path_table,
             tile_dimensions=(512, 512),
             catalog_col_names=catalog_columns,
-            lazy_tiles=True # We'll get an OOM error if we try to read 9 scenes all at once!
+            lazy_tiles=True  # We'll get an OOM error if we try to read 9 scenes all at once!
         )
 
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}
@@ -170,11 +170,16 @@ class RasterSourceTest(TestEnvironment):
 
     def test_csv_string(self):
 
-        s = f"""metadata,b1,b2
-        a,{self.path(1,1)},{self.path(1,2)}
-        b,{self.path(2,1)},{self.path(2,2)}
-        c,{self.path(3,1)},{self.path(3,2)}
-        """
+        s = """metadata,b1,b2
+        a,{},{}
+        b,{},{}
+        c,{},{}
+        """.format(
+            self.path(1, 1), self.path(1, 2),
+            self.path(2, 1), self.path(2, 2),
+            self.path(3, 1), self.path(3, 2),
+                   )
+
         df = self.spark.read.raster(s, ['b1', 'b2'])
         self.assertEqual(len(df.columns), 3 + 2)  # number of columns in original DF plus cardinality of catalog_col_names
         self.assertTrue(len(df.take(1)))
