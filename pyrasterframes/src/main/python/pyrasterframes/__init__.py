@@ -124,7 +124,7 @@ def _raster_reader(
 
     For more details and example usage, consult https://rasterframes.io/raster-read.html
 
-    :param source: a string, list of strings, a pandas DataFrame or a Spark DataFrame giving URIs to the raster data to read
+    :param source: a string, list of strings, list of lists of strings, a pandas DataFrame or a Spark DataFrame giving URIs to the raster data to read
     :param catalog_col_names: required if source is a DataFrame or CSV string. It is a list of strings giving the names of columns containing URIs to read
     :param band_indexes: list of integers indicating which bands, zero-based, to read from the raster files specified; default is to read only the first band
     :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows)
