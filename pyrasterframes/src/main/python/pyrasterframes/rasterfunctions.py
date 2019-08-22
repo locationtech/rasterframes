@@ -246,6 +246,13 @@ def rf_local_unequal_int(tile_col, scalar):
     """Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0"""
     return _apply_scalar_to_tile('rf_local_unequal_int', tile_col, scalar)
 
+def rf_local_no_data(tile_col):
+    """Return a tile with ones where the input is NoData, otherwise zero."""
+    return _apply_column_function('rf_local_no_data', tile_col)
+
+def rf_local_data(tile_col):
+    """Return a tile with zeros where the input is NoData, otherwise one."""
+    return _apply_column_function('rf_local_data', tile_col)
 
 def _apply_column_function(name, *args):
     jfcn = RFContext.active().lookup(name)

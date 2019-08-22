@@ -371,6 +371,12 @@ trait RasterFunctions {
   /** Cellwise inequality comparison between a tile and a scalar. */
   def rf_local_unequal[T: Numeric](tileCol: Column, value: T): Column = Unequal(tileCol, value)
 
+  /** Return a tile with ones where the input is NoData, otherwise zero */
+  def rf_local_no_data(tileCol: Column): Column = Undefined(tileCol)
+
+  /** Return a tile with zeros where the input is NoData, otherwise one*/
+  def rf_local_data(tileCol: Column): Column = Defined(tileCol)
+
   /** Round cell values to nearest integer without chaning cell type. */
   def rf_round(tileCol: Column): Column = Round(tileCol)
 

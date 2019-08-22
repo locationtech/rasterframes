@@ -288,9 +288,28 @@ class RasterFunctions(TestEnvironment):
         df = self.spark.createDataFrame([
             Row(t=Tile(np.array([[1, 3, 4], [5, 0, 3]]), CellType.uint8().with_no_data_value(5)))
         ])
-        df = df.withColumn('tile', rf_interpret_cell_type_as('t', 'uint8ud3')) # threes become ND
+        df = df.withColumn('tile', rf_interpret_cell_type_as('t', 'uint8ud3'))  # threes become ND
         result = df.select(rf_tile_sum(rf_local_equal('t', lit(3))).alias('threes')).first()['threes']
         self.assertEqual(result, 2)
 
         result_5 = df.select(rf_tile_sum(rf_local_equal('t', lit(5))).alias('fives')).first()['fives']
         self.assertEqual(result_5, 0)
+
+    def test_rf_local_data_and_no_data(self):
+        from pyspark.sql import Row
+        from pyrasterframes.rf_types import Tile
+        import numpy as np
+        from numpy.testing import assert_equal
+
+        t = Tile(np.array([[1, 3, 4], [5, 0, 3]]), CellType.uint8().with_no_data_value(5))
+        #note the convert is due to issue #188
+        df = self.spark.createDataFrame([Row(t=t)])\
+            .withColumn('lnd', rf_convert_cell_type(rf_local_no_data('t'), 'uint8')) \
+            .withColumn('ld',  rf_convert_cell_type(rf_local_data('t'),    'uint8'))
+
+        result = df.first()
+        result_nd = result['lnd']
+        assert_equal(result_nd.cells, t.cells.mask)
+
+        result_d = result['ld']
+        assert_equal(result_d.cells, np.invert(t.cells.mask))

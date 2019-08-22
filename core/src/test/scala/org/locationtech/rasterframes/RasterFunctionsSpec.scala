@@ -912,4 +912,19 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     countNewNd should be (0L)
 
   }
+
+  it("should return local data and nodata"){
+    checkDocs("rf_local_data")
+    checkDocs("rf_local_no_data")
+
+    val df = Seq(randNDPRT).toDF("t")
+      .withColumn("ld", rf_local_data($"t"))
+      .withColumn("lnd", rf_local_no_data($"t"))
+
+    val ndResult = df.select($"lnd").as[Tile].first()
+    ndResult should be (randNDPRT.localUndefined())
+
+    val dResult = df.select($"ld").as[Tile].first()
+    dResult should be (randNDPRT.localDefined())
+  }
 }
