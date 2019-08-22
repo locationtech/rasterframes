@@ -119,16 +119,22 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
       md.count(_ == '|') shouldBe >=(3 * 5)
       md.count(_ == '\n') should be >= 6
 
-      val md2 = rf.withColumn("long_string", lit("p" * 42)).toMarkdown(truncate=true)
+      val md2 = rf.withColumn("long_string", lit("p" * 42)).toMarkdown(truncate=true, renderTiles = false)
       md2 should include ("...")
+
+      val md3 = rf.toMarkdown(truncate=true, renderTiles = false)
+      md3 shouldNot include("<img")
     }
 
     it("should render HTML") {
-      val html = rf.toHTML()
+      val html = rf.toHTML(renderTiles = false)
       noException shouldBe thrownBy {
         XhtmlParser(scala.io.Source.fromString(html))
       }
-      println(html)
+      val html2 = rf.toHTML(renderTiles = true)
+      noException shouldBe thrownBy {
+        XhtmlParser(scala.io.Source.fromString(html2))
+      }
     }
   }
 }

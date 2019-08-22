@@ -25,9 +25,9 @@ import java.io.ByteArrayInputStream
 
 import geotrellis.proj4.LatLng
 import geotrellis.raster
-import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster._
-import geotrellis.raster.render.{ColorRamps, Png}
+import geotrellis.raster.render.ColorRamps
+import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.vector.Extent
 import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
