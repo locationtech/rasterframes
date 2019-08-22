@@ -158,9 +158,10 @@ def _raster_reader(
     # Parse the `source` argument
     path = None  # to pass into `path` param
     if isinstance(source, list):
-        path = None
-        catalog = None
-        options.update(dict(paths='\n'.join(str(source))))
+        if all([isinstance(i, str) for i in source]):
+            path = None
+            catalog = None
+            options.update(dict(paths='\n'.join([str(i) for i in source])))  # pass in "uri1\nuri2\nuri3\n..."
     elif isinstance(source, str):
         if '\n' in source or '\r' in source:
             # then the `source` string is a catalog as a CSV (header is required)

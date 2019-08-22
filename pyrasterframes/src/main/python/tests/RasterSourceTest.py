@@ -22,7 +22,7 @@ from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 from pyspark.sql.functions import *
 import os.path
-
+from unittest import skip
 from . import TestEnvironment
 
 
@@ -104,6 +104,10 @@ class RasterSourceTest(TestEnvironment):
         path_count = df.groupby(df.proj_raster_path).count()
         print(path_count.collect())
         self.assertTrue(path_count.count() == 3)
+
+    @skip('not implemented yet')
+    def test_list_of_list_of_str(self):
+        0
 
     def test_schemeless_string(self):
         import os.path
