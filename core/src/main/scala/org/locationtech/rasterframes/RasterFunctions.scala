@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
+import geotrellis.raster.render.ColorRamp
 import geotrellis.raster.{CellType, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.annotation.Experimental
@@ -34,7 +35,7 @@ import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
-import org.locationtech.rasterframes.expressions.transformers.RenderPNG.RenderCompositePNG
+import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderCompositePNG, RenderColorRampPNG}
 import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
@@ -322,12 +323,16 @@ trait RasterFunctions {
     ReprojectGeometry(sourceGeom, srcCRSCol, dstCRSCol)
 
   /** Render Tile as ASCII string, for debugging purposes. */
-  def rf_render_ascii(col: Column): TypedColumn[Any, String] =
-    DebugRender.RenderAscii(col)
+  def rf_render_ascii(tile: Column): TypedColumn[Any, String] =
+    DebugRender.RenderAscii(tile)
 
   /** Render Tile cell values as numeric values, for debugging purposes. */
-  def rf_render_matrix(col: Column): TypedColumn[Any, String] =
-    DebugRender.RenderMatrix(col)
+  def rf_render_matrix(tile: Column): TypedColumn[Any, String] =
+    DebugRender.RenderMatrix(tile)
+
+  /** Converts tiles in a column into PNG encoded byte array, using given ColorRamp to assign values to colors. */
+  def rf_render_png(tile: Column, colors: ColorRamp): TypedColumn[Any, Array[Byte]] =
+    RenderColorRampPNG(tile, colors)
 
   /** Converts columns of tiles representing RGB channels into a PNG encoded byte array. */
   def rf_render_png(red: Column, green: Column, blue: Column): TypedColumn[Any, Array[Byte]] =

@@ -115,16 +115,18 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
     it("should render Markdown") {
       val md = rf.toMarkdown()
       md.count(_ == '|') shouldBe >=(3 * 5)
-      md.count(_ == '\n') should be >=(6)
+      md.count(_ == '\n') should be >= 6
 
       val md2 = rf.toMarkdown(truncate=true)
       md2 should include ("...")
     }
 
     it("should render HTML") {
+      val html = rf.toHTML()
       noException shouldBe thrownBy {
-        XhtmlParser(scala.io.Source.fromString(rf.toHTML()))
+        XhtmlParser(scala.io.Source.fromString(html))
       }
+      println(html)
     }
   }
 }

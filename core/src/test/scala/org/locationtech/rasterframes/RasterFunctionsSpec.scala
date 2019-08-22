@@ -27,7 +27,7 @@ import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster._
-import geotrellis.raster.render.Png
+import geotrellis.raster.render.{ColorRamps, Png}
 import geotrellis.vector.Extent
 import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
@@ -927,6 +927,20 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     val df = Seq((red, green, blue)).toDF("red", "green", "blue")
 
     val expr = df.select(rf_render_png($"red", $"green", $"blue"))
+
+    val pngData = expr.first()
+
+    val image = ImageIO.read(new ByteArrayInputStream(pngData))
+    image.getWidth should be(red.cols)
+    image.getHeight should be(red.rows)
+  }
+
+  it("should create a color-ramp PNG image") {
+    val red = TestData.l8Sample(4).toProjectedRasterTile
+
+    val df = Seq(red).toDF("red")
+
+    val expr = df.select(rf_render_png($"red", ColorRamps.HeatmapBlueToYellowToRedSpectrum))
 
     val pngData = expr.first()
 

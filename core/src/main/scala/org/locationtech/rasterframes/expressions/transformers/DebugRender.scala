@@ -21,28 +21,29 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
-import org.locationtech.rasterframes.util.TileAsMatrix
-import geotrellis.raster.Tile
 import geotrellis.raster.render.ascii.AsciiArtEncoder
+import geotrellis.raster.{Tile, isNoData}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
+import spire.syntax.cfor.cfor
 
 abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterOp
-   with CodegenFallback with Serializable {
-   override def dataType: DataType = StringType
+  with CodegenFallback with Serializable {
+  import org.locationtech.rasterframes.expressions.transformers.DebugRender.TileAsMatrix
+  override def dataType: DataType = StringType
 
-   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
-     UTF8String.fromString(if (asciiArt)
-       s"\n${tile.renderAscii(AsciiArtEncoder.Palette.NARROW)}\n"
-     else
-       s"\n${tile.renderMatrix(6)}\n"
-     )
-   }
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
+    UTF8String.fromString(if (asciiArt)
+      s"\n${tile.renderAscii(AsciiArtEncoder.Palette.NARROW)}\n"
+    else
+      s"\n${tile.renderMatrix(6)}\n"
+    )
+  }
 }
 
 object DebugRender {
@@ -74,5 +75,30 @@ object DebugRender {
   object RenderMatrix {
     def apply(tile: Column): TypedColumn[Any, String] =
       new Column(RenderMatrix(tile.expr)).as[String]
+  }
+
+  implicit class TileAsMatrix(val tile: Tile) extends AnyVal {
+    def renderMatrix(significantDigits: Int): String = {
+      val ND = s"%${significantDigits+5}s".format(Double.NaN)
+      val fmt = s"% ${significantDigits+5}.${significantDigits}g"
+      val buf = new StringBuilder("[")
+      cfor(0)(_ < tile.rows, _ + 1) { row =>
+        if(row > 0) buf.append(' ')
+        buf.append('[')
+        cfor(0)(_ < tile.cols, _ + 1) { col =>
+          val v = tile.getDouble(col, row)
+          if (isNoData(v)) buf.append(ND)
+          else buf.append(fmt.format(v))
+
+          if (col < tile.cols - 1)
+            buf.append(',')
+        }
+        buf.append(']')
+        if (row < tile.rows - 1)
+          buf.append(",\n")
+      }
+      buf.append("]")
+      buf.toString()
+    }
   }
 }

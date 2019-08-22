@@ -164,7 +164,6 @@ The next step is to actually run each step of the Pipeline we created, including
 
 ```python, train
 model_input = df_mask.filter(rf_tile_sum('label') > 0).cache()
-display(model_input)
 model = pipeline.fit(model_input)
 ```
 

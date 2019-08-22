@@ -61,4 +61,19 @@ object RenderPNG {
     def apply(red: Column, green: Column, blue: Column): TypedColumn[Any, Array[Byte]] =
       new Column(RenderCompositePNG(RGBComposite(red.expr, green.expr, blue.expr))).as[Array[Byte]]
   }
+
+  @ExpressionDescription(
+    usage = "_FUNC_(tile) - Encode the given tile as a PNG using a color ramp with assignemnts from quantile computation",
+    arguments = """
+  Arguments:
+    * tile - tile to render"""
+  )
+  case class RenderColorRampPNG(child: Expression, colors: ColorRamp) extends RenderPNG(child,  Some(colors)) {
+    override def nodeName: String = "rf_render_png"
+  }
+
+  object RenderColorRampPNG {
+    def apply(tile: Column, colors: ColorRamp): TypedColumn[Any, Array[Byte]] =
+      new Column(RenderColorRampPNG(tile.expr, colors)).as[Array[Byte]]
+  }
 }

@@ -6,6 +6,7 @@ import pyrasterframes.rf_ipython
 import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
+from pyspark.sql.functions import *
 spark = create_rf_spark_session()
 ```
 
@@ -145,12 +146,12 @@ Consider the following two reads of the same data source. In the first, the lazy
 
 ```python, lazy_demo_1
 uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
-lazy = spark.read.raster(uri).select('proj_raster.tile')
+lazy = spark.read.raster(uri).select(col('proj_raster.tile').cast('string'))
 lazy
 ```
 
 ```python, lazy_demo_2
-non_lazy = spark.read.raster(uri, lazy_tiles=False).select('proj_raster.tile')
+non_lazy = spark.read.raster(uri, lazy_tiles=False).select(col('proj_raster.tile').cast('string'))
 non_lazy
 ```
 
