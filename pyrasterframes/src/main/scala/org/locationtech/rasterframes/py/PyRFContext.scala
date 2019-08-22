@@ -236,4 +236,10 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     import rasterframes.util.DFWithPrettyPrint
     df.toMarkdown(numRows, truncate)
   }
+
+  def _dfToHTML(df: DataFrame, numRows: Int, truncate: Boolean): String = {
+    import rasterframes.util.DFWithPrettyPrint
+    df.toHTML(numRows, truncate)
+  }
+
 }

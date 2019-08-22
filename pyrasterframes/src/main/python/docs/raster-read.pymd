@@ -31,18 +31,20 @@ crs = rf.select(rf_crs("proj_raster").alias("value")).first()
 print("CRS", crs.value.crsProj4)
 ```
 
-```python, raster_parts, results='raw'
+```python, raster_parts
 parts = rf.select(
     rf_extent("proj_raster").alias("extent"),
     rf_tile("proj_raster").alias("tile")
 )
-parts.show(5, truncate=False)
+parts
 ```
+
 
 You can also see that the single raster has been broken out into many arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per task. The following code fragment shows us how many subtiles were created from a single source image.
 
-```python, count_by_uri, results='raw'
-rf.groupby(rf.proj_raster_path).count().show(truncate=False)
+```python, count_by_uri
+counts = rf.groupby(rf.proj_raster_path).count()
+counts
 ```
 
 Let's select a single _tile_ and view it. The _tile_ preview image as well as the string representation provide some basic information about the _tile_: its dimensions as numbers of columns and rows and the cell type, or data type of all the cells in the _tile_. For more about cell types, refer to @ref:[this discussion](nodata-handling.md#cell-types).
@@ -103,8 +105,8 @@ modis_catalog.printSchema()
 print("Available scenes: ", modis_catalog.count())
 ```
 
-```python, show_catalog, results='raw'
-modis_catalog.show(5, truncate=True)
+```python, show_catalog
+modis_catalog
 ```
 
 MODIS data products are delivered on a regular, consistent grid, making identification of a specific area over time easy using [`(h,v)`](https://modis-land.gsfc.nasa.gov/MODLAND_grid.html) grid coordinates (see below).
@@ -113,10 +115,9 @@ MODIS data products are delivered on a regular, consistent grid, making identifi
 
 For example, MODIS data right above the equator is all grid coordinates with `v07`.
 
-```python, catalog_filtering, results='raw'
+```python, catalog_filtering
 equator = modis_catalog.where(F.col('gid').like('%v07%')) 
-equator.select('date', 'gid') \
-    .show(10, truncate=False)
+equator.select('date', 'gid')
 ```
 
 Now that we have prepared our catalog, we simply pass the DataFrame or CSV string to the `raster` DataSource to load the imagery. The `catalog_col_names` parameter gives the columns that contain the URI's to be read.
@@ -131,9 +132,9 @@ rf.printSchema()
 
 Observe the schema of the resulting DataFrame has a projected raster struct for each column passed in `catalog_col_names`. For reference, the URI is now in a column appended with `_path`. Taking a quick look at the representation of the data, we see again each row contains an arbitrary portion of the entire scene coverage. We also see that for two-D catalogs, each row contains the same spatial extent for all tiles in that row.
 
-```python, cat_read_sample, results='raw'
-rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')) \
-    .show(3, truncate=True)
+```python, cat_read_sample
+sample = rf.select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir'))
+sample.limit(3)    
 ```
 
 ## Lazy Raster Reading
@@ -142,18 +143,15 @@ By default, reading raster pixel values is delayed until it is absolutely needed
 
 Consider the following two reads of the same data source. In the first, the lazy case, there is a pointer to the URI, extent and band to read. This will not be evaluated until the cell values are absolutely required. The second case shows the option to force the raster to be fully loaded right away.
 
-```python, lazy_demo_1, results='raw'
+```python, lazy_demo_1
 uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
-spark.read.raster(uri) \
-    .select('proj_raster.tile') \
-    .show(1, truncate=False)
-
+lazy = spark.read.raster(uri).select('proj_raster.tile')
+lazy
 ```
 
-```python, lazy_demo_2, results='raw'
-spark.read.raster(uri, lazy_tiles=False) \
-    .select('proj_raster.tile') \
-    .show(1, truncate=False)
+```python, lazy_demo_2
+non_lazy = spark.read.raster(uri, lazy_tiles=False).select('proj_raster.tile')
+non_lazy
 ```
 
 In the initial examples on this page, you may have noticed that the realized (non-lazy) _tiles_ are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized _tile_ from the lazy representation.

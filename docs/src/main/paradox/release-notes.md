@@ -4,6 +4,7 @@
 
 ### 0.8.1
 
+* Added `toMarkdown()` and `toHTML()` extension methods for `DataFrame`, and registered them with the IPython formatter system when `rf_ipython` is imported.  
 * Fixed: Removed false return type garauntee in cases where an `Expression` accepts either `Tile` or `ProjectedRasterTile` [(#295)](https://github.com/locationtech/rasterframes/issues/295)
 
 ### 0.8.0

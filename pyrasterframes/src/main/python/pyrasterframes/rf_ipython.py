@@ -22,7 +22,7 @@ import pyrasterframes.rf_types
 import numpy as np
 
 
-def plot_tile(tile, normalize, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
+def plot_tile(tile, normalize=True, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
     """
     Display an image of the tile
 
@@ -153,9 +153,15 @@ def pandas_df_to_html(df):
     return return_html
 
 
-def spark_df_to_markdown(df, num_rows=5, truncate=False, vertical=False):
+def spark_df_to_markdown(df, num_rows=5, truncate=False):
     from pyrasterframes import RFContext
     return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
+
+
+def spark_df_to_html(df, num_rows=5, truncate=False):
+    from pyrasterframes import RFContext
+    return RFContext.active().call("_dfToHTML", df._jdf, num_rows, truncate)
+
 
 try:
     from IPython import get_ipython
@@ -167,20 +173,26 @@ try:
         from pyrasterframes.rf_types import Tile
         ip = get_ipython()
 
+        # Register custom formatters
         html_formatter = ip.display_formatter.formatters['text/html']
         html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
+        html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_html)
 
         markdown_formatter = ip.display_formatter.formatters['text/markdown']
-        html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
+        markdown_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
 
-        Tile.show = lambda tile, normalize=False, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args: \
-            plot_tile(tile, normalize, lower_percentile, upper_percentile, axis, **imshow_args)
-        Tile.show.__doc__ = plot_tile.__doc__
+        png_formatter = ip.display_formatter.formatters['image/png']
+        png_formatter.for_type(Tile, tile_to_png)
 
-        # See if we're in documentation mode and register a custom show implementation.
-        if 'InProcessInteractiveShell' in ip.__class__.__name__:
-            pyspark.sql.DataFrame._repr_markdown_ = spark_df_to_markdown
-            pyspark.sql.DataFrame.show = lambda df, num_rows=5, truncate=True: display_markdown(spark_df_to_markdown(df, num_rows, truncate), raw=True)
+        # These are done for those few cases where we need to set the number of rows and/or truncate option
+        # Can be removed if we can figure out a way to pass settings through `display`
+        pyspark.sql.DataFrame.showMarkdown = spark_df_to_markdown
+        pyspark.sql.DataFrame.showHTML = spark_df_to_html
+        Tile.show = plot_tile
+
+        # This is a trick we may have to introduce above.
+        # from IPython.display import display_html
+        # display_html(rf.showHTML(truncate=True), raw=True)
 
 except ImportError as e:
     pass

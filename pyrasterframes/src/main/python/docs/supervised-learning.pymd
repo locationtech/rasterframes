@@ -114,7 +114,7 @@ df_mask.printSchema()
 
 ## Create ML Pipeline
 
-We import various Spark components that we need to construct our [Pipeline](https://spark.apache.org/docs/latest/ml-pipeline.html). These are the objects that will work in sequence to conduct the data preparation and modeling.
+We import various Spark components that we need to construct our [`Pipeline`](https://spark.apache.org/docs/latest/ml-pipeline.html). These are the objects that will work in sequence to conduct the data preparation and modeling.
 
 ```python, imports, echo=True
 from pyrasterframes import TileExploder
@@ -166,7 +166,7 @@ model = pipeline.fit(df_mask.filter(rf_tile_sum('label') > 0).cache())
 
 To view the model's performance, we first call the pipeline's `transform` method on the training dataset. This transformed dataset will have the model's prediction included in each row. We next construct an evaluator and pass it the transformed dataset to easily compute the performance metric. We can also create custom metrics using a variety of DataFrame or SQL transformations.
 
-```python eval
+```python, eval
 prediction_df = model.transform(df_mask) \
                        .drop(assembler.getOutputCol()).cache()
 prediction_df.printSchema()
@@ -181,11 +181,12 @@ print("\nAccuracy:", accuracy)
 
 As an example of using the flexibility provided by DataFrames, the code below computes and displays the confusion matrix. 
 
-```python, confusion_mtrx, results='raw'
-prediction_df.groupBy(classifier.getPredictionCol()) \
+```python, confusion_mtrx
+cnf_mtrx = prediction_df.groupBy(classifier.getPredictionCol()) \
     .pivot(classifier.getLabelCol()) \
     .count() \
-	.sort(classifier.getPredictionCol()).show(truncate=False)
+	.sort(classifier.getPredictionCol())
+cnf_mtrx	
 ```
 
 ## Visualize Prediction
