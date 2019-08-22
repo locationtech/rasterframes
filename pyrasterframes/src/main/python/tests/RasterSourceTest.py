@@ -28,6 +28,7 @@ from . import TestEnvironment
 
 class RasterSourceTest(TestEnvironment):
 
+
     @staticmethod
     def path(scene, band):
         scene_dict = {
@@ -135,7 +136,7 @@ class RasterSourceTest(TestEnvironment):
         self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}
         self.assertTrue(path_df.select('b1_path').distinct().count() == 3)  # as per scene_dict
         b1_paths_maybe = path_df.select('b1_path').distinct().collect()
-        b1_paths = [s.format('1') for s in scene_dict.values()]
+        b1_paths = [self.path(s, 1) for s in [1, 2, 3]]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
     def test_pandas_source(self):
