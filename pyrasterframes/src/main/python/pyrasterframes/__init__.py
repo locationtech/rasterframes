@@ -162,6 +162,16 @@ def _raster_reader(
             path = None
             catalog = None
             options.update(dict(paths='\n'.join([str(i) for i in source])))  # pass in "uri1\nuri2\nuri3\n..."
+        if all([isinstance(i, list) for i in source]):
+            # list of lists; we will rely on pandas to
+            #   - coerce all data to str (possibly using objects' __str__ or __repr__\
+            #   - ensure data is not "ragged": all sublists are same len
+            path = None
+            catalog_col_names = ['proj_raster_{}'.format(i) for i in range(len(source[0]))]
+            catalog = PdDataFrame(source,
+                                  columns=catalog_col_names,
+                                  dtype=str,
+                                  )
     elif isinstance(source, str):
         if '\n' in source or '\r' in source:
             # then the `source` string is a catalog as a CSV (header is required)
@@ -172,12 +182,13 @@ def _raster_reader(
             path = source
             catalog = None
     else:
-        # user has passed in some other type, we will interpret as a catalog
+        # user has passed in some other type, we will try to interpret as a catalog
         catalog = source
 
     if catalog is not None:
         if catalog_col_names is None:
             raise Exception("'catalog_col_names' required when DataFrame 'catalog' specified")
+
         if isinstance(catalog, str):
             options.update({
                 "catalogCSV": catalog,
