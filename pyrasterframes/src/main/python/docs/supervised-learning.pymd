@@ -72,17 +72,18 @@ crses = df.select('crs.crsProj4').distinct().collect()
 print('Found ', len(crses), 'distinct CRS.')
 crs = crses[0][0]
 
-label_df = spark.read.geojson(os.path.join(resource_dir_uri(), 'luray-labels.geojson')) \
-					 .select('id', st_reproject('geometry', lit('EPSG:4326'), lit(crs)).alias('geometry')) \
-					 .hint('broadcast')
+label_df = spark.read.geojson(
+    os.path.join(resource_dir_uri(), 'luray-labels.geojson')) \
+    .select('id', st_reproject('geometry', lit('EPSG:4326'), lit(crs)).alias('geometry')) \
+    .hint('broadcast')
 
-df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry'))
+df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry')) \
+    .withColumn('dims', rf_dimensions('B01'))
 
-df_joined.createOrReplaceTempView('df_joined')
-df_labeled = spark.sql("""
-SELECT *, rf_rasterize(geometry, st_geometry(extent), id, rf_dimensions(B01).cols, rf_dimensions(B01).rows) AS label
-FROM df_joined
-""")
+df_labeled = df_joined.withColumn('label', 
+   rf_rasterize('geometry', st_geometry('extent'), 'id', 'dims.cols', 'dims.rows')
+)
+
 ```
 
 ## Masking Poor Quality Cells
@@ -92,17 +93,20 @@ To filter only for good quality pixels, we follow roughly the same procedure as 
 ```python, make_mask
 from pyspark.sql.functions import lit
 
-mask_part = df_labeled.withColumn('nodata', rf_local_equal('scl', lit(0))) \
-              .withColumn('defect', rf_local_equal('scl', lit(1))) \
-              .withColumn('cloud8', rf_local_equal('scl', lit(8))) \
-              .withColumn('cloud9', rf_local_equal('scl', lit(9))) \
-              .withColumn('cirrus', rf_local_equal('scl', lit(10)))
+mask_part = df_labeled \
+    .withColumn('nodata', rf_local_equal('scl', lit(0))) \
+    .withColumn('defect', rf_local_equal('scl', lit(1))) \
+    .withColumn('cloud8', rf_local_equal('scl', lit(8))) \
+    .withColumn('cloud9', rf_local_equal('scl', lit(9))) \
+    .withColumn('cirrus', rf_local_equal('scl', lit(10)))
 
-df_mask_inv = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
-                   .withColumn('mask', rf_local_add('mask', 'cloud8')) \
-                   .withColumn('mask', rf_local_add('mask', 'cloud9')) \
-                   .withColumn('mask', rf_local_add('mask', 'cirrus')) \
-                   .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus')
+df_mask_inv = mask_part \
+    .withColumn('mask', rf_local_add('nodata', 'defect')) \
+    .withColumn('mask', rf_local_add('mask', 'cloud8')) \
+    .withColumn('mask', rf_local_add('mask', 'cloud9')) \
+    .withColumn('mask', rf_local_add('mask', 'cirrus')) \
+    .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus')
+    
 # at this point the mask contains 0 for good cells and 1 for defect, etc
 # convert cell type and set value 1 to NoData
 df_mask = df_mask_inv.withColumn('mask',
@@ -159,7 +163,9 @@ pipeline.getStages()
 The next step is to actually run each step of the Pipeline we created, including fitting the decision tree model. We filter the DataFrame for only _tiles_ intersecting the label raster because the label shapes are relatively sparse over the imagery. It would be logically equivalent to either include or exclude thi step, but it is more efficient to filter because it will mean less data going into the pipeline.
 
 ```python, train
-model = pipeline.fit(df_mask.filter(rf_tile_sum('label') > 0).cache())
+model_input = df_mask.filter(rf_tile_sum('label') > 0).cache()
+display(model_input)
+model = pipeline.fit(model_input)
 ```
 
 ## Model Evaluation
@@ -171,9 +177,11 @@ prediction_df = model.transform(df_mask) \
                        .drop(assembler.getOutputCol()).cache()
 prediction_df.printSchema()
 
-eval = MulticlassClassificationEvaluator(predictionCol=classifier.getPredictionCol(),
-										 labelCol=classifier.getLabelCol(),
-										 metricName='accuracy')
+eval = MulticlassClassificationEvaluator(
+    predictionCol=classifier.getPredictionCol(),
+    labelCol=classifier.getLabelCol(),
+    metricName='accuracy'
+)
 
 accuracy = eval.evaluate(prediction_df)
 print("\nAccuracy:", accuracy)
@@ -185,7 +193,7 @@ As an example of using the flexibility provided by DataFrames, the code below co
 cnf_mtrx = prediction_df.groupBy(classifier.getPredictionCol()) \
     .pivot(classifier.getLabelCol()) \
     .count() \
-	.sort(classifier.getPredictionCol())
+    .sort(classifier.getPredictionCol())
 cnf_mtrx	
 ```
 
@@ -195,40 +203,33 @@ Because the pipeline included a `TileExploder`, we will recreate the tiled data 
 
 ```python, assemble_prediction
 scored = model.transform(df_mask.drop('label'))
-scored.createOrReplaceTempView('scored')
 
-retiled = spark.sql("""
-SELECT extent, crs,
-    rf_assemble_tile(column_index, row_index, prediction, 128, 128) as prediction,
-    rf_assemble_tile(column_index, row_index, B04, 128, 128) as red,
-    rf_assemble_tile(column_index, row_index, B03, 128, 128) as grn,
-    rf_assemble_tile(column_index, row_index, B02, 128, 128) as blu
-FROM scored
-GROUP BY extent, crs
-""")
-
+retiled = scored \
+    .groupBy('extent', 'crs') \
+    .agg(
+        rf_assemble_tile('column_index', 'row_index', 'prediction', 128, 128).alias('prediction'),
+        rf_assemble_tile('column_index', 'row_index', 'B04', 128, 128).alias('red'),
+        rf_assemble_tile('column_index', 'row_index', 'B03', 128, 128).alias('grn'),
+        rf_assemble_tile('column_index', 'row_index', 'B02', 128, 128).alias('blu')
+    )
 retiled.printSchema()
 ```
 
 Take a look at a sample of the resulting output and the corresponding area's red-green-blue composite image.
 
 ```python, display_rgb
-sample = retiled.select('prediction', 'red', 'grn', 'blu') \
+sample = retiled \
+    .select('prediction', rf_rgb_composite('red', 'grn', 'blu').alias('rgb')) \
     .sort(-rf_tile_sum(rf_local_equal('prediction', lit(3.0)))) \
     .first()
 
-sample_prediction = sample['prediction']
-
-red = sample['red'].cells
-grn = sample['grn'].cells
-blu = sample['blu'].cells
-sample_rgb = np.concatenate([red[ :, :, None], grn[:, :, None] , blu[ :, :, None]], axis=2)
-mins = np.nanmin(sample_rgb, axis=(0,1))
-plt.imshow((sample_rgb -  mins)/ (np.nanmax(sample_rgb, axis=(0,1)) - mins))
+sample_rgb = sample['rgb']
+mins = np.nanmin(sample_rgb.cells, axis=(0,1))
+plt.imshow((sample_rgb.cells -  mins) / (np.nanmax(sample_rgb.cells, axis=(0,1)) - mins))
 ```
 
 Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow).
 
 ```python, display_prediction
-display(sample_prediction)
+display(sample['prediction'])
 ```

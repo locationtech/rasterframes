@@ -53,13 +53,27 @@ def rf_cell_types():
     return [CellType(str(ct)) for ct in _context_call('rf_cell_types')]
 
 
-def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type):
+def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type=None):
     """Create a Tile from  a column of cell data with location indices"""
     jfcn = RFContext.active().lookup('rf_assemble_tile')
-    return Column(
-        jfcn(_to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col), num_cols, num_rows,
-             _parse_cell_type(cell_type)))
 
+    if isinstance(num_cols, Column):
+        num_cols = _to_java_column(num_cols)
+
+    if isinstance(num_rows, Column):
+        num_rows = _to_java_column(num_rows)
+
+    if cell_type is None:
+        return Column(jfcn(
+            _to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col),
+            num_cols, num_rows
+        ))
+
+    else:
+        return Column(jfcn(
+            _to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col),
+            num_cols, num_rows, _parse_cell_type(cell_type)
+        ))
 
 def rf_array_to_tile(array_col, num_cols, num_rows):
     """Convert array in `array_col` into a Tile of dimensions `num_cols` and `num_rows'"""
