@@ -117,7 +117,7 @@ def _raster_reader(
         lazy_tiles=True,
         **options):
     """
-    Returns a Spark DataFrame from a raster data files specified by URI pointers
+    Returns a Spark DataFrame from raster data files specified by URI pointers
     The returned DataFrame will have a column of (CRS, Extent, Tile) for each URI read
     Multiple bands from the same raster file are spread across rows of the DataFrame. See band_indexes param.
     If bands from a scene are stored in separate files, provide a DataFrame to the `source` parameter. Each row in the returned DataFrame will contain one (CRS, Extent, Tile) for each item in `catalog_col_names`
@@ -130,7 +130,6 @@ def _raster_reader(
     :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows)
     :param lazy_tiles: If true (default) only generate minimal references to tile contents; if false, fetch tile cell values
     :param options: Additional keyword arguments to pass to the spark DataSource
-    :return:
     """
 
     from pandas import DataFrame as PdDataFrame
