@@ -36,12 +36,6 @@ import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.expressions.row
 
-/**
- * Change the CellType of a Tile
- *
- * @since 9/11/18
- */
-
 @ExpressionDescription(
   usage = "_FUNC_(tile, value) - Change the interpretation of the Tile's cell values according to specified CellType",
   arguments = """
