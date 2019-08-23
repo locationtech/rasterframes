@@ -101,9 +101,12 @@ object RasterSource extends LazyLogging {
     ExpressionEncoder()
   }
 
+  def apply(source: String): RasterSource = apply(new URI(source))
+
   def apply(source: URI): RasterSource =
-    rsCache.get(
-      source.toASCIIString, _ => source match {
+//    rsCache.get(
+//      source.toASCIIString, _ =>
+    source match {
         case IsGDAL()          => GDALRasterSource(source)
         case IsHadoopGeoTiff() =>
           // TODO: How can we get the active hadoop configuration
@@ -113,7 +116,7 @@ object RasterSource extends LazyLogging {
         case IsDefaultGeoTiff() => JVMGeoTiffRasterSource(source)
         case s                  => throw new UnsupportedOperationException(s"Reading '$s' not supported")
       }
-    )
+//    )
 
   object IsGDAL {
 
@@ -121,6 +124,8 @@ object RasterSource extends LazyLogging {
     private val preferGdal: Boolean = org.locationtech.rasterframes.rfConfig.getBoolean("prefer-gdal")
 
     val gdalOnlyExtensions = Seq(".jp2", ".mrf", ".hdf", ".vrt")
+
+    val blacklistedSchemes = Seq("s3a", "s3n", "wasbs")
 
     def gdalOnly(source: URI): Boolean =
       if (gdalOnlyExtensions.exists(source.getPath.toLowerCase.endsWith)) {
@@ -130,10 +135,20 @@ object RasterSource extends LazyLogging {
 
     /** Extractor for determining if a scheme indicates GDAL preference.  */
     def unapply(source: URI): Boolean = {
-      lazy val schemeIsGdal = Option(source.getScheme())
-        .exists(_.startsWith("gdal"))
 
-      gdalOnly(source) || ((preferGdal || schemeIsGdal) && GDALRasterSource.hasGDAL)
+      lazy val schemeIsNotHadoop = Option(source.getScheme())
+        .filter(blacklistedSchemes.contains)
+        .isEmpty
+
+      lazy val schemeIsGdal = Option(source.getScheme())
+        .exists(_ == "gdal") && schemeIsNotHadoop
+
+      (gdalOnly(source) && schemeIsNotHadoop) ||
+        (GDALRasterSource.hasGDAL &&
+          (preferGdal && schemeIsGdal) ||
+          (preferGdal && schemeIsNotHadoop)
+        )
+
     }
   }
 
