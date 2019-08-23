@@ -21,11 +21,15 @@
 
 package org.locationtech.rasterframes
 
+import java.io.ByteArrayInputStream
+
 import geotrellis.proj4.LatLng
 import geotrellis.raster
-import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster._
+import geotrellis.raster.render.ColorRamps
+import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.vector.Extent
+import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
@@ -892,5 +896,56 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     assertEqual(df3.selectExpr("rf_resample(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
 
     checkDocs("rf_resample")
+  }
+
+  it("should create RGB composite") {
+    val red = TestData.l8Sample(4).toProjectedRasterTile
+    val green = TestData.l8Sample(3).toProjectedRasterTile
+    val blue = TestData.l8Sample(2).toProjectedRasterTile
+
+    val expected = ArrayMultibandTile(
+      red.rescale(0, 255),
+      green.rescale(0, 255),
+      blue.rescale(0, 255)
+    ).color()
+
+    val df = Seq((red, green, blue)).toDF("red", "green", "blue")
+
+    val expr = df.select(rf_rgb_composite($"red", $"green", $"blue")).as[ProjectedRasterTile]
+
+    val nat_color = expr.first()
+
+    checkDocs("rf_rgb_composite")
+    assertEqual(nat_color.toArrayTile(), expected)
+  }
+
+  it("should create an RGB PNG image") {
+    val red = TestData.l8Sample(4).toProjectedRasterTile
+    val green = TestData.l8Sample(3).toProjectedRasterTile
+    val blue = TestData.l8Sample(2).toProjectedRasterTile
+
+    val df = Seq((red, green, blue)).toDF("red", "green", "blue")
+
+    val expr = df.select(rf_render_png($"red", $"green", $"blue"))
+
+    val pngData = expr.first()
+
+    val image = ImageIO.read(new ByteArrayInputStream(pngData))
+    image.getWidth should be(red.cols)
+    image.getHeight should be(red.rows)
+  }
+
+  it("should create a color-ramp PNG image") {
+    val red = TestData.l8Sample(4).toProjectedRasterTile
+
+    val df = Seq(red).toDF("red")
+
+    val expr = df.select(rf_render_png($"red", ColorRamps.HeatmapBlueToYellowToRedSpectrum))
+
+    val pngData = expr.first()
+
+    val image = ImageIO.read(new ByteArrayInputStream(pngData))
+    image.getWidth should be(red.cols)
+    image.getHeight should be(red.rows)
   }
 }

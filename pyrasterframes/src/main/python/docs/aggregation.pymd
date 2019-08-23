@@ -20,11 +20,10 @@ We can illustrate aggregate differences by computing an aggregate mean. First, w
 ```python, sql_dataframe
 import pyspark.sql.functions as F
 
-rf = spark.sql("""
-SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as tile
-UNION
-SELECT 2 as id, rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), 3) as tile
-""")
+df1 = spark.range(1).select('id', rf_make_ones_tile(5, 5, 'float32').alias('tile'))
+df2 = spark.range(1).select('id', rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), F.lit(3)).alias('tile'))
+
+rf = df1.union(df2)
 
 tiles = rf.select("tile").collect()
 print(tiles[0]['tile'].cells)
@@ -93,14 +92,13 @@ stats
 The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks has unequal _tile_ dimensions, so a different DataFrame is used in this code block to avoid a runtime error.
 
 ```python, agg_local_stats
-rf = spark.sql("""
-SELECT 1 as id, rf_make_ones_tile(5, 5, 'float32') as tile
-UNION
-SELECT 2 as id, rf_make_constant_tile(3, 5, 5, 'float32') as tile
-UNION
-SELECT 3 as id, rf_make_constant_tile(5, 5, 5, 'float32') as tile
-""").agg(rf_agg_local_stats('tile').alias('stats'))
+df1 = spark.range(1).select('id', rf_make_ones_tile(5, 5, 'float32').alias('tile'))
+df2 = spark.range(1).select('id', rf_make_constant_tile(3, 5, 5, 'float32').alias('tile')) 
+df3 = spark.range(1).select('id', rf_make_constant_tile(5, 5, 5, 'float32').alias('tile')) 
 
+rf = df1.union(df2).union(df3) \
+    .agg(rf_agg_local_stats('tile').alias('stats'))
+    
 agg_local_stats = rf.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').collect()
 
 for r in agg_local_stats:

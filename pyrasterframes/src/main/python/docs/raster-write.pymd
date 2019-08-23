@@ -35,26 +35,21 @@ display(tile) # IPython.display function
 
 ## DataFrame Samples
 
-Within an IPython or Jupyter interpreter, a Pandas DataFrame containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of a Pandas DataFrame.
+Within an IPython or Jupyter interpreter, a Spark and Pandas DataFrames containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of these DataFrame types.
 
-In the example below, notice the result is limited to a small subset. For more information about why this is important, see the @ref:[Pandas and NumPy discussion](numpy-pandas.md).
-
-```python to_pandas, evaluate=True
+```python to_samples, evaluate=True
 import pyrasterframes.rf_ipython
 
-pandas_df = spark_df.select(
-                    rf_extent('proj_raster').alias('extent'),
-                    rf_tile('proj_raster').alias('tile'),
-                ).limit(5).toPandas()
+samples = spark_df \
+    .select(
+        rf_extent('proj_raster').alias('extent'),
+        rf_tile('proj_raster').alias('tile'),
+    )\
+    .select('extent.*', 'tile') \
+    .limit(3)
+samples
 ```
 
-Viewing the DataFrame in Jupyter looks like this.
-
-```python show_pandas, evaluate=False
-pandas_df
-```
-
-@@include[df-samples-output.md](static/df-samples-output.md)
 
 ## GeoTIFFs
 
