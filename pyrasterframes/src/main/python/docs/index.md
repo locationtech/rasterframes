@@ -8,21 +8,9 @@ To learn more, please see the @ref:[Getting Started](getting-started.md) section
 
 The source code can be found on GitHub at [locationtech/rasterframes](https://github.com/locationtech/rasterframes).
 
-<img src="RasterFramePipeline.png" width="600px"/>
-
 RasterFrames is released under the [Apache 2.0 License](https://github.com/locationtech/rasterframes/blob/develop/LICENSE).
 
 <hr/>
-
-@@@ div { .md-left}
-
-## Detailed Contents
-
-@@ toc { depth=3 }
-
-@@@
-
-@@@ div { .md-right }
 
 ## Related Links
 
@@ -31,13 +19,9 @@ RasterFrames is released under the [Apache 2.0 License](https://github.com/locat
 * [GitHub Repository](https://github.com/locationtech/rasterframes)
 * [Astraea, Inc.](http://www.astraea.earth/), the company behind RasterFrames
 
-@@@
+## Detailed Contents
 
-@@@ div { .md-clear }
-
-&nbsp;
-
-@@@
+@@ toc { depth=4 }
 
 @@@ index
 * [Overview](description.md)

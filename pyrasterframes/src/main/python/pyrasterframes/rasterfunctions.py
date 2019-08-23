@@ -53,13 +53,27 @@ def rf_cell_types():
     return [CellType(str(ct)) for ct in _context_call('rf_cell_types')]
 
 
-def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type):
+def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type=None):
     """Create a Tile from  a column of cell data with location indices"""
     jfcn = RFContext.active().lookup('rf_assemble_tile')
-    return Column(
-        jfcn(_to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col), num_cols, num_rows,
-             _parse_cell_type(cell_type)))
 
+    if isinstance(num_cols, Column):
+        num_cols = _to_java_column(num_cols)
+
+    if isinstance(num_rows, Column):
+        num_rows = _to_java_column(num_rows)
+
+    if cell_type is None:
+        return Column(jfcn(
+            _to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col),
+            num_cols, num_rows
+        ))
+
+    else:
+        return Column(jfcn(
+            _to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col),
+            num_cols, num_rows, _parse_cell_type(cell_type)
+        ))
 
 def rf_array_to_tile(array_col, num_cols, num_rows):
     """Convert array in `array_col` into a Tile of dimensions `num_cols` and `num_rows'"""
@@ -358,6 +372,16 @@ def rf_render_ascii(tile_col):
 def rf_render_matrix(tile_col):
     """Render Tile cell values as numeric values, for debugging purposes"""
     return _apply_column_function('rf_render_matrix', tile_col)
+
+
+def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
+    """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
+    return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
+
+
+def rf_rgb_composite(red_tile_col, green_tile_col, blue_tile_col):
+    """Converts columns of tiles representing RGB channels into a single RGB packaged tile."""
+    return _apply_column_function('rf_rgb_composite', red_tile_col, green_tile_col, blue_tile_col)
 
 
 def rf_no_data_cells(tile_col):

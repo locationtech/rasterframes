@@ -19,8 +19,6 @@
 #
 
 import os
-from pyspark.sql import DataFrame
-from pyrasterframes import RFContext
 from pweave import PwebPandocFormatter
 
 

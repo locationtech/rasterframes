@@ -73,6 +73,10 @@ class TestEnvironment(unittest.TestCase):
 
         cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 
+    @classmethod
+    def l8band_uri(cls, band_index):
+        return 'file://' + os.path.join(cls.resource_dir, 'L8-B{}-Elkton-VA.tiff'.format(band_index))
+
     def create_layer(self):
         from pyrasterframes.rasterfunctions import rf_convert_cell_type
         # load something into a rasterframe

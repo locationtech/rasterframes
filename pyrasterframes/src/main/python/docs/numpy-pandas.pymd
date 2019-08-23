@@ -32,7 +32,7 @@ t.cells.shape, t.cells.nbytes
 
 As discussed in the @ref:[raster writing chapter](raster-write.md#dataframe-samples), a pretty display of Pandas DataFrame containing _tiles_ is available by importing the `rf_ipython` submodule. In addition, as discussed in the @ref:[vector data chapter](vector-data.md), any geometry type in the Spark DataFrame will be converted into a Shapely geometry. Taken together, we can easily get the spatial information and raster data as a NumPy array, all within a Pandas DataFrame.
 
-```python spark_session,  echo=False
+```python, spark_session,  echo=False
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 from IPython.display import display
@@ -40,7 +40,7 @@ spark = pyrasterframes.get_spark_session()
 
 ```
 
-```python toPandas
+```python, toPandas
 import pyrasterframes.rf_ipython
 from pyspark.sql.functions import lit, col
 

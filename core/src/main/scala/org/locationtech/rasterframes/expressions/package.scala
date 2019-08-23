@@ -131,6 +131,9 @@ package object expressions {
 
     registry.registerExpression[DebugRender.RenderAscii]("rf_render_ascii")
     registry.registerExpression[DebugRender.RenderMatrix]("rf_render_matrix")
+    registry.registerExpression[RenderPNG.RenderCompositePNG]("rf_render_png")
+    registry.registerExpression[RGBComposite]("rf_rgb_composite")
+
     registry.registerExpression[transformers.ReprojectGeometry]("st_reproject")
   }
 }
