@@ -75,7 +75,7 @@ class PweaveDocs(distutils.cmd.Command):
             self.files = filter(lambda s: len(s) > 0, re.split(',', self.files))
             # `html` doesn't do quite what one expects... only replaces code blocks, leaving markdown in place
             print("format.....", self.format)
-            if self.format == 'html':
+            if self.format.strip() == 'html':
                 self.format = 'pandoc2html'
         if isinstance(self.quick, str):
             self.quick = self.quick == 'True' or self.quick == 'true'
@@ -104,7 +104,7 @@ class PweaveDocs(distutils.cmd.Command):
             if (not self.quick) or (not path.exists(dest)) or (path.getmtime(dest) < path.getmtime(file)):
                 print(_divided('Running %s' % name))
                 try:
-                    pweave.weave(file=str(file), doctype=self.format, cache=True)
+                    pweave.weave(file=str(file), doctype=self.format)
                     if self.format == 'markdown':
                         if not path.exists(dest):
                             raise FileNotFoundError("Markdown file '%s' didn't get created as expected" % dest)
@@ -167,6 +167,7 @@ setup(
         'Pweave==0.30.3',
         'fiona==1.8.6',
         'rasterio>=1.0.0',  # for docs
+        'folium',
     ],
     tests_require=[
         'pytest==3.4.2',

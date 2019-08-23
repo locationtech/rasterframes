@@ -26,7 +26,9 @@ import geotrellis.raster.{ByteCellType, GridBounds, TileLayout}
 import geotrellis.spark.tiling.{CRSWorldExtent, LayoutDefinition}
 import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql.Encoders
-import org.locationtech.rasterframes.util.SubdivideSupport
+import org.locationtech.rasterframes.util._
+
+import scala.xml.parsing.XhtmlParser
 
 /**
  * Tests miscellaneous extension methods.
@@ -111,8 +113,28 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
     }
 
     it("should render Markdown") {
-      import org.locationtech.rasterframes.util._
-      rf.toMarkdown().count(_ == '|') shouldBe >=(3 * 5)
+      import org.apache.spark.sql.functions.lit
+
+      val md = rf.toMarkdown()
+      md.count(_ == '|') shouldBe >=(3 * 5)
+      md.count(_ == '\n') should be >= 6
+
+      val md2 = rf.withColumn("long_string", lit("p" * 42)).toMarkdown(truncate=true, renderTiles = false)
+      md2 should include ("...")
+
+      val md3 = rf.toMarkdown(truncate=true, renderTiles = false)
+      md3 shouldNot include("<img")
+    }
+
+    it("should render HTML") {
+      val html = rf.toHTML(renderTiles = false)
+      noException shouldBe thrownBy {
+        XhtmlParser(scala.io.Source.fromString(html))
+      }
+      val html2 = rf.toHTML(renderTiles = true)
+      noException shouldBe thrownBy {
+        XhtmlParser(scala.io.Source.fromString(html2))
+      }
     }
   }
 }

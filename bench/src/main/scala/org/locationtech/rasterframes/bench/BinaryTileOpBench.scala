@@ -58,7 +58,7 @@ class BinaryTileOpBench extends SparkEnv {
 
   @Benchmark
   def viaExpression(): Array[Tile] = {
-    tiles.select(Add($"left", $"right")).collect()
+    tiles.select(Add($"left", $"right").as[Tile]).collect()
   }
 
   @Benchmark

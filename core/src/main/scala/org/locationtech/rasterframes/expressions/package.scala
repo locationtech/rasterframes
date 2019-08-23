@@ -68,6 +68,8 @@ package object expressions {
     registry.registerExpression[ExplodeTiles]("rf_explode_tiles")
     registry.registerExpression[GetCellType]("rf_cell_type")
     registry.registerExpression[SetCellType]("rf_convert_cell_type")
+    registry.registerExpression[InterpretAs]("rf_interpret_cell_type_as")
+    registry.registerExpression[SetNoDataValue]("rf_with_no_data")
     registry.registerExpression[GetDimensions]("rf_dimensions")
     registry.registerExpression[ExtentToGeometry]("st_geometry")
     registry.registerExpression[GetGeometry]("rf_geometry")
@@ -85,6 +87,8 @@ package object expressions {
     registry.registerExpression[GreaterEqual]("rf_local_greater_equal")
     registry.registerExpression[Equal]("rf_local_equal")
     registry.registerExpression[Unequal]("rf_local_unequal")
+    registry.registerExpression[Undefined]("rf_local_no_data")
+    registry.registerExpression[Defined]("rf_local_data")
     registry.registerExpression[Sum]("rf_tile_sum")
     registry.registerExpression[Round]("rf_round")
     registry.registerExpression[Abs]("rf_abs")
@@ -127,6 +131,9 @@ package object expressions {
 
     registry.registerExpression[DebugRender.RenderAscii]("rf_render_ascii")
     registry.registerExpression[DebugRender.RenderMatrix]("rf_render_matrix")
+    registry.registerExpression[RenderPNG.RenderCompositePNG]("rf_render_png")
+    registry.registerExpression[RGBComposite]("rf_rgb_composite")
+
     registry.registerExpression[transformers.ReprojectGeometry]("st_reproject")
   }
 }

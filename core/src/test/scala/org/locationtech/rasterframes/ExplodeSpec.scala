@@ -44,6 +44,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
           |""".stripMargin)
       write(query)
       assert(query.select("cell_0", "cell_1").as[(Double, Double)].collect().forall(_ == ((1.0, 2.0))))
+      query.select("cell_0", "cell_1").count() should be (100L)
       val query2 = sql(
         """|select rf_dimensions(tiles) as dims, rf_explode_tiles(tiles) from (
            |select rf_make_constant_tile(1, 10, 10, 'int8raw') as tiles)
@@ -64,6 +65,20 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val exploded = df.select(rf_explode_tiles_sample(0.5, $"tile1", $"tile2"))
       assert(exploded.columns.length === 4)
       assert(exploded.count() < 9)
+    }
+
+    ignore("should explode tiles with random sampling in SQL API") {
+      // was pretty much a WONT FIX from issue 97
+      val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
+      val exploded = df.selectExpr("rf_explode_tiles_sample(0.5, tile1, tile2)")
+      logger.info("rf_explode_tiles schema with double frac arg \n" + exploded.schema.treeString)
+      assert(exploded.columns.length === 4)
+      assert(exploded.count() < 9)
+
+      val explodedSeed = df.selectExpr("rf_explode_tiles_sample(0.5, 784505, tile1, tile2)")
+      assert(explodedSeed.columns.length === 4)
+      logger.info(s"Count with seed 784505: ${explodedSeed.count().toString}")
+      assert(explodedSeed.count() < 9)
     }
 
     it("should handle null tiles") {
@@ -93,43 +108,6 @@ class ExplodeSpec extends TestEnvironment with TestData {
         .select($"tile".as[Double])
         .collect()
       cells.count(_.isNaN) should be(tiles.size)
-    }
-
-    it("should convert tile into array") {
-      val query = sql(
-        """select rf_tile_to_array_int(
-          |  rf_make_constant_tile(1, 10, 10, 'int8raw')
-          |) as intArray
-          |""".stripMargin)
-      query.as[Array[Int]].first.sum should be (100)
-
-      val tile = FloatConstantTile(1.1f, 10, 10, FloatCellType)
-      val df = Seq[Tile](tile).toDF("tile")
-      val arrayDF = df.select(rf_tile_to_array_double($"tile").as[Array[Double]])
-      arrayDF.first().sum should be (110.0 +- 0.0001)
-    }
-
-    it("should convert an array into a tile") {
-      val tile = TestData.randomTile(10, 10, FloatCellType)
-      val df = Seq[Tile](tile, null).toDF("tile")
-      val arrayDF = df.withColumn("tileArray", rf_tile_to_array_double($"tile"))
-
-      val back = arrayDF.withColumn("backToTile", rf_array_to_tile($"tileArray", 10, 10))
-
-      val result = back.select($"backToTile".as[Tile]).first
-
-      assert(result.toArrayDouble() === tile.toArrayDouble())
-
-      // Same round trip, but with SQL expression for rf_array_to_tile
-      val resultSql = arrayDF.selectExpr("rf_array_to_tile(tileArray, 10, 10) as backToTile").as[Tile].first
-
-      assert(resultSql.toArrayDouble() === tile.toArrayDouble())
-
-      val hasNoData = back.withColumn("withNoData", rf_with_no_data($"backToTile", 0))
-
-      val result2 = hasNoData.select($"withNoData".as[Tile]).first
-
-      assert(result2.cellType.asInstanceOf[UserDefinedNoData[_]].noDataValue === 0)
     }
 
     it("should reassemble single exploded tile") {

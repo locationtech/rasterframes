@@ -2,7 +2,7 @@
 
 ## What is NoData?
 
-In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. However, a great deal of raster data is stored for space efficiency, which typically leads to use of integral values with a ["sentinel" value](https://en.wikipedia.org/wiki/Sentinel_value) designated to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
+In raster operations, the preservation and correct processing of missing observations is very important. In [most DataFrames and in scientific computing](https://www.oreilly.com/learning/handling-missing-data), the idea of missing data is expressed as a `null` or `NaN` value. However, a great deal of raster data is stored for space efficiency, which typically leads to use of integral values with a ["sentinel" value](https://en.wikipedia.org/wiki/Sentinel_value) designated to represent missing observations. This sentinel value varies across data products and is usually called the "NoData" value.
 
 RasterFrames provides a variety of functions to inspect and manage NoData within _tiles_.
 
@@ -38,9 +38,10 @@ CellType.float64()
 
 We can also inspect the cell type of a given _tile_ or `proj_raster` column.
 
-```python, ct_from_sen, results='raw'
-spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif') \
-    .select(rf_cell_type('proj_raster')).distinct().show()
+```python, ct_from_sen
+cell_types = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif') \
+    .select(rf_cell_type('proj_raster')).distinct()
+cell_types    
 ```
 
 ### Understanding Cell Types and NoData
@@ -93,13 +94,14 @@ unmasked = spark.read.raster(catalog=cat, catalog_col_names=['blue', 'scl'])
 unmasked.printSchema()
 ```
 
-```python, show_cell_types, results='raw'
-unmasked.select(rf_cell_type('blue'), rf_cell_type('scl')).distinct().show()
+```python, show_cell_types
+cell_types = unmasked.select(rf_cell_type('blue'), rf_cell_type('scl')).distinct()
+cell_types
 ```
 
 Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create new _tile_ columns that are indicators of unwanted pixels, as defined above. Since the mask column is an integer type, the addition is equivalent to a logical or, so the boolean true values are 1.
 
-```python, def_mask, results='raw'
+```python, def_mask
 from pyspark.sql.functions import lit
 
 mask_part = unmasked.withColumn('nodata', rf_local_equal('scl', lit(0))) \
@@ -113,13 +115,15 @@ one_mask = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
                     .withColumn('mask', rf_local_add('mask', 'cloud9')) \
                     .withColumn('mask', rf_local_add('mask', 'cirrus'))
 
-one_mask.select(rf_cell_type('mask')).distinct().show()
+cell_types = one_mask.select(rf_cell_type('mask')).distinct()
+cell_types
 ```
 
 Because there is not a NoData already defined, we will choose one. In this particular example, the minimum value is greater than zero, so we can use 0 as the NoData value.
 
-```python, pick_nd, results='raw'
-one_mask.agg(rf_agg_stats('blue').min.alias('blue_min')).show()
+```python, pick_nd
+blue_min = one_mask.agg(rf_agg_stats('blue').min.alias('blue_min'))
+blue_min
 ```
 
 We can now construct the cell type string for our blue band's cell type, designating 0 as NoData.
@@ -135,14 +139,15 @@ Now we will use the @ref:[`rf_mask_by_value`](reference.md#rf-mask-by-value) to 
 ```python, mask_blu
 with_nd = rf_convert_cell_type('blue', masked_blue_ct)
 masked = one_mask.withColumn('blue_masked',
-                             rf_mask_by_value(with_nd, 'mask', lit(1))) \
-                 .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
+    rf_mask_by_value(with_nd, 'mask', lit(1))) \
+    .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
 ```
 
 We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the boolean `mask` _tile_ to ensure our logic is correct.
 
-```python, show_masked, results='raw'
-masked.select(rf_no_data_cells('blue_masked'), rf_tile_sum('mask')).show(10)
+```python, show_masked
+counts = masked.select(rf_no_data_cells('blue_masked'), rf_tile_sum('mask'))
+counts
 ```
 
 It's also nice to view a sample. The white regions are areas of NoData.
@@ -247,22 +252,24 @@ RasterFrames supports having _tile_ columns with different cell types in a singl
 
 Let's first create a RasterFrame that has columns of `float` and `int` cell type.
 
-```python, show_1, results='raw'
+```python, show_1
 x = Tile((np.ones((100, 100))*2), CellType.float64())
 y = Tile((np.ones((100, 100))*3), CellType.int32())
 rf = spark.createDataFrame([Row(x=x, y=y)])
 
-rf.select(rf_cell_type('x'), rf_cell_type('y')).distinct().show()
+cell_types = rf.select(rf_cell_type('x'), rf_cell_type('y')).distinct()
+cell_types
 ```
 
 When performing a local operation between _tile_ columns with cell types `int` and  `float`, the resulting _tile_ cell type will be `float`. In local algebra over two _tiles_ of different "sized" cell types, the resulting cell type will be the larger of the two input _tiles'_ cell types.
 
-```python, show_2, results='raw'
-rf.select(
+```python, show_2
+sums = rf.select(
     rf_cell_type('x'),
     rf_cell_type('y'),
     rf_cell_type(rf_local_add('x', 'y')).alias('xy_sum'),
-    ).show(1)
+    )
+sums    
 ```
 
 Combining _tile_ columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create two _tile_ columns: one with a NoData value of 1, and one with a NoData value of 2 (using our previously defined `get_nodata_ct` function).
@@ -275,16 +282,18 @@ rf_nd = spark.createDataFrame([Row(x_nd_1=x_nd_1, x_nd_2=x_nd_2)])
 
 Let's try adding the _tile_ columns with different NoData values. When there is an inconsistent NoData value in the two columns, the NoData value of the right-hand side of the sum is kept. In this case, this means the result has a NoData value of 1.
 
-```python, show_3, results='raw'
+```python, show_3
 rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_2', 'x_nd_1'))
-rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
+cell_types = rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct()
+cell_types
 ```
 
 Reversing the order of the sum changes the NoData value of the resulting column to 2.
 
-```python, show_4, results='raw'
+```python, show_4
 rf_nd_sum = rf_nd.withColumn('x_nd_sum', rf_local_add('x_nd_1', 'x_nd_2'))
-rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct().show()
+cell_types = rf_nd_sum.select(rf_cell_type('x_nd_sum')).distinct()
+cell_types
 ```
 
 ## NoData Values in Aggregation
@@ -313,6 +322,7 @@ masked_rf = rf.withColumn('tile_nd_1',
 
 The results of `rf_tile_sum` vary on the _tiles_ that were masked. This is because any cells with NoData values are ignored in the aggregation. Note that `tile_nd_2` has the lowest sum, since it has the fewest amount of data cells.
 
-```python, show_5, results='raw'
-masked_rf.select(rf_tile_sum('tile'), rf_tile_sum('tile_nd_1'), rf_tile_sum('tile_nd_2')).show()
+```python, show_5
+sums = masked_rf.select(rf_tile_sum('tile'), rf_tile_sum('tile_nd_1'), rf_tile_sum('tile_nd_2'))
+sums
 ```

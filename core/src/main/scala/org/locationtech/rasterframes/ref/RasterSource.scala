@@ -78,7 +78,7 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def layoutExtents(dims: TileDimensions): Seq[Extent] = {
     val re = rasterExtent
-    layoutBounds(dims).map(re.rasterExtentFor).map(_.extent)
+    layoutBounds(dims).map(re.extentFor(_, clamp = true))
   }
 
   def layoutBounds(dims: TileDimensions): Seq[GridBounds] = {

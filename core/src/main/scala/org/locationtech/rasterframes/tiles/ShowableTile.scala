@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.tiles
 import org.locationtech.rasterframes._
-import geotrellis.raster.Tile
+import geotrellis.raster.{Tile, isNoData}
 
 class ShowableTile(val delegate: Tile) extends FixedDelegatingTile {
   override def equals(obj: Any): Boolean = obj match {
@@ -39,8 +39,14 @@ object ShowableTile {
     val dims = tile.dimensions
 
     val data = if (tile.cellType.isFloatingPoint)
-      tile.toArrayDouble()
-    else tile.toArray()
+      tile.toArrayDouble().map {
+        case c if isNoData(c) => "--"
+        case c => c.toString
+      }
+    else tile.toArray().map {
+      case c if isNoData(c) => "--"
+      case c => c.toString
+    }
 
     val cells = if(tile.size <= maxCells) {
       data.mkString("[", ",", "]")

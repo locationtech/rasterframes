@@ -53,13 +53,27 @@ def rf_cell_types():
     return [CellType(str(ct)) for ct in _context_call('rf_cell_types')]
 
 
-def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type):
+def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, cell_type=None):
     """Create a Tile from  a column of cell data with location indices"""
     jfcn = RFContext.active().lookup('rf_assemble_tile')
-    return Column(
-        jfcn(_to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col), num_cols, num_rows,
-             _parse_cell_type(cell_type)))
 
+    if isinstance(num_cols, Column):
+        num_cols = _to_java_column(num_cols)
+
+    if isinstance(num_rows, Column):
+        num_rows = _to_java_column(num_rows)
+
+    if cell_type is None:
+        return Column(jfcn(
+            _to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col),
+            num_cols, num_rows
+        ))
+
+    else:
+        return Column(jfcn(
+            _to_java_column(col_index), _to_java_column(row_index), _to_java_column(cell_data_col),
+            num_cols, num_rows, _parse_cell_type(cell_type)
+        ))
 
 def rf_array_to_tile(array_col, num_cols, num_rows):
     """Convert array in `array_col` into a Tile of dimensions `num_cols` and `num_rows'"""
@@ -70,6 +84,11 @@ def rf_array_to_tile(array_col, num_cols, num_rows):
 def rf_convert_cell_type(tile_col, cell_type):
     """Convert the numeric type of the Tiles in `tileCol`"""
     jfcn = RFContext.active().lookup('rf_convert_cell_type')
+    return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
+
+def rf_interpret_cell_type_as(tile_col, cell_type):
+    """Change the interpretation of the tile_col's cell values according to specified cell_type"""
+    jfcn = RFContext.active().lookup('rf_interpret_cell_type_as')
     return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
 
 
@@ -241,6 +260,13 @@ def rf_local_unequal_int(tile_col, scalar):
     """Return a Tile with values equal 1 if the cell is not equal to a scalar, otherwise 0"""
     return _apply_scalar_to_tile('rf_local_unequal_int', tile_col, scalar)
 
+def rf_local_no_data(tile_col):
+    """Return a tile with ones where the input is NoData, otherwise zero."""
+    return _apply_column_function('rf_local_no_data', tile_col)
+
+def rf_local_data(tile_col):
+    """Return a tile with zeros where the input is NoData, otherwise one."""
+    return _apply_column_function('rf_local_data', tile_col)
 
 def _apply_column_function(name, *args):
     jfcn = RFContext.active().lookup(name)
@@ -346,6 +372,16 @@ def rf_render_ascii(tile_col):
 def rf_render_matrix(tile_col):
     """Render Tile cell values as numeric values, for debugging purposes"""
     return _apply_column_function('rf_render_matrix', tile_col)
+
+
+def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
+    """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
+    return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
+
+
+def rf_rgb_composite(red_tile_col, green_tile_col, blue_tile_col):
+    """Converts columns of tiles representing RGB channels into a single RGB packaged tile."""
+    return _apply_column_function('rf_rgb_composite', red_tile_col, green_tile_col, blue_tile_col)
 
 
 def rf_no_data_cells(tile_col):

@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
+import geotrellis.raster.render.ColorRamp
 import geotrellis.raster.{CellType, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.annotation.Experimental
@@ -34,6 +35,7 @@ import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
+import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderCompositePNG, RenderColorRampPNG}
 import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
@@ -73,13 +75,17 @@ trait RasterFunctions {
 
   @Experimental
   /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/
-  def rf_array_to_tile(arrayCol: Column, cols: Int, rows: Int) = withAlias("rf_array_to_tile", arrayCol)(
-    udf[Tile, AnyRef](F.arrayToTile(cols, rows)).apply(arrayCol)
+  def rf_array_to_tile(arrayCol: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] = withTypedAlias("rf_array_to_tile")(
+    udf[Tile, AnyRef](F.arrayToTile(cols, rows)).apply(arrayCol).as[Tile]
   )
 
   /** Create a Tile from a column of cell data with location indexes and preform cell conversion. */
   def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
     rf_convert_cell_type(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile](singlebandTileEncoder)
+
+  /** Create a Tile from a column of cell data with location indexes and perform cell conversion. */
+  def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int): TypedColumn[Any, Tile] =
+    TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows))
 
   /** Create a Tile from  a column of cell data with location indexes. */
   def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Column, tileRows: Column): TypedColumn[Any, Tile] =
@@ -89,12 +95,22 @@ trait RasterFunctions {
   def rf_cell_type(col: Column): TypedColumn[Any, CellType] = GetCellType(col)
 
   /** Change the Tile's cell type */
-  def rf_convert_cell_type(col: Column, cellType: CellType): TypedColumn[Any, Tile] =
-    SetCellType(col, cellType)
+  def rf_convert_cell_type(col: Column, cellType: CellType): Column = SetCellType(col, cellType)
 
   /** Change the Tile's cell type */
-  def rf_convert_cell_type(col: Column, cellTypeName: String): TypedColumn[Any, Tile] =
-    SetCellType(col, cellTypeName)
+  def rf_convert_cell_type(col: Column, cellTypeName: String): Column = SetCellType(col, cellTypeName)
+
+  /** Change the Tile's cell type */
+  def rf_convert_cell_type(col: Column, cellType: Column): Column = SetCellType(col, cellType)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellType: CellType): Column = InterpretAs(col, cellType)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellTypeName: String): Column = InterpretAs(col, cellTypeName)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellType: Column): Column = InterpretAs(col, cellType)
 
   /** Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less
     * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
@@ -110,18 +126,20 @@ trait RasterFunctions {
   /** Extract the extent of a RasterSource or ProjectedRasterTile as a Geometry type. */
   def rf_geometry(raster: Column): TypedColumn[Any, Geometry] = GetGeometry(raster)
 
-  /** Assign a `NoData` value to the Tiles. */
-  def rf_with_no_data(col: Column, nodata: Double): TypedColumn[Any, Tile] = withTypedAlias("rf_with_no_data", col)(
-    udf[Tile, Tile](F.withNoData(nodata)).apply(col)
-  )
+  /** Assign a `NoData` value to the tile column. */
+  def rf_with_no_data(col: Column, nodata: Double): Column = SetNoDataValue(col, nodata)
+
+  /** Assign a `NoData` value to the tile column. */
+  def rf_with_no_data(col: Column, nodata: Int): Column = SetNoDataValue(col, nodata)
+
+  /** Assign a `NoData` value to the tile column. */
+  def rf_with_no_data(col: Column, nodata: Column): Column = SetNoDataValue(col, nodata)
 
   /**  Compute the full column aggregate floating point histogram. */
-  def rf_agg_approx_histogram(col: Column): TypedColumn[Any, CellHistogram] =
-    HistogramAggregate(col)
+  def rf_agg_approx_histogram(col: Column): TypedColumn[Any, CellHistogram] = HistogramAggregate(col)
 
   /** Compute the full column aggregate floating point statistics. */
-  def rf_agg_stats(col: Column): TypedColumn[Any, CellStatistics] =
-    CellStatsAggregate(col)
+  def rf_agg_stats(col: Column): TypedColumn[Any, CellStatistics] = CellStatsAggregate(col)
 
   /** Computes the column aggregate mean. */
   def rf_agg_mean(col: Column) = CellMeanAggregate(col)
@@ -194,28 +212,28 @@ trait RasterFunctions {
   def rf_agg_local_no_data_cells(col: Column): TypedColumn[Any, Tile] = LocalCountAggregate.LocalNoDataCellsUDAF(col)
 
   /** Cellwise addition between two Tiles or Tile and scalar column. */
-  def rf_local_add(left: Column, right: Column): TypedColumn[Any, Tile] = Add(left, right)
+  def rf_local_add(left: Column, right: Column): Column = Add(left, right)
 
   /** Cellwise addition of a scalar value to a tile. */
-  def rf_local_add[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = Add(tileCol, value)
+  def rf_local_add[T: Numeric](tileCol: Column, value: T): Column = Add(tileCol, value)
 
   /** Cellwise subtraction between two Tiles. */
-  def rf_local_subtract(left: Column, right: Column): TypedColumn[Any, Tile] = Subtract(left, right)
+  def rf_local_subtract(left: Column, right: Column): Column = Subtract(left, right)
 
   /** Cellwise subtraction of a scalar value from a tile. */
-  def rf_local_subtract[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile]  = Subtract(tileCol, value)
+  def rf_local_subtract[T: Numeric](tileCol: Column, value: T): Column  = Subtract(tileCol, value)
 
   /** Cellwise multiplication between two Tiles. */
-  def rf_local_multiply(left: Column, right: Column): TypedColumn[Any, Tile] = Multiply(left, right)
+  def rf_local_multiply(left: Column, right: Column): Column = Multiply(left, right)
 
   /** Cellwise multiplication of a tile by a scalar value. */
-  def rf_local_multiply[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = Multiply(tileCol, value)
+  def rf_local_multiply[T: Numeric](tileCol: Column, value: T): Column = Multiply(tileCol, value)
 
   /** Cellwise division between two Tiles. */
-  def rf_local_divide(left: Column, right: Column): TypedColumn[Any, Tile] = Divide(left, right)
+  def rf_local_divide(left: Column, right: Column): Column = Divide(left, right)
 
   /** Cellwise division of a tile by a scalar value. */
-  def rf_local_divide[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] = Divide(tileCol, value)
+  def rf_local_divide[T: Numeric](tileCol: Column, value: T): Column = Divide(tileCol, value)
 
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def rf_local_algebra(op: LocalTileBinaryOp, left: Column, right: Column): TypedColumn[Any, Tile] =
@@ -231,9 +249,8 @@ trait RasterFunctions {
 
   /** Constructor for tile column with a single cell value. */
   def rf_make_constant_tile(value: Number, cols: Int, rows: Int, cellTypeName: String): TypedColumn[Any, Tile] = {
-    import org.apache.spark.sql.rf.TileUDT.tileSerializer
-    val constTile = encoders.serialized_literal(F.makeConstantTile(value, cols, rows, cellTypeName))
-    withTypedAlias(s"rf_make_constant_tile($value, $cols, $rows, $cellTypeName)")(constTile)
+    val constTile = udf(() => F.makeConstantTile(value, cols, rows, cellTypeName))
+    withTypedAlias(s"rf_make_constant_tile($value, $cols, $rows, $cellTypeName)")(constTile.apply())
   }
 
   /** Create a column constant tiles of zero */
@@ -318,104 +335,98 @@ trait RasterFunctions {
     ReprojectGeometry(sourceGeom, srcCRSCol, dstCRSCol)
 
   /** Render Tile as ASCII string, for debugging purposes. */
-  def rf_render_ascii(col: Column): TypedColumn[Any, String] =
-    DebugRender.RenderAscii(col)
+  def rf_render_ascii(tile: Column): TypedColumn[Any, String] =
+    DebugRender.RenderAscii(tile)
 
   /** Render Tile cell values as numeric values, for debugging purposes. */
-  def rf_render_matrix(col: Column): TypedColumn[Any, String] =
-    DebugRender.RenderMatrix(col)
+  def rf_render_matrix(tile: Column): TypedColumn[Any, String] =
+    DebugRender.RenderMatrix(tile)
+
+  /** Converts tiles in a column into PNG encoded byte array, using given ColorRamp to assign values to colors. */
+  def rf_render_png(tile: Column, colors: ColorRamp): TypedColumn[Any, Array[Byte]] =
+    RenderColorRampPNG(tile, colors)
+
+  /** Converts columns of tiles representing RGB channels into a PNG encoded byte array. */
+  def rf_render_png(red: Column, green: Column, blue: Column): TypedColumn[Any, Array[Byte]] =
+    RenderCompositePNG(red, green, blue)
+
+  /** Converts columns of tiles representing RGB channels into a single RGB packaged tile. */
+  def rf_rgb_composite(red: Column, green: Column, blue: Column): Column =
+    RGBComposite(red, green, blue)
 
   /** Cellwise less than value comparison between two tiles. */
-  def rf_local_less(left: Column, right: Column): TypedColumn[Any, Tile] =
-    Less(left, right)
+  def rf_local_less(left: Column, right: Column): Column = Less(left, right)
 
   /** Cellwise less than value comparison between a tile and a scalar. */
-  def rf_local_less[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    Less(tileCol, value)
+  def rf_local_less[T: Numeric](tileCol: Column, value: T): Column = Less(tileCol, value)
 
   /** Cellwise less than or equal to value comparison between a tile and a scalar. */
-  def rf_local_less_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    LessEqual(left, right)
+  def rf_local_less_equal(left: Column, right: Column): Column = LessEqual(left, right)
 
   /** Cellwise less than or equal to value comparison between a tile and a scalar. */
-  def rf_local_less_equal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    LessEqual(tileCol, value)
+  def rf_local_less_equal[T: Numeric](tileCol: Column, value: T): Column = LessEqual(tileCol, value)
 
   /** Cellwise greater than value comparison between two tiles. */
-  def rf_local_greater(left: Column, right: Column): TypedColumn[Any, Tile] =
-    Greater(left, right)
+  def rf_local_greater(left: Column, right: Column): Column = Greater(left, right)
 
   /** Cellwise greater than value comparison between a tile and a scalar. */
-  def rf_local_greater[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    Greater(tileCol, value)
-
+  def rf_local_greater[T: Numeric](tileCol: Column, value: T): Column = Greater(tileCol, value)
   /** Cellwise greater than or equal to value comparison between two tiles. */
-  def rf_local_greater_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    GreaterEqual(left, right)
+  def rf_local_greater_equal(left: Column, right: Column): Column  = GreaterEqual(left, right)
 
   /** Cellwise greater than or equal to value comparison between a tile and a scalar. */
-  def rf_local_greater_equal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    GreaterEqual(tileCol, value)
+  def rf_local_greater_equal[T: Numeric](tileCol: Column, value: T): Column = GreaterEqual(tileCol, value)
 
   /** Cellwise equal to value comparison between two tiles. */
-  def rf_local_equal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    Equal(left, right)
+  def rf_local_equal(left: Column, right: Column): Column = Equal(left, right)
 
   /** Cellwise equal to value comparison between a tile and a scalar. */
-  def rf_local_equal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    Equal(tileCol, value)
+  def rf_local_equal[T: Numeric](tileCol: Column, value: T): Column = Equal(tileCol, value)
 
   /** Cellwise inequality comparison between two tiles. */
-  def rf_local_unequal(left: Column, right: Column): TypedColumn[Any, Tile]  =
-    Unequal(left, right)
+  def rf_local_unequal(left: Column, right: Column): Column  = Unequal(left, right)
 
   /** Cellwise inequality comparison between a tile and a scalar. */
-  def rf_local_unequal[T: Numeric](tileCol: Column, value: T): TypedColumn[Any, Tile] =
-    Unequal(tileCol, value)
+  def rf_local_unequal[T: Numeric](tileCol: Column, value: T): Column = Unequal(tileCol, value)
+
+  /** Return a tile with ones where the input is NoData, otherwise zero */
+  def rf_local_no_data(tileCol: Column): Column = Undefined(tileCol)
+
+  /** Return a tile with zeros where the input is NoData, otherwise one*/
+  def rf_local_data(tileCol: Column): Column = Defined(tileCol)
 
   /** Round cell values to nearest integer without chaning cell type. */
-  def rf_round(tileCol: Column): TypedColumn[Any, Tile] =
-    Round(tileCol)
+  def rf_round(tileCol: Column): Column = Round(tileCol)
 
   /** Compute the absolute value of each cell. */
-  def rf_abs(tileCol: Column): TypedColumn[Any, Tile] =
-    Abs(tileCol)
+  def rf_abs(tileCol: Column): Column = Abs(tileCol)
 
   /** Take natural logarithm of cell values. */
-  def rf_log(tileCol: Column): TypedColumn[Any, Tile] =
-    Log(tileCol)
+  def rf_log(tileCol: Column): Column = Log(tileCol)
 
   /** Take base 10 logarithm of cell values. */
-  def rf_log10(tileCol: Column): TypedColumn[Any, Tile] =
-    Log10(tileCol)
+  def rf_log10(tileCol: Column): Column = Log10(tileCol)
 
   /** Take base 2 logarithm of cell values. */
-  def rf_log2(tileCol: Column): TypedColumn[Any, Tile] =
-    Log2(tileCol)
+  def rf_log2(tileCol: Column): Column = Log2(tileCol)
 
   /** Natural logarithm of one plus cell values. */
-  def rf_log1p(tileCol: Column): TypedColumn[Any, Tile] =
-      Log1p(tileCol)
+  def rf_log1p(tileCol: Column): Column = Log1p(tileCol)
 
   /** Exponential of cell values */
-  def rf_exp(tileCol: Column): TypedColumn[Any, Tile] =
-    Exp(tileCol)
+  def rf_exp(tileCol: Column): Column = Exp(tileCol)
 
   /** Ten to the power of cell values */
-  def rf_exp10(tileCol: Column): TypedColumn[Any, Tile] =
-    Exp10(tileCol)
+  def rf_exp10(tileCol: Column): Column = Exp10(tileCol)
 
   /** Two to the power of cell values */
-  def rf_exp2(tileCol: Column): TypedColumn[Any, Tile] =
-    Exp2(tileCol)
+  def rf_exp2(tileCol: Column): Column = Exp2(tileCol)
 
   /** Exponential of cell values, less one*/
-  def rf_expm1(tileCol: Column): TypedColumn[Any, Tile] =
-    ExpM1(tileCol)
+  def rf_expm1(tileCol: Column): Column = ExpM1(tileCol)
 
   /** Return the incoming tile untouched. */
-  def rf_identity(tileCol: Column): TypedColumn[Any, Tile] =
-    Identity(tileCol)
+  def rf_identity(tileCol: Column): Column = Identity(tileCol)
 
   /** Create a row for each cell in Tile. */
   def rf_explode_tiles(cols: Column*): Column = rf_explode_tiles_sample(1.0, None, cols: _*)

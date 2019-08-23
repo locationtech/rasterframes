@@ -21,12 +21,11 @@
 
 package org.locationtech.rasterframes.expressions.localops
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp}
 import geotrellis.raster.Tile
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Round cell values to the nearest integer without changing the cell type.",
@@ -45,8 +44,5 @@ case class Round(child: Expression) extends UnaryLocalRasterOp
   override protected def op(child: Tile): Tile = child.localRound()
 }
 object Round{
-
-  def apply(tile: Column): TypedColumn[Any, Tile] =
-    new Column(Round(tile.expr)).as[Tile]
-
+  def apply(tile: Column): Column = new Column(Round(tile.expr))
 }
