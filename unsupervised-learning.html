@@ -1,119 +1,144 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
-
+<html lang="en" class="no-js">
 <head>
-<!-- Global Site Tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments)};
-gtag('js', new Date());
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
+<meta name="generator" content="Paradox, paradox-material-theme=0.6.0, mkdocs-material=3.0.3">
 
-gtag('config', 'UA-106630615-1');
-</script>
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
 
+
+<meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
+<link rel="shortcut icon" href="assets/images/RasterFrames_32x32.ico">
 <title>Unsupervised Machine Learning · RasterFrames</title>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
-<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="js/page.js"></script>
-<script type="text/javascript" src="js/groups.js"></script>
-<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
-<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
-<link rel="stylesheet" type="text/css" href="css/page.css"/>
-
-<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
-<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
-
+<link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
+<meta name="theme-color" content="#546e7a" />
+<link rel="stylesheet" href="lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="lib/prettify/prettify.css">
+<script src="assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
 <style>
-.md-left { float: left; }
-.md-right { float: right; }
-.md-clear { clear: both; }
-table { font-size: 80%; }
-code { font-size: 0.75em !important; }
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
 </style>
+<link rel="stylesheet" href="assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="assets/fonts/material-icons.css">
+<link rel="stylesheet" href="assets/stylesheets/paradox-material-theme.css">
+<link rel="stylesheet" href="assets/custom.css">
 </head>
-
-<body>
-<div class="off-canvas-wrapper">
-<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
-
-<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
-<nav class="off-canvas-nav">
-<div class="nav-home">
-<a href="index.html" >
-<span class="home-icon">⌂</span>RasterFrames
+<body
+data-md-color-primary="blue-grey"
+data-md-color-accent="light-blue"
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="index.html" title="RasterFrames" class="md-header-nav__button md-logo">
+<img src="assets/images/RF-R.svg" width="24" height="24">
 </a>
-<div class="version-number">
-0.8.0
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+RasterFrames
+</span>
+<span class="md-header-nav__topic">
+Unsupervised Machine Learning
+</span>
 </div>
 </div>
-<div class="nav-toc">
-<ul>
-  <li><a href="description.html" class="page">Overview</a></li>
-  <li><a href="getting-started.html" class="page">Getting Started</a></li>
-  <li><a href="concepts.html" class="page">Concepts</a></li>
-  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
-  <ul>
-    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
-    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
-    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
-  </ul></li>
-  <li><a href="vector-data.html" class="page">Vector Data</a></li>
-  <li><a href="raster-processing.html" class="page">Raster Processing</a>
-  <ul>
-    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
-    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
-    <li><a href="aggregation.html" class="page">Aggregation</a></li>
-    <li><a href="time-series.html" class="page">Time Series</a></li>
-    <li><a href="machine-learning.html" class="page">Machine Learning</a>
-    <ul>
-      <li><a href="unsupervised-learning.html" class="active page">Unsupervised Machine Learning</a></li>
-      <li><a href="supervised-learning.html" class="page">Supervised Machine Learning</a></li>
-    </ul></li>
-  </ul></li>
-  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
-  <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
-</ul>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
 </div>
 
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<div class="md-header-nav__source">
+<a href="https://github.com/locationtech/rasterframes"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
+</div>
+<div class="md-source__repository">
+locationtech/rasterframes
+</div>
+</a>
+
+</div>
+</div>
+</div>
 </nav>
-</div>
-
-<div class="off-canvas-content" data-off-canvas-content>
-
-<header class="site-header expanded row">
-<div class="small-12 column">
-<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
-H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
-C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
-</a>
-<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
-<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
- -->
-<a href="http://www.astraea.earth" class="logo show-for-medium">
-<img style="max-height: 40px;" src="images/astraea.png"/>
-</a>
-</div>
 </header>
 
-<div class="expanded row">
-
-<div class="medium-3 large-2 show-for-medium column">
-<nav class="site-nav">
-<div class="nav-home">
-<a href="index.html" >
-<span class="home-icon">⌂</span>RasterFrames
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="index.html" title="RasterFrames" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<img src="assets/images/RF-R.svg" width="24" height="24">
 </a>
-<div class="version-number">
-0.8.0
+<a href="index.html" title="RasterFrames">
+RasterFrames
+</a>
+</label>
+<div class="md-nav__source">
+<a href="https://github.com/locationtech/rasterframes"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
 </div>
+<div class="md-source__repository">
+locationtech/rasterframes
 </div>
-<div class="nav-toc">
+</a>
+
+</div>
 <ul>
   <li><a href="description.html" class="page">Overview</a></li>
   <li><a href="getting-started.html" class="page">Getting Started</a></li>
@@ -142,29 +167,52 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
-</div>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="unsupervised-learning.html#unsupervised-machine-learning" class="header">Unsupervised Machine Learning</a>
+  <ul>
+    <li><a href="unsupervised-learning.html#imports-and-data-preparation" class="header">Imports and Data Preparation</a></li>
+    <li><a href="unsupervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
+    <li><a href="unsupervised-learning.html#fit-the-model-and-score" class="header">Fit the Model and Score</a></li>
+    <li><a href="unsupervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
+  </ul></li>
+</ul>
+</nav>
 
 </nav>
-</div>
-
-<div class="small-12 medium-9 large-10 column">
-<section class="site-content">
-
-<div class="page-header row">
-<div class="medium-12 show-for-medium column">
-<div class="nav-breadcrumbs">
-<ul>
-  <li><a href="index.html">RasterFrames</a></li>
-  <li><a href="raster-processing.html">Raster Processing</a></li>
-  <li><a href="machine-learning.html">Machine Learning</a></li>
-  <li>Unsupervised Machine Learning</li>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.8.1
+</label>
+</li>
 </ul>
 </div>
 </div>
 </div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="unsupervised-learning.html#unsupervised-machine-learning" class="header">Unsupervised Machine Learning</a>
+  <ul>
+    <li><a href="unsupervised-learning.html#imports-and-data-preparation" class="header">Imports and Data Preparation</a></li>
+    <li><a href="unsupervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
+    <li><a href="unsupervised-learning.html#fit-the-model-and-score" class="header">Fit the Model and Score</a></li>
+    <li><a href="unsupervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
+  </ul></li>
+</ul>
+</nav>
 
-<div class="page-content row">
-<div class="small-12 large-9 column" id="docs">
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
 <h1><a href="#unsupervised-machine-learning" name="unsupervised-machine-learning" class="anchor"><span class="anchor-link"></span></a>Unsupervised Machine Learning</h1>
 <p>In this example, we will demonstrate how to fit and score an unsupervised learning model with a <a href="https://github.com/locationtech/rasterframes/tree/develop/pyrasterframes/src/test/resources">sample of Landsat 8 data</a>.</p>
 <h2><a href="#imports-and-data-preparation" name="imports-and-data-preparation" class="anchor"><span class="anchor-link"></span></a>Imports and Data Preparation</h2>
@@ -224,7 +272,7 @@ df.printSchema()
 <p>For this problem, we will use the K-means clustering algorithm and configure our model to have 5 clusters.</p>
 <pre class="prettyprint"><code class="language-python">kmeans = KMeans().setK(5).setFeaturesCol(&#39;features&#39;)
 </code></pre>
-<p>We can combine the above stages into a single <em>pipeline</em>.</p>
+<p>We can combine the above stages into a single <a href="https://spark.apache.org/docs/latest/ml-pipeline.html"><code>Pipeline</code></a>.</p>
 <pre class="prettyprint"><code class="language-python">pipeline = Pipeline().setStages([exploder, assembler, kmeans])
 </code></pre>
 <h2><a href="#fit-the-model-and-score" name="fit-the-model-and-score" class="anchor"><span class="anchor-link"></span></a>Fit the Model and Score</h2>
@@ -233,146 +281,56 @@ df.printSchema()
 </code></pre>
 <p>We can use the <code>transform</code> function to score the training data in the fitted <em>pipeline</em> model. This will add a column called <code>prediction</code> with the closest cluster identifier.</p>
 <pre class="prettyprint"><code class="language-python">clustered = model.transform(df)
-clustered.show(8)
 </code></pre>
+<p>Now let&rsquo;s take a look at some sample output.</p>
+<pre class="prettyprint"><code class="language-python">clustered.select(&#39;prediction&#39;, &#39;extent&#39;, &#39;column_index&#39;, &#39;row_index&#39;, &#39;features&#39;)
+</code></pre>
+<p><em>Showing only top 5 rows</em>.</p>
 <table>
   <thead>
     <tr>
-      <th>crs </th>
+      <th>prediction </th>
       <th>extent </th>
       <th>column_index </th>
       <th>row_index </th>
-      <th>b1 </th>
-      <th>b2 </th>
-      <th>b3 </th>
-      <th>b4 </th>
-      <th>b5 </th>
-      <th>b6 </th>
-      <th>b7 </th>
       <th>features </th>
-      <th>prediction </th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
+      <td>2 </td>
+      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
       <td>0 </td>
       <td>0 </td>
-      <td>9470.0 </td>
-      <td>8491.0 </td>
-      <td>7805.0 </td>
-      <td>6697.0 </td>
-      <td>17507.0 </td>
-      <td>10338.0 </td>
-      <td>7235.0 </td>
-      <td>[9470.0,8491.0,7805.0,6697.0,17507.0,103 </td>
-      <td>1 </td>
+      <td>[9470.0,8491.0,7805.0,6697.0,17507.0,10338.0,7235.0] </td>
     </tr>
     <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
+      <td>2 </td>
+      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
       <td>1 </td>
       <td>0 </td>
-      <td>9566.0 </td>
-      <td>8607.0 </td>
-      <td>8046.0 </td>
-      <td>6898.0 </td>
-      <td>18504.0 </td>
-      <td>11545.0 </td>
-      <td>7877.0 </td>
-      <td>[9566.0,8607.0,8046.0,6898.0,18504.0,115 </td>
-      <td>1 </td>
+      <td>[9566.0,8607.0,8046.0,6898.0,18504.0,11545.0,7877.0] </td>
     </tr>
     <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
+      <td>4 </td>
+      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
       <td>2 </td>
       <td>0 </td>
-      <td>9703.0 </td>
-      <td>8808.0 </td>
-      <td>8377.0 </td>
-      <td>7222.0 </td>
-      <td>20556.0 </td>
-      <td>13207.0 </td>
-      <td>8686.0 </td>
-      <td>[9703.0,8808.0,8377.0,7222.0,20556.0,132 </td>
-      <td>4 </td>
+      <td>[9703.0,8808.0,8377.0,7222.0,20556.0,13207.0,8686.0] </td>
     </tr>
     <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
+      <td>4 </td>
+      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
       <td>3 </td>
       <td>0 </td>
-      <td>9856.0 </td>
-      <td>8983.0 </td>
-      <td>8565.0 </td>
-      <td>7557.0 </td>
-      <td>19479.0 </td>
-      <td>13203.0 </td>
-      <td>9065.0 </td>
-      <td>[9856.0,8983.0,8565.0,7557.0,19479.0,132 </td>
-      <td>4 </td>
+      <td>[9856.0,8983.0,8565.0,7557.0,19479.0,13203.0,9065.0] </td>
     </tr>
     <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
+      <td>4 </td>
+      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
       <td>4 </td>
       <td>0 </td>
-      <td>10105.0 </td>
-      <td>9270.0 </td>
-      <td>8851.0 </td>
-      <td>7912.0 </td>
-      <td>19074.0 </td>
-      <td>12737.0 </td>
-      <td>8947.0 </td>
-      <td>[10105.0,9270.0,8851.0,7912.0,19074.0,12 </td>
-      <td>4 </td>
-    </tr>
-    <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
-      <td>5 </td>
-      <td>0 </td>
-      <td>10273.0 </td>
-      <td>9463.0 </td>
-      <td>9196.0 </td>
-      <td>8341.0 </td>
-      <td>18266.0 </td>
-      <td>12816.0 </td>
-      <td>9059.0 </td>
-      <td>[10273.0,9463.0,9196.0,8341.0,18266.0,12 </td>
-      <td>4 </td>
-    </tr>
-    <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
-      <td>6 </td>
-      <td>0 </td>
-      <td>9920.0 </td>
-      <td>9077.0 </td>
-      <td>8480.0 </td>
-      <td>7534.0 </td>
-      <td>19737.0 </td>
-      <td>11148.0 </td>
-      <td>8027.0 </td>
-      <td>[9920.0,9077.0,8480.0,7534.0,19737.0,111 </td>
-      <td>1 </td>
-    </tr>
-    <tr>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
-      <td>7 </td>
-      <td>0 </td>
-      <td>9559.0 </td>
-      <td>8603.0 </td>
-      <td>7847.0 </td>
-      <td>6829.0 </td>
-      <td>22084.0 </td>
-      <td>10372.0 </td>
-      <td>7163.0 </td>
-      <td>[9559.0,8603.0,7847.0,6829.0,22084.0,103 </td>
-      <td>1 </td>
+      <td>[10105.0,9270.0,8851.0,7912.0,19074.0,12737.0,8947.0] </td>
     </tr>
   </tbody>
 </table>
@@ -383,7 +341,7 @@ clustered.show(8)
 <pre class="prettyprint"><code class="language-python">metric = cluster_stage.computeCost(clustered)
 print(&quot;Within set sum of squared errors: %s&quot; % metric)
 </code></pre>
-<pre><code>Within set sum of squared errors: 225474143637.38596
+<pre><code>Within set sum of squared errors: 224434491608.78616
 </code></pre>
 <h2><a href="#visualize-prediction" name="visualize-prediction" class="anchor"><span class="anchor-link"></span></a>Visualize Prediction</h2>
 <p>We can recreate the tiled data structure using the metadata added by the <code>TileExploder</code> pipeline stage.</p>
@@ -408,7 +366,7 @@ retiled.printSchema()
  |    |-- crsProj4: string (nullable = false)
  |-- prediction: tile (nullable = true)
 </code></pre>
-<pre class="prettyprint"><code class="language-python">retiled.show()
+<pre class="prettyprint"><code class="language-python">retiled
 </code></pre>
 <table>
   <thead>
@@ -420,9 +378,9 @@ retiled.printSchema()
   </thead>
   <tbody>
     <tr>
-      <td>[703986.502389, 4249549.463864265, 70954 </td>
-      <td>[+proj=utm +zone=17 +datum=WGS84 +units= </td>
-      <td>[int8, (186,168), [1,1,4,4,4,4,1,1,1,1,. </td>
+      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
+      <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
+      <td><img src="data:image/png;base64,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"></img> </td>
     </tr>
   </tbody>
 </table>
@@ -430,82 +388,75 @@ retiled.printSchema()
 <pre class="prettyprint"><code class="language-python">display(retiled.select(&#39;prediction&#39;).first()[&#39;prediction&#39;])
 </code></pre>
 <p><img src="figures/unsupervised-learning_viz_1.png" /></p>
-<div class="nav-next">
-<p><strong>Next:</strong> <a href="supervised-learning.html">Supervised Machine Learning</a></p>
+</div>
+<div>
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/unsupervised-learning.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.8.1
+</span>
+</div>
+</article>
 </div>
 </div>
-<div class="large-3 show-for-large column" data-sticky-container>
-<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
-<div class="page-nav">
-<div class="nav-title">On this page:</div>
-<div class="nav-toc">
-<ul>
-  <li><a href="unsupervised-learning.html#unsupervised-machine-learning" class="header">Unsupervised Machine Learning</a>
-  <ul>
-    <li><a href="unsupervised-learning.html#imports-and-data-preparation" class="header">Imports and Data Preparation</a></li>
-    <li><a href="unsupervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
-    <li><a href="unsupervised-learning.html#fit-the-model-and-score" class="header">Fit the Model and Score</a></li>
-    <li><a href="unsupervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
-  </ul></li>
-</ul>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="machine-learning.html" title="Machine Learning" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+Machine Learning
+</span>
 </div>
+</a>
+<a href="supervised-learning.html" title="Supervised Machine Learning" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+Supervised Machine Learning
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
 </nav>
 </div>
-</div>
-
-</section>
-</div>
-
-</div>
-
-<footer class="site-footer">
-
-<section class="site-footer-nav">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-
-<div class="small-12 medium-4 large-3 text-center column">
-<div class="nav-links">
-<ul>
-<!-- <li><a href="https://www.example.com/products/">Products</a> -->
-</ul>
-</div>
-</div>
-
-</div>
-</div>
-</div>
-</section>
-
-<section class="site-footer-base">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-<div class="small-12 text-center large-9 column">
-<div class="copyright">
-<span class="text">Copyright &copy; 2019
-<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+&copy; 2017-2019 <a href="https://astraea.earth">Astraea</a>, Inc. All rights reserved.
 </div>
 </div>
 </div>
 </div>
-</div>
-</section>
 </footer>
-</div>
-</div>
-</div>
-</body>
 
-<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
-<script type="text/javascript">jQuery(document).foundation();</script>
-<script type="text/javascript" src="js/magellan.js"></script>
-
-<style type="text/css">@import "lib/prettify/prettify.css";</style>
+</div>
+<script src="assets/javascripts/application.583bbe55.js"></script>
+<script src="assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"."}})</script>
 <script type="text/javascript" src="lib/prettify/prettify.js"></script>
 <script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
-<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+<script>!function(e,a,t,n,o,c,i){e.GoogleAnalyticsObject=o,e.ga=e.ga||function(){(e.ga.q=e.ga.q||[]).push(arguments)},e.ga.l=1*new Date,c=a.createElement(t),i=a.getElementsByTagName(t)[0],c.async=1,c.src="https://www.google-analytics.com/analytics.js",i.parentNode.insertBefore(c,i)}(window,document,"script",0,"ga"),ga("create","UA-106630615-1"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var a=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",a,e.href)})});if(document.forms.search){var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}</script>
 
+</body>
 </html>

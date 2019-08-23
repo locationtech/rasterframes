@@ -119,6 +119,26 @@
     </span>
       <p class="shortcomment cmt">Catalyst Expression for getting the extent of a geometry.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst Expression for getting the extent of a geometry.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/24/18</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.InterpretAs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="InterpretAsextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="InterpretAs:InterpretAs"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="InterpretAs.html"><span class="name">InterpretAs</span></a><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="cellType">cellType: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@InterpretAsextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="MaskextendsTernaryExpressionwithCodegenFallbackwithSerializablewithLazyLogging"></a>
       <a id="Mask:Mask"></a>
@@ -136,6 +156,27 @@
       </a>
     </span>
       
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.RGBComposite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RGBCompositeextendsTernaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="RGBComposite:RGBComposite"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RGBComposite.html"><span class="name">RGBComposite</span></a><span class="params">(<span name="red">red: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="green">green: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="blue">blue: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RGBCompositeextendsTernaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Expression to combine the given tile columns into an 32-bit RGB composite.</p><div class="fullcomment"><div class="comment cmt"><p>Expression to combine the given tile columns into an 32-bit RGB composite.
+Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a single 32-bit word.</p></div><dl class="paramcmts block"><dt class="param">red</dt><dd class="cmt"><p>tile column to represent red channel</p></dd><dt class="param">green</dt><dd class="cmt"><p>tile column to represent green channel</p></dd><dt class="param">blue</dt><dd class="cmt"><p>tile column to represent blue channel</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.RasterRefToTile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="RasterRefToTileextendsUnaryExpressionwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable"></a>
       <a id="RasterRefToTile:RasterRefToTile"></a>
@@ -154,6 +195,23 @@
     </span>
       <p class="shortcomment cmt">Realizes a RasterRef into a Tile.</p><div class="fullcomment"><div class="comment cmt"><p>Realizes a RasterRef into a Tile.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/2/18</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.RenderPNG" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="RenderPNGextendsUnaryExpressionwithUnaryRasterOpwithCodegenFallbackwithSerializable"></a>
+      <a id="RenderPNG:RenderPNG"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RenderPNG.html"><span class="name">RenderPNG</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <a href="../UnaryRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.UnaryRasterOp">UnaryRasterOp</a> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RenderPNGextendsUnaryExpressionwithUnaryRasterOpwithCodegenFallbackwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Converts a tile into a PNG encoded byte array.</p>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.ReprojectGeometry" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ReprojectGeometryextendsExpressionwithCodegenFallbackwithProductwithSerializable"></a>
       <a id="ReprojectGeometry:ReprojectGeometry"></a>
@@ -192,7 +250,30 @@
     </span>
       <p class="shortcomment cmt">Change the CellType of a Tile
 </p><div class="fullcomment"><div class="comment cmt"><p>Change the CellType of a Tile
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/11/18</p></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd><dt>Since</dt><dd><p>9/11/18</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.SetNoDataValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SetNoDataValueextendsBinaryExpressionwithCodegenFallbackwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="SetNoDataValue:SetNoDataValue"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SetNoDataValue.html"><span class="name">SetNoDataValue</span></a><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@SetNoDataValueextendsBinaryExpressionwithCodegenFallbackwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.TileToArrayDouble" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TileToArrayDoubleextendsUnaryExpressionwithUnaryRasterOpwithCodegenFallbackwithProductwithSerializable"></a>
       <a id="TileToArrayDouble:TileToArrayDouble"></a>
@@ -311,6 +392,23 @@ containing references to the internal tiles and associated extents.
       </a>
     </span>
       
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.InterpretAs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InterpretAs"></a>
+      <a id="InterpretAs:InterpretAs"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="InterpretAs$.html"><span class="name">InterpretAs</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@InterpretAs" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Mask"></a>
       <a id="Mask:Mask"></a>
@@ -328,6 +426,23 @@ containing references to the internal tiles and associated extents.
       </a>
     </span>
       
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.RGBComposite" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RGBComposite"></a>
+      <a id="RGBComposite:RGBComposite"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RGBComposite$.html"><span class="name">RGBComposite</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RGBComposite" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="org.locationtech.rasterframes.expressions.transformers.RasterRefToTile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RasterRefToTile"></a>
       <a id="RasterRefToTile:RasterRefToTile"></a>
@@ -341,6 +456,23 @@ containing references to the internal tiles and associated extents.
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RasterRefToTile" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.RenderPNG" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RenderPNG"></a>
+      <a id="RenderPNG:RenderPNG"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RenderPNG$.html"><span class="name">RenderPNG</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RenderPNG" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -375,6 +507,23 @@ containing references to the internal tiles and associated extents.
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@SetCellType" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.SetNoDataValue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SetNoDataValue"></a>
+      <a id="SetNoDataValue:SetNoDataValue"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SetNoDataValue$.html"><span class="name">SetNoDataValue</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@SetNoDataValue" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

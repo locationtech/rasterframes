@@ -8,7 +8,7 @@ If you are new to Earth-observing imagery, you might consider looking at the [Co
 
 There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames, and @ref:[several languages](languages.md) with which you can use it.  
 
-The simplest way to get started with RasterFrames is via the the Python shell.  To get started you will need:
+The simplest way to get started with RasterFrames is via the [Docker image](#using-jupyter-notebook), or from the Python shell.  To get started with the Python shell you will need:
 
 1. [Python](https://www.python.org/) installed. Version 3.6 or greater is recommended.
 1. [`pip`](https://pip.pypa.io/en/stable/installing/) installed. If you are using Python 3, `pip` may already be installed.
@@ -34,7 +34,7 @@ spark = pyrasterframes.get_spark_session()
 
 Then, you can read a raster and work with it in a Spark DataFrame.
 
-```python, local_add, results='raw'
+```python, local_add
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import lit
 
@@ -42,9 +42,9 @@ from pyspark.sql.functions import lit
 df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 
 # Add 3 element-wise, show some rows of the DataFrame
-df.withColumn('added', rf_local_add(df.proj_raster, lit(3))) \
-  .select(rf_crs('added'), rf_extent('added'), rf_tile('added')) \
-  .show(3)
+sample = df.withColumn('added', rf_local_add(df.proj_raster, lit(3))) \
+  .select(rf_crs('added'), rf_extent('added'), rf_tile('added'))
+sample
 ```
 
 This example is extended in the [getting started Jupyter notebook](https://nbviewer.jupyter.org/github/locationtech/rasterframes/blob/develop/rf-notebook/src/main/notebooks/Getting%20Started.ipynb).

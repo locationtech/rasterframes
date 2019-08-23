@@ -1,115 +1,144 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
-
+<html lang="en" class="no-js">
 <head>
-<!-- Global Site Tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments)};
-gtag('js', new Date());
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
+<meta name="generator" content="Paradox, paradox-material-theme=0.6.0, mkdocs-material=3.0.3">
 
-gtag('config', 'UA-106630615-1');
-</script>
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
 
+
+<meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
+<link rel="shortcut icon" href="assets/images/RasterFrames_32x32.ico">
 <title>API Languages · RasterFrames</title>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
-<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="js/page.js"></script>
-<script type="text/javascript" src="js/groups.js"></script>
-<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
-<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
-<link rel="stylesheet" type="text/css" href="css/page.css"/>
-
-<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
-<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
-
+<link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
+<meta name="theme-color" content="#546e7a" />
+<link rel="stylesheet" href="lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="lib/prettify/prettify.css">
+<script src="assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
 <style>
-.md-left { float: left; }
-.md-right { float: right; }
-.md-clear { clear: both; }
-table { font-size: 80%; }
-code { font-size: 0.75em !important; }
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
 </style>
+<link rel="stylesheet" href="assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="assets/fonts/material-icons.css">
+<link rel="stylesheet" href="assets/stylesheets/paradox-material-theme.css">
+<link rel="stylesheet" href="assets/custom.css">
 </head>
-
-<body>
-<div class="off-canvas-wrapper">
-<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
-
-<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
-<nav class="off-canvas-nav">
-<div class="nav-home">
-<a href="index.html" >
-<span class="home-icon">⌂</span>RasterFrames
+<body
+data-md-color-primary="blue-grey"
+data-md-color-accent="light-blue"
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="index.html" title="RasterFrames" class="md-header-nav__button md-logo">
+<img src="assets/images/RF-R.svg" width="24" height="24">
 </a>
-<div class="version-number">
-0.8.0
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+RasterFrames
+</span>
+<span class="md-header-nav__topic">
+API Languages
+</span>
 </div>
 </div>
-<div class="nav-toc">
-<ul>
-  <li><a href="description.html" class="page">Overview</a></li>
-  <li><a href="getting-started.html" class="page">Getting Started</a></li>
-  <li><a href="concepts.html" class="page">Concepts</a></li>
-  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
-  <ul>
-    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
-    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
-    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
-  </ul></li>
-  <li><a href="vector-data.html" class="page">Vector Data</a></li>
-  <li><a href="raster-processing.html" class="page">Raster Processing</a>
-  <ul>
-    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
-    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
-    <li><a href="aggregation.html" class="page">Aggregation</a></li>
-    <li><a href="time-series.html" class="page">Time Series</a></li>
-    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
-  </ul></li>
-  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="active page">API Languages</a></li>
-  <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
-</ul>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
 </div>
 
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<div class="md-header-nav__source">
+<a href="https://github.com/locationtech/rasterframes"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
+</div>
+<div class="md-source__repository">
+locationtech/rasterframes
+</div>
+</a>
+
+</div>
+</div>
+</div>
 </nav>
-</div>
-
-<div class="off-canvas-content" data-off-canvas-content>
-
-<header class="site-header expanded row">
-<div class="small-12 column">
-<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
-H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
-C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
-</a>
-<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
-<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
- -->
-<a href="http://www.astraea.earth" class="logo show-for-medium">
-<img style="max-height: 40px;" src="images/astraea.png"/>
-</a>
-</div>
 </header>
 
-<div class="expanded row">
-
-<div class="medium-3 large-2 show-for-medium column">
-<nav class="site-nav">
-<div class="nav-home">
-<a href="index.html" >
-<span class="home-icon">⌂</span>RasterFrames
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="index.html" title="RasterFrames" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<img src="assets/images/RF-R.svg" width="24" height="24">
 </a>
-<div class="version-number">
-0.8.0
+<a href="index.html" title="RasterFrames">
+RasterFrames
+</a>
+</label>
+<div class="md-nav__source">
+<a href="https://github.com/locationtech/rasterframes"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
 </div>
+<div class="md-source__repository">
+locationtech/rasterframes
 </div>
-<div class="nav-toc">
+</a>
+
+</div>
 <ul>
   <li><a href="description.html" class="page">Overview</a></li>
   <li><a href="getting-started.html" class="page">Getting Started</a></li>
@@ -134,27 +163,50 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
-</div>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="languages.html#api-languages" class="header">API Languages</a>
+  <ul>
+    <li><a href="languages.html#python" class="header">Python</a></li>
+    <li><a href="languages.html#sql" class="header">SQL</a></li>
+    <li><a href="languages.html#scala" class="header">Scala</a></li>
+  </ul></li>
+</ul>
+</nav>
 
 </nav>
-</div>
-
-<div class="small-12 medium-9 large-10 column">
-<section class="site-content">
-
-<div class="page-header row">
-<div class="medium-12 show-for-medium column">
-<div class="nav-breadcrumbs">
-<ul>
-  <li><a href="index.html">RasterFrames</a></li>
-  <li>API Languages</li>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.8.1
+</label>
+</li>
 </ul>
 </div>
 </div>
 </div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="languages.html#api-languages" class="header">API Languages</a>
+  <ul>
+    <li><a href="languages.html#python" class="header">Python</a></li>
+    <li><a href="languages.html#sql" class="header">SQL</a></li>
+    <li><a href="languages.html#scala" class="header">Scala</a></li>
+  </ul></li>
+</ul>
+</nav>
 
-<div class="page-content row">
-<div class="small-12 large-9 column" id="docs">
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
 <h1><a href="#api-languages" name="api-languages" class="anchor"><span class="anchor-link"></span></a>API Languages</h1>
 <p>One of the great powers of RasterFrames, afforded by Spark SQL, is the ability to express computation in multiple programming languages. This documentation focuses on Python because it is the most commonly used language in data science and GIS analytics. However, Scala (the implementation language of RasterFrames) and SQL are also fully supported. Examples in Python can be mechanically translated into the other two languages without much difficulty once the naming conventions are understood. In the sections below we will show the same example program in each language. We will compute the average NDVI per month for a single <em>tile</em> in Tanzania.</p>
 <h2><a href="#python" name="python" class="anchor"><span class="anchor-link"></span></a>Python</h2>
@@ -199,8 +251,9 @@ red_nir_monthly_2017.printSchema()
     .agg(rf_agg_stats(rf_normalized_difference(col(&#39;nir&#39;), col(&#39;red&#39;))).alias(&#39;ndvi_stats&#39;)) \
     .orderBy(col(&#39;month&#39;)) \
     .select(&#39;month&#39;, &#39;ndvi_stats.*&#39;)
-result.show()
+result
 </code></pre>
+<p><em>Showing only top 5 rows</em>.</p>
 <table>
   <thead>
     <tr>
@@ -216,48 +269,48 @@ result.show()
   <tbody>
     <tr>
       <td>1 </td>
-      <td>65267 </td>
+      <td>65523 </td>
       <td>13 </td>
       <td>-0.2519809825673534 </td>
       <td>0.8644836272040303 </td>
-      <td>0.4062197426115297 </td>
-      <td>0.014052143780240473 </td>
+      <td>0.4062596673810191 </td>
+      <td>0.01407280838385605 </td>
     </tr>
     <tr>
       <td>2 </td>
-      <td>65265 </td>
+      <td>65521 </td>
       <td>15 </td>
       <td>-0.21232123212321233 </td>
       <td>0.8872390789756832 </td>
-      <td>0.46739547393654163 </td>
-      <td>0.011785911926331244 </td>
+      <td>0.46738863804011127 </td>
+      <td>0.011822698212885174 </td>
     </tr>
     <tr>
       <td>3 </td>
-      <td>64186 </td>
-      <td>1094 </td>
+      <td>64425 </td>
+      <td>1111 </td>
       <td>-0.36211340206185566 </td>
       <td>0.9208261617900172 </td>
-      <td>0.5809354401199841 </td>
-      <td>0.011565190994422658 </td>
+      <td>0.5811071411891395 </td>
+      <td>0.011570245465885753 </td>
     </tr>
     <tr>
       <td>4 </td>
-      <td>64003 </td>
-      <td>1277 </td>
+      <td>64236 </td>
+      <td>1300 </td>
       <td>-0.17252657399836469 </td>
       <td>0.922397476340694 </td>
-      <td>0.5251178588259107 </td>
-      <td>0.010838388803375454 </td>
+      <td>0.5254596885897274 </td>
+      <td>0.01087259231886667 </td>
     </tr>
     <tr>
       <td>5 </td>
-      <td>60722 </td>
-      <td>4558 </td>
+      <td>60819 </td>
+      <td>4717 </td>
       <td>-0.19951338199513383 </td>
       <td>0.916626036079961 </td>
-      <td>0.4644951934303207 </td>
-      <td>0.012128022419874457 </td>
+      <td>0.46471430090039234 </td>
+      <td>0.01215478443067744 </td>
     </tr>
   </tbody>
 </table>
@@ -276,7 +329,7 @@ SELECT granule_id, month(acquisition_date) as month, B01 as red, B02 as nir
 FROM modis
 WHERE year(acquisition_date) = 2017 AND day(acquisition_date) = 15 AND granule_id = &#39;h21v09&#39;
 &quot;&quot;&quot;)
-sql(&#39;DESCRIBE red_nir_monthly_2017&#39;).show()
+sql(&#39;DESCRIBE red_nir_monthly_2017&#39;)
 </code></pre>
 <table>
   <thead>
@@ -317,7 +370,7 @@ OPTIONS (
 &quot;&quot;&quot;)
 </code></pre>
 <h3><a href="#step-4-compute-aggregates" name="step-4-compute-aggregates" class="anchor"><span class="anchor-link"></span></a>Step 4: Compute aggregates</h3>
-<pre class="prettyprint"><code class="language-python">sql(&quot;&quot;&quot;
+<pre class="prettyprint"><code class="language-python">grouped = sql(&quot;&quot;&quot;
 SELECT month, ndvi_stats.* FROM (
     SELECT month, rf_agg_stats(rf_normalized_difference(nir, red)) as ndvi_stats
     FROM red_nir_tiles_monthly_2017
@@ -325,8 +378,10 @@ SELECT month, ndvi_stats.* FROM (
     GROUP BY month
     ORDER BY month
 )
-&quot;&quot;&quot;).show()
+&quot;&quot;&quot;)
+grouped
 </code></pre>
+<p><em>Showing only top 5 rows</em>.</p>
 <table>
   <thead>
     <tr>
@@ -342,48 +397,48 @@ SELECT month, ndvi_stats.* FROM (
   <tbody>
     <tr>
       <td>1 </td>
-      <td>65267 </td>
+      <td>65523 </td>
       <td>13 </td>
       <td>-0.2519809825673534 </td>
       <td>0.8644836272040303 </td>
-      <td>0.4062197426115297 </td>
-      <td>0.014052143780240473 </td>
+      <td>0.4062596673810191 </td>
+      <td>0.01407280838385605 </td>
     </tr>
     <tr>
       <td>2 </td>
-      <td>65265 </td>
+      <td>65521 </td>
       <td>15 </td>
       <td>-0.21232123212321233 </td>
       <td>0.8872390789756832 </td>
-      <td>0.46739547393654163 </td>
-      <td>0.011785911926331244 </td>
+      <td>0.46738863804011127 </td>
+      <td>0.011822698212885174 </td>
     </tr>
     <tr>
       <td>3 </td>
-      <td>64186 </td>
-      <td>1094 </td>
+      <td>64425 </td>
+      <td>1111 </td>
       <td>-0.36211340206185566 </td>
       <td>0.9208261617900172 </td>
-      <td>0.5809354401199841 </td>
-      <td>0.011565190994422658 </td>
+      <td>0.5811071411891395 </td>
+      <td>0.011570245465885753 </td>
     </tr>
     <tr>
       <td>4 </td>
-      <td>64003 </td>
-      <td>1277 </td>
+      <td>64236 </td>
+      <td>1300 </td>
       <td>-0.17252657399836469 </td>
       <td>0.922397476340694 </td>
-      <td>0.5251178588259107 </td>
-      <td>0.010838388803375454 </td>
+      <td>0.5254596885897274 </td>
+      <td>0.01087259231886667 </td>
     </tr>
     <tr>
       <td>5 </td>
-      <td>60722 </td>
-      <td>4558 </td>
+      <td>60819 </td>
+      <td>4717 </td>
       <td>-0.19951338199513383 </td>
       <td>0.916626036079961 </td>
-      <td>0.4644951934303207 </td>
-      <td>0.012128022419874457 </td>
+      <td>0.46471430090039234 </td>
+      <td>0.01215478443067744 </td>
     </tr>
   </tbody>
 </table>
@@ -434,81 +489,75 @@ val modis = spark.read.format(&quot;aws-pds-modis-catalog&quot;).load()
   
 result.show()  
 </code></pre>
-<div class="nav-next">
-<p><strong>Next:</strong> <a href="reference.html">Function Reference</a></p>
+</div>
+<div>
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/languages.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.8.1
+</span>
+</div>
+</article>
 </div>
 </div>
-<div class="large-3 show-for-large column" data-sticky-container>
-<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
-<div class="page-nav">
-<div class="nav-title">On this page:</div>
-<div class="nav-toc">
-<ul>
-  <li><a href="languages.html#api-languages" class="header">API Languages</a>
-  <ul>
-    <li><a href="languages.html#python" class="header">Python</a></li>
-    <li><a href="languages.html#sql" class="header">SQL</a></li>
-    <li><a href="languages.html#scala" class="header">Scala</a></li>
-  </ul></li>
-</ul>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="numpy-pandas.html" title="NumPy and Pandas" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+NumPy and Pandas
+</span>
 </div>
+</a>
+<a href="reference.html" title="Function Reference" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+Function Reference
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
 </nav>
 </div>
-</div>
-
-</section>
-</div>
-
-</div>
-
-<footer class="site-footer">
-
-<section class="site-footer-nav">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-
-<div class="small-12 medium-4 large-3 text-center column">
-<div class="nav-links">
-<ul>
-<!-- <li><a href="https://www.example.com/products/">Products</a> -->
-</ul>
-</div>
-</div>
-
-</div>
-</div>
-</div>
-</section>
-
-<section class="site-footer-base">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-<div class="small-12 text-center large-9 column">
-<div class="copyright">
-<span class="text">Copyright &copy; 2019
-<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+&copy; 2017-2019 <a href="https://astraea.earth">Astraea</a>, Inc. All rights reserved.
 </div>
 </div>
 </div>
 </div>
-</div>
-</section>
 </footer>
-</div>
-</div>
-</div>
-</body>
 
-<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
-<script type="text/javascript">jQuery(document).foundation();</script>
-<script type="text/javascript" src="js/magellan.js"></script>
-
-<style type="text/css">@import "lib/prettify/prettify.css";</style>
+</div>
+<script src="assets/javascripts/application.583bbe55.js"></script>
+<script src="assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"."}})</script>
 <script type="text/javascript" src="lib/prettify/prettify.js"></script>
 <script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
-<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+<script>!function(e,a,t,n,o,c,i){e.GoogleAnalyticsObject=o,e.ga=e.ga||function(){(e.ga.q=e.ga.q||[]).push(arguments)},e.ga.l=1*new Date,c=a.createElement(t),i=a.getElementsByTagName(t)[0],c.async=1,c.src="https://www.google-analytics.com/analytics.js",i.parentNode.insertBefore(c,i)}(window,document,"script",0,"ga"),ga("create","UA-106630615-1"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var a=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",a,e.href)})});if(document.forms.search){var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}</script>
 
+</body>
 </html>

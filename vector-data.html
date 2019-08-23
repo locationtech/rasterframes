@@ -1,115 +1,144 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
-
+<html lang="en" class="no-js">
 <head>
-<!-- Global Site Tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106630615-1"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments)};
-gtag('js', new Date());
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
+<meta name="generator" content="Paradox, paradox-material-theme=0.6.0, mkdocs-material=3.0.3">
 
-gtag('config', 'UA-106630615-1');
-</script>
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
 
+
+<meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
+<link rel="shortcut icon" href="assets/images/RasterFrames_32x32.ico">
 <title>Vector Data · RasterFrames</title>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content='RasterFrames brings the power of Spark DataFrames to geospatial raster data.'/>
-<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="js/page.js"></script>
-<script type="text/javascript" src="js/groups.js"></script>
-<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css"/>
-<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
-<link rel="stylesheet" type="text/css" href="css/page.css"/>
-
-<link rel="icon" href="images/RasterFrames_16x16.ico" sizes="16x16"/>
-<link rel="icon" href="images/RasterFrames_32x32.ico" sizes="32x32"/>
-
+<link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
+<meta name="theme-color" content="#546e7a" />
+<link rel="stylesheet" href="lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="lib/prettify/prettify.css">
+<script src="assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
 <style>
-.md-left { float: left; }
-.md-right { float: right; }
-.md-clear { clear: both; }
-table { font-size: 80%; }
-code { font-size: 0.75em !important; }
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
 </style>
+<link rel="stylesheet" href="assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="assets/fonts/material-icons.css">
+<link rel="stylesheet" href="assets/stylesheets/paradox-material-theme.css">
+<link rel="stylesheet" href="assets/custom.css">
 </head>
-
-<body>
-<div class="off-canvas-wrapper">
-<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
-
-<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
-<nav class="off-canvas-nav">
-<div class="nav-home">
-<a href="index.html" >
-<span class="home-icon">⌂</span>RasterFrames
+<body
+data-md-color-primary="blue-grey"
+data-md-color-accent="light-blue"
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="index.html" title="RasterFrames" class="md-header-nav__button md-logo">
+<img src="assets/images/RF-R.svg" width="24" height="24">
 </a>
-<div class="version-number">
-0.8.0
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+RasterFrames
+</span>
+<span class="md-header-nav__topic">
+Vector Data
+</span>
 </div>
 </div>
-<div class="nav-toc">
-<ul>
-  <li><a href="description.html" class="page">Overview</a></li>
-  <li><a href="getting-started.html" class="page">Getting Started</a></li>
-  <li><a href="concepts.html" class="page">Concepts</a></li>
-  <li><a href="raster-io.html" class="page">Raster Data I/O</a>
-  <ul>
-    <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a></li>
-    <li><a href="raster-read.html" class="page">Reading Raster Data</a></li>
-    <li><a href="raster-write.html" class="page">Writing Raster Data</a></li>
-  </ul></li>
-  <li><a href="vector-data.html" class="active page">Vector Data</a></li>
-  <li><a href="raster-processing.html" class="page">Raster Processing</a>
-  <ul>
-    <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
-    <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
-    <li><a href="aggregation.html" class="page">Aggregation</a></li>
-    <li><a href="time-series.html" class="page">Time Series</a></li>
-    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
-  </ul></li>
-  <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
-  <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
-</ul>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
 </div>
 
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<div class="md-header-nav__source">
+<a href="https://github.com/locationtech/rasterframes"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
+</div>
+<div class="md-source__repository">
+locationtech/rasterframes
+</div>
+</a>
+
+</div>
+</div>
+</div>
 </nav>
-</div>
-
-<div class="off-canvas-content" data-off-canvas-content>
-
-<header class="site-header expanded row">
-<div class="small-12 column">
-<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
-H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
-C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
-</a>
-<img style="max-height: 60px;" src="images/RasterFramesLogo.png" />
-<!-- <div class="title"><a href="index.html">RasterFrames</a></div>
- -->
-<a href="http://www.astraea.earth" class="logo show-for-medium">
-<img style="max-height: 40px;" src="images/astraea.png"/>
-</a>
-</div>
 </header>
 
-<div class="expanded row">
-
-<div class="medium-3 large-2 show-for-medium column">
-<nav class="site-nav">
-<div class="nav-home">
-<a href="index.html" >
-<span class="home-icon">⌂</span>RasterFrames
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="index.html" title="RasterFrames" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<img src="assets/images/RF-R.svg" width="24" height="24">
 </a>
-<div class="version-number">
-0.8.0
+<a href="index.html" title="RasterFrames">
+RasterFrames
+</a>
+</label>
+<div class="md-nav__source">
+<a href="https://github.com/locationtech/rasterframes"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
 </div>
+<div class="md-source__repository">
+locationtech/rasterframes
 </div>
-<div class="nav-toc">
+</a>
+
+</div>
 <ul>
   <li><a href="description.html" class="page">Overview</a></li>
   <li><a href="getting-started.html" class="page">Getting Started</a></li>
@@ -134,27 +163,52 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
 </ul>
-</div>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="vector-data.html#vector-data" class="header">Vector Data</a>
+  <ul>
+    <li><a href="vector-data.html#geojson-datasource" class="header">GeoJSON DataSource</a></li>
+    <li><a href="vector-data.html#geopandas-and-rasterframes" class="header">GeoPandas and RasterFrames</a></li>
+    <li><a href="vector-data.html#shapely-geometry-support" class="header">Shapely Geometry Support</a></li>
+    <li><a href="vector-data.html#geomesa-functions-and-spatial-relations" class="header">GeoMesa Functions and Spatial Relations</a></li>
+  </ul></li>
+</ul>
+</nav>
 
 </nav>
-</div>
-
-<div class="small-12 medium-9 large-10 column">
-<section class="site-content">
-
-<div class="page-header row">
-<div class="medium-12 show-for-medium column">
-<div class="nav-breadcrumbs">
-<ul>
-  <li><a href="index.html">RasterFrames</a></li>
-  <li>Vector Data</li>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.8.1
+</label>
+</li>
 </ul>
 </div>
 </div>
 </div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="vector-data.html#vector-data" class="header">Vector Data</a>
+  <ul>
+    <li><a href="vector-data.html#geojson-datasource" class="header">GeoJSON DataSource</a></li>
+    <li><a href="vector-data.html#geopandas-and-rasterframes" class="header">GeoPandas and RasterFrames</a></li>
+    <li><a href="vector-data.html#shapely-geometry-support" class="header">Shapely Geometry Support</a></li>
+    <li><a href="vector-data.html#geomesa-functions-and-spatial-relations" class="header">GeoMesa Functions and Spatial Relations</a></li>
+  </ul></li>
+</ul>
+</nav>
 
-<div class="page-content row">
-<div class="small-12 large-9 column" id="docs">
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
 <h1><a href="#vector-data" name="vector-data" class="anchor"><span class="anchor-link"></span></a>Vector Data</h1>
 <p>RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data. There is a convenience DataSource for the GeoJSON format, as well as the ability to convert from <a href="http://geopandas.org">GeoPandas</a> to Spark. Representation of vector geometries in PySpark is through <a href="https://shapely.readthedocs.io/en/latest/manual.html">Shapely</a>, providing a great deal of interoperability. RasterFrames also provides access to Spark functions for working with geometries.</p>
 <h2><a href="#geojson-datasource" name="geojson-datasource" class="anchor"><span class="anchor-link"></span></a>GeoJSON DataSource</h2>
@@ -234,7 +288,7 @@ df.printSchema()
  |-- naive_centroid: point (nullable = true)
 </code></pre>
 <p>We can take a look at a sample of the data. Notice the geometry columns print as well known text (wkt).</p>
-<pre class="prettyprint"><code class="language-python">df.show(4)
+<pre class="prettyprint"><code class="language-python">df.limit(3)
 </code></pre>
 <table>
   <thead>
@@ -250,40 +304,31 @@ df.printSchema()
   </thead>
   <tbody>
     <tr>
-      <td>POLYGON ((-71.14789974636884 41.64758738 </td>
+      <td>POLYGON ((-71.14789974636884 41.64758738867177, -71.1203820461734 41.49465098730397, -71.85382564969197 41.32003632258973, -71.79295081245215 41.46661652278563, -71.8009089830251 42.013249823569055, -71.37915178087496 42.02436025651181, -71.30507361518457 41.76241242122431, -71.14789974636884 41.64758738867177)) </td>
       <td>USA </td>
       <td>United States of America </td>
       <td>USA-3539 </td>
       <td>Rhode Island </td>
       <td>RI </td>
-      <td>POINT (-71.52928731203043 41.68199156750 </td>
+      <td>POINT (-71.52928731203043 41.68199156750224) </td>
     </tr>
     <tr>
-      <td>POLYGON ((-80.05653928497765 26.88, -80. </td>
+      <td>POLYGON ((-80.05653928497765 26.88, -80.088015 26.205765, -80.13155999999987 25.81677500000012, -80.38103 25.20616, -80.67979855011788 25.07991649016799, -81.17191321483341 25.201097723892417, -81.33012061229499 25.639753119402087, -81.71007158072098 25.869945787046277, -82.23978084992882 26.729841620383013, -82.70515 27.49504, -82.85526 27.88624, -82.64988501659712 28.55016978608029, -82.9299999999999 29.100000000000136, -83.70959 29.9365600000001, -84.0997965156264 30.090049953729817, -85.10882 29.6361500000001, -85.28784 29.68612000000013, -85.7731 30.15261, -86.40006954623453 30.40016022391336, -87.53038814975463 30.274198920201854, -87.4578861152491 30.411270656856118, -87.40496944858228 30.60864878999479, -87.63304338250248 30.851528021766683, -87.61715287957264 30.927724921181095, -87.04566321485686 30.984879055295778, -85.00519344759601 30.990692653928704, -84.85331641309023 30.721355088823486, -83.84789974641967 30.675311387651334, -82.22600908072292 30.52555308686948, -82.15193091503261 30.35093842215514, -82.02281734895132 30.440364488236412, -82.02015601268835 30.78801768647986, -81.8995173815029 30.82189158784729, -81.70159664582513 30.748330186479848, -81.49047258169657 30.729830023719217, -81.31371 30.035520000000133, -80.97983191600446 29.179898789989068, -80.535585 28.47213, -80.53004024933603 28.04007172292728, -80.05653928497765 26.88)) </td>
       <td>USA </td>
       <td>United States of America </td>
       <td>USA-3542 </td>
       <td>Florida </td>
       <td>FL </td>
-      <td>POINT (-82.50257410032164 28.61692830512 </td>
+      <td>POINT (-82.50257410032164 28.61692830512151) </td>
     </tr>
     <tr>
-      <td>POLYGON ((-94.62861121293412 36.54058645 </td>
+      <td>POLYGON ((-94.62861121293412 36.54058645277894, -94.43017371293331 35.48331248630335, -94.45136105017299 34.510710354138, -94.47991227901426 33.635983384733464, -94.91014441606023 33.83178538668737, -95.19059241410824 33.93816132256019, -95.41812374548935 33.87041351982555, -95.76949764685796 33.88100718844538, -95.9774694486166 33.879431057260476, -96.14890601274487 33.79793732353619, -96.31613094764138 33.75613108981207, -96.46271114783728 33.805327053353935, -96.79661841509122 33.751351019825066, -96.94795284705798 33.91805919039865, -97.10406734901173 33.77359772392673, -97.37658301470292 33.83814158785927, -97.6570310127509 33.99371348727395, -97.95709021685369 33.89369375257304, -98.08832251665889 34.13448008883702, -98.55397884804097 34.11065725355047, -98.85189348020361 34.164633287079326, -99.1874027168586 34.235559190399925, -99.33607581256231 34.442962551403355, -99.59908301471181 34.37629995374684, -99.76152787962131 34.457793687471124, -100.00019548216133 34.56522899020594, -100.00019548216133 35.51984772393371, -100.00019548216133 36.49932282159388, -101.00083207884502 36.49932282159388, -102.00149451374486 36.49932282159388, -103.00161434610563 36.49932282159388, -103.00321631550668 36.995158189434406, -102.04118201374501 36.99198008884845, -101.09979244668396 36.99303945571043, -100.10021521686225 36.994098822572425, -99.10006954628534 36.995158189434406, -97.29984351274949 36.99727692315837, -95.50016008175271 36.99885305434327, -94.62279761430128 36.99991242120525, -94.61750077999136 36.99991242120525, -94.62861121293412 36.54058645277894)) </td>
       <td>USA </td>
       <td>United States of America </td>
       <td>USA-3533 </td>
       <td>Oklahoma </td>
       <td>OK </td>
-      <td>POINT (-97.5041982257254 35.581496016431 </td>
-    </tr>
-    <tr>
-      <td>POLYGON ((-89.59940914585667 48.01027395 </td>
-      <td>USA </td>
-      <td>United States of America </td>
-      <td>USA-3514 </td>
-      <td>Minnesota </td>
-      <td>MN </td>
-      <td>POINT (-94.17743611908642 46.36007316339 </td>
+      <td>POINT (-97.5041982257254 35.58149601643106) </td>
     </tr>
   </tbody>
 </table>
@@ -291,41 +336,36 @@ df.printSchema()
 <p>As documented in the <a href="reference.html">function reference</a>, various user-defined functions implemented by GeoMesa are also available for use. The example below uses a GeoMesa user-defined function to compute the centroid of a geometry. It is logically equivalent to the example above, but more efficient.</p>
 <pre class="prettyprint"><code class="language-python">from pyrasterframes.rasterfunctions import st_centroid
 df = df.withColumn(&#39;centroid&#39;, st_centroid(df.geometry))
-df.select(&#39;name&#39;, &#39;geometry&#39;, &#39;naive_centroid&#39;, &#39;centroid&#39;).show(4)
+centroids = df.select(&#39;geometry&#39;, &#39;name&#39;, &#39;naive_centroid&#39;, &#39;centroid&#39;)
+centroids.limit(3)
 </code></pre>
 <table>
   <thead>
     <tr>
-      <th>name </th>
       <th>geometry </th>
+      <th>name </th>
       <th>naive_centroid </th>
       <th>centroid </th>
     </tr>
   </thead>
   <tbody>
     <tr>
+      <td>POLYGON ((-71.14789974636884 41.64758738867177, -71.1203820461734 41.49465098730397, -71.85382564969197 41.32003632258973, -71.79295081245215 41.46661652278563, -71.8009089830251 42.013249823569055, -71.37915178087496 42.02436025651181, -71.30507361518457 41.76241242122431, -71.14789974636884 41.64758738867177)) </td>
       <td>Rhode Island </td>
-      <td>POLYGON ((-71.14789974636884 41.64758738 </td>
-      <td>POINT (-71.52928731203043 41.68199156750 </td>
-      <td>POINT (-71.52928731203043 41.68199156750 </td>
+      <td>POINT (-71.52928731203043 41.68199156750224) </td>
+      <td>POINT (-71.52928731203043 41.68199156750224) </td>
     </tr>
     <tr>
+      <td>POLYGON ((-80.05653928497765 26.88, -80.088015 26.205765, -80.13155999999987 25.81677500000012, -80.38103 25.20616, -80.67979855011788 25.07991649016799, -81.17191321483341 25.201097723892417, -81.33012061229499 25.639753119402087, -81.71007158072098 25.869945787046277, -82.23978084992882 26.729841620383013, -82.70515 27.49504, -82.85526 27.88624, -82.64988501659712 28.55016978608029, -82.9299999999999 29.100000000000136, -83.70959 29.9365600000001, -84.0997965156264 30.090049953729817, -85.10882 29.6361500000001, -85.28784 29.68612000000013, -85.7731 30.15261, -86.40006954623453 30.40016022391336, -87.53038814975463 30.274198920201854, -87.4578861152491 30.411270656856118, -87.40496944858228 30.60864878999479, -87.63304338250248 30.851528021766683, -87.61715287957264 30.927724921181095, -87.04566321485686 30.984879055295778, -85.00519344759601 30.990692653928704, -84.85331641309023 30.721355088823486, -83.84789974641967 30.675311387651334, -82.22600908072292 30.52555308686948, -82.15193091503261 30.35093842215514, -82.02281734895132 30.440364488236412, -82.02015601268835 30.78801768647986, -81.8995173815029 30.82189158784729, -81.70159664582513 30.748330186479848, -81.49047258169657 30.729830023719217, -81.31371 30.035520000000133, -80.97983191600446 29.179898789989068, -80.535585 28.47213, -80.53004024933603 28.04007172292728, -80.05653928497765 26.88)) </td>
       <td>Florida </td>
-      <td>POLYGON ((-80.05653928497765 26.88, -80. </td>
-      <td>POINT (-82.50257410032164 28.61692830512 </td>
-      <td>POINT (-82.50257410032164 28.61692830512 </td>
+      <td>POINT (-82.50257410032164 28.61692830512151) </td>
+      <td>POINT (-82.50257410032164 28.61692830512151) </td>
     </tr>
     <tr>
+      <td>POLYGON ((-94.62861121293412 36.54058645277894, -94.43017371293331 35.48331248630335, -94.45136105017299 34.510710354138, -94.47991227901426 33.635983384733464, -94.91014441606023 33.83178538668737, -95.19059241410824 33.93816132256019, -95.41812374548935 33.87041351982555, -95.76949764685796 33.88100718844538, -95.9774694486166 33.879431057260476, -96.14890601274487 33.79793732353619, -96.31613094764138 33.75613108981207, -96.46271114783728 33.805327053353935, -96.79661841509122 33.751351019825066, -96.94795284705798 33.91805919039865, -97.10406734901173 33.77359772392673, -97.37658301470292 33.83814158785927, -97.6570310127509 33.99371348727395, -97.95709021685369 33.89369375257304, -98.08832251665889 34.13448008883702, -98.55397884804097 34.11065725355047, -98.85189348020361 34.164633287079326, -99.1874027168586 34.235559190399925, -99.33607581256231 34.442962551403355, -99.59908301471181 34.37629995374684, -99.76152787962131 34.457793687471124, -100.00019548216133 34.56522899020594, -100.00019548216133 35.51984772393371, -100.00019548216133 36.49932282159388, -101.00083207884502 36.49932282159388, -102.00149451374486 36.49932282159388, -103.00161434610563 36.49932282159388, -103.00321631550668 36.995158189434406, -102.04118201374501 36.99198008884845, -101.09979244668396 36.99303945571043, -100.10021521686225 36.994098822572425, -99.10006954628534 36.995158189434406, -97.29984351274949 36.99727692315837, -95.50016008175271 36.99885305434327, -94.62279761430128 36.99991242120525, -94.61750077999136 36.99991242120525, -94.62861121293412 36.54058645277894)) </td>
       <td>Oklahoma </td>
-      <td>POLYGON ((-94.62861121293412 36.54058645 </td>
-      <td>POINT (-97.5041982257254 35.581496016431 </td>
-      <td>POINT (-97.5041982257254 35.581496016431 </td>
-    </tr>
-    <tr>
-      <td>Minnesota </td>
-      <td>POLYGON ((-89.59940914585667 48.01027395 </td>
-      <td>POINT (-94.17743611908642 46.36007316339 </td>
-      <td>POINT (-94.17743611908642 46.36007316339 </td>
+      <td>POINT (-97.5041982257254 35.58149601643106) </td>
+      <td>POINT (-97.5041982257254 35.58149601643106) </td>
     </tr>
   </tbody>
 </table>
@@ -338,83 +378,120 @@ l8 = l8.withColumn(&#39;geom&#39;, st_geometry(l8.bounds_wgs84))
 l8 = l8.withColumn(&#39;paducah&#39;, st_point(lit(-88.6275), lit(37.072222)))
 
 l8_filtered = l8.filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(500000.0))))
+l8_filtered.select(&#39;product_id&#39;, &#39;entity_id&#39;, &#39;acquisition_date&#39;, &#39;cloud_cover_pct&#39;)
 </code></pre>
-<div class="nav-next">
-<p><strong>Next:</strong> <a href="raster-processing.html">Raster Processing</a></p>
+<p><em>Showing only top 5 rows</em>.</p>
+<table>
+  <thead>
+    <tr>
+      <th>product_id </th>
+      <th>entity_id </th>
+      <th>acquisition_date </th>
+      <th>cloud_cover_pct </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>LC08_L1TP_018036_20130715_20170309_01_T1 </td>
+      <td>LC80180362013196LGN01 </td>
+      <td>2013-07-15 16:08:10.015 </td>
+      <td>63.65 </td>
+    </tr>
+    <tr>
+      <td>LC08_L1TP_026033_20170312_20170317_01_T1 </td>
+      <td>LC80260332017071LGN00 </td>
+      <td>2017-03-12 16:54:11.155 </td>
+      <td>90.18 </td>
+    </tr>
+    <tr>
+      <td>LC08_L1TP_020033_20170419_20170501_01_T1 </td>
+      <td>LC80200332017109LGN00 </td>
+      <td>2017-04-19 16:16:45.743 </td>
+      <td>59.59 </td>
+    </tr>
+    <tr>
+      <td>LC08_L1TP_024033_20170415_20170501_01_T1 </td>
+      <td>LC80240332017105LGN00 </td>
+      <td>2017-04-15 16:41:31.58 </td>
+      <td>24.8 </td>
+    </tr>
+    <tr>
+      <td>LC08_L1TP_027033_20170709_20170717_01_T1 </td>
+      <td>LC80270332017190LGN00 </td>
+      <td>2017-07-09 17:00:24.996 </td>
+      <td>2.19 </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div>
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/vector-data.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.8.1
+</span>
+</div>
+</article>
 </div>
 </div>
-<div class="large-3 show-for-large column" data-sticky-container>
-<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
-<div class="page-nav">
-<div class="nav-title">On this page:</div>
-<div class="nav-toc">
-<ul>
-  <li><a href="vector-data.html#vector-data" class="header">Vector Data</a>
-  <ul>
-    <li><a href="vector-data.html#geojson-datasource" class="header">GeoJSON DataSource</a></li>
-    <li><a href="vector-data.html#geopandas-and-rasterframes" class="header">GeoPandas and RasterFrames</a></li>
-    <li><a href="vector-data.html#shapely-geometry-support" class="header">Shapely Geometry Support</a></li>
-    <li><a href="vector-data.html#geomesa-functions-and-spatial-relations" class="header">GeoMesa Functions and Spatial Relations</a></li>
-  </ul></li>
-</ul>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="raster-write.html" title="Writing Raster Data" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+Writing Raster Data
+</span>
 </div>
+</a>
+<a href="raster-processing.html" title="Raster Processing" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+Raster Processing
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
 </nav>
 </div>
-</div>
-
-</section>
-</div>
-
-</div>
-
-<footer class="site-footer">
-
-<section class="site-footer-nav">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-
-<div class="small-12 medium-4 large-3 text-center column">
-<div class="nav-links">
-<ul>
-<!-- <li><a href="https://www.example.com/products/">Products</a> -->
-</ul>
-</div>
-</div>
-
-</div>
-</div>
-</div>
-</section>
-
-<section class="site-footer-base">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-<div class="small-12 text-center large-9 column">
-<div class="copyright">
-<span class="text">Copyright &copy; 2019
-<a href="http://www.astraea.earth/">Astraea, Inc.</a></span>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+&copy; 2017-2019 <a href="https://astraea.earth">Astraea</a>, Inc. All rights reserved.
 </div>
 </div>
 </div>
 </div>
-</div>
-</section>
 </footer>
-</div>
-</div>
-</div>
-</body>
 
-<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
-<script type="text/javascript">jQuery(document).foundation();</script>
-<script type="text/javascript" src="js/magellan.js"></script>
-
-<style type="text/css">@import "lib/prettify/prettify.css";</style>
+</div>
+<script src="assets/javascripts/application.583bbe55.js"></script>
+<script src="assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"."}})</script>
 <script type="text/javascript" src="lib/prettify/prettify.js"></script>
 <script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
-<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+<script>!function(e,a,t,n,o,c,i){e.GoogleAnalyticsObject=o,e.ga=e.ga||function(){(e.ga.q=e.ga.q||[]).push(arguments)},e.ga.l=1*new Date,c=a.createElement(t),i=a.getElementsByTagName(t)[0],c.async=1,c.src="https://www.google-analytics.com/analytics.js",i.parentNode.insertBefore(c,i)}(window,document,"script",0,"ga"),ga("create","UA-106630615-1"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var a=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",a,e.href)})});if(document.forms.search){var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}</script>
 
+</body>
 </html>

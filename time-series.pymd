@@ -4,9 +4,16 @@
 
 ```python setup, echo=False
 from IPython.display import display
+
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
+
+import folium 
+
+from pyspark.sql.functions import udf, lit
+from geomesa_pyspark.types import MultiPolygonUDT
+
 # This job is more memory bound, so reduce the concurrent tasks.
 spark = pyrasterframes.get_spark_session("local[4]")
 ```
@@ -20,47 +27,86 @@ cat.printSchema()
 
 We will summarize the change in NDVI over 2018 in the Cuyahoga Valley National Park in Ohio, USA. First, we will retrieve open vector data delineating the park boundary from the US National Park Service's LandsNet.
 
+## Vector Data
+
+First we will get the vector data from LandsNet service by a REST query. The data is saved to a geojson file.
+
 ```python get_park_boundary
 import requests
-import geopandas
-nps_data_query_url = 'https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/NPS_Park_Boundaries/FeatureServer/0/query?where=1%3D1&outFields=*&geometry=-82.451%2C41.075%2C-80.682%2C41.436&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json'
+nps_filepath = '/tmp/parks.geojson'
+nps_data_query_url = 'https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/' \
+                     'NPS_Park_Boundaries/FeatureServer/0/query' \
+                     '?geometry=-82.451,41.075,-80.682,41.436&inSR=4326&outSR=4326&f=geojson'
 r = requests.get(nps_data_query_url)
-with open('/tmp/parks.geojson', 'wb') as f:
-    for chunk in r.iter_content(chunk_size=128):
-        f.write(chunk)
-
-park_df = geopandas.read_file('/tmp/parks.geojson')
-park_geo = park_df[park_df.UNIT_CODE=='CUVA'].geometry[0]
-
-park_geo.wkt[:100]
+with open(nps_filepath,'wb') as f:
+    f.write(r.content)
 ```
 
+```python, folium_map, 
+m = folium.Map((41.25,-81.6), zoom_start=10).add_child(folium.GeoJson(nps_filepath))
+```
 
-The entire park boundary is contained in MODIS granule h11 v4. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). The time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer.
+```python, folium_persist, echo=False
+# this is the work around for ability to render the folium map in the docs build
+import base64
+temp_folium = 'docs/static/__cuya__.html'
+m.save(temp_folium)
+with open(temp_folium, 'rb') as f:
+    b64 = base64.b64encode(f.read())
+with open('docs/static/cuya.md', 'w') as md:
+    md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>'.format(b64.decode('utf-8')))
+    # seems that the height is not correct?
+```
 
-```python query_catalog
-from pyspark.sql.functions import lit
-park_cat = cat.filter(
-                    (cat.granule_id == 'h11v04') &
-                    (cat.acquisition_date > lit('2018-02-19')) &
-                    (cat.acquisition_date < lit('2018-07-01'))
-            )
-park_cat.printSchema()
+@@include[folium_static](static/cuya.md)
+
+Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry is "simplified" by combining vertices within about 100 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
+
+```python read_cuya_vector
+park_vector = spark.read.geojson(nps_filepath)
+
+@udf(MultiPolygonUDT())
+def simplify(g, tol):
+    return g.simplify(tol)
+
+park_vector = park_vector.withColumn('geo_simp', simplify('geometry', lit(0.001))) \
+                         .select('geo_simp') \
+                         .hint('broadcast')
 ```
 
 ## Catalog Read
 
+The entire park boundary is contained in MODIS granule h11 v04. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). The time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer.
+
+```python query_catalog
+park_cat = cat \
+            .filter(
+                    (cat.granule_id == 'h11v04') &
+                    (cat.acquisition_date > lit('2018-02-19')) &
+                    (cat.acquisition_date < lit('2018-07-01'))            
+                    ) \
+            .crossJoin(park_vector)
+                
+park_cat.printSchema()
+```
+
 Now we have a catalog with several months of MODIS data for a single granule. However, the granule is larger than our park boundary. We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed in a @ref:[previous section](local-algebra.md#computing-ndvi).
+
+We then [reproject](https://gis.stackexchange.com/questions/247770/understanding-reprojection) the park geometry to the same @ref:[CRS](concepts.md#coordinate-reference-system--crs-) as the imagery. Then we will filter to only the _tiles_ intersecting the park.
 
 ```python read_catalog
 raster_cols = ['B01', 'B02',] # red and near-infrared respectively
 park_rf = spark.read.raster(
-    catalog=park_cat.select(['acquisition_date', 'granule_id'] + raster_cols),
-    catalog_col_names=raster_cols
-    ) \
-    .withColumn('park', st_geomFromWKT(lit(park_geo.wkt)))
+        catalog=park_cat.select(['acquisition_date', 'granule_id', 'geo_simp'] + raster_cols),
+        catalog_col_names=raster_cols) \
+    .withColumn('park_native', st_reproject('geo_simp', lit('EPSG:4326'), rf_crs('B01'))) \
+    .filter(st_intersects('park_native', rf_geometry('B01'))) 
+
 park_rf.printSchema()
-park_rf.persist()                    
+```
+
+```python persist_catalog, echo=False
+# park_rf.persist()                    
 ```
 
 ## Vector and Raster Data Interaction
@@ -70,14 +116,12 @@ Now we have the vector representation of the park boundary alongside the _tiles_
 We do this using two transformations. The first one will reproject the park boundary from coordinates to the MODIS sinusoidal projection. The second one will create a new _tile_ aligned with the imagery containing a value of 1 where the pixels are contained within the park and NoData elsewhere. 
 
 ```python burn_in
-cr_1 = park_rf.withColumn('park_native', st_reproject('park', lit('EPSG:4326'), rf_crs('B01')))
-
-cr_2 = cr_1 \
+rf_park_tile = park_rf \
     .withColumn('dims', rf_dimensions('B01')) \
     .withColumn('park_tile', rf_rasterize('park_native', rf_geometry('B01'), lit(1), 'dims.cols', 'dims.rows')) \
-    .where(rf_tile_sum('park_tile') > 0)
-cr_2.printSchema()
-cr_2.persist()
+    .persist()
+
+rf_park_tile.printSchema()
 ```
 
 ## Create Time Series
@@ -88,8 +132,9 @@ Next, we will compute NDVI as the normalized difference of near infrared (band 2
 from pyspark.sql.functions import col, year, weekofyear, month
 from pyspark.sql.functions import sum as sql_sum
 
-rf_ndvi = cr_2.withColumn('ndvi', rf_normalized_difference('B02', 'B01')) \
-              .withColumn('ndvi_masked', rf_mask('ndvi', 'park_tile'))
+rf_ndvi = rf_park_tile \
+    .withColumn('ndvi', rf_normalized_difference('B02', 'B01')) \
+    .withColumn('ndvi_masked', rf_mask('ndvi', 'park_tile'))
 
 time_series = rf_ndvi \
         .withColumn('ndvi_wt', rf_tile_sum('ndvi_masked')) \
@@ -97,13 +142,13 @@ time_series = rf_ndvi \
         .groupby(year('acquisition_date').alias('year'), weekofyear('acquisition_date').alias('week')) \
         .agg(sql_sum('ndvi_wt').alias('ndvi_wt_wk'), sql_sum('wt').alias('wt_wk')) \
         .withColumn('ndvi', col('ndvi_wt_wk') / col('wt_wk'))
+        
 time_series.printSchema()
-time_series.persist()
 ```
 
 Finally, we will take a look at the NDVI over time.
 
-```python time_series_display
+```python time_series_display, evaluate=True
 import matplotlib.pyplot as plt
 
 time_series_pdf = time_series.toPandas()
