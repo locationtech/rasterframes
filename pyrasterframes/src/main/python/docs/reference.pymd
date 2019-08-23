@@ -622,7 +622,7 @@ Render Tile cell values as numeric values, for debugging purposes.
 
     Tile rf_rgb_composite(Tile red, Tile green, Tile blue)
     
-Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer.
+Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer. This is useful when you want an RGB tile to render or to process with other color imagery tools. 
 
 
 ### rf_render_png

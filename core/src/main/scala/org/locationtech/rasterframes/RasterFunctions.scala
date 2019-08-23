@@ -83,7 +83,7 @@ trait RasterFunctions {
   def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
     rf_convert_cell_type(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile](singlebandTileEncoder)
 
-  /** Create a Tile from a column of cell data with location indexes and preform cell conversion. */
+  /** Create a Tile from a column of cell data with location indexes and perform cell conversion. */
   def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int): TypedColumn[Any, Tile] =
     TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows))
 

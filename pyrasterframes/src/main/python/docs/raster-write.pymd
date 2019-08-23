@@ -35,7 +35,7 @@ display(tile) # IPython.display function
 
 ## DataFrame Samples
 
-Within an IPython or Jupyter interpreter, a Spark DataFrame containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of a Spark DataFrame.
+Within an IPython or Jupyter interpreter, a Spark and Pandas DataFrames containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of these DataFrame types.
 
 ```python to_samples, evaluate=True
 import pyrasterframes.rf_ipython
