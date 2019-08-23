@@ -115,9 +115,17 @@ Example: `SELECT rf_mk_crs('EPSG:4326')`
 
 ### rf_convert_cell_type
 
-    Tile rf_convert_cell_type(Tile tileCol, String cellType)
+    Tile rf_convert_cell_type(Tile tile_col, CellType cell_type)
+    Tile rf_convert_cell_type(Tile tile_col, String cell_type)
 
-Convert `tileCol` to a different cell type. Available cell types can be retrieved with the @ref:[rf_cell_types](reference.md#rf-cell-types) function.
+Convert `tile_col` to a different cell type. In Python you can pass a CellType object to `cell_type`.
+
+### rf_interpret_cell_type_as
+
+    Tile rf_interpret_cell_type_as(Tile tile_col, CellType cell_type)
+    Tile rf_interpret_cell_type_as(Tile tile_col, String cell_type)
+
+Change the interpretation of the `tile_col`'s cell values according to specified `cell_type`. In Python you can pass a CellType object to `cell_type`.
 
 ### rf_resample
 
@@ -223,6 +231,20 @@ Generate a `tile` with the values from `data_tile`, with NoData in cells where t
     Boolean rf_is_no_data_tile(Tile)
 
 Returns true if `tile` contains only NoData. By definition returns false if cell type does not support NoData. To count NoData cells or data cells, see @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), @ref:[`rf_agg_local_no_data_cells`](reference.md#rf-agg-local-no-data-cells), and @ref:[`rf_agg_local_data_cells`](reference.md#rf-agg-local-data-cells). This function is distinguished from @ref:[`rf_for_all`](reference.md#rf-for-all), which tests that values are not NoData and nonzero.
+
+### rf_local_no_data
+
+    Tile rf_local_no_data(Tile tile)
+
+Returns a tile with values of 1 in each cell where the input tile contains NoData. Otherwise values are 0.
+
+### rf_local_data
+
+    Tile rf_local_no_data(Tile tile)
+
+Returns a tile with values of 0 in each cell where the input tile contains NoData. Otherwise values are 1.
+
+### rf_local_data
 
 ### rf_with_no_data
 

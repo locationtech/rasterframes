@@ -100,6 +100,18 @@ trait RasterFunctions {
   /** Change the Tile's cell type */
   def rf_convert_cell_type(col: Column, cellTypeName: String): Column = SetCellType(col, cellTypeName)
 
+  /** Change the Tile's cell type */
+  def rf_convert_cell_type(col: Column, cellType: Column): Column = SetCellType(col, cellType)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellType: CellType): Column = InterpretAs(col, cellType)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellTypeName: String): Column = InterpretAs(col, cellTypeName)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellType: Column): Column = InterpretAs(col, cellType)
+
   /** Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less
     * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
   def rf_resample[T: Numeric](tileCol: Column, factorValue: T) = Resample(tileCol, factorValue)
@@ -376,6 +388,12 @@ trait RasterFunctions {
 
   /** Cellwise inequality comparison between a tile and a scalar. */
   def rf_local_unequal[T: Numeric](tileCol: Column, value: T): Column = Unequal(tileCol, value)
+
+  /** Return a tile with ones where the input is NoData, otherwise zero */
+  def rf_local_no_data(tileCol: Column): Column = Undefined(tileCol)
+
+  /** Return a tile with zeros where the input is NoData, otherwise one*/
+  def rf_local_data(tileCol: Column): Column = Defined(tileCol)
 
   /** Round cell values to nearest integer without chaning cell type. */
   def rf_round(tileCol: Column): Column = Round(tileCol)

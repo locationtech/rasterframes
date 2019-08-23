@@ -56,7 +56,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
   lazy val six = ProjectedRasterTile(three * two, three.extent, three.crs)
   lazy val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
   lazy val randPRT = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
-  lazy val randNDPRT  = TestData.injectND(numND)(randPRT)
+  lazy val randNDPRT: Tile  = TestData.injectND(numND)(randPRT)
 
   lazy val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
   lazy val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
@@ -947,5 +947,39 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     val image = ImageIO.read(new ByteArrayInputStream(pngData))
     image.getWidth should be(red.cols)
     image.getHeight should be(red.rows)
+  }
+  it("should interpret cell values with a specified cell type") {
+    checkDocs("rf_interpret_cell_type_as")
+    val df = Seq(randNDPRT).toDF("t")
+      .withColumn("tile", rf_interpret_cell_type_as($"t", "int8raw"))
+    val resultTile = df.select("tile").as[Tile].first()
+
+    resultTile.cellType should be (CellType.fromName("int8raw"))
+    // should have same number of values that are -2 the old ND
+    val countOldNd = df.select(
+      rf_tile_sum(rf_local_equal($"tile", ct.noDataValue)),
+      rf_no_data_cells($"t")
+    ).first()
+    countOldNd._1 should be (countOldNd._2)
+
+    // should not have no data any more (raw type)
+    val countNewNd = df.select(rf_no_data_cells($"tile")).first()
+    countNewNd should be (0L)
+
+  }
+
+  it("should return local data and nodata"){
+    checkDocs("rf_local_data")
+    checkDocs("rf_local_no_data")
+
+    val df = Seq(randNDPRT).toDF("t")
+      .withColumn("ld", rf_local_data($"t"))
+      .withColumn("lnd", rf_local_no_data($"t"))
+
+    val ndResult = df.select($"lnd").as[Tile].first()
+    ndResult should be (randNDPRT.localUndefined())
+
+    val dResult = df.select($"ld").as[Tile].first()
+    dResult should be (randNDPRT.localDefined())
   }
 }
