@@ -226,14 +226,14 @@ t = Tile(np.random.randn(4, 4))
 print(str(t))
 </code></pre>
 <pre><code>Tile(dimensions=[4, 4], cell_type=CellType(float64, nan), cells=
-[[-0.2307741647000861 -0.23845561252042774 -1.7461674951105066
-  0.25223856618752405]
- [1.4426724175014658 -0.10263140072849135 -0.49518244402322653
-  -1.3195566719351042]
- [0.6912073978868843 0.2384182321478288 0.16534716049577422
-  -0.7169634553932095]
- [0.6276797266351694 0.40821807435018875 0.322141050751363
-  0.8223635647783595]])
+[[-0.5863218958595482 1.795796341124276 -2.0852535607684466
+  0.19724604210206995]
+ [-2.382534178654329 -1.5061790064376177 -1.4530778617968478
+  0.4851696050465145]
+ [0.9614034817145716 1.567105484287035 -1.441862575234524
+  -1.558194231034949]
+ [1.406906959001929 0.017706894129644584 0.34752015804954844
+  0.16487613693126169]])
 </code></pre>
 <p>You can access the NumPy array with the <code>cells</code> member of <code>Tile</code>.</p>
 <pre class="prettyprint"><code class="language-python">t.cells.shape, t.cells.nbytes
@@ -297,7 +297,7 @@ np.abs(diff.cells).max()
 <p>We can also inspect an image of the difference between the two <em>tiles</em>, which is just random noise. Both <em>tiles</em> have the same structure of NoData, as exhibited by the white areas.</p>
 <pre class="prettyprint"><code class="language-python">diff.show(0, 100)
 </code></pre>
-<pre><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x11b5c1cc0&gt;
+<pre><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x129c6d6d8&gt;
 </code></pre>
 <p><img src="figures/numpy-pandas_udf_diff_noise_tile_1.png" /></p>
 <h2><a href="#creating-a-spark-dataframe" name="creating-a-spark-dataframe" class="anchor"><span class="anchor-link"></span></a>Creating a Spark DataFrame</h2>

@@ -57,37 +57,26 @@ Since it is a geometry we can do things like this:
 the_first['geometry'].wkt
 ```
 
-You can also write user-defined functions that take geometries as input, output, or both, via user defined types in the [geomesa_pyspark.types](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/main/python/geomesa_pyspark/types.py) module. Here is a simple example of a user-defined function that uses both a geometry input and output to compute the centroid of a geometry.
+You can also write user-defined functions that take geometries as input, output, or both, via user defined types in the [geomesa_pyspark.types](https://github.com/locationtech/rasterframes/blob/develop/pyrasterframes/src/main/python/geomesa_pyspark/types.py) module. Here is a simple **but inefficient** example of a user-defined function that uses both a geometry input and output to compute the centroid of a geometry. Observe in a sample of the data the geometry columns print as well known text (wkt).
 
 ```python, add_centroid
 from pyspark.sql.functions import udf
 from geomesa_pyspark.types import PointUDT
 
 @udf(PointUDT())
-def get_centroid(g):
+def inefficient_centroid(g):
     return g.centroid
 
-df = df.withColumn('naive_centroid', get_centroid(df.geometry))
-df.printSchema()
+df.select(df.state_code, inefficient_centroid(df.geometry))
 ```
-
-We can take a look at a sample of the data. Notice the geometry columns print as well known text (wkt).
-
-```python, show_centroid
-df.limit(3)
-```
-
 
 ## GeoMesa Functions and Spatial Relations
 
 As documented in the @ref:[function reference](reference.md), various user-defined functions implemented by GeoMesa are also available for use. The example below uses a GeoMesa user-defined function to compute the centroid of a geometry. It is logically equivalent to the example above, but more efficient.
 
-
 ```python, native_centroid
 from pyrasterframes.rasterfunctions import st_centroid
-df = df.withColumn('centroid', st_centroid(df.geometry))
-centroids = df.select('geometry', 'name', 'naive_centroid', 'centroid')
-centroids.limit(3)
+df.select(df.state_code, inefficient_centroid(df.geometry), st_centroid(df.geometry))
 ```
 
 The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter to those within approximately 500 km of a selected point.

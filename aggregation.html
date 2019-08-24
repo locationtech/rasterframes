@@ -212,32 +212,39 @@ locationtech/rasterframes
 <h1><a href="#aggregation" name="aggregation" class="anchor"><span class="anchor-link"></span></a>Aggregation</h1>
 <p>There are three types of aggregate functions: <em>tile</em> aggregate, DataFrame aggregate, and element-wise local aggregate. In the <a href="reference.html#tile-statistics">tile aggregate functions</a>, we are computing a statistical summary per row of a <em>tile</em> column in a DataFrame. In the <a href="reference.html#aggregate-tile-statistics">DataFrame aggregate functions</a>, we are computing statistical summaries over all of the cell values <em>and</em> across all of the rows in the DataFrame or group. In the <a href="reference.html#tile-local-aggregate-statistics">element-wise local aggregate functions</a>, we are computing the element-wise statistical summary across a DataFrame or group of <em>tiles</em>.</p>
 <h2><a href="#tile-mean-example" name="tile-mean-example" class="anchor"><span class="anchor-link"></span></a>Tile Mean Example</h2>
-<p>We can illustrate aggregate differences by computing an aggregate mean. First, we create a sample DataFrame of 2 <em>tiles</em> where the first <em>tile</em> is composed of 25 values of 1.0 and the second <em>tile</em> is composed of 25 values of 3.0.</p>
+<p>We can illustrate aggregate differences by computing an aggregate mean. First, we create a sample DataFrame of 2 <em>tiles</em>. The <em>tiles</em> will contain normally distributed cell values with the first row&rsquo;s mean at 1.0 and the second row&rsquo;s mean at 3.0. For details on use of the <code>Tile</code> class see <a href="numpy-pandas.html">the page on numpy interoperability</a>.</p>
+<pre class="prettyprint"><code class="language-python">from pyrasterframes.rf_types import Tile, CellType
+
+t1 = Tile(1 + 0.1 * np.random.randn(5,5), CellType(&#39;float64raw&#39;))
+
+t1.cells  # display the array in the Tile
+</code></pre>
+<pre><code>array([[1.062, 1.097, 1.088, 1.034, 1.04 ],
+       [0.909, 1.04 , 0.898, 0.979, 0.933],
+       [1.188, 1.036, 1.122, 0.992, 1.108],
+       [0.955, 1.039, 0.833, 0.808, 1.044],
+       [1.077, 0.93 , 0.98 , 0.875, 1.008]])
+</code></pre>
+<pre class="prettyprint"><code class="language-python">t5 = Tile(5 + 0.1 * np.random.randn(5,5), CellType(&#39;float64raw&#39;))
+t5.cells
+</code></pre>
+<pre><code>array([[5.022, 5.131, 4.91 , 5.123, 4.884],
+       [4.975, 4.964, 4.943, 5.029, 4.898],
+       [4.909, 4.858, 4.985, 4.898, 4.968],
+       [4.826, 4.786, 4.902, 4.946, 5.005],
+       [4.861, 4.946, 4.841, 4.996, 4.91 ]])
+</code></pre>
+<p>Create a Spark DataFrame from the Tile objects.</p>
 <pre class="prettyprint"><code class="language-python">import pyspark.sql.functions as F
+from pyspark.sql import Row
 
-df1 = spark.range(1).select(&#39;id&#39;, rf_make_ones_tile(5, 5, &#39;float32&#39;).alias(&#39;tile&#39;))
-df2 = spark.range(1).select(&#39;id&#39;, rf_local_multiply(rf_make_ones_tile(5, 5, &#39;float32&#39;), F.lit(3)).alias(&#39;tile&#39;))
-
-rf = df1.union(df2)
-
-tiles = rf.select(&quot;tile&quot;).collect()
-print(tiles[0][&#39;tile&#39;].cells)
-print(tiles[1][&#39;tile&#39;].cells)
+rf = spark.createDataFrame([
+    Row(id=1, tile=t1),
+    Row(id=2, tile=t5)
+]).orderBy(&#39;id&#39;)
 </code></pre>
-<pre><code>[[1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]]
-[[3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]]
-</code></pre>
-<p>We use the <a href="reference.html#rf-tile-mean"><code>rf_tile_mean</code></a> function to compute the <em>tile</em> aggregate mean of cells in each row of column <code>tile</code>. The mean of each <em>tile</em> is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.</p>
-<pre class="prettyprint"><code class="language-python">means = rf.select(F.col(&#39;id&#39;), rf_tile_mean(F.col(&#39;tile&#39;)))
-means
+<p>We use the <a href="reference.html#rf-tile-mean"><code>rf_tile_mean</code></a> function to compute the <em>tile</em> aggregate mean of cells in each row of column <code>tile</code>. The mean of each <em>tile</em> is computed separately, so the first mean is about 1.0 and the second mean is about 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.</p>
+<pre class="prettyprint"><code class="language-python">rf.select(F.col(&#39;id&#39;), rf_tile_mean(F.col(&#39;tile&#39;)))
 </code></pre>
 <table>
   <thead>
@@ -248,18 +255,17 @@ means
   </thead>
   <tbody>
     <tr>
-      <td>0 </td>
-      <td>NaN </td>
+      <td>1 </td>
+      <td>1.002965314252178 </td>
     </tr>
     <tr>
-      <td>0 </td>
-      <td>NaN </td>
+      <td>2 </td>
+      <td>4.9407551893912265 </td>
     </tr>
   </tbody>
 </table>
-<p>We use the <a href="reference.html#rf-agg-mean"><code>rf_agg_mean</code></a> function to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.</p>
-<pre class="prettyprint"><code class="language-python">mean = rf.agg(rf_agg_mean(F.col(&#39;tile&#39;)))
-mean
+<p>We use the <a href="reference.html#rf-agg-mean"><code>rf_agg_mean</code></a> function to compute the DataFrame aggregate, which averages values across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.</p>
+<pre class="prettyprint"><code class="language-python">rf.agg(rf_agg_mean(F.col(&#39;tile&#39;)))
 </code></pre>
 <table>
   <thead>
@@ -269,21 +275,20 @@ mean
   </thead>
   <tbody>
     <tr>
-      <td>2.0 </td>
+      <td>2.971860251821702 </td>
     </tr>
   </tbody>
 </table>
 <p>We use the <a href="reference.html#rf-agg-local-mean"><code>rf_agg_local_mean</code></a> function to compute the element-wise local aggregate mean across the two rows. For this aggregation, we are computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the <em>tile</em>.</p>
 <p>To compute an element-wise local aggregate, <em>tiles</em> need to have the same dimensions. In this case, both <em>tiles</em> have 5 rows and 5 columns. If we tried to compute an element-wise local aggregate over the DataFrame without equal <em>tile</em> dimensions, we would get a runtime error.</p>
-<pre class="prettyprint"><code class="language-python">t = rf.agg(rf_agg_local_mean(F.col(&#39;tile&#39;)).alias(&#39;local_mean&#39;)) \
-    .collect()[0][&#39;local_mean&#39;]
-print(t.cells)
+<pre class="prettyprint"><code class="language-python">rf.agg(rf_agg_local_mean(&#39;tile&#39;)) \
+    .first()[0].cells.data  # display the contents of the Tile array
 </code></pre>
-<pre><code>[[2.0 2.0 2.0 2.0 2.0]
- [2.0 2.0 2.0 2.0 2.0]
- [2.0 2.0 2.0 2.0 2.0]
- [2.0 2.0 2.0 2.0 2.0]
- [2.0 2.0 2.0 2.0 2.0]]
+<pre><code>array([[3.042, 3.114, 2.999, 3.078, 2.962],
+       [2.942, 3.002, 2.92 , 3.004, 2.915],
+       [3.049, 2.947, 3.054, 2.945, 3.038],
+       [2.891, 2.913, 2.867, 2.877, 3.025],
+       [2.969, 2.938, 2.911, 2.935, 2.959]])
 </code></pre>
 <h2><a href="#cell-counts-example" name="cell-counts-example" class="anchor"><span class="anchor-link"></span></a>Cell Counts Example</h2>
 <p>We can also count the total number of data and NoData cells over all the <em>tiles</em> in a DataFrame using <a href="reference.html#rf-agg-data-cells"><code>rf_agg_data_cells</code></a> and <a href="reference.html#rf-agg-no-data-cells"><code>rf_agg_no_data_cells</code></a>. There are ~3.8 million data cells and ~1.9 million NoData cells in this DataFrame. See the section on <a href="nodata-handling.html">&ldquo;NoData&rdquo; handling</a> for additional discussion on handling missing data.</p>
@@ -391,12 +396,11 @@ stats
   </tbody>
 </table>
 <p>The <a href="reference.html#rf-agg-local-stats"><code>rf_agg_local_stats</code></a> function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks has unequal <em>tile</em> dimensions, so a different DataFrame is used in this code block to avoid a runtime error.</p>
-<pre class="prettyprint"><code class="language-python">df1 = spark.range(1).select(&#39;id&#39;, rf_make_ones_tile(5, 5, &#39;float32&#39;).alias(&#39;tile&#39;))
-df2 = spark.range(1).select(&#39;id&#39;, rf_make_constant_tile(3, 5, 5, &#39;float32&#39;).alias(&#39;tile&#39;)) 
-df3 = spark.range(1).select(&#39;id&#39;, rf_make_constant_tile(5, 5, 5, &#39;float32&#39;).alias(&#39;tile&#39;)) 
-
-rf = df1.union(df2).union(df3) \
-    .agg(rf_agg_local_stats(&#39;tile&#39;).alias(&#39;stats&#39;))
+<pre class="prettyprint"><code class="language-python">rf = spark.createDataFrame([
+    Row(id=1, tile=t1),
+    Row(id=3, tile=t1 * 3),
+    Row(id=5, tile=t1 * 5)
+]).agg(rf_agg_local_stats(&#39;tile&#39;).alias(&#39;stats&#39;))
     
 agg_local_stats = rf.select(&#39;stats.min&#39;, &#39;stats.max&#39;, &#39;stats.mean&#39;, &#39;stats.variance&#39;).collect()
 
@@ -405,41 +409,56 @@ for r in agg_local_stats:
         print(stat, &#39;:\n&#39;, r[stat], &#39;\n&#39;)
 </code></pre>
 <pre><code>min :
- Tile(dimensions=[5, 5], cell_type=CellType(float32, nan), cells=
-[[1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]
- [1.0 1.0 1.0 1.0 1.0]]) 
+ Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
+[[1.0615886298606014 1.097172089502433 1.0878367712315677
+  1.0336369220329946 1.0396450980524634]
+ [0.9093510234770061 1.0395164132142185 0.8977792623994758
+  0.9794104698605454 0.9331587620871188]
+ [1.1880155149222722 1.0358509293579166 1.121951382553168
+  0.9919570151469949 1.1083157156275618]
+ [0.9549053635290896 1.0393643655651559 0.8325609664771204
+  0.8083227627617129 1.0437751826921156]
+ [1.0771332955918707 0.9295633311374505 0.9800925322192545
+  0.8748399663315599 1.0083890906727804]]) 
 
 max :
- Tile(dimensions=[5, 5], cell_type=CellType(float32, nan), cells=
-[[5.0 5.0 5.0 5.0 5.0]
- [5.0 5.0 5.0 5.0 5.0]
- [5.0 5.0 5.0 5.0 5.0]
- [5.0 5.0 5.0 5.0 5.0]
- [5.0 5.0 5.0 5.0 5.0]]) 
+ Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
+[[5.307943149303007 5.485860447512165 5.439183856157839 5.168184610164973
+  5.198225490262317]
+ [4.546755117385031 5.197582066071092 4.4888963119973795
+  4.897052349302727 4.665793810435594]
+ [5.940077574611361 5.179254646789583 5.60975691276584 4.959785075734974
+  5.541578578137809]
+ [4.774526817645448 5.196821827825779 4.162804832385602 4.041613813808564
+  5.218875913460578]
+ [5.3856664779593535 4.647816655687253 4.900462661096273
+  4.3741998316577995 5.041945453363902]]) 
 
 mean :
  Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
-[[3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]
- [3.0 3.0 3.0 3.0 3.0]]) 
+[[3.1847658895818043 3.291516268507299 3.2635103136947037
+  3.100910766098984 3.11893529415739]
+ [2.7280530704310184 3.1185492396426553 2.6933377871984274
+  2.938231409581636 2.7994762862613563]
+ [3.5640465447668164 3.10755278807375 3.3658541476595034
+  2.9758710454409845 3.3249471468826854]
+ [2.864716090587269 3.1180930966954676 2.497682899431361
+  2.4249682882851387 3.131325548076347]
+ [3.231399886775612 2.7886899934123512 2.9402775966577637
+  2.6245198989946794 3.0251672720183413]]) 
 
 variance :
  Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
-[[2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
-  2.666666666666666]
- [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
-  2.666666666666666]
- [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
-  2.666666666666666]
- [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
-  2.666666666666666]
- [2.666666666666666 2.666666666666666 2.666666666666666 2.666666666666666
-  2.666666666666666]])
+[[3.0052544507981587 3.210097583955026 3.1557035755827236
+  2.849080764239581 2.8822984797453763]
+ [2.2051180903964767 2.8815849955780095 2.149353610652126
+  2.557986315926545 2.322094067359906]
+ [3.763682303189416 2.8612990609377587 3.356733079501243
+  2.623943253064894 3.2756366013520903]
+ [2.4315846754576604 2.88074209175109 1.848420701070177
+  1.7423618367966087 2.9052443520105573]
+ [3.093909697260276 2.304234630920944 2.5615503245652036
+  2.0409199111760152 2.711596155167671]])
 </code></pre>
 <h2><a href="#histogram" name="histogram" class="anchor"><span class="anchor-link"></span></a>Histogram</h2>
 <p>The <a href="reference.html#rf-tile-histogram"><code>rf_tile_histogram</code></a> function computes a count of cell values within each row of <em>tile</em> and outputs a <code>bins</code> array with the schema below. In the graph below, we have plotted each bin&rsquo;s <code>value</code> on the x-axis and <code>count</code> on the y-axis for the <em>tile</em> in the first row of the DataFrame.</p>
