@@ -6,4 +6,5 @@ pandas>=0.25.0
 matplotlib<3.0.0  # no python 2.7 support after v2.x.x
 ipython==6.2.1
 rasterio>=1.0.0
+pyarrow
 folium  # for documentation

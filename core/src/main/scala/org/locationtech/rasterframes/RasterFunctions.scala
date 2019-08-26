@@ -70,8 +70,8 @@ trait RasterFunctions {
     TileToArrayDouble(col)
 
   /** Flattens Tile into an integer array. */
-  def rf_tile_to_array_int(col: Column): TypedColumn[Any, Array[Double]] =
-    TileToArrayDouble(col)
+  def rf_tile_to_array_int(col: Column): TypedColumn[Any, Array[Int]] =
+    TileToArrayInt(col)
 
   @Experimental
   /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/
