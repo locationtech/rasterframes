@@ -153,18 +153,25 @@ object RasterSource extends LazyLogging {
   }
 
   object IsDefaultGeoTiff {
-    def unapply(source: URI): Boolean = source.getScheme match {
-      case "file" | "http" | "https" | "s3" => true
-      case null | ""                        ⇒ true
-      case _                                => false
+    import IsGDAL.gdalOnly
+    def unapply(source: URI): Boolean = {
+      if (gdalOnly(source)) false
+      else source.getScheme match {
+        case "file" | "http" | "https" | "s3" => true
+        case null | ""                        ⇒ true
+        case _                                => false
+      }
     }
   }
 
   object IsHadoopGeoTiff {
-    def unapply(source: URI): Boolean = source.getScheme match {
-      case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" => true
-      case _                                         => false
-    }
+    import IsGDAL.gdalOnly
+    def unapply(source: URI): Boolean =
+      if (gdalOnly(source)) false
+      else source.getScheme match {
+        case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" => true
+        case _                                         => false
+      }
   }
 
   trait URIRasterSource { _: RasterSource =>
