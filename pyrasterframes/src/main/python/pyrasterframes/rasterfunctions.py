@@ -36,6 +36,12 @@ def _context_call(name, *args):
     return f(*args)
 
 
+def _apply_column_function(name, *args):
+    jfcn = RFContext.active().lookup(name)
+    jcols = [_to_java_column(arg) for arg in args]
+    return Column(jfcn(*jcols))
+
+
 def _parse_cell_type(cell_type_arg):
     """ Convert the cell type representation to the expected JVM CellType object."""
 
@@ -75,6 +81,14 @@ def rf_assemble_tile(col_index, row_index, cell_data_col, num_cols, num_rows, ce
             num_cols, num_rows, _parse_cell_type(cell_type)
         ))
 
+
+def rf_tensor(*tile_cols):
+    """Converts the given Tile columns into an 3rd-order tensor of size (tils, rows, columns)."""
+    jfcn = RFContext.active().lookup('rf_tensor')
+    jcols = [_to_java_column(arg) for arg in tile_cols]
+    return Column(jfcn(RFContext.active().list_to_seq(jcols)))
+
+
 def rf_array_to_tile(array_col, num_cols, num_rows):
     """Convert array in `array_col` into a Tile of dimensions `num_cols` and `num_rows'"""
     jfcn = RFContext.active().lookup('rf_array_to_tile')
@@ -85,6 +99,7 @@ def rf_convert_cell_type(tile_col, cell_type):
     """Convert the numeric type of the Tiles in `tileCol`"""
     jfcn = RFContext.active().lookup('rf_convert_cell_type')
     return Column(jfcn(_to_java_column(tile_col), _parse_cell_type(cell_type)))
+
 
 def rf_interpret_cell_type_as(tile_col, cell_type):
     """Change the interpretation of the tile_col's cell values according to specified cell_type"""
@@ -267,11 +282,6 @@ def rf_local_no_data(tile_col):
 def rf_local_data(tile_col):
     """Return a tile with zeros where the input is NoData, otherwise one."""
     return _apply_column_function('rf_local_data', tile_col)
-
-def _apply_column_function(name, *args):
-    jfcn = RFContext.active().lookup(name)
-    jcols = [_to_java_column(arg) for arg in args]
-    return Column(jfcn(*jcols))
 
 
 def rf_dimensions(tile_col):

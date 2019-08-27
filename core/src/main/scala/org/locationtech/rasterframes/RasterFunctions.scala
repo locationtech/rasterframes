@@ -73,6 +73,10 @@ trait RasterFunctions {
   def rf_tile_to_array_int(col: Column): TypedColumn[Any, Array[Int]] =
     TileToArrayInt(col)
 
+  /** Converts the given Tile columns into an 3rd-order tensor of size (tils, rows, columns). */
+  def rf_tensor(tiles: Column*): TypedColumn[Any, Array[Array[Array[Double]]]] =
+    TilesToTensor(tiles)
+
   @Experimental
   /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/
   def rf_array_to_tile(arrayCol: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] = withTypedAlias("rf_array_to_tile")(

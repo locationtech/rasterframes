@@ -614,6 +614,19 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val result2 = hasNoData.select($"withNoData".as[Tile]).first
 
       assert(result2.cellType.asInstanceOf[UserDefinedNoData[_]].noDataValue === 0)
+
+      checkDocs("rf_array_to_tile")
+    }
+
+    it("should convert columns of tiles into a properly shaped tensor") {
+      val df = Seq((one, two, three)).toDF("one", "two", "three")
+      val tensor = df.select(rf_tensor($"one", $"two", $"three")).first()
+
+      tensor.length should be (df.columns.length)
+      tensor(0).length should be(one.rows)
+      tensor(0)(0).length should be(one.cols)
+
+      checkDocs("rf_tensor")
     }
   }
 
@@ -864,122 +877,131 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     }
   }
-  it("should resample") {
-    def lowRes = {
-      def base = ArrayTile(Array(1,2,3,4), 2, 2)
-      ProjectedRasterTile(base.convert(ct), extent, crs)
+
+  describe("image operations") {
+    it("should resample") {
+      def lowRes = {
+        def base = ArrayTile(Array(1, 2, 3, 4), 2, 2)
+
+        ProjectedRasterTile(base.convert(ct), extent, crs)
+      }
+
+      def upsampled = {
+        def base = ArrayTile(Array(
+          1, 1, 2, 2,
+          1, 1, 2, 2,
+          3, 3, 4, 4,
+          3, 3, 4, 4
+        ), 4, 4)
+
+        ProjectedRasterTile(base.convert(ct), extent, crs)
+      }
+
+      // a 4, 4 tile to upsample by shape
+      def fourByFour = TestData.projectedRasterTile(4, 4, 0, extent, crs, ct)
+
+      def df = Seq(lowRes).toDF("tile")
+
+      val maybeUp = df.select(rf_resample($"tile", lit(2))).as[ProjectedRasterTile].first()
+      assertEqual(maybeUp, upsampled)
+
+      def df2 = Seq((lowRes, fourByFour)).toDF("tile1", "tile2")
+
+      val maybeUpShape = df2.select(rf_resample($"tile1", $"tile2")).as[ProjectedRasterTile].first()
+      assertEqual(maybeUpShape, upsampled)
+
+      // Downsample by double argument < 1
+      def df3 = Seq(upsampled).toDF("tile").withColumn("factor", lit(0.5))
+
+      assertEqual(df3.selectExpr("rf_resample(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
+
+      checkDocs("rf_resample")
     }
-    def upsampled = {
-      def base = ArrayTile(Array(
-        1,1,2,2,
-        1,1,2,2,
-        3,3,4,4,
-        3,3,4,4
-      ), 4, 4)
-      ProjectedRasterTile(base.convert(ct), extent, crs)
+
+    it("should create RGB composite") {
+      val red = TestData.l8Sample(4).toProjectedRasterTile
+      val green = TestData.l8Sample(3).toProjectedRasterTile
+      val blue = TestData.l8Sample(2).toProjectedRasterTile
+
+      val expected = ArrayMultibandTile(
+        red.rescale(0, 255),
+        green.rescale(0, 255),
+        blue.rescale(0, 255)
+      ).color()
+
+      val df = Seq((red, green, blue)).toDF("red", "green", "blue")
+
+      val expr = df.select(rf_rgb_composite($"red", $"green", $"blue")).as[ProjectedRasterTile]
+
+      val nat_color = expr.first()
+
+      checkDocs("rf_rgb_composite")
+      assertEqual(nat_color.toArrayTile(), expected)
     }
-    // a 4, 4 tile to upsample by shape
-    def fourByFour = TestData.projectedRasterTile(4, 4, 0, extent, crs, ct)
 
-    def df = Seq(lowRes).toDF("tile")
+    it("should create an RGB PNG image") {
+      val red = TestData.l8Sample(4).toProjectedRasterTile
+      val green = TestData.l8Sample(3).toProjectedRasterTile
+      val blue = TestData.l8Sample(2).toProjectedRasterTile
 
-    val maybeUp = df.select(rf_resample($"tile", lit(2))).as[ProjectedRasterTile].first()
-    assertEqual(maybeUp, upsampled)
+      val df = Seq((red, green, blue)).toDF("red", "green", "blue")
 
-    def df2 = Seq((lowRes, fourByFour)).toDF("tile1", "tile2")
-    val maybeUpShape = df2.select(rf_resample($"tile1", $"tile2")).as[ProjectedRasterTile].first()
-    assertEqual(maybeUpShape, upsampled)
+      val expr = df.select(rf_render_png($"red", $"green", $"blue"))
 
-    // Downsample by double argument < 1
-    def df3 = Seq(upsampled).toDF("tile").withColumn("factor", lit(0.5))
-    assertEqual(df3.selectExpr("rf_resample(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
-    assertEqual(df3.selectExpr("rf_resample(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
+      val pngData = expr.first()
 
-    checkDocs("rf_resample")
-  }
+      val image = ImageIO.read(new ByteArrayInputStream(pngData))
+      image.getWidth should be(red.cols)
+      image.getHeight should be(red.rows)
+    }
 
-  it("should create RGB composite") {
-    val red = TestData.l8Sample(4).toProjectedRasterTile
-    val green = TestData.l8Sample(3).toProjectedRasterTile
-    val blue = TestData.l8Sample(2).toProjectedRasterTile
+    it("should create a color-ramp PNG image") {
+      val red = TestData.l8Sample(4).toProjectedRasterTile
 
-    val expected = ArrayMultibandTile(
-      red.rescale(0, 255),
-      green.rescale(0, 255),
-      blue.rescale(0, 255)
-    ).color()
+      val df = Seq(red).toDF("red")
 
-    val df = Seq((red, green, blue)).toDF("red", "green", "blue")
+      val expr = df.select(rf_render_png($"red", ColorRamps.HeatmapBlueToYellowToRedSpectrum))
 
-    val expr = df.select(rf_rgb_composite($"red", $"green", $"blue")).as[ProjectedRasterTile]
+      val pngData = expr.first()
 
-    val nat_color = expr.first()
+      val image = ImageIO.read(new ByteArrayInputStream(pngData))
+      image.getWidth should be(red.cols)
+      image.getHeight should be(red.rows)
+    }
+    it("should interpret cell values with a specified cell type") {
+      checkDocs("rf_interpret_cell_type_as")
+      val df = Seq(randNDPRT).toDF("t")
+        .withColumn("tile", rf_interpret_cell_type_as($"t", "int8raw"))
+      val resultTile = df.select("tile").as[Tile].first()
 
-    checkDocs("rf_rgb_composite")
-    assertEqual(nat_color.toArrayTile(), expected)
-  }
+      resultTile.cellType should be(CellType.fromName("int8raw"))
+      // should have same number of values that are -2 the old ND
+      val countOldNd = df.select(
+        rf_tile_sum(rf_local_equal($"tile", ct.noDataValue)),
+        rf_no_data_cells($"t")
+      ).first()
+      countOldNd._1 should be(countOldNd._2)
 
-  it("should create an RGB PNG image") {
-    val red = TestData.l8Sample(4).toProjectedRasterTile
-    val green = TestData.l8Sample(3).toProjectedRasterTile
-    val blue = TestData.l8Sample(2).toProjectedRasterTile
+      // should not have no data any more (raw type)
+      val countNewNd = df.select(rf_no_data_cells($"tile")).first()
+      countNewNd should be(0L)
 
-    val df = Seq((red, green, blue)).toDF("red", "green", "blue")
+    }
 
-    val expr = df.select(rf_render_png($"red", $"green", $"blue"))
+    it("should return local data and nodata") {
+      checkDocs("rf_local_data")
+      checkDocs("rf_local_no_data")
 
-    val pngData = expr.first()
+      val df = Seq(randNDPRT).toDF("t")
+        .withColumn("ld", rf_local_data($"t"))
+        .withColumn("lnd", rf_local_no_data($"t"))
 
-    val image = ImageIO.read(new ByteArrayInputStream(pngData))
-    image.getWidth should be(red.cols)
-    image.getHeight should be(red.rows)
-  }
+      val ndResult = df.select($"lnd").as[Tile].first()
+      ndResult should be(randNDPRT.localUndefined())
 
-  it("should create a color-ramp PNG image") {
-    val red = TestData.l8Sample(4).toProjectedRasterTile
-
-    val df = Seq(red).toDF("red")
-
-    val expr = df.select(rf_render_png($"red", ColorRamps.HeatmapBlueToYellowToRedSpectrum))
-
-    val pngData = expr.first()
-
-    val image = ImageIO.read(new ByteArrayInputStream(pngData))
-    image.getWidth should be(red.cols)
-    image.getHeight should be(red.rows)
-  }
-  it("should interpret cell values with a specified cell type") {
-    checkDocs("rf_interpret_cell_type_as")
-    val df = Seq(randNDPRT).toDF("t")
-      .withColumn("tile", rf_interpret_cell_type_as($"t", "int8raw"))
-    val resultTile = df.select("tile").as[Tile].first()
-
-    resultTile.cellType should be (CellType.fromName("int8raw"))
-    // should have same number of values that are -2 the old ND
-    val countOldNd = df.select(
-      rf_tile_sum(rf_local_equal($"tile", ct.noDataValue)),
-      rf_no_data_cells($"t")
-    ).first()
-    countOldNd._1 should be (countOldNd._2)
-
-    // should not have no data any more (raw type)
-    val countNewNd = df.select(rf_no_data_cells($"tile")).first()
-    countNewNd should be (0L)
-
-  }
-
-  it("should return local data and nodata"){
-    checkDocs("rf_local_data")
-    checkDocs("rf_local_no_data")
-
-    val df = Seq(randNDPRT).toDF("t")
-      .withColumn("ld", rf_local_data($"t"))
-      .withColumn("lnd", rf_local_no_data($"t"))
-
-    val ndResult = df.select($"lnd").as[Tile].first()
-    ndResult should be (randNDPRT.localUndefined())
-
-    val dResult = df.select($"ld").as[Tile].first()
-    dResult should be (randNDPRT.localDefined())
+      val dResult = df.select($"ld").as[Tile].first()
+      dResult should be(randNDPRT.localDefined())
+    }
   }
 }

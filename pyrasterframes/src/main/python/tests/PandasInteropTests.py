@@ -99,6 +99,6 @@ class PandasInterop(TestEnvironment):
             # `cells` is a Pandas `Series`.
             return cells.apply(np.mean)
 
-        df = self.rf.select(tile_mean(rf_tile_to_array_double(self.rf.tile)).alias('pandas_udf_mean'), rf_tile_mean(self.rf.tile))
+        df = self.rf.select(tile_mean(rf_tensor(self.rf.tile)).alias('pandas_udf_mean'), rf_tile_mean(self.rf.tile))
         df.show(truncate=False)
 
