@@ -11,9 +11,9 @@ RUN mkdir $RF_LIB_LOC
 
 EXPOSE 4040 4041 4042 4043 4044
 
-# Sphinx (for Notebook->html)
+RUN conda install --quiet --yes anaconda && conda update --all
 RUN conda install --quiet --yes \
-    anaconda sphinx nbsphinx shapely numpy folium geopandas geojsonio
+    sphinx nbsphinx shapely numpy folium geopandas geojsonio pyarrow arrow-cpp
 
 # Cleanup pip residuals
 RUN rm -rf /home/$NB_USER/.local && \

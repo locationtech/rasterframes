@@ -103,6 +103,7 @@ package object expressions {
     registry.registerExpression[Resample]("rf_resample")
     registry.registerExpression[TileToArrayDouble]("rf_tile_to_array_double")
     registry.registerExpression[TileToArrayInt]("rf_tile_to_array_int")
+    registry.registerExpression[TilesToTensor]("rf_tensor")
     registry.registerExpression[DataCells]("rf_data_cells")
     registry.registerExpression[NoDataCells]("rf_no_data_cells")
     registry.registerExpression[IsNoDataTile]("rf_is_no_data_tile")
