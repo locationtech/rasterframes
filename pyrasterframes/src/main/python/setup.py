@@ -150,7 +150,7 @@ setup(
         'pyspark<2.4',
         'numpy>=1.7',
         'pandas>=0.25.0',
-        'pyarrow>=0.8.0'
+        'pyarrow>=0.14.1'
     ],
     setup_requires=[
         'pytz',
@@ -179,7 +179,7 @@ setup(
         'rasterio>=1.0.0',
         'boto3',
         'Pweave==0.30.3',
-        'pyarrow>=0.8.0'
+        'pyarrow>=0.14.1'
     ],
     packages=[
         'pyrasterframes',
