@@ -39,7 +39,7 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
   def shortName = L8CatalogDataSource.SHORT_NAME
 
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    require(parameters.get("path").isEmpty, "MODISCatalogDataSource doesn't support specifying a path. Please use `load()`.")
+    require(parameters.get("path").isEmpty, "L8CatalogDataSource doesn't support specifying a path. Please use `load()`.")
 
     val conf = sqlContext.sparkContext.hadoopConfiguration
     implicit val fs = FileSystem.get(conf)
