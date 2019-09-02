@@ -90,7 +90,7 @@ from pyspark.sql import Row
 blue_uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
 scl_uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/SCL.tif'
 cat = spark.createDataFrame([Row(blue=blue_uri, scl=scl_uri),])
-unmasked = spark.read.raster(catalog=cat, catalog_col_names=['blue', 'scl'])
+unmasked = spark.read.raster(cat, catalog_col_names=['blue', 'scl'])
 unmasked.printSchema()
 ```
 

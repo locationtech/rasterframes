@@ -51,7 +51,7 @@ cat = spark.read.format('aws-pds-modis-catalog').load() \
             (col('acquisition_date') < lit('2018-02-22'))
         )
 
-spark_df = spark.read.raster(catalog=cat, catalog_col_names=['B01']) \
+spark_df = spark.read.raster(cat, catalog_col_names=['B01']) \
                 .select(
                     'acquisition_date',
                     'granule_id',

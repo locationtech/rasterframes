@@ -42,7 +42,7 @@ red_nir_monthly_2017.printSchema()
 
 ```python, step_3_python
 red_nir_tiles_monthly_2017 = spark.read.raster(
-    catalog=red_nir_monthly_2017,
+    red_nir_monthly_2017,
     catalog_col_names=['red', 'nir'],
     tile_dimensions=(256, 256)
 )
