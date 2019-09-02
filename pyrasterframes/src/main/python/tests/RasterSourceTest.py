@@ -28,7 +28,6 @@ from . import TestEnvironment
 
 class RasterSourceTest(TestEnvironment):
 
-
     @staticmethod
     def path(scene, band):
         scene_dict = {

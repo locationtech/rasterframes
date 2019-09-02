@@ -113,14 +113,12 @@ class RasterSource(TestEnvironment):
             {'b1': path(2, 1), 'b2': path(2, 2), 'b3': path(2, 3)},
             {'b1': path(3, 1), 'b2': path(3, 2), 'b3': path(3, 3)},
         ])
-        # comma separated list of column names containing URI's to read.
-        catalog_columns = ','.join(path_pandas.columns.tolist())  # 'b1,b2,b3'
         path_table = self.spark.createDataFrame(path_pandas)
 
         path_df = self.spark.read.raster(
             tile_dimensions=(512, 512),
             catalog=path_table,
-            catalog_col_names=catalog_columns,
+            catalog_col_names=path_table.columns,
             lazy_tiles=True # We'll get an OOM error if we try to read 9 scenes all at once!
         )
 

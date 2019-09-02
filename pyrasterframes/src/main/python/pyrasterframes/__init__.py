@@ -134,6 +134,9 @@ def _raster_reader(
 
     from pandas import DataFrame as PdDataFrame
 
+    if 'catalog' in options:
+        source = options['catalog']  # maintain back compatibility with 0.8.0
+
     def to_csv(comp):
         if isinstance(comp, str):
             return comp
