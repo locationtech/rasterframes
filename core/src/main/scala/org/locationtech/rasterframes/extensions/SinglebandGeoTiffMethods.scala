@@ -30,6 +30,7 @@ import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
   def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
@@ -56,4 +57,6 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
 
     spark.createDataFrame(spark.sparkContext.makeRDD(rows, 1), schema)
   }
+
+  def toProjectedRasterTile: ProjectedRasterTile = ProjectedRasterTile(self.projectedRaster)
 }

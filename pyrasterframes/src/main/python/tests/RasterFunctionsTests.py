@@ -20,7 +20,10 @@
 
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.utils import gdal_version
+from pyrasterframes.rf_types import Tile
+from pyspark import Row
 from pyspark.sql.functions import *
+
 
 from . import TestEnvironment
 
@@ -265,7 +268,6 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['ct'].cell_type, ct)
         self.assertEqual(result['ct_str'].cell_type, ct)
         self.assertEqual(result['make'].cell_type, CellType.int8())
-        self.assertEqual(result['make2'].cell_type, CellType.int8().with_no_data_value(99))
 
         counts = df.select(
             rf_no_data_cells('make').alias("nodata1"),
@@ -278,4 +280,59 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(counts["nodata1"], 0)
         self.assertEqual(counts["data2"], 0)
         self.assertEqual(counts["nodata2"], 3 * 4)
+        self.assertEqual(result['make2'].cell_type, CellType.int8().with_no_data_value(99))
 
+    def test_render_composite(self):
+        cat = self.spark.createDataFrame([
+            Row(red=self.l8band_uri(4), green=self.l8band_uri(3), blue=self.l8band_uri(2))
+        ])
+        rf = self.spark.read.raster(catalog = cat, catalog_col_names=['red', 'green', 'blue'])
+
+        # Test composite construction
+        rgb = rf.select(rf_tile(rf_rgb_composite('red', 'green', 'blue')).alias('rgb')).first()['rgb']
+
+        # TODO: how to better test this?
+        self.assertIsInstance(rgb, Tile)
+        self.assertEqual(rgb.dimensions(), [186, 169])
+
+        ## Test PNG generation
+        png_bytes = rf.select(rf_render_png('red', 'green', 'blue').alias('png')).first()['png']
+        # Look for the PNG magic cookie
+        self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+
+
+
+
+    def test_rf_interpret_cell_type_as(self):
+        from pyspark.sql import Row
+        from pyrasterframes.rf_types import Tile
+        import numpy as np
+
+        df = self.spark.createDataFrame([
+            Row(t=Tile(np.array([[1, 3, 4], [5, 0, 3]]), CellType.uint8().with_no_data_value(5)))
+        ])
+        df = df.withColumn('tile', rf_interpret_cell_type_as('t', 'uint8ud3'))  # threes become ND
+        result = df.select(rf_tile_sum(rf_local_equal('t', lit(3))).alias('threes')).first()['threes']
+        self.assertEqual(result, 2)
+
+        result_5 = df.select(rf_tile_sum(rf_local_equal('t', lit(5))).alias('fives')).first()['fives']
+        self.assertEqual(result_5, 0)
+
+    def test_rf_local_data_and_no_data(self):
+        from pyspark.sql import Row
+        from pyrasterframes.rf_types import Tile
+        import numpy as np
+        from numpy.testing import assert_equal
+
+        t = Tile(np.array([[1, 3, 4], [5, 0, 3]]), CellType.uint8().with_no_data_value(5))
+        #note the convert is due to issue #188
+        df = self.spark.createDataFrame([Row(t=t)])\
+            .withColumn('lnd', rf_convert_cell_type(rf_local_no_data('t'), 'uint8')) \
+            .withColumn('ld',  rf_convert_cell_type(rf_local_data('t'),    'uint8'))
+
+        result = df.first()
+        result_nd = result['lnd']
+        assert_equal(result_nd.cells, t.cells.mask)
+
+        result_d = result['ld']
+        assert_equal(result_d.cells, np.invert(t.cells.mask))

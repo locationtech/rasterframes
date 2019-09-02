@@ -129,7 +129,7 @@ lazy val experimental = project
 
 lazy val docs = project
   .dependsOn(core, datasource, pyrasterframes)
-  .enablePlugins(SiteScaladocPlugin, ParadoxPlugin, GhpagesPlugin, ScalaUnidocPlugin)
+  .enablePlugins(SiteScaladocPlugin, ParadoxPlugin, ParadoxMaterialThemePlugin, GhpagesPlugin, ScalaUnidocPlugin)
   .settings(
     apiURL := Some(url("http://rasterframes.io/latest/api")),
     autoAPIMappings := true,
@@ -137,12 +137,20 @@ lazy val docs = project
     ScalaUnidoc / siteSubdirName := "latest/api",
     paradox / siteSubdirName := ".",
     paradoxProperties ++= Map(
-      "github.base_url" -> "https://github.com/locationtech/rasterframes",
       "version" -> version.value,
-      "scaladoc.org.apache.spark.sql.rf" -> "http://rasterframes.io/latest"
+      "scaladoc.org.apache.spark.sql.rf" -> "http://rasterframes.io/latest",
+      "github.base_url" -> ""
     ),
     paradoxNavigationExpandDepth := Some(3),
-    paradoxTheme := Some(builtinParadoxTheme("generic")),
+    Compile / paradoxMaterialTheme ~= { _
+      .withRepository(uri("https://github.com/locationtech/rasterframes"))
+      .withCustomStylesheet("assets/custom.css")
+      .withCopyright("""&copy; 2017-2019 <a href="https://astraea.earth">Astraea</a>, Inc. All rights reserved.""")
+      .withLogo("assets/images/RF-R.svg")
+      .withFavicon("assets/images/RasterFrames_32x32.ico")
+      .withColor("blue-grey", "light-blue")
+      .withGoogleAnalytics("UA-106630615-1")
+    },
     makeSite := makeSite
       .dependsOn(Compile / unidoc)
       .dependsOn((Compile / paradox)
@@ -156,6 +164,8 @@ lazy val docs = project
   .settings(
     addMappingsToSiteDir(Compile / paradox / mappings, paradox / siteSubdirName)
   )
+
+//ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox)
 
 lazy val bench = project
   .dependsOn(core % "compile->test")

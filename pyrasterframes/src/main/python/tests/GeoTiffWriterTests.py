@@ -61,7 +61,7 @@ class GeoTiffWriter(TestEnvironment):
 
         os.remove(dest_file)
 
-    def test_unstructured_write_schemeless(self):
+    def test_unstructured_write_schemaless(self):
         # should be able to write a projected raster tile column to path like '/data/foo/file.tif'
         from pyrasterframes.rasterfunctions import rf_agg_stats, rf_crs
         rf = self.spark.read.raster(self.img_uri)

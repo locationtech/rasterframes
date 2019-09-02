@@ -10,6 +10,15 @@ ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
 
 For the Scala documentation on these functions, see @scaladoc[`RasterFunctions`][RasterFunctions]. The full Scala API documentation can be found [here][scaladoc].
 
+```python imports, echo=False
+import pyrasterframes
+from pyrasterframes.rasterfunctions import *
+from IPython.display import display
+import os.path
+
+spark = pyrasterframes.get_spark_session()
+```
+
 ## List of Available SQL and Python Functions
 
 @@toc { depth=3 }
@@ -106,9 +115,17 @@ Example: `SELECT rf_mk_crs('EPSG:4326')`
 
 ### rf_convert_cell_type
 
-    Tile rf_convert_cell_type(Tile tileCol, String cellType)
+    Tile rf_convert_cell_type(Tile tile_col, CellType cell_type)
+    Tile rf_convert_cell_type(Tile tile_col, String cell_type)
 
-Convert `tileCol` to a different cell type. Available cell types can be retrieved with the @ref:[rf_cell_types](reference.md#rf-cell-types) function.
+Convert `tile_col` to a different cell type. In Python you can pass a CellType object to `cell_type`.
+
+### rf_interpret_cell_type_as
+
+    Tile rf_interpret_cell_type_as(Tile tile_col, CellType cell_type)
+    Tile rf_interpret_cell_type_as(Tile tile_col, String cell_type)
+
+Change the interpretation of the `tile_col`'s cell values according to specified `cell_type`. In Python you can pass a CellType object to `cell_type`.
 
 ### rf_resample
 
@@ -214,6 +231,20 @@ Generate a `tile` with the values from `data_tile`, with NoData in cells where t
     Boolean rf_is_no_data_tile(Tile)
 
 Returns true if `tile` contains only NoData. By definition returns false if cell type does not support NoData. To count NoData cells or data cells, see @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), @ref:[`rf_agg_local_no_data_cells`](reference.md#rf-agg-local-no-data-cells), and @ref:[`rf_agg_local_data_cells`](reference.md#rf-agg-local-data-cells). This function is distinguished from @ref:[`rf_for_all`](reference.md#rf-for-all), which tests that values are not NoData and nonzero.
+
+### rf_local_no_data
+
+    Tile rf_local_no_data(Tile tile)
+
+Returns a tile with values of 1 in each cell where the input tile contains NoData. Otherwise values are 0.
+
+### rf_local_data
+
+    Tile rf_local_no_data(Tile tile)
+
+Returns a tile with values of 0 in each cell where the input tile contains NoData. Otherwise values are 1.
+
+### rf_local_data
 
 ### rf_with_no_data
 
@@ -607,6 +638,20 @@ Pretty print the tile values as plain text.
     String rf_render_matrix(Tile tile)
 
 Render Tile cell values as numeric values, for debugging purposes.
+
+
+### rf_rgb_composite
+
+    Tile rf_rgb_composite(Tile red, Tile green, Tile blue)
+    
+Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer. This is useful when you want an RGB tile to render or to process with other color imagery tools. 
+
+
+### rf_render_png
+
+    Array rf_render_png(Tile red, Tile green, Tile blue)
+    
+Runs [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile columns and then encodes the result as a PNG byte array.
 
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html

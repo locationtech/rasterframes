@@ -234,12 +234,11 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def _dfToMarkdown(df: DataFrame, numRows: Int, truncate: Boolean): String = {
     import rasterframes.util.DFWithPrettyPrint
-    df.toMarkdown(numRows, truncate)
+    df.toMarkdown(numRows, truncate, renderTiles = true)
   }
 
   def _dfToHTML(df: DataFrame, numRows: Int, truncate: Boolean): String = {
     import rasterframes.util.DFWithPrettyPrint
-    df.toHTML(numRows, truncate)
+    df.toHTML(numRows, truncate, renderTiles = true)
   }
-
 }

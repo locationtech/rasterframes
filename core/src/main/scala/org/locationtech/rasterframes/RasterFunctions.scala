@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
+import geotrellis.raster.render.ColorRamp
 import geotrellis.raster.{CellType, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.annotation.Experimental
@@ -34,6 +35,7 @@ import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
+import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderCompositePNG, RenderColorRampPNG}
 import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
@@ -81,6 +83,10 @@ trait RasterFunctions {
   def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int, ct: CellType): TypedColumn[Any, Tile] =
     rf_convert_cell_type(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct).as(cellData.columnName).as[Tile](singlebandTileEncoder)
 
+  /** Create a Tile from a column of cell data with location indexes and perform cell conversion. */
+  def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int): TypedColumn[Any, Tile] =
+    TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows))
+
   /** Create a Tile from  a column of cell data with location indexes. */
   def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Column, tileRows: Column): TypedColumn[Any, Tile] =
     TileAssembler(columnIndex, rowIndex, cellData, tileCols, tileRows)
@@ -93,6 +99,18 @@ trait RasterFunctions {
 
   /** Change the Tile's cell type */
   def rf_convert_cell_type(col: Column, cellTypeName: String): Column = SetCellType(col, cellTypeName)
+
+  /** Change the Tile's cell type */
+  def rf_convert_cell_type(col: Column, cellType: Column): Column = SetCellType(col, cellType)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellType: CellType): Column = InterpretAs(col, cellType)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellTypeName: String): Column = InterpretAs(col, cellTypeName)
+
+  /** Change the interpretation of the Tile's cell values according to specified CellType */
+  def rf_interpret_cell_type_as(col: Column, cellType: Column): Column = InterpretAs(col, cellType)
 
   /** Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less
     * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
@@ -317,12 +335,24 @@ trait RasterFunctions {
     ReprojectGeometry(sourceGeom, srcCRSCol, dstCRSCol)
 
   /** Render Tile as ASCII string, for debugging purposes. */
-  def rf_render_ascii(col: Column): TypedColumn[Any, String] =
-    DebugRender.RenderAscii(col)
+  def rf_render_ascii(tile: Column): TypedColumn[Any, String] =
+    DebugRender.RenderAscii(tile)
 
   /** Render Tile cell values as numeric values, for debugging purposes. */
-  def rf_render_matrix(col: Column): TypedColumn[Any, String] =
-    DebugRender.RenderMatrix(col)
+  def rf_render_matrix(tile: Column): TypedColumn[Any, String] =
+    DebugRender.RenderMatrix(tile)
+
+  /** Converts tiles in a column into PNG encoded byte array, using given ColorRamp to assign values to colors. */
+  def rf_render_png(tile: Column, colors: ColorRamp): TypedColumn[Any, Array[Byte]] =
+    RenderColorRampPNG(tile, colors)
+
+  /** Converts columns of tiles representing RGB channels into a PNG encoded byte array. */
+  def rf_render_png(red: Column, green: Column, blue: Column): TypedColumn[Any, Array[Byte]] =
+    RenderCompositePNG(red, green, blue)
+
+  /** Converts columns of tiles representing RGB channels into a single RGB packaged tile. */
+  def rf_rgb_composite(red: Column, green: Column, blue: Column): Column =
+    RGBComposite(red, green, blue)
 
   /** Cellwise less than value comparison between two tiles. */
   def rf_local_less(left: Column, right: Column): Column = Less(left, right)
@@ -358,6 +388,12 @@ trait RasterFunctions {
 
   /** Cellwise inequality comparison between a tile and a scalar. */
   def rf_local_unequal[T: Numeric](tileCol: Column, value: T): Column = Unequal(tileCol, value)
+
+  /** Return a tile with ones where the input is NoData, otherwise zero */
+  def rf_local_no_data(tileCol: Column): Column = Undefined(tileCol)
+
+  /** Return a tile with zeros where the input is NoData, otherwise one*/
+  def rf_local_data(tileCol: Column): Column = Defined(tileCol)
 
   /** Round cell values to nearest integer without chaning cell type. */
   def rf_round(tileCol: Column): Column = Round(tileCol)
