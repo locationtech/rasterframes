@@ -104,19 +104,19 @@ object RasterSource extends LazyLogging {
   def apply(source: String): RasterSource = apply(new URI(source))
 
   def apply(source: URI): RasterSource =
-//    rsCache.get(
-//      source.toASCIIString, _ =>
-    source match {
-        case IsGDAL()          => GDALRasterSource(source)
-        case IsHadoopGeoTiff() =>
-          // TODO: How can we get the active hadoop configuration
-          // TODO: without having to pass it through?
-          val config = () => new Configuration()
-          HadoopGeoTiffRasterSource(source, config)
-        case IsDefaultGeoTiff() => JVMGeoTiffRasterSource(source)
-        case s                  => throw new UnsupportedOperationException(s"Reading '$s' not supported")
-      }
-//    )
+    rsCache.get(
+      source.toASCIIString, _ =>
+        source match {
+          case IsGDAL() => GDALRasterSource(source)
+          case IsHadoopGeoTiff() =>
+            // TODO: How can we get the active hadoop configuration
+            // TODO: without having to pass it through?
+            val config = () => new Configuration()
+            HadoopGeoTiffRasterSource(source, config)
+          case IsDefaultGeoTiff() => JVMGeoTiffRasterSource(source)
+          case s => throw new UnsupportedOperationException(s"Reading '$s' not supported")
+        }
+    )
 
   object IsGDAL {
 
