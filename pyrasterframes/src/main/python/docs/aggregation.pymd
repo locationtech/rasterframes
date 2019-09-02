@@ -8,6 +8,9 @@ from pyrasterframes.rasterfunctions import *
 from pyspark.sql import *
 import os
 
+import numpy as np
+np.set_printoptions(precision=3, floatmode='maxprec')
+
 spark = create_rf_spark_session()
 ```
 
@@ -15,33 +18,43 @@ There are three types of aggregate functions: _tile_ aggregate, DataFrame aggreg
 
 ## Tile Mean Example
 
-We can illustrate aggregate differences by computing an aggregate mean. First, we create a sample DataFrame of 2 _tiles_ where the first _tile_ is composed of 25 values of 1.0 and the second _tile_ is composed of 25 values of 3.0.
+We can illustrate aggregate differences by computing an aggregate mean. First, we create a sample DataFrame of 2 _tiles_. The _tiles_ will contain normally distributed cell values with the first row's mean at 1.0 and the second row's mean at 3.0. For details on use of the `Tile` class see @ref:[the page on numpy interoperability](numpy-pandas.md).
 
-```python, sql_dataframe
-import pyspark.sql.functions as F
+```python, create_tile1
+from pyrasterframes.rf_types import Tile, CellType
 
-df1 = spark.range(1).select('id', rf_make_ones_tile(5, 5, 'float32').alias('tile'))
-df2 = spark.range(1).select('id', rf_local_multiply(rf_make_ones_tile(5, 5, 'float32'), F.lit(3)).alias('tile'))
+t1 = Tile(1 + 0.1 * np.random.randn(5,5), CellType('float64raw'))
 
-rf = df1.union(df2)
-
-tiles = rf.select("tile").collect()
-print(tiles[0]['tile'].cells)
-print(tiles[1]['tile'].cells)
+t1.cells  # display the array in the Tile
 ```
 
-We use the @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) function to compute the _tile_ aggregate mean of cells in each row of column `tile`. The mean of each _tile_ is computed separately, so the first mean is 1.0 and the second mean is 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.
+```python, showt5
+t5 = Tile(5 + 0.1 * np.random.randn(5,5), CellType('float64raw'))
+t5.cells
+```
+
+Create a Spark DataFrame from the Tile objects.
+
+```python, create_dataframe
+import pyspark.sql.functions as F
+from pyspark.sql import Row
+
+rf = spark.createDataFrame([
+    Row(id=1, tile=t1),
+    Row(id=2, tile=t5)
+]).orderBy('id')
+```
+
+We use the @ref:[`rf_tile_mean`](reference.md#rf-tile-mean) function to compute the _tile_ aggregate mean of cells in each row of column `tile`. The mean of each _tile_ is computed separately, so the first mean is about 1.0 and the second mean is about 3.0. Notice that the number of rows in the DataFrame is the same before and after the aggregation.
 
 ```python, tile_mean
-means = rf.select(F.col('id'), rf_tile_mean(F.col('tile')))
-means
+rf.select(F.col('id'), rf_tile_mean(F.col('tile')))
 ```
 
-We use the @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) function to compute the DataFrame aggregate, which averages 25 values of 1.0 and 25 values of 3.0, across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
+We use the @ref:[`rf_agg_mean`](reference.md#rf-agg-mean) function to compute the DataFrame aggregate, which averages values across the fifty cells in two rows. Note that only a single row is returned since the average is computed over the full DataFrame.
 
 ```python, agg_mean
-mean = rf.agg(rf_agg_mean(F.col('tile')))
-mean
+rf.agg(rf_agg_mean(F.col('tile')))
 ```
 
 We use the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function to compute the element-wise local aggregate mean across the two rows. For this aggregation, we are computing the mean of one value of 1.0 and one value of 3.0 to arrive at the element-wise mean, but doing so twenty-five times, one for each position in the _tile_.
@@ -49,9 +62,8 @@ We use the @ref:[`rf_agg_local_mean`](reference.md#rf-agg-local-mean) function t
 To compute an element-wise local aggregate, _tiles_ need to have the same dimensions. In this case, both _tiles_ have 5 rows and 5 columns. If we tried to compute an element-wise local aggregate over the DataFrame without equal _tile_ dimensions, we would get a runtime error.
 
 ```python, local_mean
-t = rf.agg(rf_agg_local_mean(F.col('tile')).alias('local_mean')) \
-    .collect()[0]['local_mean']
-print(t.cells)    
+rf.agg(rf_agg_local_mean('tile')) \
+    .first()[0].cells.data  # display the contents of the Tile array
 ```
 
 ## Cell Counts Example
@@ -92,12 +104,11 @@ stats
 The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks has unequal _tile_ dimensions, so a different DataFrame is used in this code block to avoid a runtime error.
 
 ```python, agg_local_stats
-df1 = spark.range(1).select('id', rf_make_ones_tile(5, 5, 'float32').alias('tile'))
-df2 = spark.range(1).select('id', rf_make_constant_tile(3, 5, 5, 'float32').alias('tile')) 
-df3 = spark.range(1).select('id', rf_make_constant_tile(5, 5, 5, 'float32').alias('tile')) 
-
-rf = df1.union(df2).union(df3) \
-    .agg(rf_agg_local_stats('tile').alias('stats'))
+rf = spark.createDataFrame([
+    Row(id=1, tile=t1),
+    Row(id=3, tile=t1 * 3),
+    Row(id=5, tile=t1 * 5)
+]).agg(rf_agg_local_stats('tile').alias('stats'))
     
 agg_local_stats = rf.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').collect()
 
