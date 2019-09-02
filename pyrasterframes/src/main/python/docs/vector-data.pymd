@@ -79,18 +79,21 @@ from pyrasterframes.rasterfunctions import st_centroid
 df.select(df.state_code, inefficient_centroid(df.geometry), st_centroid(df.geometry))
 ```
 
-The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter to those within approximately 500 km of a selected point.
+The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter to those within approximately 50 km of a selected point.
 
-```python, evaluate=True
+```python, spatial_relation, evaluate=True
 from pyrasterframes.rasterfunctions import st_geometry, st_bufferPoint, st_intersects, st_point
 from pyspark.sql.functions import lit
 l8 = spark.read.format('aws-pds-l8-catalog').load()
 
-l8 = l8.withColumn('geom', st_geometry(l8.bounds_wgs84))
-l8 = l8.withColumn('paducah', st_point(lit(-88.6275), lit(37.072222)))
+l8 = l8.withColumn('geom', st_geometry(l8.bounds_wgs84))  # extent to polygon
+l8 = l8.withColumn('paducah', st_point(lit(-88.628), lit(37.072)))  # col of points
 
-l8_filtered = l8.filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(500000.0))))
-l8_filtered.select('product_id', 'entity_id', 'acquisition_date', 'cloud_cover_pct')
+l8_filtered = l8 \
+                .filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(50000.0))))
+                .filter(l8.acquisition_date > '2018-02-01') \
+                .filter(l8.acquisition_date < '2018-04-01')
+l8_filtered.select('product_id', 'entity_id', 'acquisition_date', 'cloud_cover_pct').toPandas()
 ```
 
 [GeoPandas]: http://geopandas.org
