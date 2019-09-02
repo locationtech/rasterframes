@@ -106,9 +106,9 @@ class RasterSourceTest(TestEnvironment):
 
     def test_list_of_list_of_str(self):
         lol = [
-            [self.path(1, 1), self.path(1, 2), ],
-            [self.path(2, 1), self.path(2, 2), ],
-            [self.path(3, 1), self.path(3, 2), ]
+            [self.path(1, 1), self.path(1, 2)],
+            [self.path(2, 1), self.path(2, 2)],
+            [self.path(3, 1), self.path(3, 2)]
         ]
         df = self.spark.read.raster(lol)
         self.assertTrue(len(df.columns) == 4)  # 2 cols of uris plus 2 cols of proj_rasters
@@ -116,7 +116,9 @@ class RasterSourceTest(TestEnvironment):
                                                      'proj_raster_0', 'proj_raster_1']))
         uri_df = df.select('proj_raster_0_path', 'proj_raster_1_path').distinct().collect()
         uri_list = [list(r.asDict().values()) for r in uri_df]
-        self.assertEqual(sorted(uri_list), sorted(lol))
+        self.assertTrue(lol[0] in uri_list)
+        self.assertTrue(lol[1] in uri_list)
+        self.assertTrue(lol[2] in uri_list)
 
     def test_schemeless_string(self):
         import os.path
