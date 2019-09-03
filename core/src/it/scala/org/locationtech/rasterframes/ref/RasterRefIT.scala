@@ -24,9 +24,9 @@ package org.locationtech.rasterframes.ref
 import java.net.URI
 
 import geotrellis.proj4.LatLng
-
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
 
 class RasterRefIT extends TestEnvironment {
   describe("practical subregion reads") {
@@ -44,14 +44,17 @@ class RasterRefIT extends TestEnvironment {
       val blue = RasterRef(RasterSource(scene(2)), 0, Some(area), None)
 
       val rf = Seq((red, green, blue)).toDF("red", "green", "blue")
-      val raster = rf.select(
+      val df = rf.select(
         rf_crs($"red"), rf_extent($"red"), rf_tile($"red"), rf_tile($"green"), rf_tile($"blue"))
-        .toDF.aggregateRaster(redScene.crs, None)
+        .toDF
+
+      val raster = TileRasterizerAggregate(df, redScene.crs, None, None)
 
       forEvery(raster.tile.statisticsDouble) { stats =>
         stats should be ('defined)
         stats.get.dataCells shouldBe > (1000L)
       }
+      
       //import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
       //import geotrellis.raster.io.geotiff.compression.{DeflateCompression, NoCompression}
       //import geotrellis.raster.io.geotiff.tags.codes.ColorSpace

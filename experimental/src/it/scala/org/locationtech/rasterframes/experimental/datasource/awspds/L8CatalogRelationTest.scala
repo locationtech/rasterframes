@@ -25,6 +25,7 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.raster._
+import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
 
 /**
  * Test rig for L8 catalog stuff.
@@ -124,8 +125,10 @@ class L8CatalogRelationTest extends TestEnvironment {
         .where(st_contains(rf_geometry($"B4"), st_reproject(geomLit(aoi.jtsGeom), lit("EPSG:4326"), rf_crs($"B4"))))
 
 
-      val raster = df.aggregateRaster(LatLng, aoi, None)
-      println(raster)
+      noException should be thrownBy {
+        val raster = TileRasterizerAggregate(df, LatLng, Some(aoi), None)
+        println(raster)
+      }
 
 //      import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
 //      import geotrellis.raster.io.geotiff.compression.{DeflateCompression}
