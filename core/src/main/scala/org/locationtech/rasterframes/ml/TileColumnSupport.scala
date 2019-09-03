@@ -21,8 +21,8 @@
 
 package org.locationtech.rasterframes.ml
 
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{StructField, StructType}
+import org.locationtech.rasterframes.expressions.DynamicExtractors
 
 /**
  * Utility mix-in for separating out tile columns from non-tile columns.
@@ -31,13 +31,11 @@ import org.apache.spark.sql.types.{StructField, StructType}
  */
 trait TileColumnSupport {
   protected def isTile(field: StructField) =
-    field.dataType.typeName.equalsIgnoreCase(TileUDT.typeName)
+    DynamicExtractors.tileExtractor.isDefinedAt(field.dataType)
 
   type TileFields = Array[StructField]
   type NonTileFields = Array[StructField]
   protected def selectTileAndNonTileFields(schema: StructType): (TileFields, NonTileFields) = {
-    val tiles = schema.fields.filter(isTile)
-    val nonTiles = schema.fields.filterNot(isTile)
-    (tiles, nonTiles)
+    schema.fields.partition(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
   }
 }

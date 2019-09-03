@@ -93,7 +93,7 @@ l8_filtered = l8 \
                 .filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(50000.0)))) \
                 .filter(l8.acquisition_date > '2018-02-01') \
                 .filter(l8.acquisition_date < '2018-04-01')
-l8_filtered.select('product_id', 'entity_id', 'acquisition_date', 'cloud_cover_pct').toPandas()
+l8_filtered.select('product_id', 'entity_id', 'acquisition_date', 'cloud_cover_pct')
 ```
 
 [GeoPandas]: http://geopandas.org

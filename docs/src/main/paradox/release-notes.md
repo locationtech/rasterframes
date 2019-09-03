@@ -2,6 +2,10 @@
 
 ## 0.8.x
 
+### 0.8.2
+
+* Fixed `TileExploder` to support `proj_raster` struct [(#287)](https://github.com/locationtech/rasterframes/issues/287).
+
 ### 0.8.1
 
 * Added `rf_local_no_data`, `rf_local_data` and `rf_interpret_cell_type_as` raster functions.
