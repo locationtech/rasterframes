@@ -20,6 +20,8 @@
 
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
+import geotrellis.proj4.LatLng
+import geotrellis.vector.Extent
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.raster._
@@ -32,7 +34,7 @@ import org.locationtech.rasterframes.datasource.raster._
 class L8CatalogRelationTest extends TestEnvironment {
   import spark.implicits._
 
-  val catalog = spark.read.l8Catalog.load().cache()
+  val catalog = spark.read.l8Catalog.load()
 
   val scenes = catalog
     .where($"acquisition_date" === to_timestamp(lit("2017-04-04 15:12:55.394")))
@@ -106,26 +108,30 @@ class L8CatalogRelationTest extends TestEnvironment {
     }
 
     it("should construct an RGB composite") {
-      val aoi = "LINESTRING (31.115 29.963, 31.148 29.99)"
-      val sceneCat = catalog
+      val aoi = Extent(31.115, 29.963, 31.148, 29.99)
+      val scene = catalog
         .where(
           to_date($"acquisition_date") === to_date(lit("2019-07-03")) &&
-            st_intersects(st_geometry($"bounds_wgs84"), st_geomFromWKT(aoi))
+            st_intersects(st_geometry($"bounds_wgs84"), geomLit(aoi.jtsGeom))
         )
+        .orderBy("cloud_cover_pct")
+        .limit(1)
 
-      catalog.orderBy(desc("acquisition_date")).select($"acquisition_date").show(false)
-      catalog.where(to_date($"acquisition_date") === to_date(lit("2019-03-07"))).show(false)
-
-      //sceneCat.show(false)
-
-
-//      val df = spark.read.raster
-//        .fromCatalog(scenes, "B4", "B3", "B2")
-//        .withTileDimensions(128, 128)
-//        .load()
-//        .where
+      val df = spark.read.raster
+        .fromCatalog(scene, "B4", "B3", "B2")
+        .withTileDimensions(256, 256)
+        .load()
+        .where(st_contains(rf_geometry($"B4"), st_reproject(geomLit(aoi.jtsGeom), lit("EPSG:4326"), rf_crs($"B4"))))
 
 
+      val raster = df.aggregateRaster(LatLng, aoi, None)
+      println(raster)
+
+//      import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
+//      import geotrellis.raster.io.geotiff.compression.{DeflateCompression}
+//      import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
+//      val tiffOptions = GeoTiffOptions(Tiled,  DeflateCompression, ColorSpace.RGB)
+//      MultibandGeoTiff(raster, raster.crs, tiffOptions).write("target/composite.tif")
     }
   }
 }

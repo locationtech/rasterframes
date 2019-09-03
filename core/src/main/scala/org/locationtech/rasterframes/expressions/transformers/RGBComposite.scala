@@ -56,9 +56,9 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
   override def nodeName: String = "rf_rgb_composite"
 
   override def dataType: DataType = if(
-    red.dataType.conformsTo[ProjectedRasterTile] ||
-    blue.dataType.conformsTo[ProjectedRasterTile] ||
-    green.dataType.conformsTo[ProjectedRasterTile]
+    tileExtractor.isDefinedAt(red.dataType) ||
+      tileExtractor.isDefinedAt(green.dataType) ||
+      tileExtractor.isDefinedAt(blue.dataType)
   ) red.dataType
   else TileType
 
