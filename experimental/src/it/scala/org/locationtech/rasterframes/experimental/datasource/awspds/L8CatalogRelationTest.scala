@@ -108,7 +108,7 @@ class L8CatalogRelationTest extends TestEnvironment {
       stats.mean shouldBe > (10000.0)
     }
 
-    it("should construct an RGB composite") {
+    ignore("should construct an RGB composite") {
       val aoi = Extent(31.115, 29.963, 31.148, 29.99)
       val scene = catalog
         .where(

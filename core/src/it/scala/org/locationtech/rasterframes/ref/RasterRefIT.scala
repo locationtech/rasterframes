@@ -30,7 +30,7 @@ import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggreg
 
 class RasterRefIT extends TestEnvironment {
   describe("practical subregion reads") {
-    it("should construct a natural color composite") {
+    ignore("should construct a natural color composite") {
       import spark.implicits._
       def scene(idx: Int) = URI.create(s"https://landsat-pds.s3.us-west-2.amazonaws.com" +
         s"/c1/L8/176/039/LC08_L1TP_176039_20190703_20190718_01_T1/LC08_L1TP_176039_20190703_20190718_01_T1_B$idx.TIF")
