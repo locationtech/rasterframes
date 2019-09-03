@@ -141,16 +141,6 @@ class RasterSourceSpec extends TestEnvironment with TestData {
   }
 
   if(GDALRasterSource.hasGDAL) {
-    it("should choose correct delegate for scheme and file"){
-      val hdfsSchemeTif = RasterSource("s3n://bucket/prefix/raster.tif")
-      val easySchemeTif = RasterSource("s3://bucket/prefix/raster.tif")  // should interpret as /vsis3/
-      lazy val hdfsSchemeJp2 = RasterSource("s3n://s22s-test-geotiffs/luray_snp/B04.jp2")  // can't read with hadoop reader
-
-      hdfsSchemeTif should matchPattern {case HadoopGeoTiffRasterSource(_, _) ⇒}
-      easySchemeTif should matchPattern {case GDALRasterSource(_) ⇒}
-      assertThrows[UnsupportedOperationException](hdfsSchemeJp2.bandCount)
-
-    }
     describe("GDAL Rastersource") {
       val gdal = GDALRasterSource(cogPath)
       val jvm = JVMGeoTiffRasterSource(cogPath)
@@ -165,7 +155,6 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         gdal.layoutBounds(dims) should contain allElementsOf jvm.layoutBounds(dims)
         gdal.layoutExtents(dims) should contain allElementsOf jvm.layoutExtents(dims)
       }
-
 
       it("should support vsi file paths") {
         val archivePath = geotiffDir.resolve("L8-archive.zip")
@@ -182,6 +171,16 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         val jvm = JVMGeoTiffRasterSource(schemelessUri)
         gdal.extent should be (jvm.extent)
         gdal.cellSize should be(jvm.cellSize)
+      }
+
+      it("should choose correct delegate for scheme and file"){
+        val hdfsSchemeTif = RasterSource("s3n://bucket/prefix/raster.tif")
+        val easySchemeTif = RasterSource("s3://bucket/prefix/raster.tif")  // should interpret as /vsis3/
+        lazy val hdfsSchemeJp2 = RasterSource("s3n://s22s-test-geotiffs/luray_snp/B04.jp2")  // can't read with hadoop reader
+
+        hdfsSchemeTif should matchPattern {case HadoopGeoTiffRasterSource(_, _) ⇒}
+        easySchemeTif should matchPattern {case GDALRasterSource(_) ⇒}
+        assertThrows[UnsupportedOperationException](hdfsSchemeJp2.bandCount)
       }
     }
   }
