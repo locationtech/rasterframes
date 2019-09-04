@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
+import geotrellis.raster.{MultibandTile, ProjectedRaster}
 import geotrellis.spark.io._
 import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
@@ -32,7 +33,9 @@ import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
 import org.locationtech.rasterframes.StandardColumns._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.StandardEncoders._
-import org.locationtech.rasterframes.expressions.DynamicExtractors
+import org.locationtech.rasterframes.expressions.{DynamicExtractors, aggregates}
+import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
+import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
@@ -225,7 +228,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     */
   @throws[IllegalArgumentException]
   def asLayer: RasterFrameLayer = {
-    val potentialRF = certifyRasterframe(self)
+    val potentialRF = certifyLayer(self)
 
     require(
       potentialRF.findSpatialKeyField.nonEmpty,
@@ -301,5 +304,5 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
 
   /** Internal method for slapping the RasterFreameLayer seal of approval on a DataFrame.
    * Only call if if you are sure it has a spatial key and tile columns and TileLayerMetadata. */
-  private[rasterframes] def certify = certifyRasterframe(self)
+  private[rasterframes] def certify = certifyLayer(self)
 }

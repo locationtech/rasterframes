@@ -51,7 +51,7 @@ trait ResourceCacheSupport extends DownloadSupport { self: LazyLogging  ⇒
     else {
 
       val time = fs.getFileStatus(p).getModificationTime
-      val exp = Instant.ofEpochMilli(time).isAfter(Instant.now().plus(Duration.ofHours(maxCacheFileAgeHours)))
+      val exp = Instant.ofEpochMilli(time).plus(Duration.ofHours(maxCacheFileAgeHours)).isBefore(Instant.now())
       if(exp) logger.debug(s"'$p' is expired with mod time of '$time'")
       exp
     }
