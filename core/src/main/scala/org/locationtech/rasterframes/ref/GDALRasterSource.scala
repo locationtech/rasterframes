@@ -78,7 +78,7 @@ object GDALRasterSource extends LazyLogging {
     val _ = new GDALWarp()
     true
   } catch {
-    case _: UnsatisfiedLinkError =>
+    case _:UnsatisfiedLinkError | _:NoClassDefFoundError =>
       logger.warn("GDAL native bindings are not available. Falling back to JVM-based reader for GeoTIFF format.")
       false
   }
