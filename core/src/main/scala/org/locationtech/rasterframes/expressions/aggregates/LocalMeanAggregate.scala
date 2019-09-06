@@ -30,6 +30,7 @@ import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.TileType
+import org.locationtech.rasterframes.expressions.accessors.RealizeTile
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Computes a new tile contining the mean cell values across all tiles in column.",
@@ -58,11 +59,11 @@ case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
   )
   override lazy val updateExpressions: Seq[Expression] = Seq(
     If(IsNull(count),
-      SetCellType(Defined(child), Literal("int32")),
-      If(IsNull(child), count, BiasedAdd(count, Defined(child)))
+      SetCellType(RealizeTile(Defined(child)), Literal("int32")),
+      If(IsNull(child), count, BiasedAdd(count, Defined(RealizeTile(child))))
     ),
     If(IsNull(sum),
-      SetCellType(child, Literal("float64")),
+      SetCellType(RealizeTile(child), Literal("float64")),
       If(IsNull(child), sum, BiasedAdd(sum, child))
     )
   )

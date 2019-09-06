@@ -33,7 +33,6 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.expressions.row
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
   * Expression to combine the given tile columns into an 32-bit RGB composite.

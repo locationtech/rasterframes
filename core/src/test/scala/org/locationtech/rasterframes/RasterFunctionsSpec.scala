@@ -525,11 +525,11 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_agg_local_max")
     }
 
-    ignore("should compute local mean") {
+    it("should compute local mean") {
       checkDocs("rf_agg_local_mean")
-      // https://github.com/locationtech/rasterframes/issues/333
       val df = Seq(two, three, one, six).toDF("tile")
           .withColumn("id", monotonically_increasing_id())
+
       df.select(rf_agg_local_mean($"tile")).first() should be(three.toArrayTile())
 
       df.selectExpr("rf_agg_local_mean(tile)").as[Tile].first() should be(three.toArrayTile())
@@ -539,7 +539,6 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
           .agg(rf_agg_local_mean($"tile"))
           .collect()
       }
-
     }
 
     it("should compute local data cell counts") {
