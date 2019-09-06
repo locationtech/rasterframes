@@ -117,19 +117,20 @@ def _raster_reader(
         lazy_tiles=True,
         **options):
     """
-    Returns a Spark DataFrame from raster data files specified by URI pointers
-    The returned DataFrame will have a column of (CRS, Extent, Tile) for each URI read
-    Multiple bands from the same raster file are spread across rows of the DataFrame. See band_indexes param.
-    If bands from a scene are stored in separate files, provide a DataFrame to the `source` parameter. Each row in the returned DataFrame will contain one (CRS, Extent, Tile) for each item in `catalog_col_names`
+    Returns a Spark DataFrame from raster data files specified by URIs.
+    Each row in the returned DataFrame will contain a column with struct of (CRS, Extent, Tile) for each item in
+      `catalog_col_names`.
+    Multiple bands from the same raster file are spread across rows of the DataFrame. See `band_indexes` param.
+    If bands from a scene are stored in separate files, provide a DataFrame to the `source` parameter.
 
     For more details and example usage, consult https://rasterframes.io/raster-read.html
 
-    :param source: a string, list of strings, list of lists of strings, a pandas DataFrame or a Spark DataFrame giving URIs to the raster data to read
-    :param catalog_col_names: required if source is a DataFrame or CSV string. It is a list of strings giving the names of columns containing URIs to read
-    :param band_indexes: list of integers indicating which bands, zero-based, to read from the raster files specified; default is to read only the first band
-    :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows)
-    :param lazy_tiles: If true (default) only generate minimal references to tile contents; if false, fetch tile cell values
-    :param options: Additional keyword arguments to pass to the spark DataSource
+    :param source: a string, list of strings, list of lists of strings, a Pandas DataFrame or a Spark DataFrame giving URIs to the raster data to read.
+    :param catalog_col_names: required if `source` is a DataFrame or CSV string. It is a list of strings giving the names of columns containing URIs to read.
+    :param band_indexes: list of integers indicating which bands, zero-based, to read from the raster files specified; default is to read only the first band.
+    :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows).
+    :param lazy_tiles: If true (default) only generate minimal references to tile contents; if false, fetch tile cell values.
+    :param options: Additional keyword arguments to pass to the Spark DataSource.
     """
 
     from pandas import DataFrame as PdDataFrame

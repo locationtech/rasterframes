@@ -286,7 +286,7 @@ class RasterFunctions(TestEnvironment):
         cat = self.spark.createDataFrame([
             Row(red=self.l8band_uri(4), green=self.l8band_uri(3), blue=self.l8band_uri(2))
         ])
-        rf = self.spark.read.raster(catalog=cat, catalog_col_names=cat.columns)
+        rf = self.spark.read.raster(cat, catalog_col_names=cat.columns)
 
         # Test composite construction
         rgb = rf.select(rf_tile(rf_rgb_composite('red', 'green', 'blue')).alias('rgb')).first()['rgb']

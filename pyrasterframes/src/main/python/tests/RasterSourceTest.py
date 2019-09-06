@@ -21,6 +21,8 @@
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 from pyspark.sql.functions import *
+import pandas as pd
+from shapely.geometry import Point
 import os.path
 from unittest import skip
 from . import TestEnvironment
@@ -40,6 +42,14 @@ class RasterSourceTest(TestEnvironment):
         assert scene in scene_dict.keys()
         p = scene_dict[scene]
         return p.format(band)
+
+    def path_pandas_df(self):
+        return pd.DataFrame([
+            {'b1': self.path(1, 1), 'b2': self.path(1, 2), 'b3': self.path(1, 3), 'geo': Point(1, 1)},
+            {'b1': self.path(2, 1), 'b2': self.path(2, 2), 'b3': self.path(2, 3), 'geo': Point(2, 2)},
+            {'b1': self.path(3, 1), 'b2': self.path(3, 2), 'b3': self.path(3, 3), 'geo': Point(3, 3)},
+        ])
+
 
     def test_handle_lazy_eval(self):
         df = self.spark.read.raster(self.path(1, 1))
@@ -129,59 +139,41 @@ class RasterSourceTest(TestEnvironment):
         self.assertTrue(df.count() > 0)
 
     def test_spark_df_source(self):
-        import pandas as pd
+        catalog_columns = ['b1', 'b2', 'b3']
+        catalog = self.spark.createDataFrame(self.path_pandas_df())
 
-        # Create a pandas dataframe (makes it easy to create spark df)
-        path_pandas = pd.DataFrame([
-            {'b1': self.path(1, 1), 'b2': self.path(1, 2), 'b3': self.path(1, 3)},
-            {'b1': self.path(2, 1), 'b2': self.path(2, 2), 'b3': self.path(2, 3)},
-            {'b1': self.path(3, 1), 'b2': self.path(3, 2), 'b3': self.path(3, 3)},
-        ])
-        # comma separated list of column names containing URI's to read.
-        catalog_columns = path_pandas.columns.tolist()
-        path_table = self.spark.createDataFrame(path_pandas)
-
-        path_df = self.spark.read.raster(
-            path_table,
+        df = self.spark.read.raster(
+            catalog,
             tile_dimensions=(512, 512),
             catalog_col_names=catalog_columns,
             lazy_tiles=True  # We'll get an OOM error if we try to read 9 scenes all at once!
         )
 
-        self.assertTrue(len(path_df.columns) == 6)  # three bands times {path, tile}
-        self.assertTrue(path_df.select('b1_path').distinct().count() == 3)  # as per scene_dict
-        b1_paths_maybe = path_df.select('b1_path').distinct().collect()
+        self.assertTrue(len(df.columns) == 7)  # three bands times {path, tile} plus geo
+        self.assertTrue(df.select('b1_path').distinct().count() == 3)  # as per scene_dict
+        b1_paths_maybe = df.select('b1_path').distinct().collect()
         b1_paths = [self.path(s, 1) for s in [1, 2, 3]]
         self.assertTrue(all([row.b1_path in b1_paths for row in b1_paths_maybe]))
 
     def test_pandas_source(self):
-        import pandas as pd
-        import geopandas
-        from shapely.geometry import Point
 
-        # Create a pandas dataframe (makes it easy to create spark df)
-        path_pandas = pd.DataFrame([
-            {'b1': self.path(1, 1), 'b2': self.path(1, 2), 'b3': self.path(1, 3), 'geo': Point(1, 1)},
-            {'b1': self.path(2, 1), 'b2': self.path(2, 2), 'b3': self.path(2, 3), 'geo': Point(2, 2)},
-            {'b1': self.path(3, 1), 'b2': self.path(3, 2), 'b3': self.path(3, 3), 'geo': Point(3, 3)},
-        ])
-
-        # here a subtle difference with the test_raster_source_catalog_reader test, feed the DataFrame
-        #     not a CSV and not an already created spark DF.
         df = self.spark.read.raster(
-            path_pandas,
+            self.path_pandas_df(),
             catalog_col_names=['b1', 'b2', 'b3']
         )
         self.assertEqual(len(df.columns), 7)  # three path cols, three tile cols, and geo
         self.assertTrue('geo' in df.columns)
         self.assertTrue(df.select('b1_path').distinct().count() == 3)
 
-        # Same test with geopandas
-        geo_df = geopandas.GeoDataFrame(path_pandas, crs={'init': 'EPSG:4326'}, geometry='geo')
-        df2 = self.spark.read.raster(geo_df, ['b1', 'b2', 'b3'])
-        self.assertEqual(len(df2.columns), 7)  # three path cols, three tile cols, and geo
-        self.assertTrue('geo' in df2.columns)
-        self.assertTrue(df2.select('b1_path').distinct().count() == 3)
+    def test_geopandas_source(self):
+        from geopandas import GeoDataFrame
+        # Same test as test_pandas_source with geopandas
+        geo_df = GeoDataFrame(self.path_pandas_df(), crs={'init': 'EPSG:4326'}, geometry='geo')
+        df = self.spark.read.raster(geo_df, ['b1', 'b2', 'b3'])
+
+        self.assertEqual(len(df.columns), 7)  # three path cols, three tile cols, and geo
+        self.assertTrue('geo' in df.columns)
+        self.assertTrue(df.select('b1_path').distinct().count() == 3)
 
     def test_csv_string(self):
 
@@ -198,3 +190,9 @@ class RasterSourceTest(TestEnvironment):
         df = self.spark.read.raster(s, ['b1', 'b2'])
         self.assertEqual(len(df.columns), 3 + 2)  # number of columns in original DF plus cardinality of catalog_col_names
         self.assertTrue(len(df.take(1)))  # non-empty check
+
+    def test_catalog_named_arg(self):
+        # through version 0.8.1 reading a catalog was via named argument only.
+        df = self.spark.read.raster(catalog=self.path_pandas_df(), catalog_col_names=['b1', 'b2', 'b3'])
+        self.assertEqual(len(df.columns), 7)  # three path cols, three tile cols, and geo
+        self.assertTrue(df.select('b1_path').distinct().count() == 3)
