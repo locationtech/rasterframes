@@ -24,6 +24,7 @@ package org.locationtech.rasterframes
 import geotrellis.raster._
 import geotrellis.raster.mapalgebra.local.{Max, Min}
 import geotrellis.spark._
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestData.randomTile
 import org.locationtech.rasterframes.stats.CellHistogram
@@ -315,6 +316,36 @@ class TileStatsSpec extends TestEnvironment with TestData {
           .toDF("tiles")
       val ndCount2 = ndTiles.select("*").where(rf_is_no_data_tile($"tiles")).count()
       ndCount2 should be(count + 1)
+    }
+  }
+
+  describe("proj_raster handling") {
+    it("should handle proj_raster structures") {
+      val df = Seq(lazyPRT, lazyPRT).toDF("tile")
+
+      val targets = Seq[Column => Column](
+        rf_is_no_data_tile,
+        rf_data_cells,
+        rf_no_data_cells,
+        rf_agg_local_max,
+        rf_agg_local_min,
+        rf_agg_local_mean,
+        rf_agg_local_data_cells,
+        rf_agg_local_no_data_cells,
+        rf_agg_local_stats,
+        rf_agg_approx_histogram,
+        rf_tile_histogram,
+        rf_tile_stats,
+        rf_tile_mean,
+        rf_tile_max,
+        rf_tile_min
+      )
+
+      forEvery(targets) { f =>
+        noException shouldBe thrownBy {
+          df.select(f($"tile")).collect()
+        }
+      }
     }
   }
 }
