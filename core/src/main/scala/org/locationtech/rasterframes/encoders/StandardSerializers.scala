@@ -73,7 +73,7 @@ trait StandardSerializers {
   implicit val gridBoundsSerializer: CatalystSerializer[GridBounds] = new CatalystSerializer[GridBounds] {
     override def schema: StructType = StructType(Seq(
       StructField("colMin", IntegerType, false),
-      StructField("rowlMin", IntegerType, false),
+      StructField("rowMin", IntegerType, false),
       StructField("colMax", IntegerType, false),
       StructField("rowMax", IntegerType, false)
     ))

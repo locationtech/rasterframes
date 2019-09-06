@@ -22,15 +22,17 @@
 package org.locationtech.rasterframes.expressions.accessors
 
 import geotrellis.raster.Tile
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, UnaryExpression}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
-import org.locationtech.rasterframes.model.TileContext
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import org.locationtech.rasterframes.expressions._
 
 @ExpressionDescription(
   usage = "_FUNC_(raster) - Extracts the Tile component of a RasterSource, ProjectedRasterTile (or Tile) and ensures the cells are fully fetched.",
@@ -39,14 +41,22 @@ import org.locationtech.rasterframes.model.TileContext
       > SELECT _FUNC_(raster);
          ....
   """)
-case class RealizeTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class RealizeTile(child: Expression) extends UnaryExpression with CodegenFallback {
   override def dataType: DataType = TileType
 
   override def nodeName: String = "rf_tile"
-  implicit val tileSer = TileUDT.tileSerializer
 
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
+  override def checkInputDataTypes(): TypeCheckResult = {
+    if (!tileableExtractor.isDefinedAt(child.dataType)) {
+      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a tiled raster type.")
+    } else TypeCheckSuccess
+  }
+  implicit val tileSer = TileUDT.tileSerializer
+  override protected def nullSafeEval(input: Any): Any = {
+    val in = row(input)
+    val tile = tileableExtractor(child.dataType)(in)
     (tile.toArrayTile(): Tile).toInternalRow
+  }
 }
 
 object RealizeTile {

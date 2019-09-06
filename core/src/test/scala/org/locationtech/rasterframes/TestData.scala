@@ -38,8 +38,8 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
 import org.locationtech.rasterframes.expressions.tilestats.NoDataCells
+import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import spray.json.JsObject
 
 import scala.reflect.ClassTag
 
@@ -49,8 +49,15 @@ import scala.reflect.ClassTag
  * @since 4/3/17
  */
 trait TestData {
+  val extent = Extent(10, 20, 30, 40)
+  val crs = LatLng
+  val ct = ByteUserDefinedNoDataCellType(-2)
+  val cols = 10
+  val rows = cols
+  val tileSize = cols * rows
+  val tileCount = 10
+  val numND = 4
   val instant = ZonedDateTime.now()
-  val extent = Extent(1, 2, 3, 4)
   val sk = SpatialKey(37, 41)
   val stk = SpaceTimeKey(sk, instant)
   val pe = ProjectedExtent(extent, LatLng)
@@ -152,6 +159,29 @@ trait TestData {
   lazy val l8B1SamplePath: URI = l8SamplePath(1)
   lazy val l8samplePath: URI = getClass.getResource("/L8-B1-Elkton-VA.tiff").toURI
   lazy val modisConvertedMrfPath: URI = getClass.getResource("/MCD43A4.A2019111.h30v06.006.2019120033434_01.mrf").toURI
+
+
+
+  lazy val zero = TestData.projectedRasterTile(cols, rows, 0, extent, crs, ct)
+  lazy val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
+  lazy val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)
+  lazy val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
+  lazy val six = ProjectedRasterTile(three * two, three.extent, three.crs)
+  lazy val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
+  lazy val randPRT = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
+  lazy val randNDPRT: Tile  = TestData.injectND(numND)(randPRT)
+
+  lazy val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
+  lazy val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
+  lazy val randPositiveDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextDouble() + 1e-6, extent, crs, DoubleConstantNoDataCellType)
+
+  val expectedRandNoData: Long = numND * tileCount.toLong
+  val expectedRandData: Long = cols * rows * tileCount - expectedRandNoData
+  lazy val randNDTilesWithNull = Seq.fill[Tile](tileCount)(TestData.injectND(numND)(
+    TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
+  )).map(ProjectedRasterTile(_, extent, crs)) :+ null
+
+  def lazyPRT = RasterRef(RasterSource(TestData.l8samplePath), 0, None, None).tile
 
   object GeomData {
     val fact = new GeometryFactory()

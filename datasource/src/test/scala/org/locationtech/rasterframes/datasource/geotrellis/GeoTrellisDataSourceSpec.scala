@@ -51,8 +51,9 @@ import org.scalatest.{BeforeAndAfterAll, Inspectors}
 import scala.math.{max, min}
 
 class GeoTrellisDataSourceSpec
-    extends TestEnvironment with TestData with BeforeAndAfterAll with Inspectors
+    extends TestEnvironment with BeforeAndAfterAll with Inspectors
     with RasterMatchers with DataSourceOptions {
+  import TestData._
 
   val tileSize = 12
   lazy val layer = Layer(new File(outputLocalPath).toURI, LayerId("test-layer", 4))

@@ -21,28 +21,48 @@
 
 package org.locationtech.rasterframes.ml
 
-import org.locationtech.rasterframes.TestData
-import geotrellis.raster.Tile
-import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.TestEnvironment
+import geotrellis.proj4.LatLng
+import geotrellis.raster.{IntCellType, Tile}
+import org.apache.spark.sql.functions.{avg, lit}
+import org.locationtech.rasterframes.{TestData, TestEnvironment}
 /**
  *
  * @since 2/16/18
  */
 class TileExploderSpec extends TestEnvironment with TestData {
   describe("Tile explode transformer") {
-    it("should explode tiles") {
-      import spark.implicits._
+    import spark.implicits._
+    it("should explode tile") {
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2").withColumn("other", lit("stuff"))
 
       val exploder = new TileExploder()
       val newSchema = exploder.transformSchema(df.schema)
 
       val exploded = exploder.transform(df)
+
       assert(newSchema === exploded.schema)
       assert(exploded.columns.length === 5)
       assert(exploded.count() === 9)
       write(exploded)
+      exploded.agg(avg($"tile1")).as[Double].first() should be (byteArrayTile.statisticsDouble.get.mean)
+    }
+
+    it("should explode proj_raster") {
+      val randPRT = TestData.projectedRasterTile(10, 10, scala.util.Random.nextInt(), extent, LatLng, IntCellType)
+
+      val df = Seq(randPRT).toDF("proj_raster").withColumn("other", lit("stuff"))
+
+      val exploder = new TileExploder()
+      val newSchema = exploder.transformSchema(df.schema)
+
+      val exploded = exploder.transform(df)
+
+      assert(newSchema === exploded.schema)
+      assert(exploded.columns.length === 4)
+      assert(exploded.count() === randPRT.size)
+      write(exploded)
+
+      exploded.agg(avg($"proj_raster")).as[Double].first() should be (randPRT.statisticsDouble.get.mean)
     }
   }
 }
