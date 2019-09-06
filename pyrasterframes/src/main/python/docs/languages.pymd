@@ -97,9 +97,9 @@ sql("""
 CREATE OR REPLACE TEMPORARY VIEW red_nir_tiles_monthly_2017
 USING raster
 OPTIONS (
-    catalogTable='red_nir_monthly_2017',
-    catalogColumns='red,nir',
-    tileDimensions='256,256'
+    catalog_table='red_nir_monthly_2017',
+    catalog_col_names='red,nir',
+    tile_dimensions='256,256'
     )
 """)
 ```

@@ -153,9 +153,9 @@ def _raster_reader(
         band_indexes = [0]
 
     options.update({
-        "bandIndexes": to_csv(band_indexes),
-        "tileDimensions": to_csv(tile_dimensions),
-        "lazyTiles": lazy_tiles
+        "band_indexes": to_csv(band_indexes),
+        "tile_dimensions": to_csv(tile_dimensions),
+        "lazy_tiles": lazy_tiles
     })
 
     # Parse the `source` argument
@@ -166,11 +166,11 @@ def _raster_reader(
             catalog = None
             options.update(dict(paths='\n'.join([str(i) for i in source])))  # pass in "uri1\nuri2\nuri3\n..."
         if all([isinstance(i, list) for i in source]):
-            # list of lists; we will rely on pandas to
-            #   - coerce all data to str (possibly using objects' __str__ or __repr__\
+            # list of lists; we will rely on pandas to:
+            #   - coerce all data to str (possibly using objects' __str__ or __repr__)
             #   - ensure data is not "ragged": all sublists are same len
             path = None
-            catalog_col_names = ['proj_raster_{}'.format(i) for i in range(len(source[0]))]
+            catalog_col_names = ['proj_raster_{}'.format(i) for i in range(len(source[0]))]  # assign these names
             catalog = PdDataFrame(source,
                                   columns=catalog_col_names,
                                   dtype=str,
@@ -194,8 +194,8 @@ def _raster_reader(
 
         if isinstance(catalog, str):
             options.update({
-                "catalogCSV": catalog,
-                "catalogColumns": to_csv(catalog_col_names)
+                "catalog_csv": catalog,
+                "catalog_col_names": to_csv(catalog_col_names)
             })
         elif isinstance(catalog, DataFrame):
             # check catalog_col_names
@@ -205,8 +205,8 @@ def _raster_reader(
             tmp_name = temp_name()
             catalog.createOrReplaceTempView(tmp_name)
             options.update({
-                "catalogTable": tmp_name,
-                "catalogColumns": to_csv(catalog_col_names)
+                "catalog_table": tmp_name,
+                "catalog_col_names": to_csv(catalog_col_names)
             })
         elif isinstance(catalog, PdDataFrame):
             # check catalog_col_names
@@ -220,8 +220,8 @@ def _raster_reader(
             spark_catalog = session.createDataFrame(catalog)
             spark_catalog.createOrReplaceTempView(tmp_name)
             options.update({
-                "catalogTable": tmp_name,
-                "catalogColumns": to_csv(catalog_col_names)
+                "catalog_table": tmp_name,
+                "catalog_col_names": to_csv(catalog_col_names)
             })
 
     return df_reader \
