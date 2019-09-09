@@ -1,10 +1,12 @@
-# Release&nbsp;Notes
+# Release Notes
 
 ## 0.8.x
 
 ### 0.8.2
 
-* Fixed `TileExploder` to support `proj_raster` struct [(#287)](https://github.com/locationtech/rasterframes/issues/287).
+* Fixed Parquet serialization issue with `RasterRef`s ([#338](https://github.com/locationtech/rasterframes/issues/338))
+* Fixed `TileExploder`, `rf_agg_local_mean` and `TileColumnSupport` to support `proj_raster` struct ([#287](https://github.com/locationtech/rasterframes/issues/287), [#163](https://github.com/locationtech/rasterframes/issues/163), [#333](https://github.com/locationtech/rasterframes/issues/333)).
+* Various documentation improvements.
 
 ### 0.8.1
 

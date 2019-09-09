@@ -77,7 +77,7 @@ object RasterRef extends LazyLogging {
   implicit val rasterRefSerializer: CatalystSerializer[RasterRef] = new CatalystSerializer[RasterRef] {
     val rsType = new RasterSourceUDT()
     override def schema: StructType = StructType(Seq(
-      StructField("source", rsType, false),
+      StructField("source", rsType.sqlType, false),
       StructField("bandIndex", IntegerType, false),
       StructField("subextent", schemaOf[Extent], true),
       StructField("subgrid", schemaOf[GridBounds], true)
