@@ -97,7 +97,7 @@ We then [reproject](https://gis.stackexchange.com/questions/247770/understanding
 ```python read_catalog
 raster_cols = ['B01', 'B02',] # red and near-infrared respectively
 park_rf = spark.read.raster(
-        catalog=park_cat.select(['acquisition_date', 'granule_id', 'geo_simp'] + raster_cols),
+        park_cat.select(['acquisition_date', 'granule_id', 'geo_simp'] + raster_cols),
         catalog_col_names=raster_cols) \
     .withColumn('park_native', st_reproject('geo_simp', lit('EPSG:4326'), rf_crs('B01'))) \
     .filter(st_intersects('park_native', rf_geometry('B01'))) 

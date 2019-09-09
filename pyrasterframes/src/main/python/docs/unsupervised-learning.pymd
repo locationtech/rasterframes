@@ -37,7 +37,7 @@ filenamePattern = "L8-B{}-Elkton-VA.tiff"
 catalog_df = pd.DataFrame([
     {'b' + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
 ])
-df = spark.read.raster(catalog=catalog_df, catalog_col_names=catalog_df.columns)
+df = spark.read.raster(catalog_df, catalog_col_names=catalog_df.columns)
 df = df.select(
     rf_crs(df.b1).alias('crs'),
     rf_extent(df.b1).alias('extent'),

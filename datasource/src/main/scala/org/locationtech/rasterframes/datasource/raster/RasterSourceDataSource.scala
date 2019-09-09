@@ -44,12 +44,12 @@ object RasterSourceDataSource {
   final val SHORT_NAME = "raster"
   final val PATH_PARAM = "path"
   final val PATHS_PARAM = "paths"
-  final val BAND_INDEXES_PARAM = "bandIndexes"
-  final val TILE_DIMS_PARAM = "tileDimensions"
-  final val CATALOG_TABLE_PARAM = "catalogTable"
-  final val CATALOG_TABLE_COLS_PARAM = "catalogColumns"
-  final val CATALOG_CSV_PARAM = "catalogCSV"
-  final val LAZY_TILES_PARAM = "lazyTiles"
+  final val BAND_INDEXES_PARAM = "band_indexes"
+  final val TILE_DIMS_PARAM = "tile_dimensions"
+  final val CATALOG_TABLE_PARAM = "catalog_table"
+  final val CATALOG_TABLE_COLS_PARAM = "catalog_col_names"
+  final val CATALOG_CSV_PARAM = "catalog_csv"
+  final val LAZY_TILES_PARAM = "lazy_tiles"
 
   final val DEFAULT_COLUMN_NAME = PROJECTED_RASTER_COLUMN.columnName
 

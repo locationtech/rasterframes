@@ -410,8 +410,6 @@ class RasterJoin(TestEnvironment):
             self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
 
 
-
-
 def suite():
     function_tests = unittest.TestSuite()
     return function_tests
