@@ -53,13 +53,14 @@ def folium_map(vector_data):
     m.add_child(gl)
 
     temp_fname = str(uuid4())
-    temp_folium = 'docs/static/{}.html'.format(temp_fname)
-    m.save(temp_folium)
+    html_source = m.get_root().render()
+    b64_source = base64.b64encode(
+        bytes(html_source.encode('utf-8'))
+        ).decode('utf-8')
 
-    with open(temp_folium, 'rb') as f:
-        b64 = base64.b64encode(f.read())
     with open('docs/static/{}.md'.format(temp_fname), 'w') as md:
-        md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>'.format(b64.decode('utf-8')))
+        md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>' \
+            .format(b64_source))
     
     return '@@include[folium_map](static/{}.md)'.format(temp_fname)
 
