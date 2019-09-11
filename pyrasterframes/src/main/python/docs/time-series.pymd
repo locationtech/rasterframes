@@ -5,6 +5,8 @@
 ```python setup, echo=False
 from IPython.display import display
 
+from docs import folium_map
+
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
@@ -22,7 +24,6 @@ In this example, we will show how the flexibility of the DataFrame concept for r
 
 ```python catalog
 cat = spark.read.format('aws-pds-modis-catalog').load().repartition(200)
-cat.printSchema()
 ```
 
 We will summarize the change in NDVI over 2018 in the Cuyahoga Valley National Park in Ohio, USA. First, we will retrieve open vector data delineating the park boundary from the US National Park Service's LandsNet.
@@ -42,25 +43,11 @@ with open(nps_filepath,'wb') as f:
     f.write(r.content)
 ```
 
-```python, folium_map, 
-m = folium.Map((41.25,-81.6), zoom_start=10).add_child(folium.GeoJson(nps_filepath))
+```python, folium_map, results='paradox', echo=False
+folium_map(nps_filepath)
 ```
 
-```python, folium_persist, echo=False
-# this is the work around for ability to render the folium map in the docs build
-import base64
-temp_folium = 'docs/static/__cuya__.html'
-m.save(temp_folium)
-with open(temp_folium, 'rb') as f:
-    b64 = base64.b64encode(f.read())
-with open('docs/static/cuya.md', 'w') as md:
-    md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>'.format(b64.decode('utf-8')))
-    # seems that the height is not correct?
-```
-
-@@include[folium_static](static/cuya.md)
-
-Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry is "simplified" by combining vertices within about 100 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
+Now we read the park boundary vector data as a Spark DataFrame and simplify the geometry as we did in @ref[zonal map alegbra](zonal-algebra.md). 
 
 ```python read_cuya_vector
 park_vector = spark.read.geojson(nps_filepath)
@@ -148,7 +135,7 @@ time_series.printSchema()
 
 Finally, we will take a look at the NDVI over time.
 
-```python time_series_display, evaluate=True
+```python time_series_display, evaluate=False
 import matplotlib.pyplot as plt
 
 time_series_pdf = time_series.toPandas()

@@ -1,6 +1,12 @@
 # Vector Data
 
-RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data. There is a convenience DataSource for the GeoJSON format, as well as the ability to convert from [GeoPandas][GeoPandas] to Spark. Representation of vector geometries in PySpark is through [Shapely][Shapely], providing a great deal of interoperability. RasterFrames also provides access to Spark functions for working with geometries.
+RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data.  
+
+ * DataSource for GeoJSON format
+ * Ability to convert between from [GeoPandas][GeoPandas] and  Spark DataFrames
+ * In PySpark, geometries are [Shapely][Shapely] objects, providing a great deal of interoperability
+ * Many Spark functions for working with columns of geometries
+ * Vector data is also the basis for @ref:[zonal map algebra](zonal-algebra.md) operations.
 
 ## GeoJSON DataSource
 
@@ -81,7 +87,7 @@ df.select(df.state_code, inefficient_centroid(df.geometry), st_centroid(df.geome
 
 The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter to those within approximately 50 km of a selected point.
 
-```python, spatial_relation, evaluate=True
+```python, spatial_relation, evaluate=False 
 from pyrasterframes.rasterfunctions import st_geometry, st_bufferPoint, st_intersects, st_point
 from pyspark.sql.functions import lit
 l8 = spark.read.format('aws-pds-l8-catalog').load()
