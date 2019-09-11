@@ -6,7 +6,7 @@ If you are new to Earth-observing imagery, you might consider looking at the [Co
 
 @@@
 
-There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames, and @ref:[several languages](languages.md) with which you can use it.  
+There are @ref:[several ways](getting-started.md#other-options) to use RasterFrames, and @ref:[several languages (Scala, SQL)](languages.md) with which you can use it.  
 
 The simplest way to get started with RasterFrames is via the [Docker image](#using-jupyter-notebook), or from the Python shell.  To get started with the Python shell you will need:
 
@@ -107,7 +107,26 @@ SparkSession available as 'spark'.
 
 Now you have the configured SparkSession with RasterFrames enabled.
 
-## Installing GDAL
+### Scala Development
+
+There is first-class support for Scala in RasterFrames. See the @ref:[Scala and SQL](languages.md) page for an example application, and the [Scala API Documentation](latest/api/index.html) for function details.
+
+If you would like to use RasterFrames in Scala, you'll need to add the following resolvers and depednencies to your sbt project:
+
+```scala
+resolvers ++= Seq(
+    "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
+    "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis"
+)
+libraryDependencies ++= Seq(
+    "org.locationtech.rasterframes" %% "rasterframes" % ${VERSION},
+    "org.locationtech.rasterframes" %% "rasterframes-datasource" % ${VERSION},
+    // This is optional. Provides access to AWS PDS catalogs.
+    "org.locationtech.rasterframes" %% "rasterframes-experimental" % ${VERSION}
+)
+``` 
+
+## Installing GDAL Support
 
 GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to @ref:[read](raster-read.md) those formats.  If you are using the @ref:[Jupyter Notebook image](getting-started.md#jupyter-notebook), GDAL is already installed for you. Otherwise follow the instructions below. Version 2.4.1 or greater is required.
 

@@ -1,6 +1,8 @@
-# API Languages
+# Scala and SQL
 
-One of the great powers of RasterFrames, afforded by Spark SQL, is the ability to express computation in multiple programming languages. This documentation focuses on Python because it is the most commonly used language in data science and GIS analytics. However, Scala (the implementation language of RasterFrames) and SQL are also fully supported. Examples in Python can be mechanically translated into the other two languages without much difficulty once the naming conventions are understood. In the sections below we will show the same example program in each language. We will compute the average NDVI per month for a single _tile_ in Tanzania.
+One of the great powers of RasterFrames is the ability to express computation in multiple programming languages. The content in this manual focuses on Python because it is the most commonly used language in data science and GIS analytics. However, Scala (the implementation language of RasterFrames) and SQL (commonly used in many domains) are also fully supported. Examples in Python can be mechanically translated into the other two languages without much difficulty once the naming conventions are understood. 
+
+In the sections below we will show the same example program in each language. To do so we will compute the average NDVI per month for a single _tile_ in Tanzania.
 
 ```python, imports, echo=False
 from pyspark.sql.functions import *
