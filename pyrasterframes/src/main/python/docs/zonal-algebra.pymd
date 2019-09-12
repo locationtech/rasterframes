@@ -39,12 +39,12 @@ with open(nps_filepath,'wb') as f:
 ```
 
 ```python folium, results='paradox', echo=False
-folium_map(nps_filepath)
+display(folium_map(nps_filepath))
 ```
 
 Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry is "simplified" by combining vertices within about 100 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
 
-```python read_cuya_vector
+```python read_park_vector
 park_vector = spark.read.geojson(nps_filepath)
 
 @udf(MultiPolygonUDT())
@@ -107,7 +107,7 @@ rf_park_tile.printSchema()
 
 Next, we will compute NDVI as the normalized difference of near infrared (band 2) and red (band 1). The _tiles_ are masked by the `park_zone_tile`, limiting the cells to those in the _zone_. Next, we compute our desired statistics over the NVDI _tiles_ that are limited by the _zone_.
 
-```python ndvi_zonal
+```python ndvi_zonal, evaluate=False
 from pyspark.sql.functions import col
 from pyspark.sql import functions as F
 

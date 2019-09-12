@@ -62,7 +62,7 @@ def folium_map(vector_data):
         md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>' \
             .format(b64_source))
     
-    return '@@include[folium_map](static/{}.md)'.format(temp_fname)
+    return print('@@include[folium_map](static/{}.md)'.format(temp_fname))
 
 
 class PegdownMarkdownFormatter(PwebPandocFormatter):
