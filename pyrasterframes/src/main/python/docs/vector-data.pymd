@@ -13,8 +13,11 @@ RasterFrames provides a variety of ways to work with spatial vector data (points
 ```python, setup, echo=False
 import pyrasterframes
 import pyrasterframes.rf_ipython
+import geomesa_pyspark.types
+
 from pyrasterframes.utils import create_rf_spark_session
-spark = create_rf_spark_session()
+from docs import folium_map
+spark = create_rf_spark_session("local[4]")
 ```
 
 ```python, read_geojson
@@ -87,7 +90,7 @@ df.select(df.state_code, inefficient_centroid(df.geometry), st_centroid(df.geome
 
 The RasterFrames vector functions and GeoMesa functions also provide a variety of spatial relations that are useful in combination with the geometric properties of projected rasters. In this example, we use the @ref:[built-in Landsat catalog](raster-catalogs.md#using-built-in-experimental-catalogs) which provides an extent. We will convert the extent to a polygon and filter to those within approximately 50 km of a selected point.
 
-```python, spatial_relation, evaluate=False 
+```python, spatial_relation, evaluate=True
 from pyrasterframes.rasterfunctions import st_geometry, st_bufferPoint, st_intersects, st_point
 from pyspark.sql.functions import lit
 l8 = spark.read.format('aws-pds-l8-catalog').load()
@@ -98,8 +101,15 @@ l8 = l8.withColumn('paducah', st_point(lit(-88.628), lit(37.072)))  # col of poi
 l8_filtered = l8 \
                 .filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(50000.0)))) \
                 .filter(l8.acquisition_date > '2018-02-01') \
-                .filter(l8.acquisition_date < '2018-04-01')
-l8_filtered.select('product_id', 'entity_id', 'acquisition_date', 'cloud_cover_pct')
+                .filter(l8.acquisition_date < '2018-03-11')
+```
+
+```python, folium, echo=False
+geo_df = geopandas.GeoDataFrame(
+    l8_filtered.select('geom', 'bounds_wgs84').toPandas(),
+    crs='EPSG:4326',
+    geometry='geom')
+folium_map(geo_df.to_json())
 ```
 
 [GeoPandas]: http://geopandas.org
