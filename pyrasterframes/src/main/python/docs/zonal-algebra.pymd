@@ -65,7 +65,7 @@ park_vector = park_vector.withColumn('geo_simp', simplify('geometry', lit(0.005)
 Both parks are entirely contained in MODIS granule h11 v04. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). 
 
 ```python query_catalog
-cat = spark.read.format('aws-pds-modis-catalog').load().repartition(200)
+cat = spark.read.format('aws-pds-modis-catalog').load().repartition(50)
 park_cat = cat \
             .filter(
                     (cat.granule_id == 'h11v04') &
@@ -117,9 +117,9 @@ rf_ndvi = rf_park_tile \
     .withColumn('ndvi', rf_normalized_difference('B02', 'B01')) \
     .withColumn('ndvi_masked', rf_mask('ndvi', 'park_zone_tile'))
 
-zonal_max = rf_ndvi \
-        .groupby('UNIT_NAME') \
+zonal_mean = rf_ndvi \
+        .groupby('OBJECTID', 'UNIT_NAME') \
         .agg(rf_agg_mean('ndvi'))
 
-zonal_max
+zonal_mean
 ```
