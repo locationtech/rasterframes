@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.encoders
 
+import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.spark._
@@ -106,14 +107,16 @@ trait StandardSerializers {
   }
 
   implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
+
+
     override def schema: StructType = StructType(Seq(
       StructField("cellTypeName", StringType, false)
     ))
     override def to[R](t: CellType, io: CatalystIO[R]): R = io.create(
-      io.encode(t.toString())
+      io.encode(StandardSerializers.ct2sCache.get(t))
     )
     override def from[R](row: R, io: CatalystIO[R]): CellType =
-      CellType.fromName(io.getString(row, 0))
+      StandardSerializers.s2ctCache.get(io.getString(row, 0))
   }
 
   implicit val projectedExtentSerializer: CatalystSerializer[ProjectedExtent] = new CatalystSerializer[ProjectedExtent] {
@@ -292,4 +295,13 @@ trait StandardSerializers {
   implicit val spatialKeyTLMSerializer = tileLayerMetadataSerializer[SpatialKey]
   implicit val spaceTimeKeyTLMSerializer = tileLayerMetadataSerializer[SpaceTimeKey]
 
+}
+
+object StandardSerializers {
+  private val s2ctCache = Scaffeine().build[String, CellType](
+    (s: String) => CellType.fromName(s)
+  )
+  private val ct2sCache = Scaffeine().build[CellType, String](
+    (ct: CellType) => ct.toString()
+  )
 }
