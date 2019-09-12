@@ -14,7 +14,7 @@ import folium
 from pyspark.sql.functions import udf, lit
 from geomesa_pyspark.types import MultiPolygonUDT
 
-# This job is more memory bound, so reduce the concurrent tasks.
+# This seemed to work for time-series!
 spark = pyrasterframes.get_spark_session("local[4]")
 ```
 
@@ -24,7 +24,11 @@ Zonal map algebra refers to operations over raster cells based on the definition
 
 ## Analysis Plan
 
-We will compute _a stat_ on NDVI for two national parks
+We will compute average @ref:[NDVI](local-algebra.md#computing-ndvi) over the month of May 2018 for two US national parks: Cuyahoga Valley and Indiana Dunes. We will select data from the @ref:[built-in catalog](raster-catalogs.md#using-built-in-experimental-catalogs), join it with park geometries, read _tiles_ for the bands needed, burn-in or rasterize the geometries to _tiles_, and compute the aggregate.
+
+## Get Vector Data
+
+First we download vector from the US National Park Service open data portal, and take a look at the data.
 
 ```python get_park_boundary
 import requests
@@ -42,7 +46,7 @@ with open(nps_filepath,'wb') as f:
 display(folium_map(nps_filepath))
 ```
 
-Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry is "simplified" by combining vertices within about 100 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
+Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry we "simplify" by combining vertices within about 500 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
 
 ```python read_park_vector
 park_vector = spark.read.geojson(nps_filepath)
@@ -58,24 +62,24 @@ park_vector = park_vector.withColumn('geo_simp', simplify('geometry', lit(0.005)
 
 ## Catalog Read
 
-Both parks are entirerly contained in MODIS granule h11 v04. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). The time period selected should contain the highest plant vigor of the late spring and early summer seasons. 
+Both parks are entirely contained in MODIS granule h11 v04. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). 
 
 ```python query_catalog
 cat = spark.read.format('aws-pds-modis-catalog').load().repartition(200)
 park_cat = cat \
             .filter(
                     (cat.granule_id == 'h11v04') &
-                    (cat.acquisition_date >= lit('2018-07-01')) &
-                    (cat.acquisition_date < lit('2018-08-01'))            
+                    (cat.acquisition_date >= lit('2018-05-01')) &
+                    (cat.acquisition_date < lit('2018-06-01'))            
                     ) \
             .crossJoin(park_vector)
                 
 park_cat.printSchema()
 ```
 
-Now we have a catalog with several months of MODIS data for a single granule. However, the granule is larger than our park boundary. We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed in a @ref:[previous section](local-algebra.md#computing-ndvi).
+We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed in a @ref:[previous section](local-algebra.md#computing-ndvi).
 
-We then [reproject](https://gis.stackexchange.com/questions/247770/understanding-reprojection) the park geometry to the same @ref:[CRS](concepts.md#coordinate-reference-system--crs-) as the imagery. Then we will filter to only the _tiles_ intersecting the park.
+Now we have a dataframe with several months of MODIS data for a single granule. However, the granule covers a great deal of area outside our park boundaries _zones_. To deal with this we will, first [reproject](https://gis.stackexchange.com/questions/247770/understanding-reprojection) the park geometry to the same @ref:[CRS](concepts.md#coordinate-reference-system--crs-) as the imagery. Then we will filter to only the _tiles_ intersecting the park _zones_.
 
 ```python read_catalog
 raster_cols = ['B01', 'B02',] # red and near-infrared respectively
@@ -88,11 +92,9 @@ park_rf = spark.read.raster(
 park_rf.printSchema()
 ```
 
-## Define Zone
+## Define Zone Tiles
 
-Now we have the vector representation of the park boundary alongside the _tiles_ of red and near infrared bands. Next, we need to create a _tile_ representation of the park to allow us to limit the raster analysis to pixels within the park _zone_. This is similar to the masking operation demonstrated in @ref:[NoData handling](nodata-handling.md#masking).
-
-We do this using two transformations. The first one will reproject the park boundary from coordinates to the MODIS sinusoidal projection. The second one will create a new _tile_ aligned with the imagery containing a value of 1 where the pixels are contained within the park _zone_ and NoData elsewhere. 
+Now we have the vector representation of the park boundary alongside the _tiles_ of red and near infrared bands. Next, we need to create a _tile_ representation of the park to allow us to limit the raster analysis to pixels within the park _zone_. This is similar to the masking operation demonstrated in @ref:[NoData handling](nodata-handling.md#masking). We rasterize the geometries using @ref:[`rf_rasterize`](reference.md#rf-rasterize): this creates a new _tile_ column aligned with the imagery, and containing the park's OBJECTID attribute for cells intersecting the _zone_. Cells outside the park _zones_ have a NoData value.
 
 ```python burn_in
 rf_park_tile = park_rf \
@@ -105,9 +107,9 @@ rf_park_tile.printSchema()
 
 ## Compute Zonal Statistics
 
-Next, we will compute NDVI as the normalized difference of near infrared (band 2) and red (band 1). The _tiles_ are masked by the `park_zone_tile`, limiting the cells to those in the _zone_. Next, we compute our desired statistics over the NVDI _tiles_ that are limited by the _zone_.
+We compute NDVI as the normalized difference of near infrared (band 2) and red (band 1). The _tiles_ are masked by the `park_zone_tile`, limiting the cells to those in the _zone_. To finish, we compute our desired statistics over the NVDI _tiles_ that are limited by the _zone_.
 
-```python ndvi_zonal, evaluate=False
+```python ndvi_zonal, evaluate=True
 from pyspark.sql.functions import col
 from pyspark.sql import functions as F
 
@@ -117,8 +119,7 @@ rf_ndvi = rf_park_tile \
 
 zonal_max = rf_ndvi \
         .groupby('UNIT_NAME') \
-        .agg(F.max(rf_tile_max('ndvi'))) \
+        .agg(rf_agg_mean('ndvi'))
 
 zonal_max
 ```
-
