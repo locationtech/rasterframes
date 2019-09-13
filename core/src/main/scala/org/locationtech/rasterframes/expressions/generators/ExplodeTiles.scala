@@ -24,8 +24,8 @@ package org.locationtech.rasterframes.expressions.generators
 import geotrellis.raster._
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow}
+import org.apache.spark.sql.catalyst.expressions.codegen.{BufferHolder, CodegenFallback, UnsafeRowWriter}
+import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow, UnsafeRow}
 import org.apache.spark.sql.types._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
@@ -87,14 +87,17 @@ case class ExplodeTiles(
       cfor(0)(_ < rows, _ + 1) { row =>
         cfor(0)(_ < cols, _ + 1) { col =>
           val rowIndex = row * cols + col
-          val outCols = Array.ofDim[Any](numOutCols)
-          outCols(0) = col
-          outCols(1) = row
+          val outRow = new UnsafeRow(numOutCols)
+          val buffer = new BufferHolder(outRow)
+          val writer = new UnsafeRowWriter(buffer, numOutCols)
+          writer.write(0, col)
+          writer.write(1, row)
           cfor(0)(_ < tiles.length, _ + 1) { index =>
             val tile = tiles(index)
-            outCols(index + 2) = if(tile == null) doubleNODATA else tile.getDouble(col, row)
+            val cell: Double = if (tile == null) doubleNODATA else tile.getDouble(col, row)
+            writer.write(index + 2, cell)
           }
-          retval(rowIndex) = new GenericInternalRow(outCols)
+          retval(rowIndex) = outRow
         }
       }
       if(sampleFraction > 0.0 && sampleFraction < 1.0) sample(retval)

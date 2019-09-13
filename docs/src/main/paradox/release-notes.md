@@ -4,6 +4,7 @@
 
 ### 0.8.2
 
+* Fixed SparkML memory pressure issue caused by unnecessary reevaluation, overallocation, and primitive boxing. ([#343](https://github.com/locationtech/rasterframes/issues/343)) 
 * Fixed Parquet serialization issue with `RasterRef`s ([#338](https://github.com/locationtech/rasterframes/issues/338))
 * Fixed `TileExploder`, `rf_agg_local_mean` and `TileColumnSupport` to support `proj_raster` struct ([#287](https://github.com/locationtech/rasterframes/issues/287), [#163](https://github.com/locationtech/rasterframes/issues/163), [#333](https://github.com/locationtech/rasterframes/issues/333)).
 * Various documentation improvements.

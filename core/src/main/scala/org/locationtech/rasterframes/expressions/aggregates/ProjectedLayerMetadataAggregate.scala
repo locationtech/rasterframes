@@ -118,7 +118,7 @@ object ProjectedLayerMetadataAggregate {
   private[expressions]
   object InputRecord {
     implicit val serializer: CatalystSerializer[InputRecord] = new CatalystSerializer[InputRecord]{
-      override def schema: StructType = StructType(Seq(
+      override val schema: StructType = StructType(Seq(
         StructField("extent", CatalystSerializer[Extent].schema, false),
         StructField("crs", CatalystSerializer[CRS].schema, false),
         StructField("cellType", CatalystSerializer[CellType].schema, false),
@@ -147,7 +147,7 @@ object ProjectedLayerMetadataAggregate {
     }
 
     def write(buffer: MutableAggregationBuffer): Unit = {
-      val encoded = (this).toRow
+      val encoded = this.toRow
       for(i <- 0 until encoded.size) {
         buffer(i) = encoded(i)
       }
@@ -157,7 +157,7 @@ object ProjectedLayerMetadataAggregate {
   private[expressions]
   object BufferRecord {
     implicit val serializer: CatalystSerializer[BufferRecord] = new CatalystSerializer[BufferRecord] {
-      override def schema: StructType = StructType(Seq(
+      override val schema: StructType = StructType(Seq(
         StructField("extent", CatalystSerializer[Extent].schema, true),
         StructField("cellType", CatalystSerializer[CellType].schema, true),
         StructField("cellSize", CatalystSerializer[CellSize].schema, true)

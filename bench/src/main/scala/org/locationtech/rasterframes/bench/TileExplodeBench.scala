@@ -22,11 +22,12 @@ package org.locationtech.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.BoundReference
+import org.apache.spark.sql.rf.TileUDT
 import org.locationtech.rasterframes._
-import org.apache.spark.sql._
-import org.apache.spark.sql.functions._
+import org.locationtech.rasterframes.expressions.generators.ExplodeTiles
 import org.openjdk.jmh.annotations._
-
 /**
  *
  * @author sfitch
@@ -36,33 +37,32 @@ import org.openjdk.jmh.annotations._
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 class TileExplodeBench extends SparkEnv {
-  import spark.implicits._
 
-  @Param(Array("uint8", "uint16ud255", "float32", "float64"))
+  //@Param(Array("uint8", "uint16ud255", "float32", "float64"))
+  @Param(Array("uint16ud255"))
   var cellTypeName: String = _
 
   @Param(Array("256"))
   var tileSize: Int = _
 
-  @Param(Array("100"))
+  @Param(Array("2000"))
   var numTiles: Int = _
 
   @transient
-  var tiles: DataFrame = _
+  var tiles: Array[InternalRow] = _
+
+  var exploder: ExplodeTiles = _
 
   @Setup(Level.Trial)
   def setupData(): Unit = {
-    tiles = Seq.fill(numTiles)(randomTile(tileSize, tileSize, cellTypeName))
-      .toDF("tile").repartition(10)
+    tiles = Array.fill(numTiles)(randomTile(tileSize, tileSize, cellTypeName))
+        .map(t => InternalRow(TileUDT.tileSerializer.toInternalRow(t)))
+    val expr = BoundReference(0, TileType, true)
+    exploder = new ExplodeTiles(1.0, None, Seq(expr))
   }
-
-  @Benchmark
-  def arrayExplode() = {
-    tiles.select(posexplode(rf_tile_to_array_double($"tile"))).count()
-  }
-
   @Benchmark
   def tileExplode() = {
-    tiles.select(rf_explode_tiles($"tile")).count()
+    for(t <- tiles)
+      exploder.eval(t)
   }
 }
