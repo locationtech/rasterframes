@@ -124,11 +124,26 @@ class RasterSourceTest(TestEnvironment):
         self.assertTrue(len(df.columns) == 4)  # 2 cols of uris plus 2 cols of proj_rasters
         self.assertEqual(sorted(df.columns), sorted(['proj_raster_0_path', 'proj_raster_1_path',
                                                      'proj_raster_0', 'proj_raster_1']))
-        uri_df = df.select('proj_raster_0_path', 'proj_raster_1_path').distinct().collect()
-        uri_list = [list(r.asDict().values()) for r in uri_df]
-        self.assertTrue(lol[0] in uri_list)
-        self.assertTrue(lol[1] in uri_list)
-        self.assertTrue(lol[2] in uri_list)
+        uri_df = df.select('proj_raster_0_path', 'proj_raster_1_path').distinct()
+        
+        # check that various uri's are in the dataframe
+        self.assertEqual(
+            uri_df.filter(col('proj_raster_0_path') == lit(self.path(1, 1))).count(),
+            1)
+        
+        self.assertEqual(
+            uri_df \
+                .filter(col('proj_raster_0_path') == lit(self.path(1, 1))) \
+                .filter(col('proj_raster_1_path') == lit(self.path(1, 2))) \
+                .count(),
+            1)
+        
+        self.assertEqual(
+            uri_df \
+                .filter(col('proj_raster_0_path') == lit(self.path(3, 1))) \
+                .filter(col('proj_raster_1_path') == lit(self.path(3, 2))) \
+                .count(),
+            1)
 
     def test_schemeless_string(self):
         import os.path
