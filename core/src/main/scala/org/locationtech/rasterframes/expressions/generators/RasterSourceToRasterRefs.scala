@@ -76,8 +76,9 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     }
     catch {
       case NonFatal(ex) ⇒
-        val description = Try(children.map(c => RasterSourceType.deserialize(c.eval(input))))
-          .toOption.toSeq.flatten.mkString(", ")
+        val description = "Error fetching data for one of: " +
+          Try(children.map(c => RasterSourceType.deserialize(c.eval(input))))
+            .toOption.toSeq.flatten.mkString(", ")
         throw new java.lang.IllegalArgumentException(description, ex)
     }
   }
