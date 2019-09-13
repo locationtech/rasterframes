@@ -4,7 +4,7 @@ import PythonBuildPlugin.autoImport.pyWhl
 lazy val includeNotebooks = settingKey[Boolean]("Whether to build documentation into notebooks and include them")
 includeNotebooks := true
 
-Docker / packageName := "rasterframes-notebook"
+Docker / packageName := "s22s/rasterframes-notebook"
 
 Docker / version := version.value
 
