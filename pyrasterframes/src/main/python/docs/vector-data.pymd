@@ -25,7 +25,7 @@ admin1_us_url = 'https://raw.githubusercontent.com/datasets/geo-admin1-us/master
 spark.sparkContext.addFile(admin1_us_url)  # this lets us read http scheme uri's in spark
 
 df = spark.read.geojson(SparkFiles.get('admin1-us.geojson'))
-df
+df.printSchema()
 ```
 
 The properties of each discrete geometry are available as columns of the DataFrame, along with the geometry itself.

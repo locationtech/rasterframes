@@ -37,10 +37,6 @@ def resource_dir():
     return test_resource
 
 
-def resource_dir_uri():
-    return 'file://' + resource_dir()
-
-
 class PegdownMarkdownFormatter(PwebPandocFormatter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

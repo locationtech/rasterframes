@@ -6,7 +6,6 @@ In this example, we will demonstrate how to fit and score an unsupervised learni
 
 ```python, setup, echo=False
 from IPython.core.display import display
-from docs import resource_dir_uri
 import pyrasterframes.rf_ipython
 from pyrasterframes.utils import create_rf_spark_session
 
@@ -29,26 +28,19 @@ from pyspark.ml import Pipeline
 
 ```
 
-The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from [the I/O page](raster-io.html#Single-Scene--Multiple-Bands). In the catalog, each row represents a distinct area and time, and each column is the URI to a band's image product. The function `resource_dir_uri` gives a local file system path to the sample Landsat data. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
+The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from [the I/O page](raster-io.html#Single-Scene--Multiple-Bands). In the catalog, each row represents a distinct area and time, and each column is the URI to a band's image product. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
 
 
 ```python, catalog
-filenamePattern = "L8-B{}-Elkton-VA.tiff"
+filenamePattern = "https://github.com/locationtech/rasterframes/" \
+                  "raw/develop/core/src/test/resources/L8-B{}-Elkton-VA.tiff"
 catalog_df = pd.DataFrame([
-    {'b' + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
+    {'b' + str(b): filenamePattern.format(b) for b in range(1, 8)}
 ])
+
 df = spark.read.raster(catalog_df, catalog_col_names=catalog_df.columns)
-df = df.select(
-    rf_crs(df.b1).alias('crs'),
-    rf_extent(df.b1).alias('extent'),
-    rf_tile(df.b1).alias('b1'),
-    rf_tile(df.b2).alias('b2'),
-    rf_tile(df.b3).alias('b3'),
-    rf_tile(df.b4).alias('b4'),
-    rf_tile(df.b5).alias('b5'),
-    rf_tile(df.b6).alias('b6'),
-    rf_tile(df.b7).alias('b7'),
-)
+df = df.withColumn('crs', rf_crs(df.b1)) \
+       .withColumn('extent', rf_crs(df.b1))
 df.printSchema()
 ```
 
