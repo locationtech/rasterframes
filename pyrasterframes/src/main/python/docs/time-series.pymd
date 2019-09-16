@@ -5,13 +5,9 @@
 ```python setup, echo=False
 from IPython.display import display
 
-from docs import folium_map
-
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
-
-import folium 
 
 from pyspark.sql.functions import udf, lit
 from geomesa_pyspark.types import MultiPolygonUDT

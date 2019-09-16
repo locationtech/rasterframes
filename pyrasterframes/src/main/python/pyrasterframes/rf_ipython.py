@@ -163,6 +163,19 @@ def spark_df_to_html(df, num_rows=5, truncate=False):
     return RFContext.active().call("_dfToHTML", df._jdf, num_rows, truncate)
 
 
+def _folium_map_formatter(map):
+    """ inputs a folium.Map object and returns html of rendered map """
+    
+    import base64
+    html_source = map.get_root().render()
+    b64_source = base64.b64encode(
+        bytes(html_source.encode('utf-8'))
+        ).decode('utf-8')
+
+    source_blob = '<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>' 
+    return source_blob.format(b64_source)
+
+
 try:
     from IPython import get_ipython
     from IPython.display import display_png, display_markdown, display
@@ -178,8 +191,16 @@ try:
         html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
         html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_html)
 
+        # these will likely only effect docs build
         markdown_formatter = ip.display_formatter.formatters['text/markdown']
         markdown_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
+
+        try:
+            # this block is to try to avoid making an install dep on folium but support if in the environment
+            import folium
+            markdown_formatter.for_type(folium.Map, _folium_map_formatter)
+        except ImportError as e:
+            pass
 
         png_formatter = ip.display_formatter.formatters['image/png']
         png_formatter.for_type(Tile, tile_to_png)

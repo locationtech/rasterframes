@@ -17,12 +17,6 @@ import folium
 spark = pyrasterframes.get_spark_session('local[2]')
 ```
 
-```python import2, echo=False
-# Dear notebook user, this will cause error on import but it is not needed. It is just for building static docs.
-# Dear docs contributor, please leave this in its own block with these comments.
-import docs.folium_support
-```
-
 ## GeoJSON DataSource
 
 ```python, read_geojson

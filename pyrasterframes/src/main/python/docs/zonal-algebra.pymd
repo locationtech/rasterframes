@@ -3,13 +3,9 @@
 ```python setup, echo=False
 from IPython.display import display
 
-from docs import folium_map
-
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
-
-import folium 
 
 from pyspark.sql.functions import udf, lit
 from geomesa_pyspark.types import MultiPolygonUDT
@@ -32,6 +28,8 @@ First we download vector from the US National Park Service open data portal, and
 
 ```python get_park_boundary
 import requests
+import folium
+
 nps_filepath = '/tmp/2parks.geojson'
 nps_data_query_url = 'https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/' \
                      'NPS_Park_Boundaries/FeatureServer/0/query' \
@@ -40,11 +38,14 @@ nps_data_query_url = 'https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/
 r = requests.get(nps_data_query_url)
 with open(nps_filepath,'wb') as f:
     f.write(r.content)
+
+m = folium.Map()
+layer = folium.GeoJson(nps_filepath)
+m.fit_bounds(layer.get_bounds())
+m.add_child(layer)
+m
 ```
 
-```python folium, results='paradox', echo=False
-display(folium_map(nps_filepath))
-```
 
 Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry we "simplify" by combining vertices within about 500 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
 
