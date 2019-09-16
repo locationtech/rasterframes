@@ -9,8 +9,6 @@ import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 
-import folium 
-
 from pyspark.sql.functions import udf, lit
 from geomesa_pyspark.types import MultiPolygonUDT
 
@@ -18,51 +16,21 @@ from geomesa_pyspark.types import MultiPolygonUDT
 spark = pyrasterframes.get_spark_session("local[4]")
 ```
 
-In this example, we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will start with our @ref:[built-in MODIS data catalog](raster-catalogs.md#using-built-in-experimental-catalogs).
+In this example, we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will continue our example from the @ref:[Zonal Map Algebra page](zonal-algebra.md).
 
-```python catalog
+We will summarize the change in @ref:[NDVI](local-algebra.md#computing-ndvi) over the spring and early summer of 2018 in the Cuyahoga Valley National Park in Ohio, USA. 
+
+```python vector, echo=False, results='hidden'
 cat = spark.read.format('aws-pds-modis-catalog').load().repartition(200)
-cat.printSchema()
-```
-
-We will summarize the change in NDVI over 2018 in the Cuyahoga Valley National Park in Ohio, USA. First, we will retrieve open vector data delineating the park boundary from the US National Park Service's LandsNet.
-
-## Vector Data
-
-First we will get the vector data from LandsNet service by a REST query. The data is saved to a geojson file.
-
-```python get_park_boundary
 import requests
 nps_filepath = '/tmp/parks.geojson'
 nps_data_query_url = 'https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/' \
                      'NPS_Park_Boundaries/FeatureServer/0/query' \
-                     '?geometry=-82.451,41.075,-80.682,41.436&inSR=4326&outSR=4326&f=geojson'
+                     '?geometry=-82.451,41.075,-80.682,41.436&inSR=4326&outSR=4326&outFields=*&f=geojson'
 r = requests.get(nps_data_query_url)
 with open(nps_filepath,'wb') as f:
     f.write(r.content)
-```
 
-```python, folium_map, 
-m = folium.Map((41.25,-81.6), zoom_start=10).add_child(folium.GeoJson(nps_filepath))
-```
-
-```python, folium_persist, echo=False
-# this is the work around for ability to render the folium map in the docs build
-import base64
-temp_folium = 'docs/static/__cuya__.html'
-m.save(temp_folium)
-with open(temp_folium, 'rb') as f:
-    b64 = base64.b64encode(f.read())
-with open('docs/static/cuya.md', 'w') as md:
-    md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>'.format(b64.decode('utf-8')))
-    # seems that the height is not correct?
-```
-
-@@include[folium_static](static/cuya.md)
-
-Now we read the park boundary vector data as a Spark DataFrame using the built-in @ref:[geojson DataSource](vector-data.md#geojson-datasource). The geometry is very detailed, and the EO cells are relatively coarse. To speed up the processing, the geometry is "simplified" by combining vertices within about 100 meters of each other. For more on this see the section on Shapely support in @ref:[user defined functions](vector-data.md#shapely-geometry-support).
-
-```python read_cuya_vector
 park_vector = spark.read.geojson(nps_filepath)
 
 @udf(MultiPolygonUDT())
@@ -72,11 +40,13 @@ def simplify(g, tol):
 park_vector = park_vector.withColumn('geo_simp', simplify('geometry', lit(0.001))) \
                          .select('geo_simp') \
                          .hint('broadcast')
+
+
 ```
 
 ## Catalog Read
 
-The entire park boundary is contained in MODIS granule h11 v04. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). The time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer.
+As in our other example, we will query for a single known MODIS granule directly. We limit the vector data to the single park of interest. The longer time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer. The definitions of `cat` and `park_vector` are as in the @ref:[Zonal Map Algebra page](zonal-algebra.md). 
 
 ```python query_catalog
 park_cat = cat \
@@ -85,65 +55,40 @@ park_cat = cat \
                     (cat.acquisition_date > lit('2018-02-19')) &
                     (cat.acquisition_date < lit('2018-07-01'))            
                     ) \
-            .crossJoin(park_vector)
+            .crossJoin(park_vector.filter('OBJECTID == 380')) #only coyahuga
                 
-park_cat.printSchema()
-```
-
-Now we have a catalog with several months of MODIS data for a single granule. However, the granule is larger than our park boundary. We will combine the park geometry with the catalog, and read only the bands of interest to compute NDVI, which we discussed in a @ref:[previous section](local-algebra.md#computing-ndvi).
-
-We then [reproject](https://gis.stackexchange.com/questions/247770/understanding-reprojection) the park geometry to the same @ref:[CRS](concepts.md#coordinate-reference-system--crs-) as the imagery. Then we will filter to only the _tiles_ intersecting the park.
-
-```python read_catalog
-raster_cols = ['B01', 'B02',] # red and near-infrared respectively
-park_rf = spark.read.raster(
-        park_cat.select(['acquisition_date', 'granule_id', 'geo_simp'] + raster_cols),
-        catalog_col_names=raster_cols) \
-    .withColumn('park_native', st_reproject('geo_simp', lit('EPSG:4326'), rf_crs('B01'))) \
-    .filter(st_intersects('park_native', rf_geometry('B01'))) 
-
-park_rf.printSchema()
-```
-
-```python persist_catalog, echo=False
-# park_rf.persist()                    
 ```
 
 ## Vector and Raster Data Interaction
 
-Now we have the vector representation of the park boundary alongside the _tiles_ of red and near infrared bands. Next, we need to create a _tile_ representation of the park to allow us to limit the time series analysis to pixels within the park. This is similar to the masking operation demonstrated in @ref:[NoData handling](nodata-handling.md#masking).
+We follow the same steps as the Zonal Map Algebra analysis: reprojecting the park geometry, filtering for intersection, rasterizing the geometry, and masking the NDVI by the _zone_ _tiles_. The code from that analysis is condensed here for reference.
 
-We do this using two transformations. The first one will reproject the park boundary from coordinates to the MODIS sinusoidal projection. The second one will create a new _tile_ aligned with the imagery containing a value of 1 where the pixels are contained within the park and NoData elsewhere. 
+```python raster_prep
+raster_cols = ['B01', 'B02',] # red and near-infrared respectively
 
-```python burn_in
-rf_park_tile = park_rf \
+rf_park_tile = spark.read.raster(
+        park_cat.select(['acquisition_date', 'granule_id', 'geo_simp'] + raster_cols),
+        catalog_col_names=raster_cols) \
+    .withColumn('park_native', st_reproject('geo_simp', lit('EPSG:4326'), rf_crs('B01'))) \
+    .filter(st_intersects('park_native', rf_geometry('B01'))) \
     .withColumn('dims', rf_dimensions('B01')) \
     .withColumn('park_tile', rf_rasterize('park_native', rf_geometry('B01'), lit(1), 'dims.cols', 'dims.rows')) \
-    .persist()
-
-rf_park_tile.printSchema()
+    .withColumn('ndvi', rf_normalized_difference('B02', 'B01')) \
+    .withColumn('ndvi_masked', rf_mask('ndvi', 'park_tile'))
 ```
 
 ## Create Time Series
 
-Next, we will compute NDVI as the normalized difference of near infrared (band 2) and red (band 1). The _tiles_ are masked by the `park_tile`. We will then aggregate across the remaining values to arrive at an average NDVI for each week of the year. Note that the computation is creating a weighted average, which is weighted by the number of valid observations per week.
+We next aggregate across the cell values to arrive at an average NDVI for each week of the year. We use `pyspark`'s built in `groupby` and time functions with a RasterFrames @ref:[aggregate function](aggregation.md) to do this. Note that the computation is creating a weighted average, which is weighted by the number of valid observations per week. 
 
 ```python ndvi_time_series
 from pyspark.sql.functions import col, year, weekofyear, month
-from pyspark.sql.functions import sum as sql_sum
 
-rf_ndvi = rf_park_tile \
-    .withColumn('ndvi', rf_normalized_difference('B02', 'B01')) \
-    .withColumn('ndvi_masked', rf_mask('ndvi', 'park_tile'))
-
-time_series = rf_ndvi \
-        .withColumn('ndvi_wt', rf_tile_sum('ndvi_masked')) \
-        .withColumn('wt', rf_data_cells('ndvi_masked')) \
-        .groupby(year('acquisition_date').alias('year'), weekofyear('acquisition_date').alias('week')) \
-        .agg(sql_sum('ndvi_wt').alias('ndvi_wt_wk'), sql_sum('wt').alias('wt_wk')) \
-        .withColumn('ndvi', col('ndvi_wt_wk') / col('wt_wk'))
-        
-time_series.printSchema()
+time_series = rf_park_tile \
+        .groupby(
+            year('acquisition_date').alias('year'), 
+            weekofyear('acquisition_date').alias('week')) \
+        .agg(rf_agg_mean('ndvi_masked').alias('ndvi')) 
 ```
 
 Finally, we will take a look at the NDVI over time.
@@ -152,7 +97,7 @@ Finally, we will take a look at the NDVI over time.
 import matplotlib.pyplot as plt
 
 time_series_pdf = time_series.toPandas()
-time_series_pdf = time_series_pdf.sort_values('week')
+time_series_pdf.sort_values('week', inplace=True)
 plt.plot(time_series_pdf['week'], time_series_pdf['ndvi'], 'go-')
 plt.xlabel('Week of year, 2018')
 plt.ylabel('NDVI')

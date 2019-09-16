@@ -1,19 +1,28 @@
 # Vector Data
 
-RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data. There is a convenience DataSource for the GeoJSON format, as well as the ability to convert from [GeoPandas][GeoPandas] to Spark. Representation of vector geometries in PySpark is through [Shapely][Shapely], providing a great deal of interoperability. RasterFrames also provides access to Spark functions for working with geometries.
+RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data.  
 
-## GeoJSON DataSource
+ * DataSource for GeoJSON format
+ * Ability to convert between from [GeoPandas][GeoPandas] and Spark DataFrames
+ * In PySpark, geometries are [Shapely][Shapely] objects, providing a great deal of interoperability
+ * Many Spark functions for working with columns of geometries
+ * Vector data is also the basis for @ref:[zonal map algebra](zonal-algebra.md) operations.
 
 ```python, setup, echo=False
 import pyrasterframes
 import pyrasterframes.rf_ipython
-from pyrasterframes.utils import create_rf_spark_session
-spark = create_rf_spark_session()
+import geomesa_pyspark.types
+import geopandas
+import folium
+spark = pyrasterframes.get_spark_session('local[2]')
 ```
+
+## GeoJSON DataSource
 
 ```python, read_geojson
 from pyspark import SparkFiles
-spark.sparkContext.addFile('https://raw.githubusercontent.com/datasets/geo-admin1-us/master/data/admin1-us.geojson')
+admin1_us_url = 'https://raw.githubusercontent.com/datasets/geo-admin1-us/master/data/admin1-us.geojson'
+spark.sparkContext.addFile(admin1_us_url)  # this lets us read http scheme uri's in spark
 
 df = spark.read.geojson(SparkFiles.get('admin1-us.geojson'))
 df.printSchema()
@@ -36,7 +45,7 @@ def poly_or_mp_to_mp(g):
     else:
         return MultiPolygon([g])
 
-gdf = geopandas.read_file('https://raw.githubusercontent.com/datasets/geo-admin1-us/master/data/admin1-us.geojson')
+gdf = geopandas.read_file(admin1_us_url)
 gdf.geometry = gdf.geometry.apply(poly_or_mp_to_mp)
 df2 = spark.createDataFrame(gdf)
 df2.printSchema()
@@ -92,8 +101,21 @@ l8 = l8.withColumn('paducah', st_point(lit(-88.628), lit(37.072)))  # col of poi
 l8_filtered = l8 \
                 .filter(st_intersects(l8.geom, st_bufferPoint(l8.paducah, lit(50000.0)))) \
                 .filter(l8.acquisition_date > '2018-02-01') \
-                .filter(l8.acquisition_date < '2018-04-01')
-l8_filtered.select('product_id', 'entity_id', 'acquisition_date', 'cloud_cover_pct')
+                .filter(l8.acquisition_date < '2018-03-11')
+```
+
+```python, folium, echo=False
+geo_df = geopandas.GeoDataFrame(
+    l8_filtered.select('geom', 'bounds_wgs84').toPandas(),
+    crs='EPSG:4326',
+    geometry='geom')
+
+# display as folium / leaflet map
+m = folium.Map()
+layer = folium.GeoJson(geo_df.to_json())
+m.fit_bounds(layer.get_bounds())
+m.add_child(layer)
+m
 ```
 
 [GeoPandas]: http://geopandas.org

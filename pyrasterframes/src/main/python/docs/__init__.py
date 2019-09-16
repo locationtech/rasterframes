@@ -19,6 +19,7 @@
 #
 
 import os
+
 from pweave import PwebPandocFormatter
 
 
@@ -34,10 +35,6 @@ def resource_dir():
     test_resource = os.path.realpath(os.path.join(here, '..', '..', '..', 'src', 'test', 'resources'))
 
     return test_resource
-
-
-def resource_dir_uri():
-    return 'file://' + resource_dir()
 
 
 class PegdownMarkdownFormatter(PwebPandocFormatter):

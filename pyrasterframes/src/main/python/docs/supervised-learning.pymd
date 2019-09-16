@@ -11,7 +11,6 @@ from pyspark.sql.functions import lit
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from docs import resource_dir_uri
 
 import os
 
@@ -70,8 +69,10 @@ crses = df.select('crs.crsProj4').distinct().collect()
 print('Found ', len(crses), 'distinct CRS.')
 crs = crses[0][0]
 
-label_df = spark.read.geojson(
-    os.path.join(resource_dir_uri(), 'luray-labels.geojson')) \
+from pyspark import SparkFiles
+spark.sparkContext.addFile('https://github.com/locationtech/rasterframes/raw/develop/pyrasterframes/src/test/resources/luray-labels.geojson') 
+
+label_df = spark.read.geojson(SparkFiles.get('luray-labels.geojson')) \
     .select('id', st_reproject('geometry', lit('EPSG:4326'), lit(crs)).alias('geometry')) \
     .hint('broadcast')
 
@@ -81,7 +82,6 @@ df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry')) 
 df_labeled = df_joined.withColumn('label', 
    rf_rasterize('geometry', st_geometry('extent'), 'id', 'dims.cols', 'dims.rows')
 )
-
 ```
 
 ## Masking Poor Quality Cells
