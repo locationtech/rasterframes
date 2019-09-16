@@ -41,7 +41,7 @@ object TileContext {
     case _ => None
   }
   implicit val serializer: CatalystSerializer[TileContext] = new CatalystSerializer[TileContext] {
-    override def schema: StructType = StructType(Seq(
+    override val schema: StructType = StructType(Seq(
       StructField("extent", schemaOf[Extent], false),
       StructField("crs", schemaOf[CRS], false)
     ))

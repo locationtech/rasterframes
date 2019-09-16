@@ -73,7 +73,7 @@ object RasterSourceUDT {
 
   implicit val rasterSourceSerializer: CatalystSerializer[RasterSource] = new CatalystSerializer[RasterSource] {
 
-    override def schema: StructType = StructType(Seq(
+    override val schema: StructType = StructType(Seq(
       StructField("raster_source_kryo", BinaryType, false)
     ))
 

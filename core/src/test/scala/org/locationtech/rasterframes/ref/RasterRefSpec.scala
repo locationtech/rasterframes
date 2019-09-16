@@ -21,8 +21,11 @@
 
 package org.locationtech.rasterframes.ref
 
+import java.net.URI
+
 import geotrellis.raster.{ByteConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
+import org.apache.spark.SparkException
 import org.apache.spark.sql.Encoders
 import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.expressions.accessors._
@@ -203,6 +206,16 @@ class RasterRefSpec extends TestEnvironment with TestData {
       forEvery(dims) { r =>
         r.cols should be <= NOMINAL_TILE_SIZE
         r.rows should be <= NOMINAL_TILE_SIZE
+      }
+    }
+    it("should throw exception on invalid URI") {
+      val src = RasterSource(URI.create("http://foo/bar"))
+      import spark.implicits._
+      val df = Seq(src).toDF("src")
+      val refs = df.select(RasterSourceToRasterRefs($"src") as "proj_raster")
+      logger.warn(Console.REVERSED + "Upcoming 'java.lang.IllegalArgumentException' expected in logs." + Console.RESET)
+      assertThrows[SparkException] {
+        refs.first()
       }
     }
   }
