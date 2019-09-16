@@ -19,6 +19,7 @@
 #
 
 import os
+
 from pweave import PwebPandocFormatter
 
 
@@ -38,31 +39,6 @@ def resource_dir():
 
 def resource_dir_uri():
     return 'file://' + resource_dir()
-
-
-def folium_map(vector_data):
-    from folium import Map, GeoJson
-
-    import base64
-    from uuid import uuid4
-
-    # use chunck option results='paradox' with this; also recommend echo=False
-    gl = GeoJson(vector_data)
-    m = Map()
-    m.fit_bounds(gl.get_bounds())
-    m.add_child(gl)
-
-    temp_fname = str(uuid4())
-    html_source = m.get_root().render()
-    b64_source = base64.b64encode(
-        bytes(html_source.encode('utf-8'))
-        ).decode('utf-8')
-
-    with open('docs/static/{}.md'.format(temp_fname), 'w') as md:
-        md.write('<iframe src="data:text/html;charset=utf-8;base64,{}" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" style="position:relative;width:100%;height:500px"></iframe>' \
-            .format(b64_source))
-    
-    return print('@@include[folium_map](static/{}.md)'.format(temp_fname))
 
 
 class PegdownMarkdownFormatter(PwebPandocFormatter):
