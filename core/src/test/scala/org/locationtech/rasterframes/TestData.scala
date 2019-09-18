@@ -311,11 +311,6 @@ object TestData extends TestData {
       t.map((c, r, v) ⇒ if(filter(c, r)) raster.NODATA else v)
     }
 
-//    t match {
-//      case TileContext(ext, crs) => ProjectedRasterTile(injected, ext, crs)
-//      case _ => injected
-//    }
-
     injected
   }
 }
