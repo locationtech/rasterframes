@@ -1,4 +1,4 @@
-FROM s22s/pyspark-notebook:spark-2.3.3-hadoop-2.7
+FROM s22s/pyspark-notebook:spark-2.3.4-hadoop-2.7
 
 MAINTAINER Astraea, Inc.
 
