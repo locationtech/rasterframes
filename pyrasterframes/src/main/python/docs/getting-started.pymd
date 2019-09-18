@@ -2,7 +2,7 @@
 
 @@@ note
 
-If you are new to Earth-observing imagery, you might consider looking at the [Concepts](concepts.md) section first.
+If you are new to Earth-observing imagery, you might consider looking at the @ref:[Concepts](concepts.md) section first.
 
 @@@
 
@@ -27,7 +27,7 @@ Then in a python interpreter of your choice, you can get a [`pyspark` `SparkSess
 from pyrasterframes import rf_ipython
 ```
 
-```python, version 
+```python, version
 import pyrasterframes
 spark = pyrasterframes.get_spark_session()
 ```

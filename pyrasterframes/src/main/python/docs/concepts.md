@@ -36,7 +36,7 @@ The most frequently encountered cell types in RasterFrames are below.
 | Float | `float32` | 32-bit floating-point | -3.4028235E38 to 3.4028235E38 |
 | Double | `float64` | 64-bit floating-point | -1.7976931348623157E308 to 1.7976931348623157E308 |
 
-See the section on [“NoData” Handling](nodata-handling.md) for additional discussion on cell types and more exhaustive coverage of available cell types.
+See the section on @ref:[“NoData” Handling](nodata-handling.md) for additional discussion on cell types and more exhaustive coverage of available cell types.
 
 ## NoData
 

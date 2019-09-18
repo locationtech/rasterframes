@@ -210,7 +210,7 @@ Where the `mask` contains NoData, replace values in the `tile` with NoData.
 
 Returned `tile` cell type will be coerced to one supporting NoData if it does not already.
 
-See also @[`rf_rasterize`](reference.md#rf-rasterize).
+See also @ref:[`rf_rasterize`](reference.md#rf-rasterize).
 
 
 ### rf_inverse_mask
