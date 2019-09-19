@@ -21,15 +21,10 @@
 
 package org.locationtech.rasterframes.datasource
 
-import java.net.URI
-import java.util.UUID
-
-import org.apache.spark.sql.{DataFrame, DataFrameReader}
+import org.apache.spark.sql.DataFrameReader
 import shapeless.tag
 import shapeless.tag.@@
 package object raster {
-
-  private[raster] def tmpTableName() = UUID.randomUUID().toString.replace("-", "")
 
   trait RasterSourceDataFrameReaderTag
   type RasterSourceDataFrameReader = DataFrameReader @@ RasterSourceDataFrameReaderTag
@@ -42,52 +37,6 @@ package object raster {
   }
 
   /** Adds option methods relevant to RasterSourceDataSource. */
-  implicit class RasterSourceDataFrameReaderHasOptions(val reader: RasterSourceDataFrameReader) {
-    /** Set the zero-based band indexes to read. Defaults to Seq(0). */
-    def withBandIndexes(bandIndexes: Int*): RasterSourceDataFrameReader =
-      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.BAND_INDEXES_PARAM, bandIndexes.mkString(",")))
-
-    def withTileDimensions(cols: Int, rows: Int): RasterSourceDataFrameReader =
-      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.TILE_DIMS_PARAM, s"$cols,$rows")
-      )
-
-    /** Indicate if tile reading should be delayed until cells are fetched. Defaults to `true`. */
-    def withLazyTiles(state: Boolean): RasterSourceDataFrameReader =
-      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.LAZY_TILES_PARAM, state))
-
-    def fromCatalog(catalog: DataFrame, bandColumnNames: String*): RasterSourceDataFrameReader =
-      tag[RasterSourceDataFrameReaderTag][DataFrameReader] {
-        val tmpName = tmpTableName()
-        catalog.createOrReplaceTempView(tmpName)
-        reader
-          .option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tmpName)
-          .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(",")): DataFrameReader
-      }
-
-    def fromCatalog(tableName: String, bandColumnNames: String*): RasterSourceDataFrameReader =
-      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tableName)
-          .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
-      )
-
-    def fromCSV(catalogCSV: String, bandColumnNames: String*): RasterSourceDataFrameReader =
-      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.CATALOG_CSV_PARAM, catalogCSV)
-          .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
-      )
-
-    def from(newlineDelimPaths: String): RasterSourceDataFrameReader =
-      tag[RasterSourceDataFrameReaderTag][DataFrameReader](
-        reader.option(RasterSourceDataSource.PATHS_PARAM, newlineDelimPaths)
-      )
-
-    def from(paths: Seq[String]): RasterSourceDataFrameReader =
-      from(paths.mkString("\n"))
-
-    def from(uris: Seq[URI])(implicit d: DummyImplicit): RasterSourceDataFrameReader =
-      from(uris.map(_.toASCIIString))
-  }
+  implicit class RasterSourceDataFrameReaderHasOptions(val reader: RasterSourceDataFrameReader)
+    extends RasterSourceDataSource.CatalogReaderOptionsSupport[RasterSourceDataFrameReaderTag]
 }
