@@ -55,11 +55,11 @@ def _kryo_init(builder):
     return builder
 
 
-def get_spark_session(master="local[*]"):
+def get_spark_session(master="local[*]", **kwargs):
     """ Create a SparkSession with pyrasterframes enabled and configured. """
     from pyrasterframes.utils import create_rf_spark_session
 
-    return create_rf_spark_session(master)
+    return create_rf_spark_session(master, **kwargs)
 
 
 def _convert_df(df, sp_key=None, metadata=None):

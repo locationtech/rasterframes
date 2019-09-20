@@ -31,6 +31,7 @@ if sys.version_info[0] > 2:
 else:
     import __builtin__ as builtins
 
+app_name = 'pyrasterframes test suite'
 
 def resource_dir():
     def pdir(curr):
@@ -46,7 +47,10 @@ def resource_dir():
 
 
 def spark_test_session():
-    spark = create_rf_spark_session()
+    spark = create_rf_spark_session(**{
+        'spark.ui.enabled': 'false',
+        'spark.app.name': app_name
+    })
     spark.sparkContext.setLogLevel('ERROR')
 
     print("Spark Version: " + spark.version)
