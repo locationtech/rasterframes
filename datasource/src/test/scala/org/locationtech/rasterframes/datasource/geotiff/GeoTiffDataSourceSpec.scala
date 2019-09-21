@@ -28,6 +28,7 @@ import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestEnvironment
+import org.locationtech.rasterframes.datasource.raster._
 
 /**
  * @since 1/14/18
@@ -186,7 +187,7 @@ class GeoTiffDataSourceSpec
     }
 
     it("should write GeoTIFF without layer") {
-      import org.locationtech.rasterframes.datasource.raster._
+
       val pr = col("proj_raster_b0")
       val rf = spark.read.raster.withBandIndexes(0, 1, 2).load(rgbCogSamplePath.toASCIIString)
 
@@ -217,6 +218,23 @@ class GeoTiffDataSourceSpec
             .save(out.toString)
         }
       }
+    }
+
+    it("should produce the correct subregion") {
+      import spark.implicits._
+      val rf = SinglebandGeoTiff(TestData.singlebandCogPath.getPath)
+        .projectedRaster.toLayer(128, 128).withExtent()
+
+      val out = Paths.get("target", "example3-geotiff.tif")
+      logger.info(s"Writing to $out")
+
+      val bitOfLayer = rf.filter($"spatial_key.col" === 0 && $"spatial_key.row" === 0)
+      val expectedExtent = bitOfLayer.select($"extent".as[Extent]).first()
+      bitOfLayer.write.geotiff.save(out.toString)
+
+      val result = SinglebandGeoTiff(out.toString)
+      result.tile.dimensions should be (128, 128)
+      result.extent should be (expectedExtent)
     }
 
     def s(band: Int): String =
