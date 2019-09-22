@@ -31,7 +31,7 @@ RasterFrames is released under the [Apache 2.0 License](https://github.com/locat
 * [Vector Data](vector-data.md)
 * [Raster Processing](raster-processing.md)
 * [Numpy and Pandas](numpy-pandas.md) 
-* [API Languages](languages.md)
+* [Scala and SQL](languages.md)
 * [Function Reference](reference.md)
 * [Release Notes](release-notes.md)
 @@@
