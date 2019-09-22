@@ -48,7 +48,7 @@ class RasterRefIT extends TestEnvironment {
         rf_crs($"red"), rf_extent($"red"), rf_tile($"red"), rf_tile($"green"), rf_tile($"blue"))
         .toDF
 
-      val raster = TileRasterizerAggregate(df, redScene.crs, None, None)
+      val raster = TileRasterizerAggregate.collect(df, redScene.crs, None, None)
 
       forEvery(raster.tile.statisticsDouble) { stats =>
         stats should be ('defined)

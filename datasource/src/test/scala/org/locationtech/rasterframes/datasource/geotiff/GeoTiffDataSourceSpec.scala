@@ -20,9 +20,10 @@
  */
 package org.locationtech.rasterframes.datasource.geotiff
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
 import geotrellis.proj4._
+import geotrellis.raster.CellType
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
@@ -90,6 +91,15 @@ class GeoTiffDataSourceSpec
 
   describe("GeoTiff writing") {
 
+    def checkTiff(file: Path, cols: Int, rows: Int, extent: Extent, cellType: Option[CellType] = None) = {
+      val outputTif = SinglebandGeoTiff(file.toString)
+      outputTif.tile.dimensions should be ((cols, rows))
+      outputTif.extent should be (extent)
+      cellType.foreach(ct =>
+        outputTif.cellType should be (ct)
+      )
+    }
+
     it("should write GeoTIFF RF to parquet") {
       val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
       assert(write(rf))
@@ -105,6 +115,9 @@ class GeoTiffDataSourceSpec
       noException shouldBe thrownBy {
         rf.write.format("geotiff").save(out.toString)
       }
+      val extent = rf.tileLayerMetadata.merge.extent
+
+      checkTiff(out, 1028, 989, extent)
     }
 
     it("should write unstructured raster") {
@@ -117,10 +130,10 @@ class GeoTiffDataSourceSpec
 
       val crs = df.select(rf_crs($"proj_raster")).first()
 
-      val out = Paths.get("target", "unstructured.tif").toString
+      val out = Paths.get("target", "unstructured.tif")
 
       noException shouldBe thrownBy {
-        df.write.geotiff.withCRS(crs).save(out)
+        df.write.geotiff.withCRS(crs).save(out.toString)
       }
 
       val (inCols, inRows) = {
@@ -130,11 +143,7 @@ class GeoTiffDataSourceSpec
       inCols should be (774)
       inRows should be (500) //from gdalinfo
 
-      val outputTif = SinglebandGeoTiff(out)
-      outputTif.imageData.cols should be (inCols)
-      outputTif.imageData.rows should be (inRows)
-
-      // TODO check datatype, extent.
+      checkTiff(out, inCols, inRows, Extent(431902.5, 4313647.5, 443512.5, 4321147.5))
     }
 
     it("should round trip unstructured raster from COG"){
@@ -164,10 +173,10 @@ class GeoTiffDataSourceSpec
 
       dfExtent shouldBe resourceExtent
 
-      val out = Paths.get("target", "unstructured_cog.tif").toString
+      val out = Paths.get("target", "unstructured_cog.tif")
 
       noException shouldBe thrownBy {
-        df.write.geotiff.withCRS(crs).save(out)
+        df.write.geotiff.withCRS(crs).save(out.toString)
       }
 
       val (inCols, inRows, inExtent, inCellType) = {
@@ -175,15 +184,11 @@ class GeoTiffDataSourceSpec
         val id = tif.imageData
         (id.cols, id.rows, tif.extent, tif.cellType)
       }
-      inCols should be (963)
-      inRows should be (754) //from gdalinfo
+      inCols should be (resourceCols)
+      inRows should be (resourceRows) //from gdalinfo
       inExtent should be (resourceExtent)
 
-      val outputTif = SinglebandGeoTiff(out)
-      outputTif.imageData.cols should be (inCols)
-      outputTif.imageData.rows should be (inRows)
-      outputTif.extent should be (resourceExtent)
-      outputTif.cellType should be (inCellType)
+      checkTiff(out, inCols, inRows, resourceExtent, Some(inCellType))
     }
 
     it("should write GeoTIFF without layer") {
@@ -218,9 +223,12 @@ class GeoTiffDataSourceSpec
             .save(out.toString)
         }
       }
+
+      checkTiff(out, 128, 128,
+        Extent(-76.52586750038186, 36.85907177863949, -76.17461216980891, 37.1303690755922))
     }
 
-    it("should produce the correct subregion") {
+    it("should produce the correct subregion from layer") {
       import spark.implicits._
       val rf = SinglebandGeoTiff(TestData.singlebandCogPath.getPath)
         .projectedRaster.toLayer(128, 128).withExtent()
@@ -232,9 +240,25 @@ class GeoTiffDataSourceSpec
       val expectedExtent = bitOfLayer.select($"extent".as[Extent]).first()
       bitOfLayer.write.geotiff.save(out.toString)
 
-      val result = SinglebandGeoTiff(out.toString)
-      result.tile.dimensions should be (128, 128)
-      result.extent should be (expectedExtent)
+      checkTiff(out, 128, 128, expectedExtent)
+    }
+
+    it("should produce the correct subregion without layer") {
+      import spark.implicits._
+
+      val rf = spark.read.raster
+        .withTileDimensions(128, 128)
+        .load(TestData.singlebandCogPath.toASCIIString)
+
+      val out = Paths.get("target", "example3-geotiff.tif")
+      logger.info(s"Writing to $out")
+
+      val bitOfLayer = rf.filter(st_intersects(st_makePoint(754245, 3893385), rf_geometry($"proj_raster")))
+      val expectedExtent = bitOfLayer.select(rf_extent($"proj_raster")).first()
+      val crs = bitOfLayer.select(rf_crs($"proj_raster")).first()
+      bitOfLayer.write.geotiff.withCRS(crs).save(out.toString)
+
+      checkTiff(out, 128, 128, expectedExtent)
     }
 
     def s(band: Int): String =
