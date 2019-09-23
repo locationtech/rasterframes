@@ -35,7 +35,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 private[rasterframes]
 object DynamicExtractors {
-  /** Partial function for pulling a tile and its contesxt from an input row. */
+  /** Partial function for pulling a tile and its context from an input row. */
   lazy val tileExtractor: PartialFunction[DataType, InternalRow => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: InternalRow) =>
@@ -46,6 +46,14 @@ object DynamicExtractors {
         (prt, Some(TileContext(prt)))
       }
   }
+
+  lazy val rasterRefExtractor: PartialFunction[DataType, InternalRow => RasterRef] = {
+    case t if t.conformsTo[RasterRef] =>
+      (row: InternalRow) => row.to[RasterRef]
+  }
+
+  lazy val tileableExtractor: PartialFunction[DataType, InternalRow => Tile] =
+    tileExtractor.andThen(_.andThen(_._1)).orElse(rasterRefExtractor.andThen(_.andThen(_.tile)))
 
   lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
     case _: TileUDT =>

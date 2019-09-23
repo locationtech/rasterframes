@@ -33,7 +33,6 @@ import unittest
 
 class ExploderTests(TestEnvironment):
 
-    @unittest.skip("See issue https://github.com/locationtech/rasterframes/issues/163")
     def test_tile_exploder_pipeline_for_prt(self):
         # NB the tile is a Projected Raster Tile
         df = self.spark.read.raster(self.img_uri)

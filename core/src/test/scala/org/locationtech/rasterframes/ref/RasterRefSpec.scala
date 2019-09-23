@@ -21,14 +21,17 @@
 
 package org.locationtech.rasterframes.ref
 
-import org.locationtech.rasterframes._
+import java.net.URI
+
+import geotrellis.raster.{ByteConstantNoDataCellType, Tile}
+import geotrellis.vector.Extent
+import org.apache.spark.SparkException
+import org.apache.spark.sql.Encoders
+import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.generators._
-import RasterRef.RasterRefTile
-import geotrellis.raster.Tile
-import geotrellis.vector.Extent
-import org.apache.spark.sql.Encoders
-import org.locationtech.rasterframes.TestEnvironment
+import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
  *
@@ -199,11 +202,54 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
       refs.count() shouldBe > (1L)
 
-
       val dims = refs.select(rf_dimensions($"proj_raster")).distinct().collect()
       forEvery(dims) { r =>
         r.cols should be <= NOMINAL_TILE_SIZE
         r.rows should be <= NOMINAL_TILE_SIZE
+      }
+    }
+    it("should throw exception on invalid URI") {
+      val src = RasterSource(URI.create("http://foo/bar"))
+      import spark.implicits._
+      val df = Seq(src).toDF("src")
+      val refs = df.select(RasterSourceToRasterRefs($"src") as "proj_raster")
+      logger.warn(Console.REVERSED + "Upcoming 'java.lang.IllegalArgumentException' expected in logs." + Console.RESET)
+      assertThrows[SparkException] {
+        refs.first()
+      }
+    }
+  }
+
+  describe("RealizeTile") {
+    it("should pass through basic Tile") {
+      val t = TestData.randomTile(5, 5, ByteConstantNoDataCellType)
+      val result = Seq(t).toDF("tile").select(rf_tile($"tile")).first()
+      assertEqual(result, t)
+    }
+
+    it("should simplify ProjectedRasterTile") {
+      val t = TestData.randNDPRT
+      val result = Seq(t).toDF("tile").select(rf_tile($"tile")).first()
+      result.isInstanceOf[ProjectedRasterLike] should be (false)
+      assertEqual(result, t.toArrayTile())
+    }
+
+    it("should resolve a RasterRef") {
+      new Fixture {
+        import RasterRef.rrEncoder // This shouldn't be required, but product encoder gets choosen.
+        val r: RasterRef = subRaster
+        val result = Seq(r).toDF("ref").select(rf_tile($"ref")).first()
+        result.isInstanceOf[RasterRefTile] should be(false)
+        assertEqual(r.tile.toArrayTile(), result)
+      }
+    }
+
+    it("should resolve a RasterRefTile") {
+      new Fixture {
+        val t: ProjectedRasterTile = RasterRefTile(subRaster)
+        val result = Seq(t).toDF("tile").select(rf_tile($"tile")).first()
+        result.isInstanceOf[RasterRefTile] should be(false)
+        assertEqual(t.toArrayTile(), result)
       }
     }
   }

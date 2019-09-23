@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.expressions.generators
 
-import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.GridBounds
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
@@ -45,7 +44,7 @@ import scala.util.control.NonFatal
  * @since 9/6/18
  */
 case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions] = None) extends Expression
-  with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
+  with Generator with CodegenFallback with ExpectsInputTypes {
 
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
   override def nodeName: String = "rf_raster_source_to_raster_ref"
@@ -77,9 +76,10 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     }
     catch {
       case NonFatal(ex) ⇒
-        val payload = Try(children.map(c => RasterSourceType.deserialize(c.eval(input)))).toOption.toSeq.flatten
-        logger.error("Error fetching data for one of: " + payload.mkString(", "), ex)
-        Traversable.empty
+        val description = "Error fetching data for one of: " +
+          Try(children.map(c => RasterSourceType.deserialize(c.eval(input))))
+            .toOption.toSeq.flatten.mkString(", ")
+        throw new java.lang.IllegalArgumentException(description, ex)
     }
   }
 }

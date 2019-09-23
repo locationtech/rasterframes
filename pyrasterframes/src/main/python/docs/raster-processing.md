@@ -2,8 +2,9 @@
 
 @@@ index
 
-* @ref:[Local Algebra](local-algebra.md)
+* @ref:[Local Map Algebra](local-algebra.md)
 * @ref:["NoData" Handling](nodata-handling.md)
+* @ref:[Zonal Map Algebra](zonal-algebra.md)
 * @ref:[Aggregation](aggregation.md)
 * @ref:[Time Series](time-series.md)
 * @ref:[Machine Learning](machine-learning.md)

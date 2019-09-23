@@ -31,6 +31,7 @@ if sys.version_info[0] > 2:
 else:
     import __builtin__ as builtins
 
+app_name = 'pyrasterframes test suite'
 
 def resource_dir():
     def pdir(curr):
@@ -46,7 +47,10 @@ def resource_dir():
 
 
 def spark_test_session():
-    spark = create_rf_spark_session()
+    spark = create_rf_spark_session(**{
+        'spark.ui.enabled': 'false',
+        'spark.app.name': app_name
+    })
     spark.sparkContext.setLogLevel('ERROR')
 
     print("Spark Version: " + spark.version)
@@ -71,7 +75,9 @@ class TestEnvironment(unittest.TestCase):
 
         cls.spark = spark_test_session()
 
-        cls.img_uri = 'file://' + os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
+        cls.img_path = os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
+
+        cls.img_uri = 'file://' + cls.img_path
 
     @classmethod
     def l8band_uri(cls, band_index):
@@ -88,4 +94,3 @@ class TestEnvironment(unittest.TestCase):
         self.rf = rf.withColumn('tile2', rf_convert_cell_type('tile', 'float32')) \
             .drop('tile') \
             .withColumnRenamed('tile2', 'tile').as_layer()
-        # cls.rf.show()

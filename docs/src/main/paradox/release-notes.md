@@ -1,6 +1,19 @@
-# Release&nbsp;Notes
+# Release Notes
 
 ## 0.8.x
+
+### 0.8.2
+
+* Added ability to pass config options to convenience PySpark session constructor. ([#361](https://github.com/locationtech/rasterframes/issues/361)) 
+* Bumped Spark dependency to version 2.3.4. ([#350](https://github.com/locationtech/rasterframes/issues/350))  
+* Fixed handling of aggregate extent and image size on GeoTIFF writing. ([#362](https://github.com/locationtech/rasterframes/issues/362)) 
+* Fixed issue with `RasterSourceDataSource` swallowing exceptions. ([#267](https://github.com/locationtech/rasterframes/issues/267)) 
+* Fixed SparkML memory pressure issue caused by unnecessary reevaluation, overallocation, and primitive boxing. ([#343](https://github.com/locationtech/rasterframes/issues/343)) 
+* Fixed Parquet serialization issue with `RasterRef`s ([#338](https://github.com/locationtech/rasterframes/issues/338))
+* Fixed `TileExploder`, `rf_agg_local_mean` and `TileColumnSupport` to support `proj_raster` struct ([#287](https://github.com/locationtech/rasterframes/issues/287), [#163](https://github.com/locationtech/rasterframes/issues/163), [#333](https://github.com/locationtech/rasterframes/issues/333)).
+* Various documentation improvements.
+* _Breaking_ (potentially): Synchronized parameter naming in Python and Scala for `spark.read.raster` ([#329](https://github.com/locationtech/rasterframes/pull/329)).
+
 
 ### 0.8.1
 

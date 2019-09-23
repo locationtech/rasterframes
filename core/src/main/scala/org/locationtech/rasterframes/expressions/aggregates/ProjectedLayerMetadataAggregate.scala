@@ -77,6 +77,10 @@ class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: TileDimensions) ex
     import org.locationtech.rasterframes.encoders.CatalystSerializer._
     val buf = buffer.to[BufferRecord]
 
+    if (buf.isEmpty) {
+      throw new IllegalArgumentException("Can not collect metadata from empty data frame.")
+    }
+
     val re = RasterExtent(buf.extent, buf.cellSize)
     val layout = LayoutDefinition(re, destDims.cols, destDims.rows)
 
@@ -118,7 +122,7 @@ object ProjectedLayerMetadataAggregate {
   private[expressions]
   object InputRecord {
     implicit val serializer: CatalystSerializer[InputRecord] = new CatalystSerializer[InputRecord]{
-      override def schema: StructType = StructType(Seq(
+      override val schema: StructType = StructType(Seq(
         StructField("extent", CatalystSerializer[Extent].schema, false),
         StructField("crs", CatalystSerializer[CRS].schema, false),
         StructField("cellType", CatalystSerializer[CellType].schema, false),
@@ -147,17 +151,19 @@ object ProjectedLayerMetadataAggregate {
     }
 
     def write(buffer: MutableAggregationBuffer): Unit = {
-      val encoded = (this).toRow
+      val encoded = this.toRow
       for(i <- 0 until encoded.size) {
         buffer(i) = encoded(i)
       }
     }
+
+    def isEmpty: Boolean = extent == null || cellType == null || cellSize == null
   }
 
   private[expressions]
   object BufferRecord {
     implicit val serializer: CatalystSerializer[BufferRecord] = new CatalystSerializer[BufferRecord] {
-      override def schema: StructType = StructType(Seq(
+      override val schema: StructType = StructType(Seq(
         StructField("extent", CatalystSerializer[Extent].schema, true),
         StructField("cellType", CatalystSerializer[CellType].schema, true),
         StructField("cellSize", CatalystSerializer[CellSize].schema, true)

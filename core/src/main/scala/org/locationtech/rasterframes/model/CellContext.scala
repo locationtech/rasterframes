@@ -29,7 +29,7 @@ import CatalystSerializer._
 case class CellContext(tileContext: TileContext, tileDataContext: TileDataContext, colIndex: Short, rowIndex: Short)
 object CellContext {
   implicit val serializer: CatalystSerializer[CellContext] = new CatalystSerializer[CellContext] {
-    override def schema: StructType = StructType(Seq(
+    override val schema: StructType = StructType(Seq(
       StructField("tileContext", schemaOf[TileContext], false),
       StructField("tileDataContext", schemaOf[TileDataContext], false),
       StructField("colIndex", ShortType, false),

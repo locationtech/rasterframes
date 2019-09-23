@@ -24,15 +24,18 @@ package org.locationtech.rasterframes.expressions.aggregates
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
 import geotrellis.raster.resample.ResampleMethod
-import geotrellis.raster.{ArrayTile, CellType, Raster, Tile}
-import geotrellis.spark.TileLayerMetadata
+import geotrellis.raster.{ArrayTile, CellType, MultibandTile, ProjectedRaster, Raster, Tile}
+import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import org.apache.spark.sql.{Column, Row, TypedColumn}
+import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
+import org.locationtech.rasterframes.model.TileDimensions
+import org.slf4j.LoggerFactory
 
 /**
   * Aggregation function for creating a single `geotrellis.raster.Raster[Tile]` from
@@ -88,7 +91,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
 }
 
 object TileRasterizerAggregate {
-  val nodeName = "rf_tile_rasterizer_aggregate"
+  val nodeName = "rf_agg_raster"
   /**  Convenience grouping of  parameters needed for running aggregate. */
   case class ProjectedRasterDefinition(totalCols: Int, totalRows: Int, cellType: CellType, crs: CRS, extent: Extent, sampler: ResampleMethod = ResampleMethod.DEFAULT)
 
@@ -102,8 +105,73 @@ object TileRasterizerAggregate {
       val rows = actualSize.height
       new ProjectedRasterDefinition(cols, rows, tlm.cellType, tlm.crs, tlm.extent, sampler)
     }
-}
+  }
 
-  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Raster[Tile]] =
+  @transient
+  private lazy val logger = LoggerFactory.getLogger(getClass)
+
+  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Raster[Tile]] = {
+
+    if (prd.totalCols.toDouble * prd.totalRows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
+      logger.warn(
+        s"You've asked for the construction of a very large image (${prd.totalCols} x ${prd.totalRows}). Out of memory error likely.")
+
     new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol).as(nodeName).as[Raster[Tile]]
+  }
+
+  def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {
+    val tileCols = WithDataFrameMethods(df).tileColumns
+    require(tileCols.nonEmpty, "need at least one tile column")
+    // Select the anchoring Tile, Extent and CRS columns
+    val (extCol, crsCol, tileCol) = {
+      // Favor "ProjectedRaster" columns
+      val prCols = df.projRasterColumns
+      if (prCols.nonEmpty) {
+        (rf_extent(prCols.head), rf_crs(prCols.head), rf_tile(prCols.head))
+      } else {
+        // If no "ProjectedRaster" column, look for single Extent and CRS columns.
+        val crsCols = df.crsColumns
+        require(crsCols.size == 1, "Exactly one CRS column must be in DataFrame")
+        val extentCols = df.extentColumns
+        require(extentCols.size == 1, "Exactly one Extent column must be in DataFrame")
+        (extentCols.head, crsCols.head, tileCols.head)
+      }
+    }
+
+    // Scan table and constuct what the TileLayerMetadata would be in the specified destination CRS.
+    val tlm: TileLayerMetadata[SpatialKey] = df
+      .select(
+        ProjectedLayerMetadataAggregate(
+          destCRS,
+          extCol,
+          crsCol,
+          rf_cell_type(tileCol),
+          rf_dimensions(tileCol)
+        ))
+      .first()
+    logger.debug(s"Collected TileLayerMetadata: ${tlm.toString}")
+
+    val c = ProjectedRasterDefinition(tlm)
+
+    val config = rasterDims
+      .map { dims =>
+        c.copy(totalCols = dims.cols, totalRows = dims.rows)
+      }
+      .getOrElse(c)
+
+    destExtent.map { ext =>
+      c.copy(extent = ext)
+    }
+
+    val aggs = tileCols
+      .map(t => TileRasterizerAggregate(config, crsCol, extCol, rf_tile(t))("tile").as(t.columnName))
+
+    val agg = df.select(aggs: _*)
+
+    val row = agg.first()
+
+    val bands = for (i <- 0 until row.size) yield row.getAs[Tile](i)
+
+    ProjectedRaster(MultibandTile(bands), tlm.extent, tlm.crs)
+  }
 }

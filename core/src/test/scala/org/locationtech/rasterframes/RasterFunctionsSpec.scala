@@ -23,52 +23,21 @@ package org.locationtech.rasterframes
 
 import java.io.ByteArrayInputStream
 
-import geotrellis.proj4.LatLng
 import geotrellis.raster
 import geotrellis.raster._
 import geotrellis.raster.render.ColorRamps
 import geotrellis.raster.testkit.RasterMatchers
-import geotrellis.vector.Extent
 import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
+  import TestData._
   import spark.implicits._
-
-  val extent = Extent(10, 20, 30, 40)
-  val crs = LatLng
-  val ct = ByteUserDefinedNoDataCellType(-2)
-  val cols = 10
-  val rows = cols
-  val tileSize = cols * rows
-  val tileCount = 10
-  val numND = 4
-  lazy val zero = TestData.projectedRasterTile(cols, rows, 0, extent, crs, ct)
-  lazy val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
-  lazy val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)
-  lazy val three = TestData.projectedRasterTile(cols, rows, 3, extent, crs, ct)
-  lazy val six = ProjectedRasterTile(three * two, three.extent, three.crs)
-  lazy val nd = TestData.projectedRasterTile(cols, rows, -2, extent, crs, ct)
-  lazy val randPRT = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextInt(), extent, crs, ct)
-  lazy val randNDPRT: Tile  = TestData.injectND(numND)(randPRT)
-
-  lazy val randDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextGaussian(), extent, crs, DoubleConstantNoDataCellType)
-  lazy val randDoubleNDTile  = TestData.injectND(numND)(randDoubleTile)
-  lazy val randPositiveDoubleTile = TestData.projectedRasterTile(cols, rows, scala.util.Random.nextDouble() + 1e-6, extent, crs, DoubleConstantNoDataCellType)
-
-  val expectedRandNoData: Long = numND * tileCount.toLong
-  val expectedRandData: Long = cols * rows * tileCount - expectedRandNoData
-  lazy val randNDTilesWithNull = Seq.fill[Tile](tileCount)(TestData.injectND(numND)(
-    TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
-  )).map(ProjectedRasterTile(_, extent, crs)) :+ null
-
-  def lazyPRT = RasterRef(RasterSource(TestData.l8samplePath), 0, None, None).tile
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
@@ -554,6 +523,22 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       df.select(rf_agg_local_max($"tile")).first() should be(six.toArrayTile())
       df.selectExpr("rf_agg_local_max(tile)").as[Tile].first() should be(six.toArrayTile())
       checkDocs("rf_agg_local_max")
+    }
+
+    it("should compute local mean") {
+      checkDocs("rf_agg_local_mean")
+      val df = Seq(two, three, one, six).toDF("tile")
+          .withColumn("id", monotonically_increasing_id())
+
+      df.select(rf_agg_local_mean($"tile")).first() should be(three.toArrayTile())
+
+      df.selectExpr("rf_agg_local_mean(tile)").as[Tile].first() should be(three.toArrayTile())
+
+      noException should be thrownBy {
+        df.groupBy($"id")
+          .agg(rf_agg_local_mean($"tile"))
+          .collect()
+      }
     }
 
     it("should compute local data cell counts") {

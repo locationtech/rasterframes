@@ -68,7 +68,7 @@ object Cells {
   }
 
   implicit def cellsSerializer: CatalystSerializer[Cells] = new CatalystSerializer[Cells] {
-    override def schema: StructType =
+    override val schema: StructType =
       StructType(
         Seq(
           StructField("cells", BinaryType, true),

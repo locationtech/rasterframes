@@ -20,9 +20,12 @@
 
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
+import geotrellis.proj4.LatLng
+import geotrellis.vector.Extent
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.raster._
+import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
 
 /**
  * Test rig for L8 catalog stuff.
@@ -103,6 +106,30 @@ class L8CatalogRelationTest extends TestEnvironment {
 
       stats.data_cells should be (512L * 512L)
       stats.mean shouldBe > (10000.0)
+    }
+
+    it("should construct an RGB composite") {
+      val aoiLL = Extent(31.115, 29.963, 31.148, 29.99)
+
+      val scene = catalog
+        .where(
+          to_date($"acquisition_date") === to_date(lit("2019-07-03")) &&
+            st_intersects(st_geometry($"bounds_wgs84"), geomLit(aoiLL.jtsGeom))
+        )
+        .orderBy("cloud_cover_pct")
+        .limit(1)
+
+      val df = spark.read.raster
+        .fromCatalog(scene, "B4", "B3", "B2")
+        .withTileDimensions(256, 256)
+        .load()
+        .limit(1)
+
+      noException should be thrownBy {
+        val raster = TileRasterizerAggregate.collect(df, LatLng, Some(aoiLL), None)
+        raster.tile.bandCount should be (3)
+        raster.extent.area > 0
+      }
     }
   }
 }

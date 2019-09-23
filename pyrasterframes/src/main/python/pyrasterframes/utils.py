@@ -20,6 +20,7 @@
 
 import glob
 from pyspark.sql import SparkSession
+from pyspark import SparkConf
 import os
 import sys
 from . import RFContext
@@ -76,15 +77,22 @@ Try running 'sbt pyrasterframes/clean pyrasterframes/package' first. """.format(
     return jarpath[0]
 
 
-def create_rf_spark_session(master="local[*]"):
+def create_rf_spark_session(master="local[*]", **kwargs):
     """ Create a SparkSession with pyrasterframes enabled and configured. """
     jar_path = find_pyrasterframes_assembly()
+
+    if 'spark.jars' in kwargs.keys():
+        if 'pyrasterframes' not in kwargs['spark.jars']:
+            raise UserWarning("spark.jars config is set, but it seems to be missing the pyrasterframes assembly jar.")
+
+    conf = SparkConf().setAll([(k, kwargs[k]) for k in kwargs])
 
     spark = (SparkSession.builder
              .master(master)
              .appName("RasterFrames")
              .config('spark.jars', jar_path)
              .withKryoSerialization()
+             .config(conf=conf)  # user can override the defaults
              .getOrCreate())
 
     try:

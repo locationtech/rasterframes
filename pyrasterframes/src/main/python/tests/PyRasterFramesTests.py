@@ -28,6 +28,14 @@ from pyspark.sql.functions import *
 from . import TestEnvironment
 
 
+class UtilTest(TestEnvironment):
+
+    def test_spark_confs(self):
+        from . import app_name
+        self.assertEqual(self.spark.conf.get('spark.app.name'), app_name)
+        self.assertEqual(self.spark.conf.get('spark.ui.enabled'), 'false')
+
+
 class CellTypeHandling(unittest.TestCase):
 
     def test_is_raw(self):
@@ -408,8 +416,6 @@ class RasterJoin(TestEnvironment):
         # throws if you don't  pass  in all expected columns
         with self.assertRaises(AssertionError):
             self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
-
-
 
 
 def suite():

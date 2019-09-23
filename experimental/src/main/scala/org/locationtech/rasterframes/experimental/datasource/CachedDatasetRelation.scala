@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.apache.hadoop.fs.{FileSystem, Path => HadoopPath}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.BaseRelation
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{Dataset, Row, SaveMode}
 import org.locationtech.rasterframes.util._
 
 /**
@@ -40,12 +40,12 @@ trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation wi
   def buildScan(): RDD[Row] = {
     val conf = sqlContext.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(conf)
-    val catalog = cacheFile.when(fs.exists)
+    val catalog = cacheFile.when(p => fs.exists(p) && !expired(p))
       .map(p ⇒ {logger.debug("Reading " + p); p})
       .map(p ⇒ sqlContext.read.parquet(p.toString))
       .getOrElse {
         val scenes = constructDataset
-        scenes.write.parquet(cacheFile.toString)
+        scenes.write.mode(SaveMode.Overwrite).parquet(cacheFile.toString)
         scenes
       }
 

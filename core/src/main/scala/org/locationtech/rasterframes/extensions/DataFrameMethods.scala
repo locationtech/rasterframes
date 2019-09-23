@@ -225,7 +225,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     */
   @throws[IllegalArgumentException]
   def asLayer: RasterFrameLayer = {
-    val potentialRF = certifyRasterframe(self)
+    val potentialRF = certifyLayer(self)
 
     require(
       potentialRF.findSpatialKeyField.nonEmpty,
@@ -301,5 +301,5 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
 
   /** Internal method for slapping the RasterFreameLayer seal of approval on a DataFrame.
    * Only call if if you are sure it has a spatial key and tile columns and TileLayerMetadata. */
-  private[rasterframes] def certify = certifyRasterframe(self)
+  private[rasterframes] def certify = certifyLayer(self)
 }

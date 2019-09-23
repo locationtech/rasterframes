@@ -40,7 +40,7 @@ catalog_df = spark.createDataFrame([
     Row(red=uri_pattern.format(4), nir=uri_pattern.format(8))
 ])
 df = spark.read.raster(
-    catalog=catalog_df,
+    catalog_df,
     catalog_col_names=['red', 'nir']
 )
 df.printSchema()

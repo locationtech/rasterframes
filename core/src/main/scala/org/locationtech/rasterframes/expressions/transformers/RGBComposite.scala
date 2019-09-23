@@ -33,7 +33,6 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.expressions.row
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
   * Expression to combine the given tile columns into an 32-bit RGB composite.
@@ -56,9 +55,9 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
   override def nodeName: String = "rf_rgb_composite"
 
   override def dataType: DataType = if(
-    red.dataType.conformsTo[ProjectedRasterTile] ||
-    blue.dataType.conformsTo[ProjectedRasterTile] ||
-    green.dataType.conformsTo[ProjectedRasterTile]
+    tileExtractor.isDefinedAt(red.dataType) ||
+      tileExtractor.isDefinedAt(green.dataType) ||
+      tileExtractor.isDefinedAt(blue.dataType)
   ) red.dataType
   else TileType
 
