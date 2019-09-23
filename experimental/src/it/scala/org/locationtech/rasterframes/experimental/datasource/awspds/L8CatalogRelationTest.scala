@@ -108,12 +108,13 @@ class L8CatalogRelationTest extends TestEnvironment {
       stats.mean shouldBe > (10000.0)
     }
 
-    ignore("should construct an RGB composite") {
-      val aoi = Extent(31.115, 29.963, 31.148, 29.99)
+    it("should construct an RGB composite") {
+      val aoiLL = Extent(31.115, 29.963, 31.148, 29.99)
+
       val scene = catalog
         .where(
           to_date($"acquisition_date") === to_date(lit("2019-07-03")) &&
-            st_intersects(st_geometry($"bounds_wgs84"), geomLit(aoi.jtsGeom))
+            st_intersects(st_geometry($"bounds_wgs84"), geomLit(aoiLL.jtsGeom))
         )
         .orderBy("cloud_cover_pct")
         .limit(1)
@@ -122,19 +123,13 @@ class L8CatalogRelationTest extends TestEnvironment {
         .fromCatalog(scene, "B4", "B3", "B2")
         .withTileDimensions(256, 256)
         .load()
-        .where(st_contains(rf_geometry($"B4"), st_reproject(geomLit(aoi.jtsGeom), lit("EPSG:4326"), rf_crs($"B4"))))
-
+        .limit(1)
 
       noException should be thrownBy {
-        val raster = TileRasterizerAggregate(df, LatLng, Some(aoi), None)
-        println(raster)
+        val raster = TileRasterizerAggregate.collect(df, LatLng, Some(aoiLL), None)
+        raster.tile.bandCount should be (3)
+        raster.extent.area > 0
       }
-
-//      import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
-//      import geotrellis.raster.io.geotiff.compression.{DeflateCompression}
-//      import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
-//      val tiffOptions = GeoTiffOptions(Tiled,  DeflateCompression, ColorSpace.RGB)
-//      MultibandGeoTiff(raster, raster.crs, tiffOptions).write("target/composite.tif")
     }
   }
 }

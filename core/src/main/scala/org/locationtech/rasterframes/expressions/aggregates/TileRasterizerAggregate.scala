@@ -119,7 +119,7 @@ object TileRasterizerAggregate {
     new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol).as(nodeName).as[Raster[Tile]]
   }
 
-  def apply(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {
+  def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {
     val tileCols = WithDataFrameMethods(df).tileColumns
     require(tileCols.nonEmpty, "need at least one tile column")
     // Select the anchoring Tile, Extent and CRS columns

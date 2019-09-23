@@ -34,6 +34,7 @@ import org.apache.spark.sql.functions.{asc, udf => sparkUdf}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
 import org.locationtech.geomesa.curve.Z2SFC
 import org.locationtech.rasterframes.StandardColumns
+import org.locationtech.rasterframes.encoders.serialized_literal
 
 /**
  * RasterFrameLayer extension methods associated with adding spatially descriptive columns.
@@ -70,6 +71,15 @@ trait RFSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with Sta
   def withExtent(colName: String = EXTENT_COLUMN.columnName): RasterFrameLayer = {
     val key2Extent = sparkUdf(keyCol2Extent)
     self.withColumn(colName, key2Extent(self.spatialKeyColumn)).certify
+  }
+  /**
+    * Append a column containing the CRS of the layer.
+    *
+    * @param colName name of column to append. Defaults to "crs"
+    * @return updated RasterFrameLayer
+    */
+  def withCRS(colName: String = CRS_COLUMN.columnName): RasterFrameLayer = {
+    self.withColumn(colName, serialized_literal(self.crs)).certify
   }
 
   /**

@@ -67,27 +67,21 @@ class GeoTiffDataSource
 
     require(tileCols.nonEmpty, "Could not find any tile columns.")
 
-    val raster = if (df.isAlreadyLayer) {
-      val layer = df.certify
-      val tlm = layer.tileLayerMetadata.merge
 
-      // If no desired image size is given, write at full size.
-      val TileDimensions(cols, rows) = parameters.rasterDimensions
-        .getOrElse {
-          val actualSize = tlm.layout.toRasterExtent().gridBoundsFor(tlm.extent)
-          TileDimensions(actualSize.width, actualSize.height)
-        }
 
-      // Should we really play traffic cop here?
-      if (cols.toDouble * rows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
-        logger.warn(
-          s"You've asked for the construction of a very large image ($cols x $rows), destined for ${path}. Out of memory error likely.")
+    val destCRS = parameters.crs.orElse(df.asLayerSafely.map(_.crs)).getOrElse(
+      throw new IllegalArgumentException("A destination CRS must be provided")
+    )
 
-      layer.toMultibandRaster(tileCols, cols.toInt, rows.toInt)
-    } else {
-      require(parameters.crs.nonEmpty, "A destination CRS must be provided")
-      TileRasterizerAggregate(df, parameters.crs.get, None, parameters.rasterDimensions)
-    }
+    val input = df.asLayerSafely.map(layer =>
+      (layer.crsColumns.isEmpty, layer.extentColumns.isEmpty) match {
+        case (true, true) => layer.withExtent().withCRS()
+        case (true, false) => layer.withCRS()
+        case (false, true) => layer.withExtent()
+        case _ => layer
+      }).getOrElse(df)
+
+    val raster =  TileRasterizerAggregate.collect(input, destCRS, None, parameters.rasterDimensions)
 
     val tags = Tags(
       RFBuildInfo.toMap.filter(_._1.toLowerCase() == "version").mapValues(_.toString),
