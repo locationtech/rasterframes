@@ -28,6 +28,14 @@ from pyspark.sql.functions import *
 from . import TestEnvironment
 
 
+class UtilTest(TestEnvironment):
+
+    def test_spark_confs(self):
+        from . import app_name
+        self.assertEqual(self.spark.conf.get('spark.app.name'), app_name)
+        self.assertEqual(self.spark.conf.get('spark.ui.enabled'), 'false')
+
+
 class CellTypeHandling(unittest.TestCase):
 
     def test_is_raw(self):
