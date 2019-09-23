@@ -4,6 +4,8 @@
 
 ### 0.8.2
 
+* Added ability to pass config options to convenience PySpark session constructor. ([#361](https://github.com/locationtech/rasterframes/issues/361)) 
+* Bumped Spark dependency to version 2.3.4. ([#350](https://github.com/locationtech/rasterframes/issues/350))  
 * Fixed handling of aggregate extent and image size on GeoTIFF writing. ([#362](https://github.com/locationtech/rasterframes/issues/362)) 
 * Fixed issue with `RasterSourceDataSource` swallowing exceptions. ([#267](https://github.com/locationtech/rasterframes/issues/267)) 
 * Fixed SparkML memory pressure issue caused by unnecessary reevaluation, overallocation, and primitive boxing. ([#343](https://github.com/locationtech/rasterframes/issues/343)) 
