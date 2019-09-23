@@ -154,14 +154,15 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release Notes</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
@@ -182,7 +183,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.1
+<i class="md-icon" title="Version">label_outline</i> 0.8.2
 </label>
 </li>
 </ul>
@@ -402,18 +403,9 @@ modis_catalog = spark.read \
     .withColumn(&#39;red&#39; , F.concat(&#39;base_url&#39;, F.lit(&quot;_B01.TIF&quot;))) \
     .withColumn(&#39;nir&#39; , F.concat(&#39;base_url&#39;, F.lit(&quot;_B02.TIF&quot;)))
 
-modis_catalog.printSchema()
-
 print(&quot;Available scenes: &quot;, modis_catalog.count())
 </code></pre>
-<pre><code>root
- |-- date: string (nullable = true)
- |-- gid: string (nullable = true)
- |-- base_url: string (nullable = true)
- |-- red: string (nullable = true)
- |-- nir: string (nullable = true)
-
-Available scenes:  297
+<pre><code>Available scenes:  297
 </code></pre>
 <pre class="prettyprint"><code class="language-python">modis_catalog
 </code></pre>
@@ -504,10 +496,7 @@ equator.select(&#39;date&#39;, &#39;gid&#39;)
   </tbody>
 </table>
 <p>Now that we have prepared our catalog, we simply pass the DataFrame or CSV string to the <code>raster</code> DataSource to load the imagery. The <code>catalog_col_names</code> parameter gives the columns that contain the URI&rsquo;s to be read.</p>
-<pre class="prettyprint"><code class="language-python">rf = spark.read.raster(
-    catalog=equator,
-    catalog_col_names=[&#39;red&#39;, &#39;nir&#39;]
-)
+<pre class="prettyprint"><code class="language-python">rf = spark.read.raster(equator, catalog_col_names=[&#39;red&#39;, &#39;nir&#39;])
 rf.printSchema()
 </code></pre>
 <pre><code>root
@@ -693,7 +682,7 @@ mb.printSchema()
  |    |-- tile: tile (nullable = false)
 </code></pre>
 <p>If a band is passed into <code>band_indexes</code> that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but the column will be full of <code>null</code> values.</p>
-<p>You can also pass a <code>catalog</code> and <code>band_indexes</code> together into the <code>raster</code> reader. This will create a projected raster column for the combination of all items passed into <code>catalog_col_names</code> and <code>band_indexes</code>. Again if a band in <code>band_indexes</code> exceeds the number of bands in a raster, it will have a <code>null</code> value for the corresponding column.</p>
+<p>You can also pass a <em>catalog</em> and <code>band_indexes</code> together into the <code>raster</code> reader. This will create a projected raster column for the combination of all items in <code>catalog_col_names</code> and <code>band_indexes</code>. Again if a band in <code>band_indexes</code> exceeds the number of bands in a raster, it will have a <code>null</code> value for the corresponding column.</p>
 <p>Here is a trivial example with a <em>catalog</em> over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.</p>
 <pre class="prettyprint"><code class="language-python">import pandas as pd
 mb_cat = pd.DataFrame([
@@ -702,7 +691,7 @@ mb_cat = pd.DataFrame([
     },
 ])
 mb2 = spark.read.raster(
-    catalog=spark.createDataFrame(mb_cat),
+    spark.createDataFrame(mb_cat),
     catalog_col_names=[&#39;foo&#39;, &#39;bar&#39;],
     band_indexes=[0, 1],
     tile_dimensions=(64,64)
@@ -766,13 +755,13 @@ mb2.printSchema()
 <p>This will return a RasterFrame with additional <a href="https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html#layouts-and-tile-layers">GeoTrellis-specific metadata</a>, inherited from GeoTrellis, stored as JSON in the metadata of the <em>tile</em> column.</p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/raster-read.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/raster-read.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.1
+0.8.2
 </span>
 </div>
 </article>

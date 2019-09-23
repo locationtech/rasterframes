@@ -154,6 +154,7 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a>
@@ -163,9 +164,9 @@ locationtech/rasterframes
     </ul></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release Notes</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
@@ -184,7 +185,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.1
+<i class="md-icon" title="Version">label_outline</i> 0.8.2
 </label>
 </li>
 </ul>
@@ -225,40 +226,100 @@ from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
 from pyspark.ml import Pipeline
 </code></pre>
-<p>The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from <a href="raster-io.html#Single-Scene--Multiple-Bands">the I/O page</a>. In the catalog, each row represents a distinct area and time, and each column is the URI to a band&rsquo;s image product. The function <code>resource_dir_uri</code> gives a local file system path to the sample Landsat data. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.</p>
-<pre class="prettyprint"><code class="language-python">filenamePattern = &quot;L8-B{}-Elkton-VA.tiff&quot;
+<p>The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from <a href="raster-io.html#Single-Scene--Multiple-Bands">the I/O page</a>. In the catalog, each row represents a distinct area and time, and each column is the URI to a band&rsquo;s image product. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.</p>
+<pre class="prettyprint"><code class="language-python">filenamePattern = &quot;https://github.com/locationtech/rasterframes/&quot; \
+                  &quot;raw/develop/core/src/test/resources/L8-B{}-Elkton-VA.tiff&quot;
 catalog_df = pd.DataFrame([
-    {&#39;b&#39; + str(b): os.path.join(resource_dir_uri(), filenamePattern.format(b)) for b in range(1, 8)}
+    {&#39;b&#39; + str(b): filenamePattern.format(b) for b in range(1, 8)}
 ])
-df = spark.read.raster(catalog=catalog_df, catalog_col_names=catalog_df.columns)
-df = df.select(
-    rf_crs(df.b1).alias(&#39;crs&#39;),
-    rf_extent(df.b1).alias(&#39;extent&#39;),
-    rf_tile(df.b1).alias(&#39;b1&#39;),
-    rf_tile(df.b2).alias(&#39;b2&#39;),
-    rf_tile(df.b3).alias(&#39;b3&#39;),
-    rf_tile(df.b4).alias(&#39;b4&#39;),
-    rf_tile(df.b5).alias(&#39;b5&#39;),
-    rf_tile(df.b6).alias(&#39;b6&#39;),
-    rf_tile(df.b7).alias(&#39;b7&#39;),
-)
+
+df = spark.read.raster(catalog_df, catalog_col_names=catalog_df.columns)
+df = df.withColumn(&#39;crs&#39;, rf_crs(df.b1)) \
+       .withColumn(&#39;extent&#39;, rf_crs(df.b1))
 df.printSchema()
 </code></pre>
 <pre><code>root
+ |-- b1_path: string (nullable = false)
+ |-- b2_path: string (nullable = false)
+ |-- b3_path: string (nullable = false)
+ |-- b4_path: string (nullable = false)
+ |-- b5_path: string (nullable = false)
+ |-- b6_path: string (nullable = false)
+ |-- b7_path: string (nullable = false)
+ |-- b1: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- b2: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- b3: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- b4: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- b5: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- b6: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
+ |-- b7: struct (nullable = true)
+ |    |-- tile_context: struct (nullable = false)
+ |    |    |-- extent: struct (nullable = false)
+ |    |    |    |-- xmin: double (nullable = false)
+ |    |    |    |-- ymin: double (nullable = false)
+ |    |    |    |-- xmax: double (nullable = false)
+ |    |    |    |-- ymax: double (nullable = false)
+ |    |    |-- crs: struct (nullable = false)
+ |    |    |    |-- crsProj4: string (nullable = false)
+ |    |-- tile: tile (nullable = false)
  |-- crs: struct (nullable = true)
  |    |-- crsProj4: string (nullable = false)
  |-- extent: struct (nullable = true)
- |    |-- xmin: double (nullable = false)
- |    |-- ymin: double (nullable = false)
- |    |-- xmax: double (nullable = false)
- |    |-- ymax: double (nullable = false)
- |-- b1: tile (nullable = true)
- |-- b2: tile (nullable = true)
- |-- b3: tile (nullable = true)
- |-- b4: tile (nullable = true)
- |-- b5: tile (nullable = true)
- |-- b6: tile (nullable = true)
- |-- b7: tile (nullable = true)
+ |    |-- crsProj4: string (nullable = false)
 </code></pre>
 <h2><a href="#create-ml-pipeline" name="create-ml-pipeline" class="anchor"><span class="anchor-link"></span></a>Create ML Pipeline</h2>
 <p>SparkML requires that each observation be in its own row, and features for each observation be packed into a single <code>Vector</code>. For this unsupervised learning problem, we will treat each <em>pixel</em> as an observation and each band as a feature. The first step is to &ldquo;explode&rdquo; the <em>tiles</em> into a single row per pixel. In RasterFrames, generally a pixel is called a <a href="concepts.html#cell"><code>cell</code></a>.</p>
@@ -298,36 +359,36 @@ df.printSchema()
   </thead>
   <tbody>
     <tr>
-      <td>0 </td>
-      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
+      <td>2 </td>
+      <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
       <td>0 </td>
       <td>0 </td>
       <td>[9470.0,8491.0,7805.0,6697.0,17507.0,10338.0,7235.0] </td>
     </tr>
     <tr>
-      <td>0 </td>
-      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
+      <td>2 </td>
+      <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
       <td>1 </td>
       <td>0 </td>
       <td>[9566.0,8607.0,8046.0,6898.0,18504.0,11545.0,7877.0] </td>
     </tr>
     <tr>
-      <td>4 </td>
-      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
+      <td>1 </td>
+      <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
       <td>2 </td>
       <td>0 </td>
       <td>[9703.0,8808.0,8377.0,7222.0,20556.0,13207.0,8686.0] </td>
     </tr>
     <tr>
-      <td>4 </td>
-      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
+      <td>1 </td>
+      <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
       <td>3 </td>
       <td>0 </td>
       <td>[9856.0,8983.0,8565.0,7557.0,19479.0,13203.0,9065.0] </td>
     </tr>
     <tr>
-      <td>4 </td>
-      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
+      <td>1 </td>
+      <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
       <td>4 </td>
       <td>0 </td>
       <td>[10105.0,9270.0,8851.0,7912.0,19074.0,12737.0,8947.0] </td>
@@ -341,7 +402,7 @@ df.printSchema()
 <pre class="prettyprint"><code class="language-python">metric = cluster_stage.computeCost(clustered)
 print(&quot;Within set sum of squared errors: %s&quot; % metric)
 </code></pre>
-<pre><code>Within set sum of squared errors: 224761830143.71
+<pre><code>Within set sum of squared errors: 224470504927.67892
 </code></pre>
 <h2><a href="#visualize-prediction" name="visualize-prediction" class="anchor"><span class="anchor-link"></span></a>Visualize Prediction</h2>
 <p>We can recreate the tiled data structure using the metadata added by the <code>TileExploder</code> pipeline stage.</p>
@@ -358,10 +419,7 @@ retiled.printSchema()
 </code></pre>
 <pre><code>root
  |-- extent: struct (nullable = true)
- |    |-- xmin: double (nullable = false)
- |    |-- ymin: double (nullable = false)
- |    |-- xmax: double (nullable = false)
- |    |-- ymax: double (nullable = false)
+ |    |-- crsProj4: string (nullable = false)
  |-- crs: struct (nullable = true)
  |    |-- crsProj4: string (nullable = false)
  |-- prediction: tile (nullable = true)
@@ -378,9 +436,9 @@ retiled.printSchema()
   </thead>
   <tbody>
     <tr>
-      <td>[703986.502389, 4249549.463864264, 709547.135536023, 4254601.8671] </td>
       <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
-      <td><img src="data:image/png;base64,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"></img> </td>
+      <td>[+proj=utm +zone=17 +datum=WGS84 +units=m +no_defs ] </td>
+      <td><img src="data:image/png;base64,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"></img> </td>
     </tr>
   </tbody>
 </table>
@@ -390,13 +448,13 @@ retiled.printSchema()
 <p><img src="figures/unsupervised-learning_viz_1.png" /></p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/unsupervised-learning.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/unsupervised-learning.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.1
+0.8.2
 </span>
 </div>
 </article>

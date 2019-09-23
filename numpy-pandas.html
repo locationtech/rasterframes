@@ -154,14 +154,15 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="active page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release Notes</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
@@ -181,7 +182,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.1
+<i class="md-icon" title="Version">label_outline</i> 0.8.2
 </label>
 </li>
 </ul>
@@ -226,14 +227,14 @@ t = Tile(np.random.randn(4, 4))
 print(str(t))
 </code></pre>
 <pre><code>Tile(dimensions=[4, 4], cell_type=CellType(float64, nan), cells=
-[[0.31275719777809813 -0.4448098779742816 1.0411709079602143
-  1.8780099325156423]
- [0.7453744136806113 -1.9336715814168393 -1.1855029360961087
-  -1.434882128722031]
- [1.4136336693613878 0.22481119001249408 0.553947394688196
-  0.7602446187622831]
- [0.03885827256645117 1.1595295026187187 -2.3292795656992067
-  -0.8828114938406906]])
+[[-0.5000501633820833 0.750077123382984 -1.0004775293650718
+  1.0161666135065197]
+ [-0.4494753017658483 1.306229068582306 0.9953566325525807
+  0.16520825172312506]
+ [0.3478262826182918 -1.3799921940047193 -1.6445192083971594
+  -0.06965320345464808]
+ [0.9588557975596464 0.9823555984824766 -1.7459476011204018
+  -1.9940440197999045]])
 </code></pre>
 <p>You can access the NumPy array with the <code>cells</code> member of <code>Tile</code>.</p>
 <pre class="prettyprint"><code class="language-python">t.cells.shape, t.cells.nbytes
@@ -252,7 +253,7 @@ cat = spark.read.format(&#39;aws-pds-modis-catalog&#39;).load() \
             (col(&#39;acquisition_date&#39;) &lt; lit(&#39;2018-02-22&#39;))
         )
 
-spark_df = spark.read.raster(catalog=cat, catalog_col_names=[&#39;B01&#39;]) \
+spark_df = spark.read.raster(cat, catalog_col_names=[&#39;B01&#39;]) \
                 .select(
                     &#39;acquisition_date&#39;,
                     &#39;granule_id&#39;,
@@ -297,7 +298,7 @@ np.abs(diff.cells).max()
 <p>We can also inspect an image of the difference between the two <em>tiles</em>, which is just random noise. Both <em>tiles</em> have the same structure of NoData, as exhibited by the white areas.</p>
 <pre class="prettyprint"><code class="language-python">diff.show(0, 100)
 </code></pre>
-<pre><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x1258d1a90&gt;
+<pre><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x12150e510&gt;
 </code></pre>
 <p><img src="figures/numpy-pandas_udf_diff_noise_tile_1.png" /></p>
 <h2><a href="#creating-a-spark-dataframe" name="creating-a-spark-dataframe" class="anchor"><span class="anchor-link"></span></a>Creating a Spark DataFrame</h2>
@@ -325,13 +326,13 @@ spark_df.count()
 </code></pre>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/numpy-pandas.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/numpy-pandas.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.1
+0.8.2
 </span>
 </div>
 </article>
@@ -354,13 +355,13 @@ Supervised Machine Learning
 </span>
 </div>
 </a>
-<a href="languages.html" title="API Languages" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="languages.html" title="Scala and SQL" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-API Languages
+Scala and SQL
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

@@ -20,7 +20,7 @@
 
 <meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
 <link rel="shortcut icon" href="assets/images/RasterFrames_32x32.ico">
-<title>Release&nbsp;Notes · RasterFrames</title>
+<title>Release Notes · RasterFrames</title>
 <link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#546e7a" />
@@ -61,7 +61,7 @@ data-md-color-accent="light-blue"
 RasterFrames
 </span>
 <span class="md-header-nav__topic">
-Release&nbsp;Notes
+Release Notes
 </span>
 </div>
 </div>
@@ -154,19 +154,20 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="active page">Release&nbsp;Notes</a></li>
+  <li><a href="release-notes.html" class="active page">Release Notes</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="release-notes.html#release-nbsp-notes" class="header">Release&nbsp;Notes</a>
+  <li><a href="release-notes.html#release-notes" class="header">Release Notes</a>
   <ul>
     <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a></li>
     <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a></li>
@@ -180,7 +181,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.1
+<i class="md-icon" title="Version">label_outline</i> 0.8.2
 </label>
 </li>
 </ul>
@@ -193,7 +194,7 @@ locationtech/rasterframes
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="release-notes.html#release-nbsp-notes" class="header">Release&nbsp;Notes</a>
+  <li><a href="release-notes.html#release-notes" class="header">Release Notes</a>
   <ul>
     <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a></li>
     <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a></li>
@@ -209,8 +210,20 @@ locationtech/rasterframes
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#release-nbsp-notes" name="release-nbsp-notes" class="anchor"><span class="anchor-link"></span></a>Release&nbsp;Notes</h1>
+<h1><a href="#release-notes" name="release-notes" class="anchor"><span class="anchor-link"></span></a>Release Notes</h1>
 <h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
+<h3><a href="#0-8-2" name="0-8-2" class="anchor"><span class="anchor-link"></span></a>0.8.2</h3>
+<ul>
+  <li>Added ability to pass config options to convenience PySpark session constructor. (<a href="https://github.com/locationtech/rasterframes/issues/361">#361</a>)</li>
+  <li>Bumped Spark dependency to version 2.3.4. (<a href="https://github.com/locationtech/rasterframes/issues/350">#350</a>)</li>
+  <li>Fixed handling of aggregate extent and image size on GeoTIFF writing. (<a href="https://github.com/locationtech/rasterframes/issues/362">#362</a>)</li>
+  <li>Fixed issue with <code>RasterSourceDataSource</code> swallowing exceptions. (<a href="https://github.com/locationtech/rasterframes/issues/267">#267</a>)</li>
+  <li>Fixed SparkML memory pressure issue caused by unnecessary reevaluation, overallocation, and primitive boxing. (<a href="https://github.com/locationtech/rasterframes/issues/343">#343</a>)</li>
+  <li>Fixed Parquet serialization issue with <code>RasterRef</code>s (<a href="https://github.com/locationtech/rasterframes/issues/338">#338</a>)</li>
+  <li>Fixed <code>TileExploder</code>, <code>rf_agg_local_mean</code> and <code>TileColumnSupport</code> to support <code>proj_raster</code> struct (<a href="https://github.com/locationtech/rasterframes/issues/287">#287</a>, <a href="https://github.com/locationtech/rasterframes/issues/163">#163</a>, <a href="https://github.com/locationtech/rasterframes/issues/333">#333</a>).</li>
+  <li>Various documentation improvements.</li>
+  <li><em>Breaking</em> (potentially): Synchronized parameter naming in Python and Scala for <code>spark.read.raster</code> (<a href="https://github.com/locationtech/rasterframes/pull/329">#329</a>).</li>
+</ul>
 <h3><a href="#0-8-1" name="0-8-1" class="anchor"><span class="anchor-link"></span></a>0.8.1</h3>
 <ul>
   <li>Added <code>rf_local_no_data</code>, <code>rf_local_data</code> and <code>rf_interpret_cell_type_as</code> raster functions.</li>
@@ -382,13 +395,13 @@ locationtech/rasterframes
 </ul>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.1
+0.8.2
 </span>
 </div>
 </article>

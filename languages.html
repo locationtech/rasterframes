@@ -20,7 +20,7 @@
 
 <meta name="description" content="RasterFrames brings the power of Spark DataFrames to geospatial raster data.">
 <link rel="shortcut icon" href="assets/images/RasterFrames_32x32.ico">
-<title>API Languages · RasterFrames</title>
+<title>Scala and SQL · RasterFrames</title>
 <link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#546e7a" />
@@ -61,7 +61,7 @@ data-md-color-accent="light-blue"
 RasterFrames
 </span>
 <span class="md-header-nav__topic">
-API Languages
+Scala and SQL
 </span>
 </div>
 </div>
@@ -154,19 +154,20 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="active page">API Languages</a></li>
+  <li><a href="languages.html" class="active page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release Notes</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="languages.html#api-languages" class="header">API Languages</a>
+  <li><a href="languages.html#scala-and-sql" class="header">Scala and SQL</a>
   <ul>
     <li><a href="languages.html#python" class="header">Python</a></li>
     <li><a href="languages.html#sql" class="header">SQL</a></li>
@@ -179,7 +180,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.1
+<i class="md-icon" title="Version">label_outline</i> 0.8.2
 </label>
 </li>
 </ul>
@@ -192,7 +193,7 @@ locationtech/rasterframes
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="languages.html#api-languages" class="header">API Languages</a>
+  <li><a href="languages.html#scala-and-sql" class="header">Scala and SQL</a>
   <ul>
     <li><a href="languages.html#python" class="header">Python</a></li>
     <li><a href="languages.html#sql" class="header">SQL</a></li>
@@ -207,8 +208,9 @@ locationtech/rasterframes
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#api-languages" name="api-languages" class="anchor"><span class="anchor-link"></span></a>API Languages</h1>
-<p>One of the great powers of RasterFrames, afforded by Spark SQL, is the ability to express computation in multiple programming languages. This documentation focuses on Python because it is the most commonly used language in data science and GIS analytics. However, Scala (the implementation language of RasterFrames) and SQL are also fully supported. Examples in Python can be mechanically translated into the other two languages without much difficulty once the naming conventions are understood. In the sections below we will show the same example program in each language. We will compute the average NDVI per month for a single <em>tile</em> in Tanzania.</p>
+<h1><a href="#scala-and-sql" name="scala-and-sql" class="anchor"><span class="anchor-link"></span></a>Scala and SQL</h1>
+<p>One of the great powers of RasterFrames is the ability to express computation in multiple programming languages. The content in this manual focuses on Python because it is the most commonly used language in data science and GIS analytics. However, Scala (the implementation language of RasterFrames) and SQL (commonly used in many domains) are also fully supported. Examples in Python can be mechanically translated into the other two languages without much difficulty once the naming conventions are understood. </p>
+<p>In the sections below we will show the same example program in each language. To do so we will compute the average NDVI per month for a single <em>tile</em> in Tanzania.</p>
 <h2><a href="#python" name="python" class="anchor"><span class="anchor-link"></span></a>Python</h2>
 <h3><a href="#step-1-load-the-catalog" name="step-1-load-the-catalog" class="anchor"><span class="anchor-link"></span></a>Step 1: Load the catalog</h3>
 <pre class="prettyprint"><code class="language-python">modis = spark.read.format(&#39;aws-pds-modis-catalog&#39;).load()
@@ -236,7 +238,7 @@ red_nir_monthly_2017.printSchema()
 </code></pre>
 <h3><a href="#step-3-read-tiles" name="step-3-read-tiles" class="anchor"><span class="anchor-link"></span></a>Step 3: Read tiles</h3>
 <pre class="prettyprint"><code class="language-python">red_nir_tiles_monthly_2017 = spark.read.raster(
-    catalog=red_nir_monthly_2017,
+    red_nir_monthly_2017,
     catalog_col_names=[&#39;red&#39;, &#39;nir&#39;],
     tile_dimensions=(256, 256)
 )
@@ -363,9 +365,9 @@ sql(&#39;DESCRIBE red_nir_monthly_2017&#39;)
 CREATE OR REPLACE TEMPORARY VIEW red_nir_tiles_monthly_2017
 USING raster
 OPTIONS (
-    catalogTable=&#39;red_nir_monthly_2017&#39;,
-    catalogColumns=&#39;red,nir&#39;,
-    tileDimensions=&#39;256,256&#39;
+    catalog_table=&#39;red_nir_monthly_2017&#39;,
+    catalog_col_names=&#39;red,nir&#39;,
+    tile_dimensions=&#39;256,256&#39;
     )
 &quot;&quot;&quot;)
 </code></pre>
@@ -491,13 +493,13 @@ result.show()
 </code></pre>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/languages.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/languages.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.1
+0.8.2
 </span>
 </div>
 </article>

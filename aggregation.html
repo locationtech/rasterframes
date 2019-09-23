@@ -154,14 +154,15 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="active page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release Notes</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
@@ -180,7 +181,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.1
+<i class="md-icon" title="Version">label_outline</i> 0.8.2
 </label>
 </li>
 </ul>
@@ -210,7 +211,7 @@ locationtech/rasterframes
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#aggregation" name="aggregation" class="anchor"><span class="anchor-link"></span></a>Aggregation</h1>
-<p>There are three types of aggregate functions: <em>tile</em> aggregate, DataFrame aggregate, and element-wise local aggregate. In the <a href="reference.html#tile-statistics">tile aggregate functions</a>, we are computing a statistical summary per row of a <em>tile</em> column in a DataFrame. In the <a href="reference.html#aggregate-tile-statistics">DataFrame aggregate functions</a>, we are computing statistical summaries over all of the cell values <em>and</em> across all of the rows in the DataFrame or group. In the <a href="reference.html#tile-local-aggregate-statistics">element-wise local aggregate functions</a>, we are computing the element-wise statistical summary across a DataFrame or group of <em>tiles</em>.</p>
+<p>There are three types of aggregate functions available in RasterFrames: <em>tile</em> aggregate, DataFrame aggregate, and element-wise local aggregate. In the <a href="reference.html#tile-statistics">tile aggregate functions</a>, we are computing a statistical summary per row of a <em>tile</em> column in a DataFrame. In the <a href="reference.html#aggregate-tile-statistics">DataFrame aggregate functions</a>, we are computing statistical summaries over all of the cell values <em>and</em> across all of the rows in the DataFrame or group. In the <a href="reference.html#tile-local-aggregate-statistics">element-wise local aggregate functions</a>, we are computing the element-wise statistical summary across a DataFrame or group of <em>tiles</em>. In the latter two cases, when <a href="vector-data.html">vector data</a> is the grouping column, the results are <a href="zonal-algebra.html">zonal statistics</a>.</p>
 <h2><a href="#tile-mean-example" name="tile-mean-example" class="anchor"><span class="anchor-link"></span></a>Tile Mean Example</h2>
 <p>We can illustrate aggregate differences by computing an aggregate mean. First, we create a sample DataFrame of 2 <em>tiles</em>. The <em>tiles</em> will contain normally distributed cell values with the first row&rsquo;s mean at 1.0 and the second row&rsquo;s mean at 3.0. For details on use of the <code>Tile</code> class see <a href="numpy-pandas.html">the page on numpy interoperability</a>.</p>
 <pre class="prettyprint"><code class="language-python">from pyrasterframes.rf_types import Tile, CellType
@@ -219,20 +220,20 @@ t1 = Tile(1 + 0.1 * np.random.randn(5,5), CellType(&#39;float64raw&#39;))
 
 t1.cells  # display the array in the Tile
 </code></pre>
-<pre><code>array([[1.072, 0.867, 0.864, 1.039, 0.978],
-       [1.068, 0.84 , 1.023, 0.953, 0.99 ],
-       [0.828, 1.149, 0.864, 0.854, 0.96 ],
-       [1.036, 0.987, 1.087, 1.164, 0.921],
-       [1.078, 0.846, 0.967, 1.003, 1.109]])
+<pre><code>array([[0.928, 1.166, 1.051, 1.036, 0.976],
+       [0.961, 1.054, 0.927, 1.136, 0.949],
+       [0.934, 0.993, 1.021, 1.043, 1.033],
+       [1.177, 0.825, 0.982, 0.995, 0.896],
+       [1.049, 0.996, 0.924, 1.029, 0.928]])
 </code></pre>
 <pre class="prettyprint"><code class="language-python">t5 = Tile(5 + 0.1 * np.random.randn(5,5), CellType(&#39;float64raw&#39;))
 t5.cells
 </code></pre>
-<pre><code>array([[5.099, 4.895, 4.853, 5.137, 4.981],
-       [4.957, 4.907, 5.128, 5.022, 4.888],
-       [4.976, 4.881, 5.009, 5.039, 5.055],
-       [4.968, 4.963, 4.933, 4.983, 4.886],
-       [4.843, 5.042, 5.057, 4.972, 5.002]])
+<pre><code>array([[5.04 , 4.854, 4.884, 5.012, 5.138],
+       [4.905, 5.041, 5.139, 4.778, 5.112],
+       [4.954, 5.139, 4.936, 4.868, 5.096],
+       [5.129, 4.98 , 5.015, 5.036, 4.933],
+       [4.995, 4.837, 5.167, 4.968, 5.183]])
 </code></pre>
 <p>Create a Spark DataFrame from the Tile objects.</p>
 <pre class="prettyprint"><code class="language-python">import pyspark.sql.functions as F
@@ -256,11 +257,11 @@ rf = spark.createDataFrame([
   <tbody>
     <tr>
       <td>1 </td>
-      <td>0.9818299200833603 </td>
+      <td>1.0003680179030752 </td>
     </tr>
     <tr>
       <td>2 </td>
-      <td>4.979021985349441 </td>
+      <td>5.005668170985756 </td>
     </tr>
   </tbody>
 </table>
@@ -275,7 +276,7 @@ rf = spark.createDataFrame([
   </thead>
   <tbody>
     <tr>
-      <td>2.9804259527164003 </td>
+      <td>3.003018094444416 </td>
     </tr>
   </tbody>
 </table>
@@ -284,11 +285,11 @@ rf = spark.createDataFrame([
 <pre class="prettyprint"><code class="language-python">rf.agg(rf_agg_local_mean(&#39;tile&#39;)) \
     .first()[0].cells.data  # display the contents of the Tile array
 </code></pre>
-<pre><code>array([[3.086, 2.881, 2.859, 3.088, 2.98 ],
-       [3.013, 2.874, 3.075, 2.988, 2.939],
-       [2.902, 3.015, 2.937, 2.947, 3.007],
-       [3.002, 2.975, 3.01 , 3.073, 2.904],
-       [2.961, 2.944, 3.012, 2.987, 3.056]])
+<pre><code>array([[2.984, 3.01 , 2.968, 3.024, 3.057],
+       [2.933, 3.047, 3.033, 2.957, 3.031],
+       [2.944, 3.066, 2.979, 2.956, 3.065],
+       [3.153, 2.903, 2.999, 3.016, 2.915],
+       [3.022, 2.917, 3.045, 2.998, 3.056]])
 </code></pre>
 <h2><a href="#cell-counts-example" name="cell-counts-example" class="anchor"><span class="anchor-link"></span></a>Cell Counts Example</h2>
 <p>We can also count the total number of data and NoData cells over all the <em>tiles</em> in a DataFrame using <a href="reference.html#rf-agg-data-cells"><code>rf_agg_data_cells</code></a> and <a href="reference.html#rf-agg-no-data-cells"><code>rf_agg_no_data_cells</code></a>. There are ~3.8 million data cells and ~1.9 million NoData cells in this DataFrame. See the section on <a href="nodata-handling.html">&ldquo;NoData&rdquo; handling</a> for additional discussion on handling missing data.</p>
@@ -410,55 +411,55 @@ for r in agg_local_stats:
 </code></pre>
 <pre><code>min :
  Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
-[[1.0717808680594876 0.8670403306104628 0.8643800348943269
-  1.0387945525974258 0.9780646776865474]
- [1.0680277153484548 0.8395983669648295 1.0226149771778756
-  0.9534852980699325 0.9896123846642095]
- [0.8277225264968968 1.1489150607310257 0.864041463874536
-  0.85432943117754 0.9599492130315758]
- [1.036490473333024 0.9868775697800407 1.0866450795221134
-  1.1638225649187852 0.9206091011274136]
- [1.0784492634747642 0.8458677799246253 0.9665528423601178
-  1.0033842448442043 1.1086921814137851]]) 
+[[0.9282088070164454 1.1658666298204128 1.051112558392383
+  1.0363143402254564 0.9755100718880821]
+ [0.9612541143829654 1.0542279425291008 0.9272238787873663
+  1.1356186987950083 0.9493553042150706]
+ [0.9339750312424553 0.9927672443485028 1.021065368336942
+  1.0428641191127268 1.0332995756135608]
+ [1.1767832524939559 0.8245824944650655 0.9820480875542047
+  0.9954389329828767 0.8960754994646442]
+ [1.049373190467312 0.9956720358500253 0.9235653575509426
+  1.028888423153106 0.9281094888882713]]) 
 
 max :
  Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
-[[5.358904340297438 4.335201653052314 4.321900174471635 5.193972762987129
-  4.890323388432737]
- [5.340138576742274 4.197991834824148 5.113074885889378 4.767426490349663
-  4.948061923321047]
- [4.1386126324844845 5.744575303655129 4.320207319372679 4.2716471558877
-  4.799746065157879]
- [5.18245236666512 4.9343878489002035 5.433225397610567 5.819112824593926
-  4.603045505637068]
- [5.3922463173738215 4.2293388996231265 4.83276421180059
-  5.016921224221021 5.543460907068925]]) 
+[[4.641044035082227 5.829333149102064 5.255562791961915 5.181571701127282
+  4.877550359440411]
+ [4.806270571914827 5.271139712645504 4.6361193939368315
+  5.678093493975042 4.746776521075353]
+ [4.669875156212276 4.963836221742514 5.105326841684709 5.214320595563634
+  5.166497878067804]
+ [5.883916262469779 4.122912472325328 4.910240437771024 4.977194664914383
+  4.480377497323221]
+ [5.24686595233656 4.978360179250126 4.617826787754713 5.144442115765529
+  4.640547444441356]]) 
 
 mean :
  Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
-[[3.215342604178463 2.6011209918313885 2.593140104682981
-  3.116383657792278 2.9341940330596423]
- [3.2040831460453645 2.5187951008944887 3.0678449315336267
-  2.8604558942097977 2.9688371539926286]
- [2.4831675794906904 3.446745182193077 2.592124391623608 2.56298829353262
-  2.879847639094727]
- [3.1094714199990725 2.9606327093401226 3.25993523856634
-  3.4914676947563557 2.7618273033822405]
- [3.2353477904242927 2.537603339773876 2.8996585270803537
-  3.0101527345326127 3.326076544241355]]) 
+[[2.7846264210493366 3.497599889461238 3.153337675177149
+  3.1089430206763695 2.9265302156642465]
+ [2.8837623431488963 3.1626838275873026 2.781671636362099
+  3.406856096385025 2.8480659126452124]
+ [2.801925093727366 2.9783017330455084 3.063196105010826 3.12859235733818
+  3.099898726840683]
+ [3.530349757481867 2.4737474833951967 2.946144262662614 2.98631679894863
+  2.6882264983939326]
+ [3.1481195714019363 2.987016107550076 2.7706960726528274
+  3.0866652694593175 2.784328466664814]]) 
 
 variance :
  Tile(dimensions=[5, 5], cell_type=CellType(float64, nan), cells=
-[[3.0632379443689306 2.0046904930802683 1.9924075859304473
-  2.877584326682893 2.5509613699682365]
- [3.041821868673173 1.8798011141600224 2.78864371079602 2.424357903028021
-  2.6115537916820895]
- [1.8269988823210834 3.5200155113988725 1.9908470701185363
-  1.9463434052697037 2.4573399775998457]
- [2.8648333368269743 2.5971395672932207 3.148793410265654
-  3.6119545669710416 2.2600563122096657]
- [3.1014741703713664 1.9079794696389696 2.491265058865128
-  2.684746514137533 3.2778622750081556]])
+[[2.2975242384610457 3.6246533294101546 2.946233627760483
+  2.8638597646851256 2.5376530676135776]
+ [2.4640252597818098 2.9637241461577073 2.2926509903826373
+  3.4390128774743136 2.403401316376769]
+ [2.3261582906249183 2.6282314705368517 2.7801986304454775
+  2.9001748558207066 2.847221367901769]
+ [3.692850195600677 1.8131634404752788 2.5717825233836553
+  2.6423964514615665 2.1412034686421633]
+ [2.9364909143241213 2.6436341412632878 2.2745945857818697
+  2.822963699462628 2.2970325956385285]])
 </code></pre>
 <h2><a href="#histogram" name="histogram" class="anchor"><span class="anchor-link"></span></a>Histogram</h2>
 <p>The <a href="reference.html#rf-tile-histogram"><code>rf_tile_histogram</code></a> function computes a count of cell values within each row of <em>tile</em> and outputs a <code>bins</code> array with the schema below. In the graph below, we have plotted each bin&rsquo;s <code>value</code> on the x-axis and <code>count</code> on the y-axis for the <em>tile</em> in the first row of the DataFrame.</p>
@@ -496,13 +497,13 @@ plt.show()
 <p><img src="figures/aggregation_agg_histogram_1.png" /></p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/aggregation.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/aggregation.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.1
+0.8.2
 </span>
 </div>
 </article>
@@ -512,7 +513,7 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="nodata-handling.html" title="NoData Handling" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="zonal-algebra.html" title="Zonal Map Algebra" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -521,7 +522,7 @@ Edit this page
 <span class="md-footer-nav__direction">
 Previous
 </span>
-NoData Handling
+Zonal Map Algebra
 </span>
 </div>
 </a>

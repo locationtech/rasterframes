@@ -154,14 +154,15 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
-  <li><a href="languages.html" class="page">API Languages</a></li>
+  <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
-  <li><a href="release-notes.html" class="page">Release&nbsp;Notes</a></li>
+  <li><a href="release-notes.html" class="page">Release Notes</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
@@ -171,7 +172,7 @@ locationtech/rasterframes
     <li><a href="getting-started.html#pip-install-pyrasterframes" class="header">pip install pyrasterframes</a></li>
     <li><a href="getting-started.html#next-steps" class="header">Next Steps</a></li>
     <li><a href="getting-started.html#other-options" class="header">Other Options</a></li>
-    <li><a href="getting-started.html#installing-gdal" class="header">Installing GDAL</a></li>
+    <li><a href="getting-started.html#installing-gdal-support" class="header">Installing GDAL Support</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -180,7 +181,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.1
+<i class="md-icon" title="Version">label_outline</i> 0.8.2
 </label>
 </li>
 </ul>
@@ -198,7 +199,7 @@ locationtech/rasterframes
     <li><a href="getting-started.html#pip-install-pyrasterframes" class="header">pip install pyrasterframes</a></li>
     <li><a href="getting-started.html#next-steps" class="header">Next Steps</a></li>
     <li><a href="getting-started.html#other-options" class="header">Other Options</a></li>
-    <li><a href="getting-started.html#installing-gdal" class="header">Installing GDAL</a></li>
+    <li><a href="getting-started.html#installing-gdal-support" class="header">Installing GDAL Support</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -211,7 +212,7 @@ locationtech/rasterframes
 <div class="md-content__searchable">
 <h1><a href="#getting-started" name="getting-started" class="anchor"><span class="anchor-link"></span></a>Getting Started</h1><div class="callout note "><div class="callout-title">Note</div>
 <p>If you are new to Earth-observing imagery, you might consider looking at the <a href="concepts.html">Concepts</a> section first.</p></div>
-<p>There are <a href="getting-started.html#other-options">several ways</a> to use RasterFrames, and <a href="languages.html">several languages</a> with which you can use it. </p>
+<p>RasterFrames® is a geospatial raster processing library for <a href="languages.html">Python, Scala and SQL</a>, available through <a href="getting-started.html#other-options">several mechanisms</a>.</p>
 <p>The simplest way to get started with RasterFrames is via the <a href="#using-jupyter-notebook">Docker image</a>, or from the Python shell. To get started with the Python shell you will need:</p>
 <ol>
   <li><a href="https://www.python.org/">Python</a> installed. Version 3.6 or greater is recommended.</li>
@@ -318,7 +319,21 @@ SparkSession available as &#39;spark&#39;.
 &gt;&gt;&gt; df = spark.read.raster(&#39;https://landsat-pds.s3.amazonaws.com/c1/L8/158/072/LC08_L1TP_158072_20180515_20180604_01_T1/LC08_L1TP_158072_20180515_20180604_01_T1_B5.TIF&#39;)
 </code></pre>
 <p>Now you have the configured SparkSession with RasterFrames enabled.</p>
-<h2><a href="#installing-gdal" name="installing-gdal" class="anchor"><span class="anchor-link"></span></a>Installing GDAL</h2>
+<h3><a href="#scala-development" name="scala-development" class="anchor"><span class="anchor-link"></span></a>Scala Development</h3>
+<p>There is first-class support for Scala in RasterFrames. See the <a href="languages.html">Scala and SQL</a> page for an example application, and the <a href="latest/api/index.html">Scala API Documentation</a> for function details.</p>
+<p>If you would like to use RasterFrames in Scala, you&rsquo;ll need to add the following resolvers and dependencies to your sbt project:</p>
+<pre class="prettyprint"><code class="language-scala">resolvers ++= Seq(
+    &quot;locationtech-releases&quot; at &quot;https://repo.locationtech.org/content/groups/releases&quot;,
+    &quot;Azavea Public Builds&quot; at &quot;https://dl.bintray.com/azavea/geotrellis&quot;
+)
+libraryDependencies ++= Seq(
+    &quot;org.locationtech.rasterframes&quot; %% &quot;rasterframes&quot; % ${VERSION},
+    &quot;org.locationtech.rasterframes&quot; %% &quot;rasterframes-datasource&quot; % ${VERSION},
+    // This is optional. Provides access to AWS PDS catalogs.
+    &quot;org.locationtech.rasterframes&quot; %% &quot;rasterframes-experimental&quot; % ${VERSION}
+)
+</code></pre>
+<h2><a href="#installing-gdal-support" name="installing-gdal-support" class="anchor"><span class="anchor-link"></span></a>Installing GDAL Support</h2>
 <p>GDAL provides a wide variety of drivers to read data from many different raster formats. If GDAL is installed in the environment, RasterFrames will be able to <a href="raster-read.html">read</a> those formats. If you are using the <a href="getting-started.html#jupyter-notebook">Jupyter Notebook image</a>, GDAL is already installed for you. Otherwise follow the instructions below. Version 2.4.1 or greater is required.</p>
 <h3><a href="#installing-on-macos" name="installing-on-macos" class="anchor"><span class="anchor-link"></span></a>Installing on MacOS</h3>
 <p>Using <a href="https://brew.sh/">homebrew</a>:</p>
@@ -344,13 +359,13 @@ print(gdal_version())
 <p>This will print out something like &ldquo;GDAL x.y.z, released 20yy/mm/dd&rdquo;. If it reports &ldquo;not available&rdquo;, then GDAL is not installed in a place where the RasterFrames runtime was able to find it. Please <a href="https://github.com/locationtech/rasterframes/issues">file an issue</a> to get help resolving this problem.</p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.1/pyrasterframes/target/python/docs/getting-started.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/getting-started.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.1
+0.8.2
 </span>
 </div>
 </article>
