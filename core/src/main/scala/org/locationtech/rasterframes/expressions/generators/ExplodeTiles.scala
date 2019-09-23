@@ -25,7 +25,7 @@ import geotrellis.raster._
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.{BufferHolder, CodegenFallback, UnsafeRowWriter}
-import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, GenericInternalRow, UnsafeRow}
+import org.apache.spark.sql.catalyst.expressions.{Expression, Generator, UnsafeRow}
 import org.apache.spark.sql.types._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.DynamicExtractors

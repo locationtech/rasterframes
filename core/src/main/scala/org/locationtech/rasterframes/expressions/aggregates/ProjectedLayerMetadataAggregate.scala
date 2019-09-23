@@ -77,6 +77,10 @@ class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: TileDimensions) ex
     import org.locationtech.rasterframes.encoders.CatalystSerializer._
     val buf = buffer.to[BufferRecord]
 
+    if (buf.isEmpty) {
+      throw new IllegalArgumentException("Can not collect metadata from empty data frame.")
+    }
+
     val re = RasterExtent(buf.extent, buf.cellSize)
     val layout = LayoutDefinition(re, destDims.cols, destDims.rows)
 
@@ -152,6 +156,8 @@ object ProjectedLayerMetadataAggregate {
         buffer(i) = encoded(i)
       }
     }
+
+    def isEmpty: Boolean = extent == null || cellType == null || cellSize == null
   }
 
   private[expressions]
