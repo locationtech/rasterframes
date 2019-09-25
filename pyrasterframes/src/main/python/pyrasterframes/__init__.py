@@ -32,6 +32,7 @@ from pyspark.sql.column import _to_java_column
 from .rf_context import RFContext
 from .version import __version__
 from .rf_types import RasterFrameLayer, TileExploder, TileUDT, RasterSourceUDT
+import geomesa_pyspark.types  # enable vector integrations
 
 __all__ = ['RasterFrameLayer', 'TileExploder']
 

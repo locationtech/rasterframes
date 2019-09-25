@@ -11,7 +11,6 @@ RasterFrames provides a variety of ways to work with spatial vector data (points
 ```python, setup, echo=False
 import pyrasterframes
 import pyrasterframes.rf_ipython
-import geomesa_pyspark.types
 import geopandas
 import folium
 spark = pyrasterframes.get_spark_session('local[2]')
