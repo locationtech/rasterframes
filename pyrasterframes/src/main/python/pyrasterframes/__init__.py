@@ -27,6 +27,7 @@ from __future__ import absolute_import
 from pyspark import SparkContext
 from pyspark.sql import SparkSession, DataFrame, DataFrameReader, DataFrameWriter
 from pyspark.sql.column import _to_java_column
+from geomesa_pyspark import types # <-- required to ensure Shapely UDTs get registered.
 
 # Import RasterFrameLayer types and functions
 from .rf_context import RFContext
@@ -53,14 +54,6 @@ def _kryo_init(builder):
         .config("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator") \
         .config("spark.kryoserializer.buffer.max", "500m")
     return builder
-
-
-def get_spark_session(master="local[*]", **kwargs):
-    """ Create a SparkSession with pyrasterframes enabled and configured. """
-    from pyrasterframes.utils import create_rf_spark_session
-
-    return create_rf_spark_session(master, **kwargs)
-
 
 def _convert_df(df, sp_key=None, metadata=None):
     ctx = SparkContext._active_spark_context._rf_context

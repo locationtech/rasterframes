@@ -43,7 +43,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  */
 class EncodingSpec extends TestEnvironment with TestData {
 
-  import sqlContext.implicits._
+  import spark.implicits._
 
   describe("Spark encoding on standard types") {
 

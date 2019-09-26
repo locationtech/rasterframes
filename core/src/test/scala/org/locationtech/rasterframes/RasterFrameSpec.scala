@@ -56,7 +56,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
     it("should provide Spark initialization methods") {
       assert(spark.withRasterFrames.isInstanceOf[SparkSession])
-      assert(sqlContext.withRasterFrames.isInstanceOf[SQLContext])
+      assert(spark.sqlContext.withRasterFrames.isInstanceOf[SQLContext])
     }
   }
 

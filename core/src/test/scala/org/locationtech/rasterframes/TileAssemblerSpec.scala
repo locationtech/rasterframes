@@ -37,7 +37,7 @@ import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RasterSource}
 class TileAssemblerSpec extends TestEnvironment {
   import TileAssemblerSpec._
   describe("TileAssembler") {
-    import sqlContext.implicits._
+    import spark.implicits._
 
     it("should reassemble a small scene") {
       val raster = TestData.l8Sample(8).projectedRaster

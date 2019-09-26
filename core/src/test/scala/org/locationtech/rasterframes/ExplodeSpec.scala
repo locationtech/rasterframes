@@ -33,7 +33,7 @@ import geotrellis.raster.resample.NearestNeighbor
  */
 class ExplodeSpec extends TestEnvironment with TestData {
   describe("conversion to/from exploded representation of tiles") {
-    import sqlContext.implicits._
+    import spark.implicits._
 
     it("should explode tiles") {
       val query = sql(
