@@ -37,7 +37,7 @@ import org.locationtech.rasterframes.stats.CellHistogram
  */
 class TileStatsSpec extends TestEnvironment with TestData {
   import TestData.injectND
-  import sqlContext.implicits._
+  import spark.implicits._
 
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._
@@ -97,7 +97,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should support local min/max") {
-      import sqlContext.implicits._
+      import spark.implicits._
       val ds = Seq[Tile](byteArrayTile, byteConstantTile).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
@@ -124,7 +124,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute tile statistics") {
-      import sqlContext.implicits._
+      import spark.implicits._
       withClue("mean") {
 
         val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)).toDS()
@@ -229,7 +229,7 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate local stats") {
-      import sqlContext.implicits._
+      import spark.implicits._
       val ave = (nums: Array[Double]) => nums.sum / nums.length
 
       val ds = (Seq

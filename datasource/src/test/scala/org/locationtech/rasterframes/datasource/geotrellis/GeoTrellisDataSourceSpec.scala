@@ -56,9 +56,9 @@ class GeoTrellisDataSourceSpec
   import TestData._
 
   val tileSize = 12
-  lazy val layer = Layer(new File(outputLocalPath).toURI, LayerId("test-layer", 4))
-  lazy val tfLayer = Layer(new File(outputLocalPath).toURI, LayerId("test-tf-layer", 4))
-  lazy val sampleImageLayer = Layer(new File(outputLocalPath).toURI, LayerId("sample", 0))
+  lazy val layer = Layer(scratchDir.toUri, LayerId("test-layer", 4))
+  lazy val tfLayer = Layer(scratchDir.toUri, LayerId("test-tf-layer", 4))
+  lazy val sampleImageLayer = Layer(scratchDir.toUri, LayerId("sample", 0))
   val now = ZonedDateTime.now()
   val tileCoordRange = 2 to 5
 

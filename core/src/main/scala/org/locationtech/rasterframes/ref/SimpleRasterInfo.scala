@@ -76,7 +76,10 @@ object SimpleRasterInfo {
     )
   }
 
+  private[rasterframes]
   lazy val cache = Scaffeine()
-    //.recordStats()
+    .recordStats()
     .build[String, SimpleRasterInfo]
+
+  def cacheStats = cache.stats()
 }
