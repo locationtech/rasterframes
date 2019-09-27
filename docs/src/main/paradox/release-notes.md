@@ -2,6 +2,10 @@
 
 ## 0.8.x
 
+### 0.8.3
+
+* Updated `rf_crs` to accept string columns containing CRS specifications. ([#366](https://github.com/locationtech/rasterframes/issues/366))
+
 ### 0.8.2
 
 * Added ability to pass config options to convenience PySpark session constructor. ([#361](https://github.com/locationtech/rasterframes/issues/361)) 

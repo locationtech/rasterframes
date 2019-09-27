@@ -98,8 +98,9 @@ Fetches the extent (bounding box or envelope) of a `ProjectedRasterTile` or `Ras
 
     Struct rf_crs(ProjectedRasterTile proj_raster)
     Struct rf_crs(RasterSource proj_raster)
+    Struct rf_crs(String crs_spec)
 
-Fetch CRS structure representing the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns.
+Fetch CRS structure representing the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns, or from a column of strings in the form supported by @ref:[`rf_mk_crs`](reference.md#rf-mk-crs). 
 
 ### rf_mk_crs
 

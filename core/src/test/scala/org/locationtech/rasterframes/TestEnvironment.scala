@@ -20,12 +20,10 @@
  */
 package org.locationtech.rasterframes
 
-import java.io.File
 import java.nio.file.{Files, Path}
 
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.raster.testkit.RasterMatchers
-import org.apache.hadoop.fs.FileUtil
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.StructType
