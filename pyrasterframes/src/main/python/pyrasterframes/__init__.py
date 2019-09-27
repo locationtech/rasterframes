@@ -33,6 +33,7 @@ from geomesa_pyspark import types # <-- required to ensure Shapely UDTs get regi
 from .rf_context import RFContext
 from .version import __version__
 from .rf_types import RasterFrameLayer, TileExploder, TileUDT, RasterSourceUDT
+import geomesa_pyspark.types  # enable vector integrations
 
 __all__ = ['RasterFrameLayer', 'TileExploder']
 
