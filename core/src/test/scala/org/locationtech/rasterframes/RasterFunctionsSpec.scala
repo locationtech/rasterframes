@@ -318,6 +318,11 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_crs")
     }
 
+    it("should parse a CRS from string") {
+      val e = Seq(crs.toProj4String).toDF("crs").select(rf_crs($"crs")).first()
+      e should be (crs)
+    }
+
     it("should get the Geometry of a ProjectedRasterTile") {
       val g = Seq(randPRT).toDF("tile").select(rf_geometry($"tile")).first()
       g should be (extent.jtsGeom)
