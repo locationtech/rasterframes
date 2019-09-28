@@ -37,10 +37,11 @@ trait UnaryRasterAggregate extends DeclarativeAggregate {
   def children = Seq(child)
 
   protected def tileOpAsExpression[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
-    udfexpr[R, Any](name, (a: Any) => op(extractTileFromAny(a)))
+    udfexpr[R, Any](name, (a: Any) => if(a == null) null.asInstanceOf[R] else op(extractTileFromAny(a)))
 
   protected val extractTileFromAny = (a: Any) => a match {
     case t: Tile => t
     case r: Row => rowTileExtractor(child.dataType)(r)._1
+    case null => null
   }
 }
