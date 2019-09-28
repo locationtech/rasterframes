@@ -31,6 +31,7 @@ import geotrellis.proj4.CRS
  * @since 6/4/18
  */
 class ReprojectionTransformer(src: CRS, dst: CRS) extends GeometryTransformer {
+  def apply(geometry: Geometry): Geometry = transform(geometry)
   lazy val transform = geotrellis.proj4.Transform(src, dst)
   override def transformCoordinates(coords: CoordinateSequence, parent: Geometry): CoordinateSequence = {
     val fact = parent.getFactory
