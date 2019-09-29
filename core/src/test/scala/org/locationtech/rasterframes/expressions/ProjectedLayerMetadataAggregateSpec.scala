@@ -30,7 +30,7 @@ import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.aggregates.ProjectedLayerMetadataAggregate
 import org.locationtech.rasterframes.model.TileDimensions
 
-class ProjectedLayerMetadataAggregateTest extends TestEnvironment {
+class ProjectedLayerMetadataAggregateSpec extends TestEnvironment {
 
   import spark.implicits._
 

@@ -40,10 +40,13 @@ import org.locationtech.rasterframes.jts.ReprojectionTransformer
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.apache.spark.sql.rf
+import org.locationtech.rasterframes.expressions.accessors.GetCRS
 
 /**
-  * This expression constructs a XZ2 index for a given JTS geometry.
+  * Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource
   *
+  * @param left geometry-like column
+  * @param right CRS column
   * @param indexResolution resolution level of the space filling curve -
   *                        i.e. how many times the space will be recursively quartered
   *                        1-18 is typical.
@@ -71,7 +74,7 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
 
     val coords = left.dataType match {
       case t if rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
-        JTSTypes.GeometryTypeInstance.deserialize(left)
+        JTSTypes.GeometryTypeInstance.deserialize(leftInput)
       case t if t.conformsTo[Extent] =>
         row(leftInput).to[Extent]
       case t if t.conformsTo[Envelope] =>
@@ -112,4 +115,6 @@ object XZ2Indexer {
   import org.locationtech.rasterframes.encoders.SparkBasicEncoders.longEnc
   def apply(targetExtent: Column, targetCRS: Column): TypedColumn[Any, Long] =
     new Column(new XZ2Indexer(targetExtent.expr, targetCRS.expr)).as[Long]
+  def apply(targetExtent: Column): TypedColumn[Any, Long] =
+    new Column(new XZ2Indexer(targetExtent.expr, GetCRS(targetExtent.expr))).as[Long]
 }

@@ -131,10 +131,7 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
       val wm4 = sql("SELECT st_reproject(ll, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 'EPSG:3857') AS wm4 from geom")
         .as[Geometry].first()
       wm4 should matchGeom(webMercator, 0.00001)
-
-      // TODO: See comment in `org.locationtech.rasterframes.expressions.register` for
-      // TODO: what needs to happen to support this.
-      //checkDocs("st_reproject")
+      checkDocs("st_reproject")
     }
   }
 

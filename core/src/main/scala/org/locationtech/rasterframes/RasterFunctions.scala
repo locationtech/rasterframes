@@ -59,8 +59,11 @@ trait RasterFunctions {
   /** Extracts the bounding box from a RasterSource or ProjectedRasterTile */
   def rf_extent(col: Column): TypedColumn[Any, Extent] = GetExtent(col)
 
-  /** Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource */
+  /** Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS */
   def rf_spatial_index(targetExtent: Column, targetCRS: Column) = XZ2Indexer(targetExtent, targetCRS)
+
+  /** Constructs a XZ2 index in WGS84 from either a ProjectedRasterTile or RasterSource */
+  def rf_spatial_index(targetExtent: Column) = XZ2Indexer(targetExtent)
 
   /** Extracts the CRS from a RasterSource or ProjectedRasterTile */
   def rf_crs(col: Column): TypedColumn[Any, CRS] = GetCRS(col)
