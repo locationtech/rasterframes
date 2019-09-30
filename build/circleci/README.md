@@ -1,6 +1,6 @@
 # CircleCI Dockerfile Build file
 
 ```bash
-docker build -t s22s/rasterframes-circleci:latest .
+make
 docker push s22s/rasterframes-circleci:latest
 ```
