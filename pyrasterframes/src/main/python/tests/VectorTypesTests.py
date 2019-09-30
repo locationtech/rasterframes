@@ -156,3 +156,9 @@ class VectorTypes(TestEnvironment):
         geo = self.spark.read.geojson(sample)
         geo.show()
         self.assertEqual(geo.select('geometry').count(), 8)
+
+    def test_spatial_index(self):
+        df = self.df.select(rf_spatial_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
+        expected = {22858201775, 38132946267, 38166922588, 38180072113}
+        indexes = {x[0] for x in df.collect()}
+        self.assertSetEqual(indexes, expected)

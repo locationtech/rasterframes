@@ -26,7 +26,7 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression}
+import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
 import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.rf.RasterSourceUDT
 import org.apache.spark.sql.types.{DataType, LongType}
@@ -51,6 +51,14 @@ import org.locationtech.rasterframes.expressions.accessors.GetCRS
   *                        i.e. how many times the space will be recursively quartered
   *                        1-18 is typical.
   */
+@ExpressionDescription(
+  usage = "_FUNC_(geom, crs) - Constructs a XZ2 index in WGS84/EPSG:4326",
+  arguments = """
+  Arguments:
+    * geom - Geometry or item with Geometry:  Extent, ProjectedRasterTile, or RasterSource
+    * crs - the native CRS of the `geom` column
+"""
+)
 case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Short = 18)
   extends BinaryExpression with CodegenFallback {
 

@@ -65,6 +65,15 @@ See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/
 
 Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`](reference.md#st-extent) or @ref:[`rf_extent`](reference.md#rf-extent).
 
+
+### rf_spatial_index
+
+    Long rf_spatial_index(Geometry geom, CRS crs)
+    Long rf_spatial_index(Extent extent, CRS crs)
+    Long rf_spatial_index(ProjectedRasterTile proj_raster, CRS crs)
+    
+Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS.
+
 ## Tile Metadata and Mutation
 
 Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See section on @ref:["NoData" handling](nodata-handling.md) for additional discussion of cell types.

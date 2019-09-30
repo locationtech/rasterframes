@@ -5,6 +5,7 @@
 ### 0.8.3
 
 * Updated `rf_crs` to accept string columns containing CRS specifications. ([#366](https://github.com/locationtech/rasterframes/issues/366))
+* Added `rf_spatial_index` function. ([#368](https://github.com/locationtech/rasterframes/issues/368))
 
 ### 0.8.2
 

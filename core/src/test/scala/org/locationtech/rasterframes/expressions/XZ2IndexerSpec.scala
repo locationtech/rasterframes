@@ -21,15 +21,12 @@
 
 package org.locationtech.rasterframes.expressions
 import geotrellis.proj4.{CRS, LatLng, WebMercator}
-import org.locationtech.rasterframes._
-import geotrellis.vector.Extent
-import org.locationtech.rasterframes.TestEnvironment
-import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes._
-import encoders.serialized_literal
 import geotrellis.raster.CellType
+import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
 import org.locationtech.geomesa.curve.XZ2SFC
+import org.locationtech.rasterframes.{TestEnvironment, _}
+import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.scalatest.Inspectors
