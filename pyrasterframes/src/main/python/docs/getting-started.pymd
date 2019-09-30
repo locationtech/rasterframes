@@ -29,7 +29,8 @@ from pyrasterframes import rf_ipython
 
 ```python, version
 import pyrasterframes
-spark = pyrasterframes.get_spark_session()
+from pyrasterframes.utils import create_rf_spark_session
+spark = create_rf_spark_session()
 ```
 
 Then, you can read a raster and work with it in a Spark DataFrame.
