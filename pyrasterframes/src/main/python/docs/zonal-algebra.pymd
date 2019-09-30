@@ -4,6 +4,7 @@
 from IPython.display import display
 
 import pyrasterframes
+from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 
@@ -11,7 +12,7 @@ from pyspark.sql.functions import udf, lit
 from geomesa_pyspark.types import MultiPolygonUDT
 
 # This seemed to work for time-series!
-spark = pyrasterframes.get_spark_session("local[4]")
+spark = create_rf_spark_session("local[4]")
 ```
 
 ## Definition

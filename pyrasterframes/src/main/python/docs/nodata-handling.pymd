@@ -12,6 +12,7 @@ To understand how NoData is handled in RasterFrames, we first need to understand
 
 ```python setup, echo=False
 import pyrasterframes
+from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 from IPython.display import display
@@ -19,7 +20,7 @@ import pandas as pd
 import numpy as np
 from pyrasterframes.rf_types import Tile
 
-spark = pyrasterframes.get_spark_session()
+spark = create_rf_spark_session()
 ```
 
 The `CellType` class from the `rf_types` submodule allows us to create a representation of any valid cell type. There are convenience methods to create instances for a variety of basic types.

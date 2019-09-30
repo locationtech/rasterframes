@@ -6,6 +6,7 @@
 from IPython.display import display
 
 import pyrasterframes
+from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 
@@ -13,7 +14,7 @@ from pyspark.sql.functions import udf, lit
 from geomesa_pyspark.types import MultiPolygonUDT
 
 # This job is more memory bound, so reduce the concurrent tasks.
-spark = pyrasterframes.get_spark_session("local[4]")
+spark = create_rf_spark_session("local[4]")
 ```
 
 In this example, we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will continue our example from the @ref:[Zonal Map Algebra page](zonal-algebra.md).

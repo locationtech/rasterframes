@@ -5,6 +5,7 @@
 ### 0.8.3
 
 * Updated `rf_crs` to accept string columns containing CRS specifications. ([#366](https://github.com/locationtech/rasterframes/issues/366))
+* _Breaking_ (potentially): removed `pyrasterframes.create_spark_session` in lieu of `pyrasterframes.utils.create_rf_spark_session`
 
 ### 0.8.2
 
