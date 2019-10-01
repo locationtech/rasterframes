@@ -258,7 +258,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
         // SimpleRasterInfo is a proxy for header data requests.
         val start = SimpleRasterInfo.cacheStats.hitCount()
         val t: ProjectedRasterTile = RasterRefTile(subRaster)
-        val result = Seq(t).toDF("tile").first()
+        val result = Seq(t, subRaster.tile).toDF("tile").first()
         val end = SimpleRasterInfo.cacheStats.hitCount()
         end should be(start)
       }
