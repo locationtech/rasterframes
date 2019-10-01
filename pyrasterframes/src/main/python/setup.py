@@ -140,6 +140,7 @@ setup(
     author_email='info@astraea.earth',
     license='Apache 2',
     url='https://rasterframes.io',
+    python_requires=">=3.7",
     project_urls={
         'Bug Reports': 'https://github.com/locationtech/rasterframes/issues',
         'Source': 'https://github.com/locationtech/rasterframes',
@@ -170,7 +171,7 @@ setup(
         'folium',
     ],
     tests_require=[
-        'pytest==3.4.2',
+        'pytest>4.0.0,<5.0.0',
         'pypandoc',
         'numpy>=1.7',
         'Shapely>=1.6.0',
