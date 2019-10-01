@@ -61,12 +61,12 @@ object RasterRef extends LazyLogging {
   private val log = logger
 
   case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
-    val extent: Extent = rr.extent
-    val crs: CRS = rr.crs
+    def extent: Extent = rr.extent
+    def crs: CRS = rr.crs
     override def cellType = rr.cellType
 
-    override val cols: Int = rr.cols
-    override val rows: Int = rr.rows
+    override def cols: Int = rr.cols
+    override def rows: Int = rr.rows
 
     protected def delegate: Tile = rr.realizedTile
     // NB: This saves us from stack overflow exception

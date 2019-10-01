@@ -26,6 +26,7 @@ import org.apache.spark.sql.types.{DataType, _}
 import org.locationtech.rasterframes.encoders.CatalystSerializer
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.{Cells, TileDataContext}
+import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.tiles.InternalRowTile
 
 
@@ -75,12 +76,15 @@ case object TileUDT  {
   implicit def tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
 
     override val schema: StructType = StructType(Seq(
-      StructField("cell_context", schemaOf[TileDataContext], false),
+      StructField("cell_context", schemaOf[TileDataContext], true),
       StructField("cell_data", schemaOf[Cells], false)
     ))
 
     override def to[R](t: Tile, io: CatalystIO[R]): R = io.create(
-      io.to(TileDataContext(t)),
+      t match {
+        case _: RasterRefTile => null
+        case o => io.to(TileDataContext(o))
+      },
       io.to(Cells(t))
     )
 
