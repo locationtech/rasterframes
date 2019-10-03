@@ -106,6 +106,15 @@ class RasterFunctions(TestEnvironment):
 
         df.first()
 
+    def test_st_geometry_from_struct(self):
+        from pyspark.sql import Row
+        from pyspark.sql.functions import struct
+        df = self.spark.createDataFrame([Row(xmin=0, ymin=1, xmax=2, ymax=3)])
+        df.select(st_geometry(struct(df.xmin, df.ymin, df.xmax, df.ymax)).alias('geom'))
+
+        actual_bounds = df.first()['geom'].bounds
+        self.assertEqual(actual_bounds, (1, 2, 3, 4))
+
     def test_agg_mean(self):
         mean = self.rf.agg(rf_agg_mean('tile')).first()['rf_agg_mean(tile)']
         self.assertTrue(self.rounded_compare(mean, 10160))

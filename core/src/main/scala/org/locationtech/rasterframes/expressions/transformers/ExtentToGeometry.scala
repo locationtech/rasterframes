@@ -51,7 +51,7 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
     child.dataType match {
       case dt if dt == envSchema || dt == extSchema ⇒ TypeCheckSuccess
       case o ⇒ TypeCheckFailure(
-        s"Expected bounding box of form '${envSchema}' but received '${o.simpleString}'."
+        s"Expected bounding box of form '${envSchema}' or '${extSchema}' but received '${o.simpleString}'."
       )
     }
   }
