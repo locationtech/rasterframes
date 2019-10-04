@@ -162,3 +162,4 @@ class VectorTypes(TestEnvironment):
         expected = {22858201775, 38132946267, 38166922588, 38180072113}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
+

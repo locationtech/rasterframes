@@ -94,3 +94,7 @@ class TestEnvironment(unittest.TestCase):
         self.rf = rf.withColumn('tile2', rf_convert_cell_type('tile', 'float32')) \
             .drop('tile') \
             .withColumnRenamed('tile2', 'tile').as_layer()
+
+        df = self.spark.read.raster(self.img_uri)
+        self.df = df.withColumn('tile', rf_convert_cell_type('proj_raster', 'float32')) \
+            .drop('proj_raster')
