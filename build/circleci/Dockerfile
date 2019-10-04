@@ -1,6 +1,6 @@
 FROM circleci/openjdk:8-jdk
 
-ENV OPENJPEG_VERSION 2.3.0
+ENV OPENJPEG_VERSION 2.3.1
 ENV GDAL_VERSION 2.4.1
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 
@@ -11,26 +11,37 @@ RUN sudo apt-get update && \
       python python-minimal python2.7 python2.7-minimal \
       libpython-stdlib libpython2.7 libpython2.7-minimal libpython2.7-stdlib \
     && sudo apt-get install -y \
-      python3 \
-      python3-pip \
       pandoc \
       wget \
       gcc g++ build-essential \
+      libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev \
             libcurl4-gnutls-dev \
             libproj-dev \
             libgeos-dev \
             libhdf4-alt-dev \
-            libhdf5-serial-dev \
             bash-completion \
             cmake \
             imagemagick \
             libpng-dev \
-            swig \
-            ant \
+            libffi-dev \
     && sudo apt autoremove \
-    && sudo apt-get clean all \
-    && pip3 install setuptools ipython==6.2.1 \
-    && sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+    && sudo apt-get clean all
+#    && sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+# todo s
+
+RUN cd /tmp && \
+  wget https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz && \
+  tar xzf Python-3.7.4.tgz && \
+  cd Python-3.7.4 && \
+  ./configure  --with-ensurepip=install --prefix=/usr/local --enable-optimization && \
+  make && \
+  sudo make altinstall && \
+  rm -rf Python-3.7.4*
+
+RUN sudo ln -s /usr/local/bin/python3.7 /usr/local/bin/python && \
+  sudo curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+  sudo python get-pip.py && \
+  sudo pip3 install setuptools ipython==6.2.1
 
 # install OpenJPEG
 RUN cd /tmp && \
@@ -52,11 +63,9 @@ RUN cd /tmp && \
     ./configure \
         --with-curl \
         --with-hdf4 \
-        --with-hdf5 \
         --with-geos \
         --with-geotiff=internal \
         --with-hide-internal-symbols \
-        --with-java=$JAVA_HOME \
         --with-libtiff=internal \
         --with-libz=internal \
         --with-mrf \
@@ -67,8 +76,6 @@ RUN cd /tmp && \
         --without-ecw \
     && \
     make -j 8 && \
-    sudo make install && \
-    cd swig/java && \
     sudo make install && \
     sudo ldconfig && \
     cd /tmp && sudo rm -Rf gdal*

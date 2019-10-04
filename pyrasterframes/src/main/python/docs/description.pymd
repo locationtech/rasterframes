@@ -2,10 +2,11 @@
 
 ```python, setup, echo=False
 import pyrasterframes
+from pyrasterframes.utils import create_rf_spark_session
 import pyrasterframes.rf_ipython
 from pyrasterframes.rasterfunctions import rf_crs, rf_extent, rf_tile, rf_data_cells
 from pyspark.sql.functions import col, lit
-spark = pyrasterframes.get_spark_session()
+spark = create_rf_spark_session()
 
 # Note that this is the same URI as in the getting started page...
 df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
