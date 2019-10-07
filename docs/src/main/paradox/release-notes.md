@@ -2,6 +2,10 @@
 
 ## 0.8.x
 
+### 0.8.4
+
+* Upgraded to Spark 2.4.4
+
 ### 0.8.3
 
 * Updated to GeoTrellis 2.3.3 and Proj4j 1.1.0.

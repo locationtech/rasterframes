@@ -13,8 +13,8 @@ pip install pyrasterframes
 You can then access a [`pyspark SparkSession`](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.SparkSession) using the [`local[*]` master](https://spark.apache.org/docs/latest/submitting-applications.html#master-urls) in your python interpreter as follows.
 
 ```python
-import pyrasterframes
-spark = pyrasterframes.get_spark_session()
+from pyrasterframes.utils import create_rf_spark_session
+spark = create_rf_spark_session()
 ```
 
 Then you can read a raster and do some work with it.

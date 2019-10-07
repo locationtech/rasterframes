@@ -147,14 +147,14 @@ setup(
     install_requires=[
         'pytz',
         'Shapely>=1.6.0',
-        'pyspark<2.4',
+        'pyspark==2.4.4',
         'numpy>=1.7',
         'pandas>=0.25.0',
     ],
     setup_requires=[
         'pytz',
         'Shapely>=1.6.0',
-        'pyspark<2.4',
+        'pyspark==2.4.4',
         'numpy>=1.7',
         'matplotlib<3.0.0',
         'pandas>=0.25.0',

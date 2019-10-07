@@ -31,7 +31,6 @@ import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.extensions.Implicits
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.util.ZeroSevenCompatibilityKit
 import org.slf4j.LoggerFactory
 import shapeless.tag.@@
 
@@ -39,7 +38,6 @@ import scala.reflect.runtime.universe._
 
 package object rasterframes extends StandardColumns
   with RasterFunctions
-  with ZeroSevenCompatibilityKit.RasterFunctions
   with Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
@@ -81,7 +79,6 @@ package object rasterframes extends StandardColumns
     }
 
     rf.register(sqlContext)
-    ZeroSevenCompatibilityKit.register(sqlContext)
     rasterframes.functions.register(sqlContext)
     rasterframes.expressions.register(sqlContext)
     rasterframes.rules.register(sqlContext)
