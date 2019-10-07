@@ -21,16 +21,17 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.row
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.row
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.slf4j.LoggerFactory
 
 /**
  * Realizes a RasterRef into a Tile.
@@ -38,7 +39,9 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  * @since 11/2/18
  */
 case class RasterRefToTile(child: Expression) extends UnaryExpression
-  with CodegenFallback with ExpectsInputTypes with LazyLogging {
+  with CodegenFallback with ExpectsInputTypes {
+
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def nodeName: String = "raster_ref_to_tile"
 

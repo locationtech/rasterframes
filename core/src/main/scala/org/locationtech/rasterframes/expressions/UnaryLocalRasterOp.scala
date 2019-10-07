@@ -21,18 +21,20 @@
 
 package org.locationtech.rasterframes.expressions
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import org.slf4j.LoggerFactory
 
 /** Operation on a tile returning a tile. */
-trait UnaryLocalRasterOp extends UnaryExpression with LazyLogging {
+trait UnaryLocalRasterOp extends UnaryExpression {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def dataType: DataType = child.dataType
 
