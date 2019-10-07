@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
-import com.typesafe.scalalogging.LazyLogging
 import geotrellis.vector.Extent
 import org.apache.hadoop.fs.{Path => HadoopPath}
 import org.apache.spark.sql.functions._
@@ -37,7 +36,7 @@ import org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelati
  * @since 9/28/17
  */
 case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
-  extends BaseRelation with TableScan with CachedDatasetRelation with LazyLogging {
+  extends BaseRelation with TableScan with CachedDatasetRelation {
   import L8CatalogRelation._
 
   override def schema: StructType = L8CatalogRelation.schema

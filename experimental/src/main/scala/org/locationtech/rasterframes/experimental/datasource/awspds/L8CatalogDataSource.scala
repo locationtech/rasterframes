@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.experimental.datasource.awspds
 import java.io.FileNotFoundException
 import java.net.URI
 
-import com.typesafe.scalalogging.LazyLogging
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
@@ -48,7 +47,7 @@ class L8CatalogDataSource extends DataSourceRegister with RelationProvider {
   }
 }
 
-object L8CatalogDataSource extends LazyLogging with ResourceCacheSupport {
+object L8CatalogDataSource extends ResourceCacheSupport {
   final val SHORT_NAME: String = "aws-pds-l8-catalog"
   private val remoteSource = URI.create("http://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz")
   private def sceneListFile(implicit fs: FileSystem) =

@@ -21,10 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import org.locationtech.rasterframes.expressions.row
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import geotrellis.raster
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.local.{Defined, InverseMask => gtInverseMask, Mask => gtMask}
@@ -35,9 +32,16 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import org.locationtech.rasterframes.expressions.row
+import org.slf4j.LoggerFactory
 
 abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, inverse: Boolean)
-  extends TernaryExpression with CodegenFallback with Serializable with LazyLogging {
+  extends TernaryExpression with CodegenFallback with Serializable {
+
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
 
   override def children: Seq[Expression] = Seq(left, middle, right)
 
