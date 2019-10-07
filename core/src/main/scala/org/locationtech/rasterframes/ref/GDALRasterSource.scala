@@ -48,7 +48,7 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
     VLMRasterSource(tweaked)
   }
 
-  protected def tiffInfo = SimpleRasterInfo.cache.get(source.toASCIIString, _ => SimpleRasterInfo(gdal))
+  protected def tiffInfo = SimpleRasterInfo(source.toASCIIString, _ => SimpleRasterInfo(gdal))
 
   override def crs: CRS = tiffInfo.crs
 

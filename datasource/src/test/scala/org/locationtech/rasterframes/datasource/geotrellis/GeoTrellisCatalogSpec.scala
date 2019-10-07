@@ -20,8 +20,6 @@
  */
 package org.locationtech.rasterframes.datasource.geotrellis
 
-import java.io.File
-
 import org.locationtech.rasterframes._
 import geotrellis.proj4.LatLng
 import geotrellis.spark._
@@ -39,13 +37,11 @@ class GeoTrellisCatalogSpec
 
   lazy val testRdd = TestData.randomSpatioTemporalTileLayerRDD(10, 12, 5, 6)
 
-  import sqlContext.implicits._
+  import spark.implicits._
 
   before {
-    val outputDir = new File(outputLocalPath)
-    FileUtil.fullyDelete(outputDir)
-    outputDir.deleteOnExit()
-    lazy val writer = LayerWriter(outputDir.toURI)
+    FileUtil.fullyDelete(scratchDir.toFile)
+    lazy val writer = LayerWriter(scratchDir.toUri)
     val index =  ZCurveKeyIndexMethod.byDay()
     writer.write(LayerId("layer-1", 0), testRdd, index)
     writer.write(LayerId("layer-2", 0), testRdd, index)
@@ -53,15 +49,15 @@ class GeoTrellisCatalogSpec
 
   describe("Catalog reading") {
     it("should show two zoom levels") {
-      val cat = sqlContext.read
-        .geotrellisCatalog(outputLocal.toUri)
+      val cat = spark.read
+        .geotrellisCatalog(scratchDir.toUri)
       assert(cat.schema.length > 4)
       assert(cat.count() === 2)
     }
 
     it("should support loading a layer in a nice way") {
-      val cat = sqlContext.read
-        .geotrellisCatalog(outputLocal.toUri)
+      val cat = spark.read
+        .geotrellisCatalog(scratchDir.toUri)
 
       // Select two layers.
       val layer = cat
@@ -70,7 +66,7 @@ class GeoTrellisCatalogSpec
         .collect
       assert(layer.length === 2)
 
-      val lots = layer.map(sqlContext.read.geotrellis.loadLayer).map(_.toDF).reduce(_ union _)
+      val lots = layer.map(spark.read.geotrellis.loadLayer).map(_.toDF).reduce(_ union _)
       assert(lots.count === 60)
     }
   }

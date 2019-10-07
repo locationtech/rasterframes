@@ -421,16 +421,22 @@ class TileUDT(UserDefinedType):
         :param datum:
         :return: A Tile object from row data.
         """
-        cell_type = CellType(datum.cell_context.cellType.cellTypeName)
-        cols = datum.cell_context.dimensions.cols
-        rows = datum.cell_context.dimensions.rows
+
         cell_data_bytes = datum.cell_data.cells
         if cell_data_bytes is None:
             if datum.cell_data.ref is None:
                 raise Exception("Invalid Tile structure. Missing cells and reference")
             else:
                 payload = datum.cell_data.ref
-                cell_data_bytes = RFContext.active()._resolve_raster_ref(payload)
+                ref = RFContext.active()._resolve_raster_ref(payload)
+                cell_type = CellType(ref.cellType().name())
+                cols = ref.cols()
+                rows = ref.rows()
+                cell_data_bytes = ref.tile().toBytes()
+        else:
+            cell_type = CellType(datum.cell_context.cellType.cellTypeName)
+            cols = datum.cell_context.dimensions.cols
+            rows = datum.cell_context.dimensions.rows
 
         if cell_data_bytes is None:
             raise Exception("Unable to fetch cell data from: " + repr(datum))

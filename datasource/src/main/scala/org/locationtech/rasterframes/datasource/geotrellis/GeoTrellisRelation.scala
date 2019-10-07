@@ -26,16 +26,7 @@ import java.net.URI
 import java.sql.{Date, Timestamp}
 import java.time.{ZoneOffset, ZonedDateTime}
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.datasource.geotrellis.TileFeatureSupport._
-import org.locationtech.rasterframes.rules.splitFilters
-import org.locationtech.rasterframes.rules.SpatialFilters.{Contains => sfContains, Intersects => sfIntersects}
-import org.locationtech.rasterframes.rules.SpatialRelationReceiver
-import org.locationtech.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
-import org.locationtech.rasterframes.util.SubdivideSupport._
-import org.locationtech.rasterframes.util._
-import com.typesafe.scalalogging.LazyLogging
-import org.locationtech.jts.geom
+import com.typesafe.scalalogging.Logger
 import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileFeature}
 import geotrellis.spark.io._
 import geotrellis.spark.io.avro.AvroRecordCodec
@@ -51,7 +42,16 @@ import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
+import org.locationtech.jts.geom
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
+import org.locationtech.rasterframes.datasource.geotrellis.TileFeatureSupport._
+import org.locationtech.rasterframes.rules.SpatialFilters.{Contains => sfContains, Intersects => sfIntersects}
+import org.locationtech.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
+import org.locationtech.rasterframes.rules.{SpatialRelationReceiver, splitFilters}
+import org.locationtech.rasterframes.util.SubdivideSupport._
+import org.locationtech.rasterframes.util._
+import org.slf4j.LoggerFactory
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -66,7 +66,9 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   failOnUnrecognizedFilter: Boolean = false,
   tileSubdivisions: Option[Int] = None,
   filters: Seq[Filter] = Seq.empty)
-  extends BaseRelation with PrunedScan with SpatialRelationReceiver[GeoTrellisRelation] with LazyLogging {
+  extends BaseRelation with PrunedScan with SpatialRelationReceiver[GeoTrellisRelation] {
+
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   implicit val sc = sqlContext.sparkContext
 

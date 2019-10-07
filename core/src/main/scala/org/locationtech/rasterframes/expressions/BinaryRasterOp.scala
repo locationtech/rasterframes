@@ -21,18 +21,20 @@
 
 package org.locationtech.rasterframes.expressions
 
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.BinaryExpression
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
+import org.slf4j.LoggerFactory
 
 /** Operation combining two tiles into a new tile. */
-trait BinaryRasterOp extends BinaryExpression with LazyLogging {
+trait BinaryRasterOp extends BinaryExpression {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def dataType: DataType = left.dataType
 

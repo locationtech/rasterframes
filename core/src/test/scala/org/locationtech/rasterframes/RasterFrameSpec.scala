@@ -56,7 +56,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     }
     it("should provide Spark initialization methods") {
       assert(spark.withRasterFrames.isInstanceOf[SparkSession])
-      assert(sqlContext.withRasterFrames.isInstanceOf[SQLContext])
+      assert(spark.sqlContext.withRasterFrames.isInstanceOf[SQLContext])
     }
   }
 
@@ -231,23 +231,6 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       assert(bounds._1 === SpaceTimeKey(0, 0, now))
       assert(bounds._2 === SpaceTimeKey(3, 1, now))
     }
-
-//    it("should clip TileLayerMetadata extent") {
-//      val tiled = sampleTileLayerRDD
-//
-//      val rf = tiled.reproject(LatLng, tiled.metadata.layout)._2.toLayer
-//
-//      val worldish = Extent(-179, -89, 179, 89)
-//      val areaish = Extent(-90, 30, -81, 40)
-//
-//      val orig = rf.tileLayerMetadata.widen.extent
-//      assert(worldish.contains(orig))
-//      assert(areaish.contains(orig))
-//
-//      val clipped = rf.clipLayerExtent.tileLayerMetadata.widen.extent
-//      assert(!clipped.contains(worldish))
-//      assert(clipped.contains(areaish))
-//    }
 
     def basicallySame(expected: Extent, computed: Extent): Unit = {
       val components = Seq(

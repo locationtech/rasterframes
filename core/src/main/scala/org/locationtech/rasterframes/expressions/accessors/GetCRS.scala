@@ -21,16 +21,19 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders.crsEncoder
-import org.locationtech.rasterframes.expressions.OnTileContextExpression
 import geotrellis.proj4.CRS
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.model.TileContext
+import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.encoders.StandardEncoders.crsEncoder
+import org.locationtech.rasterframes.expressions.DynamicExtractors.projectedRasterLikeExtractor
+import org.locationtech.rasterframes.model.LazyCRS
 
 /**
  * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
@@ -38,16 +41,33 @@ import org.locationtech.rasterframes.model.TileContext
  * @since 9/9/18
  */
 @ExpressionDescription(
-  usage = "_FUNC_(raster) - Fetches the CRS of a ProjectedRasterTile or RasterSource.",
+  usage = "_FUNC_(raster) - Fetches the CRS of a ProjectedRasterTile or RasterSource, or converts a proj4 string column.",
   examples = """
     Examples:
       > SELECT _FUNC_(raster);
          ....
   """)
-case class GetCRS(child: Expression) extends OnTileContextExpression with CodegenFallback {
+case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallback {
   override def dataType: DataType = schemaOf[CRS]
   override def nodeName: String = "rf_crs"
-  override def eval(ctx: TileContext): InternalRow = ctx.crs.toInternalRow
+
+  override def checkInputDataTypes(): TypeCheckResult = {
+    if (child.dataType != StringType && !projectedRasterLikeExtractor.isDefinedAt(child.dataType)) {
+      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `String` or `ProjectedRasterLike`.")
+    }
+    else TypeCheckSuccess
+  }
+
+  override protected def nullSafeEval(input: Any): Any = {
+    input match {
+      case s: UTF8String => LazyCRS(s.toString).toInternalRow
+      case row: InternalRow ⇒
+        val prl = projectedRasterLikeExtractor(child.dataType)(row)
+        prl.crs.toInternalRow
+      case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
+    }
+  }
+
 }
 
 object GetCRS {

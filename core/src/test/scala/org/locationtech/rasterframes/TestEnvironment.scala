@@ -20,38 +20,47 @@
  */
 package org.locationtech.rasterframes
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path}
 
-import com.typesafe.scalalogging.LazyLogging
-import geotrellis.spark.testkit.{TestEnvironment => GeoTrellisTestEnvironment}
-import org.apache.spark.SparkContext
+import com.typesafe.scalalogging.Logger
+import geotrellis.raster.testkit.RasterMatchers
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.StructType
+import org.apache.spark.{SparkConf, SparkContext}
 import org.locationtech.jts.geom.Geometry
+import org.locationtech.rasterframes.util._
 import org.scalactic.Tolerance
 import org.scalatest._
 import org.scalatest.matchers.{MatchResult, Matcher}
-import org.locationtech.rasterframes.util._
+import org.slf4j.LoggerFactory
 
-trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
-  with Matchers with Inspectors with Tolerance with LazyLogging {
+trait TestEnvironment extends FunSpec
+  with Matchers with Inspectors with Tolerance with RasterMatchers {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def sparkMaster: String = "local[*]"
-
-  override implicit def sc: SparkContext = { _sc.setLogLevel("ERROR"); _sc }
-
-  lazy val sqlContext: SQLContext = {
-    val session = SparkSession.builder
-      .config(_sc.getConf)
-      .config("spark.sql.crossJoin.enabled", true)
-      .withKryoSerialization
-      .getOrCreate()
-    session.sqlContext.withRasterFrames
+  lazy val scratchDir: Path = {
+    val outputDir = Files.createTempDirectory("rf-scratch-")
+    outputDir.toFile.deleteOnExit()
+    outputDir
   }
 
-  lazy val sql: String ⇒ DataFrame = sqlContext.sql
-  implicit lazy val spark: SparkSession = sqlContext.sparkSession
+  def sparkMaster: String = "local[*]"
+
+  def additionalConf = new SparkConf(false)
+
+  implicit lazy val spark: SparkSession = {
+    val session = SparkSession.builder
+      .master(sparkMaster)
+      .withKryoSerialization
+      .config(additionalConf)
+      .getOrCreate()
+    session.withRasterFrames
+  }
+
+  implicit def sc: SparkContext = spark.sparkContext
+
+  lazy val sql: String ⇒ DataFrame = spark.sql
 
   def isCI: Boolean = sys.env.get("CI").contains("true")
 
@@ -59,7 +68,7 @@ trait TestEnvironment extends FunSpec with GeoTrellisTestEnvironment
   def write(df: Dataset[_]): Boolean = {
     val sanitized = df.select(df.columns.map(c ⇒ col(c).as(toParquetFriendlyColumnName(c))): _*)
     val inRows = sanitized.count()
-    val dest = Files.createTempFile(Paths.get(outputLocalPath), "rf", ".parquet")
+    val dest = Files.createTempFile("rf", ".parquet")
     logger.trace(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
     sanitized.write.mode(SaveMode.Overwrite).parquet(dest.toString)
     val in = df.sparkSession.read.parquet(dest.toString)

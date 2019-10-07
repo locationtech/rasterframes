@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.experimental.datasource
 
-import com.typesafe.scalalogging.LazyLogging
 import org.apache.hadoop.fs.{FileSystem, Path => HadoopPath}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.BaseRelation
@@ -33,7 +32,7 @@ import org.locationtech.rasterframes.util._
  *
  * @since 8/24/18
  */
-trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation with LazyLogging ⇒
+trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation ⇒
   protected def cacheFile: HadoopPath
   protected def constructDataset: Dataset[Row]
 

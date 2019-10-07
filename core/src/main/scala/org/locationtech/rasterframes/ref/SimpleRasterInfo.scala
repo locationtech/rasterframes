@@ -44,6 +44,11 @@ case class SimpleRasterInfo(
 )
 
 object SimpleRasterInfo {
+  // Not a fan of this.... need a better abstraction that doesn't put the
+  // type-specific logic in here.
+  def apply(key: String, builder: String => SimpleRasterInfo): SimpleRasterInfo =
+    cache.get(key, builder)
+
   def apply(info: GeoTiffReader.GeoTiffInfo): SimpleRasterInfo =
     SimpleRasterInfo(
       info.segmentLayout.totalCols,
@@ -76,7 +81,9 @@ object SimpleRasterInfo {
     )
   }
 
-  lazy val cache = Scaffeine()
-    //.recordStats()
+  private lazy val cache = Scaffeine()
+    .recordStats()
     .build[String, SimpleRasterInfo]
+
+  def cacheStats = cache.stats()
 }

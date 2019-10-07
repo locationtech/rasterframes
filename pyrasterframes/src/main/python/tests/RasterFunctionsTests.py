@@ -231,6 +231,29 @@ class RasterFunctions(TestEnvironment):
             .collect()[0][0]
         self.assertTrue(result)
 
+    def test_mask(self):
+        from pyspark.sql import Row
+        from pyrasterframes.rf_types import Tile, CellType
+        import numpy as np
+
+        np.random.seed(999)
+        ma = np.ma.array(np.random.randint(0, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
+        expected_data_values = ma.compressed().size
+        expected_no_data_values = ma.size - expected_data_values
+        self.assertTrue(expected_data_values > 0, "Make sure random seed is cooperative ")
+        self.assertTrue(expected_no_data_values > 0, "Make sure random seed is cooperative ")
+
+        df = self.spark.createDataFrame([
+            Row(t=Tile(np.ones(ma.shape, ma.dtype)), m=Tile(ma))
+        ])
+
+        df = df.withColumn('masked_t', rf_mask('t', 'm'))
+        result = df.select(rf_data_cells('masked_t')).first()[0]
+        self.assertEqual(result, expected_data_values)
+
+        nd_result = df.select(rf_no_data_cells('masked_t')).first()[0]
+        self.assertEqual(nd_result, expected_no_data_values)
+
     def test_resample(self):
         from pyspark.sql.functions import lit
         result = self.rf.select(

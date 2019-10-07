@@ -21,9 +21,8 @@
 
 package org.locationtech
 import com.typesafe.config.ConfigFactory
-import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.isData
-import geotrellis.raster.{Tile, TileFeature}
+import com.typesafe.scalalogging.Logger
+import geotrellis.raster.{Tile, TileFeature, isData}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
@@ -33,6 +32,7 @@ import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.extensions.Implicits
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util.ZeroSevenCompatibilityKit
+import org.slf4j.LoggerFactory
 import shapeless.tag.@@
 
 import scala.reflect.runtime.universe._
@@ -43,8 +43,10 @@ package object rasterframes extends StandardColumns
   with Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
-  with DataFrameFunctions.Library
-  with LazyLogging {
+  with DataFrameFunctions.Library {
+
+  // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
+  protected def logger: Logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   @transient
   private[rasterframes]

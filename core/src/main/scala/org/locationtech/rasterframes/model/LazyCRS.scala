@@ -21,10 +21,11 @@
 
 package org.locationtech.rasterframes.model
 
-import LazyCRS.EncodedCRS
 import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import org.locationtech.proj4j.CoordinateReferenceSystem
+import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.locationtech.rasterframes.model.LazyCRS.EncodedCRS
 
 class LazyCRS(val encoded: EncodedCRS) extends CRS {
   private lazy val delegate = LazyCRS.cache.get(encoded)
@@ -68,4 +69,6 @@ object LazyCRS {
     else throw new IllegalArgumentException(
       "crs string must be either EPSG code, +proj string, or OGC WKT")
   }
+
+  implicit val crsSererializer: CatalystSerializer[LazyCRS] = CatalystSerializer.crsSerializer.asInstanceOf[CatalystSerializer[LazyCRS]]
 }

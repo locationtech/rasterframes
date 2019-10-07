@@ -43,7 +43,7 @@ abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRast
       f(_delRef)
     }
     catch {
-      // On this exeception we attempt to recreate the delegate and read again.
+      // On this Exeception we attempt to recreate the delegate and read again.
       case _: java.nio.BufferUnderflowException =>
         _delRef = null
         val newDel = delegateBuilder()
@@ -62,7 +62,7 @@ abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRast
   override def hashCode(): Int = source.hashCode()
 
   // This helps reduce header reads between serializations
-  def info: SimpleRasterInfo = SimpleRasterInfo.cache.get(source.toASCIIString, _ =>
+  def info: SimpleRasterInfo = SimpleRasterInfo(source.toASCIIString, _ =>
     retryableRead(rs => SimpleRasterInfo(rs))
   )
 

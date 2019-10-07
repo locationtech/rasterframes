@@ -92,9 +92,12 @@ object RasterSource extends LazyLogging {
 
   val cacheTimeout: Duration = Duration.fromNanos(rfConfig.getDuration("raster-source-cache-timeout").toNanos)
 
-  private val rsCache = Scaffeine()
+  private[ref] val rsCache = Scaffeine()
+    .recordStats()
     .expireAfterAccess(RasterSource.cacheTimeout)
     .build[String, RasterSource]
+
+  def cacheStats = rsCache.stats()
 
   implicit def rsEncoder: ExpressionEncoder[RasterSource] = {
     RasterSourceUDT // Makes sure UDT is registered first
