@@ -184,7 +184,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.2
+<i class="md-icon" title="Version">label_outline</i> 0.8.3
 </label>
 </li>
 </ul>
@@ -293,7 +293,7 @@ unmasked.printSchema()
  |-- blue_path: string (nullable = false)
  |-- scl_path: string (nullable = false)
  |-- blue: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -303,7 +303,7 @@ unmasked.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- scl: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -451,17 +451,16 @@ display(x)
 display(y)
 </code></pre>
 <pre><code>y
-/Users/sfitch/Coding/OSS/locationtech-rasterframes/pyrasterframes/target/python/.eggs/matplotlib-2.2.4-py3.7-macosx-10.9-x86_64.egg/matplotlib/image.py:405: UserWarning: Warning: converting a masked element to nan.
+/anaconda3/lib/python3.7/site-packages/matplotlib/image.py:405: UserWarning: Warning: converting a masked element to nan.
   dv = (np.float64(self.norm.vmax) -
-/Users/sfitch/Coding/OSS/locationtech-rasterframes/pyrasterframes/target/python/.eggs/matplotlib-2.2.4-py3.7-macosx-10.9-x86_64.egg/matplotlib/image.py:406: UserWarning: Warning: converting a masked element to nan.
+/anaconda3/lib/python3.7/site-packages/matplotlib/image.py:406: UserWarning: Warning: converting a masked element to nan.
   np.float64(self.norm.vmin))
-/Users/sfitch/Coding/OSS/locationtech-rasterframes/pyrasterframes/target/python/.eggs/matplotlib-2.2.4-py3.7-macosx-10.9-x86_64.egg/matplotlib/image.py:413: UserWarning: Warning: converting a masked element to nan.
+/anaconda3/lib/python3.7/site-packages/matplotlib/image.py:413: UserWarning: Warning: converting a masked element to nan.
   a_min = np.float64(newmin)
-/Users/sfitch/Coding/OSS/locationtech-rasterframes/pyrasterframes/target/python/.eggs/matplotlib-2.2.4-py3.7-macosx-10.9-x86_64.egg/matplotlib/image.py:418: UserWarning: Warning: converting a masked element to nan.
+/anaconda3/lib/python3.7/site-packages/matplotlib/image.py:418: UserWarning: Warning: converting a masked element to nan.
   a_max = np.float64(newmax)
-/Users/sfitch/Coding/OSS/locationtech-rasterframes/pyrasterframes/target/python/.eggs/matplotlib-2.2.4-py3.7-macosx-10.9-x86_64.egg/matplotlib/colors.py:916: UserWarning: Warning: converting a masked element to nan.
-  dtype = np.min_scalar_type(value)
-/anaconda3/lib/python3.7/site-packages/numpy/ma/core.py:713: UserWarning: Warning: converting a masked element to nan.
+&lt;string&gt;:6: UserWarning: Warning: converting a masked element to nan.
+/anaconda3/lib/python3.7/site-packages/numpy/ma/core.py:711: UserWarning: Warning: converting a masked element to nan.
   data = np.array(a, copy=False, subok=subok)
 </code></pre>
 <p><img src="figures/nodata-handling_display_1_1.png" /></p>
@@ -641,13 +640,13 @@ sums
 </table>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/nodata-handling.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.3/pyrasterframes/target/python/docs/nodata-handling.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.2
+0.8.3
 </span>
 </div>
 </article>

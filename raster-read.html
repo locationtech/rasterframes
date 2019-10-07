@@ -183,7 +183,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.2
+<i class="md-icon" title="Version">label_outline</i> 0.8.3
 </label>
 </li>
 </ul>
@@ -225,7 +225,7 @@ rf.printSchema()
 <pre><code>root
  |-- proj_raster_path: string (nullable = false)
  |-- proj_raster: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -503,7 +503,7 @@ rf.printSchema()
  |-- red_path: string (nullable = false)
  |-- nir_path: string (nullable = false)
  |-- red: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -513,7 +513,7 @@ rf.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- nir: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -641,7 +641,7 @@ mb.printSchema()
 <pre><code>root
  |-- proj_raster_path: string (nullable = false)
  |-- proj_raster_b0: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -651,7 +651,7 @@ mb.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- proj_raster_b1: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -661,7 +661,7 @@ mb.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- proj_raster_b2: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -671,7 +671,7 @@ mb.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- proj_raster_b3: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -702,7 +702,7 @@ mb2.printSchema()
  |-- foo_path: string (nullable = false)
  |-- bar_path: string (nullable = false)
  |-- foo_b0: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -712,7 +712,7 @@ mb2.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- foo_b1: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -722,7 +722,7 @@ mb2.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- bar_b0: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -732,7 +732,7 @@ mb2.printSchema()
  |    |    |    |-- crsProj4: string (nullable = false)
  |    |-- tile: tile (nullable = false)
  |-- bar_b1: struct (nullable = true)
- |    |-- tile_context: struct (nullable = false)
+ |    |-- tile_context: struct (nullable = true)
  |    |    |-- extent: struct (nullable = false)
  |    |    |    |-- xmin: double (nullable = false)
  |    |    |    |-- ymin: double (nullable = false)
@@ -755,13 +755,13 @@ mb2.printSchema()
 <p>This will return a RasterFrame with additional <a href="https://geotrellis.readthedocs.io/en/latest/guide/core-concepts.html#layouts-and-tile-layers">GeoTrellis-specific metadata</a>, inherited from GeoTrellis, stored as JSON in the metadata of the <em>tile</em> column.</p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/raster-read.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.3/pyrasterframes/target/python/docs/raster-read.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.2
+0.8.3
 </span>
 </div>
 </article>

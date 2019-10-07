@@ -6,11 +6,12 @@ However, there are times in any analysis where writing a representative sample o
 
 ```python imports, echo=False
 import pyrasterframes
+from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 from IPython.display import display
 import os.path
 
-spark = pyrasterframes.get_spark_session()
+spark = create_rf_spark_session()
 ```
 
 ## Tile Samples

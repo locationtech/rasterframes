@@ -47,14 +47,14 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">GeoTiffDataSource</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span> with <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span> with <a href="../DataSourceOptions.html" class="extype" name="org.locationtech.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
+        <span class="name">GeoTiffDataSource</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span> with <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span> with <a href="../DataSourceOptions.html" class="extype" name="org.locationtech.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Spark SQL data source over GeoTIFF files.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span>, <a href="../DataSourceOptions.html" class="extype" name="org.locationtech.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a>, <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span>, <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span>, <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="../DataSourceOptions.html" class="extype" name="org.locationtech.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a>, <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span>, <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span>, <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -72,7 +72,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="org.locationtech.rasterframes.datasource.geotiff.GeoTiffDataSource"><span>GeoTiffDataSource</span></li><li class="in" name="com.typesafe.scalalogging.LazyLogging"><span>LazyLogging</span></li><li class="in" name="org.locationtech.rasterframes.datasource.DataSourceOptions"><span>DataSourceOptions</span></li><li class="in" name="org.apache.spark.sql.sources.CreatableRelationProvider"><span>CreatableRelationProvider</span></li><li class="in" name="org.apache.spark.sql.sources.RelationProvider"><span>RelationProvider</span></li><li class="in" name="org.apache.spark.sql.sources.DataSourceRegister"><span>DataSourceRegister</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="org.locationtech.rasterframes.datasource.geotiff.GeoTiffDataSource"><span>GeoTiffDataSource</span></li><li class="in" name="org.locationtech.rasterframes.datasource.DataSourceOptions"><span>DataSourceOptions</span></li><li class="in" name="org.apache.spark.sql.sources.CreatableRelationProvider"><span>CreatableRelationProvider</span></li><li class="in" name="org.apache.spark.sql.sources.RelationProvider"><span>RelationProvider</span></li><li class="in" name="org.apache.spark.sql.sources.DataSourceRegister"><span>DataSourceRegister</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -486,7 +486,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="com.typesafe.scalalogging.LazyLogging#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.locationtech.rasterframes.datasource.geotiff.GeoTiffDataSource#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="logger:com.typesafe.scalalogging.Logger"></a>
       <a id="logger:Logger"></a>
       <h4 class="signature">
@@ -502,7 +502,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>LazyLogging</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -683,9 +683,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="com.typesafe.scalalogging.LazyLogging">
-              <h3>Inherited from <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></h3>
-            </div><div class="parent" name="org.locationtech.rasterframes.datasource.DataSourceOptions">
+        <div class="parent" name="org.locationtech.rasterframes.datasource.DataSourceOptions">
               <h3>Inherited from <a href="../DataSourceOptions.html" class="extype" name="org.locationtech.rasterframes.datasource.DataSourceOptions">DataSourceOptions</a></h3>
             </div><div class="parent" name="org.apache.spark.sql.sources.CreatableRelationProvider">
               <h3>Inherited from <span class="extype" name="org.apache.spark.sql.sources.CreatableRelationProvider">CreatableRelationProvider</span></h3>

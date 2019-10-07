@@ -159,7 +159,7 @@
       <p class="shortcomment cmt">Data source for querying AWS PDS catalog of L8 imagery.</p><div class="fullcomment"><div class="comment cmt"><p>Data source for querying AWS PDS catalog of L8 imagery.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/28/17</p></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.experimental.datasource.awspds.L8CatalogRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="L8CatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="L8CatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithProductwithSerializable"></a>
       <a id="L8CatalogRelation:L8CatalogRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -167,17 +167,17 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="L8CatalogRelation.html"><span class="name">L8CatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneListPath">sceneListPath: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="../CachedDatasetRelation.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation">CachedDatasetRelation</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="L8CatalogRelation.html"><span class="name">L8CatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneListPath">sceneListPath: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="../CachedDatasetRelation.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation">CachedDatasetRelation</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@L8CatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@L8CatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Schema definition and parser for AWS PDS L8 scene data.</p><div class="fullcomment"><div class="comment cmt"><p>Schema definition and parser for AWS PDS L8 scene data.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/28/17</p></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.experimental.datasource.awspds.MODISCatalogDataSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="MODISCatalogDataSourceextendsDataSourceRegisterwithRelationProviderwithLazyLogging"></a>
+      <a id="MODISCatalogDataSourceextendsDataSourceRegisterwithRelationProvider"></a>
       <a id="MODISCatalogDataSource:MODISCatalogDataSource"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -185,10 +185,10 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="MODISCatalogDataSource.html"><span class="name">MODISCatalogDataSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
+        <a href="MODISCatalogDataSource.html"><span class="name">MODISCatalogDataSource</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.DataSourceRegister">DataSourceRegister</span> with <span class="extype" name="org.apache.spark.sql.sources.RelationProvider">RelationProvider</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@MODISCatalogDataSourceextendsDataSourceRegisterwithRelationProviderwithLazyLogging" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@MODISCatalogDataSourceextendsDataSourceRegisterwithRelationProvider" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -197,7 +197,7 @@ Param</p><div class="fullcomment"><div class="comment cmt"><p>DataSource over th
 Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.experimental.datasource.awspds.MODISCatalogRelation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="MODISCatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="MODISCatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithProductwithSerializable"></a>
       <a id="MODISCatalogRelation:MODISCatalogRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -205,10 +205,10 @@ Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="MODISCatalogRelation.html"><span class="name">MODISCatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneList">sceneList: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="../CachedDatasetRelation.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation">CachedDatasetRelation</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="MODISCatalogRelation.html"><span class="name">MODISCatalogRelation</span></a><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="sceneList">sceneList: <span class="extype" name="org.apache.hadoop.fs.Path">Path</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="../CachedDatasetRelation.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation">CachedDatasetRelation</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@MODISCatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@MODISCatalogRelationextendsBaseRelationwithTableScanwithCachedDatasetRelationwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -250,7 +250,7 @@ Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="L8CatalogDataSource$.html"><span class="name">L8CatalogDataSource</span></a><span class="result"> extends <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="../ResourceCacheSupport.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.ResourceCacheSupport">ResourceCacheSupport</a></span>
+        <a href="L8CatalogDataSource$.html"><span class="name">L8CatalogDataSource</span></a><span class="result"> extends <a href="../ResourceCacheSupport.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.ResourceCacheSupport">ResourceCacheSupport</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@L8CatalogDataSource" title="Permalink" target="_top">
@@ -284,7 +284,7 @@ Param</p><p>See https://docs.opendata.aws/modis-pds/readme.html for details
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="MODISCatalogDataSource$.html"><span class="name">MODISCatalogDataSource</span></a><span class="result"> extends <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="../ResourceCacheSupport.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.ResourceCacheSupport">ResourceCacheSupport</a></span>
+        <a href="MODISCatalogDataSource$.html"><span class="name">MODISCatalogDataSource</span></a><span class="result"> extends <a href="../ResourceCacheSupport.html" class="extype" name="org.locationtech.rasterframes.experimental.datasource.ResourceCacheSupport">ResourceCacheSupport</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../../index.html#org.locationtech.rasterframes.experimental.datasource.awspds.package@MODISCatalogDataSource" title="Permalink" target="_top">

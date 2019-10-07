@@ -140,7 +140,7 @@
               
         </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="MaskextendsTernaryExpressionwithCodegenFallbackwithSerializablewithLazyLogging"></a>
+      <a id="MaskextendsTernaryExpressionwithCodegenFallbackwithSerializable"></a>
       <a id="Mask:Mask"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -148,10 +148,10 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Mask.html"><span class="name">Mask</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span></span>
+        <a href="Mask.html"><span class="name">Mask</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@MaskextendsTernaryExpressionwithCodegenFallbackwithSerializablewithLazyLogging" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@MaskextendsTernaryExpressionwithCodegenFallbackwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -178,7 +178,7 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
               
         </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.RasterRefToTile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="RasterRefToTileextendsUnaryExpressionwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable"></a>
+      <a id="RasterRefToTileextendsUnaryExpressionwithCodegenFallbackwithExpectsInputTypeswithProductwithSerializable"></a>
       <a id="RasterRefToTile:RasterRefToTile"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -186,15 +186,32 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="RasterRefToTile.html"><span class="name">RasterRefToTile</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="RasterRefToTile.html"><span class="name">RasterRefToTile</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RasterRefToTileextendsUnaryExpressionwithCodegenFallbackwithExpectsInputTypeswithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RasterRefToTileextendsUnaryExpressionwithCodegenFallbackwithExpectsInputTypeswithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Realizes a RasterRef into a Tile.</p><div class="fullcomment"><div class="comment cmt"><p>Realizes a RasterRef into a Tile.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/2/18</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.RasterizeGeometry" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterizeGeometryextendsAnyRef"></a>
+      <a id="RasterizeGeometry:RasterizeGeometry"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RasterizeGeometry.html"><span class="name">RasterizeGeometry</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RasterizeGeometryextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="org.locationtech.rasterframes.expressions.transformers.RenderPNG" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="RenderPNGextendsUnaryExpressionwithUnaryRasterOpwithCodegenFallbackwithSerializable"></a>
       <a id="RenderPNG:RenderPNG"></a>
@@ -255,7 +272,7 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
               
         </dd><dt>Since</dt><dd><p>9/11/18</p></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.SetNoDataValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="SetNoDataValueextendsBinaryExpressionwithCodegenFallbackwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="SetNoDataValueextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
       <a id="SetNoDataValue:SetNoDataValue"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -263,10 +280,10 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="SetNoDataValue.html"><span class="name">SetNoDataValue</span></a><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="SetNoDataValue.html"><span class="name">SetNoDataValue</span></a><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@SetNoDataValueextendsBinaryExpressionwithCodegenFallbackwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@SetNoDataValueextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -315,7 +332,7 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
               
         </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.URIToRasterSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="URIToRasterSourceextendsUnaryExpressionwithExpectsInputTypeswithCodegenFallbackwithLazyLoggingwithProductwithSerializable"></a>
+      <a id="URIToRasterSourceextendsUnaryExpressionwithExpectsInputTypeswithCodegenFallbackwithProductwithSerializable"></a>
       <a id="URIToRasterSource:URIToRasterSource"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -323,10 +340,10 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="URIToRasterSource.html"><span class="name">URIToRasterSource</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="com.typesafe.scalalogging.LazyLogging">LazyLogging</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="URIToRasterSource.html"><span class="name">URIToRasterSource</span></a><span class="params">(<span name="child">child: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.UnaryExpression">UnaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@URIToRasterSourceextendsUnaryExpressionwithExpectsInputTypeswithCodegenFallbackwithLazyLoggingwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@URIToRasterSourceextendsUnaryExpressionwithExpectsInputTypeswithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

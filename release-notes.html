@@ -181,7 +181,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.2
+<i class="md-icon" title="Version">label_outline</i> 0.8.3
 </label>
 </li>
 </ul>
@@ -212,6 +212,13 @@ locationtech/rasterframes
 <div class="md-content__searchable">
 <h1><a href="#release-notes" name="release-notes" class="anchor"><span class="anchor-link"></span></a>Release Notes</h1>
 <h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
+<h3><a href="#0-8-3" name="0-8-3" class="anchor"><span class="anchor-link"></span></a>0.8.3</h3>
+<ul>
+  <li>Updated to GeoTrellis 2.3.3 and Proj4j 1.1.0.</li>
+  <li>Fixed issues with <code>LazyLogger</code> and shading assemblies (<a href="https://github.com/locationtech/rasterframes/issues/293">#293</a>)</li>
+  <li>Updated <code>rf_crs</code> to accept string columns containing CRS specifications. (<a href="https://github.com/locationtech/rasterframes/issues/366">#366</a>)</li>
+  <li><em>Breaking</em> (potentially): removed <code>pyrasterframes.create_spark_session</code> in lieu of <code>pyrasterframes.utils.create_rf_spark_session</code></li>
+</ul>
 <h3><a href="#0-8-2" name="0-8-2" class="anchor"><span class="anchor-link"></span></a>0.8.2</h3>
 <ul>
   <li>Added ability to pass config options to convenience PySpark session constructor. (<a href="https://github.com/locationtech/rasterframes/issues/361">#361</a>)</li>
@@ -395,13 +402,13 @@ locationtech/rasterframes
 </ul>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.3/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.2
+0.8.3
 </span>
 </div>
 </article>

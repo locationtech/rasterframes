@@ -181,7 +181,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.2
+<i class="md-icon" title="Version">label_outline</i> 0.8.3
 </label>
 </li>
 </ul>
@@ -224,7 +224,8 @@ locationtech/rasterframes
 </code></pre>
 <p>Then in a python interpreter of your choice, you can get a <a href="https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.SparkSession"><code>pyspark</code> <code>SparkSession</code></a> using the <a href="https://spark.apache.org/docs/latest/submitting-applications.html#master-urls"><code>local[*]</code> master</a>.</p>
 <pre class="prettyprint"><code class="language-python">import pyrasterframes
-spark = pyrasterframes.get_spark_session()
+from pyrasterframes.utils import create_rf_spark_session
+spark = create_rf_spark_session()
 </code></pre>
 <p>Then, you can read a raster and work with it in a Spark DataFrame.</p>
 <pre class="prettyprint"><code class="language-python">from pyrasterframes.rasterfunctions import *
@@ -359,13 +360,13 @@ print(gdal_version())
 <p>This will print out something like &ldquo;GDAL x.y.z, released 20yy/mm/dd&rdquo;. If it reports &ldquo;not available&rdquo;, then GDAL is not installed in a place where the RasterFrames runtime was able to find it. Please <a href="https://github.com/locationtech/rasterframes/issues">file an issue</a> to get help resolving this problem.</p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.2/pyrasterframes/target/python/docs/getting-started.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.3/pyrasterframes/target/python/docs/getting-started.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.2
+0.8.3
 </span>
 </div>
 </article>
