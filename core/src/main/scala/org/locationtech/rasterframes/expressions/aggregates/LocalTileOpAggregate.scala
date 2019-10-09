@@ -83,7 +83,10 @@ object LocalTileOpAggregate {
   }
   object LocalMinUDAF {
     def apply(child: Expression): LocalMinUDAF = new LocalMinUDAF(child)
-    def apply(tile: Column): TypedColumn[Any, Tile] = new Column(new LocalMinUDAF(tile.expr)).as[Tile]
+    def apply(tile: Column): TypedColumn[Any, Tile] =
+      new LocalTileOpAggregate(BiasedMin)(ExtractTile(tile))
+        .as(s"rf_agg_local_min($tile)")
+        .as[Tile]
   }
 
   @ExpressionDescription(
@@ -95,6 +98,9 @@ object LocalTileOpAggregate {
   }
   object LocalMaxUDAF {
     def apply(child: Expression): LocalMaxUDAF = new LocalMaxUDAF(child)
-    def apply(tile: Column): TypedColumn[Any, Tile] = new Column(new LocalMaxUDAF(tile.expr)).as[Tile]
+    def apply(tile: Column): TypedColumn[Any, Tile] =
+      new LocalTileOpAggregate(BiasedMax)(ExtractTile(tile))
+        .as(s"rf_agg_local_max($tile)")
+        .as[Tile]
   }
 }
