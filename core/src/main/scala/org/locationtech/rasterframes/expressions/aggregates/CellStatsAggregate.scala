@@ -124,7 +124,7 @@ object CellStatsAggregate {
 
   def apply(col: Column): TypedColumn[Any, CellStatistics] =
     new Column(new CellStatsAggregateUDAF(col.expr))
-      .as(s"rf_agg_stats($col)") // node renaming in class doesn't seem to propogate
+      .as(s"rf_agg_stats($col)") // node renaming in class doesn't seem to propagate
       .as[CellStatistics]
 
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
