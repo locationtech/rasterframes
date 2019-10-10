@@ -46,9 +46,8 @@ package object rasterframes extends StandardColumns
   // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
   protected def logger: Logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  @transient
   private[rasterframes]
-  val rfConfig = ConfigFactory.load().getConfig("rasterframes")
+  def rfConfig = ConfigFactory.load().getConfig("rasterframes")
 
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
   @transient
