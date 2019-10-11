@@ -19,6 +19,8 @@
 #
 
 import pyrasterframes.rf_types
+from shapely.geometry.base import BaseGeometry
+
 import numpy as np
 
 
@@ -120,13 +122,18 @@ def pandas_df_to_html(df):
     if not pd.get_option("display.notebook_repr_html"):
         return None
 
+    default_max_colwidth = pd.get_option('display.max_colwidth')  # we'll try to politely put it back
+
     if len(df) == 0:
         return df._repr_html_()
 
     tile_cols = []
+    geom_cols = []
     for c in df.columns:
         if isinstance(df.iloc[0][c], pyrasterframes.rf_types.Tile):  # if the first is a Tile try formatting
             tile_cols.append(c)
+        elif isinstance(df.iloc[0][c], BaseGeometry):  # if the first is a Geometry try formatting
+            geom_cols.append(c)
 
     def _safe_tile_to_html(t):
         if isinstance(t, pyrasterframes.rf_types.Tile):
@@ -135,11 +142,21 @@ def pandas_df_to_html(df):
             # handles case where objects in a column are not all Tile type
             return t.__repr__()
 
+    def _safe_geom_to_html(g):
+        if isinstance(g, BaseGeometry):
+            wkt = g.wkt
+            if len(wkt) > default_max_colwidth:
+                return wkt[:default_max_colwidth-3] + '...'
+            else:
+                wkt
+        else:
+            return g.__repr__()
+
     # dict keyed by column with custom rendering function
     formatter = {c: _safe_tile_to_html for c in tile_cols}
+    formatter.update({c: _safe_geom_to_html for c in geom_cols})
 
     # This is needed to avoid our tile being rendered as `<img src="only up to fifty char...`
-    default_max_colwidth = pd.get_option('display.max_colwidth')  # we'll try to politely put it back
     pd.set_option('display.max_colwidth', -1)
     return_html = df.to_html(escape=False,  # means our `< img` does not get changed to `&lt; img`
                              formatters=formatter,  # apply custom format to columns
