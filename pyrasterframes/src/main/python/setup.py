@@ -146,7 +146,7 @@ pweave = 'Pweave==0.30.3'
 fiona = 'fiona==1.8.6'
 rasterio = 'rasterio>=1.0.0'
 folium = 'folium'
-pytest = 'pytest>4.0.0,<5.0.0'
+pytest = 'pytest>=4.0.0,<5.0.0'
 pypandoc = 'pypandoc'
 boto3 = 'boto3'
 
