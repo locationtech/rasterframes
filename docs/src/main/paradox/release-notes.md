@@ -2,6 +2,10 @@
 
 ## 0.8.x
 
+### 0.8.4
+
+* _Breaking_ (potentially): removed `GeoTiffCollectionRelation` due to usage limitation and overlap with `RasterSourceDataSource` functionality.
+
 ### 0.8.3
 
 * Updated to GeoTrellis 2.3.3 and Proj4j 1.1.0.
