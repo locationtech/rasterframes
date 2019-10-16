@@ -389,6 +389,9 @@ trait RasterFunctions {
   /** Cellwise inequality comparison between a tile and a scalar. */
   def rf_local_unequal[T: Numeric](tileCol: Column, value: T): Column = Unequal(tileCol, value)
 
+  /** Test if each cell value is in provided array */
+  def rf_local_is_in(tileCol: Column, arrayCol: Column) = IsIn(tileCol, arrayCol)
+
   /** Return a tile with ones where the input is NoData, otherwise zero */
   def rf_local_no_data(tileCol: Column): Column = Undefined(tileCol)
 

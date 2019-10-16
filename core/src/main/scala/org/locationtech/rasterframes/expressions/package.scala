@@ -87,6 +87,7 @@ package object expressions {
     registry.registerExpression[GreaterEqual]("rf_local_greater_equal")
     registry.registerExpression[Equal]("rf_local_equal")
     registry.registerExpression[Unequal]("rf_local_unequal")
+    registry.registerExpression[IsIn]("rf_local_is_in")
     registry.registerExpression[Undefined]("rf_local_no_data")
     registry.registerExpression[Defined]("rf_local_data")
     registry.registerExpression[Sum]("rf_tile_sum")
