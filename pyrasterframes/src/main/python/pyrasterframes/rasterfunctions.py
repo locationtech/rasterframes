@@ -585,6 +585,18 @@ def rf_geometry(proj_raster_col):
     """Get the extent of a RasterSource or ProjectdRasterTile as a Geometry"""
     return _apply_column_function('rf_geometry', proj_raster_col)
 
+
+def rf_spatial_index(geom_col, crs_col=None, index_resolution = 18):
+    """Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS.
+       For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html """
+
+    jfcn = RFContext.active().lookup('rf_spatial_index')
+
+    if crs_col is not None:
+        return Column(jfcn(_to_java_column(geom_col), _to_java_column(crs_col), index_resolution))
+    else:
+        return Column(jfcn(_to_java_column(geom_col), index_resolution))
+
 # ------ GeoMesa Functions ------
 
 def st_geomFromGeoHash(*args):
