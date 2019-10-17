@@ -30,21 +30,22 @@ import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, 
 import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.rf.RasterSourceUDT
 import org.apache.spark.sql.types.{DataType, LongType}
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.apache.spark.sql.{Column, TypedColumn, rf}
 import org.locationtech.geomesa.curve.XZ2SFC
-import org.locationtech.jts.geom.{Envelope, Geometry, GeometryFactory}
+import org.locationtech.jts.geom.{Envelope, Geometry}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import org.locationtech.rasterframes.expressions.accessors.GetCRS
 import org.locationtech.rasterframes.expressions.row
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
 import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import org.apache.spark.sql.rf
-import org.locationtech.rasterframes.expressions.accessors.GetCRS
 
 /**
   * Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource
-  * See: https://www.geomesa.org/documentation/user/datastores/index_overview.html
+  * This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
+  * Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.html
+  *
   * @param left geometry-like column
   * @param right CRS column
   * @param indexResolution resolution level of the space filling curve -
@@ -75,8 +76,6 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
   }
 
   private lazy val indexer = XZ2SFC(indexResolution)
-  @transient
-  private lazy val gf = new GeometryFactory()
 
   override protected def nullSafeEval(leftInput: Any, rightInput: Any): Any = {
     val crs = crsExtractor(right.dataType)(rightInput)
@@ -106,9 +105,9 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
     else {
       val trans = new ReprojectionTransformer(crs, LatLng)
       coords match {
-        case e: Extent => trans(e.jtsGeom).getEnvelopeInternal
+        case e: Extent => trans(e).getEnvelopeInternal
         case g: Geometry => trans(g).getEnvelopeInternal
-        case e: Envelope => trans(gf.toGeometry(e)).getEnvelopeInternal
+        case e: Envelope => trans(e).getEnvelopeInternal
       }
     }
 

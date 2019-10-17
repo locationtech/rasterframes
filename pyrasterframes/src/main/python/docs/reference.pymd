@@ -73,7 +73,7 @@ Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`]
     Long rf_spatial_index(Extent extent, CRS crs)
     Long rf_spatial_index(ProjectedRasterTile proj_raster, CRS crs)
     
-Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS.
+Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
 
 ## Tile Metadata and Mutation
 
