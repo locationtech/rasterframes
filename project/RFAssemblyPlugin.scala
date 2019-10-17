@@ -55,7 +55,8 @@ object RFAssemblyPlugin extends AutoPlugin {
         "org.apache.avro",
         "org.apache.http",
         "com.google.guava",
-        "com.typesafe.scalalogging"
+        "com.typesafe.scalalogging",
+        "com.typesafe.config"
       )
       shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"rf.shaded.$p.@1").inAll)
     },
