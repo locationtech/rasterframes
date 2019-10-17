@@ -36,7 +36,7 @@ import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
 
 import scala.reflect.runtime.universe._
-import scala.util.Try
+
 /**
  * Module of Catalyst expressions for efficiently working with tiles.
  *
@@ -53,8 +53,7 @@ package object expressions {
   private[expressions]
   def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
     val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    val inputTypes = Try(ScalaReflection.schemaFor(typeTag[A1]).dataType :: Nil).toOption
-    ScalaUDF(f, dataType, Seq(child),  inputTypes.getOrElse(Nil), nullable = nullable, udfName = Some(name))
+    ScalaUDF(f, dataType, Seq(child), Seq(true), nullable = nullable, udfName = Some(name))
   }
 
   def register(sqlContext: SQLContext): Unit = {

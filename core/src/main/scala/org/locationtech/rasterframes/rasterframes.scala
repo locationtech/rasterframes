@@ -31,7 +31,6 @@ import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.extensions.Implicits
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.util.ZeroSevenCompatibilityKit
 import org.slf4j.LoggerFactory
 import shapeless.tag.@@
 
@@ -39,7 +38,6 @@ import scala.reflect.runtime.universe._
 
 package object rasterframes extends StandardColumns
   with RasterFunctions
-  with ZeroSevenCompatibilityKit.RasterFunctions
   with Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
@@ -48,9 +46,8 @@ package object rasterframes extends StandardColumns
   // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
   protected def logger: Logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  @transient
   private[rasterframes]
-  val rfConfig = ConfigFactory.load().getConfig("rasterframes")
+  def rfConfig = ConfigFactory.load().getConfig("rasterframes")
 
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
   @transient
@@ -81,7 +78,6 @@ package object rasterframes extends StandardColumns
     }
 
     rf.register(sqlContext)
-    ZeroSevenCompatibilityKit.register(sqlContext)
     rasterframes.functions.register(sqlContext)
     rasterframes.expressions.register(sqlContext)
     rasterframes.rules.register(sqlContext)

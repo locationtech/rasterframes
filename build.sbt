@@ -32,7 +32,10 @@ lazy val root = project
   .withId("RasterFrames")
   .aggregate(core, datasource, pyrasterframes, experimental)
   .enablePlugins(RFReleasePlugin)
-  .settings(publish / skip := true)
+  .settings(
+    publish / skip := true,
+    clean := clean.dependsOn(`rf-notebook`/clean).value
+  )
 
 lazy val `rf-notebook` = project
   .dependsOn(pyrasterframes)

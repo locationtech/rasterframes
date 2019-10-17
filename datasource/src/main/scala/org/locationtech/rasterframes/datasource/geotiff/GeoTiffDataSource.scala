@@ -54,11 +54,7 @@ class GeoTiffDataSource
     sqlContext.withRasterFrames
 
     val p = parameters.path.get
-
-    if (p.getPath.contains("*")) {
-      val bandCount = parameters.get(GeoTiffDataSource.BAND_COUNT_PARAM).map(_.toInt).getOrElse(1)
-      GeoTiffCollectionRelation(sqlContext, p, bandCount)
-    } else GeoTiffRelation(sqlContext, p)
+    GeoTiffRelation(sqlContext, p)
   }
 
   override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], df: DataFrame): BaseRelation = {
