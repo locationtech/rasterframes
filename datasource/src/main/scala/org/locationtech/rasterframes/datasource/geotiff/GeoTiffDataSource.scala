@@ -27,7 +27,7 @@ import _root_.geotrellis.proj4.CRS
 import _root_.geotrellis.raster.io.geotiff.compression._
 import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
 import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import org.apache.spark.sql._
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, RelationProvider}
 import org.locationtech.rasterframes._
@@ -35,13 +35,17 @@ import org.locationtech.rasterframes.datasource._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
 import org.locationtech.rasterframes.model.{LazyCRS, TileDimensions}
 import org.locationtech.rasterframes.util._
+import org.slf4j.LoggerFactory
 
 /**
   * Spark SQL data source over GeoTIFF files.
  */
 class GeoTiffDataSource
-    extends DataSourceRegister with RelationProvider with CreatableRelationProvider with DataSourceOptions with LazyLogging {
+  extends DataSourceRegister with RelationProvider with CreatableRelationProvider with DataSourceOptions {
   import GeoTiffDataSource._
+
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
 
   def shortName() = GeoTiffDataSource.SHORT_NAME
 
@@ -50,11 +54,7 @@ class GeoTiffDataSource
     sqlContext.withRasterFrames
 
     val p = parameters.path.get
-
-    if (p.getPath.contains("*")) {
-      val bandCount = parameters.get(GeoTiffDataSource.BAND_COUNT_PARAM).map(_.toInt).getOrElse(1)
-      GeoTiffCollectionRelation(sqlContext, p, bandCount)
-    } else GeoTiffRelation(sqlContext, p)
+    GeoTiffRelation(sqlContext, p)
   }
 
   override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], df: DataFrame): BaseRelation = {

@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.experimental.datasource
 import java.net.URI
 import java.time.{Duration, Instant}
 
-import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.fs.{FileSystem, Path => HadoopPath}
 import org.apache.hadoop.io.MD5Hash
@@ -38,7 +37,8 @@ import scala.util.control.NonFatal
  *
  * @since 5/4/18
  */
-trait ResourceCacheSupport extends DownloadSupport { self: LazyLogging  ⇒
+trait ResourceCacheSupport extends DownloadSupport {
+
   def maxCacheFileAgeHours: Int = sys.props.get("rasterframes.resource.age.max")
     .flatMap(v ⇒ Try(v.toInt).toOption)
     .getOrElse(24)

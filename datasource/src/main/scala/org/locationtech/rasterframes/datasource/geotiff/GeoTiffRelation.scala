@@ -23,10 +23,7 @@ package org.locationtech.rasterframes.datasource.geotiff
 
 import java.net.URI
 
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.util._
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
 import geotrellis.spark._
 import geotrellis.spark.io._
@@ -40,6 +37,10 @@ import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.util._
+import org.slf4j.LoggerFactory
 
 /**
  * Spark SQL data source over a single GeoTiff file. Works best with CoG compliant ones.
@@ -47,7 +48,9 @@ import org.apache.spark.sql.{Row, SQLContext}
  * @since 1/14/18
  */
 case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation
-  with PrunedScan with GeoTiffInfoSupport with LazyLogging  {
+  with PrunedScan with GeoTiffInfoSupport {
+
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   lazy val (info, tileLayerMetadata) = extractGeoTiffLayout(
     HdfsRangeReader(new Path(uri), sqlContext.sparkContext.hadoopConfiguration)

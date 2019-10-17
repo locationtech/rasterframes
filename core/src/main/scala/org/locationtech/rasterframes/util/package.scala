@@ -49,8 +49,8 @@ import scala.Boolean.box
  * @since 12/18/17
  */
 package object util extends DataFrameRenderers {
-  @transient
-  protected lazy val logger: Logger =
+  // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
+  protected def logger: Logger =
     Logger(LoggerFactory.getLogger("org.locationtech.rasterframes"))
 
   import reflect.ClassTag

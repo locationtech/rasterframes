@@ -44,6 +44,7 @@ Docker / dockerGenerateConfig := (Docker / sourceDirectory).value / "Dockerfile"
 
 // Save a bit of typing...
 publishLocal := (Docker / publishLocal).value
+publish := (Docker / publish).value
 
 // -----== Conveniences ==-----
 

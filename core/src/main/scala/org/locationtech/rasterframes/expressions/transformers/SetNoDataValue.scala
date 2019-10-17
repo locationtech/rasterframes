@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -33,6 +33,7 @@ import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.row
+import org.slf4j.LoggerFactory
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, value) - Set the NoData value for the given tile.",
@@ -45,7 +46,8 @@ import org.locationtech.rasterframes.expressions.row
     > SELECT _FUNC_(tile, 1.5);
        ..."""
 )
-case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExpression with CodegenFallback with LazyLogging {
+case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExpression with CodegenFallback {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override val nodeName: String = "rf_with_no_data"
   override def dataType: DataType = left.dataType

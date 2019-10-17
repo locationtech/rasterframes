@@ -21,19 +21,20 @@
 
 package org.locationtech.rasterframes.expressions.generators
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes
+import org.locationtech.rasterframes.RasterSourceType
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterSourceType
+import org.slf4j.LoggerFactory
 
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -45,7 +46,9 @@ import scala.util.control.NonFatal
  * @since 9/6/18
  */
 case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions] = None) extends Expression
-  with Generator with CodegenFallback with ExpectsInputTypes with LazyLogging {
+  with Generator with CodegenFallback with ExpectsInputTypes  {
+
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
   override def nodeName: String = "rf_raster_source_to_tiles"

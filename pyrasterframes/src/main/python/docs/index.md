@@ -10,6 +10,8 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 RasterFrames is released under the [Apache 2.0 License](https://github.com/locationtech/rasterframes/blob/develop/LICENSE).
 
+![RasterFrames](static/rasterframes-pipeline.png)
+
 <hr/>
 
 ## Related Links

@@ -24,10 +24,11 @@ package org.locationtech.rasterframes.experimental.datasource
 import java.io._
 import java.net
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import org.apache.commons.httpclient._
 import org.apache.commons.httpclient.methods._
 import org.apache.commons.httpclient.params.HttpMethodParams
+import org.slf4j.LoggerFactory
 import spray.json._
 
 
@@ -37,7 +38,9 @@ import spray.json._
  *
  * @since 5/5/18
  */
-trait DownloadSupport { self: LazyLogging ⇒
+trait DownloadSupport {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
   private def applyMethodParams[M <: HttpMethodBase](method: M): M = {
     method.getParams.setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, true))
     method.getParams.setIntParameter(HttpMethodParams.BUFFER_WARN_TRIGGER_LIMIT, 1024 * 1024 * 100)

@@ -130,6 +130,26 @@ class PweaveNotebooks(PweaveDocs):
     def dest_file(self, src_file):
         return path.splitext(src_file)[0] + '.ipynb'
 
+pytz = 'pytz'
+shapely = 'Shapely>=1.6.0'
+pyspark ='pyspark==2.4.4'
+numpy = 'numpy>=1.12.0'
+matplotlib ='matplotlib'
+pandas = 'pandas>=0.24.2'
+geopandas = 'geopandas'
+requests = 'requests'
+pytest_runner = 'pytest-runner'
+setuptools = 'setuptools>=0.8'
+ipython = 'ipython==6.2.1'
+ipykernel = 'ipykernel==4.8.0'
+pweave = 'Pweave==0.30.3'
+fiona = 'fiona==1.8.6'
+rasterio = 'rasterio>=1.0.0'
+folium = 'folium'
+pytest = 'pytest>=4.0.0,<5.0.0'
+pypandoc = 'pypandoc'
+boto3 = 'boto3'
+
 setup(
     name='pyrasterframes',
     description='Access and process geospatial raster data in PySpark DataFrames',
@@ -140,45 +160,45 @@ setup(
     author_email='info@astraea.earth',
     license='Apache 2',
     url='https://rasterframes.io',
-    python_requires=">=3.7",
     project_urls={
         'Bug Reports': 'https://github.com/locationtech/rasterframes/issues',
         'Source': 'https://github.com/locationtech/rasterframes',
     },
+    python_requires=">=3.5",
     install_requires=[
-        'pytz',
-        'Shapely>=1.6.0',
-        'pyspark<2.4',
-        'numpy>=1.7',
-        'pandas>=0.25.0',
+        pytz,
+        shapely,
+        pyspark,
+        numpy,
+        pandas
     ],
     setup_requires=[
-        'pytz',
-        'Shapely>=1.6.0',
-        'pyspark<2.4',
-        'numpy>=1.7',
-        'matplotlib<3.0.0',
-        'pandas>=0.25.0',
-        'geopandas',
-        'requests',
-        'pytest-runner',
-        'setuptools>=0.8',
-        'ipython==6.2.1',
-        'ipykernel==4.8.0',
-        'Pweave==0.30.3',
-        'fiona==1.8.6',
-        'rasterio>=1.0.0',  # for docs
-        'folium',
+        pytz,
+        shapely,
+        pyspark,
+        numpy,
+        matplotlib,
+        pandas,
+        geopandas,
+        requests,
+        pytest_runner,
+        setuptools,
+        ipython,
+        ipykernel,
+        pweave,
+        fiona,
+        rasterio,
+        folium
     ],
     tests_require=[
-        'pytest>4.0.0,<5.0.0',
-        'pypandoc',
-        'numpy>=1.7',
-        'Shapely>=1.6.0',
-        'pandas>=0.25.0',
-        'rasterio>=1.0.0',
-        'boto3',
-        'Pweave==0.30.3',
+        pytest,
+        pypandoc,
+        numpy,
+        shapely,
+        pandas,
+        rasterio,
+        boto3,
+        pweave
     ],
     packages=[
         'pyrasterframes',
