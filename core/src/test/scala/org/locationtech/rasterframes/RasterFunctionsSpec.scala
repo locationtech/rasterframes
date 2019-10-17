@@ -977,7 +977,10 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     checkDocs("rf_local_is_in")
 
     // tile is 3 by 3 with values, 1 to 9
-    val df = Seq((byteArrayTile, lit(1), lit(5), lit(10))).toDF("t", "one", "five", "ten")
+    val df = Seq(byteArrayTile).toDF("t")
+      .withColumn("one", lit(1))
+      .withColumn("five", lit(5))
+      .withColumn("ten", lit(10))
       .withColumn("in_expect_2", rf_local_is_in($"t", array($"one", $"five")))
       .withColumn("in_expect_1", rf_local_is_in($"t", array($"ten", $"five")))
       .withColumn("in_expect_0", rf_local_is_in($"t", array($"ten")))
@@ -988,7 +991,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     val e1Result = df.select(rf_tile_sum($"in_expect_1")).as[Double].first()
     e1Result should be (1.0)
 
-    val e0Result = df.select($"in_expect_1").as[Tile].first()
+    val e0Result = df.select($"in_expect_0").as[Tile].first()
     e0Result.toArray() should contain only (0)
 
 //    lazy val invalid = df.select(rf_local_is_in($"t", lit("foobar"))).as[Tile].first()

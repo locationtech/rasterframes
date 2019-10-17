@@ -52,7 +52,7 @@ case class IsIn(left: Expression, right: Expression) extends BinaryExpression wi
 
   override def dataType: DataType = left.dataType
 
-  @transient private lazy val elementType: DataType = left.dataType.asInstanceOf[ArrayType].elementType
+  @transient private lazy val elementType: DataType = right.dataType.asInstanceOf[ArrayType].elementType
 
   override def checkInputDataTypes(): TypeCheckResult =
     if(!tileExtractor.isDefinedAt(left.dataType)) {
