@@ -146,7 +146,7 @@ class LocalStatsAggregate() extends UserDefinedAggregateFunction {
 object LocalStatsAggregate {
 
   def apply(col: Column): TypedColumn[Any, LocalCellStatistics] =
-    new Column(LocalStatsAggregateUDAF(col.expr))
+    new LocalStatsAggregate()(ExtractTile(col))
       .as(s"rf_agg_local_stats($col)")
       .as[LocalCellStatistics]
 

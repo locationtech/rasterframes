@@ -14,16 +14,18 @@ RUN sudo apt-get update && \
       pandoc \
       wget \
       gcc g++ build-essential \
-      libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev \
-            libcurl4-gnutls-dev \
-            libproj-dev \
-            libgeos-dev \
-            libhdf4-alt-dev \
-            bash-completion \
-            cmake \
-            imagemagick \
-            libpng-dev \
-            libffi-dev \
+      libreadline-gplv2-dev libncursesw5-dev \
+      libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev \
+      liblzma-dev \
+      libcurl4-gnutls-dev \
+      libproj-dev \
+      libgeos-dev \
+      libhdf4-alt-dev \
+      bash-completion \
+      cmake \
+      imagemagick \
+      libpng-dev \
+      libffi-dev \
     && sudo apt autoremove \
     && sudo apt-get clean all
 #    && sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
@@ -73,8 +75,7 @@ RUN cd /tmp && \
         --with-threads \
         --without-jp2mrsid \
         --without-netcdf \
-        --without-ecw \
-    && \
+        --without-ecw && \
     make -j 8 && \
     sudo make install && \
     sudo ldconfig && \
