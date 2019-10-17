@@ -98,8 +98,8 @@ object HistogramAggregate {
   import org.locationtech.rasterframes.encoders.StandardEncoders.cellHistEncoder
 
   def apply(col: Column): TypedColumn[Any, CellHistogram] =
-    new Column(new HistogramAggregateUDAF(col.expr))
-      .as(s"rf_agg_approx_histogram($col)") // node renaming in class doesn't seem to propogate
+    new HistogramAggregate()(ExtractTile(col))
+      .as(s"rf_agg_approx_histogram($col)")
       .as[CellHistogram]
 
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */

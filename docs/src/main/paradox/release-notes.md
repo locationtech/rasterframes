@@ -5,6 +5,7 @@
 ### 0.8.4
 
 * _Breaking_ (potentially): removed `GeoTiffCollectionRelation` due to usage limitation and overlap with `RasterSourceDataSource` functionality.
+* Upgraded to Spark 2.4.4
 
 ### 0.8.3
 
