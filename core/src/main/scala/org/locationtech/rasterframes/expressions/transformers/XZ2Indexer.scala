@@ -44,7 +44,7 @@ import org.locationtech.rasterframes.expressions.accessors.GetCRS
 
 /**
   * Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource
-  *
+  * See: https://www.geomesa.org/documentation/user/datastores/index_overview.html
   * @param left geometry-like column
   * @param right CRS column
   * @param indexResolution resolution level of the space filling curve -
@@ -59,7 +59,7 @@ import org.locationtech.rasterframes.expressions.accessors.GetCRS
     * crs - the native CRS of the `geom` column
 """
 )
-case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Short = 18)
+case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Short)
   extends BinaryExpression with CodegenFallback {
 
   override def nodeName: String = "rf_spatial_index"
@@ -75,6 +75,7 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
   }
 
   private lazy val indexer = XZ2SFC(indexResolution)
+  @transient
   private lazy val gf = new GeometryFactory()
 
   override protected def nullSafeEval(leftInput: Any, rightInput: Any): Any = {
@@ -121,8 +122,10 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
 
 object XZ2Indexer {
   import org.locationtech.rasterframes.encoders.SparkBasicEncoders.longEnc
+  def apply(targetExtent: Column, targetCRS: Column, indexResolution: Short): TypedColumn[Any, Long] =
+    new Column(new XZ2Indexer(targetExtent.expr, targetCRS.expr, indexResolution)).as[Long]
   def apply(targetExtent: Column, targetCRS: Column): TypedColumn[Any, Long] =
-    new Column(new XZ2Indexer(targetExtent.expr, targetCRS.expr)).as[Long]
-  def apply(targetExtent: Column): TypedColumn[Any, Long] =
-    new Column(new XZ2Indexer(targetExtent.expr, GetCRS(targetExtent.expr))).as[Long]
+    new Column(new XZ2Indexer(targetExtent.expr, targetCRS.expr, 18)).as[Long]
+  def apply(targetExtent: Column, indexResolution: Short = 18): TypedColumn[Any, Long] =
+    new Column(new XZ2Indexer(targetExtent.expr, GetCRS(targetExtent.expr), indexResolution)).as[Long]
 }

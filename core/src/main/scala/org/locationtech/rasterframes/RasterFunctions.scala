@@ -59,11 +59,21 @@ trait RasterFunctions {
   /** Extracts the bounding box from a RasterSource or ProjectedRasterTile */
   def rf_extent(col: Column): TypedColumn[Any, Extent] = GetExtent(col)
 
-  /** Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS */
-  def rf_spatial_index(targetExtent: Column, targetCRS: Column) = XZ2Indexer(targetExtent, targetCRS)
+  /** Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS
+    * For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html */
+  def rf_spatial_index(targetExtent: Column, targetCRS: Column, indexResolution: Short) = XZ2Indexer(targetExtent, targetCRS, indexResolution)
 
-  /** Constructs a XZ2 index in WGS84 from either a ProjectedRasterTile or RasterSource */
-  def rf_spatial_index(targetExtent: Column) = XZ2Indexer(targetExtent)
+  /** Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS
+    * For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html */
+  def rf_spatial_index(targetExtent: Column, targetCRS: Column) = XZ2Indexer(targetExtent, targetCRS, 18: Short)
+
+  /** Constructs a XZ2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
+    * For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html  */
+  def rf_spatial_index(targetExtent: Column, indexResolution: Short) = XZ2Indexer(targetExtent, indexResolution)
+
+  /** Constructs a XZ2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
+    * For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html  */
+  def rf_spatial_index(targetExtent: Column) = XZ2Indexer(targetExtent, 18: Short)
 
   /** Extracts the CRS from a RasterSource or ProjectedRasterTile */
   def rf_crs(col: Column): TypedColumn[Any, CRS] = GetCRS(col)

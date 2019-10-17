@@ -163,3 +163,9 @@ class VectorTypes(TestEnvironment):
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
+        # Custom resolution
+        df = self.df.select(rf_spatial_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias('index'))
+        expected = {21, 36}
+        indexes = {x[0] for x in df.collect()}
+        self.assertSetEqual(indexes, expected)
+

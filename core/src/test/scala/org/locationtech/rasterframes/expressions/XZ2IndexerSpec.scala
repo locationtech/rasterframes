@@ -101,10 +101,20 @@ class XZ2IndexerSpec extends TestEnvironment with Inspectors {
 
     }
     it("should work when CRS is LatLng") {
-
       val df = testExtents.map(Tuple1.apply).toDF("extent")
       val crs: CRS = LatLng
       val indexes = df.select(rf_spatial_index($"extent", serialized_literal(crs))).collect()
+
+      forEvery(indexes.zip(expected)) { case (i, e) =>
+        i should be (e)
+      }
+    }
+    it("should support custom resolution") {
+      val sfc = XZ2SFC(3)
+      val expected = testExtents.map(e => sfc.index(e.xmin, e.ymin, e.xmax, e.ymax))
+      val df = testExtents.map(Tuple1.apply).toDF("extent")
+      val crs: CRS = LatLng
+      val indexes = df.select(rf_spatial_index($"extent", serialized_literal(crs), 3)).collect()
 
       forEvery(indexes.zip(expected)) { case (i, e) =>
         i should be (e)
