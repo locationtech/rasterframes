@@ -23,8 +23,7 @@ package org.locationtech.rasterframes.extensions
 
 import java.time.ZonedDateTime
 
-import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterFrameLayer
+import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
 import geotrellis.raster.{MultibandTile, ProjectedRaster, Tile, TileLayout}
@@ -37,12 +36,13 @@ import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{Metadata, TimestampType}
-import spray.json._
-import org.locationtech.rasterframes.encoders.StandardEncoders._
+import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
 import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
-import com.typesafe.scalalogging.LazyLogging
-import org.locationtech.rasterframes.MetadataKeys
+import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.tiles.ShowableTile
+import org.locationtech.rasterframes.util._
+import org.slf4j.LoggerFactory
+import spray.json._
 
 import scala.reflect.runtime.universe._
 
@@ -52,8 +52,10 @@ import scala.reflect.runtime.universe._
   * @since 7/18/17
  */
 trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
-  with RFSpatialColumnMethods with MetadataKeys with LazyLogging {
+  with RFSpatialColumnMethods with MetadataKeys {
   import Implicits.{WithDataFrameMethods, WithRasterFrameLayerMethods}
+
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   /**
    * A convenience over `DataFrame.withColumnRenamed` whereby the `RasterFrameLayer` type is maintained.

@@ -1,4 +1,4 @@
-<img src="docs/src/main/paradox/_template/images/RasterFramesLogo.png" width="300px"/><sup style="vertical-align: top;">&reg;</sup>
+<img src="docs/src/main/paradox/_template/assets/images/RasterFramesLogo.png" width="300px"/><sup style="vertical-align: top;">&reg;</sup>
 
  [![Join the chat at https://gitter.im/locationtech/rasterframes](https://badges.gitter.im/locationtech/rasterframes.svg)](https://gitter.im/locationtech/rasterframes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 

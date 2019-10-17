@@ -25,14 +25,15 @@ import java.net.URI
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-import org.locationtech.rasterframes.util.withResource
-import org.locationtech.rasterframes._
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import org.apache.hadoop.fs.{FileSystem, Path => HadoopPath}
 import org.apache.hadoop.io.IOUtils
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.experimental.datasource.ResourceCacheSupport
+import org.locationtech.rasterframes.util.withResource
+import org.slf4j.LoggerFactory
 
 
 /**
@@ -43,7 +44,9 @@ import org.locationtech.rasterframes.experimental.datasource.ResourceCacheSuppor
  *
  * @since 5/4/18
  */
-class MODISCatalogDataSource extends DataSourceRegister with RelationProvider with LazyLogging  {
+class MODISCatalogDataSource extends DataSourceRegister with RelationProvider {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
   override def shortName(): String = MODISCatalogDataSource.SHORT_NAME
   /**
      * Create a MODIS catalog data source.
@@ -70,7 +73,7 @@ class MODISCatalogDataSource extends DataSourceRegister with RelationProvider wi
   }
 }
 
-object MODISCatalogDataSource extends LazyLogging with ResourceCacheSupport {
+object MODISCatalogDataSource extends ResourceCacheSupport {
   final val SHORT_NAME = "aws-pds-modis-catalog"
   final val MCD43A4_BASE = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/"
   override def maxCacheFileAgeHours: Int = Int.MaxValue

@@ -22,7 +22,7 @@ package org.locationtech.rasterframes
 
 import java.nio.file.{Files, Path}
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import geotrellis.raster.testkit.RasterMatchers
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col
@@ -33,9 +33,11 @@ import org.locationtech.rasterframes.util._
 import org.scalactic.Tolerance
 import org.scalatest._
 import org.scalatest.matchers.{MatchResult, Matcher}
+import org.slf4j.LoggerFactory
 
 trait TestEnvironment extends FunSpec
-  with Matchers with Inspectors with Tolerance with RasterMatchers with LazyLogging {
+  with Matchers with Inspectors with Tolerance with RasterMatchers {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   lazy val scratchDir: Path = {
     val outputDir = Files.createTempDirectory("rf-scratch-")

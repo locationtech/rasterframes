@@ -21,9 +21,8 @@
 
 package org.locationtech
 import com.typesafe.config.ConfigFactory
-import com.typesafe.scalalogging.LazyLogging
-import geotrellis.raster.isData
-import geotrellis.raster.{Tile, TileFeature}
+import com.typesafe.scalalogging.Logger
+import geotrellis.raster.{Tile, TileFeature, isData}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
@@ -32,23 +31,23 @@ import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.extensions.Implicits
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.util.ZeroSevenCompatibilityKit
+import org.slf4j.LoggerFactory
 import shapeless.tag.@@
 
 import scala.reflect.runtime.universe._
 
 package object rasterframes extends StandardColumns
   with RasterFunctions
-  with ZeroSevenCompatibilityKit.RasterFunctions
   with Implicits
   with rasterframes.jts.Implicits
   with StandardEncoders
-  with DataFrameFunctions.Library
-  with LazyLogging {
+  with DataFrameFunctions.Library {
 
-  @transient
+  // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
+  protected def logger: Logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
   private[rasterframes]
-  val rfConfig = ConfigFactory.load().getConfig("rasterframes")
+  def rfConfig = ConfigFactory.load().getConfig("rasterframes")
 
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
   @transient
@@ -79,7 +78,6 @@ package object rasterframes extends StandardColumns
     }
 
     rf.register(sqlContext)
-    ZeroSevenCompatibilityKit.register(sqlContext)
     rasterframes.functions.register(sqlContext)
     rasterframes.expressions.register(sqlContext)
     rasterframes.rules.register(sqlContext)

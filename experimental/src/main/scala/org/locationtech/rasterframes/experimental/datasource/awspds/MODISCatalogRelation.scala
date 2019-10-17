@@ -21,14 +21,12 @@
 
 package org.locationtech.rasterframes.experimental.datasource.awspds
 
-import com.typesafe.scalalogging.LazyLogging
 import org.apache.hadoop.fs.{Path => HadoopPath}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.experimental.datasource.CachedDatasetRelation
-import org.locationtech.rasterframes.experimental.datasource.awspds.MODISCatalogRelation.Bands
 
 /**
  * Constructs a dataframe from the available scenes
@@ -36,8 +34,7 @@ import org.locationtech.rasterframes.experimental.datasource.awspds.MODISCatalog
  * @since 5/4/18
  */
 case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
-  extends BaseRelation with TableScan with CachedDatasetRelation with LazyLogging {
-
+  extends BaseRelation with TableScan with CachedDatasetRelation {
   import MODISCatalogRelation._
 
   protected def cacheFile: HadoopPath = sceneList.suffix(".parquet")

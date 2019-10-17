@@ -21,16 +21,19 @@
 
 package org.locationtech.rasterframes.ref
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
+import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.util.RangeReader
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes.util.GeoTiffInfoSupport
+import org.slf4j.LoggerFactory
 
-trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport with LazyLogging {
+trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
   protected def rangeReader: RangeReader
 
   private def realInfo =

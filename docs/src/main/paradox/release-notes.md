@@ -2,8 +2,15 @@
 
 ## 0.8.x
 
+### 0.8.4
+
+* _Breaking_ (potentially): removed `GeoTiffCollectionRelation` due to usage limitation and overlap with `RasterSourceDataSource` functionality.
+* Upgraded to Spark 2.4.4
+
 ### 0.8.3
 
+* Updated to GeoTrellis 2.3.3 and Proj4j 1.1.0.
+* Fixed issues with `LazyLogger` and shading assemblies ([#293](https://github.com/locationtech/rasterframes/issues/293))
 * Updated `rf_crs` to accept string columns containing CRS specifications. ([#366](https://github.com/locationtech/rasterframes/issues/366))
 * Added `rf_spatial_index` function. ([#368](https://github.com/locationtech/rasterframes/issues/368))
 * _Breaking_ (potentially): removed `pyrasterframes.create_spark_session` in lieu of `pyrasterframes.utils.create_rf_spark_session`
