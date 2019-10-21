@@ -31,7 +31,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.rasterframes.{TestData, TestEnvironment}
 import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.model.{CellContext, TileContext, TileDataContext, TileDimensions}
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{RasterRef, RFRasterSource}
 import org.scalatest.Assertion
 
 class CatalystSerializerSpec extends TestEnvironment {
@@ -105,7 +105,7 @@ class CatalystSerializerSpec extends TestEnvironment {
 
     it("should serialize RasterRef") {
       // TODO: Decide if RasterRef should be encoded 'flat', non-'flat', or depends
-      val src = RasterSource(remoteCOGSingleband1)
+      val src = RFRasterSource(remoteCOGSingleband1)
       val ext = src.extent.buffer(-3.0)
       val value = RasterRef(src, 0, Some(ext), Some(src.rasterExtent.gridBoundsFor(ext)))
       assertConsistent(value)

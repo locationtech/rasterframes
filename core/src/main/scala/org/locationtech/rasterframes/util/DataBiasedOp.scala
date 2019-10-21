@@ -52,13 +52,19 @@ trait DataBiasedOp extends LocalTileBinaryOp {
 
   def combine(z1: Int, z2: Int): Int =
     if (isNoData(z1) && isNoData(z2)) raster.NODATA
-    else if (isNoData(z1)) z2
-    else if (isNoData(z2)) z1
-    else op(z1, z2)
+    else if (isNoData(z1))
+      z2
+    else if (isNoData(z2))
+      z1
+    else
+      op(z1, z2)
 
   def combine(z1: Double, z2: Double): Double =
     if (isNoData(z1) && isNoData(z2)) raster.doubleNODATA
-    else if (isNoData(z1)) z2
-    else if (isNoData(z2)) z1
-    else op(z1, z2)
+    else if (isNoData(z1))
+      z2
+    else if (isNoData(z2))
+      z1
+    else
+      op(z1, z2)
 }

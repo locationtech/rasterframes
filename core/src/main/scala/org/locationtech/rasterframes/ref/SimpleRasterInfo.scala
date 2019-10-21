@@ -28,7 +28,7 @@ import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.io.geotiff.reader.GeoTiffInfo
 import geotrellis.raster.{CellType, RasterExtent, RasterSource => GTRasterSource}
 import geotrellis.vector.Extent
-import org.locationtech.rasterframes.ref.RasterSource.EMPTY_TAGS
+import org.locationtech.rasterframes.ref.RFRasterSource.EMPTY_TAGS
 
 case class SimpleRasterInfo(
   cols: Long,

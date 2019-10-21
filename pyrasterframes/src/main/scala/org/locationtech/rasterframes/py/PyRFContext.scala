@@ -31,7 +31,7 @@ import org.apache.spark.sql._
 import org.locationtech.rasterframes
 import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.model.LazyCRS
-import org.locationtech.rasterframes.ref.{GDALRasterSource, RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{GDALRasterSource, RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.util.KryoSupport
 import org.locationtech.rasterframes.{RasterFunctions, _}
 import spray.json._
@@ -226,7 +226,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   type jDouble = java.lang.Double
   // NB: Tightly coupled to the `RFContext.resolve_raster_ref` method in `pyrasterframes.rf_context`. */
   def _resolveRasterRef(srcBin: Array[Byte], bandIndex: jInt, xmin: jDouble, ymin: jDouble, xmax: jDouble, ymax: jDouble): AnyRef = {
-    val src = KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(srcBin))
+    val src = KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(srcBin))
     val extent = Extent(xmin, ymin, xmax, ymax)
     RasterRef(src, bandIndex, Some(extent), None)
   }

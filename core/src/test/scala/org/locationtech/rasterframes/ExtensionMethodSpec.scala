@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes
 
 import geotrellis.proj4.LatLng
-import geotrellis.raster.{ByteCellType, GridBounds, TileLayout}
+import geotrellis.raster.{ByteCellType, Dimensions, GridBounds, TileLayout}
 import geotrellis.layer._
 import org.apache.spark.sql.Encoders
 import org.locationtech.rasterframes.util._
@@ -108,7 +108,7 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
 
       val divided = tlm.subdivide(2)
 
-      assert(divided.tileLayout.tileDimensions === (tileSize / 2, tileSize / 2))
+      assert(divided.tileLayout.tileDimensions === Dimensions(tileSize / 2, tileSize / 2))
     }
 
     it("should render Markdown") {

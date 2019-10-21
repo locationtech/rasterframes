@@ -55,10 +55,13 @@ object RFAssemblyPlugin extends AutoPlugin {
         "org.apache.avro",
         "org.apache.http",
         "com.google.guava",
+        "com.google.common",
         "com.typesafe.scalalogging",
-        "com.typesafe.config"
+        "com.typesafe.config",
+        "com.fasterxml.jackson",
+        "io.netty"
       )
-      shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"rf.shaded.$p.@1").inAll)
+      shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"shaded.rasterframes.$p.@1").inAll)
     },
     assemblyOption in assembly :=
       (assemblyOption in assembly).value.copy(includeScala = false),
@@ -81,6 +84,8 @@ object RFAssemblyPlugin extends AutoPlugin {
         xs map { _.toLowerCase } match {
           case "manifest.mf" :: Nil | "index.list" :: Nil | "dependencies" :: Nil ⇒
             MergeStrategy.discard
+          case "io.netty.versions.properties" :: Nil =>
+            MergeStrategy.concat
           case ps @ x :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") ⇒
             MergeStrategy.discard
           case "plexus" :: _ ⇒

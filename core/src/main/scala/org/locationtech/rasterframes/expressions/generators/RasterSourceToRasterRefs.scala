@@ -31,7 +31,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.RasterSourceType
 
@@ -55,7 +55,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     name <- bandNames(basename, bandIndexes)
   } yield StructField(name, schemaOf[RasterRef], true))
 
-  private def band2ref(src: RasterSource, e: Option[(GridBounds[Int], Extent)])(b: Int): RasterRef =
+  private def band2ref(src: RFRasterSource, e: Option[(GridBounds[Int], Extent)])(b: Int): RasterRef =
     if (b < src.bandCount) RasterRef(src, b, e.map(_._2), e.map(_._1)) else null
 
 

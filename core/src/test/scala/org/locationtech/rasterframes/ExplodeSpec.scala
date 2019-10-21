@@ -24,16 +24,16 @@ package org.locationtech.rasterframes
 import geotrellis.raster._
 import geotrellis.raster.resample.NearestNeighbor
 
-
 /**
  * Test rig for Tile operations associated with converting to/from
  * exploded/long form representations of the tile's data.
  *
  * @since 9/18/17
  */
-class ExplodeSpec extends TestEnvironment with TestData {
+class ExplodeSpec extends TestEnvironment {
   describe("conversion to/from exploded representation of tiles") {
     import spark.implicits._
+    import TestData._
 
     it("should explode tiles") {
       val query = sql(
@@ -129,7 +129,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
       val assembledSqlExpr = df.selectExpr("rf_assemble_tile(column_index, row_index, tile, 10, 10)")
 
       val resultSql = assembledSqlExpr.as[Tile].first()
-      assert(resultSql === tile)
+      assertEqual(resultSql, tile)
 
       checkDocs("rf_assemble_tile")
     }
@@ -185,7 +185,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
 
       //GeoTiff(recovered).write("foo.tiff")
 
-      assert(image.tile.toArrayTile() === recovered.tile.toArrayTile())
+      assertEqual(image.tile.toArrayTile(), recovered.tile.toArrayTile())
     }
   }
 }

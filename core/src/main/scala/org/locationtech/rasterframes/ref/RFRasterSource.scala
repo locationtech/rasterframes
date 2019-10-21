@@ -44,8 +44,8 @@ import scala.concurrent.duration.Duration
  * @since 8/21/18
  */
 @Experimental
-trait RasterSource extends ProjectedRasterLike with Serializable {
-  import RasterSource._
+trait RFRasterSource extends ProjectedRasterLike with Serializable {
+  import RFRasterSource._
 
   def crs: CRS
 
@@ -88,7 +88,7 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
   }
 }
 
-object RasterSource extends LazyLogging {
+object RFRasterSource extends LazyLogging {
   final val SINGLEBAND = Seq(0)
   final val EMPTY_TAGS = Tags(Map.empty, List.empty)
 
@@ -96,17 +96,17 @@ object RasterSource extends LazyLogging {
 
   private[ref] val rsCache = Scaffeine()
     .recordStats()
-    .expireAfterAccess(RasterSource.cacheTimeout)
-    .build[String, RasterSource]
+    .expireAfterAccess(RFRasterSource.cacheTimeout)
+    .build[String, RFRasterSource]
 
   def cacheStats = rsCache.stats()
 
-  implicit def rsEncoder: ExpressionEncoder[RasterSource] = {
+  implicit def rsEncoder: ExpressionEncoder[RFRasterSource] = {
     RasterSourceUDT // Makes sure UDT is registered first
     ExpressionEncoder()
   }
 
-  def apply(source: URI): RasterSource =
+  def apply(source: URI): RFRasterSource =
     rsCache.get(
       source.toASCIIString, _ => source match {
         case IsGDAL()          => GDALRasterSource(source)
@@ -157,14 +157,14 @@ object RasterSource extends LazyLogging {
     }
   }
 
-  trait URIRasterSource { _: RasterSource =>
+  trait URIRasterSource { _: RFRasterSource =>
     def source: URI
 
     abstract override def toString: String = {
       s"${getClass.getSimpleName}(${source})"
     }
   }
-  trait URIRasterSourceDebugString { _: RasterSource with URIRasterSource with Product =>
+  trait URIRasterSourceDebugString { _: RFRasterSource with URIRasterSource with Product =>
     def toDebugString: String = {
       val buf = new StringBuilder()
       buf.append(productPrefix)

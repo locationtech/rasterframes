@@ -49,7 +49,8 @@ class TileStatsSpec extends TestEnvironment with TestData {
       assert(dims.as[(Int, Int)].first() === (3, 3))
       assert(dims.schema.head.name === "cols")
 
-      val query = sql("""|select dims.* from (
+      val query = sql(
+        """|select dims.* from (
            |select rf_dimensions(tiles) as dims from (
            |select rf_make_constant_tile(1, 10, 10, 'int8raw') as tiles))
            |""".stripMargin)
@@ -282,14 +283,14 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val countNodataArray = dsNd.select(rf_agg_local_no_data_cells($"tiles")).first().toArray
       assert(countNodataArray === incompleteTile.localUndefined().toArray)
 
-      val minTile = dsNd.select(rf_agg_local_min($"tiles")).first()
-      assert(minTile.toArray() === completeTile.toArray())
+//      val meanTile = dsNd.select(rf_agg_local_mean($"tiles")).first()
+//      assert(meanTile.toArray() === completeTile.toArray())
 
       val maxTile = dsNd.select(rf_agg_local_max($"tiles")).first()
       assert(maxTile.toArray() === completeTile.toArray())
 
-      val meanTile = dsNd.select(rf_agg_local_mean($"tiles")).first()
-      assert(meanTile.toArray() === completeTile.toArray())
+      val minTile = dsNd.select(rf_agg_local_min($"tiles")).first()
+      assert(minTile.toArray() === completeTile.toArray())
     }
   }
   describe("NoData handling") {

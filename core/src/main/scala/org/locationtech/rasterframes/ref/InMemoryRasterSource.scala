@@ -25,10 +25,10 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster, Tile}
 import geotrellis.raster.io.geotiff.Tags
 import geotrellis.vector.Extent
-import org.locationtech.rasterframes.ref.RasterSource.EMPTY_TAGS
+import org.locationtech.rasterframes.ref.RFRasterSource.EMPTY_TAGS
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RasterSource {
+case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RFRasterSource {
   def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
 
   override def rows: Int = tile.rows

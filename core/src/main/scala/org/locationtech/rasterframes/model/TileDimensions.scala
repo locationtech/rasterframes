@@ -21,18 +21,18 @@
 
 package org.locationtech.rasterframes.model
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
-import geotrellis.raster.{Dimensions, Grid}
+import geotrellis.raster.Dimensions
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.types.{ShortType, StructField, StructType}
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
 
 /**
  * Typed wrapper for tile size information.
  *
  * @since 2018-12-12
  */
-case class TileDimensions(cols: Int, rows: Int) extends Grid[Int]
+case class TileDimensions(cols: Int, rows: Int)
 
 object TileDimensions {
   def apply(colsRows: (Int, Int)): TileDimensions = new TileDimensions(colsRows._1, colsRows._2)
@@ -40,18 +40,18 @@ object TileDimensions {
 
   implicit val serializer: CatalystSerializer[TileDimensions] = new CatalystSerializer[TileDimensions] {
     override val schema: StructType = StructType(Seq(
-      StructField("cols", ShortType, false),
-      StructField("rows", ShortType, false)
+      StructField("cols", IntegerType, false),
+      StructField("rows", IntegerType, false)
     ))
 
     override protected def to[R](t: TileDimensions, io: CatalystIO[R]): R = io.create(
-      t.cols.toShort,
-      t.rows.toShort
+      t.cols,
+      t.rows
     )
 
     override protected def from[R](t: R, io: CatalystIO[R]): TileDimensions = TileDimensions(
-      io.getShort(t, 0).toInt,
-      io.getShort(t, 1).toInt
+      io.getInt(t, 0),
+      io.getInt(t, 1)
     )
   }
 

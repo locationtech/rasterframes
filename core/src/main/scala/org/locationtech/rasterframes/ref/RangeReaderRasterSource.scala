@@ -31,7 +31,7 @@ import geotrellis.vector.Extent
 import org.locationtech.rasterframes.util.GeoTiffInfoSupport
 import org.slf4j.LoggerFactory
 
-trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport {
+trait RangeReaderRasterSource extends RFRasterSource with GeoTiffInfoSupport {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   protected def rangeReader: RangeReader

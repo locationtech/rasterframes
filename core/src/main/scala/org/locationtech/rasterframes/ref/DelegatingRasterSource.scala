@@ -28,10 +28,10 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.vector.Extent
-import org.locationtech.rasterframes.ref.RasterSource.URIRasterSource
+import org.locationtech.rasterframes.ref.RFRasterSource.URIRasterSource
 
 /** A RasterFrames RasterSource which delegates most operations to a geotrellis-contrib RasterSource */
-abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRasterSource) extends RasterSource with URIRasterSource {
+abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRasterSource) extends RFRasterSource with URIRasterSource {
   @transient
   @volatile
   private var _delRef: GTRasterSource = _

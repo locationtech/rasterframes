@@ -27,7 +27,7 @@ import org.apache.spark.sql.Encoders
 import org.locationtech.geomesa.curve.XZ2SFC
 import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.encoders.serialized_literal
-import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RasterSource}
+import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RFRasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.scalatest.Inspectors
 
@@ -92,7 +92,7 @@ class XZ2IndexerSpec extends TestEnvironment with Inspectors {
     it("should create index from RasterSource") {
       val crs: CRS = WebMercator
       val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
-      val srcs = testExtents.map(reproject(crs)).map(InMemoryRasterSource(tile, _, crs): RasterSource).toDF("src")
+      val srcs = testExtents.map(reproject(crs)).map(InMemoryRasterSource(tile, _, crs): RFRasterSource).toDF("src")
       val indexes = srcs.select(rf_spatial_index($"src")).collect()
 
       forEvery(indexes.zip(expected)) { case (i, e) =>

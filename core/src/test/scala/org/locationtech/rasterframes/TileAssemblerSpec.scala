@@ -27,7 +27,7 @@ import geotrellis.raster._
 import geotrellis.raster.render.ColorRamps
 import geotrellis.vector.Extent
 import org.apache.spark.sql.{functions => F, _}
-import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RasterSource}
+import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RFRasterSource}
 
 /**
  *
@@ -84,7 +84,7 @@ class TileAssemblerSpec extends TestEnvironment {
 
     it("should reassemble a realistic scene") {
       val df = util.time("read scene") {
-        RasterSource(TestData.remoteMODIS).toDF
+        RFRasterSource(TestData.remoteMODIS).toDF
       }
 
       val exploded = util.time("exploded") {
@@ -131,7 +131,7 @@ object TileAssemblerSpec extends  LazyLogging {
     }
   }
 
-  implicit class WithToDF(val rs: RasterSource) {
+  implicit class WithToDF(val rs: RFRasterSource) {
     def toDF(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
       rs.readAll()

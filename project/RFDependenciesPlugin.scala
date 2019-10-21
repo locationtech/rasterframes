@@ -46,16 +46,13 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.25"
     val scaffeine = "com.github.blemale" %% "scaffeine" % "3.1.0"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
-
-    //val `geotrellis-contrib-vlm` = "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "2.12.0"
-    //val `geotrellis-contrib-gdal` = "com.azavea.geotrellis" %% "geotrellis-contrib-gdal" % "2.12.0"
   }
   import autoImport._
 
   override def projectSettings = Seq(
     resolvers ++= Seq(
-      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
       "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
+      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
       "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
     ),

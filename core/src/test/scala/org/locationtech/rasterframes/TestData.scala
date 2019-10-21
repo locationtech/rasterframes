@@ -39,7 +39,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
 import org.locationtech.rasterframes.expressions.tilestats.NoDataCells
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 import scala.reflect.ClassTag
@@ -182,7 +182,7 @@ trait TestData {
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
 
-  def lazyPRT = RasterRef(RasterSource(TestData.l8samplePath), 0, None, None).tile
+  def lazyPRT = RasterRef(RFRasterSource(TestData.l8samplePath), 0, None, None).tile
 
   object GeomData {
     val fact = new GeometryFactory()

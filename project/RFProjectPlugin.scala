@@ -47,6 +47,12 @@ object RFProjectPlugin extends AutoPlugin {
         url = url("http://www.astraea.earth")
       ),
       Developer(
+        id = "vpipkt",
+        name = "Jason Brown",
+        email = "jbrown@astraea.earth",
+        url = url("http://www.astraea.earth")
+      ),
+      Developer(
         id = "mteldridge",
         name = "Matt Eldridge",
         email = "meldridge@astraea.earth",
@@ -58,12 +64,6 @@ object RFProjectPlugin extends AutoPlugin {
         email = "bguseman@astraea.earth",
         url = url("http://www.astraea.earth")
       ),
-      Developer(
-        id = "vpipkt",
-        name = "Jason Brown",
-        email = "jbrown@astraea.earth",
-        url = url("http://www.astraea.earth")
-      )
     ),
     initialCommands in console :=
       """

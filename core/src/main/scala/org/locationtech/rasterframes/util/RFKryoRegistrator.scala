@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.util
 
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.ref.{DelegatingRasterSource, RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{DelegatingRasterSource, RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.ref._
 import com.esotericsoftware.kryo.Kryo
 import geotrellis.raster.io.geotiff.reader.GeoTiffInfo
@@ -37,7 +37,7 @@ import geotrellis.spark.store.kryo.KryoRegistrator
 class RFKryoRegistrator extends KryoRegistrator {
   override def registerClasses(kryo: Kryo): Unit = {
     super.registerClasses(kryo)
-    kryo.register(classOf[RasterSource])
+    kryo.register(classOf[RFRasterSource])
     kryo.register(classOf[RasterRef])
     kryo.register(classOf[RasterRefTile])
     kryo.register(classOf[DelegatingRasterSource])

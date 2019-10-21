@@ -33,7 +33,7 @@ import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.{LazyCRS, TileContext}
-import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 private[rasterframes]
@@ -71,7 +71,7 @@ object DynamicExtractors {
   /** Partial function for pulling a ProjectedRasterLike an input row. */
   lazy val projectedRasterLikeExtractor: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
     case _: RasterSourceUDT ⇒
-      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+      (row: InternalRow) => row.to[RFRasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo[ProjectedRasterTile] =>
       (row: InternalRow) => row.to[ProjectedRasterTile]
     case t if t.conformsTo[RasterRef] =>
@@ -83,7 +83,7 @@ object DynamicExtractors {
     case _: TileUDT =>
       (row: InternalRow) => row.to[Tile](TileUDT.tileSerializer)
     case _: RasterSourceUDT =>
-      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+      (row: InternalRow) => row.to[RFRasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo[RasterRef] ⇒
       (row: InternalRow) => row.to[RasterRef]
     case t if t.conformsTo[ProjectedRasterTile] =>

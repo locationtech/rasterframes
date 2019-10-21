@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[GridBounds[Int]])
+case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[GridBounds[Int]])
   extends ProjectedRasterLike {
   def crs: CRS = source.crs
   def extent: Extent = subextent.getOrElse(source.extent)
@@ -91,7 +91,7 @@ object RasterRef extends LazyLogging {
     )
 
     override def from[R](row: R, io: CatalystIO[R]): RasterRef = RasterRef(
-      io.get[RasterSource](row, 0)(RasterSourceUDT.rasterSourceSerializer),
+      io.get[RFRasterSource](row, 0)(RasterSourceUDT.rasterSourceSerializer),
       io.getInt(row, 1),
       if (io.isNullAt(row, 2)) None
       else Option(io.get[Extent](row, 2)),

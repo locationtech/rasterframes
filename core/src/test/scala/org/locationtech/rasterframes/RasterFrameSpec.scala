@@ -332,19 +332,19 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       val raster = rf.toRaster($"tile", cols, rows)
 
       render(raster.tile, "normal")
-      assert(raster.raster.dimensions ===  (cols, rows))
+      assert(raster.raster.dimensions ===  Dimensions(cols, rows))
 
       val smaller = rf.toRaster($"tile", cols/4, rows/4)
       render(smaller.tile, "smaller")
-      assert(smaller.raster.dimensions ===  (cols/4, rows/4))
+      assert(smaller.raster.dimensions ===  Dimensions(cols/4, rows/4))
 
       val bigger = rf.toRaster($"tile", cols*4, rows*4)
       render(bigger.tile, "bigger")
-      assert(bigger.raster.dimensions ===  (cols*4, rows*4))
+      assert(bigger.raster.dimensions ===  Dimensions(cols*4, rows*4))
 
       val squished = rf.toRaster($"tile", cols*5/4, rows*3/4)
       render(squished.tile, "squished")
-      assert(squished.raster.dimensions === (cols*5/4, rows*3/4))
+      assert(squished.raster.dimensions === Dimensions(cols*5/4, rows*3/4))
     }
 
     it("shouldn't restitch raster that's has derived tiles") {

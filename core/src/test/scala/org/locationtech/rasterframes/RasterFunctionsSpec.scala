@@ -535,9 +535,11 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val df = Seq(two, three, one, six).toDF("tile")
           .withColumn("id", monotonically_increasing_id())
 
-      df.select(rf_agg_local_mean($"tile")).first() should be(three.toArrayTile())
+      val expected = three.toArrayTile().convert(DoubleConstantNoDataCellType)
 
-      df.selectExpr("rf_agg_local_mean(tile)").as[Tile].first() should be(three.toArrayTile())
+      df.select(rf_agg_local_mean($"tile")).first() should be(expected)
+
+      df.selectExpr("rf_agg_local_mean(tile)").as[Tile].first() should be(expected)
 
       noException should be thrownBy {
         df.groupBy($"id")
@@ -560,7 +562,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val t2 = df.selectExpr("rf_agg_local_no_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
       t1 should be (t2)
       val t3 = df.select(rf_local_add(rf_agg_local_data_cells($"tile"), rf_agg_local_no_data_cells($"tile"))).as[Tile].first()
-      t3 should be(three.toArrayTile())
+      t3 should be(three.toArrayTile().convert(IntConstantNoDataCellType))
       checkDocs("rf_agg_local_no_data_cells")
     }
   }

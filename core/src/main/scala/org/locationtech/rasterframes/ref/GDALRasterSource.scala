@@ -30,10 +30,10 @@ import geotrellis.raster.gdal.{GDALRasterSource => VLMRasterSource}
 import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.vector.Extent
-import org.locationtech.rasterframes.ref.RasterSource.URIRasterSource
+import org.locationtech.rasterframes.ref.RFRasterSource.URIRasterSource
 
 
-case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSource {
+case class GDALRasterSource(source: URI) extends RFRasterSource with URIRasterSource {
 
   @transient
   private lazy val gdal: VLMRasterSource = {

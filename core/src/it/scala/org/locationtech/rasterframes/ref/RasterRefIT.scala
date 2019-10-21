@@ -35,13 +35,13 @@ class RasterRefIT extends TestEnvironment {
       def scene(idx: Int) = URI.create(s"https://landsat-pds.s3.us-west-2.amazonaws.com" +
         s"/c1/L8/176/039/LC08_L1TP_176039_20190703_20190718_01_T1/LC08_L1TP_176039_20190703_20190718_01_T1_B$idx.TIF")
 
-      val redScene = RasterSource(scene(4))
+      val redScene = RFRasterSource(scene(4))
       // [west, south, east, north]
       val area = Extent(31.115, 29.963, 31.148, 29.99).reproject(LatLng, redScene.crs)
 
       val red = RasterRef(redScene, 0, Some(area), None)
-      val green = RasterRef(RasterSource(scene(3)), 0, Some(area), None)
-      val blue = RasterRef(RasterSource(scene(2)), 0, Some(area), None)
+      val green = RasterRef(RFRasterSource(scene(3)), 0, Some(area), None)
+      val blue = RasterRef(RFRasterSource(scene(2)), 0, Some(area), None)
 
       val rf = Seq((red, green, blue)).toDF("red", "green", "blue")
       val df = rf.select(

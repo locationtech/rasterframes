@@ -26,7 +26,7 @@ import java.net.URI
 import geotrellis.store.hadoop.util.HdfsRangeReader
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-import org.locationtech.rasterframes.ref.RasterSource.{URIRasterSource, URIRasterSourceDebugString}
+import org.locationtech.rasterframes.ref.RFRasterSource.{URIRasterSource, URIRasterSourceDebugString}
 
 case class HadoopGeoTiffRasterSource(source: URI, config: () => Configuration)
     extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>

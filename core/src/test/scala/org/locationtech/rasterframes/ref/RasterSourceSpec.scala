@@ -43,7 +43,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     it("should identify as UDT") {
       assert(new RasterSourceUDT() === new RasterSourceUDT())
     }
-    val rs = RasterSource(getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI)
+    val rs = RFRasterSource(getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI)
     it("should compute nominal tile layout bounds") {
       val bounds = rs.layoutBounds(TileDimensions(65, 60))
       val agg = bounds.reduce(_ combine _)
@@ -62,7 +62,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
     it("should compute layout extents from scene with fractional gsd") {
 
-      val rs = RasterSource(remoteMODIS)
+      val rs = RFRasterSource(remoteMODIS)
 
       val dims = rs.layoutExtents(NOMINAL_TILE_DIMS)
         .map(e => rs.rasterExtent.gridBoundsFor(e, false))
@@ -93,29 +93,29 @@ class RasterSourceSpec extends TestEnvironment with TestData {
   describe("HTTP RasterSource") {
     it("should support metadata querying over HTTP") {
       withClue("remoteCOGSingleband") {
-        val src = RasterSource(remoteCOGSingleband1)
+        val src = RFRasterSource(remoteCOGSingleband1)
         assert(!src.extent.isEmpty)
       }
       withClue("remoteCOGMultiband") {
-        val src = RasterSource(remoteCOGMultiband)
+        val src = RFRasterSource(remoteCOGMultiband)
         assert(!src.extent.isEmpty)
       }
     }
     it("should read sub-tile") {
       withClue("remoteCOGSingleband") {
-        val src = RasterSource(remoteCOGSingleband1)
+        val src = RFRasterSource(remoteCOGSingleband1)
         val raster = src.read(sub(src.extent))
         assert(raster.size > 0 && raster.size < src.size)
       }
       withClue("remoteCOGMultiband") {
-        val src = RasterSource(remoteCOGMultiband)
+        val src = RFRasterSource(remoteCOGMultiband)
         val raster = src.read(sub(src.extent))
         assert(raster.size > 0 && raster.size < src.size)
       }
     }
     it("should Java serialize") {
       import java.io._
-      val src = RasterSource(remoteCOGSingleband1)
+      val src = RFRasterSource(remoteCOGSingleband1)
       val buf = new java.io.ByteArrayOutputStream()
       val out = new ObjectOutputStream(buf)
       out.writeObject(src)
@@ -123,21 +123,21 @@ class RasterSourceSpec extends TestEnvironment with TestData {
 
       val data = buf.toByteArray
       val in = new ObjectInputStream(new ByteArrayInputStream(data))
-      val recovered = in.readObject().asInstanceOf[RasterSource]
+      val recovered = in.readObject().asInstanceOf[RFRasterSource]
       assert(src.toString === recovered.toString)
     }
   }
   describe("File RasterSource") {
     it("should support metadata querying of file") {
       val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toUri
-      val src = RasterSource(localSrc)
+      val src = RFRasterSource(localSrc)
       assert(!src.extent.isEmpty)
     }
     it("should interpret no scheme as file://"){
       val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString
       val schemelessUri = new URI(localSrc)
       schemelessUri.getScheme should be (null)
-      val src = RasterSource(schemelessUri)
+      val src = RFRasterSource(schemelessUri)
       assert(!src.extent.isEmpty)
     }
   }
@@ -180,7 +180,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
 
   describe("RasterSource tile construction") {
     it("should read all tiles") {
-      val src = RasterSource(remoteMODIS)
+      val src = RFRasterSource(remoteMODIS)
 
       val subrasters = src.readAll()
 

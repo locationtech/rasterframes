@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.accessors.GetCRS
 import org.locationtech.rasterframes.expressions.row
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
@@ -88,7 +88,7 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
       case t if t.conformsTo[Envelope] =>
         row(leftInput).to[Envelope]
       case _: RasterSourceUDT ⇒
-        row(leftInput).to[RasterSource](RasterSourceUDT.rasterSourceSerializer).extent
+        row(leftInput).to[RFRasterSource](RasterSourceUDT.rasterSourceSerializer).extent
       case t if t.conformsTo[ProjectedRasterTile] =>
         row(leftInput).to[ProjectedRasterTile].extent
       case t if t.conformsTo[RasterRef] =>

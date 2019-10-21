@@ -140,7 +140,7 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
     val rf = l8Sample(1).projectedRaster.toLayer.withGeometry()
     val df = GeomData.features.map(f ⇒ (
       f.geom.reproject(LatLng, rf.crs),
-      f.data("id").asInstanceOf[JsNumber].value.intValue()
+      f.data("id").flatMap(_.asNumber).flatMap(_.toInt).getOrElse(0)
     )).toDF("geom", "__fid__")
 
     val toRasterize = rf.crossJoin(df)

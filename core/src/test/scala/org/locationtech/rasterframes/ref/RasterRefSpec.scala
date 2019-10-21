@@ -49,7 +49,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
   }
 
   trait Fixture {
-    val src = RasterSource(remoteCOGSingleband1)
+    val src = RFRasterSource(remoteCOGSingleband1)
     val fullRaster = RasterRef(src, 0, None, None)
     val subExtent = sub(src.extent)
     val subRaster = RasterRef(src, 0, Some(subExtent), Some(src.rasterExtent.gridBoundsFor(subExtent)))
@@ -171,7 +171,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   describe("RasterRef creation") {
     it("should realize subiles of proper size") {
-      val src = RasterSource(remoteMODIS)
+      val src = RFRasterSource(remoteMODIS)
       val dims = src
         .layoutExtents(NOMINAL_TILE_DIMS)
         .map(e => RasterRef(src, 0, Some(e), None))
@@ -187,7 +187,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   describe("RasterSourceToRasterRefs") {
     it("should convert and expand RasterSource") {
-      val src = RasterSource(remoteMODIS)
+      val src = RFRasterSource(remoteMODIS)
       import spark.implicits._
       val df = Seq(src).toDF("src")
       val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), $"src"))
@@ -195,7 +195,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
     }
 
     it("should properly realize subtiles") {
-      val src = RasterSource(remoteMODIS)
+      val src = RFRasterSource(remoteMODIS)
       import spark.implicits._
       val df = Seq(src).toDF("src")
       val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), $"src") as "proj_raster")
@@ -209,7 +209,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
     it("should throw exception on invalid URI") {
-      val src = RasterSource(URI.create("http://foo/bar"))
+      val src = RFRasterSource(URI.create("http://foo/bar"))
       import spark.implicits._
       val df = Seq(src).toDF("src")
       val refs = df.select(RasterSourceToRasterRefs($"src") as "proj_raster")
