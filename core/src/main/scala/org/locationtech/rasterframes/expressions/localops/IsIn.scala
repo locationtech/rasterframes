@@ -44,7 +44,7 @@ import org.locationtech.rasterframes.expressions._
   """,
   examples = """
   Examples:
-    > SELECT  _FUNC_(tile, array);
+    > SELECT  _FUNC_(tile, array(lit(33), lit(66), lit(99)));
        ..."""
 )
 case class IsIn(left: Expression, right: Expression) extends BinaryExpression with CodegenFallback {

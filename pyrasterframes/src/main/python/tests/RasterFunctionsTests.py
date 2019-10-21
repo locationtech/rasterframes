@@ -347,8 +347,11 @@ class RasterFunctions(TestEnvironment):
         import numpy as np
         from numpy.testing import assert_equal
 
-        t = Tile(np.array([[1, 3, 4], [5, 0, 3]]), CellType.uint8().with_no_data_value(5))
-        #note the convert is due to issue #188
+        nd = 5
+        t = Tile(
+            np.array([[1, 3, 4], [nd, 0, 3]]),
+            CellType.uint8().with_no_data_value(nd))
+        # note the convert is due to issue #188
         df = self.spark.createDataFrame([Row(t=t)])\
             .withColumn('lnd', rf_convert_cell_type(rf_local_no_data('t'), 'uint8')) \
             .withColumn('ld',  rf_convert_cell_type(rf_local_data('t'),    'uint8'))
@@ -359,3 +362,34 @@ class RasterFunctions(TestEnvironment):
 
         result_d = result['ld']
         assert_equal(result_d.cells, np.invert(t.cells.mask))
+
+    def test_rf_local_is_in(self):
+        from pyspark.sql.functions import lit, array, col
+        from pyspark.sql import Row
+        import numpy as np
+        from numpy.testing import assert_equal
+
+        nd = 5
+        t = Tile(
+            np.array([[1, 3, 4], [nd, 0, 3]]),
+            CellType.uint8().with_no_data_value(nd))
+        # note the convert is due to issue #188
+        df = self.spark.createDataFrame([Row(t=t)]) \
+            .withColumn('a', array(lit(3), lit(4))) \
+            .withColumn('in2', rf_convert_cell_type(
+                rf_local_is_in(col('t'), array(lit(0), lit(4))),
+                'uint8')) \
+            .withColumn('in3', rf_convert_cell_type(rf_local_is_in('t', 'a'), 'uint8')) \
+            .withColumn('in4', rf_convert_cell_type(
+                rf_local_is_in('t', array(lit(0), lit(4), lit(3))),
+                'uint8')) \
+            .withColumn('in_list', rf_convert_cell_type(rf_local_is_in(col('t'), [4, 1]), 'uint8'))
+
+        result = df.first()
+        self.assertEqual(result['in2'].cells.sum(), 2)
+        assert_equal(result['in2'].cells, np.isin(t.cells, np.array([0, 4])))
+        self.assertEqual(result['in3'].cells.sum(), 3)
+        self.assertEqual(result['in4'].cells.sum(), 4)
+        self.assertEqual(result['in_list'].cells.sum(), 2,
+                         "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
+                         .format(result['in_list'].cells))
