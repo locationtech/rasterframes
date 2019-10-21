@@ -323,9 +323,6 @@ class RasterFunctions(TestEnvironment):
         # Look for the PNG magic cookie
         self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
 
-
-
-
     def test_rf_interpret_cell_type_as(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile
@@ -393,3 +390,15 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['in_list'].cells.sum(), 2,
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
+
+    def test_rf_spatial_index(self):
+        from pyspark.sql.functions import min as F_min
+        result_one_arg = self.df.select(rf_spatial_index('tile').alias('ix')) \
+                            .agg(F_min('ix')).first()[0]
+        print(result_one_arg)
+
+        result_two_arg = self.df.select(rf_spatial_index(rf_extent('tile'), rf_crs('tile')).alias('ix')) \
+                            .agg(F_min('ix')).first()[0]
+
+        self.assertEqual(result_two_arg, result_one_arg)
+        self.assertEqual(result_one_arg, 55179438768)  # this is a bit more fragile but less important

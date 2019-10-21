@@ -16,5 +16,6 @@ addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.10")
 addSbtPlugin("com.github.gseitz" %% "sbt-release" % "1.0.9")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.19")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.0")
 
 

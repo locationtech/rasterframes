@@ -33,6 +33,8 @@ import org.locationtech.rasterframes.util._
  * @since 8/24/18
  */
 trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation ⇒
+  protected def defaultNumPartitions: Int =
+    sqlContext.sparkSession.sessionState.conf.numShufflePartitions
   protected def cacheFile: HadoopPath
   protected def constructDataset: Dataset[Row]
 

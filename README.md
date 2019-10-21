@@ -6,7 +6,7 @@ RasterFrames® brings together Earth-observation (EO) data access, cloud computi
 
 RasterFrames provides a DataFrame-centric view over arbitrary raster data, enabling spatiotemporal queries, map algebra raster operations, and compatibility with the ecosystem of Spark ML algorithms. By using DataFrames as the core cognitive and compute data model, it is able to deliver these features in a form that is both accessible to general analysts and scalable along with the rapidly growing data footprint.
 
-<img src="docs/src/main/paradox/RasterFramePipeline.png" width="600px"/>
+<img src="pyrasterframes/src/main/python/docs/static/rasterframes-pipeline-nologo.png" width="600px"/>
 
 Please see the [Getting Started](http://rasterframes.io/getting-started.html) section of the Users' Manual to start using RasterFrames.
 
