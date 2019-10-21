@@ -32,5 +32,5 @@ jobs:
   include:
     - stage: "Unit Tests"
       script: sbt/bin/sbt -java-home $JAVA_HOME -batch test
-    - stage: "Integration"
+    - stage: "Integration Tests"
       script: sbt/bin/sbt -java-home $JAVA_HOME -batch it:test
