@@ -24,6 +24,7 @@ import java.io.File
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 
+import geotrellis.layer._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.DataSourceOptions
 import org.locationtech.rasterframes.rules._
@@ -33,11 +34,10 @@ import geotrellis.raster._
 import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.spark._
-import geotrellis.spark.io._
-import geotrellis.spark.io.avro.AvroRecordCodec
-import geotrellis.spark.io.avro.codecs.Implicits._
-import geotrellis.spark.io.index.ZCurveKeyIndexMethod
-import geotrellis.spark.tiling.ZoomedLayoutScheme
+import geotrellis.spark.store.LayerWriter
+import geotrellis.store._
+import geotrellis.store.avro.AvroRecordCodec
+import geotrellis.store.index.ZCurveKeyIndexMethod
 import geotrellis.vector._
 import org.apache.avro.generic._
 import org.apache.avro.{Schema, SchemaBuilder}
@@ -141,7 +141,7 @@ class GeoTrellisDataSourceSpec
       val boundKeys = KeyBounds(SpatialKey(3, 4), SpatialKey(4, 4))
       val  bbox = testRdd.metadata.layout
         .mapTransform(boundKeys.toGridBounds())
-        .jtsGeom
+        .toPolygon()
       val wc = layerReader.loadLayer(layer).withCenter()
 
       withClue("literate API") {
@@ -239,7 +239,7 @@ class GeoTrellisDataSourceSpec
 
       assert(rf.count === (TestData.sampleTileLayerRDD.count * subs * subs))
 
-      val (width, height) = sampleGeoTiff.tile.dimensions
+      val Dimensions(width, height) = sampleGeoTiff.tile.dimensions
 
       val raster = rf.toRaster(rf.tileColumns.head, width, height, NearestNeighbor)
 
@@ -309,7 +309,7 @@ class GeoTrellisDataSourceSpec
     it("should *not* support extent filter against a UDF") {
       val targetKey = testRdd.metadata.mapTransform(pt1)
 
-      val mkPtFcn = sparkUdf((_: Row) ⇒ { Point(-88, 60).jtsGeom })
+      val mkPtFcn = sparkUdf((_: Row) ⇒ { Point(-88, 60) })
 
       val df = layerReader
         .loadLayer(layer)
@@ -412,7 +412,7 @@ class GeoTrellisDataSourceSpec
           .loadLayer(layer)
           .where($"timestamp" >= Timestamp.valueOf(now.minusDays(1).toLocalDateTime))
           .where($"timestamp" <= Timestamp.valueOf(now.plusDays(1).toLocalDateTime))
-          .where(st_intersects(GEOMETRY_COLUMN, geomLit(pt1.jtsGeom)))
+          .where(st_intersects(GEOMETRY_COLUMN, geomLit(pt1)))
 
         assert(numFilters(df) == 1)
       }
@@ -422,7 +422,7 @@ class GeoTrellisDataSourceSpec
     it("should handle renamed spatial filter columns") {
       val df = layerReader
         .loadLayer(layer)
-        .where(GEOMETRY_COLUMN intersects region.jtsGeom)
+        .where(GEOMETRY_COLUMN intersects region)
         .withColumnRenamed(GEOMETRY_COLUMN.columnName, "foobar")
 
       assert(numFilters(df) === 1)
@@ -432,7 +432,7 @@ class GeoTrellisDataSourceSpec
     it("should handle dropped spatial filter columns") {
       val df = layerReader
         .loadLayer(layer)
-        .where(GEOMETRY_COLUMN intersects region.jtsGeom)
+        .where(GEOMETRY_COLUMN intersects region)
         .drop(GEOMETRY_COLUMN)
 
       assert(numFilters(df) === 1)

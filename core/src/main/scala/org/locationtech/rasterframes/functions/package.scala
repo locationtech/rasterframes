@@ -152,12 +152,11 @@ package object functions {
    * Rasterize geometry into tiles.
    */
   private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
-    import geotrellis.vector.{Geometry => GTGeometry}
     (geom, bounds, value, cols, rows) ⇒ {
       // We have to do this because (as of spark 2.2.x) Encoder-only types
       // can't be used as UDF inputs. Only Spark-native types and UDTs.
       val extent = Extent(bounds.getEnvelopeInternal)
-      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value).tile
+      geom.rasterizeWithValue(RasterExtent(extent, cols, rows), value).tile
     }
   }
 

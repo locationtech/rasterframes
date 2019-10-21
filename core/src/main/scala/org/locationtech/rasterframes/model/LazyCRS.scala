@@ -50,11 +50,18 @@ object LazyCRS {
   trait ValidatedCRS
   type EncodedCRS = String with ValidatedCRS
 
+  private object WKTCRS {
+    def unapply(src: String): Option[CRS] =
+      if (src.toUpperCase().startsWith("GEOGCS"))
+        CRS.fromWKT(src)
+      else None
+  }
+
   @transient
   private lazy val mapper: PartialFunction[String, CRS] = {
-    case e if e.toUpperCase().startsWith("EPSG")   => CRS.fromName(e) //not case-sensitive
-    case p if p.startsWith("+proj")                => CRS.fromString(p) // case sensitive
-    case w if w.toUpperCase().startsWith("GEOGCS") => CRS.fromWKT(w) //only case-sensitive inside double quotes
+    case e if e.toUpperCase().startsWith("EPSG") => CRS.fromName(e) //not case-sensitive
+    case p if p.startsWith("+proj") => CRS.fromString(p) // case sensitive
+    case WKTCRS(w) => w
   }
 
   @transient

@@ -23,7 +23,7 @@ package org.locationtech.rasterframes
 
 import org.locationtech.rasterframes.util._
 import geotrellis.raster.{MultibandTile, Tile, TileFeature}
-import geotrellis.spark.{SpaceTimeKey, SpatialKey}
+import geotrellis.layer._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.rf.TileUDT

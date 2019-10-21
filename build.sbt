@@ -50,17 +50,20 @@ lazy val core = project
   .settings(
     moduleName := "rasterframes",
     libraryDependencies ++= Seq(
+      `slf4j-api`,
       shapeless,
       `jts-core`,
+      `spray-json`,
       geomesa("z3").value,
       geomesa("spark-jts").value,
-      `geotrellis-contrib-vlm`,
-      `geotrellis-contrib-gdal`,
+//      `geotrellis-contrib-vlm`,
+//      `geotrellis-contrib-gdal`,
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,
       geotrellis("spark").value,
       geotrellis("raster").value,
+      geotrellis("gdal").value,
       geotrellis("s3").value,
       geotrellis("spark-testkit").value % Test excludeAll (
         ExclusionRule(organization = "org.scalastic"),

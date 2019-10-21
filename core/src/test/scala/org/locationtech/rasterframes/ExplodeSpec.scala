@@ -179,7 +179,7 @@ class ExplodeSpec extends TestEnvironment with TestData {
 
       val rf = assembled.asLayer(SPATIAL_KEY_COLUMN, tlm)
 
-      val (cols, rows) = image.tile.dimensions
+      val Dimensions(cols, rows) = image.tile.dimensions
 
       val recovered = rf.toRaster(TILE_COLUMN, cols, rows, NearestNeighbor)
 

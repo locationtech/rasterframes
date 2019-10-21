@@ -36,8 +36,7 @@ object CreatingRasterFrames extends App {
   import org.locationtech.rasterframes._
   import geotrellis.raster._
   import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-  import geotrellis.spark.io._
-  import org.apache.spark.sql._
+    import org.apache.spark.sql._
 
 //  Next, initialize the `SparkSession`, and call the `withRasterFrames` method on it:
 
@@ -86,6 +85,7 @@ object CreatingRasterFrames extends App {
 
   import spray.json._
   // The `fold` is required because an `Either` is retured, depending on the key type.
+  import org.locationtech.rasterframes.util.JsonCodecs._
   rf.tileLayerMetadata.fold(_.toJson, _.toJson).prettyPrint
 
   spark.stop()

@@ -50,7 +50,7 @@ class GeoTiffDataSourceSpec
       val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
 
       val tlm = rf.tileLayerMetadata.left.get
-      val gb = tlm.gridBounds
+      val gb = tlm.tileBounds
       assert(gb.colMax > gb.colMin)
       assert(gb.rowMax > gb.rowMin)
     }
@@ -71,7 +71,7 @@ class GeoTiffDataSourceSpec
         ).first.toSeq.toString()
       )
       val tlm = rf.tileLayerMetadata.left.get
-      val gb = tlm.gridBounds
+      val gb = tlm.tileBounds
       assert(gb.rowMax > gb.rowMin)
       assert(gb.colMax > gb.colMin)
 

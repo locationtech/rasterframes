@@ -43,7 +43,7 @@ class TileAssemblerSpec extends TestEnvironment {
       val raster = TestData.l8Sample(8).projectedRaster
       val rf = raster.toLayer(16, 16)
       val ct = rf.tileLayerMetadata.merge.cellType
-      val (tileCols, tileRows) = rf.tileLayerMetadata.merge.tileLayout.tileDimensions
+      val Dimensions(tileCols, tileRows) = rf.tileLayerMetadata.merge.tileLayout.tileDimensions
 
       val exploded = rf.select($"spatial_key", rf_explode_tiles($"tile"))
 

@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.datasource.geotrellis
 
 import java.net.URI
 
-import geotrellis.spark.io.AttributeStore
+import geotrellis.store._
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
@@ -32,8 +32,6 @@ import org.apache.spark.sql.rf.VersionShims
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types.StructType
 import org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisCatalog.GeoTrellisCatalogRelation
-import spray.json.DefaultJsonProtocol._
-import spray.json._
 
 /**
  *
@@ -64,9 +62,10 @@ object GeoTrellisCatalog {
     private lazy val layers = {
       // The attribute groups are processed separately and joined at the end to
       // maintain a semblance of separation in the resulting schema.
-      val mergeId = (id: Int, json: JsObject) ⇒ {
-        val jid = id.toJson
-        json.copy(fields = json.fields + ("index" -> jid) )
+      val mergeId = (id: Int, json: io.circe.JsonObject) ⇒ {
+        import io.circe.syntax._
+        val jid = id.asJson
+        json.add("index", jid).asJson
       }
 
       implicit val layerStuffEncoder: Encoder[(Int, Layer)] = Encoders.tuple(
@@ -82,16 +81,16 @@ object GeoTrellisCatalog {
       val indexedLayers = layerSpecs
         .toDF("index", "layer")
 
-      val headerRows =  layerSpecs
-        .map{case (index, layer) ⇒(index, attributes.readHeader[JsObject](layer.id))}
+      val headerRows = layerSpecs
+        .map{case (index, layer) ⇒(index, attributes.readHeader[io.circe.JsonObject](layer.id))}
         .map(mergeId.tupled)
-        .map(_.compactPrint)
+        .map(io.circe.Printer.noSpaces.pretty)
         .toDS
 
       val metadataRows = layerSpecs
-        .map{case (index, layer) ⇒ (index, attributes.readMetadata[JsObject](layer.id))}
+        .map{case (index, layer) ⇒ (index, attributes.readMetadata[io.circe.JsonObject](layer.id))}
         .map(mergeId.tupled)
-        .map(_.compactPrint)
+        .map(io.circe.Printer.noSpaces.pretty)
         .toDS
 
       val headers = VersionShims.readJson(sqlContext, broadcast(headerRows))

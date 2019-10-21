@@ -29,9 +29,9 @@ import java.time.ZonedDateTime
 import org.locationtech.rasterframes.util._
 import geotrellis.proj4.LatLng
 import geotrellis.raster.render.{ColorMap, ColorRamp}
-import geotrellis.raster.{ProjectedRaster, Tile, TileFeature, TileLayout, UByteCellType}
+import geotrellis.raster.{Dimensions, ProjectedRaster, Tile, TileFeature, TileLayout, UByteCellType}
 import geotrellis.spark._
-import geotrellis.spark.tiling._
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SQLContext, SparkSession}
@@ -207,7 +207,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
 
     it("should convert a GeoTiff to RasterFrameLayer") {
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
-      val (cols, rows) = praster.raster.dimensions
+      val Dimensions(cols, rows) = praster.raster.dimensions
 
       val layoutCols = math.ceil(cols / 128.0).toInt
       val layoutRows = math.ceil(rows / 128.0).toInt
@@ -327,7 +327,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
     it("should restitch to raster") {
       // 774 × 500
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
-      val (cols, rows) = praster.raster.dimensions
+      val Dimensions(cols, rows) = praster.raster.dimensions
       val rf = praster.toLayer(64, 64)
       val raster = rf.toRaster($"tile", cols, rows)
 

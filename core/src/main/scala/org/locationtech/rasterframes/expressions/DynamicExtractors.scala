@@ -79,7 +79,7 @@ object DynamicExtractors {
   }
 
   /** Partial function for pulling a CellGrid from an input row. */
-  lazy val gridExtractor: PartialFunction[DataType, InternalRow ⇒ CellGrid] = {
+  lazy val gridExtractor: PartialFunction[DataType, InternalRow ⇒ CellGrid[Int]] = {
     case _: TileUDT =>
       (row: InternalRow) => row.to[Tile](TileUDT.tileSerializer)
     case _: RasterSourceUDT =>

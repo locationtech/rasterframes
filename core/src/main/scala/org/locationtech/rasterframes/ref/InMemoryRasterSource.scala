@@ -41,7 +41,7 @@ case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends Ra
 
   override def tags: Tags = EMPTY_TAGS
 
-  override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+  override protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
     bounds
       .map(b => {
         val subext = rasterExtent.extentFor(b)

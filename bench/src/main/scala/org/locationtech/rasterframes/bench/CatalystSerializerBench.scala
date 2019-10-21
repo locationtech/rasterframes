@@ -46,7 +46,7 @@ class CatalystSerializerBench extends SparkEnv {
 
   @Setup(Level.Trial)
   def setupData(): Unit = {
-    crsEnc = StandardEncoders.crsEncoder.resolveAndBind()
+    crsEnc = StandardEncoders.crsSparkEncoder.resolveAndBind()
   }
 
   @Benchmark

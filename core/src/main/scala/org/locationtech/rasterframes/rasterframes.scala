@@ -23,7 +23,8 @@ package org.locationtech
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.{Tile, TileFeature, isData}
-import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.layer._
+import geotrellis.spark.ContextRDD
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.{DataFrame, SQLContext, rf}
@@ -91,7 +92,7 @@ package object rasterframes extends StandardColumns
 
   /**
    * A RasterFrameLayer is just a DataFrame with certain invariants, enforced via the methods that create and transform them:
-   *   1. One column is a [[geotrellis.spark.SpatialKey]] or [[geotrellis.spark.SpaceTimeKey]]
+   *   1. One column is a `SpatialKey` or `SpaceTimeKey``
    *   2. One or more columns is a [[Tile]] UDT.
    *   3. The `TileLayerMetadata` is encoded and attached to the key column.
    */

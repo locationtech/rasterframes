@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.datasource.geotrellis
 import java.net.URI
 
 import org.locationtech.rasterframes.encoders.DelegatingSubfieldEncoder
-import geotrellis.spark.LayerId
+import geotrellis.store.LayerId
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.rasterframes
 

@@ -24,8 +24,8 @@ import java.nio.ByteBuffer
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, MultibandTile}
-import geotrellis.spark.io._
-import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.spark._
+import geotrellis.layer._
 import geotrellis.vector.Extent
 import org.apache.spark.sql._
 import org.locationtech.rasterframes
@@ -35,7 +35,7 @@ import org.locationtech.rasterframes.ref.{GDALRasterSource, RasterRef, RasterSou
 import org.locationtech.rasterframes.util.KryoSupport
 import org.locationtech.rasterframes.{RasterFunctions, _}
 import spray.json._
-
+import org.locationtech.rasterframes.util.JsonCodecs._
 import scala.collection.JavaConverters._
 
 /**

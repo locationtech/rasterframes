@@ -23,10 +23,12 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
-import org.locationtech.rasterframes._
-import geotrellis.vector.Extent
+import geotrellis.raster.RasterExtent
+import geotrellis.vector._
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.locationtech.rasterframes.model.{FixedRasterExtent, TileDimensions}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.model._
+import org.locationtech.rasterframes.util.GridHasGridBounds
 
 
 class RasterSourceSpec extends TestEnvironment with TestData {
@@ -71,7 +73,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         d._2 should be <= NOMINAL_TILE_SIZE
       }
 
-      val re = FixedRasterExtent(
+      val re = RasterExtent(
         Extent(1.4455356755667E7, -3335851.5589995002, 1.55673072753335E7, -2223901.039333),
         2400, 2400
       )

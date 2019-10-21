@@ -25,8 +25,7 @@ import java.time.ZonedDateTime
 
 import geotrellis.proj4._
 import geotrellis.raster.{CellSize, CellType, TileLayout, UShortUserDefinedNoDataCellType}
-import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.rasterframes.{TestData, TestEnvironment}

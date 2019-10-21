@@ -31,8 +31,9 @@ import geotrellis.raster._
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.spark._
 import geotrellis.spark.testkit.TileLayerRDDBuilders
-import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.vector.{Extent, ProjectedExtent}
+import geotrellis.layer._
+import geotrellis.vector._
+import geotrellis.vector.io.json.JsonFeatureCollection
 import org.apache.commons.io.IOUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
@@ -202,13 +203,8 @@ trait TestData {
         .getResource("/L8-Labels-Elkton-VA.geojson").toURI)
       Files.readAllLines(p).mkString("\n")
     }
-    lazy val features = {
-      import geotrellis.vector.io._
-      import geotrellis.vector.io.json.JsonFeatureCollection
-      import spray.json.DefaultJsonProtocol._
-      import spray.json._
-      GeomData.geoJson.parseGeoJson[JsonFeatureCollection].getAllPolygonFeatures[JsObject]()
-    }
+    lazy val features = GeomData.geoJson.parseGeoJson[JsonFeatureCollection]
+      .getAllPolygonFeatures[_root_.io.circe.JsonObject]()
   }
 }
 

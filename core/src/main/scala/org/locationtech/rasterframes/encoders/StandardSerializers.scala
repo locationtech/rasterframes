@@ -24,8 +24,8 @@ package org.locationtech.rasterframes.encoders
 import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import geotrellis.raster._
-import geotrellis.spark._
-import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.layer._
+
 import geotrellis.vector._
 import org.apache.spark.sql.types._
 import org.locationtech.jts.geom.Envelope
@@ -71,7 +71,7 @@ trait StandardSerializers {
     )
   }
 
-  implicit val gridBoundsSerializer: CatalystSerializer[GridBounds] = new CatalystSerializer[GridBounds] {
+  implicit val gridBoundsSerializer: CatalystSerializer[GridBounds[Int]] = new CatalystSerializer[GridBounds[Int]] {
     override val schema: StructType = StructType(Seq(
       StructField("colMin", IntegerType, false),
       StructField("rowMin", IntegerType, false),
@@ -79,11 +79,11 @@ trait StandardSerializers {
       StructField("rowMax", IntegerType, false)
     ))
 
-    override protected def to[R](t: GridBounds, io: CatalystIO[R]): R = io.create(
+    override protected def to[R](t: GridBounds[Int], io: CatalystIO[R]): R = io.create(
       t.colMin, t.rowMin, t.colMax, t.rowMax
     )
 
-    override protected def from[R](t: R, io: CatalystIO[R]): GridBounds = GridBounds(
+    override protected def from[R](t: R, io: CatalystIO[R]): GridBounds[Int] = GridBounds[Int](
       io.getInt(t, 0),
       io.getInt(t, 1),
       io.getInt(t, 2),

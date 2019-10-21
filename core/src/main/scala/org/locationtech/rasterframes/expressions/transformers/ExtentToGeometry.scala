@@ -65,7 +65,7 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
     else {
       r.to[Extent]
     }
-    val geom = extent.jtsGeom
+    val geom = extent.toPolygon()
     JTSTypes.GeometryTypeInstance.serialize(geom)
   }
 }

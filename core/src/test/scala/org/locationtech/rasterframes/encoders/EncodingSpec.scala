@@ -28,7 +28,7 @@ import org.locationtech.rasterframes._
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4._
 import geotrellis.raster.{CellType, Tile, TileFeature}
-import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions._
@@ -155,7 +155,7 @@ class EncodingSpec extends TestEnvironment with TestData {
   describe("Dataframe encoding ops on spatial types") {
 
     it("should code RDD[Point]") {
-      val points = Seq(null, extent.center.jtsGeom, null)
+      val points = Seq(null, extent.center, null)
       val ds = points.toDS
       write(ds)
       assert(ds.collect().toSeq === points)

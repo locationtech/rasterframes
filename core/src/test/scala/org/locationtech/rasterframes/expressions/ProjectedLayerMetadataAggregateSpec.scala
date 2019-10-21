@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions
 
 import geotrellis.raster.Tile
 import geotrellis.spark._
-import geotrellis.spark.tiling.FloatingLayoutScheme
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal

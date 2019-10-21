@@ -41,12 +41,14 @@ object RFDependenciesPlugin extends AutoPlugin {
     }
 
     val scalatest = "org.scalatest" %% "scalatest" % "3.0.3" % Test
-    val shapeless = "com.chuusai" %% "shapeless" % "2.3.2"
-    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.16.0"
-    val `geotrellis-contrib-vlm` = "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "2.12.0"
-    val `geotrellis-contrib-gdal` = "com.azavea.geotrellis" %% "geotrellis-contrib-gdal" % "2.12.0"
+    val shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
+    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.16.1"
+    val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.25"
+    val scaffeine = "com.github.blemale" %% "scaffeine" % "3.1.0"
+    val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
 
-    val scaffeine = "com.github.blemale" %% "scaffeine" % "2.6.0"
+    //val `geotrellis-contrib-vlm` = "com.azavea.geotrellis" %% "geotrellis-contrib-vlm" % "2.12.0"
+    //val `geotrellis-contrib-gdal` = "com.azavea.geotrellis" %% "geotrellis-contrib-gdal" % "2.12.0"
   }
   import autoImport._
 
@@ -60,7 +62,7 @@ object RFDependenciesPlugin extends AutoPlugin {
 
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "2.4.4",
-    rfGeoTrellisVersion := "2.3.3",
+    rfGeoTrellisVersion := "3.0.0",
     rfGeoMesaVersion := "2.2.1",
   )
 }

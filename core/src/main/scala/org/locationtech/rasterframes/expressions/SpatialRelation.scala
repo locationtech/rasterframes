@@ -49,7 +49,7 @@ abstract class SpatialRelation extends BinaryExpression
           case udt: AbstractGeometryUDT[_] ⇒ udt.deserialize(r)
           case dt if dt.conformsTo[Extent] =>
             val extent = r.to[Extent]
-            extent.jtsGeom
+            extent.toPolygon()
         }
     }
   }

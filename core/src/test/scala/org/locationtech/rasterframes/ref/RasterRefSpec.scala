@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.ref
 import java.net.URI
 
 import geotrellis.raster.{ByteConstantNoDataCellType, Tile}
-import geotrellis.vector.Extent
+import geotrellis.vector._
 import org.apache.spark.SparkException
 import org.apache.spark.sql.Encoders
 import org.locationtech.rasterframes.{TestEnvironment, _}

@@ -27,9 +27,10 @@ import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
 import geotrellis.raster.{MultibandTile, ProjectedRaster, Tile, TileLayout}
+import geotrellis.layer._
 import geotrellis.spark._
-import geotrellis.spark.io._
-import geotrellis.spark.tiling.{LayoutDefinition, Tiler}
+import geotrellis.spark.tiling.Tiler
+import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, TileLayerRDD}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.ProjectedExtent
 import org.apache.spark.annotation.Experimental
@@ -41,6 +42,7 @@ import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders
 import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.tiles.ShowableTile
 import org.locationtech.rasterframes.util._
+import org.locationtech.rasterframes.util.JsonCodecs._
 import org.slf4j.LoggerFactory
 import spray.json._
 

@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
-import geotrellis.contrib.vlm.{RasterSource => GTRasterSource}
+import geotrellis.raster.{RasterSource => GTRasterSource}
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
@@ -66,19 +66,19 @@ abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRast
     retryableRead(rs => SimpleRasterInfo(rs))
   )
 
-  override def cols: Int = info.cols
-  override def rows: Int = info.rows
+  override def cols: Int = info.cols.toInt
+  override def rows: Int = info.rows.toInt
   override def crs: CRS = info.crs
   override def extent: Extent = info.extent
   override def cellType: CellType = info.cellType
   override def bandCount: Int = info.bandCount
   override def tags: Tags = info.tags
 
-  override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
-    retryableRead(_.readBounds(bounds, bands))
+  override protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
+    retryableRead(_.readBounds(bounds.map(_.toGridType[Long]), bands))
 
-  override def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
-    retryableRead(_.read(bounds, bands)
+  override def read(bounds: GridBounds[Int], bands: Seq[Int]): Raster[MultibandTile] =
+    retryableRead(_.read(bounds.toGridType[Long], bands)
       .getOrElse(throw new IllegalArgumentException(s"Bounds '$bounds' outside of source"))
     )
 

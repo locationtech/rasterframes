@@ -55,7 +55,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     name <- bandNames(basename, bandIndexes)
   } yield StructField(name, schemaOf[RasterRef], true))
 
-  private def band2ref(src: RasterSource, e: Option[(GridBounds, Extent)])(b: Int): RasterRef =
+  private def band2ref(src: RasterSource, e: Option[(GridBounds[Int], Extent)])(b: Int): RasterRef =
     if (b < src.bandCount) RasterRef(src, b, e.map(_._2), e.map(_._1)) else null
 
 

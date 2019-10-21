@@ -45,7 +45,7 @@ case class GetDimensions(child: Expression) extends OnCellGridExpression with Co
 
   def dataType = schemaOf[TileDimensions]
 
-  override def eval(grid: CellGrid): Any = TileDimensions(grid.cols, grid.rows).toInternalRow
+  override def eval(grid: CellGrid[Int]): Any = TileDimensions(grid.cols, grid.rows).toInternalRow
 }
 
 object GetDimensions {

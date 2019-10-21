@@ -33,7 +33,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.locationtech.rasterframes.model.{FixedRasterExtent, TileContext, TileDimensions}
+import org.locationtech.rasterframes.model.{TileContext, TileDimensions}
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, rfConfig}
 
 import scala.concurrent.duration.Duration
@@ -57,7 +57,7 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def tags: Tags
 
-  def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
+  def read(bounds: GridBounds[Int], bands: Seq[Int]): Raster[MultibandTile] =
     readBounds(Seq(bounds), bands).next()
 
   def read(extent: Extent, bands: Seq[Int] = SINGLEBAND): Raster[MultibandTile] =
@@ -66,13 +66,15 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
   def readAll(dims: TileDimensions = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
     layoutBounds(dims).map(read(_, bands))
 
-  protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
+  protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
 
-  def rasterExtent = FixedRasterExtent(extent, cols, rows)
+  def rasterExtent = RasterExtent(extent, cols, rows)
 
   def cellSize = CellSize(extent, cols, rows)
 
-  def gridExtent = GridExtent(extent, cellSize)
+  def gridExtent: GridExtent[Int] = GridExtent[Int](extent, cellSize)
+
+  def gridBounds: GridBounds[Int] = GridBounds(0, 0, cols - 1, rows - 1)
 
   def tileContext: TileContext = TileContext(extent, crs)
 
@@ -81,7 +83,7 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
     layoutBounds(dims).map(re.extentFor(_, clamp = true))
   }
 
-  def layoutBounds(dims: TileDimensions): Seq[GridBounds] = {
+  def layoutBounds(dims: TileDimensions): Seq[GridBounds[Int]] = {
     gridBounds.split(dims.cols, dims.rows).toSeq
   }
 }
@@ -133,7 +135,7 @@ object RasterSource extends LazyLogging {
 
     /** Extractor for determining if a scheme indicates GDAL preference.  */
     def unapply(source: URI): Boolean = {
-      lazy val schemeIsGdal = Option(source.getScheme())
+      lazy val schemeIsGdal = Option(source.getScheme)
         .exists(_.startsWith("gdal"))
 
       gdalOnly(source) || ((preferGdal || schemeIsGdal) && GDALRasterSource.hasGDAL)

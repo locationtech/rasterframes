@@ -25,7 +25,7 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
 import geotrellis.raster.resample.ResampleMethod
 import geotrellis.raster.{ArrayTile, CellType, MultibandTile, ProjectedRaster, Raster, Tile}
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
+import geotrellis.layer._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}

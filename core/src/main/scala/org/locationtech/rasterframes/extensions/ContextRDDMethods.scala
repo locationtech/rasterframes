@@ -21,24 +21,23 @@
 
 package org.locationtech.rasterframes.extensions
 
-import org.locationtech.rasterframes.PairRDDConverter._
-import org.locationtech.rasterframes.StandardColumns._
-import Implicits._
-import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterFrameLayer
+import geotrellis.layer._
 import geotrellis.raster.CellGrid
-import geotrellis.spark._
-import geotrellis.spark.io._
 import geotrellis.util.MethodExtensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
-import org.locationtech.rasterframes.PairRDDConverter
+import org.locationtech.rasterframes.PairRDDConverter._
+import org.locationtech.rasterframes.{PairRDDConverter, RasterFrameLayer}
+import org.locationtech.rasterframes.StandardColumns._
+import org.locationtech.rasterframes.extensions.Implicits._
+import org.locationtech.rasterframes.util.JsonCodecs._
+import org.locationtech.rasterframes.util._
 
 /**
  * Extension method on `ContextRDD`-shaped RDDs with appropriate context bounds to create a RasterFrameLayer.
  * @since 7/18/17
  */
-abstract class SpatialContextRDDMethods[T <: CellGrid](implicit spark: SparkSession)
+abstract class SpatialContextRDDMethods[T <: CellGrid[Int]](implicit spark: SparkSession)
     extends MethodExtensions[RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]] {
   import PairRDDConverter._
 
@@ -56,7 +55,7 @@ abstract class SpatialContextRDDMethods[T <: CellGrid](implicit spark: SparkSess
  * Extension method on `ContextRDD`-shaped `Tile` RDDs keyed with [[SpaceTimeKey]], with appropriate context bounds to create a RasterFrameLayer.
  * @since 9/11/17
  */
-abstract class SpatioTemporalContextRDDMethods[T <: CellGrid](
+abstract class SpatioTemporalContextRDDMethods[T <: CellGrid[Int]](
   implicit spark: SparkSession)
   extends MethodExtensions[RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]] {
 

@@ -25,14 +25,13 @@ import org.locationtech.rasterframes.RasterFrameLayer
 import org.locationtech.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.layer._
 import geotrellis.util.MethodExtensions
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{MetadataBuilder, Metadata => SMetadata}
-import spray.json.JsonFormat
-
+import spray.json._
 import scala.reflect.runtime.universe._
 
 /**
@@ -49,7 +48,7 @@ trait Implicits {
 
   implicit class WithSKryoMethods(val self: SparkConf) extends KryoMethods.SparkConfKryoMethods
 
-  implicit class WithProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithPrototypeMethods: TypeTag](
+  implicit class WithProjectedRasterMethods[T <: CellGrid[Int]: WithMergeMethods: WithPrototypeMethods: TypeTag](
     val self: ProjectedRaster[T]) extends ProjectedRasterMethods[T]
 
   implicit class WithSinglebandGeoTiffMethods(val self: SinglebandGeoTiff) extends SinglebandGeoTiffMethods
@@ -58,11 +57,11 @@ trait Implicits {
 
   implicit class WithRasterFrameLayerMethods(val self: RasterFrameLayer) extends RasterFrameLayerMethods
 
-  implicit class WithSpatialContextRDDMethods[T <: CellGrid](
+  implicit class WithSpatialContextRDDMethods[T <: CellGrid[Int]](
     val self: RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]
   )(implicit spark: SparkSession) extends SpatialContextRDDMethods[T]
 
-  implicit class WithSpatioTemporalContextRDDMethods[T <: CellGrid](
+  implicit class WithSpatioTemporalContextRDDMethods[T <: CellGrid[Int]](
     val self: RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]
   )(implicit spark: SparkSession) extends SpatioTemporalContextRDDMethods[T]
 

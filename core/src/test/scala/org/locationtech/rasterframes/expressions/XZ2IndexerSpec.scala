@@ -68,7 +68,7 @@ class XZ2IndexerSpec extends TestEnvironment with Inspectors {
     }
     it("should create index from Geometry") {
       val crs: CRS = LatLng
-      val df = testExtents.map(_.jtsGeom).map(Tuple1.apply).toDF("extent")
+      val df = testExtents.map(Tuple1.apply).toDF("extent")
       val indexes = df.select(rf_spatial_index($"extent", serialized_literal(crs))).collect()
 
       forEvery(indexes.zip(expected)) { case (i, e) =>

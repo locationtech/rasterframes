@@ -325,7 +325,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     it("should get the Geometry of a ProjectedRasterTile") {
       val g = Seq(randPRT).toDF("tile").select(rf_geometry($"tile")).first()
-      g should be (extent.jtsGeom)
+      g should be (extent.toPolygon())
       checkDocs("rf_geometry")
     }
   }

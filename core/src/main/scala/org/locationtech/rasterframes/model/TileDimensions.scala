@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.model
 
 import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
-import geotrellis.raster.Grid
+import geotrellis.raster.{Dimensions, Grid}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer
@@ -32,10 +32,11 @@ import org.locationtech.rasterframes.encoders.CatalystSerializer
  *
  * @since 2018-12-12
  */
-case class TileDimensions(cols: Int, rows: Int) extends Grid
+case class TileDimensions(cols: Int, rows: Int) extends Grid[Int]
 
 object TileDimensions {
   def apply(colsRows: (Int, Int)): TileDimensions = new TileDimensions(colsRows._1, colsRows._2)
+  def apply(dims: Dimensions[Int]): TileDimensions = new TileDimensions(dims.cols, dims.rows)
 
   implicit val serializer: CatalystSerializer[TileDimensions] = new CatalystSerializer[TileDimensions] {
     override val schema: StructType = StructType(Seq(

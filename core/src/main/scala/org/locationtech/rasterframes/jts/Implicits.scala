@@ -45,7 +45,7 @@ trait Implicits extends SpatialConstructors {
       new Column(Intersects(self.expr, geomLit(geom).expr)).as[Boolean]
 
     def intersects(pt: gtPoint): TypedColumn[Any, Boolean] =
-      new Column(Intersects(self.expr, geomLit(pt.jtsGeom).expr)).as[Boolean]
+      new Column(Intersects(self.expr, geomLit(pt).expr)).as[Boolean]
 
     def containsGeom(geom: Geometry): TypedColumn[Any, Boolean] =
       new Column(Contains(self.expr, geomLit(geom).expr)).as[Boolean]

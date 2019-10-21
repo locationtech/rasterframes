@@ -23,8 +23,7 @@ package org.locationtech.rasterframes
 
 import geotrellis.proj4.LatLng
 import geotrellis.raster.{ByteCellType, GridBounds, TileLayout}
-import geotrellis.spark.tiling.{CRSWorldExtent, LayoutDefinition}
-import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
+import geotrellis.layer._
 import org.apache.spark.sql.Encoders
 import org.locationtech.rasterframes.util._
 
@@ -67,7 +66,7 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
 
     it("should find multiple crs columns") {
       // Not sure why implicit resolution isn't handling this properly.
-      implicit val enc = Encoders.tuple(crsEncoder, Encoders.STRING, crsEncoder, Encoders.scalaDouble)
+      implicit val enc = Encoders.tuple(crsSparkEncoder, Encoders.STRING, crsSparkEncoder, Encoders.scalaDouble)
       val df = Seq((pe.crs, "fred", pe.crs, 34.0)).toDF("c1", "s", "c2", "n")
       df.crsColumns.size should be(2)
     }

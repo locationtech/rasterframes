@@ -2,7 +2,6 @@ package examples
 
 import org.locationtech.rasterframes._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.raster.render._
 import geotrellis.raster.{mask => _, _}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
@@ -41,11 +40,11 @@ object Masking extends App {
   val b2 = masked.toRaster(masked("band_2"), 466, 428)
 
   val brownToGreen = ColorRamp(
-    RGBA(166,97,26,255),
-    RGBA(223,194,125,255),
-    RGBA(245,245,245,255),
-    RGBA(128,205,193,255),
-    RGBA(1,133,113,255)
+    RGB(166,97,26),
+    RGB(223,194,125),
+    RGB(245,245,245),
+    RGB(128,205,193),
+    RGB(1,133,113)
   ).stops(128)
 
   val colors = ColorMap.fromQuantileBreaks(maskRF.tile.histogramDouble(), brownToGreen)

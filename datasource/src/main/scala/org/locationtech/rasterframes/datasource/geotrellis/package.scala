@@ -24,10 +24,10 @@ import java.net.URI
 
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import _root_.geotrellis.spark.LayerId
 import org.locationtech.rasterframes._
 import shapeless.tag.@@
 import shapeless.tag
+import _root_.geotrellis.store.{Layer => _, _}
 
 package object geotrellis extends DataSourceOptions {
   implicit val layerEncoder = Layer.layerEncoder

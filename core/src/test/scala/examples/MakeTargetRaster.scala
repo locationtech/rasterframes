@@ -20,13 +20,11 @@
 package examples
 
 import geotrellis.proj4.CRS
+import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
+import geotrellis.raster.mapalgebra.local.TileReducer
 import geotrellis.util.Filesystem
 import geotrellis.vector._
-import geotrellis.vector.io._
-import geotrellis.raster._
-import geotrellis.raster.mapalgebra.local.TileReducer
-import spray.json.DefaultJsonProtocol._
 
 
 /**

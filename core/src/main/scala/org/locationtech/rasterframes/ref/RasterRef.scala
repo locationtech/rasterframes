@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[GridBounds])
+case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[GridBounds[Int]])
   extends ProjectedRasterLike {
   def crs: CRS = source.crs
   def extent: Extent = subextent.getOrElse(source.extent)
@@ -48,7 +48,7 @@ case class RasterRef(source: RasterSource, bandIndex: Int, subextent: Option[Ext
   def cellType: CellType = source.cellType
   def tile: ProjectedRasterTile = RasterRefTile(this)
 
-  protected lazy val grid: GridBounds =
+  protected lazy val grid: GridBounds[Int] =
     subgrid.getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
 
   protected lazy val realizedTile: Tile = {
@@ -80,14 +80,14 @@ object RasterRef extends LazyLogging {
       StructField("source", rsType.sqlType, false),
       StructField("bandIndex", IntegerType, false),
       StructField("subextent", schemaOf[Extent], true),
-      StructField("subgrid", schemaOf[GridBounds], true)
+      StructField("subgrid", schemaOf[GridBounds[Int]], true)
     ))
 
     override def to[R](t: RasterRef, io: CatalystIO[R]): R = io.create(
       io.to(t.source)(RasterSourceUDT.rasterSourceSerializer),
       t.bandIndex,
       t.subextent.map(io.to[Extent]).orNull,
-      t.subgrid.map(io.to[GridBounds]).orNull
+      t.subgrid.map(io.to[GridBounds[Int]]).orNull
     )
 
     override def from[R](row: R, io: CatalystIO[R]): RasterRef = RasterRef(
@@ -96,7 +96,7 @@ object RasterRef extends LazyLogging {
       if (io.isNullAt(row, 2)) None
       else Option(io.get[Extent](row, 2)),
       if (io.isNullAt(row, 3)) None
-      else Option(io.get[GridBounds](row, 3))
+      else Option(io.get[GridBounds[Int]](row, 3))
     )
   }
 

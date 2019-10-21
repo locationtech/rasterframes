@@ -22,16 +22,15 @@
 package org.locationtech.rasterframes
 
 import com.typesafe.scalalogging.Logger
-import geotrellis.raster.CellGrid
+import geotrellis.layer._
 import geotrellis.raster.crop.TileCropMethods
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
-import geotrellis.spark.Bounds
+import geotrellis.raster.{CellGrid, Grid, GridBounds}
 import geotrellis.spark.tiling.TilerKeyMethods
-import geotrellis.util.{ByteReader, GetComponent}
+import geotrellis.util.GetComponent
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute
 import org.apache.spark.sql.catalyst.expressions.{Alias, Expression, NamedExpression}
@@ -40,8 +39,7 @@ import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
 import org.slf4j.LoggerFactory
-
-import scala.Boolean.box
+import spire.math.Integral
 
 /**
  * Internal utilities.
@@ -60,6 +58,12 @@ package object util extends DataFrameRenderers {
     def asClassTag: ClassTag[T] = ClassTag[T](t.mirror.runtimeClass(t.tpe))
   }
 
+  implicit class GridHasGridBounds[N: Integral](re: Grid[N]) {
+    import spire.syntax.integral._
+    val in = Integral[N]
+    def gridBounds: GridBounds[N] = GridBounds(in.zero, in.zero, re.cols - in.one, re.rows - in.one)
+  }
+
   /**
    * Type lambda alias for components that have bounds with parameterized key.
    * @tparam K bounds key type
@@ -70,8 +74,8 @@ package object util extends DataFrameRenderers {
 
   // Type lambda aliases
   type WithMergeMethods[V] = V ⇒ TileMergeMethods[V]
-  type WithPrototypeMethods[V <: CellGrid] = V ⇒ TilePrototypeMethods[V]
-  type WithCropMethods[V <: CellGrid] = V ⇒ TileCropMethods[V]
+  type WithPrototypeMethods[V <: CellGrid[Int]] = V ⇒ TilePrototypeMethods[V]
+  type WithCropMethods[V <: CellGrid[Int]] = V ⇒ TileCropMethods[V]
   type WithMaskMethods[V] = V ⇒ TileMaskMethods[V]
 
   type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
@@ -157,46 +161,46 @@ package object util extends DataFrameRenderers {
     analyzer(sqlContext).extendedResolutionRules
   }
 
-  object Shims {
-    // GT 1.2.1 to 2.0.0
-    def toArrayTile[T <: CellGrid](tile: T): T =
-      tile.getClass.getMethods
-        .find(_.getName == "toArrayTile")
-        .map(_.invoke(tile).asInstanceOf[T])
-        .getOrElse(tile)
-
-    // GT 1.2.1 to 2.0.0
-    def merge[V <: CellGrid: ClassTag: WithMergeMethods](left: V, right: V, col: Int, row: Int): V = {
-      val merger = implicitly[WithMergeMethods[V]].apply(left)
-      merger.getClass.getDeclaredMethods
-        .find(m ⇒ m.getName == "merge" && m.getParameterCount == 3)
-        .map(_.invoke(merger, right, Int.box(col), Int.box(row)).asInstanceOf[V])
-        .getOrElse(merger.merge(right))
-    }
-
-    // GT 1.2.1 to 2.0.0
-    // only decompress and streaming apply to 1.2.x
-    // only streaming and withOverviews apply to 2.0.x
-    // 1.2.x only has a 3-arg readGeoTiffInfo method
-    // 2.0.x has a 3- and 4-arg readGeoTiffInfo method, but the 3-arg one has different boolean
-    // parameters than the 1.2.x one
-    def readGeoTiffInfo(byteReader: ByteReader,
-                        decompress: Boolean,
-                        streaming: Boolean,
-                        withOverviews: Boolean): GeoTiffReader.GeoTiffInfo = {
-      val reader = GeoTiffReader.getClass.getDeclaredMethods
-        .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 4)
-        .getOrElse(
-          GeoTiffReader.getClass.getDeclaredMethods
-            .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 3)
-            .getOrElse(
-              throw new RuntimeException("Could not find method GeoTiffReader.readGeoTiffInfo")))
-
-      val result = reader.getParameterCount match {
-        case 3 ⇒ reader.invoke(GeoTiffReader, byteReader, box(decompress), box(streaming))
-        case 4 ⇒ reader.invoke(GeoTiffReader, byteReader, box(streaming), box(withOverviews), None)
-      }
-      result.asInstanceOf[GeoTiffReader.GeoTiffInfo]
-    }
-  }
+//  object Shims {
+//    // GT 1.2.1 to 2.0.0
+//    def toArrayTile[T <: CellGrid](tile: T): T =
+//      tile.getClass.getMethods
+//        .find(_.getName == "toArrayTile")
+//        .map(_.invoke(tile).asInstanceOf[T])
+//        .getOrElse(tile)
+//
+//    // GT 1.2.1 to 2.0.0
+//    def merge[V <: CellGrid: ClassTag: WithMergeMethods](left: V, right: V, col: Int, row: Int): V = {
+//      val merger = implicitly[WithMergeMethods[V]].apply(left)
+//      merger.getClass.getDeclaredMethods
+//        .find(m ⇒ m.getName == "merge" && m.getParameterCount == 3)
+//        .map(_.invoke(merger, right, Int.box(col), Int.box(row)).asInstanceOf[V])
+//        .getOrElse(merger.merge(right))
+//    }
+//
+//    // GT 1.2.1 to 2.0.0
+//    // only decompress and streaming apply to 1.2.x
+//    // only streaming and withOverviews apply to 2.0.x
+//    // 1.2.x only has a 3-arg readGeoTiffInfo method
+//    // 2.0.x has a 3- and 4-arg readGeoTiffInfo method, but the 3-arg one has different boolean
+//    // parameters than the 1.2.x one
+//    def readGeoTiffInfo(byteReader: ByteReader,
+//                        decompress: Boolean,
+//                        streaming: Boolean,
+//                        withOverviews: Boolean): GeoTiffReader.GeoTiffInfo = {
+//      val reader = GeoTiffReader.getClass.getDeclaredMethods
+//        .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 4)
+//        .getOrElse(
+//          GeoTiffReader.getClass.getDeclaredMethods
+//            .find(c ⇒ c.getName == "readGeoTiffInfo" && c.getParameterCount == 3)
+//            .getOrElse(
+//              throw new RuntimeException("Could not find method GeoTiffReader.readGeoTiffInfo")))
+//
+//      val result = reader.getParameterCount match {
+//        case 3 ⇒ reader.invoke(GeoTiffReader, byteReader, box(decompress), box(streaming))
+//        case 4 ⇒ reader.invoke(GeoTiffReader, byteReader, box(streaming), box(withOverviews), None)
+//      }
+//      result.asInstanceOf[GeoTiffReader.GeoTiffInfo]
+//    }
+//  }
 }

@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.encoders
 
-import geotrellis.spark.{KeyBounds, TileLayerMetadata}
+import geotrellis.layer._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 import scala.reflect.runtime.universe._
@@ -39,7 +39,7 @@ object TileLayerMetadataEncoder {
     "cellType" -> cellTypeEncoder,
     "layout" -> layoutDefinitionEncoder,
     "extent" -> extentEncoder,
-    "crs" -> crsEncoder
+    "crs" -> crsSparkEncoder
   )
 
   def apply[K: TypeTag](): ExpressionEncoder[TileLayerMetadata[K]] = {

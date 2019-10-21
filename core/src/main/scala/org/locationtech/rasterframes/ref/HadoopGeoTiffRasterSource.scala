@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
-import geotrellis.spark.io.hadoop.HdfsRangeReader
+import geotrellis.store.hadoop.util.HdfsRangeReader
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.locationtech.rasterframes.ref.RasterSource.{URIRasterSource, URIRasterSourceDebugString}
