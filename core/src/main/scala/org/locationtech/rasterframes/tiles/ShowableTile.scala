@@ -21,9 +21,9 @@
 
 package org.locationtech.rasterframes.tiles
 import org.locationtech.rasterframes._
-import geotrellis.raster.{DelegatingTile, Tile, isNoData}
+import geotrellis.raster.{Tile, isNoData}
 
-class ShowableTile(val delegate: Tile) extends DelegatingTile {
+class ShowableTile(val delegate: Tile) extends FixedDelegatingTile {
   override def equals(obj: Any): Boolean = obj match {
     case st: ShowableTile => delegate.equals(st.delegate)
     case o => delegate.equals(o)

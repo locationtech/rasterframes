@@ -25,7 +25,6 @@ import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
 import geotrellis.raster.Dimensions
 import geotrellis.vector._
 import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
-import spray.json.JsNumber
 
 /**
  * Test rig for operations providing interop with JTS types.

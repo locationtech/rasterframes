@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.tiles
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.raster.{CellType, DelegatingTile, ProjectedRaster, Tile}
+import geotrellis.raster.{CellType, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
  *
  * @since 9/5/18
  */
-trait ProjectedRasterTile extends DelegatingTile with ProjectedRasterLike {
+trait ProjectedRasterTile extends FixedDelegatingTile with ProjectedRasterLike {
   def extent: Extent
   def crs: CRS
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)

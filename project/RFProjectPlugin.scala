@@ -28,7 +28,7 @@ object RFProjectPlugin extends AutoPlugin {
       "-Ywarn-unused-import"
     ),
     scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
-    console / scalacOptions := Seq("-feature"),
+    Compile / console / scalacOptions := Seq("-feature"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     cancelable in Global := true,
     publishTo in ThisBuild := sonatypePublishTo.value,

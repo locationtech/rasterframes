@@ -26,7 +26,7 @@ import java.net.URI
 
 import geotrellis.layer._
 import geotrellis.proj4._
-import geotrellis.raster.{CellType, Tile}
+import geotrellis.raster.{ArrayTile, CellType, Raster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.Row
@@ -145,6 +145,16 @@ class EncodingSpec extends TestEnvironment with TestData {
       write(ds)
       assert(ds.first === env)
     }
+
+    it("should code RDD[Raster[Tile]]") {
+      import spark.implicits._
+      val t: Tile = ArrayTile(Array.emptyDoubleArray, 0, 0)
+      val e = Extent(1, 2 ,3, 4)
+      val r = Raster(t, e)
+      val ds = Seq(r).toDS()
+      println(ds.first())
+    }
+
   }
   describe("Dataframe encoding ops on spatial types") {
 
