@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.ref
 
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, GridBounds, Tile}
+import geotrellis.raster.{CellGrid, CellType, GridBounds, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
@@ -39,7 +39,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  * @since 8/21/18
  */
 case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[GridBounds[Int]])
-  extends ProjectedRasterLike {
+  extends CellGrid[Int] with ProjectedRasterLike {
   def crs: CRS = source.crs
   def extent: Extent = subextent.getOrElse(source.extent)
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)

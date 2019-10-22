@@ -70,20 +70,6 @@ lazy val core = project
       scaffeine,
       scalatest
     ),
-    /** https://github.com/lucidworks/spark-solr/issues/179
-      * Thanks @pomadchin for the tip! */
-    dependencyOverrides ++= {
-      val deps = Seq(
-        "com.fasterxml.jackson.core" % "jackson-core" % "2.6.7",
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7",
-        "com.fasterxml.jackson.core" % "jackson-annotations" % "2.6.7"
-      )
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        // if Scala 2.12+ is used
-        case Some((2, scalaMajor)) if scalaMajor >= 12 => deps
-        case _ => deps :+ "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.7"
-      }
-    },
     buildInfoKeys ++= Seq[BuildInfoKey](
       version, scalaVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),

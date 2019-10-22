@@ -44,7 +44,7 @@ import scala.concurrent.duration.Duration
  * @since 8/21/18
  */
 @Experimental
-trait RFRasterSource extends ProjectedRasterLike with Serializable {
+abstract class RFRasterSource extends CellGrid[Int] with ProjectedRasterLike with Serializable {
   import RFRasterSource._
 
   def crs: CRS

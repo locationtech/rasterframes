@@ -26,7 +26,7 @@ import geotrellis.raster.{ArrayTile, DelegatingTile, Tile}
  * Workaround for case where `combine` is invoked on two delegating tiles.
  * @since 8/22/18
  */
-trait FixedDelegatingTile extends DelegatingTile {
+abstract class FixedDelegatingTile extends DelegatingTile {
   override def combine(r2: Tile)(f: (Int, Int) ⇒ Int): Tile = (delegate, r2) match {
     case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combine(r2.toArrayTile())(f)
     case _ ⇒ delegate.combine(r2)(f)

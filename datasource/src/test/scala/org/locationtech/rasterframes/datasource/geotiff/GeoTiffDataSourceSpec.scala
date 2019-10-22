@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.nio.file.{Path, Paths}
 
 import geotrellis.proj4._
-import geotrellis.raster.CellType
+import geotrellis.raster.{CellType, Dimensions}
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
@@ -93,7 +93,7 @@ class GeoTiffDataSourceSpec
 
     def checkTiff(file: Path, cols: Int, rows: Int, extent: Extent, cellType: Option[CellType] = None) = {
       val outputTif = SinglebandGeoTiff(file.toString)
-      outputTif.tile.dimensions should be ((cols, rows))
+      outputTif.tile.dimensions should be (Dimensions(cols, rows))
       outputTif.extent should be (extent)
       cellType.foreach(ct =>
         outputTif.cellType should be (ct)

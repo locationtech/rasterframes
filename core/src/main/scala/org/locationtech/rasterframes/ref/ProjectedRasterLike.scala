@@ -30,7 +30,7 @@ import geotrellis.vector.Extent
  *
  * @since 11/3/18
  */
-trait ProjectedRasterLike extends CellGrid[Int] {
+trait ProjectedRasterLike  { _: CellGrid[Int] =>
   def crs: CRS
   def extent: Extent
 }

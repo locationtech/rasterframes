@@ -24,7 +24,6 @@ package org.locationtech.rasterframes
 import geotrellis.raster.resample.Bilinear
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{IntConstantNoDataCellType, Raster, Tile}
-import geotrellis.vector.Extent
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
@@ -158,8 +157,6 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
 
       total18 should be > 0.0
       total18 should be < total17
-
-
     }
 
     it("should pass through ancillary columns") {

@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
  *
  * @since 9/5/18
  */
-trait ProjectedRasterTile extends FixedDelegatingTile with ProjectedRasterLike {
+abstract class ProjectedRasterTile extends FixedDelegatingTile with ProjectedRasterLike {
   def extent: Extent
   def crs: CRS
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
