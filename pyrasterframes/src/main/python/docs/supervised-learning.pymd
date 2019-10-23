@@ -32,7 +32,8 @@ catalog_df = pd.DataFrame([
     {b: uri_base.format(b) for b in cols}
 ])
 
-df = spark.read.raster(catalog_df, catalog_col_names=cols, tile_dimensions=(256, 256)) \
+tile_size = 256
+df = spark.read.raster(catalog_df, catalog_col_names=cols, tile_dimensions=(tile_size, tile_size)) \
 					  .repartition(100)
 
 df = df.select(
@@ -193,10 +194,10 @@ scored = model.transform(df_mask.drop('label'))
 retiled = scored \
     .groupBy('extent', 'crs') \
     .agg(
-        rf_assemble_tile('column_index', 'row_index', 'prediction', 128, 128).alias('prediction'),
-        rf_assemble_tile('column_index', 'row_index', 'B04', 128, 128).alias('red'),
-        rf_assemble_tile('column_index', 'row_index', 'B03', 128, 128).alias('grn'),
-        rf_assemble_tile('column_index', 'row_index', 'B02', 128, 128).alias('blu')
+        rf_assemble_tile('column_index', 'row_index', 'prediction', tile_size, tile_size).alias('prediction'),
+        rf_assemble_tile('column_index', 'row_index', 'B04', tile_size, tile_size).alias('red'),
+        rf_assemble_tile('column_index', 'row_index', 'B03', tile_size, tile_size).alias('grn'),
+        rf_assemble_tile('column_index', 'row_index', 'B02', tile_size, tile_size).alias('blu')
     )
 retiled.printSchema()
 ```
