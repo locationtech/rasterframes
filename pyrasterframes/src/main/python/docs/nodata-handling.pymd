@@ -105,7 +105,7 @@ Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create
 ```python, def_mask
 from pyspark.sql.functions import lit
 
-mask = unmasked.withColumn('mask', rf_local_is_in('scl', [0, 1, 8, 9, 10])
+mask = unmasked.withColumn('mask', rf_local_is_in('scl', [0, 1, 8, 9, 10]))
 
 cell_types = mask.select(rf_cell_type('mask')).distinct()
 cell_types
