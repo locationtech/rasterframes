@@ -32,7 +32,7 @@ catalog_df = pd.DataFrame([
     {b: uri_base.format(b) for b in cols}
 ])
 
-df = spark.read.raster(catalog_df, catalog_col_names=cols, tile_dimensions=(128, 128)) \
+df = spark.read.raster(catalog_df, catalog_col_names=cols, tile_dimensions=(256, 256)) \
 					  .repartition(100)
 
 df = df.select(
@@ -91,23 +91,12 @@ To filter only for good quality pixels, we follow roughly the same procedure as 
 ```python, make_mask
 from pyspark.sql.functions import lit
 
-mask_part = df_labeled \
-    .withColumn('nodata', rf_local_equal('scl', lit(0))) \
-    .withColumn('defect', rf_local_equal('scl', lit(1))) \
-    .withColumn('cloud8', rf_local_equal('scl', lit(8))) \
-    .withColumn('cloud9', rf_local_equal('scl', lit(9))) \
-    .withColumn('cirrus', rf_local_equal('scl', lit(10)))
+df_labeled = df_labeled \
+    .withColumn('mask', rf_local_is_in('scl', [0, 1, 8, 9, 10]))
 
-df_mask_inv = mask_part \
-    .withColumn('mask', rf_local_add('nodata', 'defect')) \
-    .withColumn('mask', rf_local_add('mask', 'cloud8')) \
-    .withColumn('mask', rf_local_add('mask', 'cloud9')) \
-    .withColumn('mask', rf_local_add('mask', 'cirrus')) \
-    .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus')
-    
 # at this point the mask contains 0 for good cells and 1 for defect, etc
 # convert cell type and set value 1 to NoData
-df_mask = df_mask_inv.withColumn('mask',
+df_mask = df_labeled.withColumn('mask',
   rf_with_no_data(rf_convert_cell_type('mask', 'uint8'), 1.0)
 )
 
@@ -213,20 +202,26 @@ retiled.printSchema()
 ```
 
 Take a look at a sample of the resulting output and the corresponding area's red-green-blue composite image.
+Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow).
 
 ```python, display_rgb
 sample = retiled \
-    .select('prediction', rf_rgb_composite('red', 'grn', 'blu').alias('rgb')) \
+    .select('prediction', 'red', 'grn', 'blu') \
     .sort(-rf_tile_sum(rf_local_equal('prediction', lit(3.0)))) \
     .first()
 
-sample_rgb = sample['rgb']
-mins = np.nanmin(sample_rgb.cells, axis=(0,1))
-plt.imshow((sample_rgb.cells -  mins) / (np.nanmax(sample_rgb.cells, axis=(0,1)) - mins))
-```
+sample_rgb = np.concatenate([sample['red'].cells[:, :, None],
+                             sample['grn'].cells[ :, :, None],
+                             sample['blu'].cells[ :, :, None]], axis=2)
+# plot  scaled RGB
+scaling_quantiles = np.nanpercentile(sample_rgb, [3.00, 97.00], axis=(0,1))
+scaled = np.clip(sample_rgb, scaling_quantiles[0, :], scaling_quantiles[1, :])
+scaled -= scaling_quantiles[0, :]
+scaled /= (scaling_quantiles[1, : ] - scaling_quantiles[0, :])
 
-Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow).
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+ax1.imshow(scaled)
 
-```python, display_prediction
-display(sample['prediction'])
+# display prediction
+ax2.imshow(sample['prediction'].cells)
 ```
