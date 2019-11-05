@@ -85,4 +85,12 @@ case class IsIn(left: Expression, right: Expression) extends BinaryExpression wi
 object IsIn {
   def apply(left: Column, right: Column): Column =
     new Column(IsIn(left.expr, right.expr))
+
+  def apply(left: Column, right: Array[Int]): Column = {
+    import org.apache.spark.sql.functions.lit
+    import org.apache.spark.sql.functions.array
+    val arrayExpr = array(right.map(lit):_*).expr
+    new Column(IsIn(left.expr, arrayExpr))
+  }
+
 }

@@ -408,6 +408,9 @@ trait RasterFunctions {
   /** Test if each cell value is in provided array */
   def rf_local_is_in(tileCol: Column, arrayCol: Column) = IsIn(tileCol, arrayCol)
 
+  /** Test if each cell value is in provided array */
+  def rf_local_is_in(tileCol: Column, array: Array[Int]) = IsIn(tileCol, array)
+
   /** Return a tile with ones where the input is NoData, otherwise zero */
   def rf_local_no_data(tileCol: Column): Column = Undefined(tileCol)
 

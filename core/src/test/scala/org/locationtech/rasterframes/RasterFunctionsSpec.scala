@@ -983,6 +983,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       .withColumn("ten", lit(10))
       .withColumn("in_expect_2", rf_local_is_in($"t", array($"one", $"five")))
       .withColumn("in_expect_1", rf_local_is_in($"t", array($"ten", $"five")))
+      .withColumn("in_expect_1a", rf_local_is_in($"t", Array(10, 5)))
       .withColumn("in_expect_0", rf_local_is_in($"t", array($"ten")))
 
     val e2Result = df.select(rf_tile_sum($"in_expect_2")).as[Double].first()
@@ -990,6 +991,9 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     val e1Result = df.select(rf_tile_sum($"in_expect_1")).as[Double].first()
     e1Result should be (1.0)
+
+    val e1aResult = df.select(rf_tile_sum($"in_expect_1a")).as[Double].first()
+    e1aResult should be (1.0)
 
     val e0Result = df.select($"in_expect_0").as[Tile].first()
     e0Result.toArray() should contain only (0)
