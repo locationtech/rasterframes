@@ -51,12 +51,12 @@ object RFDependenciesPlugin extends AutoPlugin {
 
   override def projectSettings = Seq(
     resolvers ++= Seq(
+      Resolver.mavenLocal,
       "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
       "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
     ),
-
     /** https://github.com/lucidworks/spark-solr/issues/179
       * Thanks @pomadchin for the tip! */
     dependencyOverrides ++= {
@@ -73,7 +73,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     },
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "2.4.4",
-    rfGeoTrellisVersion := "3.0.0",
-    rfGeoMesaVersion := "2.2.1",
+    rfGeoTrellisVersion := "3.0.0-SNAPSHOT",
+    rfGeoMesaVersion := "2.2.1"
   )
 }
