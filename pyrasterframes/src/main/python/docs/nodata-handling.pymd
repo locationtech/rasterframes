@@ -105,32 +105,23 @@ Drawing on @ref:[local map algebra](local-algebra.md) techniques, we will create
 ```python, def_mask
 from pyspark.sql.functions import lit
 
-mask_part = unmasked.withColumn('nodata', rf_local_equal('scl', lit(0))) \
-                    .withColumn('defect', rf_local_equal('scl', lit(1))) \
-                    .withColumn('cloud8', rf_local_equal('scl', lit(8))) \
-                    .withColumn('cloud9', rf_local_equal('scl', lit(9))) \
-                    .withColumn('cirrus', rf_local_equal('scl', lit(10)))
+mask = unmasked.withColumn('mask', rf_local_is_in('scl', [0, 1, 8, 9, 10]))
 
-one_mask = mask_part.withColumn('mask', rf_local_add('nodata', 'defect')) \
-                    .withColumn('mask', rf_local_add('mask', 'cloud8')) \
-                    .withColumn('mask', rf_local_add('mask', 'cloud9')) \
-                    .withColumn('mask', rf_local_add('mask', 'cirrus'))
-
-cell_types = one_mask.select(rf_cell_type('mask')).distinct()
+cell_types = mask.select(rf_cell_type('mask')).distinct()
 cell_types
 ```
 
 Because there is not a NoData already defined, we will choose one. In this particular example, the minimum value is greater than zero, so we can use 0 as the NoData value.
 
 ```python, pick_nd
-blue_min = one_mask.agg(rf_agg_stats('blue').min.alias('blue_min'))
+blue_min = mask.agg(rf_agg_stats('blue').min.alias('blue_min'))
 blue_min
 ```
 
 We can now construct the cell type string for our blue band's cell type, designating 0 as NoData.
 
 ```python, get_ct_string
-blue_ct = one_mask.select(rf_cell_type('blue')).distinct().first()[0][0]
+blue_ct = mask.select(rf_cell_type('blue')).distinct().first()[0][0]
 masked_blue_ct = CellType(blue_ct).with_no_data_value(0)
 masked_blue_ct.cell_type_name
 ```
@@ -139,9 +130,8 @@ Now we will use the @ref:[`rf_mask_by_value`](reference.md#rf-mask-by-value) to 
 
 ```python, mask_blu
 with_nd = rf_convert_cell_type('blue', masked_blue_ct)
-masked = one_mask.withColumn('blue_masked',
-    rf_mask_by_value(with_nd, 'mask', lit(1))) \
-    .drop('nodata', 'defect', 'cloud8', 'cloud9', 'cirrus', 'blue')
+masked = mask.withColumn('blue_masked',
+    rf_mask_by_value(with_nd, 'mask', lit(1)))
 ```
 
 We can verify that the number of NoData cells in the resulting `blue_masked` column matches the total of the boolean `mask` _tile_ to ensure our logic is correct.

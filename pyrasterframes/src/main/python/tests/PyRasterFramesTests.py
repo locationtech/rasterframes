@@ -131,7 +131,7 @@ class UDT(TestEnvironment):
             cells[1][1] = nd
             a_tile = Tile(cells, ct.with_no_data_value(nd))
             round_trip = udt.fromInternal(udt.toInternal(a_tile))
-            self.assertEquals(a_tile, round_trip, "round-trip serialization for " + str(ct))
+            self.assertEqual(a_tile, round_trip, "round-trip serialization for " + str(ct))
 
             schema = StructType([StructField("tile", TileUDT(), False)])
             df = self.spark.createDataFrame([{"tile": a_tile}], schema)

@@ -192,7 +192,7 @@ Parameters `tile_columns` and `tile_rows` are literals, not column expressions. 
 
     Tile rf_array_to_tile(Array arrayCol, Int numCols, Int numRows)
 
-Python only. Create a `tile` from a Spark SQL [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), filling values in row-major order.
+Python only. Create a `tile` from a Spark SQL [Array][Array], filling values in row-major order.
 
 ### rf_assemble_tile
 
@@ -382,6 +382,13 @@ Returns a `tile` column containing the element-wise equality of `tile1` and `rhs
 
 
 Returns a `tile` column containing the element-wise inequality of `tile1` and `rhs`.
+
+### rf_local_is_in
+
+    Tile rf_local_is_in(Tile tile, Array array)
+    Tile rf_local_is_in(Tile tile, list l)
+
+Returns a `tile` column with cell values of 1 where the `tile` cell value is in the provided array or list. The `array` is a Spark SQL [Array][Array]. A python `list` of numeric values can also be passed.
 
 ### rf_round
 
@@ -630,13 +637,13 @@ Python only. As with @ref:[`rf_explode_tiles`](reference.md#rf-explode-tiles), b
 
     Array rf_tile_to_array_int(Tile tile)
 
-Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
+Convert Tile column to Spark SQL [Array][Array], in row-major order. Float cell types will be coerced to integral type by flooring.
 
 ### rf_tile_to_array_double
 
     Array rf_tile_to_arry_double(Tile tile)
 
-Convert tile column to Spark [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
+Convert tile column to Spark [Array][Array], in row-major order. Integral cell types will be coerced to floats.
 
 ### rf_render_ascii
 
@@ -666,3 +673,4 @@ Runs [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile colum
 
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
+[Array]: http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType
