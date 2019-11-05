@@ -25,6 +25,7 @@ signatures are handled here as well.
 """
 from __future__ import absolute_import
 from pyspark.sql.column import Column, _to_java_column
+from pyspark.sql.functions import lit
 from .rf_context import RFContext
 from .rf_types import CellType
 
@@ -135,20 +136,6 @@ def rf_explode_tiles_sample(sample_frac, seed, *tile_cols):
     jfcn = RFContext.active().lookup('rf_explode_tiles_sample')
     jcols = [_to_java_column(arg) for arg in tile_cols]
     return Column(jfcn(sample_frac, seed, RFContext.active().list_to_seq(jcols)))
-
-
-def rf_mask_by_value(data_tile, mask_tile, mask_value):
-    """Generate a tile with the values from the data tile, but where cells in the masking tile contain the masking
-    value, replace the data value with NODATA. """
-    jfcn = RFContext.active().lookup('rf_mask_by_value')
-    return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
-
-
-def rf_inverse_mask_by_value(data_tile, mask_tile, mask_value):
-    """Generate a tile with the values from the data tile, but where cells in the masking tile do not contain the
-    masking value, replace the data value with NODATA. """
-    jfcn = RFContext.active().lookup('rf_inverse_mask_by_value')
-    return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value)))
 
 
 def _apply_scalar_to_tile(name, tile_col, scalar):
@@ -270,13 +257,15 @@ def rf_local_data(tile_col):
     """Return a tile with zeros where the input is NoData, otherwise one."""
     return _apply_column_function('rf_local_data', tile_col)
 
+
 def rf_local_is_in(tile_col, array):
     """Return a tile with cell values of 1 where the `tile_col` cell is in the provided array."""
-    from pyspark.sql.functions import array as sql_array, lit
+    from pyspark.sql.functions import array as sql_array
     if isinstance(array, list):
         array = sql_array([lit(v) for v in array])
 
     return _apply_column_function('rf_local_is_in', tile_col, array)
+
 
 def _apply_column_function(name, *args):
     jfcn = RFContext.active().lookup(name)
@@ -459,14 +448,52 @@ def rf_agg_local_stats(tile_col):
     return _apply_column_function('rf_agg_local_stats', tile_col)
 
 
-def rf_mask(src_tile_col, mask_tile_col):
-    """Where the rf_mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA."""
-    return _apply_column_function('rf_mask', src_tile_col, mask_tile_col)
+def rf_mask(src_tile_col, mask_tile_col, inverse=False):
+    """Where the rf_mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA.
+       If `inverse` is true, replaces values in the source tile with NODATA where the mask tile contains valid data.
+    """
+    if not inverse:
+        return _apply_column_function('rf_mask', src_tile_col, mask_tile_col)
+    else:
+        rf_inverse_mask(src_tile_col, mask_tile_col)
 
 
 def rf_inverse_mask(src_tile_col, mask_tile_col):
-    """Where the rf_mask (second) tile DOES NOT contain NODATA, replace values in the source (first) tile with NODATA."""
+    """Where the rf_mask (second) tile DOES NOT contain NODATA, replace values in the source
+       (first) tile with NODATA."""
     return _apply_column_function('rf_inverse_mask', src_tile_col, mask_tile_col)
+
+
+def rf_mask_by_value(data_tile, mask_tile, mask_value, inverse=False):
+    """Generate a tile with the values from the data tile, but where cells in the masking tile contain the masking
+    value, replace the data value with NODATA. """
+    if isinstance(mask_value, (int, float)):
+        mask_value = lit(mask_value)
+    jfcn = RFContext.active().lookup('rf_mask_by_value')
+
+    return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value), inverse))
+
+
+def rf_mask_by_values(data_tile, mask_tile, mask_values, inverse=False):
+    """Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
+       list, replace the value with NODATA.
+       If `inverse` is True, the cells in `mask_tile` that are not in `mask_values` list become NODATA
+    """
+    from pyspark.sql.functions import array as sql_array
+    if isinstance(mask_values, list):
+        mask_values = sql_array([lit(v) for v in mask_values])
+
+    jfcn = RFContext.active().lookup('rf_mask_by_values')
+    col_args = [_to_java_column(c) for c in [data_tile, mask_tile, mask_values]]
+    return Column(jfcn(*col_args, inverse))
+
+
+def rf_inverse_mask_by_value(data_tile, mask_tile, mask_value):
+    """Generate a tile with the values from the data tile, but where cells in the masking tile do not contain the
+    masking value, replace the data value with NODATA. """
+    if isinstance(mask_value, (int, float)):
+        mask_value = lit(mask_value)
+    return _apply_column_function('rf_inverse_mask_by_value', data_tile, mask_tile, mask_value)
 
 
 def rf_local_less(left_tile_col, right_tile_col):

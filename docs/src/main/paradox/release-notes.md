@@ -6,7 +6,7 @@
 
 * _Breaking_ (potentially): removed `GeoTiffCollectionRelation` due to usage limitation and overlap with `RasterSourceDataSource` functionality.
 * Upgraded to Spark 2.4.4
- * Add `rf_local_is_in` raster function
+ * Add `rf_mask_by_values` and `rf_local_is_in` raster functions; added optional `inverse` argument to `rf_mask` functions
 
 ### 0.8.3
 

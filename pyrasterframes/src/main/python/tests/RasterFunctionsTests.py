@@ -24,6 +24,8 @@ from pyrasterframes.rf_types import Tile
 from pyspark import Row
 from pyspark.sql.functions import *
 
+import numpy as np
+from numpy.testing import assert_equal
 
 from . import TestEnvironment
 
@@ -103,7 +105,6 @@ class RasterFunctions(TestEnvironment):
     def test_agg_local_mean(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile
-        import numpy as np
 
         # this is really testing the nodata propagation in the agg  local summation
         ct = CellType.int8().with_no_data_value(4)
@@ -221,20 +222,51 @@ class RasterFunctions(TestEnvironment):
                                      rf_local_greater_int(self.rf.tile, 25000),
                                      "uint8"),
                                  lit(mask_value)).alias('mask'))
-        rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
+        rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value), False).alias('masked'))
         result = rf2.agg(rf_agg_no_data_cells(rf2.tile) < rf_agg_no_data_cells(rf2.masked)) \
             .collect()[0][0]
         self.assertTrue(result)
 
-        rf3 = rf1.select(rf1.tile, rf_inverse_mask_by_value(rf1.tile, rf1.mask, lit(mask_value)).alias('masked'))
-        result = rf3.agg(rf_agg_no_data_cells(rf3.tile) < rf_agg_no_data_cells(rf3.masked)) \
-            .collect()[0][0]
-        self.assertTrue(result)
+        # note supplying a `int` here, not a column to mask value
+        rf3 = rf1.select(
+            rf1.tile,
+            rf_inverse_mask_by_value(rf1.tile, rf1.mask, mask_value).alias('masked'),
+            rf_mask_by_value(rf1.tile, rf1.mask, mask_value, True).alias('masked2'),
+        )
+        result = rf3.agg(
+            rf_agg_no_data_cells(rf3.tile) < rf_agg_no_data_cells(rf3.masked),
+            rf_agg_no_data_cells(rf3.tile) < rf_agg_no_data_cells(rf3.masked2),
+        ) \
+            .first()
+        self.assertTrue(result[0])
+        self.assertTrue(result[1])  # inverse mask arg gives equivalent result
+
+        result_equiv_tiles = rf3.select(rf_for_all(rf_local_equal(rf3.masked, rf3.masked2))).first()[0]
+        self.assertTrue(result_equiv_tiles)  # inverse fn and inverse arg produce same Tile
+
+    def test_mask_by_values(self):
+
+        tile = Tile(np.random.randint(1, 100, (5, 5)), CellType.uint8())
+        mask_tile = Tile(np.array(range(1, 26), 'uint8').reshape(5, 5))
+        expected_diag_nd = Tile(np.ma.masked_array(tile.cells, mask=np.eye(5)))
+        expected_off_diag_nd = Tile(np.ma.masked_array(tile.cells, mask=1 - np.eye(5)))
+
+        df = self.spark.createDataFrame([Row(t=tile, m=mask_tile)]) \
+            .select(rf_mask_by_values('t', 'm', [0, 6, 12, 18, 24]))  # values on the diagonal
+        result0 = df.first()
+        # assert_equal(result0[0].cells, expected_diag_nd)
+        self.assertTrue(result0[0] == expected_diag_nd)
+
+        # mask values off the diagonal! (inverse=True)
+        result1 = self.spark.createDataFrame([Row(t=tile, m=mask_tile)]) \
+            .select(rf_mask_by_values('t', 'm', [0, 6, 12, 18, 24], True)) \
+            .first()
+        # assert_equal(result1[0].cells, expected_off_diag_nd)
+        self.assertTrue(result1[0] == expected_off_diag_nd)
 
     def test_mask(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile, CellType
-        import numpy as np
 
         np.random.seed(999)
         ma = np.ma.array(np.random.randint(0, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
@@ -326,7 +358,6 @@ class RasterFunctions(TestEnvironment):
     def test_rf_interpret_cell_type_as(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile
-        import numpy as np
 
         df = self.spark.createDataFrame([
             Row(t=Tile(np.array([[1, 3, 4], [5, 0, 3]]), CellType.uint8().with_no_data_value(5)))
@@ -341,8 +372,6 @@ class RasterFunctions(TestEnvironment):
     def test_rf_local_data_and_no_data(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile
-        import numpy as np
-        from numpy.testing import assert_equal
 
         nd = 5
         t = Tile(
@@ -363,8 +392,6 @@ class RasterFunctions(TestEnvironment):
     def test_rf_local_is_in(self):
         from pyspark.sql.functions import lit, array, col
         from pyspark.sql import Row
-        import numpy as np
-        from numpy.testing import assert_equal
 
         nd = 5
         t = Tile(
