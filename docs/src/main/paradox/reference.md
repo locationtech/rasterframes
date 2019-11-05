@@ -207,7 +207,7 @@ SQL implementation does not accept a cell_type argument. It returns a float64 ce
 
 ## Masking and NoData
 
-See @ref:[NoData handling](nodata-handling.md) for conceptual discussion of cell types and NoData.
+See the @ref:[masking](masking.md) page for conceptual discussion of masking operations.
 
 There are statistical functions of the count of data and NoData values per `tile` and aggregate over a `tile` column: @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells).
 
