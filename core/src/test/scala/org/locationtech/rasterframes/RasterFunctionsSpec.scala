@@ -694,17 +694,37 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
         rf_local_multiply(rf_convert_cell_type(
           rf_local_greater($"tile", 50),
           "uint8"),
-          lit(mask_value)
+          mask_value
         )
       )
 
       val withMasked = withMask.withColumn("masked",
-        rf_inverse_mask_by_value($"tile", $"mask", lit(mask_value)))
+        rf_inverse_mask_by_value($"tile", $"mask", mask_value))
+        .withColumn("masked2", rf_mask_by_value($"tile", $"mask", lit(mask_value), true))
 
       val result = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked")).as[Boolean]
 
       result.first() should be(true)
+
+      val result2 = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked2")).as[Boolean]
+      result2.first() should be(true)
+
       checkDocs("rf_inverse_mask_by_value")
+    }
+
+    it("should mask tile by another identified by specified values") {
+      val squareIncrementingPRT = ProjectedRasterTile(squareIncrementingTile(randPRT.rows), randPRT.extent, randPRT.crs)
+      val df = Seq((randPRT, squareIncrementingPRT))
+                .toDF("tile", "mask")
+      val mask_values = Seq(4, 5, 6, 12)
+
+      val withMasked = df.withColumn("masked",
+        rf_mask_by_values($"tile", $"mask", mask_values))
+
+      val result = withMasked.agg(rf_agg_no_data_cells($"masked") as "nd").as[Long]
+
+      result.first() should be(mask_values.length)
+      checkDocs("rf_mask_by_values")
     }
 
     it("should render ascii art") {
