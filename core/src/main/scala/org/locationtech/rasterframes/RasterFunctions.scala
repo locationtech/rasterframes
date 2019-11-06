@@ -353,6 +353,15 @@ trait RasterFunctions {
   def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Int): TypedColumn[Any, Tile] =
     Mask.InverseMaskByValue(sourceTile, maskTile, lit(maskValue))
 
+  def rf_local_extract_bits(tile: Column, startBit: Column, numBits: Column): Column =
+    ExtractBits(tile, startBit, numBits)
+  def rf_local_extract_bits(tile: Column, startBit: Column): Column =
+    rf_local_extract_bits(tile, startBit, lit(1))
+  def rf_local_extract_bits(tile: Column, startBit: Int, numBits: Int): Column =
+    rf_local_extract_bits(tile, lit(startBit), lit(numBits))
+  def rf_local_extract_bits(tile: Column, startBit: Int): Column =
+    rf_local_extract_bits(tile, lit(startBit))
+
   /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rf_rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
     withTypedAlias("rf_rasterize", geometry)(

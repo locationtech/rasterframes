@@ -1020,4 +1020,61 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
 //    lazy val invalid = df.select(rf_local_is_in($"t", lit("foobar"))).as[Tile].first()
   }
+
+  it("should unpack QA bits"){
+    // Sample of https://www.usgs.gov/media/images/landsat-8-quality-assessment-band-pixel-value-interpretations
+    val fill = 1
+    val clear = 2720
+    val cirrus = 6816
+    val med_cloud = 2756 // with 1-2 bands saturated
+    val tiles = Seq(fill, clear, cirrus, med_cloud).map(v ⇒
+       TestData.projectedRasterTile(3, 3, v, TestData.extent, TestData.crs, UShortCellType))
+
+    val df = tiles.toDF("tile")
+      .withColumn("val", rf_tile_min($"tile"))
+
+
+    val result = df
+      .withColumn("qa_fill", rf_local_extract_bits($"tile", lit(0)))
+      .withColumn("qa_sat", rf_local_extract_bits($"tile", lit(2), lit(2)))
+      .withColumn("qa_cloud", rf_local_extract_bits($"tile", lit(4)))
+      .withColumn("qa_cconf", rf_local_extract_bits($"tile", 5, 2))
+      .withColumn("qa_snow", rf_local_extract_bits($"tile", lit(9), lit(2)))
+      .withColumn("qa_circonf", rf_local_extract_bits($"tile", 11, 2))
+
+
+    def checker(colName: String, valFilter: Int, assertValue: Int): Unit = {
+      // print this so we can see what's happening if something  wrong
+      println(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+      result.filter($"val" === lit(valFilter))
+        .select(col(colName))
+        .as[ProjectedRasterTile]
+        .first()
+        .get(0, 0) should be (assertValue)
+    }
+
+    checker("qa_fill", fill, 1)
+    checker("qa_cloud", fill, 0)
+    checker("qa_cconf", fill, 0)
+    checker("qa_sat", fill, 0)
+    checker("qa_snow", fill, 0)
+    checker("qa_circonf", fill, 0)
+
+    checker("qa_fill", clear, 0)
+    checker("qa_cloud", clear, 0)
+    checker("qa_cconf", clear, 1)
+
+    checker("qa_fill", med_cloud, 0)
+    checker("qa_cloud", med_cloud, 0)
+    checker("qa_cconf", med_cloud, 2) // L8 only tags hi conf in the cloud assessment
+    checker("qa_sat", med_cloud, 1)
+
+    checker("qa_fill", cirrus, 0)
+    checker("qa_sat", cirrus, 0)
+    checker("qa_cloud", cirrus, 0) //low cloud conf
+    checker("qa_cconf", cirrus, 1) //low cloud conf
+    checker("qa_circonf", cirrus, 3) //high cirrus  conf
+
+
+  }
 }
