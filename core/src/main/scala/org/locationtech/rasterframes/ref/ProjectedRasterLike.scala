@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.ref
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, CellType}
+import geotrellis.raster.CellType
 import geotrellis.vector.Extent
 
 /**

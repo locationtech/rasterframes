@@ -196,7 +196,7 @@ class GeoTiffDataSourceSpec
 
       val sample = rgbCogSample
       val expectedExtent = sample.extent
-      val (expCols, expRows) = sample.tile.dimensions
+      val Dimensions(expCols, expRows) = sample.tile.dimensions
 
       val rf = spark.read.raster.withBandIndexes(0, 1, 2).load(rgbCogSamplePath.toASCIIString)
 
