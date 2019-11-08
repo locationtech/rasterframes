@@ -316,10 +316,7 @@ trait RasterFunctions {
        list, replace the value with NODATA.
        If `inverse` is True, the cells in `mask_tile` that are not in `mask_values` list become NODATA */
   def rf_mask_by_values(sourceTile: Column, maskTile: Column, maskValues: Column, inverse: Boolean): TypedColumn[Any, Tile] =
-    if (!inverse)
-      Mask.MaskByValue(sourceTile, rf_local_is_in(maskTile, maskValues), lit(1))
-    else
-      Mask.MaskByValue(sourceTile, rf_local_is_in(maskTile, maskValues), lit(0))
+      Mask.MaskByValues(sourceTile, maskTile, maskValues, lit(inverse))
 
   /** Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
        list, replace the value with NODATA. */

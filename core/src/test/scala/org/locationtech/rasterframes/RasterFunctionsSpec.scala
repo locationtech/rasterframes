@@ -713,6 +713,8 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask tile by another identified by specified values") {
+      checkDocs("rf_mask_by_values")
+
       val squareIncrementingPRT = ProjectedRasterTile(squareIncrementingTile(six.rows), six.extent, six.crs)
       val df = Seq((six, squareIncrementingPRT))
                 .toDF("tile", "mask")

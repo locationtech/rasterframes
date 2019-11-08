@@ -24,16 +24,18 @@ package org.locationtech.rasterframes.expressions.transformers
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster
 import geotrellis.raster.Tile
-import geotrellis.raster.mapalgebra.local.{Defined, InverseMask => gtInverseMask, Mask => gtMask}
+import geotrellis.raster.mapalgebra.local.{Defined, InverseMask ⇒ gtInverseMask, Mask ⇒ gtMask}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal, TernaryExpression}
+import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import org.locationtech.rasterframes.expressions.localops.IsIn
 import org.locationtech.rasterframes.expressions.row
 import org.slf4j.LoggerFactory
 
@@ -169,4 +171,26 @@ object Mask {
     def apply(srcTile: Column, maskingTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
       new Column(InverseMaskByValue(srcTile.expr, maskingTile.expr, maskValue.expr)).as[Tile]
   }
+
+  @ExpressionDescription(
+    usage = "_FUNC_(data, mask, maskValues, inverse) - Generate a tile with the values from `data` tile but where cells in the `mask` tile are in the `maskValues` list, replace the value with NODATA. If `inverse` is true, the cells in `mask` that are not in `maskValues` list become NODATA",
+    arguments =
+      """
+
+        """,
+    examples =
+      """
+         > SELECT _FUNC_(data, mask, array(1, 2, 3), false)
+
+        """
+  )
+  case class MaskByValues(dataTile: Expression, maskTile: Expression, maskValues: Expression, inverse: Boolean)
+  extends Mask(dataTile, IsIn(maskTile, maskValues), inverse, false) {
+    override def nodeName: String = "rf_mask_by_values"
+  }
+  object MaskByValues {
+    def apply(dataTile: Column, maskTile: Column, maskValues: Column, inverse: Column): TypedColumn[Any, Tile] =
+      new Column(MaskByValues(dataTile.expr, maskTile.expr, maskValues.expr, inverse.expr)).as[Tile]
+  }
+
 }
