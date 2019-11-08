@@ -319,7 +319,7 @@ trait RasterFunctions {
     if (!inverse)
       Mask.MaskByValue(sourceTile, rf_local_is_in(maskTile, maskValues), lit(1))
     else
-      Mask.InverseMaskByValue(sourceTile, rf_local_is_in(maskTile, maskValues), lit(0))
+      Mask.MaskByValue(sourceTile, rf_local_is_in(maskTile, maskValues), lit(0))
 
   /** Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
        list, replace the value with NODATA. */
