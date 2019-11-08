@@ -49,6 +49,7 @@ class GeoTiffDataSource
 
   def shortName() = GeoTiffDataSource.SHORT_NAME
 
+  /** Read single geotiff as a relation. */
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
     require(parameters.path.isDefined, "Valid URI 'path' parameter required.")
     sqlContext.withRasterFrames
@@ -57,6 +58,7 @@ class GeoTiffDataSource
     GeoTiffRelation(sqlContext, p)
   }
 
+  /** Write dataframe containing bands into a single geotiff. Note: performs a driver collect, and is not "big data" friendly.  */
   override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], df: DataFrame): BaseRelation = {
     require(parameters.path.isDefined, "Valid URI 'path' parameter required.")
     val path = parameters.path.get
@@ -66,8 +68,6 @@ class GeoTiffDataSource
     val tileCols = df.tileColumns
 
     require(tileCols.nonEmpty, "Could not find any tile columns.")
-
-
 
     val destCRS = parameters.crs.orElse(df.asLayerSafely.map(_.crs)).getOrElse(
       throw new IllegalArgumentException("A destination CRS must be provided")

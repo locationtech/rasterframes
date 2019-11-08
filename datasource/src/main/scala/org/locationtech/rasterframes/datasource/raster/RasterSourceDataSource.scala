@@ -37,7 +37,7 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   override def shortName(): String = SHORT_NAME
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val bands = parameters.bandIndexes
-    val tiling = parameters.tileDims
+    val tiling = parameters.tileDims.orElse(Some(NOMINAL_TILE_DIMS))
     val lazyTiles = parameters.lazyTiles
     val spec = parameters.pathSpec
     val catRef = spec.fold(_.registerAsTable(sqlContext), identity)

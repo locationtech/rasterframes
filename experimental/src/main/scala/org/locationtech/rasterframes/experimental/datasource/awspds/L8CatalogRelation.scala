@@ -68,7 +68,9 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
       .select(schema.map(f ⇒ col(f.name)): _*)
       .orderBy(ACQUISITION_DATE.name, PATH.name, ROW.name)
       .distinct() // The scene file contains duplicates.
-      .repartition(8, col(PATH.name), col(ROW.name))
+      .repartition(defaultNumPartitions, col(PATH.name), col(ROW.name))
+
+
   }
 }
 

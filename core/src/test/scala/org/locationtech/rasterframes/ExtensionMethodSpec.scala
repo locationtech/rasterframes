@@ -38,7 +38,7 @@ import scala.xml.parsing.XhtmlParser
 class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSupport {
   lazy val rf = sampleTileLayerRDD.toLayer
 
-  describe("DataFrame exention methods") {
+  describe("DataFrame extension methods") {
     it("should maintain original type") {
       val df = rf.withPrefixedColumnNames("_foo_")
       "val rf2: RasterFrameLayer = df" should compile
@@ -48,7 +48,7 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
       "val Some(col) = df.spatialKeyColumn" should compile
     }
   }
-  describe("RasterFrameLayer exention methods") {
+  describe("RasterFrameLayer extension methods") {
     it("should provide spatial key column") {
       noException should be thrownBy {
         rf.spatialKeyColumn
@@ -123,6 +123,10 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
 
       val md3 = rf.toMarkdown(truncate=true, renderTiles = false)
       md3 shouldNot include("<img")
+
+      // Should truncate JTS types even when we don't ask for it.
+      val md4 = rf.withGeometry().select("geometry").toMarkdown(truncate = false)
+      md4 should include ("...")
     }
 
     it("should render HTML") {

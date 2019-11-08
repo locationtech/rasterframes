@@ -253,14 +253,18 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
 
-    it("should construct a RasterRefTile without I/O") {
+    it("should construct and inspect a RasterRefTile without I/O") {
       new Fixture {
         // SimpleRasterInfo is a proxy for header data requests.
-        val start = SimpleRasterInfo.cacheStats.hitCount()
+        val startStats = SimpleRasterInfo.cacheStats
         val t: ProjectedRasterTile = RasterRefTile(subRaster)
-        val result = Seq(t, subRaster.tile).toDF("tile").first()
-        val end = SimpleRasterInfo.cacheStats.hitCount()
-        end should be(start)
+        val df = Seq(t, subRaster.tile).toDF("tile")
+        val result = df.first()
+        SimpleRasterInfo.cacheStats.hitCount() should be(startStats.hitCount())
+        SimpleRasterInfo.cacheStats.missCount() should be(startStats.missCount())
+        val info = df.select(rf_dimensions($"tile"), rf_extent($"tile")).first()
+        SimpleRasterInfo.cacheStats.hitCount() should be(startStats.hitCount() + 2)
+        SimpleRasterInfo.cacheStats.missCount() should be(startStats.missCount())
       }
     }
   }

@@ -192,29 +192,36 @@ class GeoTiffDataSourceSpec
     }
 
     it("should write GeoTIFF without layer") {
-
       val pr = col("proj_raster_b0")
+
+      val sample = rgbCogSample
+      val expectedExtent = sample.extent
+      val (expCols, expRows) = sample.tile.dimensions
+
       val rf = spark.read.raster.withBandIndexes(0, 1, 2).load(rgbCogSamplePath.toASCIIString)
 
-      val out = Paths.get("target", "example2-geotiff.tif")
-      logger.info(s"Writing to $out")
-
-      withClue("explicit extent/crs") {
+      withClue("extent/crs columns provided") {
+        val out = Paths.get("target", "example2a-geotiff.tif")
         noException shouldBe thrownBy {
           rf
             .withColumn("extent", rf_extent(pr))
             .withColumn("crs", rf_crs(pr))
-            .write.geotiff.withCRS(LatLng).save(out.toString)
+            .write.geotiff.withCRS(sample.crs).save(out.toString)
+          checkTiff(out, expCols, expRows, expectedExtent, Some(sample.cellType))
         }
       }
 
-      withClue("without explicit extent/crs") {
+      withClue("without extent/crs columns") {
+        val out = Paths.get("target", "example2b-geotiff.tif")
         noException shouldBe thrownBy {
           rf
-            .write.geotiff.withCRS(LatLng).save(out.toString)
+            .write.geotiff.withCRS(sample.crs).save(out.toString)
+          checkTiff(out, expCols, expRows, expectedExtent, Some(sample.cellType))
         }
       }
+
       withClue("with downsampling") {
+        val out = Paths.get("target", "example2c-geotiff.tif")
         noException shouldBe thrownBy {
           rf
             .write.geotiff
@@ -223,9 +230,6 @@ class GeoTiffDataSourceSpec
             .save(out.toString)
         }
       }
-
-      checkTiff(out, 128, 128,
-        Extent(-76.52586750038186, 36.85907177863949, -76.17461216980891, 37.1303690755922))
     }
 
     it("should produce the correct subregion from layer") {
