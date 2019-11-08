@@ -69,6 +69,9 @@ case class RasterSourceRelation(
     catalog.schema.fields.filter(f => !catalogTable.bandColumnNames.contains(f.name))
   }
 
+  protected def defaultNumPartitions: Int =
+    sqlContext.sparkSession.sessionState.conf.numShufflePartitions
+
   override def schema: StructType = {
     val tileSchema = schemaOf[ProjectedRasterTile]
     val paths = for {
@@ -84,10 +87,11 @@ case class RasterSourceRelation(
   override def buildScan(): RDD[Row] = {
     import sqlContext.implicits._
 
-    // The general transformaion is:
+    // The general transformation is:
     // input -> path -> src -> ref -> tile
     // Each step is broken down for readability
     val inputs: DataFrame = sqlContext.table(catalogTable.tableName)
+      .repartition(defaultNumPartitions)
 
     // Basically renames the input columns to have the '_path' suffix
     val pathsAliasing = for {
@@ -112,7 +116,7 @@ case class RasterSourceRelation(
 
     val df = if (lazyTiles) {
       // Expand RasterSource into multiple columns per band, and multiple rows per tile
-      // There's some unintentional fragililty here in that the structure of the expression
+      // There's some unintentional fragility here in that the structure of the expression
       // is expected to line up with our column structure here.
       val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, srcs: _*) as refColNames
 

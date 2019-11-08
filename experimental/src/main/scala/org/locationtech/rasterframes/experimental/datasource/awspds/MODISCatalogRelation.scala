@@ -64,7 +64,7 @@ case class MODISCatalogRelation(sqlContext: SQLContext, sceneList: HadoopPath)
         $"${GID.name}") ++ bandCols: _*
       )
       .orderBy(ACQUISITION_DATE.name, GID.name)
-      .repartition(8, col(GRANULE_ID.name))
+      .repartition(defaultNumPartitions, col(GRANULE_ID.name))
   }
 }
 
