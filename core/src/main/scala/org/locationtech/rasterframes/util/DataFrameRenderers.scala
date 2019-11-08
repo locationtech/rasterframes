@@ -24,12 +24,14 @@ package org.locationtech.rasterframes.util
 import geotrellis.raster.render.ColorRamps
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions.{base64, concat, concat_ws, length, lit, substring, when}
+import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.types.{StringType, StructField}
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.{rfConfig, rf_render_png, rf_resample}
+import org.apache.spark.sql.rf.WithTypeConformity
 
 /**
-  * DataFrame extensiosn for rendering sample content in a number of ways
+  * DataFrame extension for rendering sample content in a number of ways
   */
 trait DataFrameRenderers {
   private val truncateWidth = rfConfig.getInt("max-truncate-row-element-length")
@@ -47,8 +49,9 @@ trait DataFrameRenderers {
               lit("\"></img>")
             )
           else {
+            val isGeom = WithTypeConformity(c.dataType).conformsTo(JTSTypes.GeometryTypeInstance)
             val str = resolved.cast(StringType)
-            if (truncate)
+            if (truncate || isGeom)
               when(length(str) > lit(truncateWidth),
                 concat(substring(str, 1, truncateWidth), lit("..."))
               )
