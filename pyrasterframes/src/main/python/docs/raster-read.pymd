@@ -55,19 +55,24 @@ display(tile)
 
 ## Multiple Singleband Rasters
 
-In this example, we show reading [two bands](https://en.wikipedia.org/wiki/Multispectral_image) of [Landsat 8](https://landsat.gsfc.nasa.gov/landsat-8/) imagery (red and near-infrared), combining them with `rf_normalized_difference` to compute NDVI. As described in the section on @ref:[catalogs](raster-catalogs.md), image URIs in a single row are assumed to be from the same scene/granule, and therefore compatible. This pattern is commonly used when multiple bands are stored in separate files.
+In this example, we show the reading @ref:[two bands](concepts.md#band) of [Landsat 8](https://landsat.gsfc.nasa.gov/landsat-8/) imagery (red and near-infrared), combining them with `rf_normalized_difference` to compute [NDVI](https://en.wikipedia.org/wiki/Normalized_difference_vegetation_index), a common measure of vegetation health. As described in the section on @ref:[catalogs](raster-catalogs.md), image URIs in a single row are assumed to be from the same scene/granule, and therefore compatible. This pattern is commonly used when multiple bands are stored in separate files.
 
 ```python, multi_singleband
 bands = [f'B{b}' for b in [4, 5]]
 uris = [f'https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/014/032/LC08_L1TP_014032_20190720_20190731_01_T1/LC08_L1TP_014032_20190720_20190731_01_T1_{b}.TIF' for b in bands]
 catalog = ','.join(bands) + '\n' + ','.join(uris)
 
-rf = spark.read.raster(catalog, bands) \
-    .withColumnRenamed('B4', 'red').withColumnRenamed('B5', 'NIR') \
-    .withColumn('longitude_latitude', st_reproject(st_centroid(rf_geometry('red')), rf_crs('red'), lit('EPSG:4326'))) \
-    .withColumn('NDVI', rf_normalized_difference('NIR', 'red')) \
-    .where(rf_tile_sum('NDVI') > 10000) \
-    .select('longitude_latitude', 'red', 'NIR', 'NDVI')
+rf = (spark.read.raster(catalog, bands) 
+    # Adding semantic names 
+    .withColumnRenamed('B4', 'red').withColumnRenamed('B5', 'NIR')  
+    # Adding tile center point for reference 
+    .withColumn('longitude_latitude', st_reproject(st_centroid(rf_geometry('red')), rf_crs('red'), lit('EPSG:4326')))
+    # Compute NDVI  
+    .withColumn('NDVI', rf_normalized_difference('NIR', 'red'))
+    # For the purposes of inspection, filter out rows where there's not much vegetation  
+    .where(rf_tile_sum('NDVI') > 10000) 
+    # Order output 
+    .select('longitude_latitude', 'red', 'NIR', 'NDVI')) 
 display(rf)
 ```
 
