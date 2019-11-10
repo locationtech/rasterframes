@@ -138,7 +138,7 @@ object TileRasterizerAggregate {
       }
     }
 
-    // Scan table and constuct what the TileLayerMetadata would be in the specified destination CRS.
+    // Scan table and construct what the TileLayerMetadata would be in the specified destination CRS.
     val tlm: TileLayerMetadata[SpatialKey] = df
       .select(
         ProjectedLayerMetadataAggregate(
