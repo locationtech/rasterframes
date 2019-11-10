@@ -474,10 +474,9 @@ def rf_mask_by_value(data_tile, mask_tile, mask_value, inverse=False):
     return Column(jfcn(_to_java_column(data_tile), _to_java_column(mask_tile), _to_java_column(mask_value), inverse))
 
 
-def rf_mask_by_values(data_tile, mask_tile, mask_values, inverse=False):
+def rf_mask_by_values(data_tile, mask_tile, mask_values):
     """Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
        list, replace the value with NODATA.
-       If `inverse` is True, the cells in `mask_tile` that are not in `mask_values` list become NODATA
     """
     from pyspark.sql.functions import array as sql_array
     if isinstance(mask_values, list):
@@ -485,7 +484,7 @@ def rf_mask_by_values(data_tile, mask_tile, mask_values, inverse=False):
 
     jfcn = RFContext.active().lookup('rf_mask_by_values')
     col_args = [_to_java_column(c) for c in [data_tile, mask_tile, mask_values]]
-    return Column(jfcn(*col_args, inverse))
+    return Column(jfcn(*col_args))
 
 
 def rf_inverse_mask_by_value(data_tile, mask_tile, mask_value):

@@ -28,7 +28,7 @@ import geotrellis.raster._
 import geotrellis.raster.render.ColorRamps
 import geotrellis.raster.testkit.RasterMatchers
 import javax.imageio.ImageIO
-import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.{Column, Encoders, TypedColumn}
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.model.TileDimensions
@@ -701,7 +701,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val withMasked = withMask.withColumn("masked",
         rf_inverse_mask_by_value($"tile", $"mask", mask_value))
         .withColumn("masked2", rf_mask_by_value($"tile", $"mask", lit(mask_value), true))
-
+      withMasked.explain(true)
       val result = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked")).as[Boolean]
 
       result.first() should be(true)
@@ -712,30 +712,28 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_inverse_mask_by_value")
     }
 
-    it("should mask tile by another identified by specified values") {
-      checkDocs("rf_mask_by_values")
-
+    it("should mask tile by another identified by sequence of specified values") {
       val squareIncrementingPRT = ProjectedRasterTile(squareIncrementingTile(six.rows), six.extent, six.crs)
       val df = Seq((six, squareIncrementingPRT))
                 .toDF("tile", "mask")
+
       val mask_values = Seq(4, 5, 6, 12)
 
       val withMasked = df.withColumn("masked",
         rf_mask_by_values($"tile", $"mask", mask_values))
 
-      val expected = squareIncrementingPRT.toArray()
-        .filter(v ⇒ mask_values.contains(v))
-        .length
+      val expected = squareIncrementingPRT.toArray().count(v ⇒ mask_values.contains(v))
 
       val result = withMasked.agg(rf_agg_no_data_cells($"masked") as "masked_nd")
           .first()
 
       result.getAs[BigInt](0) should be (expected)
 
-      val withMaskedSql = df.selectExpr("rf_mask_by_values(tile, mask, array(4, 5, 6, 12), false) AS masked")
+      val withMaskedSql = df.selectExpr("rf_mask_by_values(tile, mask, array(4, 5, 6, 12)) AS masked")
       val resultSql = withMaskedSql.agg(rf_agg_no_data_cells($"masked")).as[Long]
       resultSql.first() should be (expected)
 
+      checkDocs("rf_mask_by_values")
     }
 
     it("should render ascii art") {
