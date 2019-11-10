@@ -5,6 +5,7 @@
 ### 0.8.4
 
 * Upgraded to Spark 2.4.4
+* Add `rf_mask_by_values` and `rf_local_is_in` raster functions; added optional `inverse` argument to `rf_mask` functions. ([#403](https://github.com/locationtech/rasterframes/pull/403), [#384](https://github.com/locationtech/rasterframes/issues/384))
 * Added forced truncation of WKT types in Markdown/HTML rendering. ([#408](https://github.com/locationtech/rasterframes/pull/408))
 * Add `rf_local_is_in` raster function. ([#400](https://github.com/locationtech/rasterframes/pull/400))
 * Added partitioning to catalogs before processing in RasterSourceDataSource ([#397](https://github.com/locationtech/rasterframes/pull/397))

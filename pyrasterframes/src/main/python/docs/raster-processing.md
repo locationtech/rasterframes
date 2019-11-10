@@ -4,6 +4,7 @@
 
 * @ref:[Local Map Algebra](local-algebra.md)
 * @ref:["NoData" Handling](nodata-handling.md)
+* @ref:[Masking](masking.md)
 * @ref:[Zonal Map Algebra](zonal-algebra.md)
 * @ref:[Aggregation](aggregation.md)
 * @ref:[Time Series](time-series.md)

@@ -292,12 +292,38 @@ trait RasterFunctions {
   }
 
   /** Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA */
-  def rf_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
-    Mask.MaskByDefined(sourceTile, maskTile)
+  def rf_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] = rf_mask(sourceTile, maskTile, false)
+
+  /** Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA */
+  def rf_mask(sourceTile: Column, maskTile: Column, inverse: Boolean=false): TypedColumn[Any, Tile] =
+    if(!inverse) Mask.MaskByDefined(sourceTile, maskTile)
+    else Mask.InverseMaskByDefined(sourceTile, maskTile)
 
   /** Where the `maskTile` equals `maskValue`, replace values in the source tile with `NoData` */
-  def rf_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
-    Mask.MaskByValue(sourceTile, maskTile, maskValue)
+  def rf_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column, inverse: Boolean=false): TypedColumn[Any, Tile] =
+    if (!inverse) Mask.MaskByValue(sourceTile, maskTile, maskValue)
+    else Mask.InverseMaskByValue(sourceTile, maskTile, maskValue)
+
+  /** Where the `maskTile` equals `maskValue`, replace values in the source tile with `NoData` */
+  def rf_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Int, inverse: Boolean): TypedColumn[Any, Tile] =
+    rf_mask_by_value(sourceTile, maskTile, lit(maskValue), inverse)
+
+  /** Where the `maskTile` equals `maskValue`, replace values in the source tile with `NoData` */
+  def rf_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Int): TypedColumn[Any, Tile] =
+    rf_mask_by_value(sourceTile, maskTile, maskValue, false)
+
+  /** Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
+       list, replace the value with NODATA. */
+  def rf_mask_by_values(sourceTile: Column, maskTile: Column, maskValues: Column): TypedColumn[Any, Tile] =
+      Mask.MaskByValues(sourceTile, maskTile, maskValues)
+
+  /** Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
+       list, replace the value with NODATA. */
+  def rf_mask_by_values(sourceTile: Column, maskTile: Column, maskValues: Seq[Int]): TypedColumn[Any, Tile] = {
+    import org.apache.spark.sql.functions.array
+    val valuesCol: Column = array(maskValues.map(lit).toSeq: _*)
+    rf_mask_by_values(sourceTile, maskTile, valuesCol)
+  }
 
   /** Where the `maskTile` does **not** contain `NoData`, replace values in the source tile with `NoData` */
   def rf_inverse_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
@@ -306,6 +332,10 @@ trait RasterFunctions {
   /** Where the `maskTile` does **not** equal `maskValue`, replace values in the source tile with `NoData` */
   def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
     Mask.InverseMaskByValue(sourceTile, maskTile, maskValue)
+
+  /** Where the `maskTile` does **not** equal `maskValue`, replace values in the source tile with `NoData` */
+  def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Int): TypedColumn[Any, Tile] =
+    Mask.InverseMaskByValue(sourceTile, maskTile, lit(maskValue))
 
   /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rf_rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
@@ -407,6 +437,9 @@ trait RasterFunctions {
 
   /** Test if each cell value is in provided array */
   def rf_local_is_in(tileCol: Column, arrayCol: Column) = IsIn(tileCol, arrayCol)
+
+  /** Test if each cell value is in provided array */
+  def rf_local_is_in(tileCol: Column, array: Array[Int]) = IsIn(tileCol, array)
 
   /** Return a tile with ones where the input is NoData, otherwise zero */
   def rf_local_no_data(tileCol: Column): Column = Undefined(tileCol)

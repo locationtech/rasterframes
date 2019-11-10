@@ -28,7 +28,7 @@ import geotrellis.raster._
 import geotrellis.raster.render.ColorRamps
 import geotrellis.raster.testkit.RasterMatchers
 import javax.imageio.ImageIO
-import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.{Column, Encoders, TypedColumn}
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.model.TileDimensions
@@ -694,17 +694,46 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
         rf_local_multiply(rf_convert_cell_type(
           rf_local_greater($"tile", 50),
           "uint8"),
-          lit(mask_value)
+          mask_value
         )
       )
 
       val withMasked = withMask.withColumn("masked",
-        rf_inverse_mask_by_value($"tile", $"mask", lit(mask_value)))
-
+        rf_inverse_mask_by_value($"tile", $"mask", mask_value))
+        .withColumn("masked2", rf_mask_by_value($"tile", $"mask", lit(mask_value), true))
+      withMasked.explain(true)
       val result = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked")).as[Boolean]
 
       result.first() should be(true)
+
+      val result2 = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked2")).as[Boolean]
+      result2.first() should be(true)
+
       checkDocs("rf_inverse_mask_by_value")
+    }
+
+    it("should mask tile by another identified by sequence of specified values") {
+      val squareIncrementingPRT = ProjectedRasterTile(squareIncrementingTile(six.rows), six.extent, six.crs)
+      val df = Seq((six, squareIncrementingPRT))
+                .toDF("tile", "mask")
+
+      val mask_values = Seq(4, 5, 6, 12)
+
+      val withMasked = df.withColumn("masked",
+        rf_mask_by_values($"tile", $"mask", mask_values))
+
+      val expected = squareIncrementingPRT.toArray().count(v ⇒ mask_values.contains(v))
+
+      val result = withMasked.agg(rf_agg_no_data_cells($"masked") as "masked_nd")
+          .first()
+
+      result.getAs[BigInt](0) should be (expected)
+
+      val withMaskedSql = df.selectExpr("rf_mask_by_values(tile, mask, array(4, 5, 6, 12)) AS masked")
+      val resultSql = withMaskedSql.agg(rf_agg_no_data_cells($"masked")).as[Long]
+      resultSql.first() should be (expected)
+
+      checkDocs("rf_mask_by_values")
     }
 
     it("should render ascii art") {
@@ -983,6 +1012,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       .withColumn("ten", lit(10))
       .withColumn("in_expect_2", rf_local_is_in($"t", array($"one", $"five")))
       .withColumn("in_expect_1", rf_local_is_in($"t", array($"ten", $"five")))
+      .withColumn("in_expect_1a", rf_local_is_in($"t", Array(10, 5)))
       .withColumn("in_expect_0", rf_local_is_in($"t", array($"ten")))
 
     val e2Result = df.select(rf_tile_sum($"in_expect_2")).as[Double].first()
@@ -991,9 +1021,11 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     val e1Result = df.select(rf_tile_sum($"in_expect_1")).as[Double].first()
     e1Result should be (1.0)
 
+    val e1aResult = df.select(rf_tile_sum($"in_expect_1a")).as[Double].first()
+    e1aResult should be (1.0)
+
     val e0Result = df.select($"in_expect_0").as[Tile].first()
     e0Result.toArray() should contain only (0)
 
-//    lazy val invalid = df.select(rf_local_is_in($"t", lit("foobar"))).as[Tile].first()
   }
 }

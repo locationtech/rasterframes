@@ -125,9 +125,10 @@ package object expressions {
     registry.registerExpression[LocalMeanAggregate]("rf_agg_local_mean")
 
     registry.registerExpression[Mask.MaskByDefined]("rf_mask")
+    registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")
     registry.registerExpression[Mask.MaskByValue]("rf_mask_by_value")
     registry.registerExpression[Mask.InverseMaskByValue]("rf_inverse_mask_by_value")
-    registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")
+    registry.registerExpression[Mask.MaskByValues]("rf_mask_by_values")
 
     registry.registerExpression[DebugRender.RenderAscii]("rf_render_ascii")
     registry.registerExpression[DebugRender.RenderMatrix]("rf_render_matrix")
