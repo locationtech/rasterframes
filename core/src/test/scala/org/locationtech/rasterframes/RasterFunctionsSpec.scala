@@ -1022,6 +1022,8 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
   }
 
   it("should unpack QA bits"){
+    checkDocs("rf_local_extract_bits")
+
     // Sample of https://www.usgs.gov/media/images/landsat-8-quality-assessment-band-pixel-value-interpretations
     val fill = 1
     val clear = 2720
@@ -1033,7 +1035,6 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     val df = tiles.toDF("tile")
       .withColumn("val", rf_tile_min($"tile"))
 
-
     val result = df
       .withColumn("qa_fill", rf_local_extract_bits($"tile", lit(0)))
       .withColumn("qa_sat", rf_local_extract_bits($"tile", lit(2), lit(2)))
@@ -1041,7 +1042,6 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       .withColumn("qa_cconf", rf_local_extract_bits($"tile", 5, 2))
       .withColumn("qa_snow", rf_local_extract_bits($"tile", lit(9), lit(2)))
       .withColumn("qa_circonf", rf_local_extract_bits($"tile", 11, 2))
-
 
     def checker(colName: String, valFilter: Int, assertValue: Int): Unit = {
       // print this so we can see what's happening if something  wrong
@@ -1059,6 +1059,11 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
     checker("qa_sat", fill, 0)
     checker("qa_snow", fill, 0)
     checker("qa_circonf", fill, 0)
+
+    // trivial bits selection (numBits=0) and SQL
+    df.filter($"val" === lit(fill))
+      .selectExpr("rf_local_extract_bits(tile, 0, 0) AS t")
+      .select(rf_exists($"t")).as[Boolean].first() should be (false)
 
     checker("qa_fill", clear, 0)
     checker("qa_cloud", clear, 0)

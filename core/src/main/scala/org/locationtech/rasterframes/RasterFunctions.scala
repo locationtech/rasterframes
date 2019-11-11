@@ -353,14 +353,40 @@ trait RasterFunctions {
   def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Int): TypedColumn[Any, Tile] =
     Mask.InverseMaskByValue(sourceTile, maskTile, lit(maskValue))
 
+  def rf_mask_by_bit(dataTile: Column, maskTile: Column, bitPosition: Int, valueToMask: Boolean): Column =
+    rf_mask_by_bit(dataTile, maskTile, lit(bitPosition), lit(bitPosition))
+
+  def rf_mask_by_bit(dataTile: Column, maskTile: Column, bitPosition: Column, valueToMask: Column): Column = ???
+
+  def rf_mask_by_bits(dataTile: Column, maskTile: Column, startBit: Column, numBits: Column, valuesToMask: Column): Column = ???
+
+  def rf_mask_by_bits(dataTile: Column, maskTile: Column, startBit: Int, numBits: Int, valuesToMask: Int*): Column = {
+    import org.apache.spark.sql.functions.array
+    val values = array(valuesToMask.map(lit):_*)
+    rf_mask_by_bits(dataTile, maskTile, lit(startBit), lit(numBits), values)
+  }
+
+  /** Extract value from specified bits of the cells' underlying binary data.
+    * `startBit` is the first bit to consider, working from the right. It is zero indexed.
+    * `numBits` is the number of bits to take moving further to the left. */
   def rf_local_extract_bits(tile: Column, startBit: Column, numBits: Column): Column =
     ExtractBits(tile, startBit, numBits)
-  def rf_local_extract_bits(tile: Column, startBit: Column): Column =
-    rf_local_extract_bits(tile, startBit, lit(1))
+
+  /** Extract value from specified bits of the cells' underlying binary data.
+    * `bitPosition` is bit to consider, working from the right. It is zero indexed. */
+  def rf_local_extract_bits(tile: Column, bitPosition: Column): Column =
+    rf_local_extract_bits(tile, bitPosition, lit(1))
+
+  /** Extract value from specified bits of the cells' underlying binary data.
+    * `startBit` is the first bit to consider, working from the right. It is zero indexed.
+    * `numBits` is the number of bits to take, moving further to the left. */
   def rf_local_extract_bits(tile: Column, startBit: Int, numBits: Int): Column =
     rf_local_extract_bits(tile, lit(startBit), lit(numBits))
-  def rf_local_extract_bits(tile: Column, startBit: Int): Column =
-    rf_local_extract_bits(tile, lit(startBit))
+
+  /** Extract value from specified bits of the cells' underlying binary data.
+    * `bitPosition` is bit to consider, working from the right. It is zero indexed. */
+  def rf_local_extract_bits(tile: Column, bitPosition: Int): Column =
+    rf_local_extract_bits(tile, lit(bitPosition))
 
   /** Create a tile where cells in the grid defined by cols, rows, and bounds are filled with the given value. */
   def rf_rasterize(geometry: Column, bounds: Column, value: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] =
