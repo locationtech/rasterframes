@@ -28,8 +28,7 @@ import geotrellis.raster.mapalgebra.local.{Defined, InverseMask => gtInverseMask
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{AttributeSet, Expression, ExpressionDescription, Literal, TernaryExpression}
-import org.apache.spark.sql.functions.lit
+import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal, TernaryExpression}
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -41,6 +40,7 @@ import org.slf4j.LoggerFactory
 
 abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, inverse: Boolean)
   extends TernaryExpression with CodegenFallback with Serializable {
+  // aliases.
   def targetExp = left
   def maskExp = middle
   def maskValueExp = right
