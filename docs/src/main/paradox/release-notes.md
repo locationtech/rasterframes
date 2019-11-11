@@ -2,6 +2,10 @@
 
 ## 0.8.x
 
+### 0.8.5
+
+* Add `rf_mask_by_bit`, `rf_mask_by_bits` and `rf_local_extract_bits` to deal with bit packed quality masks. Updated the masking documentation to demonstrate the use of these functions.
+
 ### 0.8.4
 
 * Upgraded to Spark 2.4.4

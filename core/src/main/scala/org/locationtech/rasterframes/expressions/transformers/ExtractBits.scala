@@ -67,9 +67,9 @@ case class ExtractBits(child1: Expression, child2: Expression, child3: Expressio
     implicit val tileSer = TileUDT.tileSerializer
     val (childTile, childCtx) = tileExtractor(child1.dataType)(row(input1))
 
-    val startBits = intArgExtractor(child2.dataType)(input2).value.toShort
+    val startBits = intArgExtractor(child2.dataType)(input2).value
 
-    val numBits = intArgExtractor(child2.dataType)(input3).value.toShort
+    val numBits = intArgExtractor(child2.dataType)(input3).value
 
     childCtx match {
       case Some(ctx) => ctx.toProjectRasterTile(op(childTile, startBits, numBits)).toInternalRow
@@ -77,12 +77,7 @@ case class ExtractBits(child1: Expression, child2: Expression, child3: Expressio
     }
   }
 
-  protected def op(tile: Tile, startBit: Short, numBits: Short): Tile = {
-    // this is the last `numBits` positions of "111111111111111"
-    val widthMask = Short.MaxValue >> (15 - numBits)
-    // map preserving the nodata structure
-    tile.mapIfSet(x ⇒ x >> startBit & widthMask)
-  }
+  protected def op(tile: Tile, startBit: Int, numBits: Int): Tile = ExtractBits(tile, startBit, numBits)
 
 }
 
@@ -90,5 +85,11 @@ object ExtractBits{
   def apply(tile: Column, startBit: Column, numBits: Column): Column =
     new Column(ExtractBits(tile.expr, startBit.expr, numBits.expr))
 
-}
+  def apply(tile: Tile, startBit: Int, numBits: Int): Tile = {
+    // this is the last `numBits` positions of "111111111111111"
+    val widthMask = Int.MaxValue >> (63 - numBits)
+    // map preserving the nodata structure
+    tile.mapIfSet(x ⇒ x >> startBit & widthMask)
+  }
 
+}
