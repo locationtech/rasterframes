@@ -132,4 +132,4 @@ clipped = to_clip.select('blue_masked',
                  .orderBy(rf_data_cells('clip_raster')) 
 
 
-This kind of clipping technique is further used in @ref:[zonal statistics](zonal-algebra.pymd).
+This kind of clipping technique is further used in @ref:[zonal statistics](zonal-algebra.md).
