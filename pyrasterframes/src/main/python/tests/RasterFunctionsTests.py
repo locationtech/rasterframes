@@ -249,20 +249,12 @@ class RasterFunctions(TestEnvironment):
         tile = Tile(np.random.randint(1, 100, (5, 5)), CellType.uint8())
         mask_tile = Tile(np.array(range(1, 26), 'uint8').reshape(5, 5))
         expected_diag_nd = Tile(np.ma.masked_array(tile.cells, mask=np.eye(5)))
-        expected_off_diag_nd = Tile(np.ma.masked_array(tile.cells, mask=1 - np.eye(5)))
 
         df = self.spark.createDataFrame([Row(t=tile, m=mask_tile)]) \
             .select(rf_mask_by_values('t', 'm', [0, 6, 12, 18, 24]))  # values on the diagonal
         result0 = df.first()
         # assert_equal(result0[0].cells, expected_diag_nd)
         self.assertTrue(result0[0] == expected_diag_nd)
-
-        # mask values off the diagonal! (inverse=True)
-        result1 = self.spark.createDataFrame([Row(t=tile, m=mask_tile)]) \
-            .select(rf_mask_by_values('t', 'm', [0, 6, 12, 18, 24], True)) \
-            .first()
-        # assert_equal(result1[0].cells, expected_off_diag_nd)
-        self.assertTrue(result1[0] == expected_off_diag_nd)
 
     def test_mask(self):
         from pyspark.sql import Row

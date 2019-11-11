@@ -235,12 +235,10 @@ Generate a `tile` with the values from `data_tile`, with NoData in cells where t
 
 ### rf_mask_by_values
 
-    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, Array mask_values, bool inverse)
-    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, seq mask_values, bool inverse)
+    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, Array mask_values)
+    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, seq mask_values)
 
-Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is in the `mask_values` Array or list. `mask_values` can be a [`pyspark.sql.ArrayType`][Array] or a `list`.
-
-`inverse` is a literal not a Column. If it is True, the `data_tile` cells are set to NoData where the `mask_tile` cells are __not__ in `mask_values`.
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is in the `mask_values` Array or list. `mask_values` can be a [`pyspark.sql.ArrayType`][Array] or a `list`.  
 
 ### rf_inverse_mask
 
