@@ -14,7 +14,7 @@ RasterFrames registers a DataSource named `raster` that enables reading of GeoTI
 
 RasterFrames can also read from @ref:[GeoTrellis catalogs and layers](raster-read.md#geotrellis).
 
-## Single Raster
+## Single Rasters
 
 The simplest way to use the `raster` reader is with a single raster from a single URI or file. In the examples that follow we'll be reading from a Sentinel-2 scene stored in an AWS S3 bucket.
 
@@ -33,13 +33,11 @@ print("CRS", crs.value.crsProj4)
 ```
 
 ```python, raster_parts
-parts = rf.select(
+rf.select(
     rf_extent("proj_raster").alias("extent"),
     rf_tile("proj_raster").alias("tile")
 )
-parts
 ```
-
 
 You can also see that the single raster has been broken out into many arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per task. The following code fragment shows us how many subtiles were created from a single source image.
 
@@ -53,6 +51,69 @@ Let's select a single _tile_ and view it. The _tile_ preview image as well as th
 ```python, show_tile_sample
 tile = rf.select(rf_tile("proj_raster")).first()[0]
 display(tile)
+```
+
+## Multiple Singleband Rasters
+
+In this example, we show the reading @ref:[two bands](concepts.md#band) of [Landsat 8](https://landsat.gsfc.nasa.gov/landsat-8/) imagery (red and near-infrared), combining them with `rf_normalized_difference` to compute [NDVI](https://en.wikipedia.org/wiki/Normalized_difference_vegetation_index), a common measure of vegetation health. As described in the section on @ref:[catalogs](raster-catalogs.md), image URIs in a single row are assumed to be from the same scene/granule, and therefore compatible. This pattern is commonly used when multiple bands are stored in separate files.
+
+```python, multi_singleband
+bands = [f'B{b}' for b in [4, 5]]
+uris = [f'https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/014/032/LC08_L1TP_014032_20190720_20190731_01_T1/LC08_L1TP_014032_20190720_20190731_01_T1_{b}.TIF' for b in bands]
+catalog = ','.join(bands) + '\n' + ','.join(uris)
+
+rf = (spark.read.raster(catalog, bands) 
+    # Adding semantic names 
+    .withColumnRenamed('B4', 'red').withColumnRenamed('B5', 'NIR')  
+    # Adding tile center point for reference 
+    .withColumn('longitude_latitude', st_reproject(st_centroid(rf_geometry('red')), rf_crs('red'), lit('EPSG:4326')))
+    # Compute NDVI  
+    .withColumn('NDVI', rf_normalized_difference('NIR', 'red'))
+    # For the purposes of inspection, filter out rows where there's not much vegetation  
+    .where(rf_tile_sum('NDVI') > 10000) 
+    # Order output 
+    .select('longitude_latitude', 'red', 'NIR', 'NDVI')) 
+display(rf)
+```
+
+## Multiband Rasters
+
+A multiband raster is represented by a three dimensional numeric array stored in a single file. The first two dimensions are spatial, and the third dimension is typically designated for different spectral @ref:[bands](concepts.md#band). The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could measure other phenomena such as time, quality indications, or additional gas concentrations, etc.
+
+Multiband rasters files have a strictly ordered set of bands, which are typically indexed from 1. Some files have metadata tags associated with each band. Some files have a color interpetation metadata tag indicating how to interpret the bands.
+
+When reading a multiband raster or a @ref:[_catalog_](#raster-catalogs) describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, **indexed from zero**, as a list of integers into the `band_indexes` parameter of the `raster` reader.
+
+For example, we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting DataFrame still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
+
+```python, multiband
+mb = spark.read.raster(
+    's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+    band_indexes=[0, 1, 2, 3],
+)
+display(mb)
+```
+
+If a band is passed into `band_indexes` that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but the column will be full of `null` values.
+
+You can also pass a _catalog_ and `band_indexes` together into the `raster` reader. This will create a projected raster column for the combination of all items in `catalog_col_names` and `band_indexes`. Again if a band in `band_indexes` exceeds the number of bands in a raster, it will have a `null` value for the corresponding column.
+
+Here is a trivial example with a _catalog_ over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.
+
+```python, multiband_catalog
+import pandas as pd
+mb_cat = pd.DataFrame([
+    {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+     'bar': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif'
+    },
+])
+mb2 = spark.read.raster(
+    spark.createDataFrame(mb_cat),
+    catalog_col_names=['foo', 'bar'],
+    band_indexes=[0, 1],
+    tile_dimensions=(64,64)
+)
+mb2.printSchema()
 ```
 
 ## URI Formats
@@ -154,45 +215,6 @@ non_lazy
 
 In the initial examples on this page, you may have noticed that the realized (non-lazy) _tiles_ are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized _tile_ from the lazy representation.
 
-## Multiband Rasters
-
-A multiband raster represents a three dimensional numeric array. The first two dimensions are spatial, and the third dimension is typically designated for different spectral @ref:[bands](concepts.md#band). The bands could represent intensity of different wavelengths of light (or other electromagnetic radiation), or they could measure other phenomena such as time, quality indications, or additional gas concentrations, etc.
-
-Multiband rasters files have a strictly ordered set of bands, which are typically indexed from 1. Some files have metadata tags associated with each band. Some files have a color interpetation metadata tag indicating how to interpret the bands.
-
-When reading a multiband raster or a _catalog_ describing multiband rasters, you will need to know ahead of time which bands you want to read. You will specify the bands to read, **indexed from zero**, as a list of integers into the `band_indexes` parameter of the `raster` reader.
-
-For example, we can read a four-band (red, green, blue, and near-infrared) image as follows. The individual rows of the resulting DataFrame still represent distinct spatial extents, with a projected raster column for each band specified by `band_indexes`.
-
-```python, multiband
-mb = spark.read.raster(
-    's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
-    band_indexes=[0, 1, 2, 3],
-)
-mb.printSchema()
-```
-
-If a band is passed into `band_indexes` that exceeds the number of bands in the raster, a projected raster column will still be generated in the schema but the column will be full of `null` values.
-
-You can also pass a _catalog_ and `band_indexes` together into the `raster` reader. This will create a projected raster column for the combination of all items in `catalog_col_names` and `band_indexes`. Again if a band in `band_indexes` exceeds the number of bands in a raster, it will have a `null` value for the corresponding column.
-
-Here is a trivial example with a _catalog_ over multiband rasters. We specify two columns containing URIs and two bands, resulting in four projected raster columns.
-
-```python, multiband_catalog
-import pandas as pd
-mb_cat = pd.DataFrame([
-    {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
-     'bar': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif'
-    },
-])
-mb2 = spark.read.raster(
-    spark.createDataFrame(mb_cat),
-    catalog_col_names=['foo', 'bar'],
-    band_indexes=[0, 1],
-    tile_dimensions=(64,64)
-)
-mb2.printSchema()
-```
 
 ## GeoTrellis
 

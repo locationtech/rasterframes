@@ -195,23 +195,6 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
     </span>
       <p class="shortcomment cmt">Realizes a RasterRef into a Tile.</p><div class="fullcomment"><div class="comment cmt"><p>Realizes a RasterRef into a Tile.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/2/18</p></dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.transformers.RasterizeGeometry" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RasterizeGeometryextendsAnyRef"></a>
-      <a id="RasterizeGeometry:RasterizeGeometry"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="RasterizeGeometry.html"><span class="name">RasterizeGeometry</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@RasterizeGeometryextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="org.locationtech.rasterframes.expressions.transformers.RenderPNG" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="RenderPNGextendsUnaryExpressionwithUnaryRasterOpwithCodegenFallbackwithSerializable"></a>
       <a id="RenderPNG:RenderPNG"></a>
@@ -351,6 +334,32 @@ Tiles in each row will first be and-ed with 0xFF, bit shifted, and or-ed into a 
 containing references to the internal tiles and associated extents.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst generator to convert a geotiff download URL into a series of rows
 containing references to the internal tiles and associated extents.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.XZ2Indexer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="XZ2IndexerextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="XZ2Indexer:XZ2Indexer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="XZ2Indexer.html"><span class="name">XZ2Indexer</span></a><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="indexResolution">indexResolution: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@XZ2IndexerextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource
+This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource
+This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
+Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.html
+</p></div><dl class="paramcmts block"><dt class="param">left</dt><dd class="cmt"><p>geometry-like column</p></dd><dt class="param">right</dt><dd class="cmt"><p>CRS column</p></dd><dt class="param">indexResolution</dt><dd class="cmt"><p>resolution level of the space filling curve -
+                       i.e. how many times the space will be recursively quartered
+                       1-18 is typical.</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li></ol>
             </div>
 
@@ -592,6 +601,23 @@ containing references to the internal tiles and associated extents.
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@URIToRasterSource" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.XZ2Indexer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="XZ2Indexer"></a>
+      <a id="XZ2Indexer:XZ2Indexer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="XZ2Indexer$.html"><span class="name">XZ2Indexer</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@XZ2Indexer" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

@@ -154,6 +154,7 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="masking.html" class="page">Masking</a></li>
     <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
@@ -187,7 +188,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.3
+<i class="md-icon" title="Version">label_outline</i> 0.8.4
 </label>
 </li>
 </ul>
@@ -228,6 +229,14 @@ locationtech/rasterframes
 <pre><code>ReturnDataType function_name(InputDataType argument1, InputDataType argument2)
 </code></pre>
 <p>For the Scala documentation on these functions, see <a href="http://rasterframes.io/latest/api/org/locationtech/rasterframes/RasterFunctions.html"><code>RasterFunctions</code></a>. The full Scala API documentation can be found <a href="latest/api/index.html">here</a>.</p>
+<pre class="prettyprint"><code class="language-python imports, echo=False">import pyrasterframes
+from pyrasterframes.utils import create_rf_spark_session
+from pyrasterframes.rasterfunctions import *
+from IPython.display import display
+import os.path
+
+spark = create_rf_spark_session()
+</code></pre>
 <h2><a href="#list-of-available-sql-and-python-functions" name="list-of-available-sql-and-python-functions" class="anchor"><span class="anchor-link"></span></a>List of Available SQL and Python Functions</h2>
 <div class="toc ">
 <ul>
@@ -236,6 +245,7 @@ locationtech/rasterframes
     <li><a href="reference.html#st-reproject" class="header">st_reproject</a></li>
     <li><a href="reference.html#st-extent" class="header">st_extent</a></li>
     <li><a href="reference.html#st-geometry" class="header">st_geometry</a></li>
+    <li><a href="reference.html#rf-spatial-index" class="header">rf_spatial_index</a></li>
   </ul></li>
   <li><a href="reference.html#tile-metadata-and-mutation" class="header">Tile Metadata and Mutation</a>
   <ul>
@@ -261,8 +271,10 @@ locationtech/rasterframes
   <li><a href="reference.html#masking-and-nodata" class="header">Masking and NoData</a>
   <ul>
     <li><a href="reference.html#rf-mask" class="header">rf_mask</a></li>
-    <li><a href="reference.html#rf-inverse-mask" class="header">rf_inverse_mask</a></li>
     <li><a href="reference.html#rf-mask-by-value" class="header">rf_mask_by_value</a></li>
+    <li><a href="reference.html#rf-mask-by-values" class="header">rf_mask_by_values</a></li>
+    <li><a href="reference.html#rf-inverse-mask" class="header">rf_inverse_mask</a></li>
+    <li><a href="reference.html#rf-inverse-mask-by-value" class="header">rf_inverse_mask_by_value</a></li>
     <li><a href="reference.html#rf-is-no-data-tile" class="header">rf_is_no_data_tile</a></li>
     <li><a href="reference.html#rf-local-no-data" class="header">rf_local_no_data</a></li>
     <li><a href="reference.html#rf-local-data" class="header">rf_local_data</a></li>
@@ -282,6 +294,7 @@ locationtech/rasterframes
     <li><a href="reference.html#rf-local-greater-equal" class="header">rf_local_greater_equal</a></li>
     <li><a href="reference.html#rf-local-equal" class="header">rf_local_equal</a></li>
     <li><a href="reference.html#rf-local-unequal" class="header">rf_local_unequal</a></li>
+    <li><a href="reference.html#rf-local-is-in" class="header">rf_local_is_in</a></li>
     <li><a href="reference.html#rf-round" class="header">rf_round</a></li>
     <li><a href="reference.html#rf-abs" class="header">rf_abs</a></li>
     <li><a href="reference.html#rf-exp" class="header">rf_exp</a></li>
@@ -340,7 +353,7 @@ locationtech/rasterframes
 <pre class="prettyprint"><code class="language-python">from pyrasterframes.rasterfunctions import *
 </code></pre>
 <p>Functions starting with <code>rf_</code>, which are for raster, and <code>st_</code>, which are for vector geometry, become available for use with DataFrames. You can view all of the available functions with the following.</p>
-<pre class="prettyprint"><code class="language-python">[fn for fn in dir() if fn.startswith(&#39;rf_&#39;) or fn.startswith(&#39;st_&#39;)]
+<pre class="prettyprint"><code class="language-python, evaluate=False">[fn for fn in dir() if fn.startswith(&#39;rf_&#39;) or fn.startswith(&#39;st_&#39;)]
 </code></pre>
 <h2><a href="#vector-operations" name="vector-operations" class="anchor"><span class="anchor-link"></span></a>Vector Operations</h2>
 <p>Various LocationTech GeoMesa user-defined functions (UDFs) dealing with <code>geomtery</code> type columns are provided in the SQL engine and within the <code>pyrasterframes.rasterfunctions</code> Python module. These are documented in the <a href="https://www.geomesa.org/documentation/user/spark/sparksql_functions.html#">LocationTech GeoMesa Spark SQL documentation</a>. These functions are all prefixed with <code>st_</code>.</p>
@@ -358,6 +371,12 @@ locationtech/rasterframes
 <pre><code>Geometry st_geometry(Struct[Double xmin, Double xmax, Double ymin, Double ymax] extent)
 </code></pre>
 <p>Convert an extent to a Geometry. The extent likely comes from <a href="reference.html#st-extent"><code>st_extent</code></a> or <a href="reference.html#rf-extent"><code>rf_extent</code></a>.</p>
+<h3><a href="#rf-spatial-index" name="rf-spatial-index" class="anchor"><span class="anchor-link"></span></a>rf_spatial_index</h3>
+<pre><code>Long rf_spatial_index(Geometry geom, CRS crs)
+Long rf_spatial_index(Extent extent, CRS crs)
+Long rf_spatial_index(ProjectedRasterTile proj_raster, CRS crs)
+</code></pre>
+<p>Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. This function is useful for <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange">range partitioning</a>.</p>
 <h2><a href="#tile-metadata-and-mutation" name="tile-metadata-and-mutation" class="anchor"><span class="anchor-link"></span></a>Tile Metadata and Mutation</h2>
 <p>Functions to access and change the particulars of a <code>tile</code>: its shape and the data type of its cells. See section on <a href="nodata-handling.html">&ldquo;NoData&rdquo; handling</a> for additional discussion of cell types.</p>
 <h3><a href="#rf-dimensions" name="rf-dimensions" class="anchor"><span class="anchor-link"></span></a>rf_dimensions</h3>
@@ -434,7 +453,7 @@ Tile rf_make_constant_tile(Numeric constant, Int tile_columns, Int tile_rows,  [
 <h3><a href="#rf-array-to-tile" name="rf-array-to-tile" class="anchor"><span class="anchor-link"></span></a>rf_array_to_tile</h3>
 <pre><code>Tile rf_array_to_tile(Array arrayCol, Int numCols, Int numRows)
 </code></pre>
-<p>Python only. Create a <code>tile</code> from a Spark SQL <a href="http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, filling values in row-major order.</p>
+<p>Python only. Create a <code>tile</code> from a Spark SQL <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, filling values in row-major order.</p>
 <h3><a href="#rf-assemble-tile" name="rf-assemble-tile" class="anchor"><span class="anchor-link"></span></a>rf_assemble_tile</h3>
 <pre><code>Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, [CellType cell_type])
 Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows, [String cell_type_name])
@@ -442,23 +461,34 @@ Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols,
 <p>SQL: <code>Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols, Int numRows)</code></p>
 <p>Create <code>tile</code>s of dimension <code>numCols</code> by <code>numRows</code> from a column of cell data with location indices. This function is the inverse of <a href="reference.html#rf-explode-tiles"><code>rf_explode_tiles</code></a>. Intended use is with a <code>groupby</code>, producing one row with a new <code>tile</code> per group. In Python, the <code>numCols</code>, <code>numRows</code> and <code>cellType</code> arguments are literal values, others are column expressions. See <a href="nodata-handling.html#cell-types">this discussion</a> on cell types for info on the optional <code>cell_type</code> argument. The default is float64. SQL implementation does not accept a cell_type argument. It returns a float64 cell type <code>tile</code> by default.</p>
 <h2><a href="#masking-and-nodata" name="masking-and-nodata" class="anchor"><span class="anchor-link"></span></a>Masking and NoData</h2>
-<p>See <a href="nodata-handling.html">NoData handling</a> for conceptual discussion of cell types and NoData.</p>
+<p>See the <a href="masking.html">masking</a> page for conceptual discussion of masking operations.</p>
 <p>There are statistical functions of the count of data and NoData values per <code>tile</code> and aggregate over a <code>tile</code> column: <a href="reference.html#rf-data-cells"><code>rf_data_cells</code></a>, <a href="reference.html#rf-no-data-cells"><code>rf_no_data_cells</code></a>, <a href="reference.html#rf-agg-data-cells"><code>rf_agg_data_cells</code></a>, and <a href="reference.html#rf-agg-no-data-cells"><code>rf_agg_no_data_cells</code></a>.</p>
 <p>Masking is a raster operation that sets specific cells to NoData based on the values in another raster.</p>
 <h3><a href="#rf-mask" name="rf-mask" class="anchor"><span class="anchor-link"></span></a>rf_mask</h3>
-<pre><code>Tile rf_mask(Tile tile, Tile mask)
+<pre><code>Tile rf_mask(Tile tile, Tile mask, bool inverse)
 </code></pre>
 <p>Where the <code>mask</code> contains NoData, replace values in the <code>tile</code> with NoData.</p>
 <p>Returned <code>tile</code> cell type will be coerced to one supporting NoData if it does not already.</p>
+<p><code>inverse</code> is a literal not a Column. If <code>inverse</code> is true, return the <code>tile</code> with NoData in locations where the <code>mask</code> <em>does not</em> contain NoData. Equivalent to <a href="reference.html#rf-inverse-mask"><code>rf_inverse_mask</code></a>.</p>
 <p>See also <a href="reference.html#rf-rasterize"><code>rf_rasterize</code></a>.</p>
+<h3><a href="#rf-mask-by-value" name="rf-mask-by-value" class="anchor"><span class="anchor-link"></span></a>rf_mask_by_value</h3>
+<pre><code>Tile rf_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value, bool inverse)
+</code></pre>
+<p>Generate a <code>tile</code> with the values from <code>data_tile</code>, with NoData in cells where the <code>mask_tile</code> is equal to <code>mask_value</code>.</p>
+<p><code>inverse</code> is a literal not a Column. If <code>inverse</code> is true, return the <code>data_tile</code> with NoData in locations where the <code>mask_tile</code> value is <em>not equal</em> to <code>mask_value</code>. Equivalent to <a href="reference.html#rf-inverse-mask-by-value"><code>rf_inverse_mask_by_value</code></a>.</p>
+<h3><a href="#rf-mask-by-values" name="rf-mask-by-values" class="anchor"><span class="anchor-link"></span></a>rf_mask_by_values</h3>
+<pre><code>Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, Array mask_values)
+Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, seq mask_values)
+</code></pre>
+<p>Generate a <code>tile</code> with the values from <code>data_tile</code>, with NoData in cells where the <code>mask_tile</code> is in the <code>mask_values</code> Array or list. <code>mask_values</code> can be a <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType"><code>pyspark.sql.ArrayType</code></a> or a <code>list</code>. </p>
 <h3><a href="#rf-inverse-mask" name="rf-inverse-mask" class="anchor"><span class="anchor-link"></span></a>rf_inverse_mask</h3>
 <pre><code>Tile rf_inverse_mask(Tile tile, Tile mask)
 </code></pre>
 <p>Where the <code>mask</code> <em>does not</em> contain NoData, replace values in <code>tile</code> with NoData.</p>
-<h3><a href="#rf-mask-by-value" name="rf-mask-by-value" class="anchor"><span class="anchor-link"></span></a>rf_mask_by_value</h3>
-<pre><code>Tile rf_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
+<h3><a href="#rf-inverse-mask-by-value" name="rf-inverse-mask-by-value" class="anchor"><span class="anchor-link"></span></a>rf_inverse_mask_by_value</h3>
+<pre><code>Tile rf_inverse_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
 </code></pre>
-<p>Generate a <code>tile</code> with the values from <code>data_tile</code>, with NoData in cells where the <code>mask_tile</code> is equal to <code>mask_value</code>.</p>
+<p>Generate a <code>tile</code> with the values from <code>data_tile</code>, with NoData in cells where the <code>mask_tile</code> is not equal to <code>mask_value</code>. In other words, only keep <code>data_tile</code> cells in locations where the <code>mask_tile</code> is equal to <code>mask_value</code>.</p>
 <h3><a href="#rf-is-no-data-tile" name="rf-is-no-data-tile" class="anchor"><span class="anchor-link"></span></a>rf_is_no_data_tile</h3>
 <pre><code>Boolean rf_is_no_data_tile(Tile)
 </code></pre>
@@ -553,6 +583,11 @@ Tile rf_local_unequal_int(Tile tile1, Int rhs)
 Tile rf_local_unequal_double(Tile tile1, Double rhs)
 </code></pre>
 <p>Returns a <code>tile</code> column containing the element-wise inequality of <code>tile1</code> and <code>rhs</code>.</p>
+<h3><a href="#rf-local-is-in" name="rf-local-is-in" class="anchor"><span class="anchor-link"></span></a>rf_local_is_in</h3>
+<pre><code>Tile rf_local_is_in(Tile tile, Array array)
+Tile rf_local_is_in(Tile tile, list l)
+</code></pre>
+<p>Returns a <code>tile</code> column with cell values of 1 where the <code>tile</code> cell value is in the provided array or list. The <code>array</code> is a Spark SQL <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>. A python <code>list</code> of numeric values can also be passed.</p>
 <h3><a href="#rf-round" name="rf-round" class="anchor"><span class="anchor-link"></span></a>rf_round</h3>
 <pre><code>Tile rf_round(Tile tile)
 </code></pre>
@@ -631,25 +666,13 @@ Tile rf_local_unequal_double(Tile tile1, Double rhs)
 <pre><code>Struct[Long, Long, Double, Double, Double, Double] rf_tile_stats(Tile tile)
 </code></pre>
 <p>Computes the following statistics of cells in each row of column <code>tile</code>: data cell count, NoData cell count, minimum, maximum, mean, and variance. The minimum, maximum, mean, and variance are computed ignoring NoData values. Resulting column has the below schema.</p>
-<pre><code>root
- |-- tile_stats: struct (nullable = true)
- |    |-- data_cells: long (nullable = false)
- |    |-- no_data_cells: long (nullable = false)
- |    |-- min: double (nullable = false)
- |    |-- max: double (nullable = false)
- |    |-- mean: double (nullable = false)
- |    |-- variance: double (nullable = false)
+<pre class="prettyprint"><code class="language-python echo=False">spark.sql(&quot;SELECT rf_tile_stats(rf_make_ones_tile(5, 5, &#39;float32&#39;)) as tile_stats&quot;).printSchema()
 </code></pre>
 <h3><a href="#rf-tile-histogram" name="rf-tile-histogram" class="anchor"><span class="anchor-link"></span></a>rf_tile_histogram</h3>
 <pre><code>Struct[Array[Struct[Double, Long]]] rf_tile_histogram(Tile tile)
 </code></pre>
 <p>Computes a count of cell values within each row of <code>tile</code>. The <code>bins</code> array is of tuples of histogram values and counts. Typically values are plotted on the x-axis and counts on the y-axis. Resulting column has the below schema. Related is the <a href="reference.html#rf-agg-approx-histogram"><code>rf_agg_approx_histogram</code></a> which computes the statistics across all rows in a group.</p>
-<pre><code>root
- |-- tile_histogram: struct (nullable = true)
- |    |-- bins: array (nullable = true)
- |    |    |-- element: struct (containsNull = true)
- |    |    |    |-- value: double (nullable = false)
- |    |    |    |-- count: long (nullable = false)
+<pre class="prettyprint"><code class="language-python echo=False">spark.sql(&quot;SELECT rf_tile_histogram(rf_make_ones_tile(5, 5, &#39;float32&#39;)) as tile_histogram&quot;).printSchema()
 </code></pre>
 <h2><a href="#aggregate-tile-statistics" name="aggregate-tile-statistics" class="anchor"><span class="anchor-link"></span></a>Aggregate Tile Statistics</h2>
 <p>These functions compute statistical summaries over all of the cell values <em>and</em> across all the rows in the DataFrame or group.</p>
@@ -716,11 +739,11 @@ Tile rf_local_unequal_double(Tile tile1, Double rhs)
 <h3><a href="#rf-tile-to-array-int" name="rf-tile-to-array-int" class="anchor"><span class="anchor-link"></span></a>rf_tile_to_array_int</h3>
 <pre><code>Array rf_tile_to_array_int(Tile tile)
 </code></pre>
-<p>Convert Tile column to Spark SQL <a href="http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, in row-major order. Float cell types will be coerced to integral type by flooring.</p>
+<p>Convert Tile column to Spark SQL <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, in row-major order. Float cell types will be coerced to integral type by flooring.</p>
 <h3><a href="#rf-tile-to-array-double" name="rf-tile-to-array-double" class="anchor"><span class="anchor-link"></span></a>rf_tile_to_array_double</h3>
 <pre><code>Array rf_tile_to_arry_double(Tile tile)
 </code></pre>
-<p>Convert tile column to Spark <a href="http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, in row-major order. Integral cell types will be coerced to floats.</p>
+<p>Convert tile column to Spark <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>, in row-major order. Integral cell types will be coerced to floats.</p>
 <h3><a href="#rf-render-ascii" name="rf-render-ascii" class="anchor"><span class="anchor-link"></span></a>rf_render_ascii</h3>
 <pre><code>String rf_render_ascii(Tile tile)
 </code></pre>
@@ -739,13 +762,13 @@ Tile rf_local_unequal_double(Tile tile1, Double rhs)
 <p>Runs <a href="reference.md#rf-rgb-composite"><code>rf_rgb_composite</code></a> on the given tile columns and then encodes the result as a PNG byte array.</p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.3/pyrasterframes/target/python/docs/reference.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.4/docs/src/main/paradox/reference.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.3
+0.8.4
 </span>
 </div>
 </article>

@@ -96,7 +96,7 @@ park_rf.printSchema()
 
 ## Define Zone Tiles
 
-Now we have the vector representation of the park boundary alongside the _tiles_ of red and near infrared bands. Next, we need to create a _tile_ representation of the park to allow us to limit the raster analysis to pixels within the park _zone_. This is similar to the masking operation demonstrated in @ref:[NoData handling](nodata-handling.md#masking). We rasterize the geometries using @ref:[`rf_rasterize`](reference.md#rf-rasterize): this creates a new _tile_ column aligned with the imagery, and containing the park's OBJECTID attribute for cells intersecting the _zone_. Cells outside the park _zones_ have a NoData value.
+Now we have the vector representation of the park boundary alongside the _tiles_ of red and near infrared bands. Next, we need to create a _tile_ representation of the park to allow us to limit the raster analysis to pixels within the park _zone_. This is similar to the masking operation demonstrated in @ref:[Masking](masking.md#masking). We rasterize the geometries using @ref:[`rf_rasterize`](reference.md#rf-rasterize): this creates a new _tile_ column aligned with the imagery, and containing the park's OBJECTID attribute for cells intersecting the _zone_. Cells outside the park _zones_ have a NoData value.
 
 ```python burn_in
 rf_park_tile = park_rf \

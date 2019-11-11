@@ -1484,6 +1484,23 @@
     </span>
       <p class="shortcomment cmt">Where the <code>maskTile</code> does **not** contain <code>NoData</code>, replace values in the source tile with <code>NoData</code></p><div class="fullcomment"><div class="comment cmt"><p>Where the <code>maskTile</code> does **not** contain <code>NoData</code>, replace values in the source tile with <code>NoData</code></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_inverse_mask_by_value" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_inverse_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:Int):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rf_inverse_mask_by_value(Column,Column,Int):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_inverse_mask_by_value</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValue">maskValue: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_inverse_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:Int):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Where the <code>maskTile</code> does **not** equal <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p><div class="fullcomment"><div class="comment cmt"><p>Where the <code>maskTile</code> does **not** equal <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_inverse_mask_by_value" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rf_inverse_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
       <a id="rf_inverse_mask_by_value(Column,Column,Column):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
@@ -1891,6 +1908,40 @@
       </a>
     </span>
       
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_local_is_in" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_local_is_in(tileCol:org.apache.spark.sql.Column,array:Array[Int]):org.apache.spark.sql.Column"></a>
+      <a id="rf_local_is_in(Column,Array[Int]):Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_local_is_in</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="array">array: <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_local_is_in(tileCol:org.apache.spark.sql.Column,array:Array[Int]):org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Test if each cell value is in provided array</p><div class="fullcomment"><div class="comment cmt"><p>Test if each cell value is in provided array</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_local_is_in" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_local_is_in(tileCol:org.apache.spark.sql.Column,arrayCol:org.apache.spark.sql.Column):org.apache.spark.sql.Column"></a>
+      <a id="rf_local_is_in(Column,Column):Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_local_is_in</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="arrayCol">arrayCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_local_is_in(tileCol:org.apache.spark.sql.Column,arrayCol:org.apache.spark.sql.Column):org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Test if each cell value is in provided array</p><div class="fullcomment"><div class="comment cmt"><p>Test if each cell value is in provided array</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_local_less" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rf_local_less[T](tileCol:org.apache.spark.sql.Column,value:T)(implicitevidence$6:Numeric[T]):org.apache.spark.sql.Column"></a>
       <a id="rf_local_less[T](Column,T)(Numeric[T]):Column"></a>
@@ -2419,6 +2470,23 @@
     </span>
       <p class="shortcomment cmt">Create a column constant tiles of zero</p><div class="fullcomment"><div class="comment cmt"><p>Create a column constant tiles of zero</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_mask" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_mask(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,inverse:Boolean):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rf_mask(Column,Column,Boolean):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_mask</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="inverse">inverse: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_mask(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,inverse:Boolean):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA</p><div class="fullcomment"><div class="comment cmt"><p>Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_mask" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rf_mask(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
       <a id="rf_mask(Column,Column):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
@@ -2436,22 +2504,94 @@
     </span>
       <p class="shortcomment cmt">Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA</p><div class="fullcomment"><div class="comment cmt"><p>Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_mask_by_value" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
-      <a id="rf_mask_by_value(Column,Column,Column):TypedColumn[Any,Tile]"></a>
+      <a id="rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:Int):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rf_mask_by_value(Column,Column,Int):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rf_mask_by_value</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValue">maskValue: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">rf_mask_by_value</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValue">maskValue: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:Int):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Where the <code>maskTile</code> equals <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p><div class="fullcomment"><div class="comment cmt"><p>Where the <code>maskTile</code> equals <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_mask_by_value" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:Int,inverse:Boolean):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rf_mask_by_value(Column,Column,Int,Boolean):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_mask_by_value</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValue">maskValue: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="inverse">inverse: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:Int,inverse:Boolean):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Where the <code>maskTile</code> equals <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p><div class="fullcomment"><div class="comment cmt"><p>Where the <code>maskTile</code> equals <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_mask_by_value" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:org.apache.spark.sql.Column,inverse:Boolean):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rf_mask_by_value(Column,Column,Column,Boolean):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_mask_by_value</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValue">maskValue: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="inverse">inverse: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a> = <span class="symbol">false</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_mask_by_value(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValue:org.apache.spark.sql.Column,inverse:Boolean):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Where the <code>maskTile</code> equals <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p><div class="fullcomment"><div class="comment cmt"><p>Where the <code>maskTile</code> equals <code>maskValue</code>, replace values in the source tile with <code>NoData</code></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_mask_by_values" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_mask_by_values(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValues:Seq[Int]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rf_mask_by_values(Column,Column,Seq[Int]):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_mask_by_values</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValues">maskValues: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_mask_by_values(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValues:Seq[Int]):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Generate a tile with the values from <code>data_tile</code>, but where cells in the <code>mask_tile</code> are in the <code>mask_values</code>
+       list, replace the value with NODATA.</p><div class="fullcomment"><div class="comment cmt"><p>Generate a tile with the values from <code>data_tile</code>, but where cells in the <code>mask_tile</code> are in the <code>mask_values</code>
+       list, replace the value with NODATA.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_mask_by_values" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_mask_by_values(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValues:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="rf_mask_by_values(Column,Column,Column):TypedColumn[Any,Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_mask_by_values</span><span class="params">(<span name="sourceTile">sourceTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskTile">maskTile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="maskValues">maskValues: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_mask_by_values(sourceTile:org.apache.spark.sql.Column,maskTile:org.apache.spark.sql.Column,maskValues:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Generate a tile with the values from <code>data_tile</code>, but where cells in the <code>mask_tile</code> are in the <code>mask_values</code>
+       list, replace the value with NODATA.</p><div class="fullcomment"><div class="comment cmt"><p>Generate a tile with the values from <code>data_tile</code>, but where cells in the <code>mask_tile</code> are in the <code>mask_values</code>
+       list, replace the value with NODATA.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_no_data_cells" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rf_no_data_cells(tile:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Long]"></a>
       <a id="rf_no_data_cells(Column):TypedColumn[Any,Long]"></a>
@@ -2658,6 +2798,82 @@ than one will downsample tile; greater than one will upsample. Uses nearest-neig
       </a>
     </span>
       <p class="shortcomment cmt">Round cell values to nearest integer without chaning cell type.</p><div class="fullcomment"><div class="comment cmt"><p>Round cell values to nearest integer without chaning cell type.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_spatial_index" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_spatial_index(targetExtent:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Long]"></a>
+      <a id="rf_spatial_index(Column):TypedColumn[Any,Long]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_spatial_index</span><span class="params">(<span name="targetExtent">targetExtent: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_spatial_index(targetExtent:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Long]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a XZ2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a XZ2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_spatial_index" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_spatial_index(targetExtent:org.apache.spark.sql.Column,indexResolution:Short):org.apache.spark.sql.TypedColumn[Any,Long]"></a>
+      <a id="rf_spatial_index(Column,Short):TypedColumn[Any,Long]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_spatial_index</span><span class="params">(<span name="targetExtent">targetExtent: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="indexResolution">indexResolution: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_spatial_index(targetExtent:org.apache.spark.sql.Column,indexResolution:Short):org.apache.spark.sql.TypedColumn[Any,Long]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a XZ2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a XZ2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_spatial_index" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_spatial_index(targetExtent:org.apache.spark.sql.Column,targetCRS:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Long]"></a>
+      <a id="rf_spatial_index(Column,Column):TypedColumn[Any,Long]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_spatial_index</span><span class="params">(<span name="targetExtent">targetExtent: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="targetCRS">targetCRS: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_spatial_index(targetExtent:org.apache.spark.sql.Column,targetCRS:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Long]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_spatial_index" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_spatial_index(targetExtent:org.apache.spark.sql.Column,targetCRS:org.apache.spark.sql.Column,indexResolution:Short):org.apache.spark.sql.TypedColumn[Any,Long]"></a>
+      <a id="rf_spatial_index(Column,Column,Short):TypedColumn[Any,Long]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_spatial_index</span><span class="params">(<span name="targetExtent">targetExtent: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="targetCRS">targetCRS: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="indexResolution">indexResolution: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.py.PyRFContext@rf_spatial_index(targetExtent:org.apache.spark.sql.Column,targetCRS:org.apache.spark.sql.Column,indexResolution:Short):org.apache.spark.sql.TypedColumn[Any,Long]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS
+For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../RasterFunctions.html" class="extype" name="org.locationtech.rasterframes.RasterFunctions">RasterFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.RasterFunctions#rf_tile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rf_tile(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
       <a id="rf_tile(Column):TypedColumn[Any,Tile]"></a>

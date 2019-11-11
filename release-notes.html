@@ -154,6 +154,7 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="masking.html" class="page">Masking</a></li>
     <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
@@ -181,7 +182,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.3
+<i class="md-icon" title="Version">label_outline</i> 0.8.4
 </label>
 </li>
 </ul>
@@ -212,11 +213,22 @@ locationtech/rasterframes
 <div class="md-content__searchable">
 <h1><a href="#release-notes" name="release-notes" class="anchor"><span class="anchor-link"></span></a>Release Notes</h1>
 <h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
+<h3><a href="#0-8-4" name="0-8-4" class="anchor"><span class="anchor-link"></span></a>0.8.4</h3>
+<ul>
+  <li>Upgraded to Spark 2.4.4</li>
+  <li>Add <code>rf_mask_by_values</code> and <code>rf_local_is_in</code> raster functions; added optional <code>inverse</code> argument to <code>rf_mask</code> functions. (<a href="https://github.com/locationtech/rasterframes/pull/403">#403</a>, <a href="https://github.com/locationtech/rasterframes/issues/384">#384</a>)</li>
+  <li>Added forced truncation of WKT types in Markdown/HTML rendering. (<a href="https://github.com/locationtech/rasterframes/pull/408">#408</a>)</li>
+  <li>Add <code>rf_local_is_in</code> raster function. (<a href="https://github.com/locationtech/rasterframes/pull/400">#400</a>)</li>
+  <li>Added partitioning to catalogs before processing in RasterSourceDataSource (<a href="https://github.com/locationtech/rasterframes/pull/397">#397</a>)</li>
+  <li>Fixed bug where <code>rf_tile_dimensions</code> would cause unnecessary reading of tiles. (<a href="https://github.com/locationtech/rasterframes/pull/394">#394</a>)</li>
+  <li><em>Breaking</em> (potentially): removed <code>GeoTiffCollectionRelation</code> due to usage limitation and overlap with <code>RasterSourceDataSource</code> functionality.</li>
+</ul>
 <h3><a href="#0-8-3" name="0-8-3" class="anchor"><span class="anchor-link"></span></a>0.8.3</h3>
 <ul>
   <li>Updated to GeoTrellis 2.3.3 and Proj4j 1.1.0.</li>
   <li>Fixed issues with <code>LazyLogger</code> and shading assemblies (<a href="https://github.com/locationtech/rasterframes/issues/293">#293</a>)</li>
   <li>Updated <code>rf_crs</code> to accept string columns containing CRS specifications. (<a href="https://github.com/locationtech/rasterframes/issues/366">#366</a>)</li>
+  <li>Added <code>rf_spatial_index</code> function. (<a href="https://github.com/locationtech/rasterframes/issues/368">#368</a>)</li>
   <li><em>Breaking</em> (potentially): removed <code>pyrasterframes.create_spark_session</code> in lieu of <code>pyrasterframes.utils.create_rf_spark_session</code></li>
 </ul>
 <h3><a href="#0-8-2" name="0-8-2" class="anchor"><span class="anchor-link"></span></a>0.8.2</h3>
@@ -402,13 +414,13 @@ locationtech/rasterframes
 </ul>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.3/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.4/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.3
+0.8.4
 </span>
 </div>
 </article>

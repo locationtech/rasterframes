@@ -415,7 +415,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Mask.html" class="extype" name="org.locationtech.rasterframes.expressions.transformers.Mask">Mask</a> → Expression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.expressions.TernaryExpression#defineCodeGen" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="defineCodeGen(ctx:&lt;?&gt;,ev:&lt;?&gt;,f:&lt;?&gt;):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
+      <a id="defineCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
       <a id="defineCodeGen(CodegenContext,ExprCode,(String,String,String)⇒String):ExprCode"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -811,8 +811,8 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="Mask.html" class="extype" name="org.locationtech.rasterframes.expressions.transformers.Mask">Mask</a></dd></dl></div>
-    </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#makeCopy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="makeCopy(newArgs:Array[AnyRef]):BaseType"></a>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask#makeCopy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="makeCopy(newArgs:Array[AnyRef]):org.apache.spark.sql.catalyst.expressions.Expression"></a>
       <a id="makeCopy(Array[AnyRef]):Expression"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -823,11 +823,11 @@
         <span class="name">makeCopy</span><span class="params">(<span name="newArgs">newArgs: <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.Mask$$InverseMaskByValue@makeCopy(newArgs:Array[AnyRef]):BaseType" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.Mask$$InverseMaskByValue@makeCopy(newArgs:Array[AnyRef]):org.apache.spark.sql.catalyst.expressions.Expression" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Mask.html" class="extype" name="org.locationtech.rasterframes.expressions.transformers.Mask">Mask</a> → TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#map" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="map[A](f:BaseType=&gt;A):Seq[A]"></a>
       <a id="map[A]((Expression)⇒A):Seq[A]"></a>
@@ -879,6 +879,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask#maskExp" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maskExp:org.apache.spark.sql.catalyst.expressions.Expression"></a>
+      <a id="maskExp:Expression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maskExp</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.Mask$$InverseMaskByValue@maskExp:org.apache.spark.sql.catalyst.expressions.Expression" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Mask.html" class="extype" name="org.locationtech.rasterframes.expressions.transformers.Mask">Mask</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask.InverseMaskByValue#maskValue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="maskValue:org.apache.spark.sql.catalyst.expressions.Expression"></a>
       <a id="maskValue:Expression"></a>
@@ -896,6 +913,23 @@
       </a>
     </span>
       
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask#maskValueExp" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maskValueExp:org.apache.spark.sql.catalyst.expressions.Expression"></a>
+      <a id="maskValueExp:Expression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maskValueExp</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.Mask$$InverseMaskByValue@maskValueExp:org.apache.spark.sql.catalyst.expressions.Expression" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Mask.html" class="extype" name="org.locationtech.rasterframes.expressions.transformers.Mask">Mask</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask#middle" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="middle:org.apache.spark.sql.catalyst.expressions.Expression"></a>
       <a id="middle:Expression"></a>
@@ -982,7 +1016,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.expressions.TernaryExpression#nullSafeCodeGen" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="nullSafeCodeGen(ctx:&lt;?&gt;,ev:&lt;?&gt;,f:&lt;?&gt;):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
+      <a id="nullSafeCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
       <a id="nullSafeCodeGen(CodegenContext,ExprCode,(String,String,String)⇒String):ExprCode"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -999,7 +1033,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TernaryExpression</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask#nullSafeEval" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="nullSafeEval(leftInput:Any,middleInput:Any,rightInput:Any):Any"></a>
+      <a id="nullSafeEval(targetInput:Any,maskInput:Any,maskValueInput:Any):Any"></a>
       <a id="nullSafeEval(Any,Any,Any):Any"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -1007,10 +1041,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">nullSafeEval</span><span class="params">(<span name="leftInput">leftInput: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="middleInput">middleInput: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="rightInput">rightInput: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>
+        <span class="name">nullSafeEval</span><span class="params">(<span name="targetInput">targetInput: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="maskInput">maskInput: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="maskValueInput">maskValueInput: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.Mask$$InverseMaskByValue@nullSafeEval(leftInput:Any,middleInput:Any,rightInput:Any):Any" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.Mask$$InverseMaskByValue@nullSafeEval(targetInput:Any,maskInput:Any,maskValueInput:Any):Any" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1304,6 +1338,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.Mask#targetExp" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="targetExp:org.apache.spark.sql.catalyst.expressions.Expression"></a>
+      <a id="targetExp:Expression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">targetExp</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.Mask$$InverseMaskByValue@targetExp:org.apache.spark.sql.catalyst.expressions.Expression" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Mask.html" class="extype" name="org.locationtech.rasterframes.expressions.transformers.Mask">Mask</a></dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#toJSON" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toJSON:String"></a>
       <a id="toJSON:String"></a>

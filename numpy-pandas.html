@@ -154,6 +154,7 @@ locationtech/rasterframes
   <ul>
     <li><a href="local-algebra.html" class="page">Local Map Algebra</a></li>
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a></li>
+    <li><a href="masking.html" class="page">Masking</a></li>
     <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
@@ -182,7 +183,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.3
+<i class="md-icon" title="Version">label_outline</i> 0.8.4
 </label>
 </li>
 </ul>
@@ -227,14 +228,14 @@ t = Tile(np.random.randn(4, 4))
 print(str(t))
 </code></pre>
 <pre><code>Tile(dimensions=[4, 4], cell_type=CellType(float64, nan), cells=
-[[-0.5557106965965315 0.45956508276689023 -0.3628406426423144
-  0.14180855782186425]
- [-0.8897169462652298 -0.25303152729672207 -0.47001907144563954
-  -1.9905429653803453]
- [0.22143559393243878 0.3863085466229184 0.7873623636602602
-  0.8206934400599376]
- [-0.2444346723287656 0.817426114141667 -1.4735815811748423
-  0.44523098248233267]])
+[[1.6901323026490997 0.5786865388358079 0.4229473795641715
+  -1.4257361569546938]
+ [0.15258593547869778 -0.9533985974155279 -0.6499498579195843
+  0.7816829170628637]
+ [0.8278680572289875 -0.2808366232924259 -0.4916555111792786
+  0.7042832587313801]
+ [-0.29917108708627926 -0.6328604315344413 -0.2117619981443811
+  0.4731824713392503]])
 </code></pre>
 <p>You can access the NumPy array with the <code>cells</code> member of <code>Tile</code>.</p>
 <pre class="prettyprint"><code class="language-python">t.cells.shape, t.cells.nbytes
@@ -293,12 +294,12 @@ np.abs(diff.cells).max()
 </code></pre>
 <pre><code>&lt;class &#39;pyrasterframes.rf_types.Tile&#39;&gt;
 </code></pre>
-<pre><code>4.764826915248932e-07
+<pre><code>4.767482870704498e-07
 </code></pre>
 <p>We can also inspect an image of the difference between the two <em>tiles</em>, which is just random noise. Both <em>tiles</em> have the same structure of NoData, as exhibited by the white areas.</p>
 <pre class="prettyprint"><code class="language-python">diff.show(0, 100)
 </code></pre>
-<pre><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x114b50410&gt;
+<pre><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x125985b50&gt;
 </code></pre>
 <p><img src="figures/numpy-pandas_udf_diff_noise_tile_1.png" /></p>
 <h2><a href="#creating-a-spark-dataframe" name="creating-a-spark-dataframe" class="anchor"><span class="anchor-link"></span></a>Creating a Spark DataFrame</h2>
@@ -326,13 +327,13 @@ spark_df.count()
 </code></pre>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.3/pyrasterframes/target/python/docs/numpy-pandas.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.4/pyrasterframes/target/python/docs/numpy-pandas.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.3
+0.8.4
 </span>
 </div>
 </article>
