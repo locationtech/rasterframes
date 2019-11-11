@@ -34,21 +34,19 @@ RUN cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERS
 ENV SPARK_HOME /usr/local/spark
 ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip
 ENV SPARK_OPTS --driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info
+ENV RF_LIB_LOC=/usr/local/rasterframes
 
-COPY conda_cleanup.sh .
-RUN chmod u+x conda_cleanup.sh
+COPY conda_cleanup.sh $RF_LIB_LOC/
+RUN chmod u+x $RF_LIB_LOC/conda_cleanup.sh
 
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/conda/lib"
 # Sphinx (for Notebook->html) and pyarrow (from pyspark build)
 RUN \
-    conda install --quiet --yes pyarrow \
-    anaconda sphinx nbsphinx shapely numpy folium geopandas geojsonio rasterio descartes && \
-    ./conda_cleanup.sh $NB_USER $CONDA_DIR
+    conda install --quiet --yes --channel conda-forge \
+    pyarrow anaconda sphinx nbsphinx shapely numpy folium geopandas geojsonio rasterio descartes && \
+    $RF_LIB_LOC/conda_cleanup.sh $NB_USER $CONDA_DIR
 
-ENV RF_LIB_LOC=/usr/local/rasterframes
-RUN mkdir $RF_LIB_LOC
-
-COPY *.whl $RF_LIB_LOC
+COPY *.whl $RF_LIB_LOC/
 COPY jupyter_notebook_config.py $HOME/.jupyter
 COPY examples $HOME/examples
 
