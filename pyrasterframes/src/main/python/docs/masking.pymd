@@ -125,11 +125,12 @@ to_clip.select('clip_raster', 'blue_masked') \
 
 Finally, we create a new _tile_ column with the blue band clipped to our circle. Again we will use the `rf_mask` function to pass the NoData regions along from the rasterized geometry.
 
+```python, clip
 clipped = to_clip.select('blue_masked', 
                          'clip_raster',
                          rf_mask('blue_masked', 'clip_raster').alias('blue_clipped')) \
                  .filter(rf_data_cells('clip_raster') > 20) \
                  .orderBy(rf_data_cells('clip_raster')) 
-
+```
 
 This kind of clipping technique is further used in @ref:[zonal statistics](zonal-algebra.md).
