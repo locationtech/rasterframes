@@ -66,6 +66,15 @@ See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/
 
 Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`](reference.md#st-extent) or @ref:[`rf_extent`](reference.md#rf-extent).
 
+
+### rf_spatial_index
+
+    Long rf_spatial_index(Geometry geom, CRS crs)
+    Long rf_spatial_index(Extent extent, CRS crs)
+    Long rf_spatial_index(ProjectedRasterTile proj_raster, CRS crs)
+    
+Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
+
 ## Tile Metadata and Mutation
 
 Functions to access and change the particulars of a `tile`: its shape and the data type of its cells. See section on @ref:["NoData" handling](nodata-handling.md) for additional discussion of cell types.
@@ -183,7 +192,7 @@ Parameters `tile_columns` and `tile_rows` are literals, not column expressions. 
 
     Tile rf_array_to_tile(Array arrayCol, Int numCols, Int numRows)
 
-Python only. Create a `tile` from a Spark SQL [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), filling values in row-major order.
+Python only. Create a `tile` from a Spark SQL [Array][Array], filling values in row-major order.
 
 ### rf_assemble_tile
 
@@ -198,7 +207,7 @@ SQL implementation does not accept a cell_type argument. It returns a float64 ce
 
 ## Masking and NoData
 
-See @ref:[NoData handling](nodata-handling.md) for conceptual discussion of cell types and NoData.
+See the @ref:[masking](masking.md) page for conceptual discussion of masking operations.
 
 There are statistical functions of the count of data and NoData values per `tile` and aggregate over a `tile` column: @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells).
 
@@ -206,14 +215,30 @@ Masking is a raster operation that sets specific cells to NoData based on the va
 
 ### rf_mask
 
-    Tile rf_mask(Tile tile, Tile mask)
+    Tile rf_mask(Tile tile, Tile mask, bool inverse)
 
 Where the `mask` contains NoData, replace values in the `tile` with NoData.
 
 Returned `tile` cell type will be coerced to one supporting NoData if it does not already.
 
+`inverse` is a literal not a Column. If `inverse` is true, return the `tile` with NoData in locations where the `mask` _does not_ contain NoData. Equivalent to @ref:[`rf_inverse_mask`](reference.md#rf-inverse-mask).
+
 See also @ref:[`rf_rasterize`](reference.md#rf-rasterize).
 
+### rf_mask_by_value
+
+    Tile rf_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value, bool inverse)
+
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is equal to `mask_value`.
+
+`inverse` is a literal not a Column. If `inverse` is true, return the `data_tile` with NoData in locations where the `mask_tile` value is _not equal_ to `mask_value`. Equivalent to @ref:[`rf_inverse_mask_by_value`](reference.md#rf-inverse-mask-by-value).
+
+### rf_mask_by_values
+
+    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, Array mask_values)
+    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, seq mask_values)
+
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is in the `mask_values` Array or list. `mask_values` can be a [`pyspark.sql.ArrayType`][Array] or a `list`.  
 
 ### rf_inverse_mask
 
@@ -221,12 +246,12 @@ See also @ref:[`rf_rasterize`](reference.md#rf-rasterize).
 
 Where the `mask` _does not_ contain NoData, replace values in `tile` with NoData.
 
-### rf_mask_by_value
 
-    Tile rf_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
+### rf_inverse_mask_by_value
 
-Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is equal to `mask_value`.
+    Tile rf_inverse_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
 
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is not equal to `mask_value`. In other words, only keep `data_tile` cells in locations where the `mask_tile` is equal to `mask_value`.
 
 ### rf_is_no_data_tile
 
@@ -373,6 +398,13 @@ Returns a `tile` column containing the element-wise equality of `tile1` and `rhs
 
 
 Returns a `tile` column containing the element-wise inequality of `tile1` and `rhs`.
+
+### rf_local_is_in
+
+    Tile rf_local_is_in(Tile tile, Array array)
+    Tile rf_local_is_in(Tile tile, list l)
+
+Returns a `tile` column with cell values of 1 where the `tile` cell value is in the provided array or list. The `array` is a Spark SQL [Array][Array]. A python `list` of numeric values can also be passed.
 
 ### rf_round
 
@@ -621,13 +653,13 @@ Python only. As with @ref:[`rf_explode_tiles`](reference.md#rf-explode-tiles), b
 
     Array rf_tile_to_array_int(Tile tile)
 
-Convert Tile column to Spark SQL [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Float cell types will be coerced to integral type by flooring.
+Convert Tile column to Spark SQL [Array][Array], in row-major order. Float cell types will be coerced to integral type by flooring.
 
 ### rf_tile_to_array_double
 
     Array rf_tile_to_arry_double(Tile tile)
 
-Convert tile column to Spark [Array](http://spark.apache.org/docs/2.3.2/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType), in row-major order. Integral cell types will be coerced to floats.
+Convert tile column to Spark [Array][Array], in row-major order. Integral cell types will be coerced to floats.
 
 ### rf_render_ascii
 
@@ -657,3 +689,4 @@ Runs [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile colum
 
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
+[Array]: http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType

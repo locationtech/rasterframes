@@ -92,7 +92,7 @@ object LocalCountAggregate {
   object LocalDataCellsUDAF {
     def apply(child: Expression): LocalDataCellsUDAF = new LocalDataCellsUDAF(child)
     def apply(tile: Column): TypedColumn[Any, Tile] =
-      new Column(new LocalDataCellsUDAF(tile.expr))
+      new LocalCountAggregate(true)(ExtractTile(tile))
         .as(s"rf_agg_local_data_cells($tile)")
         .as[Tile]
   }
@@ -107,7 +107,7 @@ object LocalCountAggregate {
   object LocalNoDataCellsUDAF {
     def apply(child: Expression): LocalNoDataCellsUDAF = new LocalNoDataCellsUDAF(child)
     def apply(tile: Column): TypedColumn[Any, Tile] =
-      new Column(new LocalNoDataCellsUDAF(tile.expr))
+      new LocalCountAggregate(false)(ExtractTile(tile))
         .as(s"rf_agg_local_no_data_cells($tile)")
         .as[Tile]
   }

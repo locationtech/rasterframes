@@ -106,3 +106,8 @@ def create_rf_spark_session(master="local[*]", **kwargs):
 def gdal_version():
     fcn = RFContext.active().lookup("buildInfo")
     return fcn()["GDAL"]
+
+
+def build_info():
+    fcn = RFContext.active().lookup("buildInfo")
+    return fcn()

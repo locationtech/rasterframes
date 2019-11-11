@@ -1,4 +1,3 @@
-sudo: false
 dist: xenial
 language: python
 
@@ -28,11 +27,10 @@ install:
   - pip install rasterio shapely pandas numpy pweave
   - wget -O - https://piccolo.link/sbt-1.2.8.tgz | tar xzf -
 
-script:
-  - sbt/bin/sbt -java-home $JAVA_HOME -batch test
-  - sbt/bin/sbt -java-home $JAVA_HOME -batch it:test
-  #  - sbt -Dfile.encoding=UTF8 clean coverage test coverageReport
-  # Tricks to avoid unnecessary cache updates
-  - find $HOME/.sbt -name "*.lock" | xargs rm
-  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
+jobs:
+  include:
+    - stage: "Unit Tests"
+      script: sbt/bin/sbt -java-home $JAVA_HOME -batch test
+    - stage: "Integration Tests"
+      script: sbt/bin/sbt -java-home $JAVA_HOME -batch it:test

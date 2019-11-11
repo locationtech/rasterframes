@@ -133,7 +133,7 @@ object PythonBuildPlugin extends AutoPlugin {
         val dest = (Compile / packageBin / artifactPath).value.getParentFile
         val art = (Python / packageBin / artifact).value
         val ver = version.value
-        dest / s"${art.name}-$ver-py2.py3-none-any.whl"
+        dest / s"${art.name}-$ver-py3-none-any.whl"
       },
       testQuick := pySetup.toTask(" test").value,
       executeTests := Def.task {
