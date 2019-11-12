@@ -376,10 +376,10 @@ pipeline = Pipeline() \
 
 pipeline.getStages()
 </code></pre>
-<pre><code>[TileExploder_2e081e6103b3,
- NoDataFilter_4180bba47b72,
- VectorAssembler_ca69075944e7,
- DecisionTreeClassifier_44ce40c38666]
+<pre><code>[TileExploder_b962db01174a,
+ NoDataFilter_45b444d20b11,
+ VectorAssembler_397000b349c9,
+ DecisionTreeClassifier_24e82fcf0fcf]
 </code></pre>
 <h2><a href="#train-the-model" name="train-the-model" class="anchor"><span class="anchor-link"></span></a>Train the Model</h2>
 <p>The next step is to actually run each step of the Pipeline we created, including fitting the decision tree model. We filter the DataFrame for only <em>tiles</em> intersecting the label raster because the label shapes are relatively sparse over the imagery. It would be logically equivalent to either include or exclude thi step, but it is more efficient to filter because it will mean less data going into the pipeline.</p>
@@ -435,7 +435,7 @@ print(&quot;\nAccuracy:&quot;, accuracy)
  |-- prediction: double (nullable = false)
 
 
-Accuracy: 0.974849935415242
+Accuracy: 0.9751538636881696
 </code></pre>
 <p>As an example of using the flexibility provided by DataFrames, the code below computes and displays the confusion matrix. </p>
 <pre class="prettyprint"><code class="language-python">cnf_mtrx = prediction_df.groupBy(classifier.getPredictionCol()) \
@@ -456,21 +456,21 @@ cnf_mtrx
   <tbody>
     <tr>
       <td>1.0 </td>
-      <td>6616 </td>
-      <td>15 </td>
-      <td>53 </td>
+      <td>6614 </td>
+      <td>17 </td>
+      <td>51 </td>
     </tr>
     <tr>
       <td>2.0 </td>
-      <td>10 </td>
-      <td>1831 </td>
-      <td>134 </td>
+      <td>8 </td>
+      <td>1784 </td>
+      <td>83 </td>
     </tr>
     <tr>
       <td>3.0 </td>
-      <td>41 </td>
-      <td>78 </td>
-      <td>4383 </td>
+      <td>45 </td>
+      <td>123 </td>
+      <td>4436 </td>
     </tr>
   </tbody>
 </table>
@@ -522,7 +522,7 @@ ax1.imshow(scaled)
 # display prediction
 ax2.imshow(sample[&#39;prediction&#39;].cells)
 </code></pre>
-<pre><code>&lt;matplotlib.image.AxesImage at 0x11c8da790&gt;
+<pre><code>&lt;matplotlib.image.AxesImage at 0x114bc9b90&gt;
 </code></pre>
 <p><img src="figures/supervised-learning_display_rgb_1.png" /></p>
 </div>
