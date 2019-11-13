@@ -215,6 +215,14 @@ non_lazy
 
 In the initial examples on this page, you may have noticed that the realized (non-lazy) _tiles_ are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized _tile_ from the lazy representation.
 
+## Spatial Indexing and Partitioning
+
+It's often desirable to take extra steps in ensuring your data is effectively distributed over your computing resources. One way of doing that is using something called a ["space filling curve"](https://en.wikipedia.org/wiki/Space-filling_curve), which turns an N-dimensional value into a one dimensional value, with properties that favor keeping entities near each other in N-space near each other in index space. To have RasterFrames add a spatial index based partitioning on a raster reads, use the `spatial_index_partitions` parameter: 
+ 
+```python, spatial_indexing
+df = spark.read.raster(uri, spatial_index_partitions=True)
+df
+```
 
 ## GeoTrellis
 

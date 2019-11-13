@@ -109,6 +109,7 @@ def _raster_reader(
         band_indexes=None,
         tile_dimensions=(256, 256),
         lazy_tiles=True,
+        spatial_index_partitions=None,
         **options):
     """
     Returns a Spark DataFrame from raster data files specified by URIs.
@@ -124,6 +125,8 @@ def _raster_reader(
     :param band_indexes: list of integers indicating which bands, zero-based, to read from the raster files specified; default is to read only the first band.
     :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows).
     :param lazy_tiles: If true (default) only generate minimal references to tile contents; if false, fetch tile cell values.
+    :param spatial_index_partitions: If true, partitions read tiles by a Z2 spatial index using the default shuffle partitioning.
+           If a values > 0, the given number of partitions are created instead of the default.
     :param options: Additional keyword arguments to pass to the Spark DataSource.
     """
 
@@ -145,6 +148,16 @@ def _raster_reader(
 
     if band_indexes is None:
         band_indexes = [0]
+
+    if spatial_index_partitions is False:
+        spatial_index_partitions = None
+
+    if spatial_index_partitions is not None:
+        if spatial_index_partitions is True:
+            spatial_index_partitions = "-1"
+        else:
+            spatial_index_partitions = str(spatial_index_partitions)
+        options.update({"spatial_index_partitions": spatial_index_partitions})
 
     options.update({
         "band_indexes": to_csv(band_indexes),

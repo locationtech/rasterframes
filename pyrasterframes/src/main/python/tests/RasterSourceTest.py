@@ -211,3 +211,9 @@ class RasterSourceTest(TestEnvironment):
         df = self.spark.read.raster(catalog=self.path_pandas_df(), catalog_col_names=['b1', 'b2', 'b3'])
         self.assertEqual(len(df.columns), 7)  # three path cols, three tile cols, and geo
         self.assertTrue(df.select('b1_path').distinct().count() == 3)
+
+    def test_spatial_partitioning(self):
+        df = self.spark.read.raster(self.path(1, 1), spatial_index_partitions=True)
+        self.assertTrue('spatial_index' in df.columns)
+        # Other tests?
+
