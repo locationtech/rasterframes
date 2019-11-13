@@ -21,7 +21,8 @@
 
 package org.locationtech.rasterframes.datasource.raster
 import geotrellis.raster.Tile
-import org.apache.spark.sql.functions.{lit, udf, round}
+import org.apache.spark.sql.functions.{lit, round, udf}
+import org.apache.spark.sql.types.LongType
 import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.{RasterSourceCatalog, _}
 import org.locationtech.rasterframes.model.TileDimensions
@@ -77,6 +78,12 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         """.stripMargin.trim
       val p = Map(CATALOG_CSV_PARAM -> csv)
       p.pathSpec should be (Left(RasterSourceCatalog(csv)))
+    }
+
+    it("should parse spatial index state") {
+      Map(SPATIAL_INDEX_PARTITIONS_PARAM -> "12").spatialIndex should be (Some(12))
+      Map(SPATIAL_INDEX_PARTITIONS_PARAM -> "-1").spatialIndex should be (Some(-1))
+      Map("foo"-> "bar").spatialIndex should be (None)
     }
   }
 
@@ -324,6 +331,20 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .select(($"ext.xmax" - $"ext.xmin") / $"dims.cols")
         .distinct().collect()
       res.length should be (1)
+    }
+  }
+
+  describe("attaching a spatial index") {
+    val l8_df = spark.read.raster
+      .withSpatialIndex()
+      .load(remoteL8.toASCIIString)
+      .cache()
+
+    it("should add index") {
+      l8_df.columns should contain("spatial_index")
+      l8_df.schema("spatial_index").dataType should be(LongType)
+      l8_df.show(false)
+      l8_df.select($"spatial_index").distinct().count() should be(l8_df.count())
     }
   }
 }

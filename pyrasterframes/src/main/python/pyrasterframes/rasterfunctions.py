@@ -622,11 +622,23 @@ def rf_geometry(proj_raster_col):
     return _apply_column_function('rf_geometry', proj_raster_col)
 
 
-def rf_spatial_index(geom_col, crs_col=None, index_resolution = 18):
+def rf_xz2_index(geom_col, crs_col=None, index_resolution = 18):
     """Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS.
        For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html """
 
-    jfcn = RFContext.active().lookup('rf_spatial_index')
+    jfcn = RFContext.active().lookup('rf_xz2_index')
+
+    if crs_col is not None:
+        return Column(jfcn(_to_java_column(geom_col), _to_java_column(crs_col), index_resolution))
+    else:
+        return Column(jfcn(_to_java_column(geom_col), index_resolution))
+
+def rf_z2_index(geom_col, crs_col=None, index_resolution = 18):
+    """Constructs a Z2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS.
+        First the native extent is extracted or computed, and then center is used as the indexing location.
+        For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html """
+
+    jfcn = RFContext.active().lookup('rf_z2_index')
 
     if crs_col is not None:
         return Column(jfcn(_to_java_column(geom_col), _to_java_column(crs_col), index_resolution))

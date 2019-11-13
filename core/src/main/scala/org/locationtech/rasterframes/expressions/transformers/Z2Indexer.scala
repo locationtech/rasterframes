@@ -28,13 +28,14 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
 import org.apache.spark.sql.types.{DataType, LongType}
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.geomesa.curve.XZ2SFC
+import org.locationtech.geomesa.curve.Z2SFC
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.accessors.GetCRS
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
 
 /**
-  * Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource
+  * Constructs a Z2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource. First the
+  * native extent  is extracted or computed, and then center is used as the indexing location.
   * This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
   * Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.html
   *
@@ -42,59 +43,53 @@ import org.locationtech.rasterframes.jts.ReprojectionTransformer
   * @param right CRS column
   * @param indexResolution resolution level of the space filling curve -
   *                        i.e. how many times the space will be recursively quartered
-  *                        1-18 is typical.
+  *                        1-31 is typical.
   */
 @ExpressionDescription(
-  usage = "_FUNC_(geom, crs) - Constructs a XZ2 index in WGS84/EPSG:4326",
+  usage = "_FUNC_(geom, crs) - Constructs a Z2 index in WGS84/EPSG:4326",
   arguments = """
   Arguments:
     * geom - Geometry or item with Geometry:  Extent, ProjectedRasterTile, or RasterSource
     * crs - the native CRS of the `geom` column
 """
 )
-case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Short)
+case class Z2Indexer(left: Expression, right: Expression, indexResolution: Short)
   extends BinaryExpression with CodegenFallback {
 
-  override def nodeName: String = "rf_xz2_index"
+  override def nodeName: String = "rf_z2_index"
 
   override def dataType: DataType = LongType
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!envelopeExtractor.isDefinedAt(left.dataType))
-      TypeCheckFailure(s"Input type '${left.dataType}' does not look like something with an Extent or something with one.")
+    if (!centroidExtractor.isDefinedAt(left.dataType))
+      TypeCheckFailure(s"Input type '${left.dataType}' does not look like something with a point.")
     else if(!crsExtractor.isDefinedAt(right.dataType))
       TypeCheckFailure(s"Input type '${right.dataType}' does not look like something with a CRS.")
     else TypeCheckSuccess
   }
 
-  private lazy val indexer = XZ2SFC(indexResolution)
+  private lazy val indexer = new Z2SFC(indexResolution)
 
   override protected def nullSafeEval(leftInput: Any, rightInput: Any): Any = {
     val crs = crsExtractor(right.dataType)(rightInput)
-    val coords = envelopeExtractor(left.dataType)(leftInput)
+    val coord = centroidExtractor(left.dataType)(leftInput)
 
-    // If no transformation is needed then just normalize to an Envelope
-    val env = if(crs == LatLng) coords
-    // Otherwise convert to geometry, transform, and get envelope
+    val pt = if(crs == LatLng) coord
     else {
       val trans = new ReprojectionTransformer(crs, LatLng)
-      trans(coords).getEnvelopeInternal
+      trans(coord)
     }
 
-    val index = indexer.index(
-      env.getMinX, env.getMinY, env.getMaxX, env.getMaxY,
-      lenient = false
-    )
-    index
+    indexer.index(pt.getX, pt.getY, lenient = false).z
   }
 }
 
-object XZ2Indexer {
+object Z2Indexer {
   import org.locationtech.rasterframes.encoders.SparkBasicEncoders.longEnc
   def apply(targetExtent: Column, targetCRS: Column, indexResolution: Short): TypedColumn[Any, Long] =
-    new Column(new XZ2Indexer(targetExtent.expr, targetCRS.expr, indexResolution)).as[Long]
+    new Column(new Z2Indexer(targetExtent.expr, targetCRS.expr, indexResolution)).as[Long]
   def apply(targetExtent: Column, targetCRS: Column): TypedColumn[Any, Long] =
-    new Column(new XZ2Indexer(targetExtent.expr, targetCRS.expr, 18)).as[Long]
-  def apply(targetExtent: Column, indexResolution: Short = 18): TypedColumn[Any, Long] =
-    new Column(new XZ2Indexer(targetExtent.expr, GetCRS(targetExtent.expr), indexResolution)).as[Long]
+    new Column(new Z2Indexer(targetExtent.expr, targetCRS.expr, 31)).as[Long]
+  def apply(targetExtent: Column, indexResolution: Short = 31): TypedColumn[Any, Long] =
+    new Column(new Z2Indexer(targetExtent.expr, GetCRS(targetExtent.expr), indexResolution)).as[Long]
 }

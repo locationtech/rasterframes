@@ -67,11 +67,11 @@ See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/
 Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`](reference.md#st-extent) or @ref:[`rf_extent`](reference.md#rf-extent).
 
 
-### rf_spatial_index
+### rf_xz2_index
 
-    Long rf_spatial_index(Geometry geom, CRS crs)
-    Long rf_spatial_index(Extent extent, CRS crs)
-    Long rf_spatial_index(ProjectedRasterTile proj_raster, CRS crs)
+    Long rf_xz2_index(Geometry geom, CRS crs)
+    Long rf_xz2_index(Extent extent, CRS crs)
+    Long rf_xz2_index(ProjectedRasterTile proj_raster, CRS crs)
     
 Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
 

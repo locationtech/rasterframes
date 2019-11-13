@@ -157,15 +157,26 @@ class VectorTypes(TestEnvironment):
         geo.show()
         self.assertEqual(geo.select('geometry').count(), 8)
 
-    def test_spatial_index(self):
-        df = self.df.select(rf_spatial_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
+    def test_xz2_index(self):
+        df = self.df.select(rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
         expected = {22858201775, 38132946267, 38166922588, 38180072113}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
         # Custom resolution
-        df = self.df.select(rf_spatial_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias('index'))
+        df = self.df.select(rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias('index'))
         expected = {21, 36}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
+    def test_z2_index(self):
+        df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
+        expected = {22858201775, 38132946267, 38166922588, 38180072113}
+        indexes = {x[0] for x in df.collect()}
+        self.assertSetEqual(indexes, expected)
+
+        # Custom resolution
+        df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias('index'))
+        expected = {21, 36}
+        indexes = {x[0] for x in df.collect()}
+        self.assertSetEqual(indexes, expected)
