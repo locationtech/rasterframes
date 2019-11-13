@@ -686,6 +686,25 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_mask_by_value")
     }
 
+    it("should mask by value for value 0.") {
+      // maskingTile has -4, ND, and -15 values. Expect mask by value with 0 to not change the
+      val df = Seq((byteArrayTile, maskingTile)).toDF("data", "mask")
+
+      // data tile is all data cells
+      df.select(rf_no_data_cells($"data")).first() should be (byteArrayTile.size)
+
+      // mask by value against 15 should set 3 cell locations to Nodata
+      df.withColumn("mbv", rf_mask_by_value($"data", $"mask", 15))
+        .select(rf_data_cells($"mbv"))
+        .first() should be (byteArrayTile.size - 3)
+
+      // breaks with issue https://github.com/locationtech/rasterframes/issues/416
+      val result = df.withColumn("mbv", rf_mask_by_value($"data", $"mask", 0))
+        .select(rf_data_cells($"mbv"))
+        .first()
+      result should be (byteArrayTile.size)
+    }
+
     it("should inverse mask tile by another identified by specified value") {
       val df = Seq[Tile](randPRT).toDF("tile")
       val mask_value = 4
