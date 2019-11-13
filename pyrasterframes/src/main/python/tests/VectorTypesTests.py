@@ -132,7 +132,7 @@ class VectorTypes(TestEnvironment):
         cols = 194  # from dims of tile
         rows = 250  # from dims of tile
         with_raster = with_poly.withColumn('rasterized',
-                                          rf_rasterize('poly', 'geometry', lit(16), lit(cols), lit(rows)))
+                                           rf_rasterize('poly', 'geometry', lit(16), lit(cols), lit(rows)))
         result = with_raster.select(rf_tile_sum(rf_local_equal_int(with_raster.rasterized, 16)),
                                     rf_tile_sum(with_raster.rasterized))
         #
@@ -158,10 +158,21 @@ class VectorTypes(TestEnvironment):
         self.assertEqual(geo.select('geometry').count(), 8)
 
     def test_xz2_index(self):
+        from pyspark.sql.functions import min as F_min
         df = self.df.select(rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
         expected = {22858201775, 38132946267, 38166922588, 38180072113}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
+
+        # Test against proj_raster (has CRS and Extent embedded).
+        result_one_arg = self.df.select(rf_xz2_index('tile').alias('ix')) \
+            .agg(F_min('ix')).first()[0]
+
+        result_two_arg = self.df.select(rf_xz2_index(rf_extent('tile'), rf_crs('tile')).alias('ix')) \
+            .agg(F_min('ix')).first()[0]
+
+        self.assertEqual(result_two_arg, result_one_arg)
+        self.assertEqual(result_one_arg, 55179438768)  # this is a bit more fragile but less important
 
         # Custom resolution
         df = self.df.select(rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias('index'))
@@ -171,12 +182,13 @@ class VectorTypes(TestEnvironment):
 
     def test_z2_index(self):
         df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
-        expected = {22858201775, 38132946267, 38166922588, 38180072113}
+
+        expected = {28596898472, 28625192874, 28635062506, 28599712232}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
         # Custom resolution
-        df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias('index'))
-        expected = {21, 36}
+        df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 6).alias('index'))
+        expected = {1704, 1706}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)

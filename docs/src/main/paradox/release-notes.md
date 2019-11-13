@@ -4,8 +4,8 @@
 
 ### 0.8.5
 
-* _Breaking_: `rf_spatial_index` renamed `rf_xz2_index` to differentiate between XZ2 and Z2 variants.
 * Added `rf_z2_index` for constructing a Z2 index on types with bounds.
+* _Breaking_: `rf_spatial_index` renamed `rf_xz2_index` to differentiate between XZ2 and Z2 variants.
 * Added `withSpatialIndex` to RasterSourceDataSource to pre-partition tiles based on tile extents mapped to a Z2 space-filling curve 
 
 ### 0.8.4

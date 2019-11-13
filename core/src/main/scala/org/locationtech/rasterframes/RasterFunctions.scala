@@ -79,7 +79,7 @@ trait RasterFunctions {
   def rf_xz2_index(targetExtent: Column) = XZ2Indexer(targetExtent, 18: Short)
 
   /** Constructs a Z2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS
-    * First the native extent  is extracted or computed, and then center is used as the indexing location.
+    * First the native extent is extracted or computed, and then center is used as the indexing location.
     * For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html */
   def rf_z2_index(targetExtent: Column, targetCRS: Column, indexResolution: Short) = Z2Indexer(targetExtent, targetCRS, indexResolution)
 
@@ -89,12 +89,12 @@ trait RasterFunctions {
   def rf_z2_index(targetExtent: Column, targetCRS: Column) = Z2Indexer(targetExtent, targetCRS, 31: Short)
 
   /** Constructs a Z2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
-    * First the native extent  is extracted or computed, and then center is used as the indexing location.
+    * First the native extent is extracted or computed, and then center is used as the indexing location.
     * For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html  */
   def rf_z2_index(targetExtent: Column, indexResolution: Short) = Z2Indexer(targetExtent, indexResolution)
 
   /** Constructs a Z2 index with level 18 resolution in WGS84 from either a ProjectedRasterTile or RasterSource
-    * First the native extent  is extracted or computed, and then center is used as the indexing location.
+    * First the native extent is extracted or computed, and then center is used as the indexing location.
     * For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html  */
   def rf_z2_index(targetExtent: Column) = Z2Indexer(targetExtent, 31: Short)
 
