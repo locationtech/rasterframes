@@ -257,7 +257,7 @@ This function is not available in the SQL API. The below is equivalent:
 ```sql
 SELECT rf_mask_by_values(
             tile, 
-            rf_extract_bits(mask_tile, start_bit, num_bits), 
+            rf_local_extract_bits(mask_tile, start_bit, num_bits), 
             mask_values
             ),
 ```
