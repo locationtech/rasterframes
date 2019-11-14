@@ -22,7 +22,7 @@
 package org.locationtech
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.Logger
-import geotrellis.raster.{Tile, TileFeature, isData}
+import geotrellis.raster.{Dimensions, Tile, TileFeature, isData}
 import geotrellis.layer._
 import geotrellis.spark.ContextRDD
 import org.apache.spark.rdd.RDD
@@ -31,7 +31,6 @@ import org.apache.spark.sql.{DataFrame, SQLContext, rf}
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.extensions.Implicits
-import org.locationtech.rasterframes.model.TileDimensions
 import org.slf4j.LoggerFactory
 import shapeless.tag.@@
 
@@ -53,7 +52,7 @@ package object rasterframes extends StandardColumns
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
   @transient
   final val NOMINAL_TILE_SIZE: Int = rfConfig.getInt("nominal-tile-size")
-  final val NOMINAL_TILE_DIMS: TileDimensions = TileDimensions(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE)
+  final val NOMINAL_TILE_DIMS: Dimensions[Int] = Dimensions(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE)
 
   /**
    * Initialization injection point. Must be called before any RasterFrameLayer

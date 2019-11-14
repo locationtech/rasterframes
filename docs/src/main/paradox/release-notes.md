@@ -1,5 +1,28 @@
 # Release Notes
 
+## 0.9.x
+
+### 0.9.0
+
+* Upgraded to GeoTrellis 3.1.0. This includes a number of _breaking_ changes enumerated as a part of the [PR's](https://github.com/locationtech/rasterframes/pull/398) change log. These include:
+  - Add `Int` type parameter to `Grid`
+  - Add `Int` type parameter to `CellGrid`
+  - Add `Int` type parameter to `GridBounds`... or `TileBounds`
+  - Use `GridBounds.toGridType` to coerce from `Int` to `Long` type parameter
+  - Update imports for layers, particularly `geotrellis.spark.tiling` to `geotrellis.layer`
+  - Update imports for `geotrellis.spark.io` to `geotrellis.spark.store...`
+  - Removed `FixedRasterExtent`
+  - Removed `org.locationtech.rasterframes.util.Shims`
+  - Change `Extent.jtsGeom` to `Extent.toPolygon`
+  - Change `TileLayerMetadata.gridBounds` to `TileLayerMetadata.tileBounds`
+  - Add `geotrellis-gdal` dependency
+  - Remove any conversions between JTS geometry and old `geotrellis.vector` geometry
+  - Changed `org.locationtech.rasterframes.encoders.StandardEncoders.crsEncoder` to `crsSparkEncoder`
+  - Change `(cols, rows)` dimension destructuring to `Dimensions(cols, rows)`
+  - Revisit use of `Tile` equality since [it's more strict](https://github.com/locationtech/geotrellis/pull/2991)
+  - Update `reference.conf` to use `geotrellis.raster.gdal` namespace.
+  - Replace all uses of `TileDimensions` with `geotrellis.raster.Dimensions[Int]`.
+
 ## 0.8.x
 
 ### 0.8.4

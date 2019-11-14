@@ -28,7 +28,6 @@ import org.apache.spark.annotation.Experimental
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.VersionShims
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types.StructType
 import org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisCatalog.GeoTrellisCatalogRelation
@@ -93,8 +92,9 @@ object GeoTrellisCatalog {
         .map(io.circe.Printer.noSpaces.pretty)
         .toDS
 
-      val headers = VersionShims.readJson(sqlContext, broadcast(headerRows))
-      val metadata = VersionShims.readJson(sqlContext, broadcast(metadataRows))
+
+      val headers = sqlContext.read.json(headerRows)
+      val metadata = sqlContext.read.json(metadataRows)
 
       broadcast(indexedLayers).join(broadcast(headers), Seq("index")).join(broadcast(metadata), Seq("index"))
     }

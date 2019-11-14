@@ -25,7 +25,6 @@ import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.layer._
-
 import geotrellis.vector._
 import org.apache.spark.sql.types._
 import org.locationtech.jts.geom.Envelope
@@ -60,9 +59,11 @@ trait StandardSerializers {
       StructField("xmax", DoubleType, false),
       StructField("ymax", DoubleType, false)
     ))
+
     override def to[R](t: Extent, io: CatalystIO[R]): R = io.create(
       t.xmin, t.ymin, t.xmax, t.ymax
     )
+
     override def from[R](row: R, io: CatalystIO[R]): Extent = Extent(
       io.getDouble(row, 0),
       io.getDouble(row, 1),
@@ -95,6 +96,7 @@ trait StandardSerializers {
     override val schema: StructType = StructType(Seq(
       StructField("crsProj4", StringType, false)
     ))
+
     override def to[R](t: CRS, io: CatalystIO[R]): R = io.create(
       io.encode(
         // Don't do this... it's 1000x slower to decode.
@@ -102,18 +104,23 @@ trait StandardSerializers {
         t.toProj4String
       )
     )
+
     override def from[R](row: R, io: CatalystIO[R]): CRS =
       LazyCRS(io.getString(row, 0))
   }
 
   implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
+
     import StandardSerializers._
+
     override val schema: StructType = StructType(Seq(
       StructField("cellTypeName", StringType, false)
     ))
+
     override def to[R](t: CellType, io: CatalystIO[R]): R = io.create(
       io.encode(ct2sCache.get(t))
     )
+
     override def from[R](row: R, io: CatalystIO[R]): CellType =
       s2ctCache.get(io.getString(row, 0))
   }
@@ -229,7 +236,7 @@ trait StandardSerializers {
     )
   }
 
-  implicit def boundsSerializer[T >: Null: CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
+  implicit def boundsSerializer[T >: Null : CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
     override val schema: StructType = StructType(Seq(
       StructField("minKey", schemaOf[T], true),
       StructField("maxKey", schemaOf[T], true)
@@ -246,7 +253,7 @@ trait StandardSerializers {
     )
   }
 
-  def tileLayerMetadataSerializer[T >: Null: CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
+  def tileLayerMetadataSerializer[T >: Null : CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
     override val schema: StructType = StructType(Seq(
       StructField("cellType", schemaOf[CellType], false),
       StructField("layout", schemaOf[LayoutDefinition], false),
@@ -273,6 +280,7 @@ trait StandardSerializers {
   }
 
   implicit def rasterSerializer: CatalystSerializer[Raster[Tile]] = new CatalystSerializer[Raster[Tile]] {
+
     import org.apache.spark.sql.rf.TileUDT.tileSerializer
 
     override val schema: StructType = StructType(Seq(
@@ -294,6 +302,22 @@ trait StandardSerializers {
   implicit val spatialKeyTLMSerializer = tileLayerMetadataSerializer[SpatialKey]
   implicit val spaceTimeKeyTLMSerializer = tileLayerMetadataSerializer[SpaceTimeKey]
 
+  implicit val tileDimensionsSerializer: CatalystSerializer[Dimensions[Int]] = new CatalystSerializer[Dimensions[Int]] {
+    override val schema: StructType = StructType(Seq(
+      StructField("cols", IntegerType, false),
+      StructField("rows", IntegerType, false)
+    ))
+
+    override protected def to[R](t: Dimensions[Int], io: CatalystIO[R]): R = io.create(
+      t.cols,
+      t.rows
+    )
+
+    override protected def from[R](t: R, io: CatalystIO[R]): Dimensions[Int] = Dimensions[Int](
+      io.getInt(t, 0),
+      io.getInt(t, 1)
+    )
+  }
 }
 
 object StandardSerializers {

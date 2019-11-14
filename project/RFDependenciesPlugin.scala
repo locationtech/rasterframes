@@ -51,11 +51,8 @@ object RFDependenciesPlugin extends AutoPlugin {
 
   override def projectSettings = Seq(
     resolvers ++= Seq(
-      Resolver.mavenLocal,
       "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
-      "boundless-releases" at "https://repo.boundlessgeo.com/main/",
-      "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
     ),
     /** https://github.com/lucidworks/spark-solr/issues/179
       * Thanks @pomadchin for the tip! */

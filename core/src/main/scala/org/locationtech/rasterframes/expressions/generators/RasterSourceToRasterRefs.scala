@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.generators
 
-import geotrellis.raster.GridBounds
+import geotrellis.raster.{Dimensions, GridBounds}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
@@ -30,8 +30,7 @@ import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
-import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.ref.{RasterRef, RFRasterSource}
+import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef}
 import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.RasterSourceType
 
@@ -43,7 +42,7 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions] = None) extends Expression
+case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes {
 
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
@@ -86,7 +85,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
 
 object RasterSourceToRasterRefs {
   def apply(rrs: Column*): TypedColumn[Any, RasterRef] = apply(None, Seq(0), rrs: _*)
-  def apply(subtileDims: Option[TileDimensions], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, RasterRef] =
+  def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, RasterRef] =
     new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims)).as[RasterRef]
 
   private[rasterframes] def bandNames(basename: String, bandIndexes: Seq[Int]): Seq[String] = bandIndexes match {

@@ -152,9 +152,9 @@ class EncodingSpec extends TestEnvironment with TestData {
       val e = Extent(1, 2 ,3, 4)
       val r = Raster(t, e)
       val ds = Seq(r).toDS()
-      println(ds.first())
+      ds.first().tile should be (t)
+      ds.first().extent should be (e)
     }
-
   }
   describe("Dataframe encoding ops on spatial types") {
 

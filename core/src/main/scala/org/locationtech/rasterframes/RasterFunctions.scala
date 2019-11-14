@@ -23,7 +23,7 @@ package org.locationtech.rasterframes
 import geotrellis.proj4.CRS
 import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.render.ColorRamp
-import geotrellis.raster.{CellType, Tile}
+import geotrellis.raster.{CellType, Dimensions, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.functions.{lit, udf}
@@ -35,9 +35,8 @@ import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
-import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderCompositePNG, RenderColorRampPNG}
+import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderColorRampPNG, RenderCompositePNG}
 import org.locationtech.rasterframes.expressions.transformers._
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.{functions => F}
 
@@ -51,7 +50,7 @@ trait RasterFunctions {
 
   // format: off
   /** Query the number of (cols, rows) in a Tile. */
-  def rf_dimensions(col: Column): TypedColumn[Any, TileDimensions] = GetDimensions(col)
+  def rf_dimensions(col: Column): TypedColumn[Any, Dimensions[Int]] = GetDimensions(col)
 
   /** Extracts the bounding box of a geometry as an Extent */
   def st_extent(col: Column): TypedColumn[Any, Extent] = GeometryToExtent(col)

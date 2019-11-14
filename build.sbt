@@ -90,8 +90,10 @@ lazy val pyrasterframes = project
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided
-    )
+    ),
+    Test / test := (Test / test).dependsOn(experimental / Test / test).value
   )
+
 
 lazy val datasource = project
   .configs(IntegrationTest)
@@ -105,6 +107,7 @@ lazy val datasource = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
+    Test / test := (Test / test).dependsOn(core / Test / test).value,
     initialCommands in console := (initialCommands in console).value +
       """
         |import org.locationtech.rasterframes.datasource.geotrellis._
@@ -127,7 +130,7 @@ lazy val experimental = project
     ),
     fork in IntegrationTest := true,
     javaOptions in IntegrationTest := Seq("-Xmx2G"),
-    parallelExecution in IntegrationTest := false
+    Test / test := (Test / test).dependsOn(datasource / Test / test).value
   )
 
 lazy val docs = project

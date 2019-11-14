@@ -23,12 +23,11 @@ package org.locationtech.rasterframes
 
 import geotrellis.raster.resample.Bilinear
 import geotrellis.raster.testkit.RasterMatchers
-import geotrellis.raster.{IntConstantNoDataCellType, Raster, Tile}
+import geotrellis.raster.{Dimensions, IntConstantNoDataCellType, Raster, Tile}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
-import org.locationtech.rasterframes.model.TileDimensions
 
 
 class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
@@ -38,13 +37,13 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     // Same data, reprojected to EPSG:4326
     val b4warpedTif = readSingleband("L8-B4-Elkton-VA-4326.tiff")
 
-    val b4nativeRf = b4nativeTif.toDF(TileDimensions(10, 10))
-    val b4warpedRf = b4warpedTif.toDF(TileDimensions(10, 10))
+    val b4nativeRf = b4nativeTif.toDF(Dimensions(10, 10))
+    val b4warpedRf = b4warpedTif.toDF(Dimensions(10, 10))
       .withColumnRenamed("tile", "tile2")
 
     it("should join the same scene correctly") {
 
-      val b4nativeRfPrime = b4nativeTif.toDF(TileDimensions(10, 10))
+      val b4nativeRfPrime = b4nativeTif.toDF(Dimensions(10, 10))
         .withColumnRenamed("tile", "tile2")
       val joined = b4nativeRf.rasterJoin(b4nativeRfPrime)
 
@@ -59,7 +58,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should join same scene in different tile sizes"){
-      val r1prime = b4nativeTif.toDF(TileDimensions(25, 25)).withColumnRenamed("tile", "tile2")
+      val r1prime = b4nativeTif.toDF(Dimensions(25, 25)).withColumnRenamed("tile", "tile2")
       r1prime.select(rf_dimensions($"tile2").getField("rows")).as[Int].first() should be (25)
       val joined = b4nativeRf.rasterJoin(r1prime)
 
@@ -83,7 +82,6 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
         $"crs", $"extent", $"tile2") as "raster"
       ).select(col("raster").as[Raster[Tile]])
 
-      agg.printSchema()
       val result = agg.first()
 
       result.extent shouldBe b4nativeTif.extent
@@ -130,11 +128,11 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     it("should join with heterogeneous LHS CRS and coverages"){
 
       val df17 = readSingleband("m_3607824_se_17_1_20160620_subset.tif")
-        .toDF(TileDimensions(50, 50))
+        .toDF(Dimensions(50, 50))
         .withColumn("utm", lit(17))
       // neighboring and slightly overlapping NAIP scene
       val df18 = readSingleband("m_3607717_sw_18_1_20160620_subset.tif")
-        .toDF(TileDimensions(60, 60))
+        .toDF(Dimensions(60, 60))
         .withColumn("utm", lit(18))
 
       df17.count() should be (6 * 6) // file is 300 x 300
@@ -146,7 +144,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       df.select($"crs".getField("crsProj4")).distinct().as[String].collect() should contain theSameElementsAs expectCrs
 
       // read a third source to join. burned in box that intersects both above subsets; but more so on the df17
-      val box = readSingleband("m_3607_box.tif").toDF(TileDimensions(4,4)).withColumnRenamed("tile", "burned")
+      val box = readSingleband("m_3607_box.tif").toDF(Dimensions(4,4)).withColumnRenamed("tile", "burned")
       val joined = df.rasterJoin(box)
 
       joined.count() should be (df.count)

@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.expressions.aggregates
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.TileDimensions
 import geotrellis.proj4.{CRS, Transform}
 import geotrellis.raster._
 import geotrellis.raster.reproject.{Reproject, ReprojectRasterExtent}
@@ -34,7 +33,7 @@ import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAg
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, Row, TypedColumn}
 
-class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: TileDimensions) extends UserDefinedAggregateFunction {
+class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: Dimensions[Int]) extends UserDefinedAggregateFunction {
   import ProjectedLayerMetadataAggregate._
 
   override def inputSchema: StructType = CatalystSerializer[InputRecord].schema
@@ -94,14 +93,14 @@ object ProjectedLayerMetadataAggregate {
   /** Primary user facing constructor */
   def apply(destCRS: CRS, extent: Column, crs: Column, cellType: Column,  tileSize: Column): TypedColumn[Any, TileLayerMetadata[SpatialKey]] =
   // Ordering must match InputRecord schema
-    new ProjectedLayerMetadataAggregate(destCRS, TileDimensions(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE))(extent, crs, cellType, tileSize).as[TileLayerMetadata[SpatialKey]]
+    new ProjectedLayerMetadataAggregate(destCRS, Dimensions(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE))(extent, crs, cellType, tileSize).as[TileLayerMetadata[SpatialKey]]
 
-  def apply(destCRS: CRS, destDims: TileDimensions, extent: Column, crs: Column, cellType: Column,  tileSize: Column): TypedColumn[Any, TileLayerMetadata[SpatialKey]] =
+  def apply(destCRS: CRS, destDims: Dimensions[Int], extent: Column, crs: Column, cellType: Column,  tileSize: Column): TypedColumn[Any, TileLayerMetadata[SpatialKey]] =
   // Ordering must match InputRecord schema
     new ProjectedLayerMetadataAggregate(destCRS, destDims)(extent, crs, cellType, tileSize).as[TileLayerMetadata[SpatialKey]]
 
   private[expressions]
-  case class InputRecord(extent: Extent, crs: CRS, cellType: CellType, tileSize: TileDimensions) {
+  case class InputRecord(extent: Extent, crs: CRS, cellType: CellType, tileSize: Dimensions[Int]) {
     def toBufferRecord(destCRS: CRS): BufferRecord = {
       val transform = Transform(crs, destCRS)
 
@@ -125,7 +124,7 @@ object ProjectedLayerMetadataAggregate {
         StructField("extent", CatalystSerializer[Extent].schema, false),
         StructField("crs", CatalystSerializer[CRS].schema, false),
         StructField("cellType", CatalystSerializer[CellType].schema, false),
-        StructField("tileSize", CatalystSerializer[TileDimensions].schema, false)
+        StructField("tileSize", CatalystSerializer[Dimensions[Int]].schema, false)
       ))
 
       override protected def to[R](t: InputRecord, io: CatalystIO[R]): R =
@@ -135,7 +134,7 @@ object ProjectedLayerMetadataAggregate {
         io.get[Extent](t, 0),
         io.get[CRS](t, 1),
         io.get[CellType](t, 2),
-        io.get[TileDimensions](t, 3)
+        io.get[Dimensions[Int]](t, 3)
       )
     }
   }

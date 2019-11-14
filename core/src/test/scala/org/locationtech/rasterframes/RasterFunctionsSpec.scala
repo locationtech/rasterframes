@@ -28,10 +28,9 @@ import geotrellis.raster._
 import geotrellis.raster.render.ColorRamps
 import geotrellis.raster.testkit.RasterMatchers
 import javax.imageio.ImageIO
-import org.apache.spark.sql.{Column, Encoders, TypedColumn}
+import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
@@ -303,7 +302,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
   describe("raster metadata") {
     it("should get the TileDimensions of a Tile") {
       val t = Seq(randPRT).toDF("tile").select(rf_dimensions($"tile")).first()
-      t should be (TileDimensions(randPRT.dimensions))
+      t should be (randPRT.dimensions)
       checkDocs("rf_dimensions")
     }
     it("should get the Extent of a ProjectedRasterTile") {
@@ -703,7 +702,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val withMasked = withMask.withColumn("masked",
         rf_inverse_mask_by_value($"tile", $"mask", mask_value))
         .withColumn("masked2", rf_mask_by_value($"tile", $"mask", lit(mask_value), true))
-      withMasked.explain(true)
+
       val result = withMasked.agg(rf_agg_no_data_cells($"tile") < rf_agg_no_data_cells($"masked")).as[Boolean]
 
       result.first() should be(true)

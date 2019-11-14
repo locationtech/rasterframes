@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.expressions.aggregates
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
 import geotrellis.raster.resample.ResampleMethod
-import geotrellis.raster.{ArrayTile, CellType, MultibandTile, ProjectedRaster, Raster, Tile}
+import geotrellis.raster.{ArrayTile, CellType, Dimensions, MultibandTile, ProjectedRaster, Raster, Tile}
 import geotrellis.layer._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
@@ -34,7 +34,6 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
-import org.locationtech.rasterframes.model.TileDimensions
 import org.slf4j.LoggerFactory
 
 /**
@@ -119,7 +118,7 @@ object TileRasterizerAggregate {
     new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol).as(nodeName).as[Raster[Tile]]
   }
 
-  def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {
+  def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[Dimensions[Int]]): ProjectedRaster[MultibandTile] = {
     val tileCols = WithDataFrameMethods(df).tileColumns
     require(tileCols.nonEmpty, "need at least one tile column")
     // Select the anchoring Tile, Extent and CRS columns

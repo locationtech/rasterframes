@@ -23,11 +23,10 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
-import geotrellis.raster.RasterExtent
+import geotrellis.raster.{Dimensions, RasterExtent}
 import geotrellis.vector._
 import org.apache.spark.sql.rf.RasterSourceUDT
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.model._
 import org.locationtech.rasterframes.util.GridHasGridBounds
 
 
@@ -45,17 +44,17 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
     val rs = RFRasterSource(getClass.getResource("/L8-B8-Robinson-IL.tiff").toURI)
     it("should compute nominal tile layout bounds") {
-      val bounds = rs.layoutBounds(TileDimensions(65, 60))
+      val bounds = rs.layoutBounds(Dimensions(65, 60))
       val agg = bounds.reduce(_ combine _)
       agg should be (rs.gridBounds)
     }
     it("should compute nominal tile layout extents") {
-      val extents = rs.layoutExtents(TileDimensions(63, 63))
+      val extents = rs.layoutExtents(Dimensions(63, 63))
       val agg = extents.reduce(_ combine _)
       agg should be (rs.extent)
     }
     it("should reassemble correct grid from extents") {
-      val dims = TileDimensions(63, 63)
+      val dims = Dimensions(63, 63)
       val ext = rs.layoutExtents(dims).head
       val bounds = rs.layoutBounds(dims).head
       rs.rasterExtent.gridBoundsFor(ext) should be (bounds)
@@ -150,7 +149,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         gdal.cellType should be(jvm.cellType)
       }
       it("should compute the same dimensions as JVM RasterSource") {
-        val dims = TileDimensions(128, 128)
+        val dims = Dimensions(128, 128)
         gdal.extent should be(jvm.extent)
         gdal.rasterExtent should be(jvm.rasterExtent)
         gdal.cellSize should be(jvm.cellSize)

@@ -35,7 +35,6 @@ import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SQLContext, SparkSession}
-import org.locationtech.rasterframes.model.TileDimensions
 
 import scala.util.control.NonFatal
 
@@ -90,7 +89,7 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       assert(
         rf.select(rf_dimensions($"tile"))
           .collect()
-          .forall(_ == TileDimensions(10, 10))
+          .forall(_ == Dimensions(10, 10))
       )
 
       assert(rf.count() === 4)

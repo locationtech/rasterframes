@@ -33,7 +33,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.locationtech.rasterframes.model.{TileContext, TileDimensions}
+import org.locationtech.rasterframes.model.TileContext
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, rfConfig}
 
 import scala.concurrent.duration.Duration
@@ -63,7 +63,7 @@ abstract class RFRasterSource extends CellGrid[Int] with ProjectedRasterLike wit
   def read(extent: Extent, bands: Seq[Int] = SINGLEBAND): Raster[MultibandTile] =
     read(rasterExtent.gridBoundsFor(extent, clamp = true), bands)
 
-  def readAll(dims: TileDimensions = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
+  def readAll(dims: Dimensions[Int] = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
     layoutBounds(dims).map(read(_, bands))
 
   protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
@@ -78,12 +78,12 @@ abstract class RFRasterSource extends CellGrid[Int] with ProjectedRasterLike wit
 
   def tileContext: TileContext = TileContext(extent, crs)
 
-  def layoutExtents(dims: TileDimensions): Seq[Extent] = {
+  def layoutExtents(dims: Dimensions[Int]): Seq[Extent] = {
     val re = rasterExtent
     layoutBounds(dims).map(re.extentFor(_, clamp = true))
   }
 
-  def layoutBounds(dims: TileDimensions): Seq[GridBounds[Int]] = {
+  def layoutBounds(dims: Dimensions[Int]): Seq[GridBounds[Int]] = {
     gridBounds.split(dims.cols, dims.rows).toSeq
   }
 }
