@@ -642,6 +642,17 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_mask")
     }
 
+    it("should mask with expected results") {
+      val df = Seq((byteArrayTile, maskingTile)).toDF("tile", "mask")
+
+      val withMasked = df.withColumn("masked",
+        rf_mask($"tile", $"mask"))
+
+      val result: Tile = withMasked.select($"masked").as[Tile].first()
+
+      result.localUndefined().toArray() should be (maskingTile.localUndefined().toArray())
+    }
+
     it("should mask without mutating cell type") {
       val result = Seq((byteArrayTile, maskingTile))
         .toDF("tile", "mask")
@@ -1227,6 +1238,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       df.createOrReplaceTempView("df_maskbits")
 
       val maskedCol = "cloud_conf_med"
+      // this is the example in the docs
       val result = spark.sql(
         s"""
           |SELECT rf_mask_by_values(

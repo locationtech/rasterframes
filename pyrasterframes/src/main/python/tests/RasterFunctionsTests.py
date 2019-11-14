@@ -261,19 +261,23 @@ class RasterFunctions(TestEnvironment):
         from pyrasterframes.rf_types import Tile, CellType
 
         np.random.seed(999)
-        ma = np.ma.array(np.random.randint(0, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
+        # importantly exclude 0 from teh range because that's the nodata value for the `data_tile`'s cell type
+        ma = np.ma.array(np.random.randint(1, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
         expected_data_values = ma.compressed().size
         expected_no_data_values = ma.size - expected_data_values
         self.assertTrue(expected_data_values > 0, "Make sure random seed is cooperative ")
         self.assertTrue(expected_no_data_values > 0, "Make sure random seed is cooperative ")
 
-        df = self.spark.createDataFrame([
-            Row(t=Tile(np.ones(ma.shape, ma.dtype)), m=Tile(ma))
-        ])
+        data_tile = Tile(np.ones(ma.shape, ma.dtype), CellType.uint8())
 
-        df = df.withColumn('masked_t', rf_mask('t', 'm'))
+        df = self.spark.createDataFrame([Row(t=data_tile, m=Tile(ma))]) \
+            .withColumn('masked_t', rf_mask('t', 'm'))
+
         result = df.select(rf_data_cells('masked_t')).first()[0]
-        self.assertEqual(result, expected_data_values)
+        self.assertEqual(result, expected_data_values,
+                         f"Masked tile should have {expected_data_values} data values but found: {df.select('masked_t').first()[0].cells}."
+                         f"Original data: {data_tile.cells}"
+                         f"Masked by {ma}")
 
         nd_result = df.select(rf_no_data_cells('masked_t')).first()[0]
         self.assertEqual(nd_result, expected_no_data_values)

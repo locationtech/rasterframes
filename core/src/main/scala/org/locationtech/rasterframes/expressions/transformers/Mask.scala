@@ -24,13 +24,13 @@ package org.locationtech.rasterframes.expressions.transformers
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster
 import geotrellis.raster.Tile
-import geotrellis.raster.mapalgebra.local.{Defined, InverseMask ⇒ gtInverseMask, Mask ⇒ gtMask}
+import geotrellis.raster.mapalgebra.local.{Undefined, InverseMask ⇒ gtInverseMask, Mask ⇒ gtMask}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal, TernaryExpression}
 import org.apache.spark.sql.rf.TileUDT
-import org.apache.spark.sql.types.{DataType, NullType}
+import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
@@ -43,10 +43,10 @@ import org.slf4j.LoggerFactory
   * @param left a tile of data values, with valid nodata cell type
   * @param middle a tile indicating locations to set to nodata
   * @param right optional, cell values in the `middle` tile indicating locations to set NoData
-  * @param defined if true, consider NoData in the `middle` as the locations to mask; else use `right` valued cells
+  * @param undefined if true, consider NoData in the `middle` as the locations to mask; else use `right` valued cells
   * @param inverse if true, and defined is true, set `left` to NoData where `middle` is NOT nodata
   */
-abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, defined: Boolean, inverse: Boolean)
+abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, undefined: Boolean, inverse: Boolean)
   extends TernaryExpression with CodegenFallback with Serializable {
   // aliases.
   def targetExp = left
@@ -85,9 +85,12 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
 
     val maskValue = intArgExtractor(maskValueExp.dataType)(maskValueInput)
 
-    val masking = if (defined) Defined(maskTile)
-    else maskTile.localEqual(maskValue.value)
+    // Get a tile where values of 1 indicate locations to set to ND in the target tile
+    // When `undefined` is true, setting targetTile locations to ND for ND locations of the `maskTile`
+    val masking = if (undefined) Undefined(maskTile)
+    else maskTile.localEqual(maskValue.value) // Otherwise if `maskTile` locations equal `maskValue`, set location to ND
 
+    // apply the `masking` where values are 1 set to ND (possibly inverted!)
     val result = if (inverse)
       gtInverseMask(targetTile, masking, 1, raster.NODATA)
     else
