@@ -165,10 +165,11 @@ class VectorTypes(TestEnvironment):
         self.assertSetEqual(indexes, expected)
 
         # Test against proj_raster (has CRS and Extent embedded).
-        result_one_arg = self.df.select(rf_xz2_index('tile').alias('ix')) \
+        df = self.spark.read.raster(self.img_uri)
+        result_one_arg = df.select(rf_xz2_index('proj_raster').alias('ix')) \
             .agg(F_min('ix')).first()[0]
 
-        result_two_arg = self.df.select(rf_xz2_index(rf_extent('tile'), rf_crs('tile')).alias('ix')) \
+        result_two_arg = df.select(rf_xz2_index(rf_extent('proj_raster'), rf_crs('proj_raster')).alias('ix')) \
             .agg(F_min('ix')).first()[0]
 
         self.assertEqual(result_two_arg, result_one_arg)
