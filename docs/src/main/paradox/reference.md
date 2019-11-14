@@ -207,7 +207,7 @@ SQL implementation does not accept a cell_type argument. It returns a float64 ce
 
 ## Masking and NoData
 
-See @ref:[NoData handling](nodata-handling.md) for conceptual discussion of cell types and NoData.
+See the @ref:[masking](masking.md) page for conceptual discussion of masking operations.
 
 There are statistical functions of the count of data and NoData values per `tile` and aggregate over a `tile` column: @ref:[`rf_data_cells`](reference.md#rf-data-cells), @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells), @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells), and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells).
 
@@ -215,14 +215,30 @@ Masking is a raster operation that sets specific cells to NoData based on the va
 
 ### rf_mask
 
-    Tile rf_mask(Tile tile, Tile mask)
+    Tile rf_mask(Tile tile, Tile mask, bool inverse)
 
 Where the `mask` contains NoData, replace values in the `tile` with NoData.
 
 Returned `tile` cell type will be coerced to one supporting NoData if it does not already.
 
+`inverse` is a literal not a Column. If `inverse` is true, return the `tile` with NoData in locations where the `mask` _does not_ contain NoData. Equivalent to @ref:[`rf_inverse_mask`](reference.md#rf-inverse-mask).
+
 See also @ref:[`rf_rasterize`](reference.md#rf-rasterize).
 
+### rf_mask_by_value
+
+    Tile rf_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value, bool inverse)
+
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is equal to `mask_value`.
+
+`inverse` is a literal not a Column. If `inverse` is true, return the `data_tile` with NoData in locations where the `mask_tile` value is _not equal_ to `mask_value`. Equivalent to @ref:[`rf_inverse_mask_by_value`](reference.md#rf-inverse-mask-by-value).
+
+### rf_mask_by_values
+
+    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, Array mask_values)
+    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, seq mask_values)
+
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is in the `mask_values` Array or list. `mask_values` can be a [`pyspark.sql.ArrayType`][Array] or a `list`.  
 
 ### rf_inverse_mask
 
@@ -230,12 +246,12 @@ See also @ref:[`rf_rasterize`](reference.md#rf-rasterize).
 
 Where the `mask` _does not_ contain NoData, replace values in `tile` with NoData.
 
-### rf_mask_by_value
 
-    Tile rf_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
+### rf_inverse_mask_by_value
 
-Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is equal to `mask_value`.
+    Tile rf_inverse_mask_by_value(Tile data_tile, Tile mask_tile, Int mask_value)
 
+Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is not equal to `mask_value`. In other words, only keep `data_tile` cells in locations where the `mask_tile` is equal to `mask_value`.
 
 ### rf_is_no_data_tile
 
