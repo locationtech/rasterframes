@@ -90,10 +90,8 @@ lazy val pyrasterframes = project
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided
-    ),
-    Test / test := (Test / test).dependsOn(experimental / Test / test).value
+    )
   )
-
 
 lazy val datasource = project
   .configs(IntegrationTest)
@@ -107,7 +105,6 @@ lazy val datasource = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
-    Test / test := (Test / test).dependsOn(core / Test / test).value,
     initialCommands in console := (initialCommands in console).value +
       """
         |import org.locationtech.rasterframes.datasource.geotrellis._
@@ -129,8 +126,7 @@ lazy val experimental = project
       spark("sql").value % Provided
     ),
     fork in IntegrationTest := true,
-    javaOptions in IntegrationTest := Seq("-Xmx2G"),
-    Test / test := (Test / test).dependsOn(datasource / Test / test).value
+    javaOptions in IntegrationTest := Seq("-Xmx2G")
   )
 
 lazy val docs = project
@@ -170,8 +166,6 @@ lazy val docs = project
   .settings(
     addMappingsToSiteDir(Compile / paradox / mappings, paradox / siteSubdirName)
   )
-
-//ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox)
 
 lazy val bench = project
   .dependsOn(core % "compile->test")

@@ -24,6 +24,7 @@ import geotrellis.raster.{ArrayTile, DelegatingTile, Tile}
 
 /**
  * Workaround for case where `combine` is invoked on two delegating tiles.
+ * Remove after https://github.com/locationtech/geotrellis/issues/3153 is fixed and integrated
  * @since 8/22/18
  */
 abstract class FixedDelegatingTile extends DelegatingTile {

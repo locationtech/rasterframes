@@ -22,12 +22,13 @@
 package org.locationtech.rasterframes
 
 import geotrellis.raster._
-import geotrellis.raster.mapalgebra.local.{Max, Min}
+import geotrellis.raster.mapalgebra.local.{Add, Max, Min}
 import geotrellis.spark._
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestData.randomTile
 import org.locationtech.rasterframes.stats.CellHistogram
+import org.locationtech.rasterframes.util.DataBiasedOp.BiasedAdd
 
 /**
  * Test rig associated with computing statistics and other descriptive
@@ -317,6 +318,56 @@ class TileStatsSpec extends TestEnvironment with TestData {
           .toDF("tiles")
       val ndCount2 = ndTiles.select("*").where(rf_is_no_data_tile($"tiles")).count()
       ndCount2 should be(count + 1)
+    }
+
+    // Awaiting https://github.com/locationtech/geotrellis/issues/3153 to be fixed and integrated
+    ignore("should allow NoData algebra to be changed via delegating tile") {
+      val t1 = ArrayTile(Array.fill(4)(1), 2, 2)
+      val t2 = {
+        val d = Array.fill(4)(2)
+        d(1) = geotrellis.raster.NODATA
+        ArrayTile(d, 2, 2)
+      }
+
+      val d1 = new DelegatingTile {
+        override def delegate: Tile = t1
+      }
+      val d2 = new DelegatingTile {
+        override def delegate: Tile = t2
+      }
+
+      /** Counts the number of non-NoData cells in a tile */
+      case object CountData {
+        def apply(t: Tile) = {
+          var count: Long = 0
+          t.dualForeach(
+            z ⇒ if(isData(z)) count = count + 1
+          ) (
+            z ⇒ if(isData(z)) count = count + 1
+          )
+          count
+        }
+      }
+
+      // Confirm counts
+      CountData(t1) should be (4L)
+      CountData(t2) should be (3L)
+      CountData(d1) should be (4L)
+      CountData(d2) should be (3L)
+
+      // Standard Add evaluates `x + NoData` as `NoData`
+      CountData(Add(t1, t2)) should be (3L)
+      CountData(Add(d1, d2)) should be (3L)
+      // Is commutative
+      CountData(Add(t2, t1)) should be (3L)
+      CountData(Add(d2, d1)) should be (3L)
+
+      // With BiasedAdd, all cells should be data cells
+      CountData(BiasedAdd(t1, t2)) should be (4L) // <-- passes
+      CountData(BiasedAdd(d1, d2)) should be (4L) // <-- fails
+      // Should be commutative.
+      CountData(BiasedAdd(t2, t1)) should be (4L) // <-- passes
+      CountData(BiasedAdd(d2, d1)) should be (4L) // <-- fails
     }
   }
 
