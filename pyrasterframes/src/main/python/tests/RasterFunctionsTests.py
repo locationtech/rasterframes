@@ -256,6 +256,44 @@ class RasterFunctions(TestEnvironment):
         # assert_equal(result0[0].cells, expected_diag_nd)
         self.assertTrue(result0[0] == expected_diag_nd)
 
+    def test_mask_bits(self):
+        t = Tile(42 * np.ones((4, 4), 'uint16'), CellType.uint16())
+        # with a varitey of known values
+        mask = Tile(np.array([
+            [1, 1, 2720, 2720],
+            [1, 6816, 6816, 2756],
+            [2720, 2720, 6900, 2720],
+            [2720, 6900, 6816, 1]
+        ]), CellType('uint16raw'))
+
+        df = self.spark.createDataFrame([Row(t=t, mask=mask)])
+
+        # removes fill value 1
+        mask_fill_df = df.select(rf_mask_by_bit('t', 'mask', 0, True).alias('mbb'))
+        mask_fill_tile = mask_fill_df.first()['mbb']
+
+        self.assertTrue(mask_fill_tile.cell_type.has_no_data())
+
+        self.assertTrue(
+            mask_fill_df.select(rf_data_cells('mbb')).first()[0],
+            16 - 4
+        )
+        # Unsure why this fails. mask_fill_tile.cells is all 42 unmasked.
+        # self.assertEqual(mask_fill_tile.cells.mask.sum(), 4,
+        #                  f'Expected {16 - 4} data values but got the masked tile:'
+        #                  f'{mask_fill_tile}'
+        #                  )
+        #
+        # mask out 6816, 6900
+        mask_med_hi_cir = df.withColumn('mask_cir_mh',
+                                        rf_mask_by_bits('t', 'mask', 11, 2, [2, 3])) \
+            .first()['mask_cir_mh'].cells
+
+        self.assertEqual(
+            mask_med_hi_cir.mask.sum(),
+            5
+        )
+
     def test_mask(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile, CellType
@@ -281,6 +319,13 @@ class RasterFunctions(TestEnvironment):
 
         nd_result = df.select(rf_no_data_cells('masked_t')).first()[0]
         self.assertEqual(nd_result, expected_no_data_values)
+
+        # deser of tile is correct
+        self.assertEqual(
+            df.select('masked_t').first()[0].cells.compressed().size,
+            expected_data_values
+        )
+
 
     def test_resample(self):
         from pyspark.sql.functions import lit

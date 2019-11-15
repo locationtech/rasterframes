@@ -1264,7 +1264,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checker("cloud_no", cirrus, false)
     }
 
-    it("should have SQL equivalent"){
+    it("mask bits should have SQL equivalent"){
 
       df.createOrReplaceTempView("df_maskbits")
 
