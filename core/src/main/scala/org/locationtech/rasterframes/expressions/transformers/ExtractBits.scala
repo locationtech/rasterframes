@@ -86,6 +86,7 @@ object ExtractBits{
     new Column(ExtractBits(tile.expr, startBit.expr, numBits.expr))
 
   def apply(tile: Tile, startBit: Int, numBits: Int): Tile = {
+    assert(!tile.cellType.isFloatingPoint, "ExtractBits operation requires integral CellType")
     // this is the last `numBits` positions of "111111111111111"
     val widthMask = Int.MaxValue >> (63 - numBits)
     // map preserving the nodata structure

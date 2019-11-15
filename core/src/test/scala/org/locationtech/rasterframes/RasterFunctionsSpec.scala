@@ -1179,6 +1179,37 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checker("qa_cconf", cirrus, 1) //low cloud conf
       checker("qa_circonf", cirrus, 3) //high cirrus  conf
     }
+    it("should extract bits from different cell types") {
+      import org.locationtech.rasterframes.expressions.transformers.ExtractBits
+
+      case class TestCase[N: Numeric](cellType: CellType, cellValue: N, bitPosition: Int, numBits: Int, expectedValue: Int) {
+        def testIt(): Unit = {
+          val tile = projectedRasterTile(3, 3, cellValue, TestData.extent, TestData.crs, cellType)
+          val extracted = ExtractBits(tile, bitPosition, numBits)
+          all(extracted.toArray()) should be (expectedValue)
+        }
+      }
+
+      Seq(
+        TestCase(BitCellType, 1, 0, 1, 1),
+        TestCase(ByteCellType, 127, 6, 2, 1), // 7th bit is sign
+        TestCase(ByteCellType, 127, 5, 2, 3),
+        TestCase(ByteCellType, -128, 6, 2, 2), // 7th bit is sign
+        TestCase(UByteCellType, 255, 6, 2, 3),
+        TestCase(UByteCellType, 255, 10, 2, 0),  // shifting beyond range of cell type results in 0
+        TestCase(ShortCellType, 32767, 15, 1, 0),
+        TestCase(ShortCellType, 32767, 14, 2, 1),
+        TestCase(ShortUserDefinedNoDataCellType(0), -32768, 14, 2, 2),
+        TestCase(UShortCellType, 65535, 14, 2, 3),
+        TestCase(UShortCellType, 65535, 18, 2, 0),  // shifting beyond range of cell type results in 0
+        TestCase(IntCellType, 2147483647, 30, 2, 1),
+        TestCase(IntCellType, 2147483647, 29, 2, 3)
+      ).foreach(_.testIt)
+
+      // floating point types
+      an [AssertionError] should be thrownBy TestCase[Float](FloatCellType, Float.MaxValue, 29, 2, 3).testIt()
+
+    }
     it("should mask by QA bits"){
       val result = df
         .withColumn("fill_no", rf_mask_by_bit($"data", $"mask", 0, true))
