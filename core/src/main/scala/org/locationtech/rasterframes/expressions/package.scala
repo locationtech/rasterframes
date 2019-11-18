@@ -138,5 +138,8 @@ package object expressions {
     registry.registerExpression[XZ2Indexer]("rf_spatial_index")
 
     registry.registerExpression[transformers.ReprojectGeometry]("st_reproject")
+
+    registry.registerExpression[ExtractBits]("rf_local_extract_bits")
+    registry.registerExpression[ExtractBits]("rf_local_extract_bit")
   }
 }
