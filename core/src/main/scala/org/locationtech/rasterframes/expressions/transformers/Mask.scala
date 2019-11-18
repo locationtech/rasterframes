@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.expressions.transformers
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster
 import geotrellis.raster.Tile
-import geotrellis.raster.mapalgebra.local.{Defined, InverseMask => gtInverseMask, Mask => gtMask}
+import geotrellis.raster.mapalgebra.local.{Undefined, InverseMask ⇒ gtInverseMask, Mask ⇒ gtMask}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -38,7 +38,15 @@ import org.locationtech.rasterframes.expressions.localops.IsIn
 import org.locationtech.rasterframes.expressions.row
 import org.slf4j.LoggerFactory
 
-abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, inverse: Boolean)
+/** Convert cells in the `left` to NoData based on another tile's contents
+  *
+  * @param left a tile of data values, with valid nodata cell type
+  * @param middle a tile indicating locations to set to nodata
+  * @param right optional, cell values in the `middle` tile indicating locations to set NoData
+  * @param undefined if true, consider NoData in the `middle` as the locations to mask; else use `right` valued cells
+  * @param inverse if true, and defined is true, set `left` to NoData where `middle` is NOT nodata
+  */
+abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, undefined: Boolean, inverse: Boolean)
   extends TernaryExpression with CodegenFallback with Serializable {
   // aliases.
   def targetExp = left
@@ -77,13 +85,16 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
 
     val maskValue = intArgExtractor(maskValueExp.dataType)(maskValueInput)
 
-    val masking = if (maskValue.value == 0) Defined(maskTile)
-    else maskTile
+    // Get a tile where values of 1 indicate locations to set to ND in the target tile
+    // When `undefined` is true, setting targetTile locations to ND for ND locations of the `maskTile`
+    val masking = if (undefined) Undefined(maskTile)
+    else maskTile.localEqual(maskValue.value) // Otherwise if `maskTile` locations equal `maskValue`, set location to ND
 
+    // apply the `masking` where values are 1 set to ND (possibly inverted!)
     val result = if (inverse)
-      gtInverseMask(targetTile, masking, maskValue.value, raster.NODATA)
+      gtInverseMask(targetTile, masking, 1, raster.NODATA)
     else
-      gtMask(targetTile, masking, maskValue.value, raster.NODATA)
+      gtMask(targetTile, masking, 1, raster.NODATA)
 
     targetCtx match {
       case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
@@ -106,7 +117,7 @@ object Mask {
        ..."""
   )
   case class MaskByDefined(target: Expression, mask: Expression)
-    extends Mask(target, mask, Literal(0), false) {
+    extends Mask(target, mask, Literal(0), true, false) {
     override def nodeName: String = "rf_mask"
   }
   object MaskByDefined {
@@ -126,7 +137,7 @@ object Mask {
        ..."""
   )
   case class InverseMaskByDefined(leftTile: Expression, rightTile: Expression)
-    extends Mask(leftTile, rightTile, Literal(0), true) {
+    extends Mask(leftTile, rightTile, Literal(0), true, true) {
     override def nodeName: String = "rf_inverse_mask"
   }
   object InverseMaskByDefined {
@@ -146,7 +157,7 @@ object Mask {
        ..."""
   )
   case class MaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression)
-    extends Mask(leftTile, rightTile, maskValue, false) {
+    extends Mask(leftTile, rightTile, maskValue, false, false) {
     override def nodeName: String = "rf_mask_by_value"
   }
   object MaskByValue {
@@ -168,7 +179,7 @@ object Mask {
        ..."""
   )
   case class InverseMaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression)
-    extends Mask(leftTile, rightTile, maskValue, true) {
+    extends Mask(leftTile, rightTile, maskValue, false, true) {
     override def nodeName: String = "rf_inverse_mask_by_value"
   }
   object InverseMaskByValue {
@@ -190,7 +201,7 @@ object Mask {
       ..."""
   )
   case class MaskByValues(dataTile: Expression, maskTile: Expression)
-    extends Mask(dataTile, maskTile, Literal(1), inverse = false) {
+    extends Mask(dataTile, maskTile, Literal(1), false, false) {
     def this(dataTile: Expression, maskTile: Expression, maskValues: Expression) =
       this(dataTile, IsIn(maskTile, maskValues))
     override def nodeName: String = "rf_mask_by_values"

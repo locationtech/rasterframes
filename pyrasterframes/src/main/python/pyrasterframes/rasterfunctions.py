@@ -495,6 +495,39 @@ def rf_inverse_mask_by_value(data_tile, mask_tile, mask_value):
     return _apply_column_function('rf_inverse_mask_by_value', data_tile, mask_tile, mask_value)
 
 
+def rf_mask_by_bit(data_tile, mask_tile, bit_position, value_to_mask):
+    """Applies a mask using bit values in the `mask_tile`. Working from the right, extract the bit at `bitPosition` from the `maskTile`. In all locations where these are equal to the `valueToMask`, the returned tile is set to NoData, else the original `dataTile` cell value."""
+    if isinstance(bit_position, int):
+        bit_position = lit(bit_position)
+    if isinstance(value_to_mask, (int, float, bool)):
+        value_to_mask = lit(bool(value_to_mask))
+    return _apply_column_function('rf_mask_by_bit', data_tile, mask_tile, bit_position, value_to_mask)
+
+
+def rf_mask_by_bits(data_tile, mask_tile, start_bit, num_bits, values_to_mask):
+    """Applies a mask from blacklisted bit values in the `mask_tile`. Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`. In all locations where these are in the `mask_values`, the returned tile is set to NoData; otherwise the original `tile` cell value is returned."""
+    if isinstance(start_bit, int):
+        start_bit = lit(start_bit)
+    if isinstance(num_bits, int):
+        num_bits = lit(num_bits)
+    if isinstance(values_to_mask, (tuple, list)):
+        from pyspark.sql.functions import array
+        values_to_mask = array([lit(v) for v in values_to_mask])
+
+    return _apply_column_function('rf_mask_by_bits', data_tile, mask_tile, start_bit, num_bits, values_to_mask)
+
+
+def rf_local_extract_bits(tile, start_bit, num_bits=1):
+    """Extract value from specified bits of the cells' underlying binary data.
+    * `startBit` is the first bit to consider, working from the right. It is zero indexed.
+    * `numBits` is the number of bits to take moving further to the left. """
+    if isinstance(start_bit, int):
+        start_bit = lit(bit_position)
+    if isinstance(num_bits, int):
+        num_bits = lit(num_bits)
+    return _apply_column_function('rf_local_extract_bits', tile, start_bit, num_bits)
+
+
 def rf_local_less(left_tile_col, right_tile_col):
     """Cellwise less than comparison between two tiles"""
     return _apply_column_function('rf_local_less', left_tile_col, right_tile_col)
