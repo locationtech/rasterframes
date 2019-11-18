@@ -23,7 +23,7 @@
 * Updated to GeoTrellis 2.3.3 and Proj4j 1.1.0.
 * Fixed issues with `LazyLogger` and shading assemblies ([#293](https://github.com/locationtech/rasterframes/issues/293))
 * Updated `rf_crs` to accept string columns containing CRS specifications. ([#366](https://github.com/locationtech/rasterframes/issues/366))
-* Added `rf_xz2_index` function. ([#368](https://github.com/locationtech/rasterframes/issues/368))
+* Added `rf_spatial_index` function. ([#368](https://github.com/locationtech/rasterframes/issues/368))
 * _Breaking_ (potentially): removed `pyrasterframes.create_spark_session` in lieu of `pyrasterframes.utils.create_rf_spark_session`
 
 ### 0.8.2

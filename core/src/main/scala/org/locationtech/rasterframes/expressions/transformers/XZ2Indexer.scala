@@ -61,9 +61,9 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!envelopeExtractor.isDefinedAt(left.dataType))
-      TypeCheckFailure(s"Input type '${left.dataType}' does not look like something with an Extent or something with one.")
+      TypeCheckFailure(s"Input type '${left.dataType}' does not look like a geometry, extent, or something with one.")
     else if(!crsExtractor.isDefinedAt(right.dataType))
-      TypeCheckFailure(s"Input type '${right.dataType}' does not look like something with a CRS.")
+      TypeCheckFailure(s"Input type '${right.dataType}' does not look like a CRS or something with one.")
     else TypeCheckSuccess
   }
 

@@ -149,11 +149,15 @@ def _raster_reader(
     if band_indexes is None:
         band_indexes = [0]
 
-    if spatial_index_partitions is False:
-        spatial_index_partitions = None
+    if spatial_index_partitions:
+        num = int(spatial_index_partitions)
+        if num < 0:
+            spatial_index_partitions = '-1'
+        elif num == 0:
+            spatial_index_partitions = None
 
-    if spatial_index_partitions is not None:
-        if spatial_index_partitions is True:
+    if spatial_index_partitions:
+        if spatial_index_partitions == True:
             spatial_index_partitions = "-1"
         else:
             spatial_index_partitions = str(spatial_index_partitions)

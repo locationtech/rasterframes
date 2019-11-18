@@ -62,9 +62,9 @@ case class Z2Indexer(left: Expression, right: Expression, indexResolution: Short
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!centroidExtractor.isDefinedAt(left.dataType))
-      TypeCheckFailure(s"Input type '${left.dataType}' does not look like something with a point.")
+      TypeCheckFailure(s"Input type '${left.dataType}' does not look like something with a centroid.")
     else if(!crsExtractor.isDefinedAt(right.dataType))
-      TypeCheckFailure(s"Input type '${right.dataType}' does not look like something with a CRS.")
+      TypeCheckFailure(s"Input type '${right.dataType}' does not look like a CRS or something with one.")
     else TypeCheckSuccess
   }
 

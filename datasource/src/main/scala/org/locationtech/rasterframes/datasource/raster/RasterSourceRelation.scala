@@ -42,7 +42,10 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
   * @param bandIndexes band indexes to fetch
   * @param subtileDims how big to tile/subdivide rasters info
   * @param lazyTiles if true, creates a lazy representation of tile instead of fetching contents.
-  * @param spatialIndexPartitions if not None, adds a spatial index. If Option value < 1, uses the value of `numShufflePartitions` in SparkContext.
+  * @param spatialIndexPartitions Number of spatial index-based partitions to create.
+  *                               If Option value > 0, that number of partitions are created after adding a spatial index.
+  *                               If Option value <= 0, uses the value of `numShufflePartitions` in SparkContext.
+  *                               If None, no spatial index is added and hash partitioning is used.
   */
 case class RasterSourceRelation(
   sqlContext: SQLContext,

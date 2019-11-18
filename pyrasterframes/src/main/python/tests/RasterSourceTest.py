@@ -213,7 +213,12 @@ class RasterSourceTest(TestEnvironment):
         self.assertTrue(df.select('b1_path').distinct().count() == 3)
 
     def test_spatial_partitioning(self):
-        df = self.spark.read.raster(self.path(1, 1), spatial_index_partitions=True)
+        f = self.path(1, 1)
+        df = self.spark.read.raster(f, spatial_index_partitions=True)
         self.assertTrue('spatial_index' in df.columns)
-        # Other tests?
 
+        self.assertEqual(df.rdd.getNumPartitions(), int(self.spark.conf.get("spark.sql.shuffle.partitions")))
+        self.assertEqual(self.spark.read.raster(f, spatial_index_partitions=34).rdd.getNumPartitions(), 34)
+        self.assertEqual(self.spark.read.raster(f, spatial_index_partitions="42").rdd.getNumPartitions(), 42)
+        self.assertFalse('spatial_index' in self.spark.read.raster(f, spatial_index_partitions=False).columns)
+        self.assertFalse('spatial_index' in self.spark.read.raster(f, spatial_index_partitions=0).columns)
