@@ -25,7 +25,7 @@ from pyrasterframes.rf_types import *
 from pyrasterframes import TileExploder
 
 from pyspark.ml.feature import VectorAssembler
-from pyspark.ml import Pipeline
+from pyspark.ml import Pipeline, PipelineModel
 from pyspark.sql.functions import *
 
 import unittest
@@ -56,3 +56,15 @@ class ExploderTests(TestEnvironment):
         pipe_model = pipe.fit(df)
         tranformed_df = pipe_model.transform(df)
         self.assertTrue(tranformed_df.count() > df.count())
+
+    def test_tile_exploder_read_write(self):
+        path = 'test_tile_exploder_read_write.pipe'
+        df = self.spark.read.raster(self.img_uri)
+
+        assembler = VectorAssembler().setInputCols(['proj_raster'])
+        pipe = Pipeline().setStages([TileExploder(), assembler])
+
+        pipe.fit(df).write().overwrite().save(path)
+
+        read_pipe = PipelineModel.load(path)
+        self.assertEqual(len(read_pipe.stages), 2)
