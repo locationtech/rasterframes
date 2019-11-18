@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes.datasource
 
 import org.apache.spark.sql.DataFrameReader
+import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource._
 import shapeless.tag
 import shapeless.tag.@@
 package object raster {
@@ -38,5 +39,6 @@ package object raster {
 
   /** Adds option methods relevant to RasterSourceDataSource. */
   implicit class RasterSourceDataFrameReaderHasOptions(val reader: RasterSourceDataFrameReader)
-    extends RasterSourceDataSource.CatalogReaderOptionsSupport[RasterSourceDataFrameReaderTag]
+    extends CatalogReaderOptionsSupport[RasterSourceDataFrameReaderTag] with
+      SpatialIndexOptionsSupport[RasterSourceDataFrameReaderTag]
 }
