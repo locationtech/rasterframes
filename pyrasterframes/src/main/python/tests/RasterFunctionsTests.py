@@ -27,6 +27,7 @@ from pyspark.sql.functions import *
 import numpy as np
 from numpy.testing import assert_equal
 
+from unittest import skip
 from . import TestEnvironment
 
 
@@ -278,12 +279,7 @@ class RasterFunctions(TestEnvironment):
             mask_fill_df.select(rf_data_cells('mbb')).first()[0],
             16 - 4
         )
-        # Unsure why this fails. mask_fill_tile.cells is all 42 unmasked.
-        # self.assertEqual(mask_fill_tile.cells.mask.sum(), 4,
-        #                  f'Expected {16 - 4} data values but got the masked tile:'
-        #                  f'{mask_fill_tile}'
-        #                  )
-        #
+
         # mask out 6816, 6900
         mask_med_hi_cir = df.withColumn('mask_cir_mh',
                                         rf_mask_by_bits('t', 'mask', 11, 2, [2, 3])) \
@@ -293,6 +289,32 @@ class RasterFunctions(TestEnvironment):
             mask_med_hi_cir.mask.sum(),
             5
         )
+
+    @skip('Issue #422 https://github.com/locationtech/rasterframes/issues/422')
+    def test_mask_and_deser(self):
+        # duplicates much of test_mask_bits but
+        t = Tile(42 * np.ones((4, 4), 'uint16'), CellType.uint16())
+        # with a varitey of known values
+        mask = Tile(np.array([
+            [1, 1, 2720, 2720],
+            [1, 6816, 6816, 2756],
+            [2720, 2720, 6900, 2720],
+            [2720, 6900, 6816, 1]
+        ]), CellType('uint16raw'))
+
+        df = self.spark.createDataFrame([Row(t=t, mask=mask)])
+
+        # removes fill value 1
+        mask_fill_df = df.select(rf_mask_by_bit('t', 'mask', 0, True).alias('mbb'))
+        mask_fill_tile = mask_fill_df.first()['mbb']
+
+        self.assertTrue(mask_fill_tile.cell_type.has_no_data())
+
+        # Unsure why this fails. mask_fill_tile.cells is all 42 unmasked.
+        self.assertEqual(mask_fill_tile.cells.mask.sum(), 4,
+                         f'Expected {16 - 4} data values but got the masked tile:'
+                         f'{mask_fill_tile}'
+                         )
 
     def test_mask(self):
         from pyspark.sql import Row
