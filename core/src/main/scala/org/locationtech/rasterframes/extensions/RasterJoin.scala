@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.extensions
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.SpatialRelation

@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions.transformers
 
 import geotrellis.raster.Tile
-import org.apache.spark.sql.{Column, TypedColumn}
+import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
