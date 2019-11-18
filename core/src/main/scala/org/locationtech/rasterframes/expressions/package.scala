@@ -135,7 +135,8 @@ package object expressions {
     registry.registerExpression[RenderPNG.RenderCompositePNG]("rf_render_png")
     registry.registerExpression[RGBComposite]("rf_rgb_composite")
 
-    registry.registerExpression[XZ2Indexer]("rf_spatial_index")
+    registry.registerExpression[XZ2Indexer]("rf_xz2_index")
+    registry.registerExpression[Z2Indexer]("rf_z2_index")
 
     registry.registerExpression[transformers.ReprojectGeometry]("st_reproject")
 
