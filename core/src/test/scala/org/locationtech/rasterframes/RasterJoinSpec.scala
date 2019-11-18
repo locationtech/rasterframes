@@ -154,8 +154,6 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
 
       total18 should be > 0.0
       total18 should be < total17
-
-
     }
 
     it("should pass through ancillary columns") {
@@ -163,6 +161,15 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val right = b4warpedRf.withColumn("right_id", monotonically_increasing_id())
       val joined = left.rasterJoin(right)
       joined.columns should contain allElementsOf Seq("left_id", "right_id_agg")
+    }
+
+    it("should handle proj_raster types") {
+      val df1 = Seq(one).toDF("one")
+      val df2 = Seq(two).toDF("two")
+      noException shouldBe thrownBy {
+        val joined1 = df1.rasterJoin(df2)
+        val joined2 = df2.rasterJoin(df1)
+      }
     }
   }
 }

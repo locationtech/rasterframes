@@ -23,6 +23,8 @@ package org.locationtech.rasterframes.extensions
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.expressions.SpatialRelation
+import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.functions.reproject_and_merge
 import org.locationtech.rasterframes.util._
 
@@ -30,15 +32,28 @@ import scala.util.Random
 
 object RasterJoin {
 
+  /** Perform a raster join on dataframes that each have proj_raster columns, or crs and extent explicitly included. */
   def apply(left: DataFrame, right: DataFrame): DataFrame = {
-    val df = apply(left, right, left("extent"), left("crs"), right("extent"), right("crs"))
-    df.drop(right("extent")).drop(right("crs"))
+    def usePRT(d: DataFrame) =
+      d.projRasterColumns.headOption
+        .map(p => (rf_crs(p),  rf_extent(p)))
+        .orElse(Some(col("crs"), col("extent")))
+        .map { case (crs, extent) =>
+          val d2 = d.withColumn("crs", crs).withColumn("extent", extent)
+          (d2, d2("crs"), d2("extent"))
+        }
+        .get
+
+    val (ldf, lcrs, lextent) = usePRT(left)
+    val (rdf, rcrs, rextent) = usePRT(right)
+
+    apply(ldf, rdf, lextent, lcrs, rextent, rcrs)
   }
 
   def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
     val leftGeom = st_geometry(leftExtent)
     val rightGeomReproj = st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
-    val joinExpr = st_intersects(leftGeom, rightGeomReproj)
+    val joinExpr = new Column(SpatialRelation.Intersects(leftGeom.expr, rightGeomReproj.expr))
     apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
   }
 
@@ -65,7 +80,7 @@ object RasterJoin {
     val leftAggCols = left.columns.map(s => first(left(s), true) as s)
     // On the RHS we collect result as a list.
     val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rightCRS) as rightCRS2)
-    val rightAggTiles = right.tileColumns.map(c => collect_list(c) as c.columnName)
+    val rightAggTiles = right.tileColumns.map(c => collect_list(ExtractTile(c)) as c.columnName)
     val rightAggOther = right.notTileColumns
       .filter(n => n.columnName != rightExtent.columnName && n.columnName != rightCRS.columnName)
       .map(c => collect_list(c) as (c.columnName + "_agg"))
