@@ -22,19 +22,19 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.io.geotiff.SinglebandGeoTiff
+import geotrellis.raster.io.geotiff.MultibandGeoTiff
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, TileType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
+trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
   def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS, asProjectedRaster: Boolean = false)(implicit spark: SparkSession): DataFrame = {
-
+    val bands = self.bandCount
     val segmentLayout = self.imageData.segmentLayout
     val re = self.rasterExtent
     val crs = self.crs
@@ -46,24 +46,25 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
       (gridbounds, tile) ← subtiles.toSeq
     } yield {
       val extent = re.extentFor(gridbounds, false)
-      if (asProjectedRaster)
-        Row(ProjectedRasterTile(tile, extent, crs).toRow)
-      else
-        Row(extent.toRow, crs.toRow, tile)
+      if (asProjectedRaster) {
+        val prts = tile.bands.map(t => ProjectedRasterTile(t, extent, crs))
+        Row(prts.map(_.toRow): _*)
+      }
+      else Row(extent.toRow +: crs.toRow +: tile.bands: _*)
     }
 
     val schema = if (asProjectedRaster)
+      StructType((0 until bands).map { i =>
+        StructField("proj_raster_" + i, schemaOf[ProjectedRasterTile], false)
+      })
+    else
       StructType(Seq(
-      StructField("proj_raster", schemaOf[ProjectedRasterTile], false)
-      ))
-    else StructType(Seq(
-      StructField("extent", schemaOf[Extent], false),
-      StructField("crs", schemaOf[CRS], false),
-      StructField("tile", TileType, false)
-    ))
+        StructField("extent", schemaOf[Extent], false),
+        StructField("crs", schemaOf[CRS], false)
+      ) ++ (0 until bands).map { i =>
+        StructField("b_" + i, TileType, false)
+      })
 
     spark.createDataFrame(spark.sparkContext.makeRDD(rows), schema)
   }
-
-  def toProjectedRasterTile: ProjectedRasterTile = ProjectedRasterTile(self.projectedRaster)
 }

@@ -28,35 +28,41 @@ import org.locationtech.rasterframes.stats._
 /** Functions associated with computing columnar aggregates over tile columns. */
 trait AggregateFunctions {
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
-  def rf_agg_local_stats(col: Column) = LocalStatsAggregate(col)
+  def rf_agg_local_stats(tile: Column) = LocalStatsAggregate(tile)
 
   /** Compute the cell-wise/local max operation between Tiles in a column. */
-  def rf_agg_local_max(col: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMaxUDAF(col)
+  def rf_agg_local_max(tile: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMaxUDAF(tile)
 
   /** Compute the cellwise/local min operation between Tiles in a column. */
-  def rf_agg_local_min(col: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMinUDAF(col)
+  def rf_agg_local_min(tile: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMinUDAF(tile)
 
   /** Compute the cellwise/local mean operation between Tiles in a column. */
-  def rf_agg_local_mean(col: Column): TypedColumn[Any, Tile] = LocalMeanAggregate(col)
+  def rf_agg_local_mean(tile: Column): TypedColumn[Any, Tile] = LocalMeanAggregate(tile)
 
   /** Compute the cellwise/local count of non-NoData cells for all Tiles in a column. */
-  def rf_agg_local_data_cells(col: Column): TypedColumn[Any, Tile] = LocalCountAggregate.LocalDataCellsUDAF(col)
+  def rf_agg_local_data_cells(tile: Column): TypedColumn[Any, Tile] = LocalCountAggregate.LocalDataCellsUDAF(tile)
 
   /** Compute the cellwise/local count of NoData cells for all Tiles in a column. */
-  def rf_agg_local_no_data_cells(col: Column): TypedColumn[Any, Tile] = LocalCountAggregate.LocalNoDataCellsUDAF(col)
+  def rf_agg_local_no_data_cells(tile: Column): TypedColumn[Any, Tile] = LocalCountAggregate.LocalNoDataCellsUDAF(tile)
 
   /**  Compute the full column aggregate floating point histogram. */
-  def rf_agg_approx_histogram(col: Column): TypedColumn[Any, CellHistogram] = HistogramAggregate(col)
+  def rf_agg_approx_histogram(tile: Column): TypedColumn[Any, CellHistogram] = HistogramAggregate(tile)
 
   /** Compute the full column aggregate floating point statistics. */
-  def rf_agg_stats(col: Column): TypedColumn[Any, CellStatistics] = CellStatsAggregate(col)
+  def rf_agg_stats(tile: Column): TypedColumn[Any, CellStatistics] = CellStatsAggregate(tile)
 
   /** Computes the column aggregate mean. */
-  def rf_agg_mean(col: Column) = CellMeanAggregate(col)
+  def rf_agg_mean(tile: Column) = CellMeanAggregate(tile)
 
   /** Computes the number of non-NoData cells in a column. */
-  def rf_agg_data_cells(col: Column): TypedColumn[Any, Long] = CellCountAggregate.DataCells(col)
+  def rf_agg_data_cells(tile: Column): TypedColumn[Any, Long] = CellCountAggregate.DataCells(tile)
 
   /** Computes the number of NoData cells in a column. */
-  def rf_agg_no_data_cells(col: Column): TypedColumn[Any, Long] = CellCountAggregate.NoDataCells(col)
+  def rf_agg_no_data_cells(tile: Column): TypedColumn[Any, Long] = CellCountAggregate.NoDataCells(tile)
+
+  def rf_agg_overview_raster(cols: Int, rows: Int, tiles: Column*): Column = {
+
+    ???
+  }
+
 }

@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.functions
 import geotrellis.raster.render.ColorRamp
 import geotrellis.raster.{CellType, Tile}
-import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.functions.{lit, udf}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.jts.geom.Geometry
