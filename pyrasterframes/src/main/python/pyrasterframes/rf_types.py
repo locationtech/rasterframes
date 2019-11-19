@@ -31,7 +31,7 @@ from pyspark.sql.types import (UserDefinedType, StructType, StructField, BinaryT
 
 from pyspark.ml.param.shared import HasInputCols
 from pyspark.ml.wrapper import JavaTransformer
-from pyspark.ml.util import JavaMLReadable, JavaMLWritable, DefaultParamsReadable, DefaultParamsWritable
+from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
 
 from pyrasterframes.rf_context import RFContext
 
