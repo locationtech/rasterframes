@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.encoders.serialized_literal
  *
  * @since 12/15/17
  */
-trait RFSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with StandardColumns {
+trait LayerSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with StandardColumns {
   import Implicits.{WithDataFrameMethods, WithRasterFrameLayerMethods}
   import org.locationtech.geomesa.spark.jts._
 
@@ -112,7 +112,7 @@ trait RFSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with Sta
    */
   def withCenterLatLng(colName: String = "center"): RasterFrameLayer = {
     val key2Center = sparkUdf(keyCol2LatLng)
-    self.withColumn(colName, key2Center(self.spatialKeyColumn).cast(RFSpatialColumnMethods.LngLatStructType)).certify
+    self.withColumn(colName, key2Center(self.spatialKeyColumn).cast(LayerSpatialColumnMethods.LngLatStructType)).certify
   }
 
   /**
@@ -130,6 +130,6 @@ trait RFSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with Sta
   }
 }
 
-object RFSpatialColumnMethods {
+object LayerSpatialColumnMethods {
   private[rasterframes] val LngLatStructType = StructType(Seq(StructField("longitude", DoubleType), StructField("latitude", DoubleType)))
 }
