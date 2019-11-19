@@ -68,3 +68,4 @@ class ExploderTests(TestEnvironment):
 
         read_pipe = PipelineModel.load(path)
         self.assertEqual(len(read_pipe.stages), 2)
+        self.assertTrue(isinstance(read_pipe.stages[0], TileExploder))

@@ -37,8 +37,9 @@ class ExploderTests(TestEnvironment):
         df = self.spark.read.raster(self.img_uri) \
             .select(rf_tile_mean('proj_raster').alias('mean'))
 
-        ndf = NoDataFilter().setInputCols(['mean'])
-        assembler = VectorAssembler().setInputCols(['mean'])
+        input_cols = ['mean']
+        ndf = NoDataFilter().setInputCols(input_cols)
+        assembler = VectorAssembler().setInputCols(input_cols)
 
         pipe = Pipeline().setStages([ndf, assembler])
 
@@ -46,3 +47,5 @@ class ExploderTests(TestEnvironment):
 
         read_pipe = PipelineModel.load(path)
         self.assertEqual(len(read_pipe.stages), 2)
+        actual_stages_ndf = read_pipe.stages[0].getInputCols()
+        self.assertEqual(actual_stages_ndf, input_cols)
