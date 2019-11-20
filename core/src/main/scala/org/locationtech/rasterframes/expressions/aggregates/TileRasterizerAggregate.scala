@@ -31,10 +31,11 @@ import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAg
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 import org.locationtech.rasterframes.model.TileDimensions
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 
 /**
@@ -84,9 +85,9 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
     buffer1(0) = leftTile.merge(rightTile)
   }
 
-  override def evaluate(buffer: Row): Raster[Tile] = {
+  override def evaluate(buffer: Row): ProjectedRasterTile = {
     val t = buffer.getAs[Tile](0)
-    Raster(t, prd.extent)
+    ProjectedRasterTile(t, prd.extent, prd.crs)
   }
 }
 
@@ -110,13 +111,13 @@ object TileRasterizerAggregate {
   @transient
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
-  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Raster[Tile]] = {
+  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, ProjectedRasterTile] = {
 
     if (prd.totalCols.toDouble * prd.totalRows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
       logger.warn(
         s"You've asked for the construction of a very large image (${prd.totalCols} x ${prd.totalRows}). Out of memory error likely.")
 
-    new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol).as(nodeName).as[Raster[Tile]]
+    new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol).as(nodeName).as[ProjectedRasterTile]
   }
 
   def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {

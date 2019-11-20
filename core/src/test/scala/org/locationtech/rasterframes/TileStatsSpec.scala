@@ -103,13 +103,13 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
       withClue("max") {
         val max = ds.agg(rf_agg_local_max($"tiles"))
+        max.printSchema()
         val expected = Max(byteArrayTile, byteConstantTile)
         write(max)
         assert(max.as[Tile].first() === expected)
 
         val sqlMax = sql("select rf_agg_local_max(tiles) from tmp")
         assert(sqlMax.as[Tile].first() === expected)
-
       }
 
       withClue("min") {

@@ -179,7 +179,8 @@ trait TestData {
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
 
-  def lazyPRT = RasterRef(RasterSource(TestData.l8samplePath), 0, None, None).tile
+  def rasterRef = RasterRef(RasterSource(TestData.l8samplePath), 0, None, None)
+  def lazyPRT = rasterRef.tile
 
   object GeomData {
     val fact = new GeometryFactory()

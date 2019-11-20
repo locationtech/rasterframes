@@ -328,6 +328,16 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       g should be (extent.jtsGeom)
       checkDocs("rf_geometry")
     }
+
+    it("should get the CRS of a RasteRef") {
+      val e = Seq(Tuple1(rasterRef)).toDF("ref").select(rf_crs($"ref")).first()
+      e should be (rasterRef.crs)
+    }
+
+    it("should get the Extent of a RasteRef") {
+      val e = Seq(Tuple1(rasterRef)).toDF("ref").select(rf_extent($"ref")).first()
+      e should be (rasterRef.extent)
+    }
   }
 
   describe("per-tile stats") {

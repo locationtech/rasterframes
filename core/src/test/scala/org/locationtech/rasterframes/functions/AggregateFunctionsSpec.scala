@@ -144,7 +144,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
   describe("aggregate rasters") {
     it("should create a global aggregate raster from projected raster column") {
       val df = rgbCogSample.toDF(TileDimensions(32, 32))
-    //  df.agg(rf_agg_overview_raster(500, 400, df.tileColumns: _*))
+      df.agg(rf_agg_overview_raster(500, 400, df.tileColumns: _*))
       df.show(false)
     }
   }

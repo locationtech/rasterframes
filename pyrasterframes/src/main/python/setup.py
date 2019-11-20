@@ -46,7 +46,7 @@ def _divided(msg):
     divider = ('-' * 50)
     return divider + '\n' + msg + '\n' + divider
 
-
+# Should we move to https://github.com/aaren/notedown? It allows converstion without evaluation...
 class PweaveDocs(distutils.cmd.Command):
     """A custom command to run documentation scripts through pweave."""
     description = 'Pweave PyRasterFrames documentation scripts'
@@ -56,7 +56,6 @@ class PweaveDocs(distutils.cmd.Command):
         ('format=', 'f', 'Output format type. Defaults to `markdown`'),
         ('quick=', 'q', 'Check to see if the source file is newer than existing output before building. Defaults to `False`.')
     ]
-
 
     def initialize_options(self):
         """Set default values for options."""
