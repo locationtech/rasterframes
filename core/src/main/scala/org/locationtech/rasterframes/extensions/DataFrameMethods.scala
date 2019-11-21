@@ -155,6 +155,9 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def withPrefixedColumnNames(prefix: String): DF =
     self.columns.foldLeft(self)((df, c) ⇒ df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
 
+  /**  */
+  def tileStat(): RasterFrameStatFunctions = new RasterFrameStatFunctions(self)
+
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
     * The operation is logically a "left outer" join, with the left side also determining the target CRS and extents.
