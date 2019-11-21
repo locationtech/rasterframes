@@ -85,16 +85,19 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
     buffer1(0) = leftTile.merge(rightTile)
   }
 
-  override def evaluate(buffer: Row): ProjectedRasterTile = {
+  override def evaluate(buffer: Row): Raster[Tile] = {
     val t = buffer.getAs[Tile](0)
-    ProjectedRasterTile(t, prd.extent, prd.crs)
+    Raster[Tile](t, prd.extent)
   }
 }
 
 object TileRasterizerAggregate {
-  val nodeName = "rf_agg_raster"
-  /**  Convenience grouping of  parameters needed for running aggregate. */
-  case class ProjectedRasterDefinition(totalCols: Int, totalRows: Int, cellType: CellType, crs: CRS, extent: Extent, sampler: ResampleMethod = ResampleMethod.DEFAULT)
+  @transient
+  private lazy val logger = LoggerFactory.getLogger(getClass)
+
+  /** Convenience grouping of  parameters needed for running aggregate. */
+  case class ProjectedRasterDefinition(totalCols: Int, totalRows: Int, cellType: CellType, crs: CRS,
+    extent: Extent, sampler: ResampleMethod = ResampleMethod.DEFAULT)
 
   object ProjectedRasterDefinition {
     def apply(tlm: TileLayerMetadata[_]): ProjectedRasterDefinition = apply(tlm, ResampleMethod.DEFAULT)
@@ -108,18 +111,18 @@ object TileRasterizerAggregate {
     }
   }
 
-  @transient
-  private lazy val logger = LoggerFactory.getLogger(getClass)
-
-  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, ProjectedRasterTile] = {
-
+  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Raster[Tile]] = {
     if (prd.totalCols.toDouble * prd.totalRows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
       logger.warn(
         s"You've asked for the construction of a very large image (${prd.totalCols} x ${prd.totalRows}). Out of memory error likely.")
 
-    new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol).as(nodeName).as[ProjectedRasterTile]
+    new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol)
+      .as("rf_agg_overview_raster")
+      .as[Raster[Tile]]
   }
 
+
+  /** Extract a multiband raster from all tile columns. */
   def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {
     val tileCols = WithDataFrameMethods(df).tileColumns
     require(tileCols.nonEmpty, "need at least one tile column")

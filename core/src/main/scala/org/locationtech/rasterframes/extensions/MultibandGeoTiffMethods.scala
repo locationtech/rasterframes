@@ -22,9 +22,13 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
+import geotrellis.raster.{Raster, Tile}
 import geotrellis.raster.io.geotiff.MultibandGeoTiff
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, GenerateUnsafeProjection}
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, TileType}
@@ -33,7 +37,7 @@ import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
-  def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS, asProjectedRaster: Boolean = false)(implicit spark: SparkSession): DataFrame = {
+  def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
     val bands = self.bandCount
     val segmentLayout = self.imageData.segmentLayout
     val re = self.rasterExtent
@@ -46,24 +50,23 @@ trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
       (gridbounds, tile) ← subtiles.toSeq
     } yield {
       val extent = re.extentFor(gridbounds, false)
-      if (asProjectedRaster) {
-        val prts = tile.bands.map(t => ProjectedRasterTile(t, extent, crs))
-        Row(prts.map(_.toRow): _*)
-      }
-      else Row(extent.toRow +: crs.toRow +: tile.bands: _*)
+      Row(extent.toRow +: crs.toRow +: tile.bands: _*)
     }
 
-    val schema = if (asProjectedRaster)
-      StructType((0 until bands).map { i =>
-        StructField("proj_raster_" + i, schemaOf[ProjectedRasterTile], false)
-      })
-    else
+
+    val schema =
       StructType(Seq(
         StructField("extent", schemaOf[Extent], false),
         StructField("crs", schemaOf[CRS], false)
-      ) ++ (0 until bands).map { i =>
+      ) ++ (1 to bands).map { i =>
         StructField("b_" + i, TileType, false)
       })
+//    import spark.implicits._
+//    import org.apache.spark.sql.execution.debug._
+//    val enc = RowEncoder(schema)
+//    val s = enc.serializer
+//    val foo = GenerateUnsafeProjection.generate(s)
+//    s.map(_.genCode(new CodegenContext()).code.verboseString).foreach(println)
 
     spark.createDataFrame(spark.sparkContext.makeRDD(rows), schema)
   }

@@ -20,17 +20,26 @@
  */
 
 package org.locationtech.rasterframes.functions
+import geotrellis.proj4.{CRS, WebMercator}
 import geotrellis.raster._
+import geotrellis.raster.render.{ColorMaps, ColorRamps}
 import geotrellis.raster.testkit.RasterMatchers
+import geotrellis.vector.Extent
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.rf.TileUDT
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile.prtEncoder
+import TestData.{one, two, three, six, randNDPRT, nd, randNDTilesWithNull, expectedRandData, expectedRandNoData}
+
 
 class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
-  import TestData._
   import spark.implicits._
 
   implicit val pairEnc = Encoders.tuple(prtEncoder, prtEncoder)
@@ -45,14 +54,14 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_agg_data_cells")
     }
     it("should count no-data cells") {
-      val df = randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNull.toDF("tile")
       df.select(rf_agg_no_data_cells($"tile")).first() should be(expectedRandNoData)
       df.selectExpr("rf_agg_no_data_cells(tile)").as[Long].first() should be(expectedRandNoData)
       checkDocs("rf_agg_no_data_cells")
     }
 
     it("should compute aggregate statistics") {
-      val df = randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNull.toDF("tile")
 
       df.select(rf_agg_stats($"tile") as "stats")
         .select("stats.data_cells", "stats.no_data_cells")
@@ -67,7 +76,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should compute a aggregate histogram") {
-      val df = randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNull.toDF("tile")
       val hist1 = df.select(rf_agg_approx_histogram($"tile")).first()
       val hist2 = df
         .selectExpr("rf_agg_approx_histogram(tile) as hist")
@@ -78,7 +87,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should compute local statistics") {
-      val df = randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNull.toDF("tile")
       val stats1 = df
         .select(rf_agg_local_stats($"tile"))
         .first()
@@ -142,10 +151,38 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
   }
 
   describe("aggregate rasters") {
-    it("should create a global aggregate raster from projected raster column") {
-      val df = rgbCogSample.toDF(TileDimensions(32, 32))
-      df.agg(rf_agg_overview_raster(500, 400, df.tileColumns: _*))
-      df.show(false)
+    it("should create a global aggregate raster from proj_raster column") {
+      implicit val enc = Encoders.tuple(
+        StandardEncoders.extentEncoder,
+        StandardEncoders.crsEncoder,
+        ExpressionEncoder[Tile](),
+        ExpressionEncoder[Tile](),
+        ExpressionEncoder[Tile]()
+      )
+      val src = TestData.rgbCogSample
+      val extent = src.extent
+      val df = src.toDF(TileDimensions(32, 32)).as[(Extent, CRS, Tile, Tile, Tile)]
+        .map(p => ProjectedRasterTile(p._3, p._1, p._2))
+      val aoi = extent.reproject(src.crs, WebMercator).buffer(-(extent.width * 0.2))
+      val overview = df.select(rf_agg_overview_raster(500, 400, aoi, $"value")).first()
+      val (min, max) = overview.tile.findMinMaxDouble
+      val (expectedMin, expectedMax) = src.tile.band(0).findMinMaxDouble
+      min should be(expectedMin +- 100)
+      max should be(expectedMax +- 100)
+      //overview.tile.renderPng(ColorRamps.ClassificationBoldLandUse).write("target/agg-raster1.png")
+    }
+
+    it("should create a global aggregate raster from separate tile, extent, and crs column") {
+      val src = TestData.rgbCogSample
+      val df = src.toDF(TileDimensions(32, 32))
+      val extent = src.extent
+      val aoi = extent.reproject(src.crs, WebMercator).buffer(-(extent.width * 0.2))
+      val overview = df.select(rf_agg_overview_raster(500, 400, aoi, $"extent", $"crs", $"b_1")).first()
+      val (min, max) = overview.tile.findMinMaxDouble
+      val (expectedMin, expectedMax) = src.tile.band(0).findMinMaxDouble
+      min should be(expectedMin +- 100)
+      max should be(expectedMax +- 100)
+      //overview.tile.renderPng(ColorRamps.ClassificationBoldLandUse).write("target/agg-raster2.png")
     }
   }
 }

@@ -241,3 +241,5 @@ trait LocalFunctions {
   /** Return the incoming tile untouched. */
   def rf_identity(tileCol: Column): Column = Identity(tileCol)
 }
+
+object LocalFunctions extends LocalFunctions

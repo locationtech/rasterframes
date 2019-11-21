@@ -33,6 +33,7 @@ import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderColorRampPNG, RenderCompositePNG}
 import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.stats._
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.{withTypedAlias, _}
 import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions => F}
 
@@ -220,3 +221,5 @@ trait TileFunctions {
   /** Create a row for each cell in Tile with random sampling (no seed). */
   def rf_explode_tiles_sample(sampleFraction: Double, cols: Column*): Column = ExplodeTiles(sampleFraction, None, cols)
 }
+
+object TileFunctions extends TileFunctions

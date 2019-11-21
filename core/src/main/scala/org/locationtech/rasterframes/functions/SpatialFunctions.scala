@@ -118,3 +118,5 @@ trait SpatialFunctions {
   def rf_z2_index(targetExtent: Column) = Z2Indexer(targetExtent, 31: Short)
 
 }
+
+object SpatialFunctions extends SpatialFunctions

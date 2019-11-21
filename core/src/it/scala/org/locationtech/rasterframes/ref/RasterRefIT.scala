@@ -55,11 +55,11 @@ class RasterRefIT extends TestEnvironment {
         stats.get.dataCells shouldBe > (1000L)
       }
       
-      import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
-      import geotrellis.raster.io.geotiff.compression.{DeflateCompression, NoCompression}
+      import geotrellis.raster.io.geotiff.compression.DeflateCompression
       import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
+      import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
       val tiffOptions = GeoTiffOptions(Tiled,  DeflateCompression, ColorSpace.RGB)
-      MultibandGeoTiff(raster, raster.crs, tiffOptions).write("target/composite.tif")
+      MultibandGeoTiff(raster.raster, raster.crs, tiffOptions).write("target/composite.tif")
     }
   }
 }

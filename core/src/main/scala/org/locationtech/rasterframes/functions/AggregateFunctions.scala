@@ -20,12 +20,17 @@
  */
 
 package org.locationtech.rasterframes.functions
-import geotrellis.raster.Tile
+import geotrellis.proj4.{LatLng, WebMercator}
+import geotrellis.raster.{IntConstantNoDataCellType, Raster, Tile}
+import geotrellis.vector.Extent
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.expressions.accessors.{ExtractTile, GetCRS, GetExtent}
+import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.stats._
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-/** Functions associated with computing columnar aggregates over tile columns. */
+/** Functions associated with computing columnar aggregates over tile and geometry columns. */
 trait AggregateFunctions {
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
   def rf_agg_local_stats(tile: Column) = LocalStatsAggregate(tile)
@@ -60,9 +65,27 @@ trait AggregateFunctions {
   /** Computes the number of NoData cells in a column. */
   def rf_agg_no_data_cells(tile: Column): TypedColumn[Any, Long] = CellCountAggregate.NoDataCells(tile)
 
-  def rf_agg_overview_raster(cols: Int, rows: Int, tiles: Column*): Column = {
+  /** Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the
+    * `areaOfExtent` in web-mercator. */
+  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, proj_raster: Column): TypedColumn[Any, Raster[Tile]] =
+    rf_agg_overview_raster(cols, rows, areaOfInterest, GetExtent(proj_raster), GetCRS(proj_raster), ExtractTile(proj_raster))
 
-    ???
+  /** Construct an overview raster of size `cols`x`rows` where data in `tile` intersects the `areaOfExtent` in web-mercator. */
+  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, tileExtent: Column, tileCRS: Column, tile: Column): TypedColumn[Any, Raster[Tile]] = {
+    val params = ProjectedRasterDefinition(cols, rows, IntConstantNoDataCellType, WebMercator, areaOfInterest)
+    TileRasterizerAggregate(params, tileCRS, tileExtent, tile)
   }
 
+  def rf_agg_extent(extent: Column) = {
+    import org.apache.spark.sql.functions._
+    import org.locationtech.rasterframes.util.NamedColumn
+    struct(
+      min(extent.getField("xmin")) as "xmin",
+      min(extent.getField("ymin")) as "ymin",
+      min(extent.getField("xmax")) as "xmax",
+      min(extent.getField("ymax")) as "ymax"
+    ) as s"rf_agg_extent(${extent.columnName})"
+  }
 }
+
+object AggregateFunctions extends AggregateFunctions
