@@ -77,14 +77,15 @@ trait AggregateFunctions {
   }
 
   def rf_agg_extent(extent: Column) = {
+    import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
     import org.apache.spark.sql.functions._
     import org.locationtech.rasterframes.util.NamedColumn
     struct(
       min(extent.getField("xmin")) as "xmin",
       min(extent.getField("ymin")) as "ymin",
-      min(extent.getField("xmax")) as "xmax",
-      min(extent.getField("ymax")) as "ymax"
-    ) as s"rf_agg_extent(${extent.columnName})"
+      max(extent.getField("xmax")) as "xmax",
+      max(extent.getField("ymax")) as "ymax"
+    ).as (s"rf_agg_extent(${extent.columnName})").as[Extent]
   }
 }
 

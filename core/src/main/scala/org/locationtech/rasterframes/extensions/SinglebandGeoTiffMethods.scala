@@ -33,7 +33,7 @@ import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
-  def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS, asProjectedRaster: Boolean = false)(implicit spark: SparkSession): DataFrame = {
+  def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
 
     val segmentLayout = self.imageData.segmentLayout
     val re = self.rasterExtent
@@ -46,17 +46,10 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
       (gridbounds, tile) ← subtiles.toSeq
     } yield {
       val extent = re.extentFor(gridbounds, false)
-      if (asProjectedRaster)
-        Row(ProjectedRasterTile(tile, extent, crs).toRow)
-      else
-        Row(extent.toRow, crs.toRow, tile)
+      Row(extent.toRow, crs.toRow, tile)
     }
 
-    val schema = if (asProjectedRaster)
-      StructType(Seq(
-      StructField("proj_raster", schemaOf[ProjectedRasterTile], false)
-      ))
-    else StructType(Seq(
+    val schema = StructType(Seq(
       StructField("extent", schemaOf[Extent], false),
       StructField("crs", schemaOf[CRS], false),
       StructField("tile", TileType, false)

@@ -185,4 +185,14 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
       //overview.tile.renderPng(ColorRamps.ClassificationBoldLandUse).write("target/agg-raster2.png")
     }
   }
+
+  describe("geometric aggregates") {
+    it("should compute an aggregate extent") {
+      val src = TestData.l8Sample(1)
+      val df = src.toDF(TileDimensions(10, 10))
+      df.show(false)
+      val result = df.select(rf_agg_extent($"extent")).first()
+      result should be(src.extent)
+    }
+  }
 }
