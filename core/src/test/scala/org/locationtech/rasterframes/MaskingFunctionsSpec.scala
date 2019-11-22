@@ -108,15 +108,6 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     it("should throw if no nodata"){
       val noNoDataCellType = UByteCellType
-      val cellTypeResult = noNoDataCellType match {
-        case _: NoNoData ⇒ 99
-        case _ ⇒ 0
-      }
-//      cellTypeResult should begreater (0)
-      cellTypeResult should be >(0)
-
-      val cellTyperesult2 = CellType.noNoDataCellTypes.contains(noNoDataCellType)
-      cellTyperesult2 should be (true)
 
       val df = Seq(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs,
         noNoDataCellType))
