@@ -1145,7 +1145,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       def checker(colName: String, valFilter: Int, assertValue: Int): Unit = {
         // print this so we can see what's happening if something  wrong
-        println(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+        logger.debug(s"${colName} should be ${assertValue} for qa val ${valFilter}")
         result.filter($"val" === lit(valFilter))
           .select(col(colName))
           .as[ProjectedRasterTile]
@@ -1236,7 +1236,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
         val printOutcome = if (resultIsNoData) "all NoData cells"
         else "all data cells"
 
-        println(s"${columnName} should contain ${printOutcome} for qa val ${maskValueFilter}")
+        logger.debug(s"${columnName} should contain ${printOutcome} for qa val ${maskValueFilter}")
         val resultDf = result
           .filter($"val" === lit(maskValueFilter))
 
@@ -1245,7 +1245,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
           .first()
 
         val dataTile = resultDf.select(col(columnName)).as[ProjectedRasterTile].first()
-        println(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
+        logger.debug(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
 //        val celltype = resultDf.select(rf_cell_type(col(columnName))).as[CellType].first()
 //        println(s"Cell type for col ${columnName}: ${celltype}")
 
