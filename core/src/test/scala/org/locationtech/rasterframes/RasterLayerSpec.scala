@@ -23,18 +23,20 @@
 
 package org.locationtech.rasterframes
 
+import java.net.URI
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 
-import org.locationtech.rasterframes.util._
-import geotrellis.proj4.LatLng
-import geotrellis.raster.render.{ColorMap, ColorRamp}
-import geotrellis.raster.{Dimensions, ProjectedRaster, Tile, TileFeature, TileLayout, UByteCellType}
+import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.raster.{Dimensions, MultibandTile, ProjectedRaster, Raster, Tile, TileFeature, TileLayout, UByteCellType, UByteConstantNoDataCellType}
 import geotrellis.spark._
 import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.apache.spark.sql.{Encoders, SQLContext, SparkSession}
+import org.locationtech.rasterframes.ref.RFRasterSource
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.util._
 
 import scala.util.control.NonFatal
 
@@ -43,7 +45,7 @@ import scala.util.control.NonFatal
  *
  * @since 7/10/17
  */
-class RasterFrameSpec extends TestEnvironment with MetadataKeys
+class RasterLayerSpec extends TestEnvironment with MetadataKeys
   with TestData  {
   import TestData.randomTile
   import spark.implicits._
@@ -231,17 +233,40 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       assert(bounds._2 === SpaceTimeKey(3, 1, now))
     }
 
-    def basicallySame(expected: Extent, computed: Extent): Unit = {
-      val components = Seq(
-        (expected.xmin, computed.xmin),
-        (expected.ymin, computed.ymin),
-        (expected.xmax, computed.xmax),
-        (expected.ymax, computed.ymax)
+    it("should create layer from arbitrary RasterFrame") {
+      val src = RFRasterSource(URI.create("https://raw.githubusercontent.com/locationtech/rasterframes/develop/core/src/test/resources/LC08_RGB_Norfolk_COG.tiff"))
+      val srcCrs = src.crs
+
+      def project(r: Raster[MultibandTile]): Seq[ProjectedRasterTile] =
+        r.tile.bands.map(b => ProjectedRasterTile(b, r.extent, srcCrs))
+
+      val prtEnc = ProjectedRasterTile.prtEncoder
+      implicit val enc = Encoders.tuple(prtEnc, prtEnc, prtEnc)
+
+      val rasters = src.readAll(bands = Seq(0, 1, 2)).map(project).map(p => (p(0), p(1), p(2)))
+
+      val df = rasters.toDF("red", "green", "blue")
+
+      val crs = CRS.fromString("+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs")
+
+      val extent = Extent(364455.0, 4080315.0, 395295.0, 4109985.0)
+      val layout = LayoutDefinition(extent, TileLayout(2, 2, 32, 32))
+
+      val tlm =  new TileLayerMetadata[SpatialKey](
+         UByteConstantNoDataCellType,
+        layout,
+        extent,
+        crs,
+        KeyBounds(SpatialKey(0, 0), SpatialKey(1, 1))
       )
-      forEvery(components)(c ⇒
-        assert(c._1 === c._2 +- 0.000001)
-      )
-    }
+      val layer = df.toLayer(tlm)
+
+      val Dimensions(cols, rows) = tlm.totalDimensions
+      val prt = layer.toMultibandRaster(Seq($"red", $"green", $"blue"), cols.toInt, rows.toInt)
+      prt.tile.dimensions should be(Dimensions(cols, rows))
+      prt.crs should be(crs)
+      prt.extent should be(extent)
+     }
 
     it("shouldn't clip already clipped extents") {
       val rf = TestData.randomSpatialTileLayerRDD(1024, 1024, 8, 8).toLayer
@@ -257,27 +282,8 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       basicallySame(expected2, computed2)
     }
 
-    def Greyscale(stops: Int): ColorRamp = {
-      val colors = (0 to stops)
-        .map(i ⇒ {
-          val c = java.awt.Color.HSBtoRGB(0f, 0f, i / stops.toFloat)
-          (c << 8) | 0xFF // Add alpha channel.
-        })
-      ColorRamp(colors)
-    }
-
-    def render(tile: Tile, tag: String): Unit = {
-      if(false && !isCI) {
-        val colors = ColorMap.fromQuantileBreaks(tile.histogram, Greyscale(128))
-        val path = s"target/${getClass.getSimpleName}_$tag.png"
-        logger.info(s"Writing '$path'")
-        tile.color(colors).renderPng().write(path)
-      }
-    }
-
     it("should rasterize with a spatiotemporal key") {
       val rf = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toLayer
-
       noException shouldBe thrownBy {
         rf.toRaster($"tile", 128, 128)
       }
@@ -290,7 +296,6 @@ class RasterFrameSpec extends TestEnvironment with MetadataKeys
       val joinTypes = Seq("inner", "outer", "fullouter", "left_outer", "right_outer", "leftsemi")
       forEvery(joinTypes) { jt ⇒
         val joined = rf1.spatialJoin(rf2, jt)
-        //println(joined.schema.json)
         assert(joined.tileLayerMetadata.isRight)
       }
     }

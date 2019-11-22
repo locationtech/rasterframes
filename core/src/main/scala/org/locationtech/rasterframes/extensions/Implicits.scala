@@ -31,7 +31,8 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{MetadataBuilder, Metadata => SMetadata}
-import spray.json._
+import spray.json.JsonFormat
+
 import scala.reflect.runtime.universe._
 
 /**
@@ -78,6 +79,15 @@ trait Implicits {
   private[rasterframes]
   implicit class WithMetadataBuilderMethods(val self: MetadataBuilder)
       extends MetadataBuilderMethods
+
+  private[rasterframes]
+  implicit class TLMHasTotalCells(tlm: TileLayerMetadata[_]) {
+    // TODO: With upgrade to GT 3.1, replace this with the more general `Dimensions[Long]`
+    def totalDimensions: Dimensions[Long] = {
+      val gb = tlm.layout.gridBoundsFor(tlm.extent)
+      Dimensions(gb.width, gb.height)
+    }
+  }
 }
 
 object Implicits extends Implicits

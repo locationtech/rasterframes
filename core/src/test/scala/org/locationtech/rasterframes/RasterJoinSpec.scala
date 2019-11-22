@@ -163,6 +163,15 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val joined = left.rasterJoin(right)
       joined.columns should contain allElementsOf Seq("left_id", "right_id_agg")
     }
+
+    it("should handle proj_raster types") {
+      val df1 = Seq(one).toDF("one")
+      val df2 = Seq(two).toDF("two")
+      noException shouldBe thrownBy {
+        val joined1 = df1.rasterJoin(df2)
+        val joined2 = df2.rasterJoin(df1)
+      }
+    }
   }
 
   override def additionalConf: SparkConf = super.additionalConf.set("spark.sql.codegen.comments", "true")

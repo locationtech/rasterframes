@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.expressions.aggregates
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
 import geotrellis.raster.resample.ResampleMethod
-import geotrellis.raster.{ArrayTile, CellType, Dimensions, MultibandTile, ProjectedRaster, Raster, Tile}
+import geotrellis.raster.{ArrayTile, CellType, Dimensions, GeoAttrsError, MultibandTile, ProjectedRaster, Raster, Tile}
 import geotrellis.layer._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
@@ -99,10 +99,9 @@ object TileRasterizerAggregate {
 
     def apply(tlm: TileLayerMetadata[_], sampler: ResampleMethod): ProjectedRasterDefinition = {
       // Try to determine the actual dimensions of our data coverage
-      val actualSize = tlm.layout.toRasterExtent().gridBoundsFor(tlm.extent) // <--- Do we have the math right here?
-      val cols = actualSize.width
-      val rows = actualSize.height
-      new ProjectedRasterDefinition(cols, rows, tlm.cellType, tlm.crs, tlm.extent, sampler)
+      val Dimensions(cols, rows) = tlm.totalDimensions
+      require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a Raster of size $cols x $rows. (Too big!)")
+      new ProjectedRasterDefinition(cols.toInt, rows.toInt, tlm.cellType, tlm.crs, tlm.extent, sampler)
     }
   }
 

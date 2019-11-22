@@ -25,13 +25,14 @@ import geotrellis.raster.Dimensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.accessors.{GetCRS, GetExtent}
 import org.locationtech.rasterframes.expressions.generators.{RasterSourceToRasterRefs, RasterSourceToTiles}
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
-import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, URIToRasterSource}
+import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, URIToRasterSource, XZ2Indexer}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
@@ -40,13 +41,19 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
   * @param catalogTable Specification of raster path sources
   * @param bandIndexes band indexes to fetch
   * @param subtileDims how big to tile/subdivide rasters info
+  * @param lazyTiles if true, creates a lazy representation of tile instead of fetching contents.
+  * @param spatialIndexPartitions Number of spatial index-based partitions to create.
+  *                               If Option value > 0, that number of partitions are created after adding a spatial index.
+  *                               If Option value <= 0, uses the value of `numShufflePartitions` in SparkContext.
+  *                               If None, no spatial index is added and hash partitioning is used.
   */
 case class RasterSourceRelation(
   sqlContext: SQLContext,
   catalogTable: RasterSourceCatalogRef,
   bandIndexes: Seq[Int],
   subtileDims: Option[Dimensions[Int]],
-  lazyTiles: Boolean
+  lazyTiles: Boolean,
+  spatialIndexPartitions: Option[Int]
 ) extends BaseRelation with TableScan {
 
   lazy val inputColNames = catalogTable.bandColumnNames
@@ -69,6 +76,9 @@ case class RasterSourceRelation(
     catalog.schema.fields.filter(f => !catalogTable.bandColumnNames.contains(f.name))
   }
 
+  lazy val indexCols: Seq[StructField] =
+    if (spatialIndexPartitions.isDefined) Seq(StructField("spatial_index", LongType, false)) else Seq.empty
+
   protected def defaultNumPartitions: Int =
     sqlContext.sparkSession.sessionState.conf.numShufflePartitions
 
@@ -81,17 +91,17 @@ case class RasterSourceRelation(
       tileColName <- tileColNames
     } yield StructField(tileColName, tileSchema, true)
 
-    StructType(paths ++ tiles ++ extraCols)
+    StructType(paths ++ tiles ++ extraCols ++ indexCols)
   }
 
   override def buildScan(): RDD[Row] = {
     import sqlContext.implicits._
-
+    val numParts = spatialIndexPartitions.filter(_ > 0).getOrElse(defaultNumPartitions)
     // The general transformation is:
     // input -> path -> src -> ref -> tile
     // Each step is broken down for readability
     val inputs: DataFrame = sqlContext.table(catalogTable.tableName)
-      .repartition(defaultNumPartitions)
+      .repartition(numParts)
 
     // Basically renames the input columns to have the '_path' suffix
     val pathsAliasing = for {
@@ -135,6 +145,14 @@ case class RasterSourceRelation(
       withPaths
         .select((paths :+ tiles) ++ extras: _*)
     }
-    df.rdd
+
+    if (spatialIndexPartitions.isDefined) {
+      val sample = col(tileColNames.head)
+      val indexed = df
+        .withColumn("spatial_index", XZ2Indexer(GetExtent(sample), GetCRS(sample)))
+        .repartitionByRange(numParts,$"spatial_index")
+      indexed.rdd
+    }
+    else df.rdd
   }
 }

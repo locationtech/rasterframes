@@ -27,6 +27,7 @@ from pyspark.sql.functions import *
 import numpy as np
 from numpy.testing import assert_equal
 
+from unittest import skip
 from . import TestEnvironment
 
 
@@ -256,27 +257,97 @@ class RasterFunctions(TestEnvironment):
         # assert_equal(result0[0].cells, expected_diag_nd)
         self.assertTrue(result0[0] == expected_diag_nd)
 
+    def test_mask_bits(self):
+        t = Tile(42 * np.ones((4, 4), 'uint16'), CellType.uint16())
+        # with a varitey of known values
+        mask = Tile(np.array([
+            [1, 1, 2720, 2720],
+            [1, 6816, 6816, 2756],
+            [2720, 2720, 6900, 2720],
+            [2720, 6900, 6816, 1]
+        ]), CellType('uint16raw'))
+
+        df = self.spark.createDataFrame([Row(t=t, mask=mask)])
+
+        # removes fill value 1
+        mask_fill_df = df.select(rf_mask_by_bit('t', 'mask', 0, True).alias('mbb'))
+        mask_fill_tile = mask_fill_df.first()['mbb']
+
+        self.assertTrue(mask_fill_tile.cell_type.has_no_data())
+
+        self.assertTrue(
+            mask_fill_df.select(rf_data_cells('mbb')).first()[0],
+            16 - 4
+        )
+
+        # mask out 6816, 6900
+        mask_med_hi_cir = df.withColumn('mask_cir_mh',
+                                        rf_mask_by_bits('t', 'mask', 11, 2, [2, 3])) \
+            .first()['mask_cir_mh'].cells
+
+        self.assertEqual(
+            mask_med_hi_cir.mask.sum(),
+            5
+        )
+
+    @skip('Issue #422 https://github.com/locationtech/rasterframes/issues/422')
+    def test_mask_and_deser(self):
+        # duplicates much of test_mask_bits but
+        t = Tile(42 * np.ones((4, 4), 'uint16'), CellType.uint16())
+        # with a varitey of known values
+        mask = Tile(np.array([
+            [1, 1, 2720, 2720],
+            [1, 6816, 6816, 2756],
+            [2720, 2720, 6900, 2720],
+            [2720, 6900, 6816, 1]
+        ]), CellType('uint16raw'))
+
+        df = self.spark.createDataFrame([Row(t=t, mask=mask)])
+
+        # removes fill value 1
+        mask_fill_df = df.select(rf_mask_by_bit('t', 'mask', 0, True).alias('mbb'))
+        mask_fill_tile = mask_fill_df.first()['mbb']
+
+        self.assertTrue(mask_fill_tile.cell_type.has_no_data())
+
+        # Unsure why this fails. mask_fill_tile.cells is all 42 unmasked.
+        self.assertEqual(mask_fill_tile.cells.mask.sum(), 4,
+                         f'Expected {16 - 4} data values but got the masked tile:'
+                         f'{mask_fill_tile}'
+                         )
+
     def test_mask(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile, CellType
 
         np.random.seed(999)
-        ma = np.ma.array(np.random.randint(0, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
+        # importantly exclude 0 from teh range because that's the nodata value for the `data_tile`'s cell type
+        ma = np.ma.array(np.random.randint(1, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
         expected_data_values = ma.compressed().size
         expected_no_data_values = ma.size - expected_data_values
         self.assertTrue(expected_data_values > 0, "Make sure random seed is cooperative ")
         self.assertTrue(expected_no_data_values > 0, "Make sure random seed is cooperative ")
 
-        df = self.spark.createDataFrame([
-            Row(t=Tile(np.ones(ma.shape, ma.dtype)), m=Tile(ma))
-        ])
+        data_tile = Tile(np.ones(ma.shape, ma.dtype), CellType.uint8())
 
-        df = df.withColumn('masked_t', rf_mask('t', 'm'))
+        df = self.spark.createDataFrame([Row(t=data_tile, m=Tile(ma))]) \
+            .withColumn('masked_t', rf_mask('t', 'm'))
+
         result = df.select(rf_data_cells('masked_t')).first()[0]
-        self.assertEqual(result, expected_data_values)
+        self.assertEqual(result, expected_data_values,
+                         f"Masked tile should have {expected_data_values} data values but found: {df.select('masked_t').first()[0].cells}."
+                         f"Original data: {data_tile.cells}"
+                         f"Masked by {ma}")
 
         nd_result = df.select(rf_no_data_cells('masked_t')).first()[0]
         self.assertEqual(nd_result, expected_no_data_values)
+
+        # deser of tile is correct
+        self.assertEqual(
+            df.select('masked_t').first()[0].cells.compressed().size,
+            expected_data_values
+        )
+
 
     def test_resample(self):
         from pyspark.sql.functions import lit
@@ -409,15 +480,3 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['in_list'].cells.sum(), 2,
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
-
-    def test_rf_spatial_index(self):
-        from pyspark.sql.functions import min as F_min
-        result_one_arg = self.df.select(rf_spatial_index('tile').alias('ix')) \
-                            .agg(F_min('ix')).first()[0]
-        print(result_one_arg)
-
-        result_two_arg = self.df.select(rf_spatial_index(rf_extent('tile'), rf_crs('tile')).alias('ix')) \
-                            .agg(F_min('ix')).first()[0]
-
-        self.assertEqual(result_two_arg, result_one_arg)
-        self.assertEqual(result_one_arg, 55179438768)  # this is a bit more fragile but less important
