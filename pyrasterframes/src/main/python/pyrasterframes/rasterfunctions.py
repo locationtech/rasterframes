@@ -522,7 +522,7 @@ def rf_local_extract_bits(tile, start_bit, num_bits=1):
     * `startBit` is the first bit to consider, working from the right. It is zero indexed.
     * `numBits` is the number of bits to take moving further to the left. """
     if isinstance(start_bit, int):
-        start_bit = lit(bit_position)
+        start_bit = lit(start_bit)
     if isinstance(num_bits, int):
         num_bits = lit(num_bits)
     return _apply_column_function('rf_local_extract_bits', tile, start_bit, num_bits)
