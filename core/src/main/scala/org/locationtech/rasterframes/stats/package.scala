@@ -1,12 +1,9 @@
 package org.locationtech.rasterframes
 
 import geotrellis.raster.Tile
-import org.locationtech.rasterframes.TileType
-import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import org.apache.spark.sql.{Column, DataFrame, Row}
-import org.apache.spark.sql.catalyst.expressions.Cast
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
-import org.apache.spark.sql.types.{DoubleType, NumericType}
+import org.apache.spark.sql.{Column, DataFrame, Row}
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 
 

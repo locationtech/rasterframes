@@ -89,7 +89,7 @@ case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
 
   // derived from locationtech/geotrellis/.../StreamingHistogram.scala
 
-  private def percentileBreaks(qs: Seq[Double]): Seq[Double] = {
+  def percentileBreaks(qs: Seq[Double]): Seq[Double] = {
     if(bins.size == 1) {
       qs.map(z => bins.head.value)
     } else {
