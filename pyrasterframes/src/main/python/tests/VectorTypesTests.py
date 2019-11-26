@@ -24,7 +24,6 @@ from pyspark.sql.functions import *
 
 from . import TestEnvironment
 
-
 class VectorTypes(TestEnvironment):
 
     def setUp(self):
@@ -193,3 +192,11 @@ class VectorTypes(TestEnvironment):
         expected = {1704, 1706}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
+
+    def test_agg_extent(self):
+        r = self.df.select(rf_agg_extent(st_extent('poly_geom')).alias('agg_extent')).select('agg_extent.*').first()
+        self.assertDictEqual(r.asDict(),
+                             Row(xmin=-0.011268955205879273, ymin=-4.011268955205879, xmax=3.0112432169934484,
+                                 ymax=-0.9887567830065516).asDict()
+                             )
+

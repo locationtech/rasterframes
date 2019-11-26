@@ -22,21 +22,18 @@
 package org.locationtech.rasterframes.functions
 import geotrellis.proj4.{CRS, WebMercator}
 import geotrellis.raster._
-import geotrellis.raster.render.{ColorMaps, ColorRamps}
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.vector.Extent
-import org.apache.spark.SparkConf
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.rf.TileUDT
+import org.locationtech.rasterframes.TestData._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile.prtEncoder
-import TestData.{one, two, three, six, randNDPRT, nd, randNDTilesWithNull, expectedRandData, expectedRandNoData}
 
 
 class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {

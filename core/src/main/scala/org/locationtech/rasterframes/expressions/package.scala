@@ -76,6 +76,7 @@ package object expressions {
     registry.registerExpression[GetExtent]("rf_extent")
     registry.registerExpression[GetCRS]("rf_crs")
     registry.registerExpression[RealizeTile]("rf_tile")
+    registry.registerExpression[CreateProjectedRaster]("rf_proj_raster")
     registry.registerExpression[Subtract]("rf_local_subtract")
     registry.registerExpression[Multiply]("rf_local_multiply")
     registry.registerExpression[Divide]("rf_local_divide")

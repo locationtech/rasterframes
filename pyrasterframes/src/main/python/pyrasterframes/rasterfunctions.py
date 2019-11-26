@@ -332,6 +332,9 @@ def rf_agg_no_data_cells(tile_col):
     """Computes the number of NoData cells in a column"""
     return _apply_column_function('rf_agg_no_data_cells', tile_col)
 
+def rf_agg_extent(extent_col):
+    """Compute the aggregate extent over a column"""
+    return _apply_column_function('rf_agg_extent', extent_col)
 
 def rf_tile_histogram(tile_col):
     """Compute the Tile-wise histogram"""

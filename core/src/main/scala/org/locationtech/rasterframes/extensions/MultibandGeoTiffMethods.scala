@@ -22,19 +22,14 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{Raster, Tile}
 import geotrellis.raster.io.geotiff.MultibandGeoTiff
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
-import org.apache.spark.sql.catalyst.expressions.Expression
-import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, GenerateUnsafeProjection}
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, TileType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, TileType}
 
 trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
   def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
@@ -53,7 +48,6 @@ trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
       Row(extent.toRow +: crs.toRow +: tile.bands: _*)
     }
 
-
     val schema =
       StructType(Seq(
         StructField("extent", schemaOf[Extent], false),
@@ -61,12 +55,6 @@ trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
       ) ++ (1 to bands).map { i =>
         StructField("b_" + i, TileType, false)
       })
-//    import spark.implicits._
-//    import org.apache.spark.sql.execution.debug._
-//    val enc = RowEncoder(schema)
-//    val s = enc.serializer
-//    val foo = GenerateUnsafeProjection.generate(s)
-//    s.map(_.genCode(new CodegenContext()).code.verboseString).foreach(println)
 
     spark.createDataFrame(spark.sparkContext.makeRDD(rows), schema)
   }

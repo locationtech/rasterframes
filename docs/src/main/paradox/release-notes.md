@@ -9,6 +9,8 @@
 * Added `withSpatialIndex` to RasterSourceDataSource to pre-partition tiles based on tile extents mapped to a Z2 space-filling curve 
 * Add `rf_mask_by_bit`, `rf_mask_by_bits` and `rf_local_extract_bits` to deal with bit packed quality masks. Updated the masking documentation to demonstrate the use of these functions.
 * Added `toDF` extension method to `MultibandGeoTiff`
+* Added `rf_agg_extent` to compute the aggregate extent of a column
+* Added `rf_proj_raster` for constructing a `proj_raster` structure from individual CRS, Extent, and Tile columns.
 
 ### 0.8.4
 

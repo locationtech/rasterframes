@@ -28,7 +28,6 @@ import org.locationtech.rasterframes.expressions.accessors.{ExtractTile, GetCRS,
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.stats._
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /** Functions associated with computing columnar aggregates over tile and geometry columns. */
 trait AggregateFunctions {
@@ -76,6 +75,7 @@ trait AggregateFunctions {
     TileRasterizerAggregate(params, tileCRS, tileExtent, tile)
   }
 
+  /** Compute the aggregate extent over a column. */
   def rf_agg_extent(extent: Column) = {
     import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
     import org.apache.spark.sql.functions._

@@ -151,6 +151,10 @@ trait TileFunctions {
     withTypedAlias(s"rf_make_ones_tile($cols, $rows, $cellTypeName)")(constTile)
   }
 
+  /** Construct a `proj_raster` structure from individual CRS, Extent, and Tile columns. */
+  def rf_proj_raster(tile: Column, extent: Column, crs: Column): TypedColumn[Any, ProjectedRasterTile] =
+    CreateProjectedRaster(tile, extent, crs)
+
   /** Compute the Tile-wise mean */
   def rf_tile_mean(col: Column): TypedColumn[Any, Double] = TileMean(col)
 
