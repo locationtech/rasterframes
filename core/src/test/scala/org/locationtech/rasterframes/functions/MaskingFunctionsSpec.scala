@@ -19,24 +19,20 @@
  *
  */
 
-package org.locationtech.rasterframes
+package org.locationtech.rasterframes.functions
 
 import geotrellis.raster
 import geotrellis.raster._
 import geotrellis.raster.testkit.RasterMatchers
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.expressions.accessors.ExtractTile
-import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-
-
-import geotrellis.raster.testkit.RasterMatchers
+import org.locationtech.rasterframes._
 
 class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
+  import ProjectedRasterTile.prtEncoder
   import TestData._
   import spark.implicits._
-  import ProjectedRasterTile.prtEncoder
 
   implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
   implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
@@ -112,10 +108,12 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       val df = Seq(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs,
         noNoDataCellType))
         .toDF("tile")
-      // if this had NoData defined would be a no-op because the tile is all datacells
-      lazy val result = df.select(rf_mask($"tile", $"tile")).collect()
-      an[AssertionError] should be thrownBy(result)
+
+      an [IllegalArgumentException] should be thrownBy {
+        df.select(rf_mask($"tile", $"tile")).collect()
+      }
     }
+
   }
 
   describe("mask by value") {
@@ -284,7 +282,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       def checker(colName: String, valFilter: Int, assertValue: Int): Unit = {
         // print this so we can see what's happening if something  wrong
-        println(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+        logger.debug(s"${colName} should be ${assertValue} for qa val ${valFilter}")
         result.filter($"val" === lit(valFilter))
           .select(col(colName))
           .as[ProjectedRasterTile]
@@ -377,7 +375,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
         val printOutcome = if (resultIsNoData) "all NoData cells"
         else "all data cells"
 
-        println(s"${columnName} should contain ${printOutcome} for qa val ${maskValueFilter}")
+        logger.debug(s"${columnName} should contain ${printOutcome} for qa val ${maskValueFilter}")
         val resultDf = result
           .filter($"val" === lit(maskValueFilter))
 
@@ -386,9 +384,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
           .first()
 
         val dataTile = resultDf.select(col(columnName)).as[ProjectedRasterTile].first()
-        println(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
-        //        val celltype = resultDf.select(rf_cell_type(col(columnName))).as[CellType].first()
-        //        println(s"Cell type for col ${columnName}: ${celltype}")
+        logger.debug(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
 
         resultToCheck should be (resultIsNoData)
       }

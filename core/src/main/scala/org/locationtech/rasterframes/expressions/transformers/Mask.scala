@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions.transformers
 
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster
-import geotrellis.raster.{CellType, NoNoData, Tile}
+import geotrellis.raster.{NoNoData, Tile}
 import geotrellis.raster.mapalgebra.local.{Undefined, InverseMask ⇒ gtInverseMask, Mask ⇒ gtMask}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -74,13 +74,8 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
     implicit val tileSer = TileUDT.tileSerializer
     val (targetTile, targetCtx) = tileExtractor(targetExp.dataType)(row(targetInput))
 
-    // Which of these is preferable? companion object Seq contains or pattern match on trait?
-//    assert(!CellType.noNoDataCellTypes.contains(targetTile.cellType), maskErrorStr)
-    targetTile.cellType match {
-      case _: NoNoData ⇒ assert(false,
-        s"Input data expression ${left.prettyName} must have a CellType with NoData defined in order to perform a masking operation. Found CellType ${targetTile.cellType.toString()}.")
-      case _ ⇒
-    }
+    require(! targetTile.cellType.isInstanceOf[NoNoData],
+      s"Input data expression ${left.prettyName} must have a CellType with NoData defined in order to perform a masking operation. Found CellType ${targetTile.cellType.toString()}.")
 
     val (maskTile, maskCtx) = tileExtractor(maskExp.dataType)(row(maskInput))
 
