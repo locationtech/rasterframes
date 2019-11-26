@@ -26,6 +26,8 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions.broadcast
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.util._
+
+/** Algorithm for projecting an arbitrary RasterFrame into a layer with consistent CRS and gridding. */
 object ReprojectToLayer {
   def apply(df: DataFrame, tlm: TileLayerMetadata[SpatialKey]): RasterFrameLayer = {
     // create a destination dataframe with crs and extend columns
@@ -42,8 +44,9 @@ object ReprojectToLayer {
       e = tlm.mapTransform(sk)
     } yield (sk, e, crs)
 
+    // Create effectively a target RasterFrame, but with no tiles.
     val dest = gridItems.toSeq.toDF(SPATIAL_KEY_COLUMN.columnName, EXTENT_COLUMN.columnName, CRS_COLUMN.columnName)
-    dest.show(false)
+
     val joined = RasterJoin(broadcast(dest), df)
 
     joined.asLayer(SPATIAL_KEY_COLUMN, tlm)

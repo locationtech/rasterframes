@@ -348,6 +348,16 @@ class RasterFunctions(TestEnvironment):
             expected_data_values
         )
 
+    def test_extract_bits(self):
+        one = np.ones((6, 6), 'uint8')
+        t = Tile(84 * one)
+        df = self.spark.createDataFrame([Row(t=t)])
+        result_py_literals = df.select(rf_local_extract_bits('t', 2, 3)).first()[0]
+        # expect value binary 84 => 1010100 => 101
+        assert_equal(result_py_literals.cells, 5 * one)
+
+        result_cols = df.select(rf_local_extract_bits('t', lit(2), lit(3))).first()[0]
+        assert_equal(result_cols.cells, 5 * one)
 
     def test_resample(self):
         from pyspark.sql.functions import lit

@@ -52,7 +52,7 @@ import scala.reflect.runtime.universe._
   * @since 7/18/17
  */
 trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
-  with RFSpatialColumnMethods with MetadataKeys {
+  with LayerSpatialColumnMethods with MetadataKeys {
   import Implicits.{WithDataFrameMethods, WithRasterFrameLayerMethods}
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))

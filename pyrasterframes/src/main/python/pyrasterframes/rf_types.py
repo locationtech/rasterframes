@@ -31,7 +31,7 @@ from pyspark.sql.types import (UserDefinedType, StructType, StructField, BinaryT
 
 from pyspark.ml.param.shared import HasInputCols
 from pyspark.ml.wrapper import JavaTransformer
-from pyspark.ml.util import JavaMLReadable, JavaMLWritable
+from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
 
 from pyrasterframes.rf_context import RFContext
 
@@ -462,7 +462,7 @@ class TileUDT(UserDefinedType):
 Tile.__UDT__ = TileUDT()
 
 
-class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
+class TileExploder(JavaTransformer, DefaultParamsReadable, DefaultParamsWritable):
     """
     Python wrapper for TileExploder.scala
     """
@@ -472,7 +472,7 @@ class TileExploder(JavaTransformer, JavaMLReadable, JavaMLWritable):
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.TileExploder", self.uid)
 
 
-class NoDataFilter(JavaTransformer, HasInputCols, JavaMLReadable, JavaMLWritable):
+class NoDataFilter(JavaTransformer, HasInputCols, DefaultParamsReadable, DefaultParamsWritable):
     """
     Python wrapper for NoDataFilter.scala
     """
