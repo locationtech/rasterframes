@@ -8,6 +8,7 @@
 * _Breaking_: `rf_spatial_index` renamed `rf_xz2_index` to differentiate between XZ2 and Z2 variants.
 * Added `withSpatialIndex` to RasterSourceDataSource to pre-partition tiles based on tile extents mapped to a Z2 space-filling curve 
 * Add `rf_mask_by_bit`, `rf_mask_by_bits` and `rf_local_extract_bits` to deal with bit packed quality masks. Updated the masking documentation to demonstrate the use of these functions.
+* Throw an `IllegalArgumentException` when attempting to apply a mask to a `Tile` whose `CellType` has no NoData defined. ([#409](https://github.com/locationtech/rasterframes/issues/384))
 
 ### 0.8.4
 
