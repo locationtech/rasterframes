@@ -27,7 +27,7 @@ import java.sql.Timestamp
 import org.locationtech.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, CellType, Raster, Tile, TileLayout}
+import geotrellis.raster.{ArrowTensor, CellSize, CellType, Raster, Tile, TileLayout}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TemporalProjectedExtent, TileLayerMetadata}
 import geotrellis.vector.{Extent, ProjectedExtent}
@@ -71,8 +71,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def tileContextEncoder: ExpressionEncoder[TileContext] = TileContext.encoder
   implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = TileDataContext.encoder
   implicit def extentTilePairEncoder: Encoder[(ProjectedExtent, Tile)] = Encoders.tuple(projectedExtentEncoder, singlebandTileEncoder)
-
-
+  implicit def tensorEncoder: ExpressionEncoder[ArrowTensor] = ExpressionEncoder()
 }
 
 object StandardEncoders extends StandardEncoders

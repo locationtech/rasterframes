@@ -42,7 +42,7 @@ def resource_dir():
     rez_dir = os.path.realpath(os.path.join(scala_target, 'test-classes'))
     # If not running in build mode, try source dirs.
     if not os.path.exists(rez_dir):
-        rez_dir = os.path.realpath(os.path.join(pdir(pdir(pdir(here))), 'test', 'resources'))
+        rez_dir = os.path.realpath(os.path.join(pdir(pdir(pdir(here))), 'src', 'test', 'resources'))
     return rez_dir
 
 

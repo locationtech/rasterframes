@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.Logger
 import geotrellis.raster.{Tile, TileFeature, isData}
 import geotrellis.spark.{ContextRDD, Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
+import org.apache.spark.sql.rf.{RasterSourceUDT, TensorUDT, TileUDT}
 import org.apache.spark.sql.{DataFrame, SQLContext, rf}
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
@@ -85,6 +85,9 @@ package object rasterframes extends StandardColumns
 
   /** TileUDT type reference. */
   def TileType = new TileUDT()
+
+  /** TensorUDT type reference. */
+  def TensorType = new TensorUDT()
 
   /** RasterSourceUDT type reference. */
   def RasterSourceType = new RasterSourceUDT()

@@ -244,6 +244,16 @@ class UDT(TestEnvironment):
         self.assertTrue(np.all(r1.cells == exp_array))
         self.assertEqual(r1.cells.dtype, exp_array.dtype)
 
+    def test_pandas_udf(self):
+        from pyspark.sql.functions import pandas_udf, PandasUDFType
+
+        @pandas_udf('double', PandasUDFType.SCALAR)
+        def tile_mean(cells):
+            # `cells` is a Pandas `Series`.
+            return cells.apply(np.mean)
+
+        df = self.rf.select(tile_mean(self.rf.tile).alias('pandas_udf_mean'))
+        df.show(truncate=False)
 
 class TileOps(TestEnvironment):
 
