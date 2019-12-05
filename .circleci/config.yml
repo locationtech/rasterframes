@@ -5,7 +5,7 @@ _defaults: &defaults
   environment:
     TERM: dumb
   docker:
-    - image: s22s/rasterframes-circleci:latest
+    - image: s22s/rasterframes-circleci:spatialindex
 
 _setenv: &setenv
   name: set CloudRepo credentials
