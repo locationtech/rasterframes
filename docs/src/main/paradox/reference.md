@@ -726,6 +726,37 @@ Merges three bands into a single byte-packed RGB composite. It first scales each
     
 Runs [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile columns and then encodes the result as a PNG byte array.
 
+### rf_render_color_ramp_png
+
+    Array rf_render_png(Tile tile, String color_ramp_name)
+    
+Converts given tile into a PNG image, using a color ramp of the given name to convert cells into pixels. `color_ramp_name` can be one of the following:
+
+ * "BlueToOrange"
+ * "LightYellowToOrange"
+ * "BlueToRed"
+ * "GreenToRedOrange"
+ * "LightToDarkSunset"
+ * "LightToDarkGreen"
+ * "HeatmapYellowToRed"
+ * "HeatmapBlueToYellowToRedSpectrum"
+ * "HeatmapDarkRedToYellowWhite"
+ * "HeatmapLightPurpleToDarkPurpleToWhite"
+ * "ClassificationBoldLandUse"
+ * "ClassificationMutedTerrain"
+ * "Magma"
+ * "Inferno"
+ * "Plasma"
+ * "Viridis"
+ * "Greyscale2"
+ * "Greyscale8"
+ * "Greyscale32"
+ * "Greyscale64"
+ * "Greyscale128"
+ * "Greyscale256"
+
+Further descriptions of these color ramps can be found in the [Geotrellis Documentation](https://geotrellis.readthedocs.io/en/latest/guide/rasters.html#built-in-color-ramps).
+
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
 [Array]: http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType

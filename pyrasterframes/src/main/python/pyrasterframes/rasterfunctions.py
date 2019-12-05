@@ -396,9 +396,11 @@ def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
     """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
     return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
 
-def rf_render_colorramp_png(tile_col, color_ramp_name):
+
+def rf_render_color_ramp_png(tile_col, color_ramp_name):
     """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
-    return _apply_column_function('rf_render_png', tile_col, color_ramp_name)
+    return Column(RFContext.call('rf_render_png', _to_java_column(tile_col), color_ramp_name))
+
 
 def rf_rgb_composite(red_tile_col, green_tile_col, blue_tile_col):
     """Converts columns of tiles representing RGB channels into a single RGB packaged tile."""

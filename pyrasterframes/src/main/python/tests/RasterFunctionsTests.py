@@ -431,7 +431,7 @@ class RasterFunctions(TestEnvironment):
         ## Test PNG generation
         png_bytes = rf.select(rf_render_png('red', 'green', 'blue').alias('png')).first()['png']
         # Look for the PNG magic cookie
-        self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+        self.assert_png(png_bytes)
 
     def test_rf_interpret_cell_type_as(self):
         from pyspark.sql import Row
@@ -496,13 +496,17 @@ class RasterFunctions(TestEnvironment):
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
 
-
     def test_rf_agg_overview_raster(self):
         agg = self.prdf.select(rf_agg_extent(rf_extent(self.prdf.proj_raster)).alias("extent")).first().extent
         crs = self.prdf.select(rf_crs(self.prdf.proj_raster).alias("crs")).first().crs.crsProj4
         aoi = Extent.from_row(agg).reproject(crs, "EPSG:3857")
         aoi = aoi.buffer(-(aoi.width * 0.2))
-        ovr = self.prdf.select(rf_agg_overview_raster(500, 400, aoi, self.prdf.proj_raster))[0]
-        png = ovr.select(rf_render_png('rf_agg_overview_raster')).first()[0]
-        println(png)
+        ovr = self.prdf.select(rf_agg_overview_raster(500, 400, aoi, self.prdf.proj_raster).alias("agg"))
+        png = ovr.select(rf_render_color_ramp_png('agg', 'Viridis')).first()[0]
+        self.assert_png(png)
+
+        # with open('/tmp/test_rf_agg_overview_raster.png', 'wb') as f:
+        #     f.write(png)
+
+
 
