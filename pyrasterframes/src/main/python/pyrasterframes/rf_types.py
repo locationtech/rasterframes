@@ -24,7 +24,8 @@ meant to provide smoother pathways between the jvm and Python, and whenever poss
 the implementations take advantage of the existing Scala functionality. The RasterFrameLayer
 class here provides the PyRasterFrames entry point.
 """
-
+from itertools import product
+import functools
 from pyspark import SparkContext
 from pyspark.sql import DataFrame, Column
 from pyspark.sql.types import (UserDefinedType, StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
@@ -37,8 +38,20 @@ from pyrasterframes.rf_context import RFContext
 
 import numpy as np
 
-__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'Extent', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
+
+class cached_property(object):
+    def __init__(self, function):
+        self.function = function
+        functools.update_wrapper(self, function)
+
+    def __get__(self, obj, type_):
+        if obj is None:
+            return self
+        val = self.function(obj)
+        obj.__dict__[self.function.__name__] = val
+        return val
 
 class RasterFrameLayer(DataFrame):
     def __init__(self, jdf, spark_session):
@@ -164,6 +177,45 @@ class RasterSourceUDT(UserDefinedType):
     def deserialize(self, datum):
         return datum
 
+
+class Extent(object):
+    def __init__(self, xmin: float, ymin: float, xmax: float, ymax: float):
+        self.xmin = xmin
+        self.ymin = ymin
+        self.xmax = xmax
+        self.ymax = ymax
+
+    @property
+    def width(self):
+        return self.xmax - self.xmin
+
+    @property
+    def height(self):
+        return self.ymax - self.ymin
+
+    @classmethod
+    def from_row(cls, row):
+        return Extent(row.xmin, row.ymin, row.xmax, row.ymax)
+
+    @cached_property
+    def __jvm__(self):
+        return RFContext.jvm().geotrellis.vector.Extent(self.xmin, self.ymin, self.xmax, self.ymax)
+
+    @classmethod
+    def _from_jvm(self, obj):
+        return Extent(obj.xmin(), obj.ymin(), obj.xmax(), obj.ymax())
+
+    def reproject(self, src_crs, dest_crs):
+        jvmret = RFContext.call("_reprojectExtent", self.__jvm__, src_crs, dest_crs)
+        return Extent._from_jvm(jvmret)
+
+    def buffer(self, amount):
+        return Extent(
+            self.xmin - amount,
+            self.ymin - amount,
+            self.xmax + amount,
+            self.ymax + amount
+        )
 
 class CellType(object):
     def __init__(self, cell_type_name):

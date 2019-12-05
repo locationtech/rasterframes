@@ -20,7 +20,8 @@
  */
 
 package org.locationtech.rasterframes.functions
-import geotrellis.proj4.{LatLng, WebMercator}
+import geotrellis.proj4.WebMercator
+import geotrellis.raster.resample.ResampleMethod
 import geotrellis.raster.{IntConstantNoDataCellType, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -32,7 +33,7 @@ import org.locationtech.rasterframes.stats._
 /** Functions associated with computing columnar aggregates over tile and geometry columns. */
 trait AggregateFunctions {
   /** Compute cell-local aggregate descriptive statistics for a column of Tiles. */
-  def rf_agg_local_stats(tile: Column) = LocalStatsAggregate(tile)
+  def rf_agg_local_stats(tile: Column): TypedColumn[Any, LocalCellStatistics] = LocalStatsAggregate(tile)
 
   /** Compute the cell-wise/local max operation between Tiles in a column. */
   def rf_agg_local_max(tile: Column): TypedColumn[Any, Tile] = LocalTileOpAggregate.LocalMaxUDAF(tile)
@@ -56,7 +57,7 @@ trait AggregateFunctions {
   def rf_agg_stats(tile: Column): TypedColumn[Any, CellStatistics] = CellStatsAggregate(tile)
 
   /** Computes the column aggregate mean. */
-  def rf_agg_mean(tile: Column) = CellMeanAggregate(tile)
+  def rf_agg_mean(tile: Column): TypedColumn[Any, Double] = CellMeanAggregate(tile)
 
   /** Computes the number of non-NoData cells in a column. */
   def rf_agg_data_cells(tile: Column): TypedColumn[Any, Long] = CellCountAggregate.DataCells(tile)
@@ -65,20 +66,31 @@ trait AggregateFunctions {
   def rf_agg_no_data_cells(tile: Column): TypedColumn[Any, Long] = CellCountAggregate.NoDataCells(tile)
 
   /** Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the
-    * `areaOfExtent` in web-mercator. */
-  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, proj_raster: Column): TypedColumn[Any, Raster[Tile]] =
+    * `areaOfInterest` in web-mercator. Uses nearest-neighbor sampling method. */
+  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, proj_raster: Column): TypedColumn[Any, Tile] =
     rf_agg_overview_raster(cols, rows, areaOfInterest, GetExtent(proj_raster), GetCRS(proj_raster), ExtractTile(proj_raster))
 
-  /** Construct an overview raster of size `cols`x`rows` where data in `tile` intersects the `areaOfExtent` in web-mercator. */
-  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, tileExtent: Column, tileCRS: Column, tile: Column): TypedColumn[Any, Raster[Tile]] = {
-    val params = ProjectedRasterDefinition(cols, rows, IntConstantNoDataCellType, WebMercator, areaOfInterest)
+  /** Construct an overview raster of size `cols`x`rows` where data in `tile` intersects the `areaOfInterest` in web-mercator. Uses nearest neighbor sampling method. */
+  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, tileExtent: Column, tileCRS: Column, tile: Column): TypedColumn[Any, Tile] =
+    rf_agg_overview_raster(cols, rows, ResampleMethod.DEFAULT, areaOfInterest, tileExtent, tileCRS, tile)
+
+  /** Construct an overview raster of size `cols`x`rows` where data in `tile` intersects the `areaOfInterest` in web-mercator.
+    * Allows specification of one of these sampling methods:
+    *   - geotrellis.raster.resample.NearestNeighbor
+    *   - geotrellis.raster.resample.Bilinear
+    *   - geotrellis.raster.resample.CubicConvolution
+    *   - geotrellis.raster.resample.CubicSpline
+    *   - geotrellis.raster.resample.Lanczos
+    */
+  def rf_agg_overview_raster(cols: Int, rows: Int, sampler: ResampleMethod, areaOfInterest: Extent, tileExtent: Column, tileCRS: Column, tile: Column): TypedColumn[Any, Tile] = {
+    val params = ProjectedRasterDefinition(cols, rows, IntConstantNoDataCellType, WebMercator, areaOfInterest, sampler)
     TileRasterizerAggregate(params, tileCRS, tileExtent, tile)
   }
 
   /** Compute the aggregate extent over a column. */
-  def rf_agg_extent(extent: Column) = {
-    import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
+  def rf_agg_extent(extent: Column): TypedColumn[Any, Extent] = {
     import org.apache.spark.sql.functions._
+    import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
     import org.locationtech.rasterframes.util.NamedColumn
     struct(
       min(extent.getField("xmin")) as "xmin",
@@ -88,5 +100,3 @@ trait AggregateFunctions {
     ).as (s"rf_agg_extent(${extent.columnName})").as[Extent]
   }
 }
-
-object AggregateFunctions extends AggregateFunctions

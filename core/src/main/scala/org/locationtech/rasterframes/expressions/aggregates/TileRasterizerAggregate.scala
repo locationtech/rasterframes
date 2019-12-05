@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.expressions.aggregates
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
 import geotrellis.raster.resample.ResampleMethod
-import geotrellis.raster.{ArrayTile, CellType, MultibandTile, ProjectedRaster, Raster, Tile}
+import geotrellis.raster.{ArrayTile, CellType, MultibandTile, ProjectedRaster, Tile}
 import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
@@ -58,7 +58,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
     StructField("tile_buffer", TileType)
   ))
 
-  override def dataType: DataType = schemaOf[Raster[Tile]]
+  override def dataType: DataType = TileType
 
   override def initialize(buffer: MutableAggregationBuffer): Unit = {
     buffer(0) = ArrayTile.empty(prd.cellType, prd.totalCols, prd.totalRows)
@@ -84,10 +84,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
     buffer1(0) = leftTile.merge(rightTile)
   }
 
-  override def evaluate(buffer: Row): Raster[Tile] = {
-    val t = buffer.getAs[Tile](0)
-    Raster[Tile](t, prd.extent)
-  }
+  override def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
 }
 
 object TileRasterizerAggregate {
@@ -108,16 +105,15 @@ object TileRasterizerAggregate {
     }
   }
 
-  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Raster[Tile]] = {
+  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Tile] = {
     if (prd.totalCols.toDouble * prd.totalRows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
       logger.warn(
         s"You've asked for the construction of a very large image (${prd.totalCols} x ${prd.totalRows}). Out of memory error likely.")
 
     new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol)
       .as("rf_agg_overview_raster")
-      .as[Raster[Tile]]
+      .as[Tile]
   }
-
 
   /** Extract a multiband raster from all tile columns. */
   def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {

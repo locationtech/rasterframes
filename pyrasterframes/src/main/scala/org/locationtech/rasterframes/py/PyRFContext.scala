@@ -240,4 +240,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     import rasterframes.util.DFWithPrettyPrint
     df.toHTML(numRows, truncate, renderTiles = true)
   }
+
+  def _reprojectExtent(extent: Extent, srcCRS: String, destCRS: String): Extent =
+    extent.reproject(LazyCRS(srcCRS), LazyCRS(destCRS))
 }

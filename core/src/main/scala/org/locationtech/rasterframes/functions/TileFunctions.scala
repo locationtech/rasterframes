@@ -20,7 +20,7 @@
  */
 
 package org.locationtech.rasterframes.functions
-import geotrellis.raster.render.ColorRamp
+import geotrellis.raster.render.{ColorRamp, ColorRamps}
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.functions.{lit, udf}
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -34,7 +34,7 @@ import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderC
 import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import org.locationtech.rasterframes.util.{withTypedAlias, _}
+import org.locationtech.rasterframes.util.{withTypedAlias, ColorRampNames, _}
 import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions => F}
 
 /** Functions associated with creating and transforming tiles, including tile-wise statistics and rendering. */
@@ -208,6 +208,16 @@ trait TileFunctions {
 
   /** Converts tiles in a column into PNG encoded byte array, using given ColorRamp to assign values to colors. */
   def rf_render_png(tile: Column, colors: ColorRamp): TypedColumn[Any, Array[Byte]] = RenderColorRampPNG(tile, colors)
+
+  /** Converts tiles in a column into PNG encoded byte array, using given ColorRamp to assign values to colors. */
+  def rf_render_png(tile: Column, colorRampName: String): TypedColumn[Any, Array[Byte]] = {
+    colorRampName match {
+      case ColorRampNames(ramp) => RenderColorRampPNG(tile, ramp)
+      case _ => throw new IllegalArgumentException(
+        s"Provided color ramp name '${colorRampName}' does not match one of " + ColorRampNames().mkString("\n\t", "\n\t", "\n")
+      )
+    }
+  }
 
   /** Converts columns of tiles representing RGB channels into a PNG encoded byte array. */
   def rf_render_png(red: Column, green: Column, blue: Column): TypedColumn[Any, Array[Byte]] = RenderCompositePNG(red, green, blue)

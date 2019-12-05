@@ -23,6 +23,7 @@ This module contains access to the jvm SparkContext with RasterFrameLayer suppor
 """
 
 from pyspark import SparkContext
+from typing import Tuple
 
 __all__ = ['RFContext']
 
@@ -42,11 +43,18 @@ class RFContext(object):
         conv = self.lookup('_listToSeq')
         return conv(py_list)
 
-    def lookup(self, function_name):
+    def lookup(self, function_name: str):
         return getattr(self._jrfctx, function_name)
 
     def build_info(self):
         return self._jrfctx.buildInfo()
+
+    def companion_of(self, classname: str):
+        if not classname.endswith("$"):
+            classname = classname + "$"
+        companion_module = getattr(self._jvm, classname)
+        singleton = getattr(companion_module, "MODULE$")
+        return singleton
 
     # NB: Tightly coupled to `org.locationtech.rasterframes.py.PyRFContext._resolveRasterRef`
     def _resolve_raster_ref(self, ref_struct):
@@ -77,9 +85,9 @@ class RFContext(object):
         return f(*args)
 
     @staticmethod
-    def _jvm_mirror():
+    def jvm():
         """
         Get the active Scala PyRFContext and throw an error if it is not enabled for RasterFrames.
         """
-        return RFContext.active()._jrfctx
+        return RFContext.active()._jvm
 

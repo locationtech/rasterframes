@@ -27,7 +27,7 @@ from __future__ import absolute_import
 from pyspark.sql.column import Column, _to_java_column
 from pyspark.sql.functions import lit
 from .rf_context import RFContext
-from .rf_types import CellType
+from .rf_types import CellType, Extent
 
 THIS_MODULE = 'pyrasterframes'
 
@@ -332,9 +332,25 @@ def rf_agg_no_data_cells(tile_col):
     """Computes the number of NoData cells in a column"""
     return _apply_column_function('rf_agg_no_data_cells', tile_col)
 
+
 def rf_agg_extent(extent_col):
     """Compute the aggregate extent over a column"""
     return _apply_column_function('rf_agg_extent', extent_col)
+
+
+def rf_agg_overview_raster(cols, rows, aoi, tile_col, tile_extent_col=None, tile_crs_col=None):
+    """Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the
+    `aoi` bound box in web-mercator. Uses nearest-neighbor sampling method."""
+    ctx = RFContext.active()
+    jfcn = ctx.lookup("rf_agg_overview_raster")
+    if not isinstance(aoi, Extent):
+        aoi = ctx.create_extent(aoi)
+    if not (tile_extent_col and tile_crs_col):
+        return Column(jfcn(cols, rows, aoi.__jvm__, _to_java_column(tile_col)))
+    else:
+        return Column(jfcn(cols, rows, aoi.__jvm__,
+                           _to_java_column(tile_extent_col), _to_java_column(tile_crs_col), _to_java_column(tile_col)))
+
 
 def rf_tile_histogram(tile_col):
     """Compute the Tile-wise histogram"""
@@ -380,6 +396,9 @@ def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
     """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
     return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
 
+def rf_render_colorramp_png(tile_col, color_ramp_name):
+    """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
+    return _apply_column_function('rf_render_png', tile_col, color_ramp_name)
 
 def rf_rgb_composite(red_tile_col, green_tile_col, blue_tile_col):
     """Converts columns of tiles representing RGB channels into a single RGB packaged tile."""

@@ -33,6 +33,7 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.util.ColorRampNames
 
 class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
   import TestData._
@@ -440,8 +441,23 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_proj_raster")
     }
   }
+
+  describe("ColorRampNames") {
+    it("should have a list of color ramps") {
+      ColorRampNames().length shouldBe >=(21)
+    }
+    it("should convert names to ColorRamps") {
+      forEvery(ColorRampNames()) {
+        case ColorRampNames(ramp) => ramp.numStops should be > (0)
+        case o => fail(s"Expected $o to convert to color ramp")
+      }
+    }
+    it("should return None on unrecognized names") {
+      ColorRampNames.unapply("foobar") should be (None)
+    }
+  }
   
-  describe("create encoded representation of 3 band images") {
+  describe("create encoded representation of images") {
     it("should create RGB composite") {
       val red = TestData.l8Sample(4).toProjectedRasterTile
       val green = TestData.l8Sample(3).toProjectedRasterTile
@@ -484,7 +500,7 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val df = Seq(red).toDF("red")
 
-      val expr = df.select(rf_render_png($"red", ColorRamps.HeatmapBlueToYellowToRedSpectrum))
+      val expr = df.select(rf_render_png($"red", "HeatmapBlueToYellowToRedSpectrum"))
 
       val pngData = expr.first()
 

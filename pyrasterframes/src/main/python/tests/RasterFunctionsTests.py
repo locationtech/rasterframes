@@ -18,22 +18,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from pyrasterframes.rasterfunctions import *
-from pyrasterframes.utils import gdal_version
-from pyrasterframes.rf_types import Tile
+from unittest import skip
+
+import numpy as np
+import sys
+from numpy.testing import assert_equal
 from pyspark import Row
 from pyspark.sql.functions import *
 
-import numpy as np
-from numpy.testing import assert_equal
-
-from unittest import skip
+import pyrasterframes
+from pyrasterframes.rasterfunctions import *
+from pyrasterframes.rf_types import *
+from pyrasterframes.utils import gdal_version
 from . import TestEnvironment
 
 
 class RasterFunctions(TestEnvironment):
 
     def setUp(self):
+        if not sys.warnoptions:
+            import warnings
+            warnings.simplefilter("ignore")
         self.create_layer()
 
     def test_setup(self):
@@ -490,3 +495,14 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['in_list'].cells.sum(), 2,
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
+
+
+    def test_rf_agg_overview_raster(self):
+        agg = self.prdf.select(rf_agg_extent(rf_extent(self.prdf.proj_raster)).alias("extent")).first().extent
+        crs = self.prdf.select(rf_crs(self.prdf.proj_raster).alias("crs")).first().crs.crsProj4
+        aoi = Extent.from_row(agg).reproject(crs, "EPSG:3857")
+        aoi = aoi.buffer(-(aoi.width * 0.2))
+        ovr = self.prdf.select(rf_agg_overview_raster(500, 400, aoi, self.prdf.proj_raster))[0]
+        png = ovr.select(rf_render_png('rf_agg_overview_raster')).first()[0]
+        println(png)
+

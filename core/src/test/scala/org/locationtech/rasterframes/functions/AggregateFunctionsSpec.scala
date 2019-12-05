@@ -162,7 +162,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
         .map(p => ProjectedRasterTile(p._3, p._1, p._2))
       val aoi = extent.reproject(src.crs, WebMercator).buffer(-(extent.width * 0.2))
       val overview = df.select(rf_agg_overview_raster(500, 400, aoi, $"value")).first()
-      val (min, max) = overview.tile.findMinMaxDouble
+      val (min, max) = overview.findMinMaxDouble
       val (expectedMin, expectedMax) = src.tile.band(0).findMinMaxDouble
       min should be(expectedMin +- 100)
       max should be(expectedMax +- 100)
@@ -174,12 +174,26 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
       val df = src.toDF(TileDimensions(32, 32))
       val extent = src.extent
       val aoi = extent.reproject(src.crs, WebMercator).buffer(-(extent.width * 0.2))
+      println(aoi)
       val overview = df.select(rf_agg_overview_raster(500, 400, aoi, $"extent", $"crs", $"b_1")).first()
-      val (min, max) = overview.tile.findMinMaxDouble
+      val (min, max) = overview.findMinMaxDouble
       val (expectedMin, expectedMax) = src.tile.band(0).findMinMaxDouble
       min should be(expectedMin +- 100)
       max should be(expectedMax +- 100)
       //overview.tile.renderPng(ColorRamps.ClassificationBoldLandUse).write("target/agg-raster2.png")
+
+    }
+
+    it("should work in SQL") {
+      val src = TestData.rgbCogSample
+      val df = src.toDF(TileDimensions(32, 32))
+      noException shouldBe thrownBy {
+        df.selectExpr("rf_agg_overview_raster(500, 400, aoi, extent, crs, b_1)").first()
+      }
+    }
+
+    it("should have docs") {
+      checkDocs("rf_agg_overview_raster")
     }
   }
 
