@@ -757,6 +757,15 @@ Converts given tile into a PNG image, using a color ramp of the given name to co
 
 Further descriptions of these color ramps can be found in the [Geotrellis Documentation](https://geotrellis.readthedocs.io/en/latest/guide/rasters.html#built-in-color-ramps).
 
+### rf_agg_overview_raster
+    
+    Tile rf_agg_overview_raster(Tile proj_raster_col, int cols, int rows, Extent aoi)
+    Tile rf_agg_overview_raster(Tile tile_col, int cols, int rows, Extent aoi, Extent tile_extent_col, CRS tile_crs_col)
+
+Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the `aoi` bound box in web-mercator. Uses bi-linear sampling method.
+
+
+    
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
 [Array]: http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType

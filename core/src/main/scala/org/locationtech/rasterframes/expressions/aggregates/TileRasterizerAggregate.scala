@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions.aggregates
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
-import geotrellis.raster.resample.ResampleMethod
+import geotrellis.raster.resample.{Bilinear, ResampleMethod}
 import geotrellis.raster.{ArrayTile, CellType, MultibandTile, ProjectedRaster, Tile}
 import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import geotrellis.vector.Extent
@@ -61,19 +61,19 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
   override def dataType: DataType = TileType
 
   override def initialize(buffer: MutableAggregationBuffer): Unit = {
-    buffer(0) = ArrayTile.empty(prd.cellType, prd.totalCols, prd.totalRows)
+    buffer(0) = ArrayTile.empty(prd.destinationCellType, prd.totalCols, prd.totalRows)
   }
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val crs = input.getAs[Row](0).to[CRS]
     val extent = input.getAs[Row](1).to[Extent]
 
-    val localExtent = extent.reproject(crs, prd.crs)
+    val localExtent = extent.reproject(crs, prd.destinationCRS)
 
-    if (prd.extent.intersects(localExtent)) {
-      val localTile = input.getAs[Tile](2).reproject(extent, crs, prd.crs, projOpts)
+    if (prd.destinationExtent.intersects(localExtent)) {
+      val localTile = input.getAs[Tile](2).reproject(extent, crs, prd.destinationCRS, projOpts)
       val bt = buffer.getAs[Tile](0)
-      val merged = bt.merge(prd.extent, localExtent, localTile.tile, prd.sampler)
+      val merged = bt.merge(prd.destinationExtent, localExtent, localTile.tile, prd.sampler)
       buffer(0) = merged
     }
   }
@@ -92,12 +92,10 @@ object TileRasterizerAggregate {
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
   /** Convenience grouping of  parameters needed for running aggregate. */
-  case class ProjectedRasterDefinition(totalCols: Int, totalRows: Int, cellType: CellType, crs: CRS,
-    extent: Extent, sampler: ResampleMethod = ResampleMethod.DEFAULT)
+  case class ProjectedRasterDefinition(totalCols: Int, totalRows: Int, destinationCellType: CellType, destinationCRS: CRS,
+    destinationExtent: Extent, sampler: ResampleMethod)
 
   object ProjectedRasterDefinition {
-    def apply(tlm: TileLayerMetadata[_]): ProjectedRasterDefinition = apply(tlm, ResampleMethod.DEFAULT)
-
     def apply(tlm: TileLayerMetadata[_], sampler: ResampleMethod): ProjectedRasterDefinition = {
       // Try to determine the actual dimensions of our data coverage
       val TileDimensions(cols, rows) = tlm.totalDimensions
@@ -148,7 +146,7 @@ object TileRasterizerAggregate {
       .first()
     logger.debug(s"Collected TileLayerMetadata: ${tlm.toString}")
 
-    val c = ProjectedRasterDefinition(tlm)
+    val c = ProjectedRasterDefinition(tlm, Bilinear)
 
     val config = rasterDims
       .map { dims =>
@@ -157,7 +155,7 @@ object TileRasterizerAggregate {
       .getOrElse(c)
 
     destExtent.map { ext =>
-      c.copy(extent = ext)
+      c.copy(destinationExtent = ext)
     }
 
     val aggs = tileCols

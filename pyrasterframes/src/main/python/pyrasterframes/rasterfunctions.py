@@ -338,18 +338,20 @@ def rf_agg_extent(extent_col):
     return _apply_column_function('rf_agg_extent', extent_col)
 
 
-def rf_agg_overview_raster(cols, rows, aoi, tile_col, tile_extent_col=None, tile_crs_col=None):
+def rf_agg_overview_raster(tile_col: Column, cols: int, rows: int, aoi: Extent,
+                           tile_extent_col: Column = None, tile_crs_col: Column = None):
     """Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the
-    `aoi` bound box in web-mercator. Uses nearest-neighbor sampling method."""
+    `aoi` bound box in web-mercator. Uses bi-linear sampling method."""
     ctx = RFContext.active()
     jfcn = ctx.lookup("rf_agg_overview_raster")
-    if not isinstance(aoi, Extent):
-        aoi = ctx.create_extent(aoi)
-    if not (tile_extent_col and tile_crs_col):
-        return Column(jfcn(cols, rows, aoi.__jvm__, _to_java_column(tile_col)))
+
+    if tile_extent_col is None or tile_crs_col is None:
+        return Column(jfcn(_to_java_column(tile_col), cols, rows, aoi.__jvm__))
     else:
-        return Column(jfcn(cols, rows, aoi.__jvm__,
-                           _to_java_column(tile_extent_col), _to_java_column(tile_crs_col), _to_java_column(tile_col)))
+        return Column(jfcn(
+            _to_java_column(tile_extent_col), _to_java_column(tile_crs_col), _to_java_column(tile_col),
+            cols, rows, aoi.__jvm__
+        ))
 
 
 def rf_tile_histogram(tile_col):

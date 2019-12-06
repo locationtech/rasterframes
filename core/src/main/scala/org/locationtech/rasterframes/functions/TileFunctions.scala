@@ -20,7 +20,7 @@
  */
 
 package org.locationtech.rasterframes.functions
-import geotrellis.raster.render.{ColorRamp, ColorRamps}
+import geotrellis.raster.render.ColorRamp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.functions.{lit, udf}
 import org.apache.spark.sql.{Column, TypedColumn}

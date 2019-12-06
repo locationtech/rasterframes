@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.functions
 import geotrellis.proj4.WebMercator
 import geotrellis.raster.resample.ResampleMethod
-import geotrellis.raster.{IntConstantNoDataCellType, Raster, Tile}
+import geotrellis.raster.{IntConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.expressions.accessors.{ExtractTile, GetCRS, GetExtent}
@@ -66,13 +66,13 @@ trait AggregateFunctions {
   def rf_agg_no_data_cells(tile: Column): TypedColumn[Any, Long] = CellCountAggregate.NoDataCells(tile)
 
   /** Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the
-    * `areaOfInterest` in web-mercator. Uses nearest-neighbor sampling method. */
-  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, proj_raster: Column): TypedColumn[Any, Tile] =
-    rf_agg_overview_raster(cols, rows, areaOfInterest, GetExtent(proj_raster), GetCRS(proj_raster), ExtractTile(proj_raster))
+    * `areaOfInterest` in web-mercator. Uses bi-linear sampling method. */
+  def rf_agg_overview_raster(proj_raster: Column, cols: Int, rows: Int, areaOfInterest: Extent): TypedColumn[Any, Tile] =
+    rf_agg_overview_raster(ExtractTile(proj_raster), GetExtent(proj_raster), GetCRS(proj_raster), cols, rows, areaOfInterest)
 
-  /** Construct an overview raster of size `cols`x`rows` where data in `tile` intersects the `areaOfInterest` in web-mercator. Uses nearest neighbor sampling method. */
-  def rf_agg_overview_raster(cols: Int, rows: Int, areaOfInterest: Extent, tileExtent: Column, tileCRS: Column, tile: Column): TypedColumn[Any, Tile] =
-    rf_agg_overview_raster(cols, rows, ResampleMethod.DEFAULT, areaOfInterest, tileExtent, tileCRS, tile)
+  /** Construct an overview raster of size `cols`x`rows` where data in `tile` intersects the `areaOfInterest` in web-mercator. Uses nearest bi-linear sampling method. */
+  def rf_agg_overview_raster(tile: Column, tileExtent: Column, tileCRS: Column, cols: Int, rows: Int, areaOfInterest: Extent): TypedColumn[Any, Tile] =
+    rf_agg_overview_raster(tile, tileExtent, tileCRS, cols, rows, areaOfInterest, ResampleMethod.DEFAULT)
 
   /** Construct an overview raster of size `cols`x`rows` where data in `tile` intersects the `areaOfInterest` in web-mercator.
     * Allows specification of one of these sampling methods:
@@ -82,10 +82,11 @@ trait AggregateFunctions {
     *   - geotrellis.raster.resample.CubicSpline
     *   - geotrellis.raster.resample.Lanczos
     */
-  def rf_agg_overview_raster(cols: Int, rows: Int, sampler: ResampleMethod, areaOfInterest: Extent, tileExtent: Column, tileCRS: Column, tile: Column): TypedColumn[Any, Tile] = {
+  def rf_agg_overview_raster(tile: Column, tileExtent: Column, tileCRS: Column, cols: Int, rows: Int, areaOfInterest: Extent, sampler: ResampleMethod): TypedColumn[Any, Tile] = {
     val params = ProjectedRasterDefinition(cols, rows, IntConstantNoDataCellType, WebMercator, areaOfInterest, sampler)
     TileRasterizerAggregate(params, tileCRS, tileExtent, tile)
   }
+
 
   /** Compute the aggregate extent over a column. */
   def rf_agg_extent(extent: Column): TypedColumn[Any, Extent] = {
@@ -97,6 +98,6 @@ trait AggregateFunctions {
       min(extent.getField("ymin")) as "ymin",
       max(extent.getField("xmax")) as "xmax",
       max(extent.getField("ymax")) as "ymax"
-    ).as (s"rf_agg_extent(${extent.columnName})").as[Extent]
+    ).as(s"rf_agg_extent(${extent.columnName})").as[Extent]
   }
 }

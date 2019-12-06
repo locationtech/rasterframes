@@ -497,12 +497,16 @@ class RasterFunctions(TestEnvironment):
                          .format(result['in_list'].cells))
 
     def test_rf_agg_overview_raster(self):
+        width = 500
+        height = 400
         agg = self.prdf.select(rf_agg_extent(rf_extent(self.prdf.proj_raster)).alias("extent")).first().extent
         crs = self.prdf.select(rf_crs(self.prdf.proj_raster).alias("crs")).first().crs.crsProj4
-        aoi = Extent.from_row(agg).reproject(crs, "EPSG:3857")
+        aoi = Extent.from_row(agg)
+        aoi = aoi.reproject(crs, "EPSG:3857")
         aoi = aoi.buffer(-(aoi.width * 0.2))
-        ovr = self.prdf.select(rf_agg_overview_raster(500, 400, aoi, self.prdf.proj_raster).alias("agg"))
-        png = ovr.select(rf_render_color_ramp_png('agg', 'Viridis')).first()[0]
+
+        ovr = self.prdf.select(rf_agg_overview_raster(self.prdf.proj_raster, width, height, aoi).alias("agg"))
+        png = ovr.select(rf_render_color_ramp_png('agg', 'Greyscale64')).first()[0]
         self.assert_png(png)
 
         # with open('/tmp/test_rf_agg_overview_raster.png', 'wb') as f:

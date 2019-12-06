@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.functions
 import java.io.ByteArrayInputStream
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.render.ColorRamps
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster._
 import javax.imageio.ImageIO

@@ -25,7 +25,7 @@ the implementations take advantage of the existing Scala functionality. The Rast
 class here provides the PyRasterFrames entry point.
 """
 from itertools import product
-import functools
+import functools, math
 from pyspark import SparkContext
 from pyspark.sql import DataFrame, Column
 from pyspark.sql.types import (UserDefinedType, StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
@@ -187,11 +187,11 @@ class Extent(object):
 
     @property
     def width(self):
-        return self.xmax - self.xmin
+        return math.fabs(self.xmax - self.xmin)
 
     @property
     def height(self):
-        return self.ymax - self.ymin
+        return math.fabs(self.ymax - self.ymin)
 
     @classmethod
     def from_row(cls, row):
@@ -216,6 +216,9 @@ class Extent(object):
             self.xmax + amount,
             self.ymax + amount
         )
+
+    def __str__(self):
+        return self.__jvm__.toString()
 
 class CellType(object):
     def __init__(self, cell_type_name):
