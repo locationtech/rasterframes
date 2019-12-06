@@ -241,9 +241,6 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
       def project(r: Raster[MultibandTile]): Seq[ProjectedRasterTile] =
         r.tile.bands.map(b => ProjectedRasterTile(b, r.extent, srcCrs))
 
-      val prtEnc = ProjectedRasterTile.prtEncoder
-      implicit val enc = Encoders.tuple(prtEnc, prtEnc, prtEnc)
-
       val rasters = src.readAll(bands = Seq(0, 1, 2)).map(project).map(p => (p(0), p(1), p(2)))
 
       val df = rasters.toDF("red", "green", "blue")

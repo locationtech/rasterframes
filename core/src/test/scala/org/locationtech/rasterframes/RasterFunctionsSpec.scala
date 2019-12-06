@@ -32,9 +32,6 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
   import TestData._
   import spark.implicits._
 
-  implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-  implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-
   describe("arithmetic tile operations") {
     it("should local_add") {
       val df = Seq((one, two)).toDF("one", "two")

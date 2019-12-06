@@ -41,9 +41,6 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile.prtEncoder
 class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
   import spark.implicits._
 
-  implicit val pairEnc = Encoders.tuple(prtEncoder, prtEncoder)
-  implicit val tripEnc = Encoders.tuple(prtEncoder, prtEncoder, prtEncoder)
-
   describe("aggregate statistics") {
     it("should count data cells") {
       val df = randNDTilesWithNull.filter(_ != null).toDF("tile")

@@ -159,7 +159,7 @@ object TileRasterizerAggregate {
     }
 
     val aggs = tileCols
-      .map(t => TileRasterizerAggregate(config, crsCol, extCol, rf_tile(t))("tile").as(t.columnName))
+      .map(t => TileRasterizerAggregate(config, crsCol, extCol, rf_tile(t)).as(t.columnName))
 
     val agg = df.select(aggs: _*)
 
