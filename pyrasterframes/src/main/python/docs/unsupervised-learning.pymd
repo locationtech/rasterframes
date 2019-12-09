@@ -20,7 +20,7 @@ We import various Spark components needed to construct our `Pipeline`.
 ```python, imports, echo=True
 import pandas as pd
 from pyrasterframes import TileExploder
-from pyrasterframes.rasterfunctions import rf_assemble_tile, rf_crs, rf_extent, rf_tile, rf_dimensions
+from pyrasterframes.rasterfunctions import *
 
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
@@ -40,7 +40,7 @@ catalog_df = pd.DataFrame([
 
 df = spark.read.raster(catalog_df, catalog_col_names=catalog_df.columns)
 df = df.withColumn('crs', rf_crs(df.b1)) \
-       .withColumn('extent', rf_crs(df.b1))
+       .withColumn('extent', rf_extent(df.b1))
 df.printSchema()
 ```
 
@@ -129,5 +129,9 @@ retiled
 The resulting output is shown below.
 
 ```python, viz
-display(retiled.select('prediction').first()['prediction'])
+
+# display(retiled.select('prediction').first()['prediction'])
+from pyrasterframes.rf_types import Extent
+aoi = Extent.from_row(retiled.select(rf_agg_extent('extent')).first()[0])
+retiled.select(rf_agg_overview_raster('prediction', 186, 169, aoi, 'extent', 'crs'))
 ```

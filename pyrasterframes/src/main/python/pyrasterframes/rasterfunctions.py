@@ -349,7 +349,7 @@ def rf_agg_overview_raster(tile_col: Column, cols: int, rows: int, aoi: Extent,
         return Column(jfcn(_to_java_column(tile_col), cols, rows, aoi.__jvm__))
     else:
         return Column(jfcn(
-            _to_java_column(tile_extent_col), _to_java_column(tile_crs_col), _to_java_column(tile_col),
+            _to_java_column(tile_col), _to_java_column(tile_extent_col), _to_java_column(tile_crs_col),
             cols, rows, aoi.__jvm__
         ))
 
