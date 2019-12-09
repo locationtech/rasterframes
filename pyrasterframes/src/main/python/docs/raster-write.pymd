@@ -16,7 +16,7 @@ spark = create_rf_spark_session()
 
 ## Tile Samples
 
-We have some convenience methods to quickly visualize _tile_s (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) when inspecting a subset of the data in a Notebook.
+We have some convenience methods to quickly visualize tiles (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) when inspecting a subset of the data in a Notebook.
 
 In an IPython or Jupyter interpreter, a `Tile` object will be displayed as an image with limited metadata.
 
@@ -25,7 +25,7 @@ def scene(band):
     b = str(band).zfill(2) # converts int 2 to '02'
     return 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/' \
              'MCD43A4.A2019059.h11v08.006.2019072203257_B{}.TIF'.format(b)
-spark_df = spark.read.raster(scene(2), tile_dimensions=(128, 128))
+spark_df = spark.read.raster(scene(2), tile_dimensions=(256, 256))
 tile = spark_df.select(rf_tile('proj_raster').alias('tile')).first()['tile']
 tile
 ```
@@ -50,7 +50,6 @@ samples = spark_df \
     .limit(3)
 samples
 ```
-
 
 ## GeoTIFFs
 
@@ -83,6 +82,19 @@ If there are many _tile_ or projected raster columns in the DataFrame, the GeoTI
 
 ```python, echo=False
 os.remove(outfile)
+```
+
+## Overview Rasters
+
+In cases where writing and reading to/from a GeoTIFF isn't convenient, RasterFrames provides the `rf_agg_overview_raster` aggregate function, where you can construct a single raster (rendered as a tile) downsampled from all or a subset of the dataframe. This allows you to effectively construct the same operations the GeoTIFF writer performs, but without the file I/O.
+
+Because a Dataframe may contain data with varying CRSs, and the rendered raster needs to have a single CRS, an "Area of Interest" (AOI) is required in a predetermined CRS. In the case of `rf_agg_reprojected_extent`, the AOI needs to be in commonly used ["web mercator"](https://en.wikipedia.org/wiki/Web_Mercator_projection) CRS. 
+
+```python, overview
+from pyrasterframes.rf_types import Extent
+target = spark_df.withColumn('extent', rf_extent('proj_raster')).withColumn('crs', rf_crs('proj_raster')) 
+aoi = Extent.from_row(target.select(rf_agg_reprojected_extent('extent', 'crs', 'EPSG:3857')).first()[0])
+target.select(rf_agg_overview_raster(rf_tile('proj_raster'), 512, 512, aoi, 'extent', 'crs')).first()[0]
 ```
 
 ## GeoTrellis Layers
