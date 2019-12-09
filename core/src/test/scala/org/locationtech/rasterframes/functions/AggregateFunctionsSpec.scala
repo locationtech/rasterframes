@@ -22,8 +22,8 @@
 package org.locationtech.rasterframes.functions
 import geotrellis.proj4.{CRS, WebMercator}
 import geotrellis.raster._
-import geotrellis.raster.render.{ColorRamps, Png}
-import geotrellis.raster.resample.{Bilinear, CubicConvolution, CubicSpline}
+import geotrellis.raster.render.Png
+import geotrellis.raster.resample.Bilinear
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
@@ -36,7 +36,6 @@ import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile.prtEncoder
-
 
 class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
   import spark.implicits._
@@ -157,7 +156,9 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
       )
       val src = TestData.rgbCogSample
       val extent = src.extent
-      val df = src.toDF(TileDimensions(32, 49)).as[(Extent, CRS, Tile, Tile, Tile)]
+      val df = src
+        .toDF(TileDimensions(32, 49))
+        .as[(Extent, CRS, Tile, Tile, Tile)]
         .map(p => ProjectedRasterTile(p._3, p._1, p._2))
       val aoi = extent.reproject(src.crs, WebMercator).buffer(-(extent.width * 0.2))
       val overview = df.select(rf_agg_overview_raster($"value", 500, 400, aoi))
