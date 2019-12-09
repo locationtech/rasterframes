@@ -20,7 +20,7 @@
  */
 
 package org.locationtech.rasterframes.functions
-import geotrellis.proj4.WebMercator
+import geotrellis.proj4.{CRS, WebMercator}
 import geotrellis.raster.resample.ResampleMethod
 import geotrellis.raster.{IntConstantNoDataCellType, Tile}
 import geotrellis.vector.Extent
@@ -29,6 +29,7 @@ import org.locationtech.rasterframes.expressions.accessors.{ExtractTile, GetCRS,
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.stats._
+import org.locationtech.rasterframes._
 
 /** Functions associated with computing columnar aggregates over tile and geometry columns. */
 trait AggregateFunctions {
@@ -87,12 +88,12 @@ trait AggregateFunctions {
     TileRasterizerAggregate(params, tileCRS, tileExtent, tile)
   }
 
+  import org.apache.spark.sql.functions._
+  import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
+  import org.locationtech.rasterframes.util.NamedColumn
 
-  /** Compute the aggregate extent over a column. */
+  /** Compute the aggregate extent over a column. Assumes CRS homogeneity. */
   def rf_agg_extent(extent: Column): TypedColumn[Any, Extent] = {
-    import org.apache.spark.sql.functions._
-    import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
-    import org.locationtech.rasterframes.util.NamedColumn
     struct(
       min(extent.getField("xmin")) as "xmin",
       min(extent.getField("ymin")) as "ymin",
@@ -100,4 +101,10 @@ trait AggregateFunctions {
       max(extent.getField("ymax")) as "ymax"
     ).as(s"rf_agg_extent(${extent.columnName})").as[Extent]
   }
+
+  /** Compute the aggregate extent over a column after reprojecting from the rows source CRS into the given destination CRS . */
+  def rf_agg_reprojected_extent(extent: Column, srcCRS: Column, destCRS: CRS): TypedColumn[Any, Extent] =
+    rf_agg_extent(st_extent(st_reproject(st_geometry(extent), srcCRS, destCRS)))
+    .as(s"rf_agg_reprojected_extent(${extent.columnName}, ${srcCRS.columnName}, $destCRS)")
+    .as[Extent]
 }

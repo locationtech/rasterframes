@@ -55,7 +55,7 @@ object RFDependenciesPlugin extends AutoPlugin {
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
       "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
-      "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
+      "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/"
     ),
 
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py

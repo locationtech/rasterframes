@@ -27,7 +27,7 @@ from __future__ import absolute_import
 from pyspark.sql.column import Column, _to_java_column
 from pyspark.sql.functions import lit
 from .rf_context import RFContext
-from .rf_types import CellType, Extent
+from .rf_types import CellType, Extent, CRS
 
 THIS_MODULE = 'pyrasterframes'
 
@@ -336,6 +336,11 @@ def rf_agg_no_data_cells(tile_col):
 def rf_agg_extent(extent_col):
     """Compute the aggregate extent over a column"""
     return _apply_column_function('rf_agg_extent', extent_col)
+
+
+def rf_agg_reprojected_extent(extent_col, src_crs_col, dest_crs):
+    """Compute the aggregate extent over a column, first projecting from the row CRS to the destination CRS. """
+    return Column(RFContext.call('rf_agg_reprojected_extent', _to_java_column(extent_col), _to_java_column(src_crs_col),CRS(dest_crs).__jvm__))
 
 
 def rf_agg_overview_raster(tile_col: Column, cols: int, rows: int, aoi: Extent,

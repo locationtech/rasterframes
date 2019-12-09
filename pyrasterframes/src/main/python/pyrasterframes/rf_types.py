@@ -220,6 +220,19 @@ class Extent(object):
     def __str__(self):
         return self.__jvm__.toString()
 
+class CRS(object):
+    def __init__(self, proj4_str):
+        self.proj4_str = proj4_str
+
+    @cached_property
+    def __jvm__(self):
+        comp = RFContext.active().companion_of("org.locationtech.rasterframes.model.LazyCRS")
+        return comp.apply(self.proj4_str)
+
+    def __str__(self):
+        return self.proj4_str
+
+
 class CellType(object):
     def __init__(self, cell_type_name):
         self.cell_type_name = cell_type_name

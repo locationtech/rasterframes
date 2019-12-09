@@ -202,12 +202,24 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
   }
 
   describe("geometric aggregates") {
+    // SQL docs not available until we re-implement as an expression
+    ignore("should have docs") {
+      checkDocs("rf_agg_extent")
+      checkDocs("rf_agg_reprojected_extent")
+    }
+
     it("should compute an aggregate extent") {
       val src = TestData.l8Sample(1)
       val df = src.toDF(TileDimensions(10, 10))
-      df.show(false)
       val result = df.select(rf_agg_extent($"extent")).first()
       result should be(src.extent)
+    }
+
+    it("should compute a reprojected aggregate extent") {
+      val src = TestData.l8Sample(1)
+      val df = src.toDF(TileDimensions(10, 10))
+      val result = df.select(rf_agg_reprojected_extent($"extent", $"crs", WebMercator)).first()
+      result should be(src.extent.reproject(src.crs, WebMercator))
     }
   }
 }
