@@ -57,7 +57,7 @@ The following optional arguments are allowed:
  
  Note that the `join_exprs` will override the join behavior described above. By default the expression is equivalent to:
  
- ```python, evaluate=False
+```python, join_expr, evaluate=False
 st_intersects(
     st_geometry(left[left_extent]), 
     st_reproject(st_geometry(right[right_extent]), right[right_crs], left[left_crs])
