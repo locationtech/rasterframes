@@ -37,7 +37,11 @@ landsat8 = spark.read.raster('https://landsat-pds.s3.us-west-2.amazonaws.com/c1/
                   .withColumnRenamed('proj_raster', 'landsat')
 
 rj = landsat8.raster_join(modis)
-rj.select('landsat', 'modis', 'crs', 'extent')
+
+# Show some non-empty tiles
+rj.select('landsat', 'modis', 'crs', 'extent') \
+  .filter(rf_data_cells('modis') > 0) \
+  .filter(rf_tile_max('landsat') > 0) 
 ```
 
 ## Additional Options
