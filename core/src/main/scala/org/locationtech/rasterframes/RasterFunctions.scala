@@ -171,8 +171,14 @@ trait RasterFunctions {
   /** Assign a `NoData` value to the tile column. */
   def rf_with_no_data(col: Column, nodata: Column): Column = SetNoDataValue(col, nodata)
 
-  /**  Compute the full column aggregate floating point histogram. */
+  /**  Compute the approximate aggregate floating point histogram using a streaming algorithm, with the default of 80 buckets. */
   def rf_agg_approx_histogram(col: Column): TypedColumn[Any, CellHistogram] = HistogramAggregate(col)
+
+  /**  Compute the approximate aggregate floating point histogram using a streaming algorithm, with the given number of buckets. */
+  def rf_agg_approx_histogram(col: Column, numBuckets: Int): TypedColumn[Any, CellHistogram] = {
+    require(numBuckets > 0, "Must provide a positive number of buckets")
+    HistogramAggregate(col, numBuckets)
+  }
 
   /** Compute the full column aggregate floating point statistics. */
   def rf_agg_stats(col: Column): TypedColumn[Any, CellStatistics] = CellStatsAggregate(col)
@@ -185,6 +191,23 @@ trait RasterFunctions {
 
   /** Computes the number of NoData cells in a column. */
   def rf_agg_no_data_cells(col: Column): TypedColumn[Any, Long] = CellCountAggregate.NoDataCells(col)
+
+  /**
+    * Calculates the approximate quantiles of a tile column of a DataFrame.
+    * @param tile tile column to extract cells from.
+    * @param probabilities a list of quantile probabilities
+    *   Each number must belong to [0, 1].
+    *   For example 0 is the minimum, 0.5 is the median, 1 is the maximum.
+    * @param relativeError The relative target precision to achieve (greater than or equal to 0).
+    * @return the approximate quantiles at the given probabilities of each column
+    */
+  def rf_agg_approx_quantiles(
+    tile: Column,
+    probabilities: Seq[Double],
+    relativeError: Double = 0.00001): TypedColumn[Any, Seq[Double]] = {
+    require(probabilities.nonEmpty, "at least one quantile probability is required")
+    ApproxCellQuantilesAggregate(tile, probabilities, relativeError)
+  }
 
   /** Compute the Tile-wise mean */
   def rf_tile_mean(col: Column): TypedColumn[Any, Double] =
@@ -546,14 +569,17 @@ trait RasterFunctions {
   /** Return the incoming tile untouched. */
   def rf_identity(tileCol: Column): Column = Identity(tileCol)
 
-  /** Create a row for each cell in Tile. */
+  /** Create a row for each cell in Tile.
+    * The output will include the columns `column_index`, `row_index` indicating where in the tile the cell originated. */
   def rf_explode_tiles(cols: Column*): Column = rf_explode_tiles_sample(1.0, None, cols: _*)
 
-  /** Create a row for each cell in Tile with random sampling and optional seed. */
+  /** Create a row for each cell in Tile with random sampling and optional seed.
+    * The output will include the columns `column_index`, `row_index` indicating where in the tile the cell originated. */
   def rf_explode_tiles_sample(sampleFraction: Double, seed: Option[Long], cols: Column*): Column =
     ExplodeTiles(sampleFraction, seed, cols)
 
-  /** Create a row for each cell in Tile with random sampling (no seed). */
+  /** Create a row for each cell in Tile with random sampling (no seed).
+    * The output will include the columns `column_index`, `row_index` indicating where in the tile the cell originated. */
   def rf_explode_tiles_sample(sampleFraction: Double, cols: Column*): Column =
     ExplodeTiles(sampleFraction, None, cols)
 }
