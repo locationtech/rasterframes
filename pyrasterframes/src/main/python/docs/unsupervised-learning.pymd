@@ -40,7 +40,7 @@ catalog_df = pd.DataFrame([
 
 df = spark.read.raster(catalog_df, catalog_col_names=catalog_df.columns)
 df = df.withColumn('crs', rf_crs(df.b1)) \
-       .withColumn('extent', rf_crs(df.b1))
+       .withColumn('extent', rf_extent(df.b1))
 df.printSchema()
 ```
 
