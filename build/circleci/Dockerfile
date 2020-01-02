@@ -2,6 +2,7 @@ FROM circleci/openjdk:8-jdk
 
 ENV OPENJPEG_VERSION 2.3.1
 ENV GDAL_VERSION 2.4.1
+ENV SPATIALINDEX_VERSION 1.9.3
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 
 # most of these libraries required for
@@ -74,3 +75,15 @@ RUN \
     sudo make install && \
     sudo ldconfig && \
     cd /tmp && sudo rm -Rf gdal*
+
+# Compile and install libspatialindex
+RUN \
+    cd /tmp && \
+    wget https://github.com/libspatialindex/libspatialindex/releases/download/${SPATIALINDEX_VERSION}/spatialindex-src-${SPATIALINDEX_VERSION}.tar.gz && \
+    tar -xf spatialindex-src-${SPATIALINDEX_VERSION}.tar.gz && \
+    cd spatialindex-src-${SPATIALINDEX_VERSION}/ && \
+    cmake  -DCMAKE_INSTALL_PREFIX=/usr/local/ && \
+    make && \
+    sudo make install && \
+    sudo ldconfig && \
+    cd /tmp && sudo rm -Rf spatialindex*

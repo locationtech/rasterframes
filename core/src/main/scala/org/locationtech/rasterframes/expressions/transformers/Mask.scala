@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions.transformers
 
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster
-import geotrellis.raster.Tile
+import geotrellis.raster.{NoNoData, Tile}
 import geotrellis.raster.mapalgebra.local.{Undefined, InverseMask ⇒ gtInverseMask, Mask ⇒ gtMask}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -73,6 +73,10 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
   override protected def nullSafeEval(targetInput: Any, maskInput: Any, maskValueInput: Any): Any = {
     implicit val tileSer = TileUDT.tileSerializer
     val (targetTile, targetCtx) = tileExtractor(targetExp.dataType)(row(targetInput))
+
+    require(! targetTile.cellType.isInstanceOf[NoNoData],
+      s"Input data expression ${left.prettyName} must have a CellType with NoData defined in order to perform a masking operation. Found CellType ${targetTile.cellType.toString()}.")
+
     val (maskTile, maskCtx) = tileExtractor(maskExp.dataType)(row(maskInput))
 
     if (targetCtx.isEmpty && maskCtx.isDefined)
