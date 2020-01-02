@@ -117,6 +117,7 @@ package object expressions {
     registry.registerExpression[CellCountAggregate.NoDataCells]("rf_agg_no_data_cells")
     registry.registerExpression[CellStatsAggregate.CellStatsAggregateUDAF]("rf_agg_stats")
     registry.registerExpression[HistogramAggregate.HistogramAggregateUDAF]("rf_agg_approx_histogram")
+    registry.registerExpression[ApproxCellQuantilesAggregate.ApproxCellQuantilesUDAF]("rf_agg_approx_quantiles")
     registry.registerExpression[LocalStatsAggregate.LocalStatsAggregateUDAF]("rf_agg_local_stats")
     registry.registerExpression[LocalTileOpAggregate.LocalMinUDAF]("rf_agg_local_min")
     registry.registerExpression[LocalTileOpAggregate.LocalMaxUDAF]("rf_agg_local_max")

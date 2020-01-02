@@ -25,7 +25,7 @@ from pyspark import Row
 from pyspark.sql.functions import *
 
 import numpy as np
-from numpy.testing import assert_equal
+from numpy.testing import assert_equal, assert_allclose
 
 from unittest import skip
 from . import TestEnvironment
@@ -132,6 +132,12 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_data_cells(tile)'], 387000)
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
+
+    def test_agg_approx_quantiles(self):
+        agg = self.rf.agg(rf_agg_approx_quantiles('tile', [0.1, 0.5, 0.9, 0.98]))
+        result = agg.first()[0]
+        # expected result from computing in external python process
+        assert_allclose(result, np.array([7412., 7638., 7671., 7675.]))
 
     def test_sql(self):
 

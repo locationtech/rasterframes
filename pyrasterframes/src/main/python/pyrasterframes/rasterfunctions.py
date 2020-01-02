@@ -313,6 +313,22 @@ def rf_agg_approx_histogram(tile_col):
     return _apply_column_function('rf_agg_approx_histogram', tile_col)
 
 
+def rf_agg_approx_quantiles(tile_col, probabilities, relative_error=0.00001):
+    """
+    Calculates the approximate quantiles of a tile column of a DataFrame.
+
+    :param tile_col: column to extract cells from.
+    :param probabilities: a list of quantile probabilities. Each number must belong to [0, 1].
+            For example 0 is the minimum, 0.5 is the median, 1 is the maximum.
+    :param relative_error: The relative target precision to achieve (greater than or equal to 0). Default is 0.00001
+    :return: An array of values approximately at the specified `probabilities`
+    """
+
+    _jfn = RFContext.active().lookup('rf_agg_approx_quantiles')
+    _tile_col = _to_java_column(tile_col)
+    return Column(_jfn(_tile_col, probabilities, relative_error))
+
+
 def rf_agg_stats(tile_col):
     """Compute the full column aggregate floating point statistics"""
     return _apply_column_function('rf_agg_stats', tile_col)

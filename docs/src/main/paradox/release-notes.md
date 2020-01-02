@@ -9,6 +9,7 @@
 * Added `withSpatialIndex` to RasterSourceDataSource to pre-partition tiles based on tile extents mapped to a Z2 space-filling curve 
 * Add `rf_mask_by_bit`, `rf_mask_by_bits` and `rf_local_extract_bits` to deal with bit packed quality masks. Updated the masking documentation to demonstrate the use of these functions.
 * Throw an `IllegalArgumentException` when attempting to apply a mask to a `Tile` whose `CellType` has no NoData defined. ([#409](https://github.com/locationtech/rasterframes/issues/384))
+* Add `rf_agg_approx-quantiles` function to compute cell quantiles across an entire column.
 
 ### 0.8.4
 
