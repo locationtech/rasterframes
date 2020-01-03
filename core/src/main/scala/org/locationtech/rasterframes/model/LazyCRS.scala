@@ -28,7 +28,7 @@ import org.locationtech.rasterframes.encoders.CatalystSerializer
 import org.locationtech.rasterframes.model.LazyCRS.EncodedCRS
 
 class LazyCRS(val encoded: EncodedCRS) extends CRS {
-  private lazy val delegate = LazyCRS.cache.get(encoded)
+  private lazy val delegate: CRS = LazyCRS.cache.get(encoded)
   override def proj4jCrs: CoordinateReferenceSystem = delegate.proj4jCrs
   override def toProj4String: String =
     if (encoded.startsWith("+proj")) encoded
@@ -50,11 +50,15 @@ object LazyCRS {
   trait ValidatedCRS
   type EncodedCRS = String with ValidatedCRS
 
+  val wktKeywords = Seq("GEOGCS", "PROJCS", "GEOCCS")
+
   @transient
   private lazy val mapper: PartialFunction[String, CRS] = {
     case e if e.toUpperCase().startsWith("EPSG")   => CRS.fromName(e) //not case-sensitive
     case p if p.startsWith("+proj")                => CRS.fromString(p) // case sensitive
-    case w if w.toUpperCase().startsWith("GEOGCS") => CRS.fromWKT(w) //only case-sensitive inside double quotes
+    case w if wktKeywords.exists{prefix ⇒
+      w.toUpperCase().startsWith(prefix)
+    } ⇒ CRS.fromWKT(w) //only case-sensitive inside double quotes
   }
 
   @transient
@@ -67,7 +71,7 @@ object LazyCRS {
       new LazyCRS(value.asInstanceOf[EncodedCRS])
     }
     else throw new IllegalArgumentException(
-      "crs string must be either EPSG code, +proj string, or OGC WKT")
+      s"CRS string must be either EPSG code, +proj string, or OGC WKT (WKT1). Argument value was ${if (value.length > 50) value.substring(0, 50) + "..." else value} ")
   }
 
   implicit val crsSererializer: CatalystSerializer[LazyCRS] = CatalystSerializer.crsSerializer.asInstanceOf[CatalystSerializer[LazyCRS]]
