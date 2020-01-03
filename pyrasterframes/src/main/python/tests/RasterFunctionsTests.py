@@ -136,8 +136,8 @@ class RasterFunctions(TestEnvironment):
     def test_agg_approx_quantiles(self):
         agg = self.rf.agg(rf_agg_approx_quantiles('tile', [0.1, 0.5, 0.9, 0.98]))
         result = agg.first()[0]
-        # expected result from computing in external python process
-        assert_allclose(result, np.array([7412., 7638., 7671., 7675.]))
+        # expected result from computing in external python process; c.f. scala tests
+        assert_allclose(result, np.array([7963., 10068., 12160., 14366.]))
 
     def test_sql(self):
 
