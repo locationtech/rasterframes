@@ -632,6 +632,8 @@ Aggregates over all of the rows in DataFrame of `tile` and returns a count of ea
 
     Array[Double] rf_agg_approx_quantiles(Tile tile, List[float] probabilities, float relative_error)
     
+__Not supported in SQL.__
+    
 Calculates the approximate quantiles of a tile column of a DataFrame. `probabilities` is a list of float values at which to compute the quantiles. These must belong to [0, 1]. For example 0 is the minimum, 0.5 is the median, 1 is the maximum. Returns an array of values approximately at the specified `probabilities`.
 
 ## Tile Local Aggregate Statistics

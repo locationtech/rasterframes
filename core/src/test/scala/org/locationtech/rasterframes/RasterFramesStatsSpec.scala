@@ -72,16 +72,6 @@ class RasterFramesStatsSpec extends TestEnvironment with TestData {
       result should contain inOrderOnly(7963.0, 10068.0, 12160.0)
     }
 
-    it("should compute approx percentiles with SQL") {
-      val result = df.selectExpr("rf_agg_approx_quantiles(tile, array(0.1, 0.5, 0.9), 0.00001) as iles")
-        .first()
-        .getSeq[Double](0)
-
-      result.length should be (3)
-
-      // computing externally with numpy we arrive at 7963, 10068, 12160 for these quantiles
-      result should contain inOrderOnly(7963.0, 10068.0, 12160.0)
-    }
   }
 }
 

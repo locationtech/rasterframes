@@ -23,10 +23,7 @@ package org.locationtech.rasterframes.expressions.aggregates
 
 import geotrellis.raster.{Tile, isNoData}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
-import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
-import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.{Column, Encoder, Row, TypedColumn, types}
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
@@ -87,30 +84,5 @@ object ApproxCellQuantilesAggregate {
     new ApproxCellQuantilesAggregate(probabilities, relativeError)(ExtractTile(tile))
       .as(s"rf_agg_approx_quantiles")
       .as[Seq[Double]]
-  }
-
-  /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
-  @ExpressionDescription(
-    usage = "_FUNC_(tile, probabilities, relativeError) - Compute aggregate cell histogram over a tile column.",
-    arguments = """
-  Arguments:
-    * tile - tile column to analyze
-    * probabilities - array of double values in [0, 1] at which to compute quantiles
-    * relativeError - non-negative error tolerance""",
-    examples = """
-  Examples:
-    > SELECT _FUNC_(tile, array(0.1, 0.25, 0.5, 0.75, 0.9), 0.001);
-      ..."""
-  )
-  class ApproxCellQuantilesUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
-    extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
-    def this(child: Expression, probabilities: Seq[Double], relativeError: Double) =
-      this(ScalaUDAF(Seq(ExtractTile(child)), new ApproxCellQuantilesAggregate(probabilities, relativeError)), Complete, false, NamedExpression.newExprId)
-    override def nodeName: String = "rf_agg_approx_quantiles"
-  }
-
-  object ApproxCellQuantilesUDAF {
-    def apply(child: Expression, probabilities: Seq[Double], relativeError: Double): ApproxCellQuantilesUDAF = new ApproxCellQuantilesUDAF(child, probabilities, relativeError)
-    def apply(child: Expression, probabilities: Seq[Double]): ApproxCellQuantilesUDAF = new ApproxCellQuantilesUDAF(child, probabilities, 0.00001)
   }
 }
