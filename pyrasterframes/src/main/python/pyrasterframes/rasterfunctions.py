@@ -340,7 +340,7 @@ def rf_agg_extent(extent_col):
 
 def rf_agg_reprojected_extent(extent_col, src_crs_col, dest_crs):
     """Compute the aggregate extent over a column, first projecting from the row CRS to the destination CRS. """
-    return Column(RFContext.call('rf_agg_reprojected_extent', _to_java_column(extent_col), _to_java_column(src_crs_col),CRS(dest_crs).__jvm__))
+    return Column(RFContext.call('rf_agg_reprojected_extent', _to_java_column(extent_col), _to_java_column(src_crs_col), CRS(dest_crs).__jvm__))
 
 
 def rf_agg_overview_raster(tile_col: Column, cols: int, rows: int, aoi: Extent,
@@ -675,6 +675,12 @@ def rf_tile(proj_raster_col):
     """Extracts the Tile component of a ProjectedRasterTile (or Tile)."""
     return _apply_column_function('rf_tile', proj_raster_col)
 
+
+def rf_proj_raster(tile, extent, crs):
+    """
+    Construct a `proj_raster` structure from individual CRS, Extent, and Tile columns
+    """
+    return _apply_column_function('rf_proj_raster', tile, extent, crs)
 
 def st_geometry(geom_col):
     """Convert the given extent/bbox to a polygon"""

@@ -151,7 +151,7 @@ trait TileFunctions {
     withTypedAlias(s"rf_make_ones_tile($cols, $rows, $cellTypeName)")(constTile)
   }
 
-  /** Construct a `proj_raster` structure from individual CRS, Extent, and Tile columns. */
+  /** Construct a `proj_raster` structure from individual Tile, Extent, and CRS columns. */
   def rf_proj_raster(tile: Column, extent: Column, crs: Column): TypedColumn[Any, ProjectedRasterTile] =
     CreateProjectedRaster(tile, extent, crs)
 

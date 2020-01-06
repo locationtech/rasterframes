@@ -512,5 +512,9 @@ class RasterFunctions(TestEnvironment):
         # with open('/tmp/test_rf_agg_overview_raster.png', 'wb') as f:
         #     f.write(png)
 
-
+    def test_rf_proj_raster(self):
+        df = self.prdf.select(rf_proj_raster(rf_tile('proj_raster'),
+                                             rf_extent('proj_raster'),
+                                             rf_crs('proj_raster')).alias('roll_your_own'))
+        'tile_context' in df.schema['roll_your_own'].dataType.fieldNames()
 

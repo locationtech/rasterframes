@@ -11,6 +11,8 @@
 * Added `toDF` extension method to `MultibandGeoTiff`
 * Added `rf_agg_extent` and `rf_agg_reprojected_extent` to compute the aggregate extent of a column
 * Added `rf_proj_raster` for constructing a `proj_raster` structure from individual CRS, Extent, and Tile columns.
+* Added `rf_render_color_ramp_png` to compute PNG byte array for a single tile column, with specified color ramp.
+* In `rf_ipython`, improved rendering of dataframe binary contents with PNG preamble.
 * Throw an `IllegalArgumentException` when attempting to apply a mask to a `Tile` whose `CellType` has no NoData defined. ([#409](https://github.com/locationtech/rasterframes/issues/384))
 
 ### 0.8.4
