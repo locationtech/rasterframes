@@ -129,6 +129,16 @@ If there are many _tile_ or projected raster columns in the DataFrame, the GeoTI
 os.remove(outfile)
 ```
 
+### Downsampling
+
+If no `raster_dimensions` column is specified the DataFrame contents are written at full resolution. As shown in the example above, you can also specify the size of the output GeoTIFF. Bilinear resampling is used. 
+
+
+### Color Composites
+
+If the DataFrame has three or four tile columns, the GeoTIFF is written with the `ColorInterp` tags on the [bands](https://gdal.org/user/raster_data_model.html?highlight=color%20interpretation#raster-band) to indicate red, green, blue, and optionally alpha. Use a `select` statement to ensure your intended color compositing. Note that any other number of tile columns will result in a greyscale interpretation. 
+
+
 ## Overview Rasters
 
 In cases where writing and reading to/from a GeoTIFF isn't convenient, RasterFrames provides the @ref:[`rf_agg_overview_raster`](reference.md#rf-agg-overview-raster) aggregate function, where you can construct a single raster (rendered as a tile) downsampled from all or a subset of the DataFrame. This allows you to effectively construct the same operations the GeoTIFF writer performs, but without the file I/O. 
