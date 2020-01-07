@@ -18,20 +18,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import glob
 import os
 import unittest
 
 from pyrasterframes.utils import create_rf_spark_session
 
-import sys
 
-if sys.version_info[0] > 2:
-    import builtins
-else:
-    import __builtin__ as builtins
+import builtins
 
 app_name = 'pyrasterframes test suite'
+
 
 def resource_dir():
     def pdir(curr):

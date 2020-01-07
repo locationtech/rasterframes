@@ -26,6 +26,7 @@ from pyspark.sql.functions import *
 
 import numpy as np
 from numpy.testing import assert_equal
+from deprecation import fail_if_not_removed
 
 from unittest import skip
 from . import TestEnvironment
@@ -132,6 +133,12 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_data_cells(tile)'], 387000)
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
+
+    @fail_if_not_removed
+    def test_add_scalar(self):
+        # Trivial test to trigger the deprecation failure at the right time.
+        result: Row = self.rf.select(rf_local_add_double('tile', 99.9), rf_local_add_int('tile', 42)).first()
+        self.assertTrue(True)
 
     def test_sql(self):
 

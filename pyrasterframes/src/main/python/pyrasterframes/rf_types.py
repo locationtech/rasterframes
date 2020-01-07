@@ -34,18 +34,22 @@ from pyspark.ml.wrapper import JavaTransformer
 from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
 
 from pyrasterframes.rf_context import RFContext
+from pyspark.sql import SparkSession
+from py4j.java_collections import Sequence
 
 import numpy as np
+
+from typing import List, Tuple
 
 __all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
 
 class RasterFrameLayer(DataFrame):
-    def __init__(self, jdf, spark_session):
+    def __init__(self, jdf: DataFrame, spark_session: SparkSession):
         DataFrame.__init__(self, jdf, spark_session._wrapped)
         self._jrfctx = spark_session.rasterframes._jrfctx
 
-    def tile_columns(self):
+    def tile_columns(self) -> List[Column]:
         """
         Fetches columns of type Tile.
         :return: One or more Column instances associated with Tiles.
@@ -53,7 +57,7 @@ class RasterFrameLayer(DataFrame):
         cols = self._jrfctx.tileColumns(self._jdf)
         return [Column(c) for c in cols]
 
-    def spatial_key_column(self):
+    def spatial_key_column(self) -> Column:
         """
         Fetch the tagged spatial key column.
         :return: Spatial key column
@@ -61,7 +65,7 @@ class RasterFrameLayer(DataFrame):
         col = self._jrfctx.spatialKeyColumn(self._jdf)
         return Column(col)
 
-    def temporal_key_column(self):
+    def temporal_key_column(self) -> Column:
         """
         Fetch the temporal key column, if any.
         :return: Temporal key column, or None.
@@ -77,7 +81,7 @@ class RasterFrameLayer(DataFrame):
         import json
         return json.loads(str(self._jrfctx.tileLayerMetadata(self._jdf)))
 
-    def spatial_join(self, other_df):
+    def spatial_join(self, other_df: DataFrame):
         """
         Spatially join this RasterFrameLayer to the given RasterFrameLayer.
         :return: Joined RasterFrameLayer.
@@ -86,7 +90,7 @@ class RasterFrameLayer(DataFrame):
         df = ctx._jrfctx.spatialJoin(self._jdf, other_df._jdf)
         return RasterFrameLayer(df, ctx._spark_session)
 
-    def to_int_raster(self, colname, cols, rows):
+    def to_int_raster(self, colname: str, cols: int, rows: int) -> Sequence:
         """
         Convert a tile to an Int raster
         :return: array containing values of the tile's cells
@@ -94,7 +98,7 @@ class RasterFrameLayer(DataFrame):
         resArr = self._jrfctx.toIntRaster(self._jdf, colname, cols, rows)
         return resArr
 
-    def to_double_raster(self, colname, cols, rows):
+    def to_double_raster(self, colname: str, cols: int, rows: int) -> Sequence:
         """
         Convert a tile to an Double raster
         :return: array containing values of the tile's cells
@@ -170,7 +174,7 @@ class CellType(object):
         self.cell_type_name = cell_type_name
 
     @classmethod
-    def from_numpy_dtype(cls, np_dtype):
+    def from_numpy_dtype(cls, np_dtype: np.dtype):
         return CellType(str(np_dtype.name))
 
     @classmethod
@@ -205,19 +209,19 @@ class CellType(object):
     def float64(cls):
         return CellType('float64')
 
-    def is_raw(self):
+    def is_raw(self) -> bool:
         return self.cell_type_name.endswith('raw')
 
-    def is_user_defined_no_data(self):
+    def is_user_defined_no_data(self) -> bool:
         return "ud" in self.cell_type_name
 
-    def is_default_no_data(self):
+    def is_default_no_data(self) -> bool:
         return not (self.is_raw() or self.is_user_defined_no_data())
 
-    def is_floating_point(self):
+    def is_floating_point(self) -> bool:
         return self.cell_type_name.startswith('float')
 
-    def base_cell_type_name(self):
+    def base_cell_type_name(self) -> str:
         if self.is_raw():
             return self.cell_type_name[:-3]
         elif self.is_user_defined_no_data():
@@ -225,7 +229,7 @@ class CellType(object):
         else:
             return self.cell_type_name
 
-    def has_no_data(self):
+    def has_no_data(self) -> bool:
         return not self.is_raw()
 
     def no_data_value(self):
@@ -254,7 +258,7 @@ class CellType(object):
                     return None
         raise Exception("Unable to determine no_data_value from '{}'".format(n))
 
-    def to_numpy_dtype(self):
+    def to_numpy_dtype(self) -> np.dtype:
         n = self.base_cell_type_name()
         return np.dtype(n).newbyteorder('>')
 
@@ -354,7 +358,7 @@ class Tile(object):
             other = right
         return Tile(np.matmul(self.cells, other))
 
-    def dimensions(self):
+    def dimensions(self) -> Tuple[int, int]:
         """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
         return [self.cells.shape[1], self.cells.shape[0]]
 
