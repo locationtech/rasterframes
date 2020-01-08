@@ -104,18 +104,21 @@ object RasterSource extends LazyLogging {
     ExpressionEncoder()
   }
 
+  def apply(source: String): RasterSource = apply(new URI(source))
+
   def apply(source: URI): RasterSource =
     rsCache.get(
-      source.toASCIIString, _ => source match {
-        case IsGDAL()          => GDALRasterSource(source)
-        case IsHadoopGeoTiff() =>
-          // TODO: How can we get the active hadoop configuration
-          // TODO: without having to pass it through?
-          val config = () => new Configuration()
-          HadoopGeoTiffRasterSource(source, config)
-        case IsDefaultGeoTiff() => JVMGeoTiffRasterSource(source)
-        case s                  => throw new UnsupportedOperationException(s"Reading '$s' not supported")
-      }
+      source.toASCIIString, _ =>
+        source match {
+          case IsGDAL() => GDALRasterSource(source)
+          case IsHadoopGeoTiff() =>
+            // TODO: How can we get the active hadoop configuration
+            // TODO: without having to pass it through?
+            val config = () => new Configuration()
+            HadoopGeoTiffRasterSource(source, config)
+          case IsDefaultGeoTiff() => JVMGeoTiffRasterSource(source)
+          case s => throw new UnsupportedOperationException(s"Reading '$s' not supported")
+        }
     )
 
   object IsGDAL {
@@ -125,6 +128,8 @@ object RasterSource extends LazyLogging {
 
     val gdalOnlyExtensions = Seq(".jp2", ".mrf", ".hdf", ".vrt")
 
+    val blacklistedSchemes = Seq("s3a", "s3n", "wasbs")
+
     def gdalOnly(source: URI): Boolean =
       if (gdalOnlyExtensions.exists(source.getPath.toLowerCase.endsWith)) {
         require(GDALRasterSource.hasGDAL, s"Can only read $source if GDAL is available")
@@ -133,26 +138,43 @@ object RasterSource extends LazyLogging {
 
     /** Extractor for determining if a scheme indicates GDAL preference.  */
     def unapply(source: URI): Boolean = {
-      lazy val schemeIsGdal = Option(source.getScheme())
-        .exists(_.startsWith("gdal"))
 
-      gdalOnly(source) || ((preferGdal || schemeIsGdal) && GDALRasterSource.hasGDAL)
+      lazy val schemeIsNotHadoop = Option(source.getScheme())
+        .filter(blacklistedSchemes.contains)
+        .isEmpty
+
+      lazy val schemeIsGdal = Option(source.getScheme())
+        .exists(_ == "gdal") && schemeIsNotHadoop
+
+      (gdalOnly(source) && schemeIsNotHadoop) ||
+        (GDALRasterSource.hasGDAL &&
+          (preferGdal && schemeIsGdal) ||
+          (preferGdal && schemeIsNotHadoop)
+        )
+
     }
   }
 
   object IsDefaultGeoTiff {
-    def unapply(source: URI): Boolean = source.getScheme match {
-      case "file" | "http" | "https" | "s3" => true
-      case null | ""                        ⇒ true
-      case _                                => false
+    import IsGDAL.gdalOnly
+    def unapply(source: URI): Boolean = {
+      if (gdalOnly(source)) false
+      else source.getScheme match {
+        case "file" | "http" | "https" | "s3" => true
+        case null | ""                        ⇒ true
+        case _                                => false
+      }
     }
   }
 
   object IsHadoopGeoTiff {
-    def unapply(source: URI): Boolean = source.getScheme match {
-      case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" => true
-      case _                                         => false
-    }
+    import IsGDAL.gdalOnly
+    def unapply(source: URI): Boolean =
+      if (gdalOnly(source)) false
+      else source.getScheme match {
+        case "hdfs" | "s3n" | "s3a" | "wasb" | "wasbs" => true
+        case _                                         => false
+      }
   }
 
   trait URIRasterSource { _: RasterSource =>
