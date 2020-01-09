@@ -22,34 +22,25 @@ import glob
 from pyspark.sql import SparkSession
 from pyspark import SparkConf
 import os
-import sys
 from . import RFContext
+from typing import Union, Dict
 
 __all__ = ["create_rf_spark_session", "find_pyrasterframes_jar_dir", "find_pyrasterframes_assembly", "gdal_version"]
 
 
-def find_pyrasterframes_jar_dir():
+def find_pyrasterframes_jar_dir() -> str:
     """
     Locates the directory where JVM libraries for Spark are stored.
     :return: path to jar director as a string
     """
     jar_dir = None
 
-    if sys.version < "3":
-        import imp
-        try:
-            module_home = imp.find_module("pyrasterframes")[1]  # path
-            jar_dir = os.path.join(module_home, 'jars')
-        except ImportError:
-            pass
-
-    else:
-        from importlib.util import find_spec
-        try:
-            module_home = find_spec("pyrasterframes").origin
-            jar_dir = os.path.join(os.path.dirname(module_home), 'jars')
-        except ImportError:
-            pass
+    from importlib.util import find_spec
+    try:
+        module_home = find_spec("pyrasterframes").origin
+        jar_dir = os.path.join(os.path.dirname(module_home), 'jars')
+    except ImportError:
+        pass
 
     # Case for when we're running from source build
     if jar_dir is None or not os.path.exists(jar_dir):
@@ -66,7 +57,7 @@ def find_pyrasterframes_jar_dir():
     return os.path.realpath(jar_dir)
 
 
-def find_pyrasterframes_assembly():
+def find_pyrasterframes_assembly() -> Union[bytes, str]:
     jar_dir = find_pyrasterframes_jar_dir()
     jarpath = glob.glob(os.path.join(jar_dir, 'pyrasterframes-assembly*.jar'))
 
@@ -77,7 +68,7 @@ Try running 'sbt pyrasterframes/clean pyrasterframes/package' first. """.format(
     return jarpath[0]
 
 
-def create_rf_spark_session(master="local[*]", **kwargs):
+def create_rf_spark_session(master="local[*]", **kwargs: str) -> SparkSession:
     """ Create a SparkSession with pyrasterframes enabled and configured. """
     jar_path = find_pyrasterframes_assembly()
 
@@ -103,11 +94,11 @@ def create_rf_spark_session(master="local[*]", **kwargs):
         return None
 
 
-def gdal_version():
+def gdal_version() -> str:
     fcn = RFContext.active().lookup("buildInfo")
     return fcn()["GDAL"]
 
 
-def build_info():
+def build_info() -> Dict[str, str]:
     fcn = RFContext.active().lookup("buildInfo")
     return fcn()

@@ -22,6 +22,7 @@
   - Revisit use of `Tile` equality since [it's more strict](https://github.com/locationtech/geotrellis/pull/2991)
   - Update `reference.conf` to use `geotrellis.raster.gdal` namespace.
   - Replace all uses of `TileDimensions` with `geotrellis.raster.Dimensions[Int]`.
+* Formally abandon support for Python 2. Python 2 is dead. Long live Python 2.
 
 ## 0.8.x
 

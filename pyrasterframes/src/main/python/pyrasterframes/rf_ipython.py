@@ -19,12 +19,16 @@
 #
 
 import pyrasterframes.rf_types
+from pyrasterframes.rf_types import Tile
 from shapely.geometry.base import BaseGeometry
-
+import matplotlib.axes.Axes
 import numpy as np
+from pandas import DataFrame
+from typing import Optional, Tuple
 
 
-def plot_tile(tile, normalize=True, lower_percentile=1, upper_percentile=99, axis=None, **imshow_args):
+def plot_tile(tile: Tile, normalize: bool = True, lower_percentile: float = 1., upper_percentile: float = 99.,
+              axis: Optional[matplotlib.axis.Axes] = None, **imshow_args):
     """
     Display an image of the tile
 
@@ -50,7 +54,7 @@ def plot_tile(tile, normalize=True, lower_percentile=1, upper_percentile=99, axi
 
     arr = tile.cells
 
-    def normalize_cells(cells):
+    def normalize_cells(cells: np.ndarray) -> np.ndarray:
         assert upper_percentile > lower_percentile, 'invalid upper and lower percentiles {}, {}'.format(lower_percentile, upper_percentile)
         sans_mask = np.array(cells)
         lower = np.nanpercentile(sans_mask, lower_percentile)
@@ -72,7 +76,8 @@ def plot_tile(tile, normalize=True, lower_percentile=1, upper_percentile=99, axi
     return axis
 
 
-def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_size=None):
+def tile_to_png(tile: Tile, lower_percentile: float = 1., upper_percentile: float = 99., title: Optional[str] = None,
+                fig_size: Optional[Tuple[int, int]] = None) -> bytes:
     """ Provide image of Tile."""
     if tile.cells is None:
         return None
@@ -106,7 +111,7 @@ def tile_to_png(tile, lower_percentile=1, upper_percentile=99, title=None, fig_s
         return output.getvalue()
 
 
-def tile_to_html(tile, fig_size=None):
+def tile_to_html(tile: Tile, fig_size: Optional[Tuple[int, int]] = None) -> str:
     """ Provide HTML string representation of Tile image."""
     import base64
     b64_img_html = '<img src="data:image/png;base64,{}" />'
@@ -115,7 +120,7 @@ def tile_to_html(tile, fig_size=None):
     return b64_img_html.format(b64_png)
 
 
-def pandas_df_to_html(df):
+def pandas_df_to_html(df: DataFrame) -> str:
     """Provide HTML formatting for pandas.DataFrame with rf_types.Tile in the columns.  """
     import pandas as pd
     # honor the existing options on display
@@ -170,17 +175,17 @@ def pandas_df_to_html(df):
     return return_html
 
 
-def spark_df_to_markdown(df, num_rows=5, truncate=False):
+def spark_df_to_markdown(df: DataFrame, num_rows: int = 5, truncate: bool = False) -> str:
     from pyrasterframes import RFContext
     return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
 
 
-def spark_df_to_html(df, num_rows=5, truncate=False):
+def spark_df_to_html(df: DataFrame, num_rows: int = 5, truncate: bool = False) -> str:
     from pyrasterframes import RFContext
     return RFContext.active().call("_dfToHTML", df._jdf, num_rows, truncate)
 
 
-def _folium_map_formatter(map):
+def _folium_map_formatter(map) -> str:
     """ inputs a folium.Map object and returns html of rendered map """
     
     import base64

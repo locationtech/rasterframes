@@ -23,6 +23,11 @@ This module contains access to the jvm SparkContext with RasterFrameLayer suppor
 """
 
 from pyspark import SparkContext
+from pyspark.sql import SparkSession
+
+from typing import Any, List
+from py4j.java_gateway import JavaMember
+from py4j.java_collections import JavaList, JavaMap
 
 __all__ = ['RFContext']
 
@@ -31,21 +36,21 @@ class RFContext(object):
     """
     Entrypoint to RasterFrames services
     """
-    def __init__(self, spark_session):
+    def __init__(self, spark_session: SparkSession):
         self._spark_session = spark_session
         self._gateway = spark_session.sparkContext._gateway
         self._jvm = self._gateway.jvm
         jsess = self._spark_session._jsparkSession
         self._jrfctx = self._jvm.org.locationtech.rasterframes.py.PyRFContext(jsess)
 
-    def list_to_seq(self, py_list):
+    def list_to_seq(self, py_list: List[Any]) -> JavaList:
         conv = self.lookup('_listToSeq')
         return conv(py_list)
 
-    def lookup(self, function_name):
+    def lookup(self, function_name: str) -> JavaMember:
         return getattr(self._jrfctx, function_name)
 
-    def build_info(self):
+    def build_info(self) -> JavaMap:
         return self._jrfctx.buildInfo()
 
     # NB: Tightly coupled to `org.locationtech.rasterframes.py.PyRFContext._resolveRasterRef`

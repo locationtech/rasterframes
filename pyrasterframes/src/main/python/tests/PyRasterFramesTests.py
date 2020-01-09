@@ -326,9 +326,7 @@ class TileOps(TestEnvironment):
         self.assertTrue(np.array_equal(r2, np.array([[1,1], [1, 1]], dtype=r2.dtype)))
 
     def test_matmul(self):
-        # if sys.version >= '3.5':  # per https://docs.python.org/3.7/library/operator.html#operator.matmul new in 3.5
-        #     r1 = self.t1 @ self.t2
-        r1 = self.t1.__matmul__(self.t2)
+        r1 = self.t1 @ self.t2
 
         # The behavior of np.matmul with masked arrays is not well documented
         # it seems to treat the 2nd arg as if not a MaskedArray
