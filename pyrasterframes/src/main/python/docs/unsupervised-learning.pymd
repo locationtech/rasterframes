@@ -20,7 +20,7 @@ We import various Spark components needed to construct our `Pipeline`.
 ```python, imports, echo=True
 import pandas as pd
 from pyrasterframes import TileExploder
-from pyrasterframes.rasterfunctions import rf_assemble_tile, rf_crs, rf_extent, rf_tile, rf_dimensions
+from pyrasterframes.rasterfunctions import *
 
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
@@ -118,16 +118,23 @@ retiled = clustered.groupBy('extent', 'crs') \
         rf_assemble_tile('column_index', 'row_index', 'prediction',
             tile_dims['cols'], tile_dims['rows'], CellType.int8()).alias('prediction')
 )
-
-retiled.printSchema()
-```
-
-```python, display
-retiled
 ```
 
 The resulting output is shown below.
 
 ```python, viz
-display(retiled.select('prediction').first()['prediction'])
+from pyrasterframes.rf_types import Extent
+aoi = Extent.from_row(
+    retiled.agg(rf_agg_reprojected_extent('extent', 'crs', 'epsg:3857')) \
+           .first()[0]
+)
+
+retiled.select(rf_agg_overview_raster('prediction', 558, 507, aoi, 'extent', 'crs'))
+```
+
+
+```python, viz-true-color, evaluate=False, echo=False
+#For comparison, the true color composite of the original data.
+#  this is really dark
+df.select(rf_render_png('b4', 'b3', 'b2'))
 ```

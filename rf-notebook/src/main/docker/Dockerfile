@@ -1,10 +1,8 @@
 # jupyter/scipy-notebook isn't semantically versioned.
 # We pick this arbitrary one from Sept 2019 because it's what latest was on Oct 17 2019.
-FROM jupyter/scipy-notebook:1386e2046833
+FROM jupyter/scipy-notebook:7a0c7325e470
 
 LABEL maintainer="Astraea, Inc. <info@astraea.earth>"
-
-EXPOSE 4040 4041 4042 4043 4044
 
 USER root
 
@@ -36,21 +34,25 @@ ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip
 ENV SPARK_OPTS --driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info
 ENV RF_LIB_LOC=/usr/local/rasterframes
 
-COPY conda_cleanup.sh $RF_LIB_LOC/
+COPY conda_cleanup.sh requirements-nb.txt $RF_LIB_LOC/
 RUN chmod u+x $RF_LIB_LOC/conda_cleanup.sh
 
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/conda/lib"
-# Sphinx (for Notebook->html) and pyarrow (from pyspark build)
 RUN \
-    conda install --quiet --yes --channel conda-forge \
-    pyarrow anaconda sphinx nbsphinx shapely numpy folium geopandas geojsonio rasterio descartes && \
+    conda config --set unsatisfiable_hints True && \
+    conda --debug update --channel conda-forge --all --yes --quiet && \
+    conda install --yes --channel conda-forge --file $RF_LIB_LOC/requirements-nb.txt && \
     $RF_LIB_LOC/conda_cleanup.sh $NB_USER $CONDA_DIR
 
+RUN conda list --export
+
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/conda/lib"
 COPY *.whl $RF_LIB_LOC/
-COPY jupyter_notebook_config.py $HOME/.jupyter
+COPY jupyter_notebook_config.py $HOME/.jupyter/
 COPY examples $HOME/examples
 
 RUN ls -1 $RF_LIB_LOC/*.whl | xargs pip install --no-cache-dir
 RUN chmod -R +w $HOME/examples && chown -R $NB_UID:$NB_GID $HOME
 
 USER $NB_UID
+
+EXPOSE 4040 4041 4042 4043 4044

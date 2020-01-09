@@ -120,6 +120,12 @@ Fetches the extent (bounding box or envelope) of a `ProjectedRasterTile` or `Ras
 
 Fetch CRS structure representing the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns, or from a column of strings in the form supported by @ref:[`rf_mk_crs`](reference.md#rf-mk-crs). 
 
+### rf_proj_raster
+
+    ProjectedRasterTile rf_proj_raster(Tile tile, Extent extent, CRS crs)
+
+Construct a `proj_raster` structure from individual Tile, Extent, and CRS columns.
+
 ### rf_mk_crs
 
     Struct rf_mk_crs(String crsText)   
@@ -628,6 +634,18 @@ Aggregates over the `tile` and returns statistical summaries of cell values: num
 
 Aggregates over all of the rows in DataFrame of `tile` and returns a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function which operates on a single row at a time.
 
+### rf_agg_extent
+
+    Extent rf_agg_extent(Extent extent)
+    
+Compute the naive aggregate extent over a column. Assumes CRS homogeneity. With mixed CRS in the column, or if you are unsure, use @ref:[`rf_agg_reprojected_extent`](reference.md#rf-agg-reprojected-extent).
+
+
+### rf_agg_reprojected_extent
+
+    Extent rf_agg_reprojected_extent(Extent extent, CRS source_crs, String dest_crs)
+    
+Compute the aggregate extent over the `extent` and `source_crs` columns. The `dest_crs` is given as a string. Each row's extent will be reprojected to the `dest_crs` before aggregating. 
 
 ## Tile Local Aggregate Statistics
 
@@ -710,22 +728,58 @@ Pretty print the tile values as plain text.
 
     String rf_render_matrix(Tile tile)
 
-Render Tile cell values as numeric values, for debugging purposes.
+Render Tile cell values as a string of numeric values, for debugging purposes.
 
+### rf_render_png
+
+    Array rf_render_png(Tile red, Tile green, Tile blue)
+    
+Converts three tile columns to a three-channel PNG-encoded image `bytearray`. First evaluates [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile columns, and then encodes the result. For more about rendering these in a Jupyter or IPython environment, see @[Writing Raster Data](raster-write.md#rendering-samples-with-color).
+
+### rf_render_color_ramp_png
+
+    Array rf_render_png(Tile tile, String color_ramp_name)
+    
+Converts given tile into a PNG image, using a color ramp of the given name to convert cells into pixels. `color_ramp_name` can be one of the following:
+
+ * "BlueToOrange"
+ * "LightYellowToOrange"
+ * "BlueToRed"
+ * "GreenToRedOrange"
+ * "LightToDarkSunset"
+ * "LightToDarkGreen"
+ * "HeatmapYellowToRed"
+ * "HeatmapBlueToYellowToRedSpectrum"
+ * "HeatmapDarkRedToYellowWhite"
+ * "HeatmapLightPurpleToDarkPurpleToWhite"
+ * "ClassificationBoldLandUse"
+ * "ClassificationMutedTerrain"
+ * "Magma"
+ * "Inferno"
+ * "Plasma"
+ * "Viridis"
+ * "Greyscale2"
+ * "Greyscale8"
+ * "Greyscale32"
+ * "Greyscale64"
+ * "Greyscale128"
+ * "Greyscale256"
+
+Further descriptions of these color ramps can be found in the [Geotrellis Documentation](https://geotrellis.readthedocs.io/en/latest/guide/rasters.html#built-in-color-ramps). For more about rendering these in a Jupyter or IPython environment, see @[Writing Raster Data](raster-write.md#rendering-samples-with-color).
+
+### rf_agg_overview_raster
+    
+    Tile rf_agg_overview_raster(Tile proj_raster_col, int cols, int rows, Extent aoi)
+    Tile rf_agg_overview_raster(Tile tile_col, int cols, int rows, Extent aoi, Extent tile_extent_col, CRS tile_crs_col)
+
+Construct an overview _tile_ of size `cols` by `rows`. Data is filtered to the specified `aoi` which is given in web mercator. Uses bi-linear sampling method. The `tile_extent_col` and `tile_crs_col` arguments are optional if the first argument has its Extent and CRS embedded.
 
 ### rf_rgb_composite
 
     Tile rf_rgb_composite(Tile red, Tile green, Tile blue)
     
 Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer. This is useful when you want an RGB tile to render or to process with other color imagery tools. 
-
-
-### rf_render_png
-
-    Array rf_render_png(Tile red, Tile green, Tile blue)
     
-Runs [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile columns and then encodes the result as a PNG byte array.
-
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
 [Array]: http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType

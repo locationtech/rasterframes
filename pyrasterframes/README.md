@@ -83,13 +83,24 @@ example below with `sbt`.
 
 ## Running Tests
 
-The PyRasterFrames unit tests can found in `<src-root>/pyrasterframes/python/tests`. To run them:
+### Standard
+
+The PyRasterFrames unit tests can found in `<src-root>/pyrasterframes/src/main/python/tests`. To run them:
 
 ```bash
 sbt pyrasterframes/test # alias 'pyTest'
 ```
 
 *See also the below discussion of running `setup.py` for more options to run unit tests.*
+
+### Via Interpreter
+
+After running `sbt pyrasterframes/package`, you can run tests more directly in the `src/main/python` directory like this:
+
+```bash
+python -m unittest tests/RasterFunctionsTests.py
+python -m unittest tests/RasterFunctionsTests.py -k test_rf_agg_overview_raster
+```
 
 ## Running Python Markdown Sources
 

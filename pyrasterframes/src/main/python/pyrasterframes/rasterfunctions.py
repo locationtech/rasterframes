@@ -27,7 +27,7 @@ from __future__ import absolute_import
 from pyspark.sql.column import Column, _to_java_column
 from pyspark.sql.functions import lit
 from .rf_context import RFContext
-from .rf_types import CellType
+from .rf_types import CellType, Extent, CRS
 
 THIS_MODULE = 'pyrasterframes'
 
@@ -333,6 +333,32 @@ def rf_agg_no_data_cells(tile_col):
     return _apply_column_function('rf_agg_no_data_cells', tile_col)
 
 
+def rf_agg_extent(extent_col):
+    """Compute the aggregate extent over a column"""
+    return _apply_column_function('rf_agg_extent', extent_col)
+
+
+def rf_agg_reprojected_extent(extent_col, src_crs_col, dest_crs):
+    """Compute the aggregate extent over a column, first projecting from the row CRS to the destination CRS. """
+    return Column(RFContext.call('rf_agg_reprojected_extent', _to_java_column(extent_col), _to_java_column(src_crs_col), CRS(dest_crs).__jvm__))
+
+
+def rf_agg_overview_raster(tile_col: Column, cols: int, rows: int, aoi: Extent,
+                           tile_extent_col: Column = None, tile_crs_col: Column = None):
+    """Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the
+    `aoi` bound box in web-mercator. Uses bi-linear sampling method."""
+    ctx = RFContext.active()
+    jfcn = ctx.lookup("rf_agg_overview_raster")
+
+    if tile_extent_col is None or tile_crs_col is None:
+        return Column(jfcn(_to_java_column(tile_col), cols, rows, aoi.__jvm__))
+    else:
+        return Column(jfcn(
+            _to_java_column(tile_col), _to_java_column(tile_extent_col), _to_java_column(tile_crs_col),
+            cols, rows, aoi.__jvm__
+        ))
+
+
 def rf_tile_histogram(tile_col):
     """Compute the Tile-wise histogram"""
     return _apply_column_function('rf_tile_histogram', tile_col)
@@ -376,6 +402,11 @@ def rf_render_matrix(tile_col):
 def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
     """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
     return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
+
+
+def rf_render_color_ramp_png(tile_col, color_ramp_name):
+    """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
+    return Column(RFContext.call('rf_render_png', _to_java_column(tile_col), color_ramp_name))
 
 
 def rf_rgb_composite(red_tile_col, green_tile_col, blue_tile_col):
@@ -644,6 +675,12 @@ def rf_tile(proj_raster_col):
     """Extracts the Tile component of a ProjectedRasterTile (or Tile)."""
     return _apply_column_function('rf_tile', proj_raster_col)
 
+
+def rf_proj_raster(tile, extent, crs):
+    """
+    Construct a `proj_raster` structure from individual CRS, Extent, and Tile columns
+    """
+    return _apply_column_function('rf_proj_raster', tile, extent, crs)
 
 def st_geometry(geom_col):
     """Convert the given extent/bbox to a polygon"""

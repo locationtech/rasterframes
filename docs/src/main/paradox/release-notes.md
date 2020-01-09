@@ -8,6 +8,11 @@
 * _Breaking_: `rf_spatial_index` renamed `rf_xz2_index` to differentiate between XZ2 and Z2 variants.
 * Added `withSpatialIndex` to RasterSourceDataSource to pre-partition tiles based on tile extents mapped to a Z2 space-filling curve 
 * Add `rf_mask_by_bit`, `rf_mask_by_bits` and `rf_local_extract_bits` to deal with bit packed quality masks. Updated the masking documentation to demonstrate the use of these functions.
+* Added `toDF` extension method to `MultibandGeoTiff`
+* Added `rf_agg_extent` and `rf_agg_reprojected_extent` to compute the aggregate extent of a column
+* Added `rf_proj_raster` for constructing a `proj_raster` structure from individual CRS, Extent, and Tile columns.
+* Added `rf_render_color_ramp_png` to compute PNG byte array for a single tile column, with specified color ramp.
+* In `rf_ipython`, improved rendering of dataframe binary contents with PNG preamble.
 * Throw an `IllegalArgumentException` when attempting to apply a mask to a `Tile` whose `CellType` has no NoData defined. ([#409](https://github.com/locationtech/rasterframes/issues/384))
 
 ### 0.8.4

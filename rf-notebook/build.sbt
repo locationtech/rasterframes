@@ -37,7 +37,13 @@ Docker / mappings := Def.sequential(
       else Def.task(0)
     }.value
 
-    val nbFiles = ((LocalProject("pyrasterframes") / Python / doc / target).value ** "*.ipynb").get()
+    val docTarget = (LocalProject("pyrasterframes") / Python / doc / target).value
+    val nbFiles = {
+      if (includeNotebooks.value)
+        (docTarget ** "*.ipynb").get()
+      else
+        (docTarget ** "*.pymd").get()
+    }
 
     val examples = nbFiles.map(f => (f, "examples/" + f.getName))
     dockerAssets ++ Seq(py -> py.getName) ++ examples
