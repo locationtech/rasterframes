@@ -18,9 +18,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+from unittest import skip
+
+
+import pyrasterframes
 from pyrasterframes.rasterfunctions import *
+from pyrasterframes.rf_types import *
 from pyrasterframes.utils import gdal_version
-from pyrasterframes.rf_types import Tile
 from pyspark import Row
 from pyspark.sql.functions import *
 
@@ -34,6 +38,9 @@ from . import TestEnvironment
 class RasterFunctions(TestEnvironment):
 
     def setUp(self):
+        if not sys.warnoptions:
+            import warnings
+            warnings.simplefilter("ignore")
         self.create_layer()
 
     def test_setup(self):
@@ -432,7 +439,7 @@ class RasterFunctions(TestEnvironment):
         ## Test PNG generation
         png_bytes = rf.select(rf_render_png('red', 'green', 'blue').alias('png')).first()['png']
         # Look for the PNG magic cookie
-        self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+        self.assert_png(png_bytes)
 
     def test_rf_interpret_cell_type_as(self):
         from pyspark.sql import Row
@@ -496,3 +503,26 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['in_list'].cells.sum(), 2,
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
+
+    def test_rf_agg_overview_raster(self):
+        width = 500
+        height = 400
+        agg = self.prdf.select(rf_agg_extent(rf_extent(self.prdf.proj_raster)).alias("extent")).first().extent
+        crs = self.prdf.select(rf_crs(self.prdf.proj_raster).alias("crs")).first().crs.crsProj4
+        aoi = Extent.from_row(agg)
+        aoi = aoi.reproject(crs, "EPSG:3857")
+        aoi = aoi.buffer(-(aoi.width * 0.2))
+
+        ovr = self.prdf.select(rf_agg_overview_raster(self.prdf.proj_raster, width, height, aoi).alias("agg"))
+        png = ovr.select(rf_render_color_ramp_png('agg', 'Greyscale64')).first()[0]
+        self.assert_png(png)
+
+        # with open('/tmp/test_rf_agg_overview_raster.png', 'wb') as f:
+        #     f.write(png)
+
+    def test_rf_proj_raster(self):
+        df = self.prdf.select(rf_proj_raster(rf_tile('proj_raster'),
+                                             rf_extent('proj_raster'),
+                                             rf_crs('proj_raster')).alias('roll_your_own'))
+        self.assertIn('tile_context', df.schema['roll_your_own'].dataType.fieldNames())
+

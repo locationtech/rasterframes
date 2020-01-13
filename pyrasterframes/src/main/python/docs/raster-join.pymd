@@ -1,0 +1,71 @@
+# Raster Join
+
+```python, init, echo=False
+from IPython.display import display
+import pyrasterframes.rf_ipython
+import pandas as pd
+from pyrasterframes.utils import create_rf_spark_session
+from pyrasterframes.rasterfunctions import *
+from pyspark.sql.functions import *
+spark = create_rf_spark_session()
+
+```
+
+## Description
+
+A common operation for raster data is reprojecting or warping the data to a different @ref:[CRS][CRS] with a specific @link:[transform](https://gdal.org/user/raster_data_model.html#affine-geotransform) { open=new }. In many use cases, the particulars of the warp operation depend on another set of raster  data. Furthermore, the warp is done to put both sets of raster data to a common set of grid to enable manipulation of the datasets together.
+  
+In RasterFrames, you can perform a **Raster Join** on two DataFrames containing raster data. 
+The operation will perform a _spatial join_ based on the [CRS][CRS] and [extent][extent] data in each DataFrame. By default it is a left join and uses an intersection operator.
+For each candidate row, all _tile_ columns on the right hand side are warped to match the left hand side's [CRS][CRS], [extent][extent], and dimensions. Warping relies on GeoTrellis library code and uses nearest neighbor resampling method. 
+The operation is also an aggregate, with multiple intersecting right-hand side tiles `merge`d into the result. There is no guarantee about the ordering of tiles used to select cell values in the case of overlapping tiles.
+When using the @ref:[`raster` DataSource](raster-join.md) you will automatically get the @ref:[CRS][CRS] and @ref:[extent][extent] information needed to do this operation.
+
+
+## Example Code
+
+Because the raster join is a distributed spatial join, indexing of both DataFrames using the [spatial index][spatial-index] is crucial for performance.
+
+```python, example_raster_join
+# Southern Mozambique December 29, 2016
+modis = spark.read.raster('s3://astraea-opendata/MCD43A4.006/21/11/2016297/MCD43A4.A2016297.h21v11.006.2016306075821_B01.TIF',
+                          spatial_index_partitions=True) \
+                  .withColumnRenamed('proj_raster', 'modis')
+
+landsat8 = spark.read.raster('https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/167/077/LC08_L1TP_167077_20161015_20170319_01_T1/LC08_L1TP_167077_20161015_20170319_01_T1_B4.TIF',
+                             spatial_index_partitions=True) \
+                  .withColumnRenamed('proj_raster', 'landsat')
+
+rj = landsat8.raster_join(modis)
+
+# Show some non-empty tiles
+rj.select('landsat', 'modis', 'crs', 'extent') \
+  .filter(rf_data_cells('modis') > 0) \
+  .filter(rf_tile_max('landsat') > 0) 
+```
+
+## Additional Options
+
+The following optional arguments are allowed:
+
+ * `left_extent` - the column on the left-hand DataFrame giving the [extent][extent] of the tile columns
+ * `left_crs` - the column on the left-hand DataFrame giving the [CRS][CRS] of the tile columns
+ * `right_extent` - the column on the right-hand DataFrame giving the [extent][extent] of the tile columns
+ * `right_crs` - the column on the right-hand DataFrame giving the [CRS][CRS] of the tile columns
+ * `join_exprs` - a single column expression as would be used in the [`on` parameter of `join`](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame.join)
+ 
+ 
+ Note that the `join_exprs` will override the join behavior described above. By default the expression is equivalent to:
+ 
+```python, join_expr, evaluate=False
+st_intersects(
+    st_geometry(left[left_extent]), 
+    st_reproject(st_geometry(right[right_extent]), right[right_crs], left[left_crs])
+)
+```
+
+
+
+[CRS]: concepts.md#coordinate-reference-system--crs
+[extent]: concepts.md#extent
+[spatial-index]:raster-read.md#spatial-indexing-and-partitioning

@@ -21,22 +21,16 @@
 
 package org.locationtech.rasterframes.functions
 
-import geotrellis.raster
 import geotrellis.raster._
 import geotrellis.raster.testkit.RasterMatchers
-import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
   import ProjectedRasterTile.prtEncoder
   import TestData._
   import spark.implicits._
-
-  implicit val pairEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-  implicit val tripEnc = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-
 
   describe("masking by defined") {
     it("should mask one tile against another") {
@@ -419,8 +413,6 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
            | WHERE val = 2756
            |""".stripMargin)
       result.select(rf_is_no_data_tile(col(maskedCol))).first() should be (true)
-
     }
   }
-
 }

@@ -57,7 +57,6 @@ class PweaveDocs(distutils.cmd.Command):
         ('quick=', 'q', 'Check to see if the source file is newer than existing output before building. Defaults to `False`.')
     ]
 
-
     def initialize_options(self):
         """Set default values for options."""
         # Each user option must be listed here with their default value.

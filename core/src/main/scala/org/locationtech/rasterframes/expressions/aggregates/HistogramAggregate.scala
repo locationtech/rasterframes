@@ -107,7 +107,7 @@ object HistogramAggregate {
 
   /** Adapter hack to allow UserDefinedAggregateFunction to be referenced as an expression. */
   @ExpressionDescription(
-    usage = "_FUNC_(tile) - Compute aggregate cell histogram over a tile column.",
+    usage = "_FUNC_(tile) - Compute aggregate cell histogram over fa tile column.",
     arguments = """
   Arguments:
     * tile - tile column to analyze""",

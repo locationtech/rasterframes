@@ -29,6 +29,7 @@ import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
+import geotrellis.raster.render.{ColorRamp, ColorRamps}
 import geotrellis.spark.Bounds
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.{ByteReader, GetComponent}
@@ -145,8 +146,40 @@ package object util extends DataFrameRenderers {
     def when(pred: T ⇒ Boolean): Option[T] = Option(left).filter(pred)
   }
 
-  implicit class ConditionalMap[T](val left: T) extends AnyVal {
-    def mapWhen[R >: T](pred: T ⇒ Boolean, f: T ⇒ R): R = if(pred(left)) f(left) else left
+  implicit class ConditionalApply[T](val left: T) extends AnyVal {
+    def applyWhen[R >: T](pred: T ⇒ Boolean, f: T ⇒ R): R = if(pred(left)) f(left) else left
+  }
+
+  object ColorRampNames {
+    import ColorRamps._
+    private lazy val mapping = Map(
+      "BlueToOrange" -> BlueToOrange,
+      "LightYellowToOrange" -> LightYellowToOrange,
+      "BlueToRed" -> BlueToRed,
+      "GreenToRedOrange" -> GreenToRedOrange,
+      "LightToDarkSunset" -> LightToDarkSunset,
+      "LightToDarkGreen" -> LightToDarkGreen,
+      "HeatmapYellowToRed" -> HeatmapYellowToRed,
+      "HeatmapBlueToYellowToRedSpectrum" -> HeatmapBlueToYellowToRedSpectrum,
+      "HeatmapDarkRedToYellowWhite" -> HeatmapDarkRedToYellowWhite,
+      "HeatmapLightPurpleToDarkPurpleToWhite" -> HeatmapLightPurpleToDarkPurpleToWhite,
+      "ClassificationBoldLandUse" -> ClassificationBoldLandUse,
+      "ClassificationMutedTerrain" -> ClassificationMutedTerrain,
+      "Magma" -> Magma,
+      "Inferno" -> Inferno,
+      "Plasma" -> Plasma,
+      "Viridis" -> Viridis,
+      "Greyscale2"-> greyscale(2),
+      "Greyscale8"-> greyscale(8),
+      "Greyscale32"-> greyscale(32),
+      "Greyscale64"-> greyscale(64),
+      "Greyscale128"-> greyscale(128),
+      "Greyscale256"-> greyscale(256)
+    )
+
+    def unapply(name: String): Option[ColorRamp] = mapping.get(name)
+
+    def apply() = mapping.keys.toSeq
   }
 
   private[rasterframes]
