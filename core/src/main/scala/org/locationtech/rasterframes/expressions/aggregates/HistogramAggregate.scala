@@ -98,7 +98,10 @@ object HistogramAggregate {
   import org.locationtech.rasterframes.encoders.StandardEncoders.cellHistEncoder
 
   def apply(col: Column): TypedColumn[Any, CellHistogram] =
-    new HistogramAggregate()(ExtractTile(col))
+    apply(col, StreamingHistogram.DEFAULT_NUM_BUCKETS)
+
+  def apply(col: Column, numBuckets: Int): TypedColumn[Any, CellHistogram] =
+    new HistogramAggregate(numBuckets)(ExtractTile(col))
       .as(s"rf_agg_approx_histogram($col)")
       .as[CellHistogram]
 
