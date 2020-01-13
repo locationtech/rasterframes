@@ -47,8 +47,7 @@ samples = spark_df \
         rf_extent('proj_raster').alias('extent'),
         rf_tile('proj_raster').alias('tile'),
     )\
-    .select('tile', 'extent.*') \
-    .limit(3)
+    .select('tile', 'extent.*') 
 samples
 ```
 
@@ -69,7 +68,7 @@ composite_df = spark.read.raster([[scene(1), scene(4), scene(3)]],
                                  tile_dimensions=(256, 256))
 composite_df = composite_df.withColumn('png',
                     rf_render_png('proj_raster_0', 'proj_raster_1', 'proj_raster_2'))
-composite_df.select('png').limit(3)
+composite_df.select('png')
 ```
 
 
