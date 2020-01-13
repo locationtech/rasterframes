@@ -51,13 +51,30 @@ trait AggregateFunctions {
   /** Compute the cellwise/local count of NoData cells for all Tiles in a column. */
   def rf_agg_local_no_data_cells(tile: Column): TypedColumn[Any, Tile] = LocalCountAggregate.LocalNoDataCellsUDAF(tile)
 
-  /**  Compute the full column aggregate floating point histogram. */
+  /**  Compute the approximate aggregate floating point histogram using a streaming algorithm, with the default of 80 buckets. */
   def rf_agg_approx_histogram(tile: Column): TypedColumn[Any, CellHistogram] = HistogramAggregate(tile)
 
   /**  Compute the approximate aggregate floating point histogram using a streaming algorithm, with the given number of buckets. */
   def rf_agg_approx_histogram(col: Column, numBuckets: Int): TypedColumn[Any, CellHistogram] = {
     require(numBuckets > 0, "Must provide a positive number of buckets")
     HistogramAggregate(col, numBuckets)
+  }
+
+  /**
+    * Calculates the approximate quantiles of a tile column of a DataFrame.
+    * @param tile tile column to extract cells from.
+    * @param probabilities a list of quantile probabilities
+    *   Each number must belong to [0, 1].
+    *   For example 0 is the minimum, 0.5 is the median, 1 is the maximum.
+    * @param relativeError The relative target precision to achieve (greater than or equal to 0).
+    * @return the approximate quantiles at the given probabilities of each column
+    */
+  def rf_agg_approx_quantiles(
+                               tile: Column,
+                               probabilities: Seq[Double],
+                               relativeError: Double = 0.00001): TypedColumn[Any, Seq[Double]] = {
+    require(probabilities.nonEmpty, "at least one quantile probability is required")
+    ApproxCellQuantilesAggregate(tile, probabilities, relativeError)
   }
 
   /** Compute the full column aggregate floating point statistics. */

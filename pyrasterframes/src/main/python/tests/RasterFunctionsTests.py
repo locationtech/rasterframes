@@ -38,6 +38,7 @@ from . import TestEnvironment
 class RasterFunctions(TestEnvironment):
 
     def setUp(self):
+        import sys
         if not sys.warnoptions:
             import warnings
             warnings.simplefilter("ignore")

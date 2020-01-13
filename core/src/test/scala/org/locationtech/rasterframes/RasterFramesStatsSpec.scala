@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes
 
+import org.locationtech.rasterframes.RasterFunctions
 import org.apache.spark.sql.functions.{col, explode}
 
 class RasterFramesStatsSpec extends TestEnvironment with TestData {
