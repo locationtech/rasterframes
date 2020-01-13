@@ -21,25 +21,22 @@
 
 package examples
 
-import java.net.URL
-
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.render.{ColorRamps, IndexedColorMap, Png}
+import geotrellis.raster.render.{ColorRamp, ColorRamps, Png}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.DecisionTreeClassifier
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
-import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.sql._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.raster._
 import org.locationtech.rasterframes.ml.{NoDataFilter, TileExploder}
 
-object Classification extends App {
+
+object ClassificationRasterSource extends App {
 
   //  // Utility for reading imagery from our test data set
-  def href(name: String): URL =  getClass.getResource(s"/$name")
+  def href(name: String) =  "https://raw.githubusercontent.com/locationtech/rasterframes/develop/core/src/test/resources/" + name
 
   implicit val spark = SparkSession.builder()
     .master("local[*]")
@@ -61,8 +58,11 @@ object Classification extends App {
 
   val catalog = s"${bandColNames.mkString(",")},target\n${bandSrcs.mkString(",")}, $labelSrc"
 
+
   // For each identified band, load the associated image file
   val abt = spark.read.raster.fromCSV(catalog, bandColNames :+ "target": _*).load()
+    .withColumn("crs", rf_crs($"band_4"))
+    .withColumn("extent", rf_extent($"band_4"))
 
   // We should see a single spatial_key column along with 4 columns of tiles.
   abt.printSchema()
@@ -101,33 +101,11 @@ object Classification extends App {
     .setPredictionCol("prediction")
     .setMetricName("f1")
 
-  // Use a parameter grid to determine what the optimal max tree depth is for this data
-  val paramGrid = new ParamGridBuilder()
-    //.addGrid(classifier.maxDepth, Array(1, 2, 3, 4))
-    .build()
-
-  // Configure the cross validator
-  val trainer = new CrossValidator()
-    .setEstimator(pipeline)
-    .setEvaluator(evaluator)
-    .setEstimatorParamMaps(paramGrid)
-    .setNumFolds(4)
-
-  // Push the "go" button
-  val model = trainer.fit(abt)
-
-  // Format the `paramGrid` settings resultant model
-  val metrics = model.getEstimatorParamMaps
-    .map(_.toSeq.map(p ⇒ s"${p.param.name} = ${p.value}"))
-    .map(_.mkString(", "))
-    .zip(model.avgMetrics)
-
-  // Render the parameter/performance association
-  metrics.toSeq.toDF("params", "metric").show(false)
+  val model =  pipeline.fit(abt)
 
   // Score the original data set, including cells
   // without target values.
-  val scored = model.bestModel.transform(abt)
+  val scored = model.transform(abt.drop("target"))
 
   // Add up class membership results
   scored.groupBy($"prediction" as "class").count().show
@@ -141,7 +119,11 @@ object Classification extends App {
     )
   )
 
-  val pngBytes = retiled.select(rf_render_png($"target", ColorRamps.Viridis)).first
+  val clusterColors = ColorRamp(
+    ColorRamps.Viridis.toColorMap((0 until 3).toArray).colors
+  )
+
+  val pngBytes = retiled.select(rf_render_png($"prediction", clusterColors)).first
 
   Png(pngBytes).write("classified.png")
 
