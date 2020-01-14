@@ -206,10 +206,9 @@ Take a look at a sample of the resulting output and the corresponding area's red
 Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow).
 
 ```python, display_rgb
+scaling_quantiles = retiled.agg(rf_agg_approx_quantiles(
 sample = retiled \
-    .select('prediction', 'red', 'grn', 'blu') \
-    .sort(-rf_tile_sum(rf_local_equal('prediction', lit(3.0)))) \
-    .first()
+    .select('prediction', 'red', 'grn', 'blu') 
 
 sample_rgb = np.concatenate([sample['red'].cells[:, :, None],
                              sample['grn'].cells[ :, :, None],

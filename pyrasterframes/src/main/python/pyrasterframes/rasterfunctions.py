@@ -605,6 +605,29 @@ def rf_local_unequal(left_tile_col, right_tile_col):
     return _apply_column_function('rf_local_unequal', left_tile_col, right_tile_col)
 
 
+def rf_local_min(tile_col, min):
+    """Performs cell-wise minimum two tiles or a tile and a scalar."""
+    if isinstance(min, (int, float)):
+        min = lit(min)
+    return _apply_column_function('rf_local_min', tile_col, min)
+
+
+def rf_local_max(tile_col, max):
+    """Performs cell-wise maximum two tiles or a tile and a scalar."""
+    if isinstance(max, (int, float)):
+        max = lit(max)
+    return _apply_column_function('rf_local_max', tile_col, max)
+
+
+def rf_local_clip(tile_col, min, max):
+    """Performs cell-wise maximum two tiles or a tile and a scalar."""
+    if isinstance(min, (int, float)):
+        min = lit(min)
+    if isinstance(max, (int, float)):
+        max = lit(max)
+    return _apply_column_function('rf_local_clip', tile_col, min, max)
+
+
 def rf_round(tile_col):
     """Round cell values to the nearest integer without changing the cell type"""
     return _apply_column_function('rf_round', tile_col)

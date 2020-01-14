@@ -31,7 +31,6 @@ from pyspark.sql.functions import *
 import numpy as np
 from numpy.testing import assert_equal, assert_allclose
 
-from unittest import skip
 from . import TestEnvironment
 
 
@@ -504,6 +503,37 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['in_list'].cells.sum(), 2,
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
+
+    def test_local_min_max_clip(self):
+        tile = Tile(np.random.randint(-20, 20, (10, 10)), CellType.int8())
+        min_tile = Tile(np.random.randint(-20, 0, (10, 10)), CellType.int8())
+        max_tile = Tile(np.random.randint(0, 20, (10, 10)), CellType.int8())
+
+        df = self.spark.createDataFrame([Row(t=tile, mn=min_tile, mx=max_tile)])
+        assert_equal(
+            df.select(rf_local_min('t', 'mn')).first()[0].cells,
+            np.clip(tile.cells, None, min_tile.cells)
+        )
+
+        assert_equal(
+            df.select(rf_local_min('t', -5)).first()[0].cells,
+            np.clip(tile.cells, None, -5)
+        )
+
+        assert_equal(
+            df.select(rf_local_max('t', 'mx')).first()[0].cells,
+            np.clip(tile.cells, max_tile.cells, None)
+        )
+
+        assert_equal(
+            df.select(rf_local_max('t', 5)).first()[0].cells,
+            np.clip(tile.cells, 5, None)
+        )
+
+        assert_equal(
+            df.select(rf_local_clip('t', 'mn', 'mx')).first()[0].cells,
+            np.clip(tile.cells, min_tile.cells, max_tile.cells)
+        )
 
     def test_rf_agg_overview_raster(self):
         width = 500

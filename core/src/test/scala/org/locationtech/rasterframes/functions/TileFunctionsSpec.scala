@@ -210,6 +210,50 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
   }
 
+  describe("tile min max and clip") {
+    it("should support SQL API"){
+      checkDocs("rf_local_min")
+      checkDocs("rf_local_max")
+      checkDocs("rf_local_clip")
+    }
+    it("should evaluate rf_local_min") {
+      val df = Seq((randPRT, three)).toDF("tile", "three")
+      val result1 = df.select(rf_local_min($"tile", $"three") as "t")
+        .select(rf_tile_max($"t"))
+        .first()
+      result1 should be <= 3.0
+    }
+    it("should evaluate rf_local_min with scalar") {
+      val df = Seq(randPRT).toDF("tile")
+      val result1 = df.select(rf_local_min($"tile", 3) as "t")
+        .select(rf_tile_max($"t"))
+        .first()
+      result1 should be <= 3.0
+    }
+    it("should evaluate rf_local_max") {
+      val df = Seq((randPRT, three)).toDF("tile", "three")
+      val result1 = df.select(rf_local_max($"tile", $"three") as "t")
+        .select(rf_tile_min($"t"))
+        .first()
+      result1 should be >= 3.0
+    }
+    it("should evaluate rf_local_max with scalar") {
+      val df = Seq(randPRT).toDF("tile")
+      val result1 = df.select(rf_local_max($"tile", 3) as "t")
+        .select(rf_tile_min($"t"))
+        .first()
+      result1 should be >= 3.0
+    }
+    it("should evaluate rf_local_clip"){
+      val df = Seq((randPRT, two, six)).toDF("t", "two", "six")
+      val result = df.select(rf_local_clip($"t", $"two", $"six") as "t")
+        .select(rf_tile_min($"t") as "min", rf_tile_max($"t") as "max")
+        .first()
+      result(0) should be (2)
+      result(1) should be (6)
+    }
+  }
+
   describe("raster metadata") {
     it("should get the TileDimensions of a Tile") {
       val t = Seq(randPRT).toDF("tile").select(rf_dimensions($"tile")).first()

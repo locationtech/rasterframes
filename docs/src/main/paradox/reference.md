@@ -451,6 +451,30 @@ Extract value from specified bits of the cells' underlying binary data. Working 
 
 A common use case for this function is covered by @ref:[`rf_mask_by_bits`](reference.md#rf-mask-by-bits).
 
+
+### rf_local_min
+
+    Tile rf_local_min(Tile tile, Tile max)
+    Tile rf_local_min(Tile tile, Numeric max)
+    
+Performs cell-wise minimum two tiles or a tile and a scalar.
+
+### rf_local_max
+
+    Tile rf_local_max(Tile tile, Tile max)
+    Tile rf_local_max(Tile tile, Numeric max)
+    
+Performs cell-wise maximum two tiles or a tile and a scalar.
+
+### rf_local_clip
+
+    Tile rf_local_clip(Tile tile, Tile min, Tile max)
+    Tile rf_local_clip(Tile tile, Numeric min, Tile max)
+    Tile rf_local_clip(Tile tile, Tile min, Numeric max)
+    Tile rf_local_clip(Tile tile, Numeric min, Numeric max)
+    
+Return the tile with its values clipped to a range defined by min and max, inclusive. 
+
 ### rf_round
 
     Tile rf_round(Tile tile)

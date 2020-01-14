@@ -56,6 +56,30 @@ trait LocalFunctions {
   /** Cellwise division of a tile by a scalar value. */
   def rf_local_divide[T: Numeric](tileCol: Column, value: T): Column = Divide(tileCol, value)
 
+  /** Cellwise minimum between Tiles. */
+  def rf_local_min(left: Column, right: Column): Column = Min(left, right)
+
+  /** Cellwise minimum between Tiles. */
+  def rf_local_min[T: Numeric](left: Column, right: T): Column = Min(left, right)
+
+  /** Cellwise maximum between Tiles. */
+  def rf_local_max(left: Column, right: Column): Column = Max(left, right)
+
+  /** Cellwise maximum between Tiles. */
+  def rf_local_max[T: Numeric](left: Column, right: T): Column = Max(left, right)
+
+  /** Return the tile with its values clipped to a range defined by min and max. */
+  def rf_local_clip(tile: Column, min: Column, max: Column) = Clip(tile, min, max)
+
+  /** Return the tile with its values clipped to a range defined by min and max. */
+  def rf_local_clip[T: Numeric](tile: Column, min: T, max: Column) = Clip(tile, min, max)
+
+  /** Return the tile with its values clipped to a range defined by min and max. */
+  def rf_local_clip[T: Numeric](tile: Column, min: Column, max: T) = Clip(tile, min, max)
+
+  /** Return the tile with its values clipped to a range defined by min and max. */
+  def rf_local_clip[T: Numeric](tile: Column, min: T, max: T) = Clip(tile, min, max)
+
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def rf_local_algebra(op: LocalTileBinaryOp, left: Column, right: Column): TypedColumn[Any, Tile] =
     withTypedAlias(opName(op), left, right)(udf[Tile, Tile, Tile](op.apply).apply(left, right))
