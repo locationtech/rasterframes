@@ -475,6 +475,30 @@ Performs cell-wise maximum two tiles or a tile and a scalar.
     
 Return the tile with its values clipped to a range defined by min and max, inclusive. 
 
+### rf_where
+
+    Tile rf_where(Tile condition, Tile x, Tile y)
+    
+Return a tile with cell values chosen from `x` or `y` depending on `condition`. 
+Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`.
+
+### rf_rescale
+
+    Tile rf_rescale(Tile tile)
+    Tile rf_rescale(Tile tile, Double min, Double max)
+    
+Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats).
+Values outside the range will be clipped to 0 or 1.
+If `min` and `max` are not specified, the __tile-wise__ minimum and maximum are used; this can result in inconsistent values across rows in a tile column.
+
+### rf_standardize
+
+    rf_standardize(Tile tile)
+    rf_standardize(Tile tile, Double mean, Double stddev)
+ 
+Standardize cell values such that the mean is zero and the standard deviation is one. If specified, the `mean` and `stddev` are applied to all tiles in the column.  See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats). If not specified, each tile will be standardized according to the statistics of its cell values; this can result in inconsistent values across rows in a tile column.
+ 
 ### rf_round
 
     Tile rf_round(Tile tile)
@@ -632,7 +656,7 @@ Aggregates over the `tile` and return the mean of cell values, ignoring NoData. 
 
     Long rf_agg_data_cells(Tile tile)
 
-_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).dataCells`
+_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).data_cells`
 
 Aggregates over the `tile` and return the count of data cells. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.dataCells`.
 
@@ -640,7 +664,7 @@ Aggregates over the `tile` and return the count of data cells. Equivalent to @re
 
     Long rf_agg_no_data_cells(Tile tile)
 
-_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).dataCells`
+_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).no_data_cells`
 
 Aggregates over the `tile` and return the count of NoData cells. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.noDataCells`. C.F. @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells) a row-wise count of no data cells.
 

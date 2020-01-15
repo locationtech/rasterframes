@@ -80,6 +80,24 @@ trait LocalFunctions {
   /** Return the tile with its values clipped to a range defined by min and max. */
   def rf_local_clip[T: Numeric](tile: Column, min: T, max: T) = Clip(tile, min, max)
 
+  /** Return a tile with cell values chosen from `x` or `y` depending on `condition`.
+      Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`. */
+  def rf_where(condition: Column, x: Column, y: Column): Column = Where(condition, x, y)
+
+  /** Standardize cell values such that the mean is zero and the standard deviation is one.
+    * The `mean` and `stddev` are applied to all tiles in the column.
+    */
+  def rf_standardize(tile: Column, mean: Column, stddev: Column): Column = Standardize(tile, mean, stddev)
+
+  /** Standardize cell values such that the mean is zero and the standard deviation is one.
+    * The `mean` and `stddev` are applied to all tiles in the column.
+    */
+  def rf_standardize(tile: Column, mean: Double, stddev: Double): Column = Standardize(tile, mean, stddev)
+
+  /** Standardize cell values such that the mean is zero and the standard deviation is one.
+    * Each tile will be standardized according to the statistics of its cell values; this can result in inconsistent values across rows in a tile column. */
+  def rf_standardize(tile: Column): Column = Standardize(tile)
+
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def rf_local_algebra(op: LocalTileBinaryOp, left: Column, right: Column): TypedColumn[Any, Tile] =
     withTypedAlias(opName(op), left, right)(udf[Tile, Tile, Tile](op.apply).apply(left, right))

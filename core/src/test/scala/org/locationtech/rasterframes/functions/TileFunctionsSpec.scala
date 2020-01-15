@@ -254,6 +254,68 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
   }
 
+  describe("conditional cell values"){
+
+    it("should support SQL API") {
+      checkDocs("rf_where")
+    }
+
+    it("should evaluate rf_where"){
+      val df = Seq((randPRT, one, six)).toDF("t", "one", "six")
+      val result = df.select(
+        rf_for_all(
+          rf_local_equal(
+            rf_where(rf_local_greater($"t", 0), $"one", $"six") as "result",
+            rf_local_add(
+              rf_local_multiply(rf_local_greater($"t", 0), $"one"),
+              rf_local_multiply(rf_local_less_equal($"t", 0), $"six")
+            ) as "expected"
+          )
+        )
+      )
+      .first()
+
+      result should be (true)
+
+    }
+  }
+
+  describe("standardize and normalize") {
+
+    it("should be accssible in SQL API"){
+      checkDocs("rf_standardize")
+//      checkDocs("rf_normalize")
+    }
+
+    it("should evaluate rf_standardize") {
+      import org.apache.spark.sql.functions.sqrt
+
+      val df = Seq(randPRT, six, one).toDF("tile")
+      val stats = df.agg(rf_agg_stats($"tile").alias("stat")).select($"stat.mean", sqrt($"stat.variance"))
+        .first()
+      val result = df.select(rf_standardize($"tile", stats.getAs[Double](0), stats.getAs[Double](1)) as "z")
+        .agg(rf_agg_stats($"z") as "zstats")
+        .select($"zstats.mean", $"zstats.variance")
+        .first()
+
+      result.getAs[Double](0) should be (0.0 +- 0.00001)
+      result.getAs[Double](1) should be (1.0 +- 0.00001)
+    }
+
+    it("should evaluate rf_standardize with tile -level stats") {
+
+      val df = Seq(randPRT).toDF("tile")
+      val result = df.select(rf_standardize($"tile") as "z")
+        .select(rf_tile_stats($"z") as "zstat")
+        .select($"zstat.mean", $"zstat.variance")
+        .first()
+
+      result.getAs[Double](0) should be (0.0 +- 0.02)
+      result.getAs[Double](1) should be (1.0 +- 0.00001)
+    }
+
+  }
+
   describe("raster metadata") {
     it("should get the TileDimensions of a Tile") {
       val t = Seq(randPRT).toDF("tile").select(rf_dimensions($"tile")).first()

@@ -628,6 +628,26 @@ def rf_local_clip(tile_col, min, max):
     return _apply_column_function('rf_local_clip', tile_col, min, max)
 
 
+def rf_where(condition, x, y):
+    """Return a tile with cell values chosen from `x` or `y` depending on `condition`.
+       Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`."""
+    return _apply_column_function('rf_where', condition, x, y)
+
+
+def rf_standardize(tile, mean, stddev):
+    """
+    Standardize cell values such that the mean is zero and the standard deviation is one.
+    If specified, the `mean` and `stddev` are applied to all tiles in the column.
+    If not specified, each tile will be standardized according to the statistics of its cell values;
+    this can result in inconsistent values across rows in a tile column.
+    """
+    if isinstance(mean, (int, float)):
+        mean = lit(mean)
+    if isinstance(stddev, (int, float)):
+        stddev = lit(stddev)
+    return _apply_column_function('rf_standardize', tile, mean, stddev)
+
+
 def rf_round(tile_col):
     """Round cell values to the nearest integer without changing the cell type"""
     return _apply_column_function('rf_round', tile_col)

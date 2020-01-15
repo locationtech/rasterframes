@@ -535,6 +535,29 @@ class RasterFunctions(TestEnvironment):
             np.clip(tile.cells, min_tile.cells, max_tile.cells)
         )
 
+    def test_rf_where(self):
+        cond = Tile(np.random.binomial(1, 0.35, (10, 10)), CellType.uint8())
+        x = Tile(np.random.randint(-20, 10, (10, 10)), CellType.int8())
+        y = Tile(np.random.randint(0, 30, (10, 10)), CellType.int8())
+
+        df = self.spark.createDataFrame([Row(cond=cond, x=x, y=y)])
+        result = df.select(rf_where('cond', 'x', 'y')).first()[0].cells
+        assert_equal(result, np.where(cond.cells, x.cells, y.cells))
+
+    def test_rf_standardize(self):
+        from pyspark.sql.functions import sqrt as F_sqrt
+        stats = self.prdf.select(rf_agg_stats('proj_raster').alias('stat')) \
+            .select('stat.mean', F_sqrt('stat.variance').alias('sttdev')) \
+            .first()
+
+        result = self.prdf.select(rf_standardize('proj_raster', stats[0], stats[1]).alias('z')) \
+                        .select(rf_agg_stats('z').alias('z_stat')) \
+                        .select('z_stat.mean', 'z_stat.variance') \
+                        .first()
+
+        self.assertAlmostEqual(result[0], 0.0)
+        self.assertAlmostEqual(result[1], 1.0)
+
     def test_rf_agg_overview_raster(self):
         width = 500
         height = 400
