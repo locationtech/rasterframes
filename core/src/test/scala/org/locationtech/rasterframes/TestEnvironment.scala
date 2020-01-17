@@ -23,12 +23,16 @@ package org.locationtech.rasterframes
 import java.nio.file.{Files, Path}
 
 import com.typesafe.scalalogging.Logger
+import geotrellis.raster.Tile
+import geotrellis.raster.render.{ColorMap, ColorRamps}
 import geotrellis.raster.testkit.RasterMatchers
+import geotrellis.vector.Extent
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.{SparkConf, SparkContext}
 import org.locationtech.jts.geom.Geometry
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.scalactic.Tolerance
 import org.scalatest._
@@ -78,6 +82,13 @@ trait TestEnvironment extends FunSpec
     rows.length == inRows
   }
 
+  def render(tile: Tile, tag: String): Unit = {
+    val colors = ColorMap.fromQuantileBreaks(tile.histogram, ColorRamps.greyscale(128))
+    val path = s"target/${getClass.getSimpleName}_$tag.png"
+    logger.info(s"Writing '$path'")
+    tile.color(colors).renderPng().write(path)
+  }
+
   /**
    * Constructor for creating a DataFrame with a single row and no columns.
    * Useful for testing the invocation of data constructing UDFs.
@@ -99,6 +110,18 @@ trait TestEnvironment extends FunSpec
 
   def matchGeom(g: Geometry, tolerance: Double) = new GeometryMatcher(g, tolerance)
 
+  def basicallySame(expected: Extent, computed: Extent): Unit = {
+    val components = Seq(
+      (expected.xmin, computed.xmin),
+      (expected.ymin, computed.ymin),
+      (expected.xmax, computed.xmax),
+      (expected.ymax, computed.ymax)
+    )
+    forEvery(components)(c ⇒
+      assert(c._1 === c._2 +- 0.000001)
+    )
+  }
+
   def checkDocs(name: String): Unit = {
     import spark.implicits._
     val docs = sql(s"DESCRIBE FUNCTION EXTENDED $name").as[String].collect().mkString("\n")
@@ -107,8 +130,7 @@ trait TestEnvironment extends FunSpec
     docs shouldNot include("null")
     docs shouldNot include("N/A")
   }
-}
 
-object TestEnvironment {
-
+  implicit def pairEnc: Encoder[(ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
+  implicit def tripEnc: Encoder[(ProjectedRasterTile, ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
 }

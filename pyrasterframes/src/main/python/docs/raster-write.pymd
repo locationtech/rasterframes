@@ -16,16 +16,18 @@ spark = create_rf_spark_session()
 
 ## Tile Samples
 
-We have some convenience methods to quickly visualize _tile_s (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) when inspecting a subset of the data in a Notebook.
+We have some convenience methods to quickly visualize tiles (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) when inspecting a subset of the data in a Notebook.
 
 In an IPython or Jupyter interpreter, a `Tile` object will be displayed as an image with limited metadata.
 
 ```python tile_sample
+import pyrasterframes.rf_ipython
+
 def scene(band):
     b = str(band).zfill(2) # converts int 2 to '02'
     return 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/' \
              'MCD43A4.A2019059.h11v08.006.2019072203257_B{}.TIF'.format(b)
-spark_df = spark.read.raster(scene(2), tile_dimensions=(128, 128))
+spark_df = spark.read.raster(scene(2), tile_dimensions=(256, 256))
 tile = spark_df.select(rf_tile('proj_raster').alias('tile')).first()['tile']
 tile
 ```
@@ -39,16 +41,57 @@ display(tile) # IPython.display function
 Within an IPython or Jupyter interpreter, a Spark and Pandas DataFrames containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of these DataFrame types.
 
 ```python to_samples, evaluate=True
-import pyrasterframes.rf_ipython
 
 samples = spark_df \
     .select(
         rf_extent('proj_raster').alias('extent'),
         rf_tile('proj_raster').alias('tile'),
     )\
-    .select('extent.*', 'tile') \
-    .limit(3)
+    .select('tile', 'extent.*') 
 samples
+```
+
+## Rendering Samples with Color
+
+By default the IPython visualizations use the Viridis color map for each single channel tile. There are other options for reasoning about how color should be applied in the results.
+
+
+### Color Composites
+
+Rendering three different bands of imagery together is called a _color composite_. The bands selected are mapped to the red, green, and blue channels of the resulting display. If the bands chosen are red, green, and blue, the composite is called a true-color composite. Otherwise it is a false-color composite.
+
+Using the @ref:[`rf_rgb_composite`](reference.md#rf-rgb-composite) function, we will compute a three band PNG image as a `bytearray`. The resulting `bytearray` will be displayed as an image in either a Spark or pandas DataFrame display if `rf_ipython` has been imported.
+
+```python, color-composite
+# Select red, green, and blue, respectively
+composite_df = spark.read.raster([[scene(1), scene(4), scene(3)]],
+                                 tile_dimensions=(256, 256))
+composite_df = composite_df.withColumn('png',
+                    rf_render_png('proj_raster_0', 'proj_raster_1', 'proj_raster_2'))
+composite_df.select('png')
+```
+
+
+Alternatively the `bytearray` result can be displayed with [`pillow`](https://pillow.readthedocs.io/en/stable/).
+
+```python, single_tile_pil
+import io
+from PIL.Image import open as PIL_open
+png_bytearray = composite_df.first()['png']
+pil_image = PIL_open(io.BytesIO(png_bytearray))
+pil_image
+```
+
+```python, display_pil, echo=False
+display(pil_image)
+```
+
+### Custom Color Map
+
+You can also apply a different color map to a single-channel Tile using the @ref[`rf_render_color_ramp_png`](reference.md#rf-render-color-ramp-png) function. See the function documentation for information about the available color maps.
+
+```python, color-map
+samples.select(rf_render_color_ramp_png('tile', 'Magma'))
 ```
 
 
@@ -83,6 +126,42 @@ If there are many _tile_ or projected raster columns in the DataFrame, the GeoTI
 
 ```python, echo=False
 os.remove(outfile)
+```
+
+### Downsampling
+
+If no `raster_dimensions` column is specified the DataFrame contents are written at full resolution. As shown in the example above, you can also specify the size of the output GeoTIFF. Bilinear resampling is used. 
+
+
+### Color Composites
+
+If the DataFrame has three or four tile columns, the GeoTIFF is written with the `ColorInterp` tags on the [bands](https://gdal.org/user/raster_data_model.html?highlight=color%20interpretation#raster-band) to indicate red, green, blue, and optionally alpha. Use a `select` statement to ensure your intended color compositing. Note that any other number of tile columns will result in a greyscale interpretation. 
+
+
+## Overview Rasters
+
+In cases where writing and reading to/from a GeoTIFF isn't convenient, RasterFrames provides the @ref:[`rf_agg_overview_raster`](reference.md#rf-agg-overview-raster) aggregate function, where you can construct a single raster (rendered as a tile) downsampled from all or a subset of the DataFrame. This allows you to effectively construct the same operations the GeoTIFF writer performs, but without the file I/O. 
+
+The `rf_agg_overview_raster` function will reproject data to the commonly used ["web mercator"](https://en.wikipedia.org/wiki/Web_Mercator_projection) CRS. You must specify an "Area of Interest" (AOI) in web mercator.  You can use @ref:[`rf_agg_reprojected_extent`](reference.md#rf-agg-reprojected-extent) to compute the extent of a DataFrame in any CRS or mix of CRSs.
+
+```python, overview
+from pyrasterframes.rf_types import Extent
+wm_extent = spark_df.agg(
+                  rf_agg_reprojected_extent(rf_extent('proj_raster'), rf_crs('proj_raster'), 'EPSG:3857')
+                  ).first()[0]
+aoi = Extent.from_row(wm_extent)
+print(aoi)
+aspect = aoi.width / aoi.height
+
+ov = spark_df.agg(
+           rf_agg_overview_raster('proj_raster', int(512 * aspect), 512, aoi)
+           ).first()[0]
+print("`ov` is of type", type(ov))
+ov
+```
+
+```python, echo=False
+display(ov)
 ```
 
 ## GeoTrellis Layers

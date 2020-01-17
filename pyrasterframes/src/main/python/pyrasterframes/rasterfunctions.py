@@ -27,7 +27,7 @@ from __future__ import absolute_import
 from pyspark.sql.column import Column, _to_java_column
 from pyspark.sql.functions import lit
 from .rf_context import RFContext
-from .rf_types import CellType
+from .rf_types import CellType, Extent, CRS
 
 THIS_MODULE = 'pyrasterframes'
 
@@ -313,6 +313,22 @@ def rf_agg_approx_histogram(tile_col):
     return _apply_column_function('rf_agg_approx_histogram', tile_col)
 
 
+def rf_agg_approx_quantiles(tile_col, probabilities, relative_error=0.00001):
+    """
+    Calculates the approximate quantiles of a tile column of a DataFrame.
+
+    :param tile_col: column to extract cells from.
+    :param probabilities: a list of quantile probabilities. Each number must belong to [0, 1].
+            For example 0 is the minimum, 0.5 is the median, 1 is the maximum.
+    :param relative_error: The relative target precision to achieve (greater than or equal to 0). Default is 0.00001
+    :return: An array of values approximately at the specified `probabilities`
+    """
+
+    _jfn = RFContext.active().lookup('rf_agg_approx_quantiles')
+    _tile_col = _to_java_column(tile_col)
+    return Column(_jfn(_tile_col, probabilities, relative_error))
+
+
 def rf_agg_stats(tile_col):
     """Compute the full column aggregate floating point statistics"""
     return _apply_column_function('rf_agg_stats', tile_col)
@@ -331,6 +347,32 @@ def rf_agg_data_cells(tile_col):
 def rf_agg_no_data_cells(tile_col):
     """Computes the number of NoData cells in a column"""
     return _apply_column_function('rf_agg_no_data_cells', tile_col)
+
+
+def rf_agg_extent(extent_col):
+    """Compute the aggregate extent over a column"""
+    return _apply_column_function('rf_agg_extent', extent_col)
+
+
+def rf_agg_reprojected_extent(extent_col, src_crs_col, dest_crs):
+    """Compute the aggregate extent over a column, first projecting from the row CRS to the destination CRS. """
+    return Column(RFContext.call('rf_agg_reprojected_extent', _to_java_column(extent_col), _to_java_column(src_crs_col), CRS(dest_crs).__jvm__))
+
+
+def rf_agg_overview_raster(tile_col: Column, cols: int, rows: int, aoi: Extent,
+                           tile_extent_col: Column = None, tile_crs_col: Column = None):
+    """Construct an overview raster of size `cols`x`rows` where data in `proj_raster` intersects the
+    `aoi` bound box in web-mercator. Uses bi-linear sampling method."""
+    ctx = RFContext.active()
+    jfcn = ctx.lookup("rf_agg_overview_raster")
+
+    if tile_extent_col is None or tile_crs_col is None:
+        return Column(jfcn(_to_java_column(tile_col), cols, rows, aoi.__jvm__))
+    else:
+        return Column(jfcn(
+            _to_java_column(tile_col), _to_java_column(tile_extent_col), _to_java_column(tile_crs_col),
+            cols, rows, aoi.__jvm__
+        ))
 
 
 def rf_tile_histogram(tile_col):
@@ -376,6 +418,11 @@ def rf_render_matrix(tile_col):
 def rf_render_png(red_tile_col, green_tile_col, blue_tile_col):
     """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
     return _apply_column_function('rf_render_png', red_tile_col, green_tile_col, blue_tile_col)
+
+
+def rf_render_color_ramp_png(tile_col, color_ramp_name):
+    """Converts columns of tiles representing RGB channels into a PNG encoded byte array."""
+    return Column(RFContext.call('rf_render_png', _to_java_column(tile_col), color_ramp_name))
 
 
 def rf_rgb_composite(red_tile_col, green_tile_col, blue_tile_col):
@@ -495,6 +542,39 @@ def rf_inverse_mask_by_value(data_tile, mask_tile, mask_value):
     return _apply_column_function('rf_inverse_mask_by_value', data_tile, mask_tile, mask_value)
 
 
+def rf_mask_by_bit(data_tile, mask_tile, bit_position, value_to_mask):
+    """Applies a mask using bit values in the `mask_tile`. Working from the right, extract the bit at `bitPosition` from the `maskTile`. In all locations where these are equal to the `valueToMask`, the returned tile is set to NoData, else the original `dataTile` cell value."""
+    if isinstance(bit_position, int):
+        bit_position = lit(bit_position)
+    if isinstance(value_to_mask, (int, float, bool)):
+        value_to_mask = lit(bool(value_to_mask))
+    return _apply_column_function('rf_mask_by_bit', data_tile, mask_tile, bit_position, value_to_mask)
+
+
+def rf_mask_by_bits(data_tile, mask_tile, start_bit, num_bits, values_to_mask):
+    """Applies a mask from blacklisted bit values in the `mask_tile`. Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`. In all locations where these are in the `mask_values`, the returned tile is set to NoData; otherwise the original `tile` cell value is returned."""
+    if isinstance(start_bit, int):
+        start_bit = lit(start_bit)
+    if isinstance(num_bits, int):
+        num_bits = lit(num_bits)
+    if isinstance(values_to_mask, (tuple, list)):
+        from pyspark.sql.functions import array
+        values_to_mask = array([lit(v) for v in values_to_mask])
+
+    return _apply_column_function('rf_mask_by_bits', data_tile, mask_tile, start_bit, num_bits, values_to_mask)
+
+
+def rf_local_extract_bits(tile, start_bit, num_bits=1):
+    """Extract value from specified bits of the cells' underlying binary data.
+    * `startBit` is the first bit to consider, working from the right. It is zero indexed.
+    * `numBits` is the number of bits to take moving further to the left. """
+    if isinstance(start_bit, int):
+        start_bit = lit(start_bit)
+    if isinstance(num_bits, int):
+        num_bits = lit(num_bits)
+    return _apply_column_function('rf_local_extract_bits', tile, start_bit, num_bits)
+
+
 def rf_local_less(left_tile_col, right_tile_col):
     """Cellwise less than comparison between two tiles"""
     return _apply_column_function('rf_local_less', left_tile_col, right_tile_col)
@@ -612,6 +692,12 @@ def rf_tile(proj_raster_col):
     return _apply_column_function('rf_tile', proj_raster_col)
 
 
+def rf_proj_raster(tile, extent, crs):
+    """
+    Construct a `proj_raster` structure from individual CRS, Extent, and Tile columns
+    """
+    return _apply_column_function('rf_proj_raster', tile, extent, crs)
+
 def st_geometry(geom_col):
     """Convert the given extent/bbox to a polygon"""
     return _apply_column_function('st_geometry', geom_col)
@@ -622,11 +708,23 @@ def rf_geometry(proj_raster_col):
     return _apply_column_function('rf_geometry', proj_raster_col)
 
 
-def rf_spatial_index(geom_col, crs_col=None, index_resolution = 18):
+def rf_xz2_index(geom_col, crs_col=None, index_resolution = 18):
     """Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS.
        For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html """
 
-    jfcn = RFContext.active().lookup('rf_spatial_index')
+    jfcn = RFContext.active().lookup('rf_xz2_index')
+
+    if crs_col is not None:
+        return Column(jfcn(_to_java_column(geom_col), _to_java_column(crs_col), index_resolution))
+    else:
+        return Column(jfcn(_to_java_column(geom_col), index_resolution))
+
+def rf_z2_index(geom_col, crs_col=None, index_resolution = 18):
+    """Constructs a Z2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS.
+        First the native extent is extracted or computed, and then center is used as the indexing location.
+        For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html """
+
+    jfcn = RFContext.active().lookup('rf_z2_index')
 
     if crs_col is not None:
         return Column(jfcn(_to_java_column(geom_col), _to_java_column(crs_col), index_resolution))

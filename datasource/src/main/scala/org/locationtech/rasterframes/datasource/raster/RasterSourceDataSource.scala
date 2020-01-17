@@ -32,6 +32,8 @@ import org.locationtech.rasterframes.model.TileDimensions
 import shapeless.tag
 import shapeless.tag.@@
 
+import scala.util.Try
+
 class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   import RasterSourceDataSource._
   override def shortName(): String = SHORT_NAME
@@ -39,9 +41,10 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
     val bands = parameters.bandIndexes
     val tiling = parameters.tileDims.orElse(Some(NOMINAL_TILE_DIMS))
     val lazyTiles = parameters.lazyTiles
+    val spatialIndex = parameters.spatialIndex
     val spec = parameters.pathSpec
     val catRef = spec.fold(_.registerAsTable(sqlContext), identity)
-    RasterSourceRelation(sqlContext, catRef, bands, tiling, lazyTiles)
+    RasterSourceRelation(sqlContext, catRef, bands, tiling, lazyTiles, spatialIndex)
   }
 }
 
@@ -55,6 +58,7 @@ object RasterSourceDataSource {
   final val CATALOG_TABLE_COLS_PARAM = "catalog_col_names"
   final val CATALOG_CSV_PARAM = "catalog_csv"
   final val LAZY_TILES_PARAM = "lazy_tiles"
+  final val SPATIAL_INDEX_PARTITIONS_PARAM = "spatial_index_partitions"
 
   final val DEFAULT_COLUMN_NAME = PROJECTED_RASTER_COLUMN.columnName
 
@@ -115,9 +119,11 @@ object RasterSourceDataSource {
       .map(tokenize(_).map(_.toInt))
       .getOrElse(Seq(0))
 
-
     def lazyTiles: Boolean = parameters
       .get(LAZY_TILES_PARAM).forall(_.toBoolean)
+
+    def spatialIndex: Option[Int] = parameters
+      .get(SPATIAL_INDEX_PARTITIONS_PARAM).flatMap(p => Try(p.toInt).toOption)
 
     def catalog: Option[RasterSourceCatalog] = {
       val paths = (
@@ -156,6 +162,16 @@ object RasterSourceDataSource {
           "Only one of a set of file paths OR a paths table column may be provided.")
       }
     }
+  }
+
+  /** Mixin for adding extension methods on DataFrameReader for RasterSourceDataSource-like readers. */
+  trait SpatialIndexOptionsSupport[ReaderTag] {
+    type _TaggedReader = DataFrameReader @@ ReaderTag
+    val reader: _TaggedReader
+    def withSpatialIndex(numPartitions: Int = -1): _TaggedReader =
+      tag[ReaderTag][DataFrameReader](
+        reader.option(RasterSourceDataSource.SPATIAL_INDEX_PARTITIONS_PARAM, numPartitions)
+      )
   }
 
   /** Mixin for adding extension methods on DataFrameReader for RasterSourceDataSource-like readers. */

@@ -76,6 +76,7 @@ package object expressions {
     registry.registerExpression[GetExtent]("rf_extent")
     registry.registerExpression[GetCRS]("rf_crs")
     registry.registerExpression[RealizeTile]("rf_tile")
+    registry.registerExpression[CreateProjectedRaster]("rf_proj_raster")
     registry.registerExpression[Subtract]("rf_local_subtract")
     registry.registerExpression[Multiply]("rf_local_multiply")
     registry.registerExpression[Divide]("rf_local_divide")
@@ -135,8 +136,12 @@ package object expressions {
     registry.registerExpression[RenderPNG.RenderCompositePNG]("rf_render_png")
     registry.registerExpression[RGBComposite]("rf_rgb_composite")
 
-    registry.registerExpression[XZ2Indexer]("rf_spatial_index")
+    registry.registerExpression[XZ2Indexer]("rf_xz2_index")
+    registry.registerExpression[Z2Indexer]("rf_z2_index")
 
     registry.registerExpression[transformers.ReprojectGeometry]("st_reproject")
+
+    registry.registerExpression[ExtractBits]("rf_local_extract_bits")
+    registry.registerExpression[ExtractBits]("rf_local_extract_bit")
   }
 }

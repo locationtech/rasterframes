@@ -34,7 +34,7 @@ lazy val root = project
   .enablePlugins(RFReleasePlugin)
   .settings(
     publish / skip := true,
-    clean := clean.dependsOn(`rf-notebook`/clean).value
+    clean := clean.dependsOn(`rf-notebook`/clean, docs/clean).value
   )
 
 lazy val `rf-notebook` = project
@@ -76,7 +76,6 @@ lazy val core = project
     buildInfoObject := "RFBuildInfo",
     buildInfoOptions := Seq(
       BuildInfoOption.ToMap,
-      BuildInfoOption.BuildTime,
       BuildInfoOption.ToJson
     )
   )

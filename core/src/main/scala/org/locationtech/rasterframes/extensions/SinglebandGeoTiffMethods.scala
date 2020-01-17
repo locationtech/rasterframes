@@ -55,7 +55,7 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
       StructField("tile", TileType, false)
     ))
 
-    spark.createDataFrame(spark.sparkContext.makeRDD(rows, 1), schema)
+    spark.createDataFrame(spark.sparkContext.makeRDD(rows), schema)
   }
 
   def toProjectedRasterTile: ProjectedRasterTile = ProjectedRasterTile(self.projectedRaster)

@@ -67,13 +67,21 @@ See also GeoMesa [st_envelope](https://www.geomesa.org/documentation/user/spark/
 Convert an extent to a Geometry. The extent likely comes from @ref:[`st_extent`](reference.md#st-extent) or @ref:[`rf_extent`](reference.md#rf-extent).
 
 
-### rf_spatial_index
+### rf_xz2_index
 
-    Long rf_spatial_index(Geometry geom, CRS crs)
-    Long rf_spatial_index(Extent extent, CRS crs)
-    Long rf_spatial_index(ProjectedRasterTile proj_raster, CRS crs)
+    Long rf_xz2_index(Geometry geom, CRS crs)
+    Long rf_xz2_index(Extent extent, CRS crs)
+    Long rf_xz2_index(ProjectedRasterTile proj_raster)
     
 Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
+
+### rf_z2_index
+
+    Long rf_z2_index(Geometry geom, CRS crs)
+    Long rf_z2_index(Extent extent, CRS crs)
+    Long rf_z2_index(ProjectedRasterTile proj_raster)
+    
+Constructs a Z2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. First the native extent is extracted or computed, and then center is used as the indexing location. This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange). See @ref:[Reading Raster Data](raster-read.md#spatial-indexing-and-partitioning) section for details on how to have an index automatically added when reading raster data.
 
 ## Tile Metadata and Mutation
 
@@ -111,6 +119,12 @@ Fetches the extent (bounding box or envelope) of a `ProjectedRasterTile` or `Ras
     Struct rf_crs(String crs_spec)
 
 Fetch CRS structure representing the coordinate reference system of a `ProjectedRasterTile` or `RasterSource` type tile columns, or from a column of strings in the form supported by @ref:[`rf_mk_crs`](reference.md#rf-mk-crs). 
+
+### rf_proj_raster
+
+    ProjectedRasterTile rf_proj_raster(Tile tile, Extent extent, CRS crs)
+
+Construct a `proj_raster` structure from individual Tile, Extent, and CRS columns.
 
 ### rf_mk_crs
 
@@ -167,7 +181,6 @@ Tile rf_make_ones_tile(Int tile_columns, Int tile_rows, [CellType cell_type])
 Tile rf_make_ones_tile(Int tile_columns, Int tile_rows, [String cell_type_name])
 ```
 
-
 Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the optional cell type; default is float64. See @ref:[this discussion](nodata-handling.md#cell-types) on cell types for info on the `cell_type` argument. All arguments are literal values and not column expressions.
 
 ### rf_make_constant_tile
@@ -175,14 +188,12 @@ Create a `tile` of shape `tile_columns` by `tile_rows` full of ones, with the op
     Tile rf_make_constant_tile(Numeric constant, Int tile_columns, Int tile_rows,  [CellType cell_type])
     Tile rf_make_constant_tile(Numeric constant, Int tile_columns, Int tile_rows,  [String cell_type_name])
 
-
 Create a `tile` of shape `tile_columns` by `tile_rows` full of `constant`, with the optional cell type; default is float64. See @ref:[this discussion](nodata-handling.md#cell-types) on cell types for info on the `cell_type` argument. All arguments are literal values and not column expressions.
 
 
 ### rf_rasterize
 
     Tile rf_rasterize(Geometry geom, Geometry tile_bounds, Int value, Int tile_columns, Int tile_rows)
-
 
 Convert a vector Geometry `geom` into a Tile representation. The `value` will be "burned-in" to the returned `tile` where the `geom` intersects the `tile_bounds`. Returned `tile` will have shape `tile_columns` by `tile_rows`. Values outside the `geom` will be assigned a NoData value. Returned `tile` has cell type `int32`, note that `value` is of type Int.
 
@@ -236,9 +247,34 @@ Generate a `tile` with the values from `data_tile`, with NoData in cells where t
 ### rf_mask_by_values
 
     Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, Array mask_values)
-    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, seq mask_values)
+    Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, list mask_values)
 
 Generate a `tile` with the values from `data_tile`, with NoData in cells where the `mask_tile` is in the `mask_values` Array or list. `mask_values` can be a [`pyspark.sql.ArrayType`][Array] or a `list`.  
+
+### rf_mask_by_bit
+
+    Tile rf_mask_by_bits(Tile tile, Tile mask_tile, Int bit_position, Bool mask_value) 
+    
+Applies a mask using bit values in the `mask_tile`. Working from the right, the bit at `bit_position` is @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`. In all locations where these are equal to the `mask_value`, the returned tile is set to NoData; otherwise the original `tile` cell value is returned.
+
+This is a single-bit version of @ref:[`rf_mask_by_bits`](reference.md#rf-mask-by-bits).
+    
+### rf_mask_by_bits
+
+    Tile rf_mask_by_bits(Tile tile, Tile mask_tile, Int start_bit, Int num_bits, Array mask_values) 
+    Tile rf_mask_by_bits(Tile tile, Tile mask_tile, Int start_bit, Int num_bits, list mask_values) 
+    
+Applies a mask from blacklisted bit values in the `mask_tile`. Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`. In all locations where these are in the `mask_values`, the returned tile is set to NoData; otherwise the original `tile` cell value is returned.
+
+This function is not available in the SQL API. The below is equivalent:
+
+```sql
+SELECT rf_mask_by_values(
+            tile, 
+            rf_local_extract_bits(mask_tile, start_bit, num_bits), 
+            mask_values
+            ),
+```
 
 ### rf_inverse_mask
 
@@ -405,6 +441,15 @@ Returns a `tile` column containing the element-wise inequality of `tile1` and `r
     Tile rf_local_is_in(Tile tile, list l)
 
 Returns a `tile` column with cell values of 1 where the `tile` cell value is in the provided array or list. The `array` is a Spark SQL [Array][Array]. A python `list` of numeric values can also be passed.
+
+### rf_local_extract_bits
+
+    Tile rf_local_extract_bits(Tile tile, Int start_bit, Int num_bits)
+    Tile rf_local_extract_bits(Tile tile, Int start_bit)
+
+Extract value from specified bits of the cells' underlying binary data. Working from the right, the bits from `start_bit` to `start_bit + num_bits` are extracted from cell values of the `tile`. The `start_bit` is zero indexed. If `num_bits` is not provided, a single bit is extracted.
+
+A common use case for this function is covered by @ref:[`rf_mask_by_bits`](reference.md#rf-mask-by-bits).
 
 ### rf_round
 
@@ -589,6 +634,26 @@ Aggregates over the `tile` and returns statistical summaries of cell values: num
 
 Aggregates over all of the rows in DataFrame of `tile` and returns a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function which operates on a single row at a time.
 
+### rf_agg_approx_quantiles
+
+    Array[Double] rf_agg_approx_quantiles(Tile tile, List[float] probabilities, float relative_error)
+    
+__Not supported in SQL.__
+    
+Calculates the approximate quantiles of a tile column of a DataFrame. `probabilities` is a list of float values at which to compute the quantiles. These must belong to [0, 1]. For example 0 is the minimum, 0.5 is the median, 1 is the maximum. Returns an array of values approximately at the specified `probabilities`.
+
+### rf_agg_extent
+
+    Extent rf_agg_extent(Extent extent)
+    
+Compute the naive aggregate extent over a column. Assumes CRS homogeneity. With mixed CRS in the column, or if you are unsure, use @ref:[`rf_agg_reprojected_extent`](reference.md#rf-agg-reprojected-extent).
+
+
+### rf_agg_reprojected_extent
+
+    Extent rf_agg_reprojected_extent(Extent extent, CRS source_crs, String dest_crs)
+    
+Compute the aggregate extent over the `extent` and `source_crs` columns. The `dest_crs` is given as a string. Each row's extent will be reprojected to the `dest_crs` before aggregating. 
 
 ## Tile Local Aggregate Statistics
 
@@ -671,22 +736,58 @@ Pretty print the tile values as plain text.
 
     String rf_render_matrix(Tile tile)
 
-Render Tile cell values as numeric values, for debugging purposes.
+Render Tile cell values as a string of numeric values, for debugging purposes.
 
+### rf_render_png
+
+    Array rf_render_png(Tile red, Tile green, Tile blue)
+    
+Converts three tile columns to a three-channel PNG-encoded image `bytearray`. First evaluates [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile columns, and then encodes the result. For more about rendering these in a Jupyter or IPython environment, see @[Writing Raster Data](raster-write.md#rendering-samples-with-color).
+
+### rf_render_color_ramp_png
+
+    Array rf_render_png(Tile tile, String color_ramp_name)
+    
+Converts given tile into a PNG image, using a color ramp of the given name to convert cells into pixels. `color_ramp_name` can be one of the following:
+
+ * "BlueToOrange"
+ * "LightYellowToOrange"
+ * "BlueToRed"
+ * "GreenToRedOrange"
+ * "LightToDarkSunset"
+ * "LightToDarkGreen"
+ * "HeatmapYellowToRed"
+ * "HeatmapBlueToYellowToRedSpectrum"
+ * "HeatmapDarkRedToYellowWhite"
+ * "HeatmapLightPurpleToDarkPurpleToWhite"
+ * "ClassificationBoldLandUse"
+ * "ClassificationMutedTerrain"
+ * "Magma"
+ * "Inferno"
+ * "Plasma"
+ * "Viridis"
+ * "Greyscale2"
+ * "Greyscale8"
+ * "Greyscale32"
+ * "Greyscale64"
+ * "Greyscale128"
+ * "Greyscale256"
+
+Further descriptions of these color ramps can be found in the [Geotrellis Documentation](https://geotrellis.readthedocs.io/en/latest/guide/rasters.html#built-in-color-ramps). For more about rendering these in a Jupyter or IPython environment, see @[Writing Raster Data](raster-write.md#rendering-samples-with-color).
+
+### rf_agg_overview_raster
+    
+    Tile rf_agg_overview_raster(Tile proj_raster_col, int cols, int rows, Extent aoi)
+    Tile rf_agg_overview_raster(Tile tile_col, int cols, int rows, Extent aoi, Extent tile_extent_col, CRS tile_crs_col)
+
+Construct an overview _tile_ of size `cols` by `rows`. Data is filtered to the specified `aoi` which is given in web mercator. Uses bi-linear sampling method. The `tile_extent_col` and `tile_crs_col` arguments are optional if the first argument has its Extent and CRS embedded.
 
 ### rf_rgb_composite
 
     Tile rf_rgb_composite(Tile red, Tile green, Tile blue)
     
 Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer. This is useful when you want an RGB tile to render or to process with other color imagery tools. 
-
-
-### rf_render_png
-
-    Array rf_render_png(Tile red, Tile green, Tile blue)
     
-Runs [`rf_rgb_composite`](reference.md#rf-rgb-composite) on the given tile columns and then encodes the result as a PNG byte array.
-
 [RasterFunctions]: org.locationtech.rasterframes.RasterFunctions
 [scaladoc]: latest/api/index.html
 [Array]: http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType

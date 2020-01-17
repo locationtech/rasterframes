@@ -25,7 +25,7 @@ import geotrellis.raster.render.ColorRamps
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions.{base64, concat, concat_ws, length, lit, substring, when}
 import org.apache.spark.sql.jts.JTSTypes
-import org.apache.spark.sql.types.{StringType, StructField}
+import org.apache.spark.sql.types.{StringType, StructField, BinaryType}
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.{rfConfig, rf_render_png, rf_resample}
 import org.apache.spark.sql.rf.WithTypeConformity
@@ -48,6 +48,12 @@ trait DataFrameRenderers {
               base64(rf_render_png(rf_resample(resolved, 0.5), ColorRamps.Viridis)), // TODO: how to expose?
               lit("\"></img>")
             )
+          else if (renderTiles && c.dataType == BinaryType)
+            when(
+              substring(resolved, 0, 8) === lit(Array[Byte](137.asInstanceOf[Byte], 80, 78, 71, 13, 10, 26, 10)),
+              concat(lit("<img src=\"data:image/png;base64,"), base64(resolved), lit("\"></img>"))
+            )
+              .otherwise(resolved.cast(StringType))
           else {
             val isGeom = WithTypeConformity(c.dataType).conformsTo(JTSTypes.GeometryTypeInstance)
             val str = resolved.cast(StringType)

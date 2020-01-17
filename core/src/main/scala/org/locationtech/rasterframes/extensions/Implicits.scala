@@ -24,13 +24,14 @@ package org.locationtech.rasterframes.extensions
 import org.locationtech.rasterframes.RasterFrameLayer
 import org.locationtech.rasterframes.util.{WithMergeMethods, WithPrototypeMethods}
 import geotrellis.raster._
-import geotrellis.raster.io.geotiff.SinglebandGeoTiff
+import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.spark.{Metadata, SpaceTimeKey, SpatialKey, TileLayerMetadata}
 import geotrellis.util.MethodExtensions
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{MetadataBuilder, Metadata => SMetadata}
+import org.locationtech.rasterframes.model.TileDimensions
 import spray.json.JsonFormat
 
 import scala.reflect.runtime.universe._
@@ -53,6 +54,8 @@ trait Implicits {
     val self: ProjectedRaster[T]) extends ProjectedRasterMethods[T]
 
   implicit class WithSinglebandGeoTiffMethods(val self: SinglebandGeoTiff) extends SinglebandGeoTiffMethods
+
+  implicit class WithMultibandGeoTiffMethods(val self: MultibandGeoTiff) extends MultibandGeoTiffMethods
 
   implicit class WithDataFrameMethods[D <: DataFrame](val self: D) extends DataFrameMethods[D]
 
@@ -79,6 +82,15 @@ trait Implicits {
   private[rasterframes]
   implicit class WithMetadataBuilderMethods(val self: MetadataBuilder)
       extends MetadataBuilderMethods
+
+  private[rasterframes]
+  implicit class TLMHasTotalCells(tlm: TileLayerMetadata[_]) {
+    // TODO: With upgrade to GT 3.1, replace this with the more general `Dimensions[Long]`
+    def totalDimensions: TileDimensions = {
+      val gb = tlm.layout.toRasterExtent().gridBoundsFor(tlm.extent)
+      TileDimensions(gb.width, gb.height)
+    }
+  }
 }
 
 object Implicits extends Implicits

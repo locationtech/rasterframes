@@ -18,21 +18,30 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+from unittest import skip
+
+
+import pyrasterframes
 from pyrasterframes.rasterfunctions import *
+from pyrasterframes.rf_types import *
 from pyrasterframes.utils import gdal_version
-from pyrasterframes.rf_types import Tile
 from pyspark import Row
 from pyspark.sql.functions import *
 
 import numpy as np
-from numpy.testing import assert_equal
+from numpy.testing import assert_equal, assert_allclose
 
+from unittest import skip
 from . import TestEnvironment
 
 
 class RasterFunctions(TestEnvironment):
 
     def setUp(self):
+        import sys
+        if not sys.warnoptions:
+            import warnings
+            warnings.simplefilter("ignore")
         self.create_layer()
 
     def test_setup(self):
@@ -131,6 +140,12 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_data_cells(tile)'], 387000)
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
+
+    def test_agg_approx_quantiles(self):
+        agg = self.rf.agg(rf_agg_approx_quantiles('tile', [0.1, 0.5, 0.9, 0.98]))
+        result = agg.first()[0]
+        # expected result from computing in external python process; c.f. scala tests
+        assert_allclose(result, np.array([7963., 10068., 12160., 14366.]))
 
     def test_sql(self):
 
@@ -256,27 +271,107 @@ class RasterFunctions(TestEnvironment):
         # assert_equal(result0[0].cells, expected_diag_nd)
         self.assertTrue(result0[0] == expected_diag_nd)
 
+    def test_mask_bits(self):
+        t = Tile(42 * np.ones((4, 4), 'uint16'), CellType.uint16())
+        # with a varitey of known values
+        mask = Tile(np.array([
+            [1, 1, 2720, 2720],
+            [1, 6816, 6816, 2756],
+            [2720, 2720, 6900, 2720],
+            [2720, 6900, 6816, 1]
+        ]), CellType('uint16raw'))
+
+        df = self.spark.createDataFrame([Row(t=t, mask=mask)])
+
+        # removes fill value 1
+        mask_fill_df = df.select(rf_mask_by_bit('t', 'mask', 0, True).alias('mbb'))
+        mask_fill_tile = mask_fill_df.first()['mbb']
+
+        self.assertTrue(mask_fill_tile.cell_type.has_no_data())
+
+        self.assertTrue(
+            mask_fill_df.select(rf_data_cells('mbb')).first()[0],
+            16 - 4
+        )
+
+        # mask out 6816, 6900
+        mask_med_hi_cir = df.withColumn('mask_cir_mh',
+                                        rf_mask_by_bits('t', 'mask', 11, 2, [2, 3])) \
+            .first()['mask_cir_mh'].cells
+
+        self.assertEqual(
+            mask_med_hi_cir.mask.sum(),
+            5
+        )
+
+    @skip('Issue #422 https://github.com/locationtech/rasterframes/issues/422')
+    def test_mask_and_deser(self):
+        # duplicates much of test_mask_bits but
+        t = Tile(42 * np.ones((4, 4), 'uint16'), CellType.uint16())
+        # with a varitey of known values
+        mask = Tile(np.array([
+            [1, 1, 2720, 2720],
+            [1, 6816, 6816, 2756],
+            [2720, 2720, 6900, 2720],
+            [2720, 6900, 6816, 1]
+        ]), CellType('uint16raw'))
+
+        df = self.spark.createDataFrame([Row(t=t, mask=mask)])
+
+        # removes fill value 1
+        mask_fill_df = df.select(rf_mask_by_bit('t', 'mask', 0, True).alias('mbb'))
+        mask_fill_tile = mask_fill_df.first()['mbb']
+
+        self.assertTrue(mask_fill_tile.cell_type.has_no_data())
+
+        # Unsure why this fails. mask_fill_tile.cells is all 42 unmasked.
+        self.assertEqual(mask_fill_tile.cells.mask.sum(), 4,
+                         f'Expected {16 - 4} data values but got the masked tile:'
+                         f'{mask_fill_tile}'
+                         )
+
     def test_mask(self):
         from pyspark.sql import Row
         from pyrasterframes.rf_types import Tile, CellType
 
         np.random.seed(999)
-        ma = np.ma.array(np.random.randint(0, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
+        # importantly exclude 0 from teh range because that's the nodata value for the `data_tile`'s cell type
+        ma = np.ma.array(np.random.randint(1, 10, (5, 5), dtype='int8'), mask=np.random.rand(5, 5) > 0.7)
         expected_data_values = ma.compressed().size
         expected_no_data_values = ma.size - expected_data_values
         self.assertTrue(expected_data_values > 0, "Make sure random seed is cooperative ")
         self.assertTrue(expected_no_data_values > 0, "Make sure random seed is cooperative ")
 
-        df = self.spark.createDataFrame([
-            Row(t=Tile(np.ones(ma.shape, ma.dtype)), m=Tile(ma))
-        ])
+        data_tile = Tile(np.ones(ma.shape, ma.dtype), CellType.uint8())
 
-        df = df.withColumn('masked_t', rf_mask('t', 'm'))
+        df = self.spark.createDataFrame([Row(t=data_tile, m=Tile(ma))]) \
+            .withColumn('masked_t', rf_mask('t', 'm'))
+
         result = df.select(rf_data_cells('masked_t')).first()[0]
-        self.assertEqual(result, expected_data_values)
+        self.assertEqual(result, expected_data_values,
+                         f"Masked tile should have {expected_data_values} data values but found: {df.select('masked_t').first()[0].cells}."
+                         f"Original data: {data_tile.cells}"
+                         f"Masked by {ma}")
 
         nd_result = df.select(rf_no_data_cells('masked_t')).first()[0]
         self.assertEqual(nd_result, expected_no_data_values)
+
+        # deser of tile is correct
+        self.assertEqual(
+            df.select('masked_t').first()[0].cells.compressed().size,
+            expected_data_values
+        )
+
+    def test_extract_bits(self):
+        one = np.ones((6, 6), 'uint8')
+        t = Tile(84 * one)
+        df = self.spark.createDataFrame([Row(t=t)])
+        result_py_literals = df.select(rf_local_extract_bits('t', 2, 3)).first()[0]
+        # expect value binary 84 => 1010100 => 101
+        assert_equal(result_py_literals.cells, 5 * one)
+
+        result_cols = df.select(rf_local_extract_bits('t', lit(2), lit(3))).first()[0]
+        assert_equal(result_cols.cells, 5 * one)
 
     def test_resample(self):
         from pyspark.sql.functions import lit
@@ -345,7 +440,7 @@ class RasterFunctions(TestEnvironment):
         ## Test PNG generation
         png_bytes = rf.select(rf_render_png('red', 'green', 'blue').alias('png')).first()['png']
         # Look for the PNG magic cookie
-        self.assertEqual(png_bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+        self.assert_png(png_bytes)
 
     def test_rf_interpret_cell_type_as(self):
         from pyspark.sql import Row
@@ -410,14 +505,25 @@ class RasterFunctions(TestEnvironment):
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
 
-    def test_rf_spatial_index(self):
-        from pyspark.sql.functions import min as F_min
-        result_one_arg = self.df.select(rf_spatial_index('tile').alias('ix')) \
-                            .agg(F_min('ix')).first()[0]
-        print(result_one_arg)
+    def test_rf_agg_overview_raster(self):
+        width = 500
+        height = 400
+        agg = self.prdf.select(rf_agg_extent(rf_extent(self.prdf.proj_raster)).alias("extent")).first().extent
+        crs = self.prdf.select(rf_crs(self.prdf.proj_raster).alias("crs")).first().crs.crsProj4
+        aoi = Extent.from_row(agg)
+        aoi = aoi.reproject(crs, "EPSG:3857")
+        aoi = aoi.buffer(-(aoi.width * 0.2))
 
-        result_two_arg = self.df.select(rf_spatial_index(rf_extent('tile'), rf_crs('tile')).alias('ix')) \
-                            .agg(F_min('ix')).first()[0]
+        ovr = self.prdf.select(rf_agg_overview_raster(self.prdf.proj_raster, width, height, aoi).alias("agg"))
+        png = ovr.select(rf_render_color_ramp_png('agg', 'Greyscale64')).first()[0]
+        self.assert_png(png)
 
-        self.assertEqual(result_two_arg, result_one_arg)
-        self.assertEqual(result_one_arg, 55179438768)  # this is a bit more fragile but less important
+        # with open('/tmp/test_rf_agg_overview_raster.png', 'wb') as f:
+        #     f.write(png)
+
+    def test_rf_proj_raster(self):
+        df = self.prdf.select(rf_proj_raster(rf_tile('proj_raster'),
+                                             rf_extent('proj_raster'),
+                                             rf_crs('proj_raster')).alias('roll_your_own'))
+        self.assertIn('tile_context', df.schema['roll_your_own'].dataType.fieldNames())
+

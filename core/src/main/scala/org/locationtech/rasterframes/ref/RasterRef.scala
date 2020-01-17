@@ -31,6 +31,7 @@ import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
+import org.locationtech.rasterframes.RasterSourceType
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
@@ -74,10 +75,16 @@ object RasterRef extends LazyLogging {
       ProjectedRasterTile(rr.realizedTile.convert(ct), extent, crs)
   }
 
+  val embeddedSchema: StructType = StructType(Seq(
+    StructField("source", RasterSourceType.sqlType, true),
+    StructField("bandIndex", IntegerType, false),
+    StructField("subextent", schemaOf[Extent], true),
+    StructField("subgrid", schemaOf[GridBounds], true)
+  ))
+
   implicit val rasterRefSerializer: CatalystSerializer[RasterRef] = new CatalystSerializer[RasterRef] {
-    val rsType = new RasterSourceUDT()
     override val schema: StructType = StructType(Seq(
-      StructField("source", rsType.sqlType, false),
+      StructField("source", RasterSourceType, true),
       StructField("bandIndex", IntegerType, false),
       StructField("subextent", schemaOf[Extent], true),
       StructField("subgrid", schemaOf[GridBounds], true)

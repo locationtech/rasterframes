@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, Tile}
+import geotrellis.raster.{CellGrid, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
@@ -30,7 +30,7 @@ import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
-import org.locationtech.jts.geom.Envelope
+import org.locationtech.jts.geom.{Envelope, Point}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.{LazyCRS, TileContext}
 import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
@@ -61,6 +61,11 @@ object DynamicExtractors {
   lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: Row) =>  (row.to[Tile](TileUDT.tileSerializer), None)
+    case t if t.conformsTo[Raster[Tile]] =>
+      (row: Row) => {
+        val rt = row.to[Raster[Tile]]
+        (rt.tile, None)
+      }
     case t if t.conformsTo[ProjectedRasterTile] =>
       (row: Row) => {
         val prt = row.to[ProjectedRasterTile]
@@ -69,13 +74,13 @@ object DynamicExtractors {
   }
 
   /** Partial function for pulling a ProjectedRasterLike an input row. */
-  lazy val projectedRasterLikeExtractor: PartialFunction[DataType, InternalRow ⇒ ProjectedRasterLike] = {
+  lazy val projectedRasterLikeExtractor: PartialFunction[DataType, Any ⇒ ProjectedRasterLike] = {
     case _: RasterSourceUDT ⇒
-      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+      (input: Any) => input.asInstanceOf[InternalRow].to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo[ProjectedRasterTile] =>
-      (row: InternalRow) => row.to[ProjectedRasterTile]
+      (input: Any) => input.asInstanceOf[InternalRow].to[ProjectedRasterTile]
     case t if t.conformsTo[RasterRef] =>
-      (row: InternalRow) => row.to[RasterRef]
+      (input: Any) => input.asInstanceOf[InternalRow].to[RasterRef]
   }
 
   /** Partial function for pulling a CellGrid from an input row. */
@@ -97,13 +102,36 @@ object DynamicExtractors {
       (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
   }
 
-  lazy val extentLikeExtractor: PartialFunction[DataType, Any ⇒ Extent] = {
-    case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
-      (input: Any) => JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal
-    case t if t.conformsTo[Extent] =>
-      (input: Any) => input.asInstanceOf[InternalRow].to[Extent]
-    case t if t.conformsTo[Envelope] =>
-      (input: Any) => Extent(input.asInstanceOf[InternalRow].to[Envelope])
+  lazy val extentExtractor: PartialFunction[DataType, Any ⇒ Extent] = {
+    val base: PartialFunction[DataType, Any ⇒ Extent]= {
+      case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
+        (input: Any) => Extent(JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal)
+      case t if t.conformsTo[Extent] =>
+        (input: Any) => input.asInstanceOf[InternalRow].to[Extent]
+      case t if t.conformsTo[Envelope] =>
+        (input: Any) => Extent(input.asInstanceOf[InternalRow].to[Envelope])
+    }
+
+    val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.extent))
+    fromPRL orElse base
+  }
+
+  lazy val envelopeExtractor: PartialFunction[DataType, Any => Envelope] = {
+    val base = PartialFunction[DataType, Any => Envelope] {
+      case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
+        (input: Any) => JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal
+      case t if t.conformsTo[Extent] =>
+        (input: Any) => input.asInstanceOf[InternalRow].to[Extent].jtsEnvelope
+      case t if t.conformsTo[Envelope] =>
+        (input: Any) => input.asInstanceOf[InternalRow].to[Envelope]
+    }
+
+    val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.extent.jtsEnvelope))
+    fromPRL orElse base
+  }
+
+  lazy val centroidExtractor: PartialFunction[DataType, Any ⇒ Point] = {
+    extentExtractor.andThen(_.andThen(_.center.jtsGeom))
   }
 
   sealed trait TileOrNumberArg
