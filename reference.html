@@ -158,6 +158,7 @@ locationtech/rasterframes
     <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="raster-join.html" class="page">Raster Join</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
@@ -188,7 +189,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.4
+<i class="md-icon" title="Version">label_outline</i> 0.8.5
 </label>
 </li>
 </ul>
@@ -245,7 +246,8 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#st-reproject" class="header">st_reproject</a></li>
     <li><a href="reference.html#st-extent" class="header">st_extent</a></li>
     <li><a href="reference.html#st-geometry" class="header">st_geometry</a></li>
-    <li><a href="reference.html#rf-spatial-index" class="header">rf_spatial_index</a></li>
+    <li><a href="reference.html#rf-xz2-index" class="header">rf_xz2_index</a></li>
+    <li><a href="reference.html#rf-z2-index" class="header">rf_z2_index</a></li>
   </ul></li>
   <li><a href="reference.html#tile-metadata-and-mutation" class="header">Tile Metadata and Mutation</a>
   <ul>
@@ -254,6 +256,7 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#rf-tile" class="header">rf_tile</a></li>
     <li><a href="reference.html#rf-extent" class="header">rf_extent</a></li>
     <li><a href="reference.html#rf-crs" class="header">rf_crs</a></li>
+    <li><a href="reference.html#rf-proj-raster" class="header">rf_proj_raster</a></li>
     <li><a href="reference.html#rf-mk-crs" class="header">rf_mk_crs</a></li>
     <li><a href="reference.html#rf-convert-cell-type" class="header">rf_convert_cell_type</a></li>
     <li><a href="reference.html#rf-interpret-cell-type-as" class="header">rf_interpret_cell_type_as</a></li>
@@ -273,6 +276,8 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#rf-mask" class="header">rf_mask</a></li>
     <li><a href="reference.html#rf-mask-by-value" class="header">rf_mask_by_value</a></li>
     <li><a href="reference.html#rf-mask-by-values" class="header">rf_mask_by_values</a></li>
+    <li><a href="reference.html#rf-mask-by-bit" class="header">rf_mask_by_bit</a></li>
+    <li><a href="reference.html#rf-mask-by-bits" class="header">rf_mask_by_bits</a></li>
     <li><a href="reference.html#rf-inverse-mask" class="header">rf_inverse_mask</a></li>
     <li><a href="reference.html#rf-inverse-mask-by-value" class="header">rf_inverse_mask_by_value</a></li>
     <li><a href="reference.html#rf-is-no-data-tile" class="header">rf_is_no_data_tile</a></li>
@@ -295,6 +300,7 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#rf-local-equal" class="header">rf_local_equal</a></li>
     <li><a href="reference.html#rf-local-unequal" class="header">rf_local_unequal</a></li>
     <li><a href="reference.html#rf-local-is-in" class="header">rf_local_is_in</a></li>
+    <li><a href="reference.html#rf-local-extract-bits" class="header">rf_local_extract_bits</a></li>
     <li><a href="reference.html#rf-round" class="header">rf_round</a></li>
     <li><a href="reference.html#rf-abs" class="header">rf_abs</a></li>
     <li><a href="reference.html#rf-exp" class="header">rf_exp</a></li>
@@ -326,6 +332,9 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#rf-agg-no-data-cells" class="header">rf_agg_no_data_cells</a></li>
     <li><a href="reference.html#rf-agg-stats" class="header">rf_agg_stats</a></li>
     <li><a href="reference.html#rf-agg-approx-histogram" class="header">rf_agg_approx_histogram</a></li>
+    <li><a href="reference.html#rf-agg-approx-quantiles" class="header">rf_agg_approx_quantiles</a></li>
+    <li><a href="reference.html#rf-agg-extent" class="header">rf_agg_extent</a></li>
+    <li><a href="reference.html#rf-agg-reprojected-extent" class="header">rf_agg_reprojected_extent</a></li>
   </ul></li>
   <li><a href="reference.html#tile-local-aggregate-statistics" class="header">Tile Local Aggregate Statistics</a>
   <ul>
@@ -344,8 +353,10 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#rf-tile-to-array-double" class="header">rf_tile_to_array_double</a></li>
     <li><a href="reference.html#rf-render-ascii" class="header">rf_render_ascii</a></li>
     <li><a href="reference.html#rf-render-matrix" class="header">rf_render_matrix</a></li>
-    <li><a href="reference.html#rf-rgb-composite" class="header">rf_rgb_composite</a></li>
     <li><a href="reference.html#rf-render-png" class="header">rf_render_png</a></li>
+    <li><a href="reference.html#rf-render-color-ramp-png" class="header">rf_render_color_ramp_png</a></li>
+    <li><a href="reference.html#rf-agg-overview-raster" class="header">rf_agg_overview_raster</a></li>
+    <li><a href="reference.html#rf-rgb-composite" class="header">rf_rgb_composite</a></li>
   </ul></li>
 </ul>
 </div>
@@ -371,12 +382,18 @@ spark = create_rf_spark_session()
 <pre><code>Geometry st_geometry(Struct[Double xmin, Double xmax, Double ymin, Double ymax] extent)
 </code></pre>
 <p>Convert an extent to a Geometry. The extent likely comes from <a href="reference.html#st-extent"><code>st_extent</code></a> or <a href="reference.html#rf-extent"><code>rf_extent</code></a>.</p>
-<h3><a href="#rf-spatial-index" name="rf-spatial-index" class="anchor"><span class="anchor-link"></span></a>rf_spatial_index</h3>
-<pre><code>Long rf_spatial_index(Geometry geom, CRS crs)
-Long rf_spatial_index(Extent extent, CRS crs)
-Long rf_spatial_index(ProjectedRasterTile proj_raster, CRS crs)
+<h3><a href="#rf-xz2-index" name="rf-xz2-index" class="anchor"><span class="anchor-link"></span></a>rf_xz2_index</h3>
+<pre><code>Long rf_xz2_index(Geometry geom, CRS crs)
+Long rf_xz2_index(Extent extent, CRS crs)
+Long rf_xz2_index(ProjectedRasterTile proj_raster)
 </code></pre>
 <p>Constructs a XZ2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. This function is useful for <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange">range partitioning</a>.</p>
+<h3><a href="#rf-z2-index" name="rf-z2-index" class="anchor"><span class="anchor-link"></span></a>rf_z2_index</h3>
+<pre><code>Long rf_z2_index(Geometry geom, CRS crs)
+Long rf_z2_index(Extent extent, CRS crs)
+Long rf_z2_index(ProjectedRasterTile proj_raster)
+</code></pre>
+<p>Constructs a Z2 index in WGS84/EPSG:4326 from either a Geometry, Extent, ProjectedRasterTile and its CRS. First the native extent is extracted or computed, and then center is used as the indexing location. This function is useful for <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange">range partitioning</a>. See <a href="raster-read.html#spatial-indexing-and-partitioning">Reading Raster Data</a> section for details on how to have an index automatically added when reading raster data.</p>
 <h2><a href="#tile-metadata-and-mutation" name="tile-metadata-and-mutation" class="anchor"><span class="anchor-link"></span></a>Tile Metadata and Mutation</h2>
 <p>Functions to access and change the particulars of a <code>tile</code>: its shape and the data type of its cells. See section on <a href="nodata-handling.html">&ldquo;NoData&rdquo; handling</a> for additional discussion of cell types.</p>
 <h3><a href="#rf-dimensions" name="rf-dimensions" class="anchor"><span class="anchor-link"></span></a>rf_dimensions</h3>
@@ -402,6 +419,10 @@ Struct rf_crs(RasterSource proj_raster)
 Struct rf_crs(String crs_spec)
 </code></pre>
 <p>Fetch CRS structure representing the coordinate reference system of a <code>ProjectedRasterTile</code> or <code>RasterSource</code> type tile columns, or from a column of strings in the form supported by <a href="reference.html#rf-mk-crs"><code>rf_mk_crs</code></a>. </p>
+<h3><a href="#rf-proj-raster" name="rf-proj-raster" class="anchor"><span class="anchor-link"></span></a>rf_proj_raster</h3>
+<pre><code>ProjectedRasterTile rf_proj_raster(Tile tile, Extent extent, CRS crs)
+</code></pre>
+<p>Construct a <code>proj_raster</code> structure from individual Tile, Extent, and CRS columns.</p>
 <h3><a href="#rf-mk-crs" name="rf-mk-crs" class="anchor"><span class="anchor-link"></span></a>rf_mk_crs</h3>
 <pre><code>Struct rf_mk_crs(String crsText)   
 </code></pre>
@@ -478,9 +499,26 @@ Tile rf_assemble_tile(Int colIndex, Int rowIndex, Numeric cellData, Int numCols,
 <p><code>inverse</code> is a literal not a Column. If <code>inverse</code> is true, return the <code>data_tile</code> with NoData in locations where the <code>mask_tile</code> value is <em>not equal</em> to <code>mask_value</code>. Equivalent to <a href="reference.html#rf-inverse-mask-by-value"><code>rf_inverse_mask_by_value</code></a>.</p>
 <h3><a href="#rf-mask-by-values" name="rf-mask-by-values" class="anchor"><span class="anchor-link"></span></a>rf_mask_by_values</h3>
 <pre><code>Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, Array mask_values)
-Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, seq mask_values)
+Tile rf_mask_by_values(Tile data_tile, Tile mask_tile, list mask_values)
 </code></pre>
 <p>Generate a <code>tile</code> with the values from <code>data_tile</code>, with NoData in cells where the <code>mask_tile</code> is in the <code>mask_values</code> Array or list. <code>mask_values</code> can be a <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType"><code>pyspark.sql.ArrayType</code></a> or a <code>list</code>. </p>
+<h3><a href="#rf-mask-by-bit" name="rf-mask-by-bit" class="anchor"><span class="anchor-link"></span></a>rf_mask_by_bit</h3>
+<pre><code>Tile rf_mask_by_bits(Tile tile, Tile mask_tile, Int bit_position, Bool mask_value) 
+</code></pre>
+<p>Applies a mask using bit values in the <code>mask_tile</code>. Working from the right, the bit at <code>bit_position</code> is <a href="reference.html#rf_local_extract_bits">extracted</a> from cell values of the <code>mask_tile</code>. In all locations where these are equal to the <code>mask_value</code>, the returned tile is set to NoData; otherwise the original <code>tile</code> cell value is returned.</p>
+<p>This is a single-bit version of <a href="reference.html#rf-mask-by-bits"><code>rf_mask_by_bits</code></a>.</p>
+<h3><a href="#rf-mask-by-bits" name="rf-mask-by-bits" class="anchor"><span class="anchor-link"></span></a>rf_mask_by_bits</h3>
+<pre><code>Tile rf_mask_by_bits(Tile tile, Tile mask_tile, Int start_bit, Int num_bits, Array mask_values) 
+Tile rf_mask_by_bits(Tile tile, Tile mask_tile, Int start_bit, Int num_bits, list mask_values) 
+</code></pre>
+<p>Applies a mask from blacklisted bit values in the <code>mask_tile</code>. Working from the right, the bits from <code>start_bit</code> to <code>start_bit + num_bits</code> are <a href="reference.html#rf_local_extract_bits">extracted</a> from cell values of the <code>mask_tile</code>. In all locations where these are in the <code>mask_values</code>, the returned tile is set to NoData; otherwise the original <code>tile</code> cell value is returned.</p>
+<p>This function is not available in the SQL API. The below is equivalent:</p>
+<pre class="prettyprint"><code class="language-sql">SELECT rf_mask_by_values(
+            tile, 
+            rf_local_extract_bits(mask_tile, start_bit, num_bits), 
+            mask_values
+            ),
+</code></pre>
 <h3><a href="#rf-inverse-mask" name="rf-inverse-mask" class="anchor"><span class="anchor-link"></span></a>rf_inverse_mask</h3>
 <pre><code>Tile rf_inverse_mask(Tile tile, Tile mask)
 </code></pre>
@@ -588,6 +626,12 @@ Tile rf_local_unequal_double(Tile tile1, Double rhs)
 Tile rf_local_is_in(Tile tile, list l)
 </code></pre>
 <p>Returns a <code>tile</code> column with cell values of 1 where the <code>tile</code> cell value is in the provided array or list. The <code>array</code> is a Spark SQL <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.types.ArrayType">Array</a>. A python <code>list</code> of numeric values can also be passed.</p>
+<h3><a href="#rf-local-extract-bits" name="rf-local-extract-bits" class="anchor"><span class="anchor-link"></span></a>rf_local_extract_bits</h3>
+<pre><code>Tile rf_local_extract_bits(Tile tile, Int start_bit, Int num_bits)
+Tile rf_local_extract_bits(Tile tile, Int start_bit)
+</code></pre>
+<p>Extract value from specified bits of the cells&rsquo; underlying binary data. Working from the right, the bits from <code>start_bit</code> to <code>start_bit + num_bits</code> are extracted from cell values of the <code>tile</code>. The <code>start_bit</code> is zero indexed. If <code>num_bits</code> is not provided, a single bit is extracted.</p>
+<p>A common use case for this function is covered by <a href="reference.html#rf-mask-by-bits"><code>rf_mask_by_bits</code></a>.</p>
 <h3><a href="#rf-round" name="rf-round" class="anchor"><span class="anchor-link"></span></a>rf_round</h3>
 <pre><code>Tile rf_round(Tile tile)
 </code></pre>
@@ -699,6 +743,19 @@ Tile rf_local_is_in(Tile tile, list l)
 <pre><code>Struct[Array[Struct[Double, Long]]] rf_agg_approx_histogram(Tile tile)
 </code></pre>
 <p>Aggregates over all of the rows in DataFrame of <code>tile</code> and returns a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the <a href="reference.html#rf-tile-histogram"><code>rf_tile_histogram</code></a> function which operates on a single row at a time.</p>
+<h3><a href="#rf-agg-approx-quantiles" name="rf-agg-approx-quantiles" class="anchor"><span class="anchor-link"></span></a>rf_agg_approx_quantiles</h3>
+<pre><code>Array[Double] rf_agg_approx_quantiles(Tile tile, List[float] probabilities, float relative_error)
+</code></pre>
+<p><strong>Not supported in SQL.</strong></p>
+<p>Calculates the approximate quantiles of a tile column of a DataFrame. <code>probabilities</code> is a list of float values at which to compute the quantiles. These must belong to [0, 1]. For example 0 is the minimum, 0.5 is the median, 1 is the maximum. Returns an array of values approximately at the specified <code>probabilities</code>.</p>
+<h3><a href="#rf-agg-extent" name="rf-agg-extent" class="anchor"><span class="anchor-link"></span></a>rf_agg_extent</h3>
+<pre><code>Extent rf_agg_extent(Extent extent)
+</code></pre>
+<p>Compute the naive aggregate extent over a column. Assumes CRS homogeneity. With mixed CRS in the column, or if you are unsure, use <a href="reference.html#rf-agg-reprojected-extent"><code>rf_agg_reprojected_extent</code></a>.</p>
+<h3><a href="#rf-agg-reprojected-extent" name="rf-agg-reprojected-extent" class="anchor"><span class="anchor-link"></span></a>rf_agg_reprojected_extent</h3>
+<pre><code>Extent rf_agg_reprojected_extent(Extent extent, CRS source_crs, String dest_crs)
+</code></pre>
+<p>Compute the aggregate extent over the <code>extent</code> and <code>source_crs</code> columns. The <code>dest_crs</code> is given as a string. Each row&rsquo;s extent will be reprojected to the <code>dest_crs</code> before aggregating. </p>
 <h2><a href="#tile-local-aggregate-statistics" name="tile-local-aggregate-statistics" class="anchor"><span class="anchor-link"></span></a>Tile Local Aggregate Statistics</h2>
 <p>Local statistics compute the element-wise statistics across a DataFrame or group of <code>tile</code>s, resulting in a <code>tile</code> that has the same dimension.</p>
 <p>When these functions encounter NoData in a cell location, it will be ignored. </p>
@@ -751,24 +808,58 @@ Tile rf_local_is_in(Tile tile, list l)
 <h3><a href="#rf-render-matrix" name="rf-render-matrix" class="anchor"><span class="anchor-link"></span></a>rf_render_matrix</h3>
 <pre><code>String rf_render_matrix(Tile tile)
 </code></pre>
-<p>Render Tile cell values as numeric values, for debugging purposes.</p>
+<p>Render Tile cell values as a string of numeric values, for debugging purposes.</p>
+<h3><a href="#rf-render-png" name="rf-render-png" class="anchor"><span class="anchor-link"></span></a>rf_render_png</h3>
+<pre><code>Array rf_render_png(Tile red, Tile green, Tile blue)
+</code></pre>
+<p>Converts three tile columns to a three-channel PNG-encoded image <code>bytearray</code>. First evaluates <a href="reference.md#rf-rgb-composite"><code>rf_rgb_composite</code></a> on the given tile columns, and then encodes the result. For more about rendering these in a Jupyter or IPython environment, see @<a href="raster-write.md#rendering-samples-with-color">Writing Raster Data</a>.</p>
+<h3><a href="#rf-render-color-ramp-png" name="rf-render-color-ramp-png" class="anchor"><span class="anchor-link"></span></a>rf_render_color_ramp_png</h3>
+<pre><code>Array rf_render_png(Tile tile, String color_ramp_name)
+</code></pre>
+<p>Converts given tile into a PNG image, using a color ramp of the given name to convert cells into pixels. <code>color_ramp_name</code> can be one of the following:</p>
+<ul>
+  <li>&ldquo;BlueToOrange&rdquo;</li>
+  <li>&ldquo;LightYellowToOrange&rdquo;</li>
+  <li>&ldquo;BlueToRed&rdquo;</li>
+  <li>&ldquo;GreenToRedOrange&rdquo;</li>
+  <li>&ldquo;LightToDarkSunset&rdquo;</li>
+  <li>&ldquo;LightToDarkGreen&rdquo;</li>
+  <li>&ldquo;HeatmapYellowToRed&rdquo;</li>
+  <li>&ldquo;HeatmapBlueToYellowToRedSpectrum&rdquo;</li>
+  <li>&ldquo;HeatmapDarkRedToYellowWhite&rdquo;</li>
+  <li>&ldquo;HeatmapLightPurpleToDarkPurpleToWhite&rdquo;</li>
+  <li>&ldquo;ClassificationBoldLandUse&rdquo;</li>
+  <li>&ldquo;ClassificationMutedTerrain&rdquo;</li>
+  <li>&ldquo;Magma&rdquo;</li>
+  <li>&ldquo;Inferno&rdquo;</li>
+  <li>&ldquo;Plasma&rdquo;</li>
+  <li>&ldquo;Viridis&rdquo;</li>
+  <li>&ldquo;Greyscale2&rdquo;</li>
+  <li>&ldquo;Greyscale8&rdquo;</li>
+  <li>&ldquo;Greyscale32&rdquo;</li>
+  <li>&ldquo;Greyscale64&rdquo;</li>
+  <li>&ldquo;Greyscale128&rdquo;</li>
+  <li>&ldquo;Greyscale256&rdquo;</li>
+</ul>
+<p>Further descriptions of these color ramps can be found in the <a href="https://geotrellis.readthedocs.io/en/latest/guide/rasters.html#built-in-color-ramps">Geotrellis Documentation</a>. For more about rendering these in a Jupyter or IPython environment, see @<a href="raster-write.md#rendering-samples-with-color">Writing Raster Data</a>.</p>
+<h3><a href="#rf-agg-overview-raster" name="rf-agg-overview-raster" class="anchor"><span class="anchor-link"></span></a>rf_agg_overview_raster</h3>
+<pre><code>Tile rf_agg_overview_raster(Tile proj_raster_col, int cols, int rows, Extent aoi)
+Tile rf_agg_overview_raster(Tile tile_col, int cols, int rows, Extent aoi, Extent tile_extent_col, CRS tile_crs_col)
+</code></pre>
+<p>Construct an overview <em>tile</em> of size <code>cols</code> by <code>rows</code>. Data is filtered to the specified <code>aoi</code> which is given in web mercator. Uses bi-linear sampling method. The <code>tile_extent_col</code> and <code>tile_crs_col</code> arguments are optional if the first argument has its Extent and CRS embedded.</p>
 <h3><a href="#rf-rgb-composite" name="rf-rgb-composite" class="anchor"><span class="anchor-link"></span></a>rf_rgb_composite</h3>
 <pre><code>Tile rf_rgb_composite(Tile red, Tile green, Tile blue)
 </code></pre>
 <p>Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer. This is useful when you want an RGB tile to render or to process with other color imagery tools. </p>
-<h3><a href="#rf-render-png" name="rf-render-png" class="anchor"><span class="anchor-link"></span></a>rf_render_png</h3>
-<pre><code>Array rf_render_png(Tile red, Tile green, Tile blue)
-</code></pre>
-<p>Runs <a href="reference.md#rf-rgb-composite"><code>rf_rgb_composite</code></a> on the given tile columns and then encodes the result as a PNG byte array.</p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.4/docs/src/main/paradox/reference.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.5/docs/src/main/paradox/reference.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.4
+0.8.5
 </span>
 </div>
 </article>

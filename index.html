@@ -153,6 +153,7 @@ locationtech/rasterframes
     <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="raster-join.html" class="page">Raster Join</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
@@ -175,7 +176,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.4
+<i class="md-icon" title="Version">label_outline</i> 0.8.5
 </label>
 </li>
 </ul>
@@ -282,6 +283,7 @@ locationtech/rasterframes
       <li><a href="raster-read.html#uri-formats" class="header">URI Formats</a></li>
       <li><a href="raster-read.html#raster-catalogs" class="header">Raster Catalogs</a></li>
       <li><a href="raster-read.html#lazy-raster-reading" class="header">Lazy Raster Reading</a></li>
+      <li><a href="raster-read.html#spatial-indexing-and-partitioning" class="header">Spatial Indexing and Partitioning</a></li>
       <li><a href="raster-read.html#geotrellis" class="header">GeoTrellis</a>
       <ul>
         <li><a href="raster-read.html#geotrellis-catalogs" class="header">GeoTrellis Catalogs</a></li>
@@ -292,7 +294,17 @@ locationtech/rasterframes
     <ul>
       <li><a href="raster-write.html#tile-samples" class="header">Tile Samples</a></li>
       <li><a href="raster-write.html#dataframe-samples" class="header">DataFrame Samples</a></li>
-      <li><a href="raster-write.html#geotiffs" class="header">GeoTIFFs</a></li>
+      <li><a href="raster-write.html#rendering-samples-with-color" class="header">Rendering Samples with Color</a>
+      <ul>
+        <li><a href="raster-write.html#color-composites" class="header">Color Composites</a></li>
+        <li><a href="raster-write.html#custom-color-map" class="header">Custom Color Map</a></li>
+      </ul></li>
+      <li><a href="raster-write.html#geotiffs" class="header">GeoTIFFs</a>
+      <ul>
+        <li><a href="raster-write.html#downsampling" class="header">Downsampling</a></li>
+        <li><a href="raster-write.html#color-composites" class="header">Color Composites</a></li>
+      </ul></li>
+      <li><a href="raster-write.html#overview-rasters" class="header">Overview Rasters</a></li>
       <li><a href="raster-write.html#geotrellis-layers" class="header">GeoTrellis Layers</a></li>
       <li><a href="raster-write.html#parquet" class="header">Parquet</a></li>
     </ul></li>
@@ -324,10 +336,13 @@ locationtech/rasterframes
     </ul></li>
     <li><a href="masking.html" class="page">Masking</a>
     <ul>
-      <li><a href="masking.html#masking-example" class="header">Masking Example</a></li>
-      <li><a href="masking.html#define-celltype-for-masked-tile" class="header">Define CellType for Masked Tile</a></li>
-      <li><a href="masking.html#apply-mask-from-quality-band" class="header">Apply Mask from Quality Band</a></li>
-      <li><a href="masking.html#transferring-mask" class="header">Transferring Mask</a></li>
+      <li><a href="masking.html#masking-sentinel-2" class="header">Masking Sentinel 2</a>
+      <ul>
+        <li><a href="masking.html#define-celltype-for-masked-tile" class="header">Define CellType for Masked Tile</a></li>
+        <li><a href="masking.html#apply-mask-from-quality-band" class="header">Apply Mask from Quality Band</a></li>
+        <li><a href="masking.html#transferring-mask" class="header">Transferring Mask</a></li>
+      </ul></li>
+      <li><a href="masking.html#masking-landsat-8" class="header">Masking Landsat 8</a></li>
       <li><a href="masking.html#clipping" class="header">Clipping</a></li>
     </ul></li>
     <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a>
@@ -352,6 +367,12 @@ locationtech/rasterframes
       <li><a href="time-series.html#catalog-read" class="header">Catalog Read</a></li>
       <li><a href="time-series.html#vector-and-raster-data-interaction" class="header">Vector and Raster Data Interaction</a></li>
       <li><a href="time-series.html#create-time-series" class="header">Create Time Series</a></li>
+    </ul></li>
+    <li><a href="raster-join.html" class="page">Raster Join</a>
+    <ul>
+      <li><a href="raster-join.html#description" class="header">Description</a></li>
+      <li><a href="raster-join.html#example-code" class="header">Example Code</a></li>
+      <li><a href="raster-join.html#additional-options" class="header">Additional Options</a></li>
     </ul></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a>
     <ul>
@@ -414,7 +435,8 @@ locationtech/rasterframes
       <li><a href="reference.html#st-reproject" class="header">st_reproject</a></li>
       <li><a href="reference.html#st-extent" class="header">st_extent</a></li>
       <li><a href="reference.html#st-geometry" class="header">st_geometry</a></li>
-      <li><a href="reference.html#rf-spatial-index" class="header">rf_spatial_index</a></li>
+      <li><a href="reference.html#rf-xz2-index" class="header">rf_xz2_index</a></li>
+      <li><a href="reference.html#rf-z2-index" class="header">rf_z2_index</a></li>
     </ul></li>
     <li><a href="reference.html#tile-metadata-and-mutation" class="header">Tile Metadata and Mutation</a>
     <ul>
@@ -423,6 +445,7 @@ locationtech/rasterframes
       <li><a href="reference.html#rf-tile" class="header">rf_tile</a></li>
       <li><a href="reference.html#rf-extent" class="header">rf_extent</a></li>
       <li><a href="reference.html#rf-crs" class="header">rf_crs</a></li>
+      <li><a href="reference.html#rf-proj-raster" class="header">rf_proj_raster</a></li>
       <li><a href="reference.html#rf-mk-crs" class="header">rf_mk_crs</a></li>
       <li><a href="reference.html#rf-convert-cell-type" class="header">rf_convert_cell_type</a></li>
       <li><a href="reference.html#rf-interpret-cell-type-as" class="header">rf_interpret_cell_type_as</a></li>
@@ -442,6 +465,8 @@ locationtech/rasterframes
       <li><a href="reference.html#rf-mask" class="header">rf_mask</a></li>
       <li><a href="reference.html#rf-mask-by-value" class="header">rf_mask_by_value</a></li>
       <li><a href="reference.html#rf-mask-by-values" class="header">rf_mask_by_values</a></li>
+      <li><a href="reference.html#rf-mask-by-bit" class="header">rf_mask_by_bit</a></li>
+      <li><a href="reference.html#rf-mask-by-bits" class="header">rf_mask_by_bits</a></li>
       <li><a href="reference.html#rf-inverse-mask" class="header">rf_inverse_mask</a></li>
       <li><a href="reference.html#rf-inverse-mask-by-value" class="header">rf_inverse_mask_by_value</a></li>
       <li><a href="reference.html#rf-is-no-data-tile" class="header">rf_is_no_data_tile</a></li>
@@ -464,6 +489,7 @@ locationtech/rasterframes
       <li><a href="reference.html#rf-local-equal" class="header">rf_local_equal</a></li>
       <li><a href="reference.html#rf-local-unequal" class="header">rf_local_unequal</a></li>
       <li><a href="reference.html#rf-local-is-in" class="header">rf_local_is_in</a></li>
+      <li><a href="reference.html#rf-local-extract-bits" class="header">rf_local_extract_bits</a></li>
       <li><a href="reference.html#rf-round" class="header">rf_round</a></li>
       <li><a href="reference.html#rf-abs" class="header">rf_abs</a></li>
       <li><a href="reference.html#rf-exp" class="header">rf_exp</a></li>
@@ -495,6 +521,9 @@ locationtech/rasterframes
       <li><a href="reference.html#rf-agg-no-data-cells" class="header">rf_agg_no_data_cells</a></li>
       <li><a href="reference.html#rf-agg-stats" class="header">rf_agg_stats</a></li>
       <li><a href="reference.html#rf-agg-approx-histogram" class="header">rf_agg_approx_histogram</a></li>
+      <li><a href="reference.html#rf-agg-approx-quantiles" class="header">rf_agg_approx_quantiles</a></li>
+      <li><a href="reference.html#rf-agg-extent" class="header">rf_agg_extent</a></li>
+      <li><a href="reference.html#rf-agg-reprojected-extent" class="header">rf_agg_reprojected_extent</a></li>
     </ul></li>
     <li><a href="reference.html#tile-local-aggregate-statistics" class="header">Tile Local Aggregate Statistics</a>
     <ul>
@@ -513,14 +542,17 @@ locationtech/rasterframes
       <li><a href="reference.html#rf-tile-to-array-double" class="header">rf_tile_to_array_double</a></li>
       <li><a href="reference.html#rf-render-ascii" class="header">rf_render_ascii</a></li>
       <li><a href="reference.html#rf-render-matrix" class="header">rf_render_matrix</a></li>
-      <li><a href="reference.html#rf-rgb-composite" class="header">rf_rgb_composite</a></li>
       <li><a href="reference.html#rf-render-png" class="header">rf_render_png</a></li>
+      <li><a href="reference.html#rf-render-color-ramp-png" class="header">rf_render_color_ramp_png</a></li>
+      <li><a href="reference.html#rf-agg-overview-raster" class="header">rf_agg_overview_raster</a></li>
+      <li><a href="reference.html#rf-rgb-composite" class="header">rf_rgb_composite</a></li>
     </ul></li>
   </ul></li>
   <li><a href="release-notes.html" class="page">Release Notes</a>
   <ul>
     <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a>
     <ul>
+      <li><a href="release-notes.html#0-8-5" class="header">0.8.5</a></li>
       <li><a href="release-notes.html#0-8-4" class="header">0.8.4</a></li>
       <li><a href="release-notes.html#0-8-3" class="header">0.8.3</a></li>
       <li><a href="release-notes.html#0-8-2" class="header">0.8.2</a></li>
@@ -559,13 +591,13 @@ locationtech/rasterframes
 </div>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.4/pyrasterframes/target/python/docs/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.5/docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.4
+0.8.5
 </span>
 </div>
 </article>

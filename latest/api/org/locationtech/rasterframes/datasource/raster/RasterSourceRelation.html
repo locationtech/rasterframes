@@ -45,11 +45,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RasterSourceRelation</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="catalogTable">catalogTable: <a href="RasterSourceDataSource$$RasterSourceCatalogRef.html" class="extype" name="org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef">RasterSourceCatalogRef</a></span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a>]</span>, <span name="lazyTiles">lazyTiles: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">RasterSourceRelation</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="catalogTable">catalogTable: <a href="RasterSourceDataSource$$RasterSourceCatalogRef.html" class="extype" name="org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef">RasterSourceCatalogRef</a></span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a>]</span>, <span name="lazyTiles">lazyTiles: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="spatialIndexPartitions">spatialIndexPartitions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span> with <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Constructs a Spark Relation over one or more RasterSource paths.</p></div><dl class="paramcmts block"><dt class="param">sqlContext</dt><dd class="cmt"><p>Query context</p></dd><dt class="param">catalogTable</dt><dd class="cmt"><p>Specification of raster path sources</p></dd><dt class="param">bandIndexes</dt><dd class="cmt"><p>band indexes to fetch</p></dd><dt class="param">subtileDims</dt><dd class="cmt"><p>how big to tile/subdivide rasters info</p></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Constructs a Spark Relation over one or more RasterSource paths.</p></div><dl class="paramcmts block"><dt class="param">sqlContext</dt><dd class="cmt"><p>Query context</p></dd><dt class="param">catalogTable</dt><dd class="cmt"><p>Specification of raster path sources</p></dd><dt class="param">bandIndexes</dt><dd class="cmt"><p>band indexes to fetch</p></dd><dt class="param">subtileDims</dt><dd class="cmt"><p>how big to tile/subdivide rasters info</p></dd><dt class="param">lazyTiles</dt><dd class="cmt"><p>if true, creates a lazy representation of tile instead of fetching contents.</p></dd><dt class="param">spatialIndexPartitions</dt><dd class="cmt"><p>Number of spatial index-based partitions to create.
+                              If Option value &gt; 0, that number of partitions are created after adding a spatial index.
+                              If Option value &lt;= 0, uses the value of <code>numShufflePartitions</code> in SparkContext.
+                              If None, no spatial index is added and hash partitioning is used.</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <span class="extype" name="org.apache.spark.sql.sources.TableScan">TableScan</span>, <span class="extype" name="org.apache.spark.sql.sources.BaseRelation">BaseRelation</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -89,7 +92,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.locationtech.rasterframes.datasource.raster.RasterSourceRelation#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(sqlContext:org.apache.spark.sql.SQLContext,catalogTable:org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef,bandIndexes:Seq[Int],subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions],lazyTiles:Boolean):org.locationtech.rasterframes.datasource.raster.RasterSourceRelation"></a>
+      <a id="&lt;init&gt;(sqlContext:org.apache.spark.sql.SQLContext,catalogTable:org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef,bandIndexes:Seq[Int],subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions],lazyTiles:Boolean,spatialIndexPartitions:Option[Int]):org.locationtech.rasterframes.datasource.raster.RasterSourceRelation"></a>
       <a id="&lt;init&gt;:RasterSourceRelation"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -97,14 +100,17 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RasterSourceRelation</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="catalogTable">catalogTable: <a href="RasterSourceDataSource$$RasterSourceCatalogRef.html" class="extype" name="org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef">RasterSourceCatalogRef</a></span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a>]</span>, <span name="lazyTiles">lazyTiles: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span>
+        <span class="name">RasterSourceRelation</span><span class="params">(<span name="sqlContext">sqlContext: <span class="extype" name="org.apache.spark.sql.SQLContext">SQLContext</span></span>, <span name="catalogTable">catalogTable: <a href="RasterSourceDataSource$$RasterSourceCatalogRef.html" class="extype" name="org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef">RasterSourceCatalogRef</a></span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a>]</span>, <span name="lazyTiles">lazyTiles: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="spatialIndexPartitions">spatialIndexPartitions: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.datasource.raster.RasterSourceRelation@&lt;init&gt;(sqlContext:org.apache.spark.sql.SQLContext,catalogTable:org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef,bandIndexes:Seq[Int],subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions],lazyTiles:Boolean):org.locationtech.rasterframes.datasource.raster.RasterSourceRelation" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.datasource.raster.RasterSourceRelation@&lt;init&gt;(sqlContext:org.apache.spark.sql.SQLContext,catalogTable:org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef,bandIndexes:Seq[Int],subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions],lazyTiles:Boolean,spatialIndexPartitions:Option[Int]):org.locationtech.rasterframes.datasource.raster.RasterSourceRelation" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">sqlContext</dt><dd class="cmt"><p>Query context</p></dd><dt class="param">catalogTable</dt><dd class="cmt"><p>Specification of raster path sources</p></dd><dt class="param">bandIndexes</dt><dd class="cmt"><p>band indexes to fetch</p></dd><dt class="param">subtileDims</dt><dd class="cmt"><p>how big to tile/subdivide rasters info</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">sqlContext</dt><dd class="cmt"><p>Query context</p></dd><dt class="param">catalogTable</dt><dd class="cmt"><p>Specification of raster path sources</p></dd><dt class="param">bandIndexes</dt><dd class="cmt"><p>band indexes to fetch</p></dd><dt class="param">subtileDims</dt><dd class="cmt"><p>how big to tile/subdivide rasters info</p></dd><dt class="param">lazyTiles</dt><dd class="cmt"><p>if true, creates a lazy representation of tile instead of fetching contents.</p></dd><dt class="param">spatialIndexPartitions</dt><dd class="cmt"><p>Number of spatial index-based partitions to create.
+                              If Option value &gt; 0, that number of partitions are created after adding a spatial index.
+                              If Option value &lt;= 0, uses the value of <code>numShufflePartitions</code> in SparkContext.
+                              If None, no spatial index is added and hash partitioning is used.</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -347,6 +353,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.datasource.raster.RasterSourceRelation#indexCols" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="indexCols:Seq[org.apache.spark.sql.types.StructField]"></a>
+      <a id="indexCols:Seq[StructField]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">indexCols</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.types.StructField">StructField</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.datasource.raster.RasterSourceRelation@indexCols:Seq[org.apache.spark.sql.types.StructField]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="org.locationtech.rasterframes.datasource.raster.RasterSourceRelation#inputColNames" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="inputColNames:Seq[String]"></a>
       <a id="inputColNames:Seq[String]"></a>
@@ -397,7 +420,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">if true, creates a lazy representation of tile instead of fetching contents.</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -534,6 +557,26 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>BaseRelation</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.datasource.raster.RasterSourceRelation#spatialIndexPartitions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialIndexPartitions:Option[Int]"></a>
+      <a id="spatialIndexPartitions:Option[Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialIndexPartitions</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.datasource.raster.RasterSourceRelation@spatialIndexPartitions:Option[Int]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Number of spatial index-based partitions to create.</p><div class="fullcomment"><div class="comment cmt"><p>Number of spatial index-based partitions to create.
+                              If Option value &gt; 0, that number of partitions are created after adding a spatial index.
+                              If Option value &lt;= 0, uses the value of <code>numShufflePartitions</code> in SparkContext.
+                              If None, no spatial index is added and hash partitioning is used.</p></div></div>
     </li><li name="org.locationtech.rasterframes.datasource.raster.RasterSourceRelation#sqlContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sqlContext:org.apache.spark.sql.SQLContext"></a>
       <a id="sqlContext:SQLContext"></a>

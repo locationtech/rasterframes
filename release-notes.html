@@ -158,6 +158,7 @@ locationtech/rasterframes
     <li><a href="zonal-algebra.html" class="page">Zonal Map Algebra</a></li>
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
+    <li><a href="raster-join.html" class="page">Raster Join</a></li>
     <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
@@ -182,7 +183,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.4
+<i class="md-icon" title="Version">label_outline</i> 0.8.5
 </label>
 </li>
 </ul>
@@ -213,6 +214,20 @@ locationtech/rasterframes
 <div class="md-content__searchable">
 <h1><a href="#release-notes" name="release-notes" class="anchor"><span class="anchor-link"></span></a>Release Notes</h1>
 <h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
+<h3><a href="#0-8-5" name="0-8-5" class="anchor"><span class="anchor-link"></span></a>0.8.5</h3>
+<ul>
+  <li>Added <code>rf_z2_index</code> for constructing a Z2 index on types with bounds.</li>
+  <li><em>Breaking</em>: <code>rf_spatial_index</code> renamed <code>rf_xz2_index</code> to differentiate between XZ2 and Z2 variants.</li>
+  <li>Added <code>withSpatialIndex</code> to RasterSourceDataSource to pre-partition tiles based on tile extents mapped to a Z2 space-filling curve</li>
+  <li>Add <code>rf_mask_by_bit</code>, <code>rf_mask_by_bits</code> and <code>rf_local_extract_bits</code> to deal with bit packed quality masks. Updated the masking documentation to demonstrate the use of these functions.</li>
+  <li>Added <code>toDF</code> extension method to <code>MultibandGeoTiff</code></li>
+  <li>Added <code>rf_agg_extent</code> and <code>rf_agg_reprojected_extent</code> to compute the aggregate extent of a column</li>
+  <li>Added <code>rf_proj_raster</code> for constructing a <code>proj_raster</code> structure from individual CRS, Extent, and Tile columns.</li>
+  <li>Added <code>rf_render_color_ramp_png</code> to compute PNG byte array for a single tile column, with specified color ramp.</li>
+  <li>In <code>rf_ipython</code>, improved rendering of dataframe binary contents with PNG preamble.</li>
+  <li>Throw an <code>IllegalArgumentException</code> when attempting to apply a mask to a <code>Tile</code> whose <code>CellType</code> has no NoData defined. (<a href="https://github.com/locationtech/rasterframes/issues/384">#409</a>)</li>
+  <li>Add <code>rf_agg_approx_quantiles</code> function to compute cell quantiles across an entire column.</li>
+</ul>
 <h3><a href="#0-8-4" name="0-8-4" class="anchor"><span class="anchor-link"></span></a>0.8.4</h3>
 <ul>
   <li>Upgraded to Spark 2.4.4</li>
@@ -414,13 +429,13 @@ locationtech/rasterframes
 </ul>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.4/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.8.5/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.4
+0.8.5
 </span>
 </div>
 </article>

@@ -47,11 +47,11 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ProjectedRasterDefinition</span><span class="params">(<span name="totalCols">totalCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="totalRows">totalRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="cellType">cellType: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="crs">crs: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="extent">extent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="sampler">sampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../../geotrellis/package.html">ResampleMethod.DEFAULT</a></span></span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">ProjectedRasterDefinition</span><span class="params">(<span name="totalCols">totalCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="totalRows">totalRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="destinationCellType">destinationCellType: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="destinationCRS">destinationCRS: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="destinationExtent">destinationExtent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="sampler">sampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p> Convenience grouping of  parameters needed for running aggregate.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Convenience grouping of  parameters needed for running aggregate.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -91,7 +91,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(totalCols:Int,totalRows:Int,cellType:geotrellis.raster.CellType,crs:geotrellis.proj4.CRS,extent:geotrellis.vector.Extent,sampler:geotrellis.raster.resample.ResampleMethod):org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition"></a>
+      <a id="&lt;init&gt;(totalCols:Int,totalRows:Int,destinationCellType:geotrellis.raster.CellType,destinationCRS:geotrellis.proj4.CRS,destinationExtent:geotrellis.vector.Extent,sampler:geotrellis.raster.resample.ResampleMethod):org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition"></a>
       <a id="&lt;init&gt;:ProjectedRasterDefinition"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -99,10 +99,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ProjectedRasterDefinition</span><span class="params">(<span name="totalCols">totalCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="totalRows">totalRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="cellType">cellType: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="crs">crs: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="extent">extent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="sampler">sampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../../geotrellis/package.html">ResampleMethod.DEFAULT</a></span></span></span>)</span>
+        <span class="name">ProjectedRasterDefinition</span><span class="params">(<span name="totalCols">totalCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="totalRows">totalRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="destinationCellType">destinationCellType: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="destinationCRS">destinationCRS: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="destinationExtent">destinationExtent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="sampler">sampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@&lt;init&gt;(totalCols:Int,totalRows:Int,cellType:geotrellis.raster.CellType,crs:geotrellis.proj4.CRS,extent:geotrellis.vector.Extent,sampler:geotrellis.raster.resample.ResampleMethod):org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@&lt;init&gt;(totalCols:Int,totalRows:Int,destinationCellType:geotrellis.raster.CellType,destinationCRS:geotrellis.proj4.CRS,destinationExtent:geotrellis.vector.Extent,sampler:geotrellis.raster.resample.ResampleMethod):org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -184,23 +184,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition#cellType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="cellType:geotrellis.raster.CellType"></a>
-      <a id="cellType:CellType"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">cellType</span><span class="result">: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@cellType:geotrellis.raster.CellType" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -224,19 +207,53 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition#crs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="crs:geotrellis.proj4.CRS"></a>
-      <a id="crs:CRS"></a>
+    </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition#destinationCRS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="destinationCRS:geotrellis.proj4.CRS"></a>
+      <a id="destinationCRS:CRS"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">crs</span><span class="result">: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>
+        <span class="name">destinationCRS</span><span class="result">: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@crs:geotrellis.proj4.CRS" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@destinationCRS:geotrellis.proj4.CRS" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition#destinationCellType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="destinationCellType:geotrellis.raster.CellType"></a>
+      <a id="destinationCellType:CellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">destinationCellType</span><span class="result">: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@destinationCellType:geotrellis.raster.CellType" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition#destinationExtent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="destinationExtent:geotrellis.vector.Extent"></a>
+      <a id="destinationExtent:Extent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">destinationExtent</span><span class="result">: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@destinationExtent:geotrellis.vector.Extent" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -258,23 +275,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition#extent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="extent:geotrellis.vector.Extent"></a>
-      <a id="extent:Extent"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">extent</span><span class="result">: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$$ProjectedRasterDefinition@extent:geotrellis.vector.Extent" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>

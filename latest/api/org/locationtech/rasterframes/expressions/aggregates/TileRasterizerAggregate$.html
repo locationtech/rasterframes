@@ -101,14 +101,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="TileRasterizerAggregate$$ProjectedRasterDefinition.html"><span class="name">ProjectedRasterDefinition</span></a><span class="params">(<span name="totalCols">totalCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="totalRows">totalRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="cellType">cellType: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="crs">crs: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="extent">extent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="sampler">sampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span> = <span class="symbol"><span class="name"><a href="../../../../../geotrellis/package.html">ResampleMethod.DEFAULT</a></span></span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="TileRasterizerAggregate$$ProjectedRasterDefinition.html"><span class="name">ProjectedRasterDefinition</span></a><span class="params">(<span name="totalCols">totalCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="totalRows">totalRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="destinationCellType">destinationCellType: <a href="../../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="destinationCRS">destinationCRS: <span class="extype" name="geotrellis.proj4.CRS">CRS</span></span>, <span name="destinationExtent">destinationExtent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="sampler">sampler: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$@ProjectedRasterDefinitionextendsProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt"> Convenience grouping of  parameters needed for running aggregate.</p>
+      <p class="shortcomment cmt">Convenience grouping of  parameters needed for running aggregate.</p>
     </li></ol>
             </div>
 
@@ -185,18 +185,18 @@
     </span>
       
     </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(prd:org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition,crsCol:org.apache.spark.sql.Column,extentCol:org.apache.spark.sql.Column,tileCol:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Raster[geotrellis.raster.Tile]]"></a>
-      <a id="apply(ProjectedRasterDefinition,Column,Column,Column):TypedColumn[Any,Raster[Tile]]"></a>
+      <a id="apply(prd:org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition,crsCol:org.apache.spark.sql.Column,extentCol:org.apache.spark.sql.Column,tileCol:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]"></a>
+      <a id="apply(ProjectedRasterDefinition,Column,Column,Column):TypedColumn[Any,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="prd">prd: <a href="TileRasterizerAggregate$$ProjectedRasterDefinition.html" class="extype" name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition">ProjectedRasterDefinition</a></span>, <span name="crsCol">crsCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="extentCol">extentCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]]</span>
+        <span class="name">apply</span><span class="params">(<span name="prd">prd: <a href="TileRasterizerAggregate$$ProjectedRasterDefinition.html" class="extype" name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition">ProjectedRasterDefinition</a></span>, <span name="crsCol">crsCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="extentCol">extentCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$@apply(prd:org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition,crsCol:org.apache.spark.sql.Column,extentCol:org.apache.spark.sql.Column,tileCol:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Raster[geotrellis.raster.Tile]]" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$@apply(prd:org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition,crsCol:org.apache.spark.sql.Column,extentCol:org.apache.spark.sql.Column,tileCol:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -257,7 +257,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Extract a multiband raster from all tile columns.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -383,23 +383,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate#nodeName" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="nodeName:String"></a>
-      <a id="nodeName:String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">nodeName</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate$@nodeName:String" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <a id="notify():Unit"></a>

@@ -47,13 +47,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">StandardSerializers</span>
+        <span class="name">StandardSerializers</span><span class="result"> extends <a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -71,7 +71,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="org.locationtech.rasterframes.encoders.StandardSerializers"><span>StandardSerializers</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="org.locationtech.rasterframes.encoders.StandardSerializers"><span>StandardSerializers</span></li><li class="in" name="org.locationtech.rasterframes.encoders.StandardSerializers"><span>StandardSerializers</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -164,6 +164,57 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#boundsSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="boundsSerializer[T&gt;:Null](implicitevidence$1:org.locationtech.rasterframes.encoders.CatalystSerializer[T]):org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.KeyBounds[T]]"></a>
+      <a id="boundsSerializer[T&gt;:Null](CatalystSerializer[T]):CatalystSerializer[KeyBounds[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">boundsSerializer</span><span class="tparams">[<span name="T">T &gt;: <span class="extype" name="scala.Null">Null</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers.boundsSerializer.T">T</span>]</span>)</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.KeyBounds">KeyBounds</span>[<span class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers.boundsSerializer.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@boundsSerializer[T&gt;:Null](implicitevidence$1:org.locationtech.rasterframes.encoders.CatalystSerializer[T]):org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.KeyBounds[T]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#cellSizeSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="cellSizeSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.CellSize]"></a>
+      <a id="cellSizeSerializer:CatalystSerializer[CellSize]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cellSizeSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.raster.CellSize">CellSize</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@cellSizeSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.CellSize]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#cellTypeSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="cellTypeSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.CellType]"></a>
+      <a id="cellTypeSerializer:CatalystSerializer[CellType]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cellTypeSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<a href="../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@cellTypeSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.CellType]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -187,6 +238,40 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#crsSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crsSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.proj4.CRS]"></a>
+      <a id="crsSerializer:CatalystSerializer[CRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crsSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@crsSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.proj4.CRS]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#envelopeSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="envelopeSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[org.locationtech.jts.geom.Envelope]"></a>
+      <a id="envelopeSerializer:CatalystSerializer[Envelope]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">envelopeSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="org.locationtech.jts.geom.Envelope">Envelope</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@envelopeSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[org.locationtech.jts.geom.Envelope]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -221,6 +306,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#extentSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="extentSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.vector.Extent]"></a>
+      <a id="extentSerializer:CatalystSerializer[Extent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">extentSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@extentSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.vector.Extent]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -261,6 +363,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#gridBoundsSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="gridBoundsSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.GridBounds]"></a>
+      <a id="gridBoundsSerializer:CatalystSerializer[GridBounds]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">gridBoundsSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@gridBoundsSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.GridBounds]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -295,6 +414,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#layoutDefinitionSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="layoutDefinitionSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.tiling.LayoutDefinition]{valschema:org.apache.spark.sql.types.StructType}"></a>
+      <a id="layoutDefinitionSerializer:CatalystSerializer[LayoutDefinition]{valschema:org.apache.spark.sql.types.StructType}"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layoutDefinitionSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.tiling.LayoutDefinition">LayoutDefinition</span>] { val schema: org.apache.spark.sql.types.StructType }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@layoutDefinitionSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.tiling.LayoutDefinition]{valschema:org.apache.spark.sql.types.StructType}" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -346,6 +482,125 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#projectedExtentSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="projectedExtentSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.vector.ProjectedExtent]"></a>
+      <a id="projectedExtentSerializer:CatalystSerializer[ProjectedExtent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">projectedExtentSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.vector.ProjectedExtent">ProjectedExtent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@projectedExtentSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.vector.ProjectedExtent]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#quantileSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="quantileSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[org.apache.spark.sql.catalyst.util.QuantileSummaries]"></a>
+      <a id="quantileSerializer:CatalystSerializer[QuantileSummaries]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">quantileSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="org.apache.spark.sql.catalyst.util.QuantileSummaries">QuantileSummaries</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@quantileSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[org.apache.spark.sql.catalyst.util.QuantileSummaries]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#rasterSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rasterSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.Raster[geotrellis.raster.Tile]]"></a>
+      <a id="rasterSerializer:CatalystSerializer[Raster[Tile]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rasterSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@rasterSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.Raster[geotrellis.raster.Tile]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#spaceTimeKeyTLMSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spaceTimeKeyTLMSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="spaceTimeKeyTLMSerializer:CatalystSerializer[TileLayerMetadata[SpaceTimeKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spaceTimeKeyTLMSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@spaceTimeKeyTLMSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#spacetimeKeySerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spacetimeKeySerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpaceTimeKey]"></a>
+      <a id="spacetimeKeySerializer:CatalystSerializer[SpaceTimeKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spacetimeKeySerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@spacetimeKeySerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpaceTimeKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#spatialKeySerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialKeySerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpatialKey]"></a>
+      <a id="spatialKeySerializer:CatalystSerializer[SpatialKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialKeySerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@spatialKeySerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#spatialKeyTLMSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialKeyTLMSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]"></a>
+      <a id="spatialKeyTLMSerializer:CatalystSerializer[TileLayerMetadata[SpatialKey]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialKeyTLMSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@spatialKeyTLMSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -363,6 +618,40 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#tileLayerMetadataSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileLayerMetadataSerializer[T&gt;:Null](implicitevidence$2:org.locationtech.rasterframes.encoders.CatalystSerializer[T]):org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[T]]"></a>
+      <a id="tileLayerMetadataSerializer[T&gt;:Null](CatalystSerializer[T]):CatalystSerializer[TileLayerMetadata[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileLayerMetadataSerializer</span><span class="tparams">[<span name="T">T &gt;: <span class="extype" name="scala.Null">Null</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers.tileLayerMetadataSerializer.T">T</span>]</span>)</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers.tileLayerMetadataSerializer.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@tileLayerMetadataSerializer[T&gt;:Null](implicitevidence$2:org.locationtech.rasterframes.encoders.CatalystSerializer[T]):org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.spark.TileLayerMetadata[T]]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.encoders.StandardSerializers#tileLayoutSerializer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileLayoutSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.TileLayout]"></a>
+      <a id="tileLayoutSerializer:CatalystSerializer[TileLayout]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileLayoutSerializer</span><span class="result">: <a href="CatalystSerializer.html" class="extype" name="org.locationtech.rasterframes.encoders.CatalystSerializer">CatalystSerializer</a>[<span class="extype" name="geotrellis.raster.TileLayout">TileLayout</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.encoders.StandardSerializers$@tileLayoutSerializer:org.locationtech.rasterframes.encoders.CatalystSerializer[geotrellis.raster.TileLayout]" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -458,7 +747,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="org.locationtech.rasterframes.encoders.StandardSerializers">
+              <h3>Inherited from <a href="StandardSerializers.html" class="extype" name="org.locationtech.rasterframes.encoders.StandardSerializers">StandardSerializers</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>

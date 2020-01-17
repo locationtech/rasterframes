@@ -66,7 +66,27 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="org.locationtech.rasterframes.expressions.transformers.DebugRender" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="org.locationtech.rasterframes.expressions.transformers.CreateProjectedRaster" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="CreateProjectedRasterextendsTernaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="CreateProjectedRaster:CreateProjectedRaster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="CreateProjectedRaster.html"><span class="name">CreateProjectedRaster</span></a><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="extent">extent: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="crs">crs: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@CreateProjectedRasterextendsTernaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.DebugRender" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DebugRenderextendsUnaryExpressionwithUnaryRasterOpwithCodegenFallbackwithSerializable"></a>
       <a id="DebugRender:DebugRender"></a>
       <h4 class="signature">
@@ -101,6 +121,26 @@
     </span>
       <p class="shortcomment cmt">Catalyst Expression for converting a bounding box structure into a JTS Geometry type.</p><div class="fullcomment"><div class="comment cmt"><p>Catalyst Expression for converting a bounding box structure into a JTS Geometry type.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/24/18</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.ExtractBits" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ExtractBitsextendsTernaryExpressionwithCodegenFallbackwithSerializablewithProduct"></a>
+      <a id="ExtractBits:ExtractBits"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ExtractBits.html"><span class="name">ExtractBits</span></a><span class="params">(<span name="child1">child1: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="child2">child2: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="child3">child3: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@ExtractBitsextendsTernaryExpressionwithCodegenFallbackwithSerializablewithProduct" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.GeometryToExtent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="GeometryToExtentextendsUnaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
       <a id="GeometryToExtent:GeometryToExtent"></a>
@@ -155,7 +195,8 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Convert cells in the <code>left</code> to NoData based on another tile's contents
+</p>
     </li><li name="org.locationtech.rasterframes.expressions.transformers.RGBComposite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="RGBCompositeextendsTernaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
       <a id="RGBComposite:RGBComposite"></a>
@@ -360,6 +401,32 @@ Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.h
                 <span class="name">@ExpressionDescription</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.Z2Indexer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Z2IndexerextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="Z2Indexer:Z2Indexer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Z2Indexer.html"><span class="name">Z2Indexer</span></a><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="indexResolution">indexResolution: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Short" class="extype" target="_top">Short</a></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@Z2IndexerextendsBinaryExpressionwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a Z2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a Z2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource. First the
+native extent  is extracted or computed, and then center is used as the indexing location.
+This function is useful for [range partitioning](http://spark.apache.org/docs/latest/api/python/pyspark.sql.html?highlight=registerjava#pyspark.sql.DataFrame.repartitionByRange).
+Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.html
+</p></div><dl class="paramcmts block"><dt class="param">left</dt><dd class="cmt"><p>geometry-like column</p></dd><dt class="param">right</dt><dd class="cmt"><p>CRS column</p></dd><dt class="param">indexResolution</dt><dd class="cmt"><p>resolution level of the space filling curve -
+                       i.e. how many times the space will be recursively quartered
+                       1-31 is typical.</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li></ol>
             </div>
 
@@ -367,7 +434,24 @@ Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.h
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="org.locationtech.rasterframes.expressions.transformers.DebugRender" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="org.locationtech.rasterframes.expressions.transformers.CreateProjectedRaster" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CreateProjectedRaster"></a>
+      <a id="CreateProjectedRaster:CreateProjectedRaster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="CreateProjectedRaster$.html"><span class="name">CreateProjectedRaster</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@CreateProjectedRaster" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.DebugRender" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DebugRender"></a>
       <a id="DebugRender:DebugRender"></a>
       <h4 class="signature">
@@ -397,6 +481,23 @@ Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.h
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@ExtentToGeometry" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.ExtractBits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExtractBits"></a>
+      <a id="ExtractBits:ExtractBits"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExtractBits$.html"><span class="name">ExtractBits</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@ExtractBits" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -618,6 +719,23 @@ Also see: https://www.geomesa.org/documentation/user/datastores/index_overview.h
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@XZ2Indexer" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.transformers.Z2Indexer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Z2Indexer"></a>
+      <a id="Z2Indexer:Z2Indexer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Z2Indexer$.html"><span class="name">Z2Indexer</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.transformers.package@Z2Indexer" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
