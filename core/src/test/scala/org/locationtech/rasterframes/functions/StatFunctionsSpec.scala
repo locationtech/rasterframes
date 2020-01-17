@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2017 Astraea, Inc.
+ * Copyright 2020 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,26 +19,234 @@
  *
  */
 
-package org.locationtech.rasterframes
+package org.locationtech.rasterframes.functions
 
 import geotrellis.raster._
-import geotrellis.raster.mapalgebra.local.{Add, Max, Min}
+import geotrellis.raster.mapalgebra.local._
 import geotrellis.spark._
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.TestData.randomTile
-import org.locationtech.rasterframes.stats.CellHistogram
-import org.locationtech.rasterframes.util.DataBiasedOp.BiasedAdd
+import org.locationtech.rasterframes.TestData._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.stats._
+import org.locationtech.rasterframes.util.DataBiasedOp._
 
-/**
- * Test rig associated with computing statistics and other descriptive
- * information over tiles.
- *
- * @since 9/18/17
- */
-class TileStatsSpec extends TestEnvironment with TestData {
-  import TestData.injectND
+class StatFunctionsSpec extends TestEnvironment with TestData {
+
   import spark.implicits._
+
+  val df = TestData.sampleGeoTiff
+    .toDF()
+    .withColumn("tilePlus2", rf_local_add(col("tile"), 2))
+
+
+  describe("Tile quantiles through built-in functions") {
+
+    it("should compute approx percentiles for a single tile col") {
+      // Use "explode"
+      val result = df
+        .select(rf_explode_tiles($"tile"))
+        .stat
+        .approxQuantile("tile", Array(0.10, 0.50, 0.90), 0.00001)
+
+      result.length should be(3)
+
+      // computing externally with numpy we arrive at 7963, 10068, 12160 for these quantiles
+      result should contain inOrderOnly(7963.0, 10068.0, 12160.0)
+
+      // Use "to_array" and built-in explode
+      val result2 = df
+        .select(explode(rf_tile_to_array_double($"tile")) as "tile")
+        .stat
+        .approxQuantile("tile", Array(0.10, 0.50, 0.90), 0.00001)
+
+      result2.length should be(3)
+
+      // computing externally with numpy we arrive at 7963, 10068, 12160 for these quantiles
+      result2 should contain inOrderOnly(7963.0, 10068.0, 12160.0)
+    }
+  }
+
+  describe("Tile quantiles through custom aggregate") {
+    it("should compute approx percentiles for a single tile col") {
+      val result = df
+        .select(rf_agg_approx_quantiles($"tile", Seq(0.1, 0.5, 0.9)))
+        .first()
+
+      result.length should be(3)
+
+      // computing externally with numpy we arrive at 7963, 10068, 12160 for these quantiles
+      result should contain inOrderOnly(7963.0, 10068.0, 12160.0)
+    }
+  }
+
+  describe("per-tile stats") {
+    it("should compute data cell counts") {
+      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
+      df.select(rf_data_cells($"two")).first() shouldBe (cols * rows - numND).toLong
+
+      val df2 = randNDTilesWithNull.toDF("tile")
+      df2
+        .select(rf_data_cells($"tile") as "cells")
+        .agg(sum("cells"))
+        .as[Long]
+        .first() should be(expectedRandData)
+
+      checkDocs("rf_data_cells")
+    }
+    it("should compute no-data cell counts") {
+      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
+      df.select(rf_no_data_cells($"two")).first() should be(numND)
+
+      val df2 = randNDTilesWithNull.toDF("tile")
+      df2
+        .select(rf_no_data_cells($"tile") as "cells")
+        .agg(sum("cells"))
+        .as[Long]
+        .first() should be(expectedRandNoData)
+
+      checkDocs("rf_no_data_cells")
+    }
+
+    it("should properly count data and nodata cells on constant tiles") {
+      val rf = Seq(randPRT).toDF("tile")
+
+      val df = rf
+        .withColumn("make", rf_make_constant_tile(99, 3, 4, ByteConstantNoDataCellType))
+        .withColumn("make2", rf_with_no_data($"make", 99))
+
+      val counts = df
+        .select(
+          rf_no_data_cells($"make").alias("nodata1"),
+          rf_data_cells($"make").alias("data1"),
+          rf_no_data_cells($"make2").alias("nodata2"),
+          rf_data_cells($"make2").alias("data2")
+        )
+        .as[(Long, Long, Long, Long)]
+        .first()
+
+      counts should be((0L, 12L, 12L, 0L))
+    }
+
+    it("should detect no-data tiles") {
+      val df = Seq(nd).toDF("nd")
+      df.select(rf_is_no_data_tile($"nd")).first() should be(true)
+      val df2 = Seq(two).toDF("not_nd")
+      df2.select(rf_is_no_data_tile($"not_nd")).first() should be(false)
+      checkDocs("rf_is_no_data_tile")
+    }
+
+    it("should evaluate exists and for_all") {
+      val df0 = Seq(zero).toDF("tile")
+      df0.select(rf_exists($"tile")).first() should be(false)
+      df0.select(rf_for_all($"tile")).first() should be(false)
+
+      Seq(one).toDF("tile").select(rf_exists($"tile")).first() should be(true)
+      Seq(one).toDF("tile").select(rf_for_all($"tile")).first() should be(true)
+
+      val dfNd = Seq(TestData.injectND(1)(one)).toDF("tile")
+      dfNd.select(rf_exists($"tile")).first() should be(true)
+      dfNd.select(rf_for_all($"tile")).first() should be(false)
+
+      checkDocs("rf_exists")
+      checkDocs("rf_for_all")
+    }
+
+    it("should check values is_in") {
+      checkDocs("rf_local_is_in")
+
+      // tile is 3 by 3 with values, 1 to 9
+      val rf = Seq(byteArrayTile).toDF("t")
+        .withColumn("one", lit(1))
+        .withColumn("five", lit(5))
+        .withColumn("ten", lit(10))
+        .withColumn("in_expect_2", rf_local_is_in($"t", array($"one", $"five")))
+        .withColumn("in_expect_1", rf_local_is_in($"t", array($"ten", $"five")))
+        .withColumn("in_expect_1a", rf_local_is_in($"t", Array(10, 5)))
+        .withColumn("in_expect_0", rf_local_is_in($"t", array($"ten")))
+
+      val e2Result = rf.select(rf_tile_sum($"in_expect_2")).as[Double].first()
+      e2Result should be(2.0)
+
+      val e1Result = rf.select(rf_tile_sum($"in_expect_1")).as[Double].first()
+      e1Result should be(1.0)
+
+      val e1aResult = rf.select(rf_tile_sum($"in_expect_1a")).as[Double].first()
+      e1aResult should be(1.0)
+
+      val e0Result = rf.select($"in_expect_0").as[Tile].first()
+      e0Result.toArray() should contain only (0)
+    }
+    it("should find the minimum cell value") {
+      val min = randNDPRT.toArray().filter(c => isData(c)).min.toDouble
+      val df = Seq(randNDPRT).toDF("rand")
+      df.select(rf_tile_min($"rand")).first() should be(min)
+      df.selectExpr("rf_tile_min(rand)").as[Double].first() should be(min)
+      checkDocs("rf_tile_min")
+    }
+
+    it("should find the maximum cell value") {
+      val max = randNDPRT.toArray().filter(c => isData(c)).max.toDouble
+      val df = Seq(randNDPRT).toDF("rand")
+      df.select(rf_tile_max($"rand")).first() should be(max)
+      df.selectExpr("rf_tile_max(rand)").as[Double].first() should be(max)
+      checkDocs("rf_tile_max")
+    }
+    it("should compute the tile mean cell value") {
+      val values = randNDPRT.toArray().filter(c => isData(c))
+      val mean = values.sum.toDouble / values.length
+      val df = Seq(randNDPRT).toDF("rand")
+      df.select(rf_tile_mean($"rand")).first() should be(mean)
+      df.selectExpr("rf_tile_mean(rand)").as[Double].first() should be(mean)
+      checkDocs("rf_tile_mean")
+    }
+
+    it("should compute the tile summary statistics") {
+      val values = randNDPRT.toArray().filter(c => isData(c))
+      val mean = values.sum.toDouble / values.length
+      val df = Seq(randNDPRT).toDF("rand")
+      val stats = df.select(rf_tile_stats($"rand")).first()
+      stats.mean should be(mean +- 0.00001)
+
+      val stats2 = df
+        .selectExpr("rf_tile_stats(rand) as stats")
+        .select($"stats".as[CellStatistics])
+        .first()
+      stats2 should be(stats)
+
+      df.select(rf_tile_stats($"rand") as "stats")
+        .select($"stats.mean")
+        .as[Double]
+        .first() should be(mean +- 0.00001)
+      df.selectExpr("rf_tile_stats(rand) as stats")
+        .select($"stats.no_data_cells")
+        .as[Long]
+        .first() should be <= (cols * rows - numND).toLong
+
+      val df2 = randNDTilesWithNull.toDF("tile")
+      df2
+        .select(rf_tile_stats($"tile")("data_cells") as "cells")
+        .agg(sum("cells"))
+        .as[Long]
+        .first() should be(expectedRandData)
+
+      checkDocs("rf_tile_stats")
+    }
+
+    it("should compute the tile histogram") {
+      val df = Seq(randNDPRT).toDF("rand")
+      val h1 = df.select(rf_tile_histogram($"rand")).first()
+
+      val h2 = df
+        .selectExpr("rf_tile_histogram(rand) as hist")
+        .select($"hist".as[CellHistogram])
+        .first()
+
+      h1 should be(h2)
+
+      checkDocs("rf_tile_histogram")
+    }
+  }
 
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._
@@ -60,9 +268,9 @@ class TileStatsSpec extends TestEnvironment with TestData {
 
       df.repartition(4).createOrReplaceTempView("tmp")
       assert(
-          sql("select dims.* from (select rf_dimensions(tile2) as dims from tmp)")
-            .as[(Int, Int)]
-            .first() === (3, 3))
+        sql("select dims.* from (select rf_dimensions(tile2) as dims from tmp)")
+          .as[(Int, Int)]
+          .first() === (3, 3))
     }
 
     it("should report cell type") {
@@ -278,14 +486,14 @@ class TileStatsSpec extends TestEnvironment with TestData {
       val countArray = dsNd.select(rf_agg_local_data_cells($"tiles")).first().toArray()
       val expectedCount =
         (completeTile.localDefined().toArray zip incompleteTile.localDefined().toArray()).toSeq.map(
-            pr => pr._1 * 20 + pr._2)
+          pr => pr._1 * 20 + pr._2)
       assert(countArray === expectedCount)
 
       val countNodataArray = dsNd.select(rf_agg_local_no_data_cells($"tiles")).first().toArray
       assert(countNodataArray === incompleteTile.localUndefined().toArray)
 
-//      val meanTile = dsNd.select(rf_agg_local_mean($"tiles")).first()
-//      assert(meanTile.toArray() === completeTile.toArray())
+      //      val meanTile = dsNd.select(rf_agg_local_mean($"tiles")).first()
+      //      assert(meanTile.toArray() === completeTile.toArray())
 
       val maxTile = dsNd.select(rf_agg_local_max($"tiles")).first()
       assert(maxTile.toArray() === completeTile.toArray())
@@ -401,3 +609,4 @@ class TileStatsSpec extends TestEnvironment with TestData {
     }
   }
 }
+
