@@ -2,6 +2,13 @@
 
 ## 0.8.x
 
+### 0.8.6
+
+* Add functions for changing cell values based on either conditions or to achieve a distribution of values. ([#449](https://github.com/locationtech/rasterframes/pull/449))
+    * Add `rf_local_min`, `rf_local_max`, and `rf_local_clip` functions.
+    * Add cell value scaling functions `rf_rescale` and `rf_standardize`.
+    * Add `rf_where` function, similar in spirit to numpy's `where`, or a cell-wise version of Spark SQL's `when` and `otherwise`.
+
 ### 0.8.5
 
 * Added `rf_z2_index` for constructing a Z2 index on types with bounds.
@@ -14,11 +21,7 @@
 * Added `rf_render_color_ramp_png` to compute PNG byte array for a single tile column, with specified color ramp.
 * In `rf_ipython`, improved rendering of dataframe binary contents with PNG preamble.
 * Throw an `IllegalArgumentException` when attempting to apply a mask to a `Tile` whose `CellType` has no NoData defined. ([#409](https://github.com/locationtech/rasterframes/issues/384))
-* Add `rf_agg_approx-quantiles` function to compute cell quantiles across an entire column.
-* Add functions for changing cell values based on either conditions or to achieve a distribution of values. ([#449](https://github.com/locationtech/rasterframes/pull/449))
-    * Add `rf_local_min`, `rf_local_max`, and `rf_local_clip` functions.
-    * Add cell value scaling functions `rf_rescale` and `rf_standardize`.
-    * Add `rf_where` function, similar in spirit to numpy's `where`, or a cell-wise version of Spark SQL's `when` and `otherwise`.
+* Add `rf_agg_approx_quantiles` function to compute cell quantiles across an entire column.
 
 ### 0.8.4
 

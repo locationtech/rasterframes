@@ -21,12 +21,8 @@
 
 package org.locationtech.rasterframes
 
-import java.io.ByteArrayInputStream
-
 import geotrellis.raster._
-import geotrellis.raster.render.ColorRamps
 import geotrellis.raster.testkit.RasterMatchers
-import javax.imageio.ImageIO
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
