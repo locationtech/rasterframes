@@ -195,6 +195,7 @@ workflows:
             branches:
               only:
                 - /feature\/.*docs.*/
+                - /fix\/.*docs.*/
                 - /docs\/.*/
 
   nightly:
