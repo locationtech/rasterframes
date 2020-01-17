@@ -33,7 +33,7 @@ import geotrellis.spark._
 import geotrellis.spark.tiling._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{Encoders, SQLContext, SparkSession}
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.RasterSource
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile

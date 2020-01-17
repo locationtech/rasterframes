@@ -634,6 +634,14 @@ Aggregates over the `tile` and returns statistical summaries of cell values: num
 
 Aggregates over all of the rows in DataFrame of `tile` and returns a count of each cell value to create a histogram with values are plotted on the x-axis and counts on the y-axis. Related is the @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function which operates on a single row at a time.
 
+### rf_agg_approx_quantiles
+
+    Array[Double] rf_agg_approx_quantiles(Tile tile, List[float] probabilities, float relative_error)
+    
+__Not supported in SQL.__
+    
+Calculates the approximate quantiles of a tile column of a DataFrame. `probabilities` is a list of float values at which to compute the quantiles. These must belong to [0, 1]. For example 0 is the minimum, 0.5 is the median, 1 is the maximum. Returns an array of values approximately at the specified `probabilities`.
+
 ### rf_agg_extent
 
     Extent rf_agg_extent(Extent extent)

@@ -20,22 +20,25 @@
 
 from unittest import skip
 
-import numpy as np
-import sys
-from numpy.testing import assert_equal
-from pyspark import Row
-from pyspark.sql.functions import *
 
 import pyrasterframes
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 from pyrasterframes.utils import gdal_version
+from pyspark import Row
+from pyspark.sql.functions import *
+
+import numpy as np
+from numpy.testing import assert_equal, assert_allclose
+
+from unittest import skip
 from . import TestEnvironment
 
 
 class RasterFunctions(TestEnvironment):
 
     def setUp(self):
+        import sys
         if not sys.warnoptions:
             import warnings
             warnings.simplefilter("ignore")
@@ -137,6 +140,12 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_data_cells(tile)'], 387000)
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
+
+    def test_agg_approx_quantiles(self):
+        agg = self.rf.agg(rf_agg_approx_quantiles('tile', [0.1, 0.5, 0.9, 0.98]))
+        result = agg.first()[0]
+        # expected result from computing in external python process; c.f. scala tests
+        assert_allclose(result, np.array([7963., 10068., 12160., 14366.]))
 
     def test_sql(self):
 
