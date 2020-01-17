@@ -29,6 +29,7 @@ import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions.sum
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.ColorRampNames
 
@@ -235,14 +236,15 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       g should be(extent.toPolygon())
       checkDocs("rf_geometry")
     }
+    implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rrEncoder)
 
     it("should get the CRS of a RasterRef") {
-      val e = Seq(Tuple1(TestData.rasterRef)).toDF("ref").select(rf_crs($"ref")).first()
+      val e = Seq((1, TestData.rasterRef)).toDF("index", "ref").select(rf_crs($"ref")).first()
       e should be(rasterRef.crs)
     }
 
     it("should get the Extent of a RasterRef") {
-      val e = Seq(Tuple1(rasterRef)).toDF("ref").select(rf_extent($"ref")).first()
+      val e = Seq((1, rasterRef)).toDF("index", "ref").select(rf_extent($"ref")).first()
       e should be(rasterRef.extent)
     }
   }

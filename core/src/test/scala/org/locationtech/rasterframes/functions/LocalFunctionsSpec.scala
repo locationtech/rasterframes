@@ -29,7 +29,7 @@ import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
-class ArithmeticFunctionsSpec extends TestEnvironment with RasterMatchers {
+class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
   import TestData._
   import spark.implicits._
