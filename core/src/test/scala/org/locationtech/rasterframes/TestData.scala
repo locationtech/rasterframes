@@ -161,8 +161,6 @@ trait TestData {
   lazy val l8samplePath: URI = getClass.getResource("/L8-B1-Elkton-VA.tiff").toURI
   lazy val modisConvertedMrfPath: URI = getClass.getResource("/MCD43A4.A2019111.h30v06.006.2019120033434_01.mrf").toURI
 
-
-
   lazy val zero = TestData.projectedRasterTile(cols, rows, 0, extent, crs, ct)
   lazy val one = TestData.projectedRasterTile(cols, rows, 1, extent, crs, ct)
   lazy val two = TestData.projectedRasterTile(cols, rows, 2, extent, crs, ct)

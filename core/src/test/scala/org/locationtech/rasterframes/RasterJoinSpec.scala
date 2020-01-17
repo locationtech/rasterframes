@@ -74,24 +74,23 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should join same scene in two projections, same tile size") {
+      val srcExtent = b4nativeTif.extent
       // b4warpedRf source data is gdal warped b4nativeRf data; join them together.
       val joined = b4nativeRf.rasterJoin(b4warpedRf)
       // create a Raster from tile2 which should be almost equal to b4nativeTif
       val agg = joined.agg(TileRasterizerAggregate(
         ProjectedRasterDefinition(b4nativeTif.cols, b4nativeTif.rows, b4nativeTif.cellType, b4nativeTif.crs, b4nativeTif.extent, Bilinear),
         $"crs", $"extent", $"tile2") as "raster"
-      ).select(col("raster").as[Raster[Tile]])
+      ).select(col("raster").as[Tile])
 
-      val result = agg.first()
-
-      result.extent shouldBe b4nativeTif.extent
+      val raster = Raster(agg.first(), srcExtent)
 
       // Test the overall local difference of the `result` versus the original
       import geotrellis.raster.mapalgebra.local._
       val sub = b4nativeTif.extent.buffer(-b4nativeTif.extent.width * 0.01)
       val diff = Abs(
         Subtract(
-          result.crop(sub).tile.convert(IntConstantNoDataCellType),
+          raster.crop(sub).tile.convert(IntConstantNoDataCellType),
           b4nativeTif.raster.crop(sub).tile.convert(IntConstantNoDataCellType)
         )
       )

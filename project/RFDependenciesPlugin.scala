@@ -53,6 +53,8 @@ object RFDependenciesPlugin extends AutoPlugin {
     resolvers ++= Seq(
       "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
+      "boundless-releases" at "https://repo.boundlessgeo.com/main/",
+      "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/"
     ),
     /** https://github.com/lucidworks/spark-solr/issues/179
       * Thanks @pomadchin for the tip! */

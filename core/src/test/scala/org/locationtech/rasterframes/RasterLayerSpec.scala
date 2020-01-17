@@ -27,13 +27,13 @@ import java.net.URI
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 
-import geotrellis.proj4.{CRS, LatLng}
-import geotrellis.raster.{Dimensions, MultibandTile, ProjectedRaster, Raster, Tile, TileFeature, TileLayout, UByteCellType, UByteConstantNoDataCellType}
-import geotrellis.spark._
 import geotrellis.layer._
+import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.raster._
+import geotrellis.spark._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{Encoders, SQLContext, SparkSession}
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
@@ -239,9 +239,6 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
 
       def project(r: Raster[MultibandTile]): Seq[ProjectedRasterTile] =
         r.tile.bands.map(b => ProjectedRasterTile(b, r.extent, srcCrs))
-
-      val prtEnc = ProjectedRasterTile.prtEncoder
-      implicit val enc = Encoders.tuple(prtEnc, prtEnc, prtEnc)
 
       val rasters = src.readAll(bands = Seq(0, 1, 2)).map(project).map(p => (p(0), p(1), p(2)))
 

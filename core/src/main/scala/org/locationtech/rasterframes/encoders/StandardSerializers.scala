@@ -21,16 +21,20 @@
 
 package org.locationtech.rasterframes.encoders
 
+import java.nio.ByteBuffer
+
 import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.layer._
 import geotrellis.vector._
+import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.types._
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.rasterframes.TileType
 import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.model.LazyCRS
+import org.locationtech.rasterframes.util.KryoSupport
 
 /** Collection of CatalystSerializers for third-party types. */
 trait StandardSerializers {
@@ -318,9 +322,24 @@ trait StandardSerializers {
       io.getInt(t, 1)
     )
   }
+
+  implicit val quantileSerializer: CatalystSerializer[QuantileSummaries] = new CatalystSerializer[QuantileSummaries] {
+    override val schema: StructType = StructType(Seq(
+      StructField("quantile_serializer_kryo", BinaryType, false)
+    ))
+
+    override protected def to[R](t: QuantileSummaries, io: CatalystSerializer.CatalystIO[R]): R = {
+      val buf = KryoSupport.serialize(t)
+      io.create(buf.array())
+    }
+
+    override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): QuantileSummaries = {
+      KryoSupport.deserialize[QuantileSummaries](ByteBuffer.wrap(io.getByteArray(t, 0)))
+    }
+  }
 }
 
-object StandardSerializers {
+object StandardSerializers extends StandardSerializers {
   private val s2ctCache = Scaffeine().build[String, CellType](
     (s: String) => CellType.fromName(s)
   )

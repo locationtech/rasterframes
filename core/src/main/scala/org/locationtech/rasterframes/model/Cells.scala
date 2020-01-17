@@ -25,12 +25,11 @@ import geotrellis.raster.{ArrayTile, ConstantTile, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{BinaryType, StructField, StructType}
 import org.locationtech.rasterframes
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.tiles.ShowableTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile.ConcreteProjectedRasterTile
+import org.locationtech.rasterframes.tiles.ShowableTile
 
 /** Represents the union of binary cell datas or a reference to the data.*/
 case class Cells(data: Either[Array[Byte], RasterRef]) {
@@ -72,7 +71,7 @@ object Cells {
       StructType(
         Seq(
           StructField("cells", BinaryType, true),
-          StructField("ref", schemaOf[RasterRef], true)
+          StructField("ref", RasterRef.embeddedSchema, true)
         ))
     override protected def to[R](t: Cells, io: CatalystSerializer.CatalystIO[R]): R = io.create(
       t.data.left.getOrElse(null),

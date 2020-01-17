@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, Tile}
+import geotrellis.raster.{CellGrid, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
@@ -61,6 +61,11 @@ object DynamicExtractors {
   lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: Row) =>  (row.to[Tile](TileUDT.tileSerializer), None)
+    case t if t.conformsTo[Raster[Tile]] =>
+      (row: Row) => {
+        val rt = row.to[Raster[Tile]]
+        (rt.tile, None)
+      }
     case t if t.conformsTo[ProjectedRasterTile] =>
       (row: Row) => {
         val prt = row.to[ProjectedRasterTile]

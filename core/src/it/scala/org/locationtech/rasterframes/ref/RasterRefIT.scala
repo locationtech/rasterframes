@@ -30,7 +30,7 @@ import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggreg
 
 class RasterRefIT extends TestEnvironment {
   describe("practical subregion reads") {
-    ignore("should construct a natural color composite") {
+    it("should construct a natural color composite") {
       import spark.implicits._
       def scene(idx: Int) = URI.create(s"https://landsat-pds.s3.us-west-2.amazonaws.com" +
         s"/c1/L8/176/039/LC08_L1TP_176039_20190703_20190718_01_T1/LC08_L1TP_176039_20190703_20190718_01_T1_B$idx.TIF")
@@ -55,11 +55,11 @@ class RasterRefIT extends TestEnvironment {
         stats.get.dataCells shouldBe > (1000L)
       }
       
-      //import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
-      //import geotrellis.raster.io.geotiff.compression.{DeflateCompression, NoCompression}
-      //import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
-      //val tiffOptions = GeoTiffOptions(Tiled,  DeflateCompression, ColorSpace.RGB)
-      //MultibandGeoTiff(raster, raster.crs, tiffOptions).write("target/composite.tif")
+      import geotrellis.raster.io.geotiff.compression.DeflateCompression
+      import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
+      import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}
+      val tiffOptions = GeoTiffOptions(Tiled,  DeflateCompression, ColorSpace.RGB)
+      MultibandGeoTiff(raster.raster, raster.crs, tiffOptions).write("target/composite.tif")
     }
   }
 }

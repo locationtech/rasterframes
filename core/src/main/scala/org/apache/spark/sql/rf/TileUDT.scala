@@ -73,7 +73,7 @@ case object TileUDT  {
 
   final val typeName: String = "tile"
 
-  implicit def tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
+  implicit val tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
 
     override val schema: StructType = StructType(Seq(
       StructField("cell_context", schemaOf[TileDataContext], true),

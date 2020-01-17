@@ -191,6 +191,13 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def rf_local_unequal_int(col: Column, scalar: Int): Column = rf_local_unequal[Int](col, scalar)
 
+  // other function support
+  /** py4j friendly version of this function */
+  def rf_agg_approx_quantiles(tile: Column, probabilities: java.util.List[Double], relativeError: Double): TypedColumn[Any, Seq[Double]] = {
+    import scala.collection.JavaConverters._
+    rf_agg_approx_quantiles(tile, probabilities.asScala, relativeError)
+  }
+
   def _make_crs_literal(crsText: String): Column = {
     rasterframes.encoders.serialized_literal[CRS](LazyCRS(crsText))
   }
@@ -240,4 +247,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     import rasterframes.util.DFWithPrettyPrint
     df.toHTML(numRows, truncate, renderTiles = true)
   }
+
+  def _reprojectExtent(extent: Extent, srcCRS: String, destCRS: String): Extent =
+    extent.reproject(LazyCRS(srcCRS), LazyCRS(destCRS))
 }

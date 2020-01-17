@@ -44,7 +44,9 @@ unmasked.select(rf_cell_type('blue'), rf_cell_type('scl')).distinct()
 
 ### Define CellType for Masked Tile
 
-Because there is not a NoData already defined for the blue band, we must choose one. In this particular example, the minimum value is greater than zero, so we can use 0 as the NoData value. We will construct a new `CellType` object to represent this. 
+Because there is not a NoData already defined for the blue band, we must choose one. If we try to apply a masking function to a tile whose cell type has no NoData defined, an error will be thrown. 
+ 
+In this particular example, the minimum value of all cells in all tiles in the column is greater than zero, so we can use 0 as the NoData value. We will construct a new `CellType` object to represent this. 
 
 ```python, pick_nd
 blue_min = unmasked.agg(rf_agg_stats('blue').min.alias('blue_min'))

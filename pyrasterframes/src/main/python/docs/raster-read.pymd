@@ -217,11 +217,17 @@ In the initial examples on this page, you may have noticed that the realized (no
 
 ## Spatial Indexing and Partitioning
 
-It's often desirable to take extra steps in ensuring your data is effectively distributed over your computing resources. One way of doing that is using something called a ["space filling curve"](https://en.wikipedia.org/wiki/Space-filling_curve), which turns an N-dimensional value into a one dimensional value, with properties that favor keeping entities near each other in N-space near each other in index space. To have RasterFrames add a spatial index based partitioning on a raster reads, use the `spatial_index_partitions` parameter: 
+It's often desirable to take extra steps in ensuring your data is effectively distributed over your computing resources. One way of doing that is using something called a ["space filling curve"](https://en.wikipedia.org/wiki/Space-filling_curve), which turns an N-dimensional value into a one dimensional value, with properties that favor keeping entities near each other in N-space near each other in index space. In particular RasterFrames support space-filling curves mapping the geographic location of _tiles_ to a one-dimensional index space called [`xz2`](https://www.geomesa.org/documentation/user/datastores/index_overview.html). To have RasterFrames add a spatial index based partitioning on a raster reads, use the `spatial_index_partitions` parameter. By default it will use the same number of partitions as configured in [`spark.sql.shuffle.partitions`](https://spark.apache.org/docs/latest/sql-performance-tuning.html#other-configuration-options).
  
 ```python, spatial_indexing
 df = spark.read.raster(uri, spatial_index_partitions=True)
 df
+```
+
+You can also pass a positive integer to the parameter to specify the number of desired partitions.
+
+```python, spatial_indexing
+df = spark.read.raster(uri, spatial_index_partitions=800)
 ```
 
 ## GeoTrellis

@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.util.KryoSupport
 @SQLUserDefinedType(udt = classOf[RasterSourceUDT])
 class RasterSourceUDT extends UserDefinedType[RFRasterSource] {
   import RasterSourceUDT._
-  override def typeName = "rf_rastersource"
+  override def typeName = "rastersource"
 
   override def pyUDT: String = "pyrasterframes.rf_types.RasterSourceUDT"
 
@@ -57,7 +57,6 @@ class RasterSourceUDT extends UserDefinedType[RFRasterSource] {
         case ir: InternalRow ⇒ ir.to[RFRasterSource]
       }
       .orNull
-
 
   private[sql] override def acceptsType(dataType: DataType) = dataType match {
     case _: RasterSourceUDT ⇒ true

@@ -32,8 +32,6 @@ import org.locationtech.geomesa.curve.XZ2SFC
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.accessors.GetCRS
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
-import org.locationtech.rasterframes.ref.{RasterRef, RFRasterSource}
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
   * Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource

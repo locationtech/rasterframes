@@ -91,6 +91,10 @@ class TestEnvironment(unittest.TestCase):
             .drop('tile') \
             .withColumnRenamed('tile2', 'tile').as_layer()
 
-        df = self.spark.read.raster(self.img_uri)
-        self.df = df.withColumn('tile', rf_convert_cell_type('proj_raster', 'float32')) \
+        self.prdf = self.spark.read.raster(self.img_uri)
+        self.df = self.prdf.withColumn('tile', rf_convert_cell_type('proj_raster', 'float32')) \
             .drop('proj_raster')
+
+    def assert_png(self, bytes):
+        self.assertEqual(bytes[0:8], bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]), "png header")
+
