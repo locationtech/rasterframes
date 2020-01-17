@@ -58,7 +58,6 @@ case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeErro
       tile.foreachDouble(d => if (!isNoData(d)) result = result.insert(d))
       buffer.update(0, result.toRow)
     }
-    else buffer
   }
 
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
