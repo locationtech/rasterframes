@@ -21,7 +21,7 @@
 import pyrasterframes.rf_types
 from pyrasterframes.rf_types import Tile
 from shapely.geometry.base import BaseGeometry
-import matplotlib.axes.Axes
+from matplotlib.axes import Axes
 import numpy as np
 from pandas import DataFrame
 from typing import Optional, Tuple
@@ -30,12 +30,13 @@ _png_header = bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
 
 
 def plot_tile(tile: Tile, normalize: bool = True, lower_percentile: float = 1., upper_percentile: float = 99.,
-              axis: Optional[matplotlib.axis.Axes] = None, **imshow_args):
+              axis: Optional[Axes] = None, **imshow_args):
     """
     Display an image of the tile
 
     Parameters
     ----------
+    tile: item to plot
     normalize: if True, will normalize the data between using
                lower_percentile and upper_percentile as bounds
     lower_percentile: between 0 and 100 inclusive.

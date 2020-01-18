@@ -4,7 +4,7 @@
 
 ### 0.9.0
 
-* Upgraded to GeoTrellis 3.1.0. This includes a number of _breaking_ changes enumerated as a part of the [PR's](https://github.com/locationtech/rasterframes/pull/398) change log. These include:
+* Upgraded to GeoTrellis 3.2.0. This includes a number of _breaking_ changes enumerated as a part of the [PR's](https://github.com/locationtech/rasterframes/pull/398) change log. These include:
   - Add `Int` type parameter to `Grid`
   - Add `Int` type parameter to `CellGrid`
   - Add `Int` type parameter to `GridBounds`... or `TileBounds`
@@ -22,7 +22,8 @@
   - Revisit use of `Tile` equality since [it's more strict](https://github.com/locationtech/geotrellis/pull/2991)
   - Update `reference.conf` to use `geotrellis.raster.gdal` namespace.
   - Replace all uses of `TileDimensions` with `geotrellis.raster.Dimensions[Int]`.
-* Formally abandon support for Python 2. Python 2 is dead. Long live Python 2.
+* Formally abandoned support for Python 2. Python 2 is dead. Long live Python 2.
+* Introduction of type hints in Python API. 
 
 ## 0.8.x
 
