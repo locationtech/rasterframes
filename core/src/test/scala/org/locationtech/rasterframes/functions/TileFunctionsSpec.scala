@@ -332,8 +332,8 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       result.getDouble(0) should be > (0.0)
       result.getDouble(1) should be < (1.0)
-      result.getDouble(2) should be (0.0 +- 1e-8)
-      result.getDouble(3) should be (1.0 +- 1e-8)
+      result.getDouble(2) should be (0.0 +- 1e-7)
+      result.getDouble(3) should be (1.0 +- 1e-7)
 
     }
 
@@ -343,8 +343,8 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
         .select(rf_tile_stats($"t") as "tstat")
         .select($"tstat.min", $"tstat.max")
         .first()
-      result.getAs[Double](0) should be (0.0 +- 1e-8)
-      result.getAs[Double](1) should be (1.0 +- 1e-8)
+      result.getAs[Double](0) should be (0.0 +- 1e-7)
+      result.getAs[Double](1) should be (1.0 +- 1e-7)
     }
 
   }

@@ -573,33 +573,37 @@ class RasterFunctions(TestEnvironment):
         self.assertAlmostEqual(result[1], 1.0)
 
     def test_rf_rescale(self):
-
-        x1 = Tile(np.random.randint(-20, 42, (10, 10)), CellType.int8())
-        x2 = Tile(np.random.randint(20, 242, (10, 10)), CellType.int8())
-        df = self.spark.createDataFrame([Row(x=x1), Row(x=x2)])
-        result = df.select(rf_rescale('x').alias('x_prime')) \
-                   .agg(rf_agg_stats('x_prime').alias('stat')) \
-                   .select('stat.min', 'stat.max') \
-                   .first()
-
-        self.assertEqual(result[0], 0)
-        self.assertEqual(result[1], 1)
-
-    def test_rf_rescale_per_tile(self):
         from pyspark.sql.functions import min as F_min
         from pyspark.sql.functions import max as F_max
 
+        x1 = Tile(np.random.randint(-60, 12, (10, 10)), CellType.int8())
+        x2 = Tile(np.random.randint(15, 122, (10, 10)), CellType.int8())
+        df = self.spark.createDataFrame([Row(x=x1), Row(x=x2)])
+        # Note there will be some clipping
+        rescaled = df.select(rf_rescale('x', -20, 50).alias('x_prime'), 'x')
+        result = rescaled \
+            .agg(
+            F_max(rf_tile_min('x_prime')),
+            F_min(rf_tile_max('x_prime'))
+        ).first()
+
+        self.assertGreater(result[0], 0.0, f'Expected max tile_min to be > 0 (strictly); but it is '
+                                           f'{rescaled.select("x", "x_prime", rf_tile_min("x_prime")).take(2)}')
+        self.assertLess(result[1], 1.0, f'Expected min tile_max to be < 1 (strictly); it is'
+                                        f'{rescaled.select(rf_tile_max("x_prime")).take(2)}')
+
+    def test_rf_rescale_per_tile(self):
         x1 = Tile(np.random.randint(-20, 42, (10, 10)), CellType.int8())
         x2 = Tile(np.random.randint(20, 242, (10, 10)), CellType.int8())
         df = self.spark.createDataFrame([Row(x=x1), Row(x=x2)])
         result = df.select(rf_rescale('x').alias('x_prime')) \
-            .agg(
-                F_max(rf_tile_min('x_prime')),
-                F_min(rf_tile_max('x_prime'))
-            ).first()
+            .agg(rf_agg_stats('x_prime').alias('stat')) \
+            .select('stat.min', 'stat.max') \
+            .first()
 
-        self.assertGreater(result[0], 0)
-        self.assertLess(result[1], 1)
+        self.assertEqual(result[0], 0.0)
+        self.assertEqual(result[1], 1.0)
+
 
     def test_rf_agg_overview_raster(self):
         width = 500

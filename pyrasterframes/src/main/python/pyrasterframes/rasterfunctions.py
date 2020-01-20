@@ -660,13 +660,14 @@ def rf_rescale(tile, min=None, max=None):
     If `min` and `max` are not specified, the __tile-wise__ minimum and maximum are used; this can result in inconsistent values across rows in a tile column.
     """
     if isinstance(min, (int, float)):
-        min = lit(min)
+        min = lit(float(min))
     if isinstance(max, (int, float)):
-        max = lit(max)
+        max = lit(float(max))
     if min is None and max is None:
         return _apply_column_function('rf_rescale', tile)
     if min is not None and max is not None:
         return _apply_column_function('rf_rescale', tile, min, max)
+    raise ValueError('Either `min` or `max` should both be specified or omitted in call to rf_rescale.')
 
 
 def rf_round(tile_col):

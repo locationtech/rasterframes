@@ -33,7 +33,6 @@ import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions._
-import org.locationtech.rasterframes.expressions.localops.Clip
 import org.locationtech.rasterframes.expressions.tilestats.TileStats
 
 @ExpressionDescription(
@@ -60,9 +59,9 @@ case class Rescale(child1: Expression, child2: Expression, child3: Expression) e
     if(!tileExtractor.isDefinedAt(child1.dataType)) {
       TypeCheckFailure(s"Input type '${child1.dataType}' does not conform to a raster type.")
     } else if (!doubleArgExtractor.isDefinedAt(child2.dataType)) {
-      TypeCheckFailure(s"Input type '${child2.dataType}' isn't numeric type.")
+      TypeCheckFailure(s"Input type '${child2.dataType}' isn't floating point type.")
     } else if (!doubleArgExtractor.isDefinedAt(child3.dataType)) {
-      TypeCheckFailure(s"Input type '${child3.dataType}' isn't numeric type." )
+      TypeCheckFailure(s"Input type '${child3.dataType}' isn't floating point type." )
     } else TypeCheckSuccess
 
 
