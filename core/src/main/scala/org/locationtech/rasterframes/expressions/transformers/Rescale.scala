@@ -33,23 +33,24 @@ import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions._
+import org.locationtech.rasterframes.expressions.localops.Clip
 import org.locationtech.rasterframes.expressions.tilestats.TileStats
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, mean, stddev) - Standardize cell values such that the mean is zero and the standard deviation is one. If specified, the `mean` and `stddev` are applied to all tiles in the column.  If not specified, each tile will be standardized according to the statistics of its cell values; this can result in inconsistent values across rows in a tile column.",
+  usage = "_FUNC_(tile, min, max) - Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range. If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. Values outside the range will be clipped to 0 or 1. If `min` and `max` are not specified, the tile-wise minimum and maximum are used; this can result in inconsistent values across rows in a tile column.",
   arguments = """
   Arguments:
     * tile - tile column to extract values
-    * mean - value to mean-center the cell values around
-    * stddev - standard deviation to apply in standardization
+    * min - cell value that will become 0; values below this are clipped to 0
+    * max - cell value that will become 1; values above this are clipped to 1
   """,
   examples = """
   Examples:
-    > SELECT  _FUNC_(tile, lit(4.0), lit(2.2))
+    > SELECT  _FUNC_(tile, lit(-2.2), lit(2.2))
        ..."""
 )
-case class Standardize(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with CodegenFallback with Serializable {
-  override val nodeName: String = "rf_standardize"
+case class Rescale(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with CodegenFallback with Serializable {
+  override val nodeName: String = "rf_rescale"
 
   override def children: Seq[Expression] = Seq(child1, child2, child3)
 
@@ -59,9 +60,9 @@ case class Standardize(child1: Expression, child2: Expression, child3: Expressio
     if(!tileExtractor.isDefinedAt(child1.dataType)) {
       TypeCheckFailure(s"Input type '${child1.dataType}' does not conform to a raster type.")
     } else if (!doubleArgExtractor.isDefinedAt(child2.dataType)) {
-      TypeCheckFailure(s"Input type '${child2.dataType}' isn't floating point type.")
+      TypeCheckFailure(s"Input type '${child2.dataType}' isn't numeric type.")
     } else if (!doubleArgExtractor.isDefinedAt(child3.dataType)) {
-      TypeCheckFailure(s"Input type '${child3.dataType}' isn't floating point type." )
+      TypeCheckFailure(s"Input type '${child3.dataType}' isn't numeric type." )
     } else TypeCheckSuccess
 
 
@@ -69,36 +70,43 @@ case class Standardize(child1: Expression, child2: Expression, child3: Expressio
     implicit val tileSer = TileUDT.tileSerializer
     val (childTile, childCtx) = tileExtractor(child1.dataType)(row(input1))
 
-    val mean = doubleArgExtractor(child2.dataType)(input2).value
+    val min =  doubleArgExtractor(child2.dataType)(input2).value
 
-    val stdDev = doubleArgExtractor(child3.dataType)(input3).value
+    val max = doubleArgExtractor(child3.dataType)(input3).value
+
+    val result = op(childTile, min, max)
 
     childCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(op(childTile, mean, stdDev)).toInternalRow
-      case None => op(childTile, mean, stdDev).toInternalRow
+      case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
+      case None => result.toInternalRow
     }
   }
 
-  protected def op(tile: Tile, mean: Double, stdDev: Double): Tile =
+  protected def op(tile: Tile, min: Double, max: Double): Tile = {
+    // convert tile to float if not
+    // clip to min and max
+    // "normalize" linearlly rescale to 0,1 range
     tile.convert(FloatConstantNoDataCellType)
-        .localSubtract(mean)
-        .localDivide(stdDev)
+        .localMin(max) // See Clip
+        .localMax(min)
+        .normalize(min, max, 0.0, 1.0)
+  }
 
 }
-object Standardize {
-  def apply(tile: Column, mean: Column, stdDev: Column): Column =
-    new Column(Standardize(tile.expr, mean.expr, stdDev.expr))
 
-  def apply(tile: Column, mean: Double, stdDev: Double): Column =
-    new Column(Standardize(tile.expr, lit(mean).expr, lit(stdDev).expr))
+object Rescale {
+  def apply(tile: Column, min: Column, max: Column): Column =
+    new Column(Rescale(tile.expr, min.expr, max.expr))
+
+  def apply(tile: Column, min: Double, max: Double): Column =
+    new Column(Rescale(tile.expr, lit(min).expr, lit(max).expr))
 
   def apply(tile: Column): Column = {
-    import org.apache.spark.sql.functions.sqrt
     val stats = TileStats(tile)
-    val mean = stats.getField("mean").expr
-    val stdDev = sqrt(stats.getField("variance")).expr
+    val min = stats.getField("min").expr
+    val max = stats.getField("max").expr
 
-    new Column(Standardize(tile.expr, mean, stdDev))
+    new Column(Rescale(tile.expr, min, max))
   }
 }
 

@@ -578,7 +578,7 @@ Computes the sum of cells in each row of column `tile`, ignoring NoData values.
 Computes the mean of cells in each row of column `tile`, ignoring NoData values.
 
 
-### rf_tile_min
+### rf_tile_min 
 
     Double rf_tile_min(Tile tile)
 

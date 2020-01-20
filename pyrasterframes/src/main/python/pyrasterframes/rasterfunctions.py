@@ -634,7 +634,7 @@ def rf_where(condition, x, y):
     return _apply_column_function('rf_where', condition, x, y)
 
 
-def rf_standardize(tile, mean, stddev):
+def rf_standardize(tile, mean=None, stddev=None):
     """
     Standardize cell values such that the mean is zero and the standard deviation is one.
     If specified, the `mean` and `stddev` are applied to all tiles in the column.
@@ -645,7 +645,28 @@ def rf_standardize(tile, mean, stddev):
         mean = lit(mean)
     if isinstance(stddev, (int, float)):
         stddev = lit(stddev)
-    return _apply_column_function('rf_standardize', tile, mean, stddev)
+    if mean is None and stddev is None:
+        return _apply_column_function('rf_standardize', tile)
+    if mean is not None and stddev is not None:
+        return _apply_column_function('rf_standardize', tile, mean, stddev)
+    raise ValueError('Either `mean` or `stddev` should both be specified or omitted in call to rf_standardize.')
+
+
+def rf_rescale(tile, min=None, max=None):
+    """
+    Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats).
+    Values outside the range will be clipped to 0 or 1.
+    If `min` and `max` are not specified, the __tile-wise__ minimum and maximum are used; this can result in inconsistent values across rows in a tile column.
+    """
+    if isinstance(min, (int, float)):
+        min = lit(min)
+    if isinstance(max, (int, float)):
+        max = lit(max)
+    if min is None and max is None:
+        return _apply_column_function('rf_rescale', tile)
+    if min is not None and max is not None:
+        return _apply_column_function('rf_rescale', tile, min, max)
 
 
 def rf_round(tile_col):

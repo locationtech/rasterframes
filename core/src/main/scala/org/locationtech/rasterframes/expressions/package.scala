@@ -95,6 +95,7 @@ package object expressions {
     registry.registerExpression[Clip]("rf_local_clip")
     registry.registerExpression[Where]("rf_where")
     registry.registerExpression[Standardize]("rf_standardize")
+    registry.registerExpression[Rescale]("rf_rescale")
     registry.registerExpression[Sum]("rf_tile_sum")
     registry.registerExpression[Round]("rf_round")
     registry.registerExpression[Abs]("rf_abs")

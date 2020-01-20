@@ -98,6 +98,25 @@ trait LocalFunctions {
     * Each tile will be standardized according to the statistics of its cell values; this can result in inconsistent values across rows in a tile column. */
   def rf_standardize(tile: Column): Column = Standardize(tile)
 
+
+  /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    * Cells with the tile-wise minimum value will become the zero value and those at the tile-wise maximum value will become 1.
+    *  This can result in inconsistent values across rows in a tile column.
+    */
+  def rf_rescale(tile: Column): Column = Rescale(tile)
+
+  /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    * The `min` parameter will become the zero value and the `max` parameter will become 1.
+    * Values outside the range will be clipped to 0 or 1.
+    */
+  def rf_rescale(tile: Column, min: Column, max: Column): Column = Rescale(tile, min, max)
+
+  /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    * The `min` parameter will become the zero value and the `max` parameter will become 1.
+    * Values outside the range will be clipped to 0 or 1.
+    */
+  def rf_rescale(tile: Column, min: Double, max: Double): Column = Rescale(tile, min, max)
+
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def rf_local_algebra(op: LocalTileBinaryOp, left: Column, right: Column): TypedColumn[Any, Tile] =
     withTypedAlias(opName(op), left, right)(udf[Tile, Tile, Tile](op.apply).apply(left, right))
