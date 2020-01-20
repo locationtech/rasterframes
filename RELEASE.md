@@ -13,7 +13,7 @@
     f. `docs/ghpagesPushSite`  
     g. `rf-notebook/publish`  
 6. `cd pyrasterframes/target/python/dist`
-7. `python3 -m twine upload pyrasterframes-x.y.z-py2.py3-none-any.whl`
+7. `python3 -m twine upload pyrasterframes-x.y.z-py3-none-any.whl`
 8. Commit any changes that were necessary.
 9. `git-flow finish release`. Make sure to push tags, develop and master
     branches.
