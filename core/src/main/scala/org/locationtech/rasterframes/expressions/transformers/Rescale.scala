@@ -36,12 +36,12 @@ import org.locationtech.rasterframes.expressions._
 import org.locationtech.rasterframes.expressions.tilestats.TileStats
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, min, max) - Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range. If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. Values outside the range will be clipped to 0 or 1. If `min` and `max` are not specified, the tile-wise minimum and maximum are used; this can result in inconsistent values across rows in a tile column.",
+  usage = "_FUNC_(tile, min, max) - Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range. If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. Values outside the range will be set to 0 or 1. If `min` and `max` are not specified, the tile-wise minimum and maximum are used; this can result in inconsistent values across rows in a tile column.",
   arguments = """
   Arguments:
     * tile - tile column to extract values
-    * min - cell value that will become 0; values below this are clipped to 0
-    * max - cell value that will become 1; values above this are clipped to 1
+    * min - cell value that will become 0; cells below this are set to 0
+    * max - cell value that will become 1; cells above this are set to 1
   """,
   examples = """
   Examples:
@@ -83,7 +83,7 @@ case class Rescale(child1: Expression, child2: Expression, child3: Expression) e
 
   protected def op(tile: Tile, min: Double, max: Double): Tile = {
     // convert tile to float if not
-    // clip to min and max
+    // clamp to min and max
     // "normalize" linearlly rescale to 0,1 range
     tile.convert(FloatConstantNoDataCellType)
         .localMin(max) // See Clip

@@ -92,7 +92,7 @@ package object expressions {
     registry.registerExpression[Defined]("rf_local_data")
     registry.registerExpression[Min]("rf_local_min")
     registry.registerExpression[Max]("rf_local_max")
-    registry.registerExpression[Clip]("rf_local_clip")
+    registry.registerExpression[Clamp]("rf_local_clamp")
     registry.registerExpression[Where]("rf_where")
     registry.registerExpression[Standardize]("rf_standardize")
     registry.registerExpression[Rescale]("rf_rescale")

@@ -68,17 +68,17 @@ trait LocalFunctions {
   /** Cellwise maximum between Tiles. */
   def rf_local_max[T: Numeric](left: Column, right: T): Column = Max(left, right)
 
-  /** Return the tile with its values clipped to a range defined by min and max. */
-  def rf_local_clip(tile: Column, min: Column, max: Column) = Clip(tile, min, max)
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp(tile: Column, min: Column, max: Column) = Clamp(tile, min, max)
 
-  /** Return the tile with its values clipped to a range defined by min and max. */
-  def rf_local_clip[T: Numeric](tile: Column, min: T, max: Column) = Clip(tile, min, max)
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp[T: Numeric](tile: Column, min: T, max: Column) = Clamp(tile, min, max)
 
-  /** Return the tile with its values clipped to a range defined by min and max. */
-  def rf_local_clip[T: Numeric](tile: Column, min: Column, max: T) = Clip(tile, min, max)
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp[T: Numeric](tile: Column, min: Column, max: T) = Clamp(tile, min, max)
 
-  /** Return the tile with its values clipped to a range defined by min and max. */
-  def rf_local_clip[T: Numeric](tile: Column, min: T, max: T) = Clip(tile, min, max)
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp[T: Numeric](tile: Column, min: T, max: T) = Clamp(tile, min, max)
 
   /** Return a tile with cell values chosen from `x` or `y` depending on `condition`.
       Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`. */
@@ -107,13 +107,13 @@ trait LocalFunctions {
 
   /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
     * The `min` parameter will become the zero value and the `max` parameter will become 1.
-    * Values outside the range will be clipped to 0 or 1.
+    * Values outside the range will be set to 0 or 1.
     */
   def rf_rescale(tile: Column, min: Column, max: Column): Column = Rescale(tile, min, max)
 
   /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
     * The `min` parameter will become the zero value and the `max` parameter will become 1.
-    * Values outside the range will be clipped to 0 or 1.
+    * Values outside the range will be set to 0 or 1.
     */
   def rf_rescale(tile: Column, min: Double, max: Double): Column = Rescale(tile, min, max)
 

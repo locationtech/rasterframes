@@ -210,11 +210,11 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
   }
 
-  describe("tile min max and clip") {
+  describe("tile min max and clamp") {
     it("should support SQL API"){
       checkDocs("rf_local_min")
       checkDocs("rf_local_max")
-      checkDocs("rf_local_clip")
+      checkDocs("rf_local_clamp")
     }
     it("should evaluate rf_local_min") {
       val df = Seq((randPRT, three)).toDF("tile", "three")
@@ -244,9 +244,9 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
         .first()
       result1 should be >= 3.0
     }
-    it("should evaluate rf_local_clip"){
+    it("should evaluate rf_local_clamp"){
       val df = Seq((randPRT, two, six)).toDF("t", "two", "six")
-      val result = df.select(rf_local_clip($"t", $"two", $"six") as "t")
+      val result = df.select(rf_local_clamp($"t", $"two", $"six") as "t")
         .select(rf_tile_min($"t") as "min", rf_tile_max($"t") as "max")
         .first()
       result(0) should be (2)

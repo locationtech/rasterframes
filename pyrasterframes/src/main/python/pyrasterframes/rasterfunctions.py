@@ -619,13 +619,13 @@ def rf_local_max(tile_col, max):
     return _apply_column_function('rf_local_max', tile_col, max)
 
 
-def rf_local_clip(tile_col, min, max):
-    """Performs cell-wise maximum two tiles or a tile and a scalar."""
+def rf_local_clamp(tile_col, min, max):
+    """ Return the tile with its values limited to a range defined by min and max, inclusive.  """
     if isinstance(min, (int, float)):
         min = lit(min)
     if isinstance(max, (int, float)):
         max = lit(max)
-    return _apply_column_function('rf_local_clip', tile_col, min, max)
+    return _apply_column_function('rf_local_clamp', tile_col, min, max)
 
 
 def rf_where(condition, x, y):
@@ -656,7 +656,7 @@ def rf_rescale(tile, min=None, max=None):
     """
     Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
     If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats).
-    Values outside the range will be clipped to 0 or 1.
+    Values outside the range will be set to 0 or 1.
     If `min` and `max` are not specified, the __tile-wise__ minimum and maximum are used; this can result in inconsistent values across rows in a tile column.
     """
     if isinstance(min, (int, float)):

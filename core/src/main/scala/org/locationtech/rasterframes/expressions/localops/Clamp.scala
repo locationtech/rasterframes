@@ -13,7 +13,7 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.row
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, min, max) - Return the tile with its values clipped to a range defined by min and max," +
+  usage = "_FUNC_(tile, min, max) - Return the tile with its values limited to a range defined by min and max," +
             " doing so cellwise if min or max are tile type",
   arguments = """
       Arguments:
@@ -21,13 +21,13 @@ import org.locationtech.rasterframes.expressions.row
         * min - scalar or tile setting the minimum value for each cell
         * max - scalar or tile setting the maximum value for each cell"""
 )
-case class Clip(left: Expression, middle: Expression, right: Expression)
+case class Clamp(left: Expression, middle: Expression, right: Expression)
   extends TernaryExpression with CodegenFallback with Serializable {
   override def dataType: DataType = left.dataType
 
   override def children: Seq[Expression] = Seq(left, middle, right)
 
-  override val nodeName = "rf_clip"
+  override val nodeName = "rf_local_clamp"
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(left.dataType)) {
@@ -65,10 +65,10 @@ case class Clip(left: Expression, middle: Expression, right: Expression)
   }
 
 }
-object Clip {
-  def apply(tile: Column, min: Column, max: Column): Column = new Column(Clip(tile.expr, min.expr, max.expr))
-  def apply[N: Numeric](tile: Column, min: N, max: Column): Column = new Column(Clip(tile.expr, lit(min).expr, max.expr))
-  def apply[N: Numeric](tile: Column, min: Column, max: N): Column = new Column(Clip(tile.expr, min.expr, lit(max).expr))
-  def apply[N: Numeric](tile: Column, min: N, max: N): Column = new Column(Clip(tile.expr, lit(min).expr, lit(max).expr))
+object Clamp {
+  def apply(tile: Column, min: Column, max: Column): Column = new Column(Clamp(tile.expr, min.expr, max.expr))
+  def apply[N: Numeric](tile: Column, min: N, max: Column): Column = new Column(Clamp(tile.expr, lit(min).expr, max.expr))
+  def apply[N: Numeric](tile: Column, min: Column, max: N): Column = new Column(Clamp(tile.expr, min.expr, lit(max).expr))
+  def apply[N: Numeric](tile: Column, min: N, max: N): Column = new Column(Clamp(tile.expr, lit(min).expr, lit(max).expr))
 
 }

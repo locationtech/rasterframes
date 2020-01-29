@@ -466,14 +466,14 @@ Performs cell-wise minimum two tiles or a tile and a scalar.
     
 Performs cell-wise maximum two tiles or a tile and a scalar.
 
-### rf_local_clip
+### rf_local_clamp
 
-    Tile rf_local_clip(Tile tile, Tile min, Tile max)
-    Tile rf_local_clip(Tile tile, Numeric min, Tile max)
-    Tile rf_local_clip(Tile tile, Tile min, Numeric max)
-    Tile rf_local_clip(Tile tile, Numeric min, Numeric max)
+    Tile rf_local_clamp(Tile tile, Tile min, Tile max)
+    Tile rf_local_clamp(Tile tile, Numeric min, Tile max)
+    Tile rf_local_clamp(Tile tile, Tile min, Numeric max)
+    Tile rf_local_clamp(Tile tile, Numeric min, Numeric max)
     
-Return the tile with its values clipped to a range defined by min and max, inclusive. 
+Return the tile with its values limited to a range defined by min and max, inclusive. 
 
 ### rf_where
 
@@ -489,7 +489,7 @@ Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`.
     
 Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
 If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats).
-Values outside the range will be clipped to 0 or 1.
+Values outside the range will be set to 0 or 1.
 If `min` and `max` are not specified, the __tile-wise__ minimum and maximum are used; this can result in inconsistent values across rows in a tile column.
 
 ### rf_standardize

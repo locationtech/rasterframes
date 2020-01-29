@@ -504,7 +504,7 @@ class RasterFunctions(TestEnvironment):
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
 
-    def test_local_min_max_clip(self):
+    def test_local_min_max_clamp(self):
         tile = Tile(np.random.randint(-20, 20, (10, 10)), CellType.int8())
         min_tile = Tile(np.random.randint(-20, 0, (10, 10)), CellType.int8())
         max_tile = Tile(np.random.randint(0, 20, (10, 10)), CellType.int8())
@@ -531,7 +531,7 @@ class RasterFunctions(TestEnvironment):
         )
 
         assert_equal(
-            df.select(rf_local_clip('t', 'mn', 'mx')).first()[0].cells,
+            df.select(rf_local_clamp('t', 'mn', 'mx')).first()[0].cells,
             np.clip(tile.cells, min_tile.cells, max_tile.cells)
         )
 
