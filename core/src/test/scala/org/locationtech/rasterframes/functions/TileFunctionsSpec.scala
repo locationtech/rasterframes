@@ -210,6 +210,145 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
   }
 
+  describe("tile min max and clamp") {
+    it("should support SQL API"){
+      checkDocs("rf_local_min")
+      checkDocs("rf_local_max")
+      checkDocs("rf_local_clamp")
+    }
+    it("should evaluate rf_local_min") {
+      val df = Seq((randPRT, three)).toDF("tile", "three")
+      val result1 = df.select(rf_local_min($"tile", $"three") as "t")
+        .select(rf_tile_max($"t"))
+        .first()
+      result1 should be <= 3.0
+    }
+    it("should evaluate rf_local_min with scalar") {
+      val df = Seq(randPRT).toDF("tile")
+      val result1 = df.select(rf_local_min($"tile", 3) as "t")
+        .select(rf_tile_max($"t"))
+        .first()
+      result1 should be <= 3.0
+    }
+    it("should evaluate rf_local_max") {
+      val df = Seq((randPRT, three)).toDF("tile", "three")
+      val result1 = df.select(rf_local_max($"tile", $"three") as "t")
+        .select(rf_tile_min($"t"))
+        .first()
+      result1 should be >= 3.0
+    }
+    it("should evaluate rf_local_max with scalar") {
+      val df = Seq(randPRT).toDF("tile")
+      val result1 = df.select(rf_local_max($"tile", 3) as "t")
+        .select(rf_tile_min($"t"))
+        .first()
+      result1 should be >= 3.0
+    }
+    it("should evaluate rf_local_clamp"){
+      val df = Seq((randPRT, two, six)).toDF("t", "two", "six")
+      val result = df.select(rf_local_clamp($"t", $"two", $"six") as "t")
+        .select(rf_tile_min($"t") as "min", rf_tile_max($"t") as "max")
+        .first()
+      result(0) should be (2)
+      result(1) should be (6)
+    }
+  }
+
+  describe("conditional cell values"){
+
+    it("should support SQL API") {
+      checkDocs("rf_where")
+    }
+
+    it("should evaluate rf_where"){
+      val df = Seq((randPRT, one, six)).toDF("t", "one", "six")
+      val result = df.select(
+        rf_for_all(
+          rf_local_equal(
+            rf_where(rf_local_greater($"t", 0), $"one", $"six") as "result",
+            rf_local_add(
+              rf_local_multiply(rf_local_greater($"t", 0), $"one"),
+              rf_local_multiply(rf_local_less_equal($"t", 0), $"six")
+            ) as "expected"
+          )
+        )
+      )
+      .first()
+
+      result should be (true)
+
+    }
+  }
+
+  describe("standardize and rescale") {
+
+    it("should be accssible in SQL API"){
+      checkDocs("rf_standardize")
+      checkDocs("rf_rescale")
+    }
+
+    it("should evaluate rf_standardize") {
+      import org.apache.spark.sql.functions.sqrt
+
+      val df = Seq(randPRT, six, one).toDF("tile")
+      val stats = df.agg(rf_agg_stats($"tile").alias("stat")).select($"stat.mean", sqrt($"stat.variance"))
+        .first()
+      val result = df.select(rf_standardize($"tile", stats.getAs[Double](0), stats.getAs[Double](1)) as "z")
+        .agg(rf_agg_stats($"z") as "zstats")
+        .select($"zstats.mean", $"zstats.variance")
+        .first()
+
+      result.getAs[Double](0) should be (0.0 +- 0.00001)
+      result.getAs[Double](1) should be (1.0 +- 0.00001)
+    }
+
+    it("should evaluate rf_standardize with tile-level stats") {
+      // this tile should already be Z distributed.
+      val df = Seq(randDoubleTile).toDF("tile")
+      val result = df.select(rf_standardize($"tile") as "z")
+        .select(rf_tile_stats($"z") as "zstat")
+        .select($"zstat.mean", $"zstat.variance")
+        .first()
+
+      result.getAs[Double](0) should be (0.0 +- 0.00001)
+      result.getAs[Double](1) should be (1.0 +- 0.00001)
+    }
+
+    it("should evaluate rf_rescale") {
+      import org.apache.spark.sql.functions.{min, max}
+      val df = Seq(randPRT, six, one).toDF("tile")
+      val stats = df.agg(rf_agg_stats($"tile").alias("stat")).select($"stat.min", $"stat.max")
+        .first()
+
+      val result = df.select(
+        rf_rescale($"tile", stats.getDouble(0), stats.getDouble(1)).alias("t")
+      )
+        .agg(
+          max(rf_tile_min($"t")),
+          min(rf_tile_max($"t")),
+          rf_agg_stats($"t").getField("min"),
+          rf_agg_stats($"t").getField("max"))
+        .first()
+
+      result.getDouble(0) should be > (0.0)
+      result.getDouble(1) should be < (1.0)
+      result.getDouble(2) should be (0.0 +- 1e-7)
+      result.getDouble(3) should be (1.0 +- 1e-7)
+
+    }
+
+    it("should evaluate rf_rescale with tile-level stats") {
+      val df = Seq(randDoubleTile).toDF("tile")
+      val result = df.select(rf_rescale($"tile") as "t")
+        .select(rf_tile_stats($"t") as "tstat")
+        .select($"tstat.min", $"tstat.max")
+        .first()
+      result.getAs[Double](0) should be (0.0 +- 1e-7)
+      result.getAs[Double](1) should be (1.0 +- 1e-7)
+    }
+
+  }
+
   describe("raster metadata") {
     it("should get the TileDimensions of a Tile") {
       val t = Seq(randPRT).toDF("tile").select(rf_dimensions($"tile")).first()

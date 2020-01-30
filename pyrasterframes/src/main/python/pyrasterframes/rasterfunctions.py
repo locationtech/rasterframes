@@ -605,6 +605,71 @@ def rf_local_unequal(left_tile_col, right_tile_col):
     return _apply_column_function('rf_local_unequal', left_tile_col, right_tile_col)
 
 
+def rf_local_min(tile_col, min):
+    """Performs cell-wise minimum two tiles or a tile and a scalar."""
+    if isinstance(min, (int, float)):
+        min = lit(min)
+    return _apply_column_function('rf_local_min', tile_col, min)
+
+
+def rf_local_max(tile_col, max):
+    """Performs cell-wise maximum two tiles or a tile and a scalar."""
+    if isinstance(max, (int, float)):
+        max = lit(max)
+    return _apply_column_function('rf_local_max', tile_col, max)
+
+
+def rf_local_clamp(tile_col, min, max):
+    """ Return the tile with its values limited to a range defined by min and max, inclusive.  """
+    if isinstance(min, (int, float)):
+        min = lit(min)
+    if isinstance(max, (int, float)):
+        max = lit(max)
+    return _apply_column_function('rf_local_clamp', tile_col, min, max)
+
+
+def rf_where(condition, x, y):
+    """Return a tile with cell values chosen from `x` or `y` depending on `condition`.
+       Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`."""
+    return _apply_column_function('rf_where', condition, x, y)
+
+
+def rf_standardize(tile, mean=None, stddev=None):
+    """
+    Standardize cell values such that the mean is zero and the standard deviation is one.
+    If specified, the `mean` and `stddev` are applied to all tiles in the column.
+    If not specified, each tile will be standardized according to the statistics of its cell values;
+    this can result in inconsistent values across rows in a tile column.
+    """
+    if isinstance(mean, (int, float)):
+        mean = lit(mean)
+    if isinstance(stddev, (int, float)):
+        stddev = lit(stddev)
+    if mean is None and stddev is None:
+        return _apply_column_function('rf_standardize', tile)
+    if mean is not None and stddev is not None:
+        return _apply_column_function('rf_standardize', tile, mean, stddev)
+    raise ValueError('Either `mean` or `stddev` should both be specified or omitted in call to rf_standardize.')
+
+
+def rf_rescale(tile, min=None, max=None):
+    """
+    Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats).
+    Values outside the range will be set to 0 or 1.
+    If `min` and `max` are not specified, the __tile-wise__ minimum and maximum are used; this can result in inconsistent values across rows in a tile column.
+    """
+    if isinstance(min, (int, float)):
+        min = lit(float(min))
+    if isinstance(max, (int, float)):
+        max = lit(float(max))
+    if min is None and max is None:
+        return _apply_column_function('rf_rescale', tile)
+    if min is not None and max is not None:
+        return _apply_column_function('rf_rescale', tile, min, max)
+    raise ValueError('Either `min` or `max` should both be specified or omitted in call to rf_rescale.')
+
+
 def rf_round(tile_col):
     """Round cell values to the nearest integer without changing the cell type"""
     return _apply_column_function('rf_round', tile_col)
