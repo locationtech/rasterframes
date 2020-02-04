@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.ref
 
+import java.io.IOException
 import java.net.URI
 
 import com.azavea.gdal.GDALWarp
@@ -68,7 +69,12 @@ case class GDALRasterSource(source: URI) extends RFRasterSource with URIRasterSo
   override def tags: Tags = Tags(metadata, List.empty)
 
   override protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
-    gdal.readBounds(bounds.map(_.toGridType[Long]), bands)
+    try {
+      gdal.readBounds(bounds.map(_.toGridType[Long]), bands)
+    }
+    catch {
+      case e: Exception => throw new IOException(s"Error reading '$source'", e)
+    }
 }
 
 object GDALRasterSource extends LazyLogging {
