@@ -55,7 +55,7 @@ trait RangeReaderRasterSource extends RFRasterSource with GeoTiffInfoSupport {
 
   override def tags: Tags = tiffInfo.tags
 
-  override protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
     val info = realInfo
     val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
     val intersectingBounds = bounds.flatMap(_.intersection(this.gridBounds)).toSeq

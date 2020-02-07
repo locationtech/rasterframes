@@ -37,7 +37,7 @@ import org.locationtech.rasterframes.ref.RFRasterSource.URIRasterSource
 case class GDALRasterSource(source: URI) extends RFRasterSource with URIRasterSource {
 
   @transient
-  private lazy val gdal: VLMRasterSource = {
+  protected lazy val gdal: VLMRasterSource = {
     val cleaned = source.toASCIIString
       .replace("gdal+", "")
       .replace("gdal:/", "")
@@ -68,7 +68,7 @@ case class GDALRasterSource(source: URI) extends RFRasterSource with URIRasterSo
 
   override def tags: Tags = Tags(metadata, List.empty)
 
-  override protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
+  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
     try {
       gdal.readBounds(bounds.map(_.toGridType[Long]), bands)
     }

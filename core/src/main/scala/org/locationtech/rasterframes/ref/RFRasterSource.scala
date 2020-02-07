@@ -66,7 +66,7 @@ abstract class RFRasterSource extends CellGrid[Int] with ProjectedRasterLike wit
   def readAll(dims: Dimensions[Int] = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
     layoutBounds(dims).map(read(_, bands))
 
-  protected def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
+  def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
 
   def rasterExtent = RasterExtent(extent, cols, rows)
 
@@ -109,7 +109,11 @@ object RFRasterSource extends LazyLogging {
   def apply(source: URI): RFRasterSource =
     rsCache.get(
       source.toASCIIString, _ => source match {
-        case IsGDAL()          => GDALRasterSource(source)
+        case IsGDAL()          =>
+          if (source.getPath.toLowerCase().endsWith("jp2"))
+            JP2GDALRasterSource(source)
+          else
+            GDALRasterSource(source)
         case IsHadoopGeoTiff() =>
           // TODO: How can we get the active hadoop configuration
           // TODO: without having to pass it through?
