@@ -140,4 +140,11 @@ package object rasterframes extends StandardColumns
   def isCellTrue(v: Double): Boolean =  isData(v) & v != 0.0
   /** Test if a cell value evaluates to true: it is not NoData and it is non-zero */
   def isCellTrue(v: Int): Boolean =  isData(v) & v != 0
+
+  /** Test if a Tile's cell value evaluates to true at a given position. Truth defined by not NoData and non-zero */
+  def isCellTrue(t: Tile, col: Int, row: Int): Boolean =
+    if (t.cellType.isFloatingPoint) isCellTrue(t.getDouble(col, row))
+    else isCellTrue(t.get(col, row))
+
+
 }
