@@ -32,12 +32,16 @@ import geotrellis.raster.{GridBounds, MultibandTile, Raster}
 class JP2GDALRasterSource(source: URI) extends GDALRasterSource(source) {
 
   override protected def tiffInfo = JP2GDALRasterSource.synchronized {
-    SimpleRasterInfo(source.toASCIIString, _ => SimpleRasterInfo(gdal))
+    SimpleRasterInfo(source.toASCIIString, _ => JP2GDALRasterSource.synchronized(SimpleRasterInfo(gdal)))
   }
 
   override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
     JP2GDALRasterSource.synchronized {
       super.readBounds(bounds, bands)
+    }
+  override def read(bounds: GridBounds[Int], bands: Seq[Int]): Raster[MultibandTile] =
+    JP2GDALRasterSource.synchronized {
+      readBounds(Seq(bounds), bands).next()
     }
 }
 
