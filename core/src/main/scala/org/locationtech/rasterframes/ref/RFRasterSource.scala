@@ -110,7 +110,7 @@ object RFRasterSource extends LazyLogging {
     rsCache.get(
       source.toASCIIString, _ => source match {
         case IsGDAL()          =>
-          if (source.getPath.toLowerCase().endsWith("jp2"))
+          if (rfConfig.getBoolean("jp2-gdal-thread-lock") && source.getPath.toLowerCase().endsWith("jp2"))
             JP2GDALRasterSource(source)
           else
             GDALRasterSource(source)
