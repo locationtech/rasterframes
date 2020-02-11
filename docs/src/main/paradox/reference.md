@@ -559,6 +559,13 @@ Performs cell-wise logarithm with base 2.
 
 Performs natural logarithm of cell values plus one. Inverse of @ref:[`rf_expm1`](reference.md#rf-expm1).
 
+
+### rf_sqrt
+
+     Tile rf_sqrt(Tile tile)
+     
+Perform cell-wise square root.
+
 ## Tile Statistics
 
 The following functions compute a statistical summary per row of a `tile` column. The statistics are computed across the cells of a single `tile`, within each DataFrame Row.

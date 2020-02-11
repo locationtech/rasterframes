@@ -112,3 +112,24 @@ case class ExpM1(child: Expression) extends UnaryLocalRasterOp with CodegenFallb
 object ExpM1{
   def apply(tile: Column): Column = new Column(ExpM1(tile.expr))
 }
+
+@ExpressionDescription(
+  usage = "_FUNC_(tile) - Perform cell-wise square root",
+  arguments = """
+  Arguments:
+    * tile - input tile
+  """,
+  examples =
+    """
+    Examples:
+      > SELECT _FUNC_(tile)
+      ... """
+)
+case class Sqrt(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+  override val nodeName: String = "rf_sqrt"
+  override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(0.5)
+  override def dataType: DataType = child.dataType
+}
+object Sqrt {
+  def apply(tile: Column): Column = new Column(Sqrt(tile.expr))
+}

@@ -720,6 +720,10 @@ def rf_expm1(tile_col):
     return _apply_column_function('rf_expm1', tile_col)
 
 
+def rf_sqrt(tile_col):
+    """Performs cell-wise square root"""
+    return _apply_column_function('rf_sqrt', tile_col)
+
 def rf_identity(tile_col):
     """Pass tile through unchanged"""
     return _apply_column_function('rf_identity', tile_col)

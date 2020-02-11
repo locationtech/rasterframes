@@ -299,6 +299,9 @@ trait LocalFunctions {
   /** Exponential of cell values, less one*/
   def rf_expm1(tileCol: Column): Column = ExpM1(tileCol)
 
+  /** Square root of cell values */
+  def rf_sqrt(tileCol: Column): Column = Sqrt(tileCol)
+
   /** Return the incoming tile untouched. */
   def rf_identity(tileCol: Column): Column = Identity(tileCol)
 }
