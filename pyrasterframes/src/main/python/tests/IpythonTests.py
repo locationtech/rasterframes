@@ -39,6 +39,7 @@ class IpythonTests(TestEnvironment):
     def setUp(self):
         self.create_layer()
 
+    @skip("Pending fix for issue #458")
     def test_all_nodata_tile(self):
         # https://github.com/locationtech/rasterframes/issues/458
 
