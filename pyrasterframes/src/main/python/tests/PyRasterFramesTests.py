@@ -432,6 +432,45 @@ class RasterJoin(TestEnvironment):
         with self.assertRaises(AssertionError):
             self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
 
+    def test_raster_join_with_null_left_head(self):
+        # https://github.com/locationtech/rasterframes/issues/462
+
+        from py4j.protocol import Py4JJavaError
+
+        ones = np.ones((10, 10), dtype='uint8')
+        e = Extent(0.0, 0.0, 40.0, 40.0)
+        c = 'EPSG:32611'
+
+        left = self.spark.createDataFrame(
+            [
+                Row(i=1, t=Tile(ones, CellType.uint8()), e=e, c=c),
+                Row(i=1, t=None, e=e, c=c)
+            ]
+        )
+
+        right = self.spark.createDataFrame(
+            [
+                Row(i=1, r=Tile(ones, CellType.uint8()), e=e, c=c),
+            ])
+
+        try:
+            joined = left.raster_join(right,
+                                      join_exprs=left.i == right.i,
+                                      left_extent=left.e, right_extent=right.e,
+                                      left_crs=left.c, right_crs=right.c)
+
+            self.assertEqual(joined.count(), 2)
+
+            collected = joined.select(rf_dimensions('r').cols.alias('cols'),
+                                      rf_dimensions('r').rows.alias('rows')) \
+                .collect()
+            for r in collected:
+                self.assertEqual(r.rows, 10)
+                self.assertEqual(r.cols, 10)
+
+        except Py4JJavaError as e:
+            self.fail('test_raster_join_with_null_left_head failed with Py4JJavaError:' + e)
+
 
 def suite():
     function_tests = unittest.TestSuite()
