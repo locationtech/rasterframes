@@ -110,10 +110,10 @@ class RasterFunctions(TestEnvironment):
         from pyspark.sql import Row
         from pyspark.sql.functions import struct
         df = self.spark.createDataFrame([Row(xmin=0, ymin=1, xmax=2, ymax=3)])
-        df.select(st_geometry(struct(df.xmin, df.ymin, df.xmax, df.ymax)).alias('geom'))
+        df2 = df.select(st_geometry(struct(df.xmin, df.ymin, df.xmax, df.ymax)).alias('geom'))
 
-        actual_bounds = df.first()['geom'].bounds
-        self.assertEqual(actual_bounds, (1, 2, 3, 4))
+        actual_bounds = df2.first()['geom'].bounds
+        self.assertEqual((0.0, 1.0, 2.0, 3.0), actual_bounds)
 
     def test_agg_mean(self):
         mean = self.rf.agg(rf_agg_mean('tile')).first()['rf_agg_mean(tile)']
