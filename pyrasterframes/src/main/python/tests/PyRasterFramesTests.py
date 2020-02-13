@@ -465,10 +465,11 @@ class RasterJoin(TestEnvironment):
 
             collected = joined.select(rf_dimensions('r').cols.alias('cols'),
                                       rf_dimensions('r').rows.alias('rows')) \
+                .dropna() \
                 .collect()
             for r in collected:
-                self.assertEqual(r.rows, 10)
-                self.assertEqual(r.cols, 10)
+                self.assertEqual(10, r.rows)
+                self.assertEqual(10, r.cols)
 
         except Py4JJavaError as e:
             self.fail('test_raster_join_with_null_left_head failed with Py4JJavaError:' + e)
