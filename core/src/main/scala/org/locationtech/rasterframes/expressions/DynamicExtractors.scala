@@ -102,6 +102,41 @@ object DynamicExtractors {
       (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
   }
 
+  /** This is necessary because extents created from Python Rows will reorder field names. */
+  object ExtentLike {
+
+    def rightShape(struct: StructType) =
+      struct.size == 4 && {
+        val n = struct.fieldNames.map(_.toLowerCase).toSet
+        n == Set("xmin", "ymin", "xmax", "ymax")|| n == Set("minx", "miny", "maxx", "maxy")
+      } && struct.fields.map(_.dataType).toSet == Set(DoubleType)
+
+
+    def unapply(dt: DataType): Option[Any => Extent] = dt match {
+      case dt: StructType if rightShape(dt) =>
+        Some((input: Any) => {
+          val row = input.asInstanceOf[InternalRow]
+
+          def maybeValue(name: String): Option[Double] = {
+            dt.indexWhere(_.name.toLowerCase == name) match {
+              case idx if idx >= 0 => Some(row.getDouble(idx))
+              case _ => None
+            }
+          }
+
+          def value(n1: String, n2: String): Double =
+            maybeValue(n1).orElse(maybeValue(n2)).getOrElse(throw new IllegalArgumentException(s"Missing field $n1 or $n2"))
+
+          val xmin = value("xmin", "minx")
+          val ymin = value("ymin", "miny")
+          val xmax = value("xmax", "maxx")
+          val ymax = value("ymax", "maxy")
+          Extent(xmin, ymin, xmax, ymax)
+        })
+      case _ => None
+    }
+  }
+
   lazy val extentExtractor: PartialFunction[DataType, Any ⇒ Extent] = {
     val base: PartialFunction[DataType, Any ⇒ Extent]= {
       case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
@@ -110,6 +145,7 @@ object DynamicExtractors {
         (input: Any) => input.asInstanceOf[InternalRow].to[Extent]
       case t if t.conformsTo[Envelope] =>
         (input: Any) => Extent(input.asInstanceOf[InternalRow].to[Envelope])
+      case ExtentLike(e) => e
     }
 
     val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.extent))
