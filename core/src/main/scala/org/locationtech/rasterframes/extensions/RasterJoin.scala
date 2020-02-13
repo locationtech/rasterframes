@@ -112,7 +112,7 @@ object RasterJoin {
 
     // Here's the meat:
     left
-      // 1. Add a unique ID to each LHS row for subequent grouping.
+      // 1. Add a unique ID to each LHS row for subsequent grouping.
       .withColumn(id, monotonically_increasing_id())
       // 2. Perform the left-outer join
       .join(right, joinExprs, joinType = "left")
