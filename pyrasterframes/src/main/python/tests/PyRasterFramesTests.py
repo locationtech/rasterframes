@@ -441,7 +441,7 @@ class RasterJoin(TestEnvironment):
 
         ones = np.ones((10, 10), dtype='uint8')
         e = Extent(0.0, 0.0, 40.0, 40.0)
-        c = 'EPSG:32611'
+        c = CRS('EPSG:32611')
 
         left = self.spark.createDataFrame(
             [

@@ -96,10 +96,15 @@ object DynamicExtractors {
   }
 
   lazy val crsExtractor: PartialFunction[DataType, Any => CRS] = {
-    case _: StringType =>
-      (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
-    case t if t.conformsTo[CRS] =>
-      (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
+    val base: PartialFunction[DataType, Any ⇒ CRS] = {
+      case _: StringType =>
+        (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
+      case t if t.conformsTo[CRS] =>
+        (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
+    }
+
+    val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.crs))
+    fromPRL orElse base
   }
 
   /** This is necessary because extents created from Python Rows will reorder field names. */
@@ -138,7 +143,7 @@ object DynamicExtractors {
   }
 
   lazy val extentExtractor: PartialFunction[DataType, Any ⇒ Extent] = {
-    val base: PartialFunction[DataType, Any ⇒ Extent]= {
+    val base: PartialFunction[DataType, Any ⇒ Extent] = {
       case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
         (input: Any) => Extent(JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal)
       case t if t.conformsTo[Extent] =>

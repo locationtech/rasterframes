@@ -22,9 +22,10 @@
 package org.locationtech.rasterframes.extensions
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal
-import org.locationtech.rasterframes.expressions.SpatialRelation
+import org.locationtech.rasterframes.expressions.{DynamicExtractors, SpatialRelation}
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.functions.reproject_and_merge
 import org.locationtech.rasterframes.util._
@@ -58,9 +59,18 @@ object RasterJoin {
     apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
   }
 
+  private def checkType[T](col: Column, description: String, extractor: PartialFunction[DataType, Any => T]): Unit = {
+    require(extractor.isDefinedAt(col.expr.dataType), s"Expected column ${col} to be of type $description, but was ${col.expr.dataType}.")
+  }
+
   def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
     // Convert resolved column into a symbolic one.
     def unresolved(c: Column): Column = col(c.columnName)
+
+    checkType(leftExtent, "Extent", DynamicExtractors.extentExtractor)
+    checkType(leftCRS, "CRS", DynamicExtractors.crsExtractor)
+    checkType(rightExtent, "Extent", DynamicExtractors.extentExtractor)
+    checkType(rightCRS, "CRS", DynamicExtractors.crsExtractor)
 
     // Unique id for temporary columns
     val id = Random.alphanumeric.take(5).mkString("_", "", "_")
@@ -80,7 +90,7 @@ object RasterJoin {
     // On the LHS we just want the first thing (subsequent ones should be identical.
     val leftAggCols = left.columns.map(s => first(left(s), true) as s)
     // On the RHS we collect result as a list.
-    val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rightCRS) as rightCRS2)
+    val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rf_crs(rightCRS)) as rightCRS2)
     val rightAggTiles = right.tileColumns.map(c => collect_list(ExtractTile(c)) as c.columnName)
     val rightAggOther = right.notTileColumns
       .filter(n => n.columnName != rightExtent.columnName && n.columnName != rightCRS.columnName)
@@ -94,9 +104,11 @@ object RasterJoin {
       .map(t => rf_dimensions(unresolved(t)))
       .getOrElse(serialized_literal(NOMINAL_TILE_DIMS))
 
-    val reprojCols = rightAggTiles.map(t => reproject_and_merge(
-      col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), destDims
-    ) as t.columnName)
+    val reprojCols = rightAggTiles.map(t => {
+      reproject_and_merge(
+        col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), destDims
+      ) as t.columnName
+    })
 
     val finalCols = leftAggCols.map(unresolved) ++ reprojCols ++ rightAggOther.map(unresolved)
 

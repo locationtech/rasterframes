@@ -22,8 +22,8 @@
 package org.locationtech.rasterframes.expressions
 
 import geotrellis.vector.Extent
+import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.{Encoder, Encoders}
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.rasterframes.TestEnvironment
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
