@@ -440,13 +440,14 @@ class RasterJoin(TestEnvironment):
         from py4j.protocol import Py4JJavaError
 
         ones = np.ones((10, 10), dtype='uint8')
+        t = Tile(ones, CellType.uint8())
         e = Extent(0.0, 0.0, 40.0, 40.0)
         c = CRS('EPSG:32611')
 
         left = self.spark.createDataFrame(
             [
-                Row(i=1, t=Tile(ones, CellType.uint8()), e=e, c=c),
-                Row(i=1, t=None, e=e, c=c)
+                Row(i=1, j='a', t=t,    u=t, e=e, c=c),
+                Row(i=1, j='b', t=None, u=t, e=e, c=c)
             ]
         )
 
@@ -462,14 +463,38 @@ class RasterJoin(TestEnvironment):
                                       left_crs=left.c, right_crs=right.c)
 
             self.assertEqual(joined.count(), 2)
+            # In the case where the head column is null it will be passed thru
+            self.assertTrue(joined.select(isnull('t')).filter(col('j') == 'b').first()[0])
 
+            # The right hand side tile should get dimensions from col `u` however
             collected = joined.select(rf_dimensions('r').cols.alias('cols'),
                                       rf_dimensions('r').rows.alias('rows')) \
-                .dropna() \
                 .collect()
+
             for r in collected:
                 self.assertEqual(10, r.rows)
                 self.assertEqual(10, r.cols)
+
+            # If there is no non-null tile on the LHS then the RHS is ill defined
+            joined_no_left_tile = left.drop('u') \
+                .raster_join(right,
+                             join_exprs=left.i == right.i,
+                             left_extent=left.e, right_extent=right.e,
+                             left_crs=left.c, right_crs=right.c)
+            self.assertEqual(joined_no_left_tile.count(), 2)
+
+            # Tile col from Left side passed thru as null
+            self.assertTrue(
+                joined_no_left_tile.select(isnull('t')) \
+                    .filter(col('j') == 'b') \
+                    .first()[0]
+            )
+            # Because no non-null tile col on Left side, the right side is null too
+            self.assertTrue(
+                joined_no_left_tile.select(isnull('r')) \
+                    .filter(col('j') == 'b') \
+                    .first()[0]
+            )
 
         except Py4JJavaError as e:
             self.fail('test_raster_join_with_null_left_head failed with Py4JJavaError:' + e)
