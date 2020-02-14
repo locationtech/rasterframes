@@ -32,10 +32,8 @@ import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.{Envelope, Point}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.{LazyCRS, TileContext}
-import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.model.{LazyCRS, LongExtent, TileContext}
-import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
+import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RFRasterSource, RasterRef}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 private[rasterframes]
@@ -132,12 +130,14 @@ object DynamicExtractors {
           }
 
           def value(n1: String, n2: String): Double =
-            maybeValue(n1).orElse(maybeValue(n2)).getOrElse(throw new IllegalArgumentException(s"Missing field $n1 or $n2"))
+            maybeValue(n1).orElse(maybeValue(n2))
+              .getOrElse(throw new IllegalArgumentException(s"Missing field $n1 or $n2"))
 
           val xmin = value("xmin", "minx")
           val ymin = value("ymin", "miny")
           val xmax = value("xmax", "maxx")
           val ymax = value("ymax", "maxy")
+          println(Extent(xmin, ymin, xmax, ymax))
           Extent(xmin, ymin, xmax, ymax)
         })
       case _ => None

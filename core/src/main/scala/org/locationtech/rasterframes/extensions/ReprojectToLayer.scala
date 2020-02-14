@@ -36,6 +36,8 @@ object ReprojectToLayer {
     val gb = tlm.tileBounds
     val crs = tlm.crs
 
+    require(tlm.tileLayout.tileDimensions == NOMINAL_TILE_DIMS, "Non-256^2 layouts are not yet supported.")
+
     import df.sparkSession.implicits._
     implicit val enc = Encoders.tuple(spatialKeyEncoder, extentEncoder, crsSparkEncoder)
 

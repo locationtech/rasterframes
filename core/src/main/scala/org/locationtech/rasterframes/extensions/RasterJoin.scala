@@ -23,7 +23,9 @@ package org.locationtech.rasterframes.extensions
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DataType
+import org.locationtech.rasterframes
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.expressions.{DynamicExtractors, SpatialRelation}
 import org.locationtech.rasterframes.functions.reproject_and_merge
@@ -100,7 +102,11 @@ object RasterJoin {
     // into LHS extent/CRS.
     // Use a representative tile from the left for the tile dimensions.
     // Assumes all LHS tiles in a row are of the same size.
-    val destDims = rf_dimensions(coalesce(left.tileColumns.map(unresolved): _*))
+    val destDims =
+      if (left.tileColumns.nonEmpty)
+        rf_dimensions(coalesce(left.tileColumns.map(unresolved): _*))
+      else
+        serialized_literal(NOMINAL_TILE_DIMS)
 
     val reprojCols = rightAggTiles.map(t => {
       reproject_and_merge(

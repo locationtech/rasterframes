@@ -57,7 +57,7 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
   override protected def nullSafeEval(input: Any): Any = {
     val r = row(input)
     val extent = DynamicExtractors.extentExtractor(child.dataType)(r)
-    val geom = extent.jtsGeom
+    val geom = extent.toPolygon()
     JTSTypes.GeometryTypeInstance.serialize(geom)
   }
 }

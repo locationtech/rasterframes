@@ -29,6 +29,7 @@ import org.locationtech.rasterframes.TestEnvironment
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.DynamicExtractorsSpec.{SnowflakeExtent1, SnowflakeExtent2}
+import org.locationtech.rasterframes.model.LongExtent
 import org.scalatest.Inspectors
 
 class DynamicExtractorsSpec  extends TestEnvironment with Inspectors {
@@ -47,6 +48,13 @@ class DynamicExtractorsSpec  extends TestEnvironment with Inspectors {
 
       val row = e.toInternalRow
       extentExtractor(schemaOf[Envelope])(row) should be (expected)
+    }
+
+    it("should handle LongExtent") {
+      extentExtractor.isDefinedAt(schemaOf[LongExtent]) should be(true)
+      val expected2 = LongExtent(1L, 2L, 3L, 4L)
+      val row = expected2.toInternalRow
+      extentExtractor(schemaOf[LongExtent])(row) should be (expected)
     }
 
     it("should handle artisanally constructed Extents") {
