@@ -32,7 +32,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.{Envelope, Point}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.{LazyCRS, TileContext}
+import org.locationtech.rasterframes.model.{LazyCRS, LongExtent, TileContext}
 import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
@@ -150,6 +150,8 @@ object DynamicExtractors {
         (input: Any) => input.asInstanceOf[InternalRow].to[Extent]
       case t if t.conformsTo[Envelope] =>
         (input: Any) => Extent(input.asInstanceOf[InternalRow].to[Envelope])
+      case t if t.conformsTo[LongExtent] =>
+        (input: Any) => input.asInstanceOf[InternalRow].to[LongExtent].toExtent
       case ExtentLike(e) => e
     }
 
@@ -163,6 +165,8 @@ object DynamicExtractors {
         (input: Any) => JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal
       case t if t.conformsTo[Extent] =>
         (input: Any) => input.asInstanceOf[InternalRow].to[Extent].jtsEnvelope
+      case t if t.conformsTo[LongExtent] =>
+        (input: Any) => input.asInstanceOf[InternalRow].to[LongExtent].toExtent.jtsEnvelope
       case t if t.conformsTo[Envelope] =>
         (input: Any) => input.asInstanceOf[InternalRow].to[Envelope]
     }
