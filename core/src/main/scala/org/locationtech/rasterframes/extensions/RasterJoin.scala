@@ -20,13 +20,16 @@
  */
 
 package org.locationtech.rasterframes.extensions
+
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.expressions.{DynamicExtractors, SpatialRelation}
 import org.locationtech.rasterframes.functions.reproject_and_merge
+import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util._
 
 import scala.util.Random
@@ -34,7 +37,7 @@ import scala.util.Random
 object RasterJoin {
 
   /** Perform a raster join on dataframes that each have proj_raster columns, or crs and extent explicitly included. */
-  def apply(left: DataFrame, right: DataFrame): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, fallbackDimensions: Option[TileDimensions]): DataFrame = {
     def usePRT(d: DataFrame) =
       d.projRasterColumns.headOption
         .map(p => (rf_crs(p),  rf_extent(p)))
@@ -48,21 +51,21 @@ object RasterJoin {
     val (ldf, lcrs, lextent) = usePRT(left)
     val (rdf, rcrs, rextent) = usePRT(right)
 
-    apply(ldf, rdf, lextent, lcrs, rextent, rcrs)
+    apply(ldf, rdf, lextent, lcrs, rextent, rcrs, fallbackDimensions)
   }
 
-  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[TileDimensions]): DataFrame = {
     val leftGeom = st_geometry(leftExtent)
     val rightGeomReproj = st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
     val joinExpr = new Column(SpatialRelation.Intersects(leftGeom.expr, rightGeomReproj.expr))
-    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
+    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, fallbackDimensions)
   }
 
   private def checkType[T](col: Column, description: String, extractor: PartialFunction[DataType, Any => T]): Unit = {
     require(extractor.isDefinedAt(col.expr.dataType), s"Expected column ${col} to be of type $description, but was ${col.expr.dataType}.")
   }
 
-  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[TileDimensions]): DataFrame = {
     // Convert resolved column into a symbolic one.
     def unresolved(c: Column): Column = col(c.columnName)
 
@@ -100,7 +103,11 @@ object RasterJoin {
     // into LHS extent/CRS.
     // Use a representative tile from the left for the tile dimensions.
     // Assumes all LHS tiles in a row are of the same size.
-    val destDims = rf_dimensions(coalesce(left.tileColumns.map(unresolved): _*))
+    val destDims =
+      if (left.tileColumns.nonEmpty)
+        rf_dimensions(coalesce(left.tileColumns.map(unresolved): _*))
+      else
+        serialized_literal(fallbackDimensions.getOrElse(NOMINAL_TILE_DIMS))
 
     val reprojCols = rightAggTiles.map(t => {
       reproject_and_merge(
