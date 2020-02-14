@@ -61,6 +61,8 @@ lazy val core = project
       spark("sql").value % Provided,
       geotrellis("spark").value,
       geotrellis("raster").value,
+      geotrellis("gdal").value,
+      geotrellis("s3-spark").value,
       geotrellis("s3").value,
       geotrellis("spark-testkit").value % Test excludeAll (
         ExclusionRule(organization = "org.scalastic"),
