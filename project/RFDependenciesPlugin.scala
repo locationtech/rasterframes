@@ -46,6 +46,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.25"
     val scaffeine = "com.github.blemale" %% "scaffeine" % "3.1.0"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
+    val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
   }
   import autoImport._
 
