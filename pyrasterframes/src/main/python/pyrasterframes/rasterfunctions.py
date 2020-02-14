@@ -850,9 +850,9 @@ def rf_proj_raster(tile, extent, crs):
     return _apply_column_function('rf_proj_raster', tile, extent, crs)
 
 
-def st_geometry(geom_col: Column_type) -> Column:
+def st_geometry(extent_col: Column_type) -> Column:
     """Convert the given extent/bbox to a polygon"""
-    return _apply_column_function('st_geometry', geom_col)
+    return _apply_column_function('st_geometry', extent_col)
 
 
 def rf_geometry(proj_raster_col: Column_type) -> Column:

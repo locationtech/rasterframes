@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions.transformers
 
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.row
+import org.locationtech.rasterframes.expressions.{DynamicExtractors, row}
 import org.locationtech.jts.geom.{Envelope, Geometry}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
@@ -44,28 +44,20 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
 
   override def dataType: DataType = JTSTypes.GeometryTypeInstance
 
-  private val envSchema = schemaOf[Envelope]
-  private val extSchema = schemaOf[Extent]
-
   override def checkInputDataTypes(): TypeCheckResult = {
-    child.dataType match {
-      case dt if dt == envSchema || dt == extSchema ⇒ TypeCheckSuccess
-      case o ⇒ TypeCheckFailure(
-        s"Expected bounding box of form '${envSchema}' but received '${o.simpleString}'."
+    if (!DynamicExtractors.extentExtractor.isDefinedAt(child.dataType)) {
+      TypeCheckFailure(
+        s"Expected bounding box of form '${schemaOf[Envelope]}' or '${schemaOf[Extent]}' " +
+          s"but received '${child.dataType.simpleString}'."
       )
     }
+    else TypeCheckSuccess
   }
 
   override protected def nullSafeEval(input: Any): Any = {
     val r = row(input)
-    val extent = if(child.dataType == envSchema) {
-      val env = r.to[Envelope]
-      Extent(env)
-    }
-    else {
-      r.to[Extent]
-    }
-    val geom = extent.toPolygon()
+    val extent = DynamicExtractors.extentExtractor(child.dataType)(r)
+    val geom = extent.jtsGeom
     JTSTypes.GeometryTypeInstance.serialize(geom)
   }
 }

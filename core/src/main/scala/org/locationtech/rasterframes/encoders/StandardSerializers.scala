@@ -48,7 +48,7 @@ trait StandardSerializers {
     ))
 
     override protected def to[R](t: Envelope, io: CatalystIO[R]): R = io.create(
-      t.getMinX, t.getMaxX, t.getMinY, t.getMaxX
+      t.getMinX, t.getMaxX, t.getMinY, t.getMaxY
     )
 
     override protected def from[R](t: R, io: CatalystIO[R]): Envelope = new Envelope(

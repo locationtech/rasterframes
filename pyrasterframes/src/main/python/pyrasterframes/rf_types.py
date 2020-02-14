@@ -42,7 +42,7 @@ import numpy as np
 
 from typing import List, Tuple
 
-__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'Extent', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'Extent', 'CRS', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
 
 class cached_property(object):
@@ -225,16 +225,22 @@ class Extent(object):
         return self.__jvm__.toString()
 
 class CRS(object):
-    def __init__(self, proj4_str):
-        self.proj4_str = proj4_str
+    # NB: The name `crsProj4` has to match what's used in StandardSerializers.crsSerializers
+    def __init__(self, crsProj4):
+        self.crsProj4 = crsProj4
 
     @cached_property
     def __jvm__(self):
         comp = RFContext.active().companion_of("org.locationtech.rasterframes.model.LazyCRS")
-        return comp.apply(self.proj4_str)
+        return comp.apply(self.crsProj4)
 
     def __str__(self):
-        return self.proj4_str
+        return self.crsProj4
+
+    @property
+    def proj4_str(self):
+        """Alias for `crsProj4`"""
+        return self.crsProj4
 
 
 class CellType(object):
