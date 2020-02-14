@@ -72,16 +72,11 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  implicit val sc = sqlContext.sparkContext
-
   /** Create new relation with the give filter added. */
   def withFilter(value: Filter): GeoTrellisRelation =
     copy(filters = filters :+ value)
   /** Check to see if relation already exists in this. */
   def hasFilter(filter: Filter): Boolean = filters.contains(filter)
-
-  @transient
-  private implicit val spark = sqlContext.sparkSession
 
   @transient
   private lazy val attributes = AttributeStore(uri)
@@ -128,6 +123,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
    * in the metadata anywhere. This is potentially an expensive hack, which needs further quantifying of impact.
    * Another option is to force the user to specify the number of bands. */
   private lazy val peekBandCount = {
+    implicit val sc = sqlContext.sparkContext
     tileClass match {
       case t if t =:= typeOf[MultibandTile] ⇒
         val reader = keyType match {
@@ -230,6 +226,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     logger.trace(s"Required columns: ${requiredColumns.mkString(", ")}")
     logger.trace(s"Filters: $filters")
 
+    implicit val sc = sqlContext.sparkContext
     val reader = LayerReader(uri)
 
     val columnIndexes = requiredColumns.map(schema.fieldIndex)

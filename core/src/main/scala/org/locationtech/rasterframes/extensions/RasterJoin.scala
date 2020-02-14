@@ -20,10 +20,10 @@
  */
 
 package org.locationtech.rasterframes.extensions
+import geotrellis.raster.Dimensions
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
@@ -36,7 +36,7 @@ import scala.util.Random
 object RasterJoin {
 
   /** Perform a raster join on dataframes that each have proj_raster columns, or crs and extent explicitly included. */
-  def apply(left: DataFrame, right: DataFrame): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     def usePRT(d: DataFrame) =
       d.projRasterColumns.headOption
         .map(p => (rf_crs(p),  rf_extent(p)))
@@ -50,21 +50,21 @@ object RasterJoin {
     val (ldf, lcrs, lextent) = usePRT(left)
     val (rdf, rcrs, rextent) = usePRT(right)
 
-    apply(ldf, rdf, lextent, lcrs, rextent, rcrs)
+    apply(ldf, rdf, lextent, lcrs, rextent, rcrs, fallbackDimensions)
   }
 
-  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     val leftGeom = st_geometry(leftExtent)
     val rightGeomReproj = st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
     val joinExpr = new Column(SpatialRelation.Intersects(leftGeom.expr, rightGeomReproj.expr))
-    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
+    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, fallbackDimensions)
   }
 
   private def checkType[T](col: Column, description: String, extractor: PartialFunction[DataType, Any => T]): Unit = {
     require(extractor.isDefinedAt(col.expr.dataType), s"Expected column ${col} to be of type $description, but was ${col.expr.dataType}.")
   }
 
-  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     // Convert resolved column into a symbolic one.
     def unresolved(c: Column): Column = col(c.columnName)
 
@@ -106,7 +106,7 @@ object RasterJoin {
       if (left.tileColumns.nonEmpty)
         rf_dimensions(coalesce(left.tileColumns.map(unresolved): _*))
       else
-        serialized_literal(NOMINAL_TILE_DIMS)
+        serialized_literal(fallbackDimensions.getOrElse(NOMINAL_TILE_DIMS))
 
     val reprojCols = rightAggTiles.map(t => {
       reproject_and_merge(
