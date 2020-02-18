@@ -68,10 +68,10 @@ object RasterJoin {
     // Convert resolved column into a symbolic one.
     def unresolved(c: Column): Column = col(c.columnName)
 
-    checkType(leftExtent, "Extent", DynamicExtractors.extentExtractor)
-    checkType(leftCRS, "CRS", DynamicExtractors.crsExtractor)
-    checkType(rightExtent, "Extent", DynamicExtractors.extentExtractor)
-    checkType(rightCRS, "CRS", DynamicExtractors.crsExtractor)
+//    checkType(leftExtent, "Extent", DynamicExtractors.extentExtractor)
+//    checkType(leftCRS, "CRS", DynamicExtractors.crsExtractor)
+//    checkType(rightExtent, "Extent", DynamicExtractors.extentExtractor)
+//    checkType(rightCRS, "CRS", DynamicExtractors.crsExtractor)
 
     // Unique id for temporary columns
     val id = Random.alphanumeric.take(5).mkString("_", "", "_")
