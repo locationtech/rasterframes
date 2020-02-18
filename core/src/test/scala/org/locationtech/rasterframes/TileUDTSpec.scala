@@ -96,16 +96,18 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
     it("should provide a pretty-print tile") {
       import spark.implicits._
-      forEveryConfig { tile =>
-        val stringified = Seq(tile).toDF("tile").select($"tile".cast(StringType)).as[String].first()
-        stringified should be(ShowableTile.show(tile))
 
-        if(!tile.cellType.isInstanceOf[NoNoData]) {
-          val withNd = tile.mutable
-          withNd.update(0, raster.NODATA)
-          ShowableTile.show(withNd) should include("--")
+      if (rfConfig.getBoolean("showable-tiles"))
+        forEveryConfig { tile =>
+          val stringified = Seq(tile).toDF("tile").select($"tile".cast(StringType)).as[String].first()
+          stringified should be(ShowableTile.show(tile))
+
+          if(!tile.cellType.isInstanceOf[NoNoData]) {
+            val withNd = tile.mutable
+            withNd.update(0, raster.NODATA)
+            ShowableTile.show(withNd) should include("--")
+          }
         }
-      }
     }
   }
 }
