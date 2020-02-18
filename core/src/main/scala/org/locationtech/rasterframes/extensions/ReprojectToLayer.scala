@@ -25,6 +25,7 @@ import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.broadcast
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util._
 
 /** Algorithm for projecting an arbitrary RasterFrame into a layer with consistent CRS and gridding. */
@@ -47,7 +48,9 @@ object ReprojectToLayer {
     // Create effectively a target RasterFrame, but with no tiles.
     val dest = gridItems.toSeq.toDF(SPATIAL_KEY_COLUMN.columnName, EXTENT_COLUMN.columnName, CRS_COLUMN.columnName)
 
-    val joined = RasterJoin(broadcast(dest), df)
+    val dims = TileDimensions(tlm.tileLayout.tileDimensions)
+
+    val joined = RasterJoin(broadcast(dest), df, Some(dims))
 
     joined.asLayer(SPATIAL_KEY_COLUMN, tlm)
   }

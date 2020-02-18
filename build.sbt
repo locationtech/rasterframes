@@ -61,8 +61,6 @@ lazy val core = project
       spark("sql").value % Provided,
       geotrellis("spark").value,
       geotrellis("raster").value,
-      geotrellis("gdal").value,
-      geotrellis("s3-spark").value,
       geotrellis("s3").value,
       geotrellis("spark-testkit").value % Test excludeAll (
         ExclusionRule(organization = "org.scalastic"),
@@ -71,6 +69,14 @@ lazy val core = project
       scaffeine,
       scalatest
     ),
+    libraryDependencies ++= {
+      val gv = rfGeoTrellisVersion.value
+      if (gv.startsWith("3")) Seq[ModuleID](
+        geotrellis("gdal").value,
+        geotrellis("s3-spark").value
+      )
+      else Seq.empty[ModuleID]
+    },
     buildInfoKeys ++= Seq[BuildInfoKey](
       moduleName, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),
