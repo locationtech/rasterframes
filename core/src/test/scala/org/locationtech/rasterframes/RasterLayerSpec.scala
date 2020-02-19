@@ -241,7 +241,9 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
       def project(r: Raster[MultibandTile]): Seq[ProjectedRasterTile] =
         r.tile.bands.map(b => ProjectedRasterTile(b, r.extent, srcCrs))
 
-      val rasters = src.readAll(bands = Seq(0, 1, 2)).map(project).map(p => (p(0), p(1), p(2)))
+      val rasters = src.readAll(bands = Seq(0, 1, 2))
+        .map(project)
+        .map(p => (p(0), p(1), p(2)))
 
       val df = rasters.toDF("red", "green", "blue")
 
@@ -251,7 +253,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
       val layout = LayoutDefinition(extent, TileLayout(2, 2, 32, 32))
 
       val tlm =  new TileLayerMetadata[SpatialKey](
-         UByteConstantNoDataCellType,
+        UByteConstantNoDataCellType,
         layout,
         extent,
         crs,
