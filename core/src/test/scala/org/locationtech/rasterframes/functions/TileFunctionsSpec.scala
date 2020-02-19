@@ -402,6 +402,10 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       val arrayDF = df.select(rf_tile_to_array_double($"tile").as[Array[Double]])
       arrayDF.first().sum should be(110.0 +- 0.0001)
 
+      val arrayDFInt = df.select(rf_tile_to_array_int($"tile"))
+      val arrayDFIntDType = arrayDFInt.dtypes
+      arrayDFIntDType(0)._2 should be("ArrayType(IntegerType,false)")
+
       checkDocs("rf_tile_to_array_int")
       checkDocs("rf_tile_to_array_double")
     }
