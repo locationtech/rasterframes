@@ -23,11 +23,9 @@ Module initialization for PyRasterFrames. This is where much of the cool stuff i
 appended to PySpark classes.
 """
 
-from __future__ import absolute_import
 from pyspark import SparkContext
 from pyspark.sql import SparkSession, DataFrame, DataFrameReader, DataFrameWriter
 from pyspark.sql.column import _to_java_column
-from geomesa_pyspark import types # <-- required to ensure Shapely UDTs get registered.
 
 # Import RasterFrameLayer types and functions
 from .rf_context import RFContext
@@ -35,10 +33,12 @@ from .version import __version__
 from .rf_types import RasterFrameLayer, TileExploder, TileUDT, RasterSourceUDT
 import geomesa_pyspark.types  # enable vector integrations
 
+from typing import Dict, Tuple, List, Optional, Union
+
 __all__ = ['RasterFrameLayer', 'TileExploder']
 
 
-def _rf_init(spark_session):
+def _rf_init(spark_session: SparkSession) -> SparkSession:
     """ Adds RasterFrames functionality to PySpark session."""
     if not hasattr(spark_session, "rasterframes"):
         spark_session.rasterframes = RFContext(spark_session)
@@ -47,7 +47,7 @@ def _rf_init(spark_session):
     return spark_session
 
 
-def _kryo_init(builder):
+def _kryo_init(builder: SparkSession.Builder) -> SparkSession.Builder:
     """Registers Kryo Serializers for better performance."""
     # NB: These methods need to be kept up-to-date wit those in `org.locationtech.rasterframes.extensions.KryoMethods`
     builder \
@@ -56,7 +56,9 @@ def _kryo_init(builder):
         .config("spark.kryoserializer.buffer.max", "500m")
     return builder
 
-def _convert_df(df, sp_key=None, metadata=None):
+
+def _convert_df(df: DataFrame, sp_key=None, metadata=None) -> RasterFrameLayer:
+    """ Internal function to convert a DataFrame to a RasterFrameLayer. """
     ctx = SparkContext._active_spark_context._rf_context
 
     if sp_key is None:
@@ -67,7 +69,10 @@ def _convert_df(df, sp_key=None, metadata=None):
             df._jdf, _to_java_column(sp_key), json.dumps(metadata)), ctx._spark_session)
 
 
-def _raster_join(df, other, left_extent=None, left_crs=None, right_extent=None, right_crs=None, join_exprs=None):
+def _raster_join(df: DataFrame, other: DataFrame,
+                 left_extent=None, left_crs=None,
+                 right_extent=None, right_crs=None,
+                 join_exprs=None) -> DataFrame:
     ctx = SparkContext._active_spark_context._rf_context
     if join_exprs is not None:
         assert left_extent is not None and left_crs is not None and right_extent is not None and right_crs is not None
@@ -86,31 +91,31 @@ def _raster_join(df, other, left_extent=None, left_crs=None, right_extent=None, 
     return DataFrame(jdf, ctx._spark_session._wrapped)
 
 
-def _layer_reader(df_reader, format_key, path, **options):
+def _layer_reader(df_reader: DataFrameReader, format_key: str, path: Optional[str], **options: str) -> RasterFrameLayer:
     """ Loads the file of the given type at the given path."""
     df = df_reader.format(format_key).load(path, **options)
     return _convert_df(df)
 
 
-def _aliased_reader(df_reader, format_key, path, **options):
+def _aliased_reader(df_reader: DataFrameReader, format_key: str, path: Optional[str], **options: str) -> DataFrame:
     """ Loads the file of the given type at the given path."""
     return df_reader.format(format_key).load(path, **options)
 
 
-def _aliased_writer(df_writer, format_key, path, **options):
+def _aliased_writer(df_writer: DataFrameWriter, format_key: str, path: Optional[str], **options: str):
     """ Saves the dataframe to a file of the given type at the given path."""
     return df_writer.format(format_key).save(path, **options)
 
 
 def _raster_reader(
-        df_reader,
+        df_reader: DataFrameReader,
         source=None,
-        catalog_col_names=None,
-        band_indexes=None,
-        tile_dimensions=(256, 256),
-        lazy_tiles=True,
+        catalog_col_names: Optional[List[str]] = None,
+        band_indexes: Optional[List[int]] = None,
+        tile_dimensions: Tuple[int] = (256, 256),
+        lazy_tiles: bool = True,
         spatial_index_partitions=None,
-        **options):
+        **options: str) -> DataFrame:
     """
     Returns a Spark DataFrame from raster data files specified by URIs.
     Each row in the returned DataFrame will contain a column with struct of (CRS, Extent, Tile) for each item in
@@ -166,7 +171,7 @@ def _raster_reader(
     options.update({
         "band_indexes": to_csv(band_indexes),
         "tile_dimensions": to_csv(tile_dimensions),
-        "lazy_tiles": lazy_tiles
+        "lazy_tiles": str(lazy_tiles)
     })
 
     # Parse the `source` argument
@@ -241,19 +246,19 @@ def _raster_reader(
 
 
 def _geotiff_writer(
-    df_writer,
-    path=None,
-    crs=None,
-    raster_dimensions=None,
-    **options):
+        df_writer: DataFrameWriter,
+        path: str,
+        crs: Optional[str] = None,
+        raster_dimensions: Tuple[int] = None,
+        **options: str):
 
     def set_dims(parts):
         parts = [int(p) for p in parts]
         assert len(parts) == 2, "Expected dimensions specification to have exactly two components"
         assert all([p > 0 for p in parts]), "Expected all components in dimensions to be positive integers"
         options.update({
-            "imageWidth": parts[0],
-            "imageHeight": parts[1]
+            "imageWidth": str(parts[0]),
+            "imageHeight": str(parts[1])
         })
         parts = [int(p) for p in parts]
         assert all([p > 0 for p in parts]), 'nice message'

@@ -24,6 +24,7 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.net.URI
 
 import _root_.geotrellis.proj4.CRS
+import _root_.geotrellis.raster.Dimensions
 import _root_.geotrellis.raster.io.geotiff.compression._
 import _root_.geotrellis.raster.io.geotiff.tags.codes.ColorSpace
 import _root_.geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tags, Tiled}
@@ -33,7 +34,7 @@ import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, Da
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
-import org.locationtech.rasterframes.model.{LazyCRS, TileDimensions}
+import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 
@@ -117,13 +118,13 @@ object GeoTiffDataSource {
     def path: Option[URI] = uriParam(PATH_PARAM, parameters)
     def compress: Boolean = parameters.get(COMPRESS_PARAM).exists(_.toBoolean)
     def crs: Option[CRS] = parameters.get(CRS_PARAM).map(s => LazyCRS(s))
-    def rasterDimensions: Option[TileDimensions] = {
+    def rasterDimensions: Option[Dimensions[Int]] = {
       numParam(IMAGE_WIDTH_PARAM, parameters)
         .zip(numParam(IMAGE_HEIGHT_PARAM, parameters))
         .map {
           case (cols, rows) =>
             require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a GeoTIFF of size $cols x $rows. (Too big!)")
-            TileDimensions(cols.toInt, rows.toInt)
+            Dimensions(cols.toInt, rows.toInt)
         }
         .headOption
     }

@@ -22,9 +22,9 @@
 package org.locationtech.rasterframes
 
 import geotrellis.proj4.{LatLng, Sinusoidal, WebMercator}
-import geotrellis.vector.{Extent, Point => GTPoint}
-import org.locationtech.jts.geom._
-import spray.json.JsNumber
+import geotrellis.raster.Dimensions
+import geotrellis.vector._
+import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
 
 /**
  * Test rig for operations providing interop with JTS types.
@@ -41,9 +41,9 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
 
       val crs = rf.tileLayerMetadata.merge.crs
       val coords = Seq(
-        "one" -> GTPoint(-78.6445222907, 38.3957546898).reproject(LatLng, crs).jtsGeom,
-        "two" -> GTPoint(-78.6601240367, 38.3976614324).reproject(LatLng, crs).jtsGeom,
-        "three" -> GTPoint( -78.6123381343, 38.4001666769).reproject(LatLng, crs).jtsGeom
+        "one" -> Point(-78.6445222907, 38.3957546898).reproject(LatLng, crs),
+        "two" -> Point(-78.6601240367, 38.3976614324).reproject(LatLng, crs),
+        "three" -> Point( -78.6123381343, 38.4001666769).reproject(LatLng, crs)
       )
 
       val locs = coords.toDF("id", "point")
@@ -57,7 +57,7 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
         assert(rf.filter(st_contains(GEOMETRY_COLUMN, geomLit(point))).count === 1)
         assert(rf.filter(st_intersects(GEOMETRY_COLUMN, geomLit(point))).count === 1)
         assert(rf.filter(GEOMETRY_COLUMN intersects point).count === 1)
-        assert(rf.filter(GEOMETRY_COLUMN intersects GTPoint(point)).count === 1)
+        assert(rf.filter(GEOMETRY_COLUMN intersects point).count === 1)
         assert(rf.filter(GEOMETRY_COLUMN containsGeom point).count === 1)
       }
 
@@ -138,15 +138,15 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
   it("should rasterize geometry") {
     val rf = l8Sample(1).projectedRaster.toLayer.withGeometry()
     val df = GeomData.features.map(f ⇒ (
-      f.geom.reproject(LatLng, rf.crs).jtsGeom,
-      f.data.fields("id").asInstanceOf[JsNumber].value.intValue()
+      f.geom.reproject(LatLng, rf.crs),
+      f.data("id").flatMap(_.asNumber).flatMap(_.toInt).getOrElse(0)
     )).toDF("geom", "__fid__")
 
     val toRasterize = rf.crossJoin(df)
 
     val tlm = rf.tileLayerMetadata.merge
 
-    val (cols, rows) = tlm.layout.tileLayout.tileDimensions
+    val Dimensions(cols, rows) = tlm.layout.tileLayout.tileDimensions
 
     val rasterized = toRasterize.withColumn("rasterized", rf_rasterize($"geom", GEOMETRY_COLUMN, $"__fid__", cols, rows))
 

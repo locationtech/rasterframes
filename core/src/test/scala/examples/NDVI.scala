@@ -22,7 +22,6 @@ import java.nio.file.{Files, Paths}
 
 import org.locationtech.rasterframes._
 import geotrellis.raster._
-import geotrellis.raster.render._
 import geotrellis.raster.io.geotiff.{GeoTiff, SinglebandGeoTiff}
 import org.apache.commons.io.IOUtils
 import org.apache.spark.sql._
@@ -62,8 +61,13 @@ object NDVI extends App {
   val pr = rf.toRaster($"ndvi", 233, 214)
   GeoTiff(pr).write("ndvi.tiff")
 
-  val brownToGreen = ColorRamp(RGBA(166, 97, 26, 255), RGBA(223, 194, 125, 255),
-    RGBA(245, 245, 245, 255), RGBA(128, 205, 193, 255), RGBA(1, 133, 113, 255))
+  val brownToGreen = ColorRamp(
+    RGB(166, 97, 26),
+    RGB(223, 194, 125),
+    RGB(245, 245, 245),
+    RGB(128, 205, 193),
+    RGB(1, 133, 113)
+  )
     .stops(128)
 
   val colors = ColorMap.fromQuantileBreaks(pr.tile.histogramDouble(), brownToGreen)

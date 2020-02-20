@@ -37,7 +37,7 @@ class ReprojectionTransformer(src: CRS, dst: CRS) extends GeometryTransformer {
   @transient
   private lazy val gf = new GeometryFactory()
   def apply(geometry: Geometry): Geometry = transform(geometry)
-  def apply(extent: Extent): Geometry = transform(extent.jtsGeom)
+  def apply(extent: Extent): Geometry = transform(extent.toPolygon())
   def apply(env: Envelope): Geometry = transform(gf.toGeometry(env))
   def apply(pt: Point): Point = {
     val t = transform(pt)

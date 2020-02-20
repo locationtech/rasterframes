@@ -27,11 +27,12 @@ import java.sql.{Date, Timestamp}
 import java.time.{ZoneOffset, ZonedDateTime}
 
 import com.typesafe.scalalogging.Logger
+import geotrellis.layer.{Metadata => LMetadata, _}
 import geotrellis.raster.{CellGrid, MultibandTile, Tile, TileFeature}
-import geotrellis.spark.io._
-import geotrellis.spark.io.avro.AvroRecordCodec
+import geotrellis.spark.store.{FilteringLayerReader, LayerReader}
 import geotrellis.spark.util.KryoWrapper
-import geotrellis.spark.{LayerId, Metadata, SpatialKey, TileLayerMetadata, _}
+import geotrellis.store._
+import geotrellis.store.avro.AvroRecordCodec
 import geotrellis.util._
 import geotrellis.vector._
 import org.apache.avro.Schema
@@ -49,6 +50,7 @@ import org.locationtech.rasterframes.datasource.geotrellis.TileFeatureSupport._
 import org.locationtech.rasterframes.rules.SpatialFilters.{Contains => sfContains, Intersects => sfIntersects}
 import org.locationtech.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
 import org.locationtech.rasterframes.rules.{SpatialRelationReceiver, splitFilters}
+import org.locationtech.rasterframes.util.JsonCodecs._
 import org.locationtech.rasterframes.util.SubdivideSupport._
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
@@ -178,7 +180,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     StructType((keyFields :+ extentField) ++ tileFields)
   }
 
-  type BLQ[K, T] = BoundLayerQuery[K, TileLayerMetadata[K], RDD[(K, T)] with Metadata[TileLayerMetadata[K]]]
+  type BLQ[K, T] = BoundLayerQuery[K, TileLayerMetadata[K], RDD[(K, T)] with LMetadata[TileLayerMetadata[K]]]
 
   def applyFilter[K: Boundable: SpatialComponent, T](query: BLQ[K, T], predicate: Filter): BLQ[K, T] = {
     predicate match {
@@ -189,9 +191,9 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
           Intersects(Extent(right.getEnvelopeInternal))
         ))
       case sfIntersects(C.EX, rhs: geom.Point) ⇒
-        query.where(Contains(Point(rhs)))
+        query.where(Contains(rhs))
       case sfContains(C.EX, rhs: geom.Point) ⇒
-        query.where(Contains(Point(rhs)))
+        query.where(Contains(rhs))
       case sfIntersects(C.EX, rhs) ⇒
         query.where(Intersects(Extent(rhs.getEnvelopeInternal)))
       case _ ⇒
@@ -246,13 +248,13 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     }
   }
 
-  private def subdivider[K: SpatialComponent, T <: CellGrid: WithCropMethods](divs: Int) = (p: (K, T)) ⇒ {
+  private def subdivider[K: SpatialComponent, T <: CellGrid[Int]: WithCropMethods](divs: Int) = (p: (K, T)) ⇒ {
     val newKeys = p._1.subdivide(divs)
     val newTiles = p._2.subdivide(divs)
     newKeys.zip(newTiles)
   }
 
-  private def query[T <: CellGrid: WithCropMethods: WithMergeMethods: AvroRecordCodec: ClassTag](reader: FilteringLayerReader[LayerId], columnIndexes: Seq[Int]) = {
+  private def query[T <: CellGrid[Int]: WithCropMethods: WithMergeMethods: AvroRecordCodec: ClassTag](reader: FilteringLayerReader[LayerId], columnIndexes: Seq[Int]) = {
     subdividedTileLayerMetadata.fold(
       // Without temporal key case
       (tlm: TileLayerMetadata[SpatialKey]) ⇒ {
@@ -274,7 +276,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
           .map { case (sk: SpatialKey, tile: T) ⇒
             val entries = columnIndexes.map {
               case 0 ⇒ sk
-              case 1 ⇒ trans.keyToExtent(sk).jtsGeom
+              case 1 ⇒ trans.keyToExtent(sk).toPolygon()
               case 2 ⇒ tile match {
                 case t: Tile ⇒ t
                 case t: TileFeature[Tile @unchecked, TileFeatureData @unchecked] ⇒ t.tile
@@ -310,7 +312,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
               case 0 ⇒ sk
               case 1 ⇒ stk.temporalKey
               case 2 ⇒ new Timestamp(stk.temporalKey.instant)
-              case 3 ⇒ trans.keyToExtent(stk).jtsGeom
+              case 3 ⇒ trans.keyToExtent(stk).toPolygon()
               case 4 ⇒ tile match {
                 case t: Tile ⇒ t
                 case t: TileFeature[Tile @unchecked, TileFeatureData @unchecked] ⇒ t.tile

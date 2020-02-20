@@ -20,16 +20,15 @@
  */
 
 package org.locationtech.rasterframes.extensions
-
+import geotrellis.raster.Dimensions
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal
+import org.locationtech.rasterframes.expressions.SpatialRelation
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
-import org.locationtech.rasterframes.expressions.{DynamicExtractors, SpatialRelation}
 import org.locationtech.rasterframes.functions.reproject_and_merge
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util._
 
 import scala.util.Random
@@ -37,7 +36,7 @@ import scala.util.Random
 object RasterJoin {
 
   /** Perform a raster join on dataframes that each have proj_raster columns, or crs and extent explicitly included. */
-  def apply(left: DataFrame, right: DataFrame, fallbackDimensions: Option[TileDimensions]): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     def usePRT(d: DataFrame) =
       d.projRasterColumns.headOption
         .map(p => (rf_crs(p),  rf_extent(p)))
@@ -54,7 +53,7 @@ object RasterJoin {
     apply(ldf, rdf, lextent, lcrs, rextent, rcrs, fallbackDimensions)
   }
 
-  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[TileDimensions]): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     val leftGeom = st_geometry(leftExtent)
     val rightGeomReproj = st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
     val joinExpr = new Column(SpatialRelation.Intersects(leftGeom.expr, rightGeomReproj.expr))
@@ -65,7 +64,7 @@ object RasterJoin {
     require(extractor.isDefinedAt(col.expr.dataType), s"Expected column ${col} to be of type $description, but was ${col.expr.dataType}.")
   }
 
-  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[TileDimensions]): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     // Convert resolved column into a symbolic one.
     def unresolved(c: Column): Column = col(c.columnName)
 

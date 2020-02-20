@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2019 Astraea, Inc.
+ * Copyright 2020 Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,11 +19,29 @@
  *
  */
 
-package org.locationtech.rasterframes.ref
+package examples
 
 import java.net.URI
 
-import geotrellis.raster.geotiff.GeoTiffRasterSource
+import geotrellis.raster._
+import org.apache.spark.sql.SparkSession
+import org.locationtech.rasterframes.ref.RFRasterSource
+
+object RasterSourceExercise extends App {
+  val path = "s3://sentinel-s2-l2a/tiles/22/L/EP/2019/5/31/0/R60m/B08.jp2"
 
 
-case class JVMGeoTiffRasterSource(source: URI) extends DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))
+  implicit val spark = SparkSession.builder().
+    master("local[*]").appName("Hit me").getOrCreate()
+
+  spark.range(1000).rdd
+    .map(_ => path)
+    .flatMap(uri => {
+      val rs = RFRasterSource(URI.create(uri))
+      val grid = GridBounds(0, 0, rs.cols - 1, rs.rows - 1)
+      val tileBounds = grid.split(256, 256).toSeq
+      rs.readBounds(tileBounds, Seq(0))
+    })
+    .foreach(_ => ())
+
+}

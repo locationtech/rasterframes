@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes
 
 import geotrellis.proj4.LatLng
-import geotrellis.vector.Point
+import geotrellis.vector._
 import org.locationtech.geomesa.curve.Z2SFC
 
 /**
@@ -41,7 +41,7 @@ class SpatialKeySpec extends TestEnvironment with TestData {
     val rf = raster.toLayer(raster.tile.cols, raster.tile.rows)
 
     it("should add an extent column") {
-      val expected = raster.extent.jtsGeom
+      val expected = raster.extent.toPolygon()
       val result = rf.withGeometry().select(GEOMETRY_COLUMN).first
       assert(result === expected)
     }
@@ -49,7 +49,7 @@ class SpatialKeySpec extends TestEnvironment with TestData {
     it("should add a center value") {
       val expected = raster.extent.center
       val result = rf.withCenter().select(CENTER_COLUMN).first
-      assert(result === expected.jtsGeom)
+      assert(result === expected)
     }
 
     it("should add a center lat/lng value") {

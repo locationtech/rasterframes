@@ -114,7 +114,7 @@ class L8CatalogRelationTest extends TestEnvironment {
       val scene = catalog
         .where(
           to_date($"acquisition_date") === to_date(lit("2019-07-03")) &&
-            st_intersects(st_geometry($"bounds_wgs84"), geomLit(aoiLL.jtsGeom))
+            st_intersects(st_geometry($"bounds_wgs84"), geomLit(aoiLL))
         )
         .orderBy("cloud_cover_pct")
         .limit(1)

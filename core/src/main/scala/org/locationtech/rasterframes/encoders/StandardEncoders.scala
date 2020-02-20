@@ -27,9 +27,8 @@ import java.sql.Timestamp
 import org.locationtech.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, CellType, Raster, Tile, TileLayout}
-import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TemporalKey, TemporalProjectedExtent, TileLayerMetadata}
+import geotrellis.raster.{CellSize, CellType, Dimensions, Raster, Tile, TileLayout}
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.{Encoder, Encoders}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
@@ -53,7 +52,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
   implicit def rasterEncoder: ExpressionEncoder[Raster[Tile]] = ExpressionEncoder()
   implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
-  implicit def crsEncoder: ExpressionEncoder[CRS] = CRSEncoder()
+  implicit def crsSparkEncoder: ExpressionEncoder[CRS] = CRSEncoder()
   implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ProjectedExtentEncoder()
   implicit def temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = TemporalProjectedExtentEncoder()
   implicit def cellTypeEncoder: ExpressionEncoder[CellType] = CellTypeEncoder()
@@ -71,8 +70,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def tileContextEncoder: ExpressionEncoder[TileContext] = TileContext.encoder
   implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = TileDataContext.encoder
   implicit def extentTilePairEncoder: Encoder[(ProjectedExtent, Tile)] = Encoders.tuple(projectedExtentEncoder, singlebandTileEncoder)
-
-
+  implicit def tileDimensionsEncoder: Encoder[Dimensions[Int]] = CatalystSerializerEncoder[Dimensions[Int]](true)
 }
 
 object StandardEncoders extends StandardEncoders

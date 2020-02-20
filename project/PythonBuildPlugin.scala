@@ -64,8 +64,14 @@ object PythonBuildPlugin extends AutoPlugin {
   val pyWhlImp = Def.task {
     val log = streams.value.log
     val buildDir = (Python / target).value
+
+    val jars = (buildDir / "deps" / "jars" ** "*.jar").get()
+    if (jars.size > 1) {
+      throw new MessageOnlyException("Two assemblies found in the package. Run 'clean'.\n" + jars.mkString(", "))
+    }
+
     val retcode = pySetup.toTask(" build bdist_wheel").value
-    if(retcode != 0) throw new RuntimeException(s"'python setup.py' returned $retcode")
+    if(retcode != 0) throw new MessageOnlyException(s"'python setup.py' returned $retcode")
     val whls = (buildDir / "dist" ** "pyrasterframes*.whl").get()
     require(whls.length == 1, "Running setup.py should have produced a single .whl file. Try running `clean` first.")
     log.info(s"Python .whl file written to '${whls.head}'")

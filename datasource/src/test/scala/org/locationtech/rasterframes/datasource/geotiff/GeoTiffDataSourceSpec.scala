@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.nio.file.{Path, Paths}
 
 import geotrellis.proj4._
-import geotrellis.raster.CellType
+import geotrellis.raster.{CellType, Dimensions}
 import geotrellis.raster.io.geotiff.{MultibandGeoTiff, SinglebandGeoTiff}
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes._
@@ -50,7 +50,7 @@ class GeoTiffDataSourceSpec
       val rf = spark.read.format("geotiff").load(cogPath.toASCIIString).asLayer
 
       val tlm = rf.tileLayerMetadata.left.get
-      val gb = tlm.gridBounds
+      val gb = tlm.tileBounds
       assert(gb.colMax > gb.colMin)
       assert(gb.rowMax > gb.rowMin)
     }
@@ -71,7 +71,7 @@ class GeoTiffDataSourceSpec
         ).first.toSeq.toString()
       )
       val tlm = rf.tileLayerMetadata.left.get
-      val gb = tlm.gridBounds
+      val gb = tlm.tileBounds
       assert(gb.rowMax > gb.rowMin)
       assert(gb.colMax > gb.colMin)
 
@@ -93,7 +93,7 @@ class GeoTiffDataSourceSpec
 
     def checkTiff(file: Path, cols: Int, rows: Int, extent: Extent, cellType: Option[CellType] = None) = {
       val outputTif = SinglebandGeoTiff(file.toString)
-      outputTif.tile.dimensions should be ((cols, rows))
+      outputTif.tile.dimensions should be (Dimensions(cols, rows))
       outputTif.extent should be (extent)
       cellType.foreach(ct =>
         outputTif.cellType should be (ct)
@@ -196,7 +196,7 @@ class GeoTiffDataSourceSpec
 
       val sample = rgbCogSample
       val expectedExtent = sample.extent
-      val (expCols, expRows) = sample.tile.dimensions
+      val Dimensions(expCols, expRows) = sample.tile.dimensions
 
       val rf = spark.read.raster.withBandIndexes(0, 1, 2).load(rgbCogSamplePath.toASCIIString)
 

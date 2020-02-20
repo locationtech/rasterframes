@@ -24,20 +24,20 @@ package org.locationtech.rasterframes.ref
 import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.Tags
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
+import geotrellis.raster.io.geotiff.reader.{GeoTiffInfo, GeoTiffReader}
+import geotrellis.raster._
 import geotrellis.util.RangeReader
 import geotrellis.vector.Extent
 import org.locationtech.rasterframes.util.GeoTiffInfoSupport
 import org.slf4j.LoggerFactory
 
-trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport {
+trait RangeReaderRasterSource extends RFRasterSource with GeoTiffInfoSupport {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   protected def rangeReader: RangeReader
 
   private def realInfo =
-    GeoTiffReader.readGeoTiffInfo(rangeReader, streaming = true, withOverviews = false)
+    GeoTiffInfo.read(rangeReader, streaming = true, withOverviews = false)
 
   protected lazy val tiffInfo = SimpleRasterInfo(realInfo)
 
@@ -55,10 +55,10 @@ trait RangeReaderRasterSource extends RasterSource with GeoTiffInfoSupport {
 
   override def tags: Tags = tiffInfo.tags
 
-  override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
     val info = realInfo
     val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
-    val intersectingBounds = bounds.flatMap(_.intersection(this)).toSeq
+    val intersectingBounds = bounds.flatMap(_.intersection(this.gridBounds)).toSeq
     geoTiffTile.crop(intersectingBounds, bands.toArray).map {
       case (gb, tile) =>
         Raster(tile, rasterExtent.extentFor(gb, clamp = true))

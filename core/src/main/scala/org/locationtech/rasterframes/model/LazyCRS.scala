@@ -52,13 +52,18 @@ object LazyCRS {
 
   val wktKeywords = Seq("GEOGCS", "PROJCS", "GEOCCS")
 
+  private object WKTCRS {
+    def unapply(src: String): Option[CRS] =
+      if (wktKeywords.exists { prefix ⇒ src.toUpperCase().startsWith(prefix)})
+        CRS.fromWKT(src)
+      else None
+  }
+
   @transient
   private lazy val mapper: PartialFunction[String, CRS] = {
     case e if e.toUpperCase().startsWith("EPSG")   => CRS.fromName(e) //not case-sensitive
     case p if p.startsWith("+proj")                => CRS.fromString(p) // case sensitive
-    case w if wktKeywords.exists{prefix ⇒
-      w.toUpperCase().startsWith(prefix)
-    } ⇒ CRS.fromWKT(w) //only case-sensitive inside double quotes
+    case WKTCRS(w) => w
   }
 
   @transient

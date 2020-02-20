@@ -52,6 +52,6 @@ trait OnCellGridExpression extends UnaryExpression {
   }
 
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
-  def eval(grid: CellGrid): Any
+  def eval(grid: CellGrid[Int]): Any
 
 }

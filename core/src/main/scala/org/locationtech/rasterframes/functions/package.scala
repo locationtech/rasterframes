@@ -27,7 +27,6 @@ import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.TileDimensions
 
 /**
  * Module utils.
@@ -104,7 +103,7 @@ package object functions {
       require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
 
       val leftExtent = leftExtentEnc.to[Extent]
-      val leftDims = leftDimsEnc.to[TileDimensions]
+      val leftDims = leftDimsEnc.to[Dimensions[Int]]
       val leftCRS = leftCRSEnc.to[CRS]
       val rightExtents = rightExtentEnc.map(_.to[Extent])
       val rightCRSs = rightCRSEnc.map(_.to[CRS])
@@ -156,12 +155,11 @@ package object functions {
    * Rasterize geometry into tiles.
    */
   private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
-    import geotrellis.vector.{Geometry => GTGeometry}
     (geom, bounds, value, cols, rows) ⇒ {
       // We have to do this because (as of spark 2.2.x) Encoder-only types
       // can't be used as UDF inputs. Only Spark-native types and UDTs.
       val extent = Extent(bounds.getEnvelopeInternal)
-      GTGeometry(geom).rasterizeWithValue(RasterExtent(extent, cols, rows), value).tile
+      geom.rasterizeWithValue(RasterExtent(extent, cols, rows), value).tile
     }
   }
 

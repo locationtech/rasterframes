@@ -22,9 +22,9 @@ package org.locationtech.rasterframes.datasource.geotrellis
 
 import org.locationtech.rasterframes._
 import geotrellis.proj4.LatLng
-import geotrellis.spark._
-import geotrellis.spark.io._
-import geotrellis.spark.io.index.ZCurveKeyIndexMethod
+import geotrellis.store._
+import geotrellis.spark.store.LayerWriter
+import geotrellis.store.index.ZCurveKeyIndexMethod
 import org.apache.hadoop.fs.FileUtil
 import org.locationtech.rasterframes.TestEnvironment
 import org.scalatest.BeforeAndAfter

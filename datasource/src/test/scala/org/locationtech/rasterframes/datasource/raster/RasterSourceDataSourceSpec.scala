@@ -20,11 +20,13 @@
  */
 
 package org.locationtech.rasterframes.datasource.raster
+import geotrellis.raster.{Dimensions, Tile}
+import org.apache.spark.sql.functions.{lit, round, udf}
+import org.locationtech.rasterframes.{TestEnvironment, _}
 import geotrellis.raster.Tile
 import org.apache.spark.sql.functions.{lit, round, udf}
 import org.apache.spark.sql.types.LongType
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.{RasterSourceCatalog, _}
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.{TestEnvironment, _}
@@ -60,7 +62,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     }
     it("should parse tile dimensions") {
       val p = Map(TILE_DIMS_PARAM -> "4, 5")
-      p.tileDims should be (Some(TileDimensions(4, 5)))
+      p.tileDims should be (Some(Dimensions(4, 5)))
     }
 
     it("should parse path table specification") {
@@ -127,9 +129,9 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
 
       df.count() should be(math.ceil(1028.0 / 128).toInt * math.ceil(989.0 / 128).toInt)
 
-      val dims = df.select(rf_dimensions($"$b").as[TileDimensions]).distinct().collect()
+      val dims = df.select(rf_dimensions($"$b").as[Dimensions[Int]]).distinct().collect()
       dims should contain allElementsOf
-        Seq(TileDimensions(4,128), TileDimensions(128,128), TileDimensions(128,93), TileDimensions(4,93))
+        Seq(Dimensions(4,128), Dimensions(128,128), Dimensions(128,93), Dimensions(4,93))
 
       df.select($"${b}_path").distinct().count() should be(1)
     }
@@ -288,13 +290,13 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .fromCatalog(cat, "red", "green", "blue").load()
       val dims = df.select(rf_dimensions($"red")).first()
 
-      dims should be (TileDimensions(l8Sample(1).tile.dimensions))
+      dims should be (l8Sample(1).tile.dimensions)
     }
 
     it("should provide MODIS tiles with requested size") {
       val res = modis_df
         .withColumn("dims", rf_dimensions($"proj_raster"))
-        .select($"dims".as[TileDimensions]).distinct().collect()
+        .select($"dims".as[Dimensions[Int]]).distinct().collect()
 
       forEvery(res) { r =>
         r.cols should be <= 256
@@ -305,7 +307,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
     it("should provide Landsat tiles with requested size") {
       val dims = l8_df
         .withColumn("dims", rf_dimensions($"proj_raster"))
-        .select($"dims".as[TileDimensions]).distinct().collect()
+        .select($"dims".as[Dimensions[Int]]).distinct().collect()
 
       forEvery(dims) { d =>
         d.cols should be <= 32

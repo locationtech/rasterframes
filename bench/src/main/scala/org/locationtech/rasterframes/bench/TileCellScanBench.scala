@@ -23,6 +23,7 @@ package org.locationtech.rasterframes.bench
 
 import java.util.concurrent.TimeUnit
 
+import geotrellis.raster.Dimensions
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.rf.TileUDT
 import org.locationtech.rasterframes.tiles.InternalRowTile
@@ -56,7 +57,7 @@ class TileCellScanBench extends SparkEnv {
   @Benchmark
   def deserializeRead(): Double  = {
     val tile = TileType.deserialize(tileRow)
-    val (cols, rows) = tile.dimensions
+    val Dimensions(cols, rows) = tile.dimensions
     tile.getDouble(cols - 1, rows - 1) +
       tile.getDouble(cols/2, rows/2) +
       tile.getDouble(0, 0)

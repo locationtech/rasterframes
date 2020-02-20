@@ -22,13 +22,13 @@
 package org.locationtech.rasterframes.expressions
 import geotrellis.proj4.{CRS, LatLng, WebMercator}
 import geotrellis.raster.CellType
-import geotrellis.vector.Extent
+import geotrellis.vector._
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.jts.JTSTypes
 import org.locationtech.geomesa.curve.{XZ2SFC, Z2SFC}
 import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.encoders.serialized_literal
-import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RasterSource}
+import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RFRasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.scalatest.Inspectors
 
@@ -60,7 +60,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
 
   describe("Centroid extraction") {
     import org.locationtech.rasterframes.encoders.CatalystSerializer._
-    val expected = testExtents.map(_.center.jtsGeom)
+    val expected = testExtents.map(_.center)
     it("should extract from Extent") {
       val dt = schemaOf[Extent]
       val extractor = DynamicExtractors.centroidExtractor(dt)
@@ -72,7 +72,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
     it("should extract from Geometry") {
       val dt = JTSTypes.GeometryTypeInstance
       val extractor = DynamicExtractors.centroidExtractor(dt)
-      val inputs = testExtents.map(_.jtsGeom).map(dt.serialize).map(extractor)
+      val inputs = testExtents.map(_.toPolygon()).map(dt.serialize).map(extractor)
       forEvery(inputs.zip(expected)) { case (i, e) =>
         i should be(e)
       }
@@ -93,7 +93,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
       val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
       val dt = RasterSourceType
       val extractor = DynamicExtractors.centroidExtractor(dt)
-      val inputs = testExtents.map(InMemoryRasterSource(tile, _, crs): RasterSource)
+      val inputs = testExtents.map(InMemoryRasterSource(tile, _, crs): RFRasterSource)
         .map(RasterSourceType.serialize).map(extractor)
       forEvery(inputs.zip(expected)) { case (i, e) =>
         i should be(e)
@@ -127,7 +127,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
     }
     it("should create index from Geometry") {
       val crs: CRS = LatLng
-      val df = testExtents.map(_.jtsGeom).map(Tuple1.apply).toDF("extent")
+      val df = testExtents.map(_.toPolygon()).map(Tuple1.apply).toDF("extent")
       withClue("XZ2") {
         val indexes = df.select(rf_xz2_index($"extent", serialized_literal(crs))).collect()
         forEvery(indexes.zip(xzExpected)) { case (i, e) =>
@@ -165,7 +165,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
     it("should create index from RasterSource") {
       val crs: CRS = WebMercator
       val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
-      val srcs = testExtents.map(reproject(crs)).map(InMemoryRasterSource(tile, _, crs): RasterSource).toDF("src")
+      val srcs = testExtents.map(reproject(crs)).map(InMemoryRasterSource(tile, _, crs): RFRasterSource).toDF("src")
       withClue("XZ2") {
         val indexes = srcs.select(rf_xz2_index($"src")).collect()
         forEvery(indexes.zip(xzExpected)) { case (i, e) =>

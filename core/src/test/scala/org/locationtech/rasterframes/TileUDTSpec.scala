@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes
 import geotrellis.raster
-import geotrellis.raster.{CellType, NoNoData, Tile}
+import geotrellis.raster.{CellType, Dimensions, NoNoData, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
@@ -46,9 +46,9 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     val ct = functions.cellTypes().filter(_ != "bool")
 
     def forEveryConfig(test: Tile ⇒ Unit): Unit = {
-      forEvery(tileSizes.combinations(2).toSeq) { case Seq(cols, rows) ⇒
+      forEvery(tileSizes.combinations(2).toSeq) { case Seq(tc, tr) ⇒
         forEvery(ct) { c ⇒
-          val tile = randomTile(cols, rows, CellType.fromName(c))
+          val tile = randomTile(tc, tr, CellType.fromName(c))
           test(tile)
         }
       }
@@ -85,7 +85,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
       forEveryConfig { tile ⇒
         val row = TileType.serialize(tile)
         val wrapper = row.to[Tile]
-        val (cols,rows) = wrapper.dimensions
+        val Dimensions(cols,rows) = wrapper.dimensions
         val indexes = Seq((0, 0), (cols - 1, rows - 1), (cols/2, rows/2), (1, 1))
         forAll(indexes) { case (c, r) ⇒
           assert(wrapper.get(c, r) === tile.get(c, r))

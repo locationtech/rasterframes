@@ -81,7 +81,7 @@ case class ExplodeTiles(
       )
 
       val numOutCols = tiles.length + 2
-      val (cols, rows) = dims.head
+      val Dimensions(cols, rows) = dims.head
 
       val retval = Array.ofDim[InternalRow](cols * rows)
       cfor(0)(_ < rows, _ + 1) { row =>

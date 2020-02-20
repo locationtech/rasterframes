@@ -23,11 +23,11 @@ package org.locationtech.rasterframes.datasource.geotrellis
 
 import java.net.URI
 
+import geotrellis.spark.store.LayerWriter
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.DataSourceOptions
-import geotrellis.spark._
-import geotrellis.spark.io._
-import geotrellis.spark.io.index.ZCurveKeyIndexMethod
+import geotrellis.store._
+import geotrellis.store.index.ZCurveKeyIndexMethod
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
 import org.apache.spark.sql.sources._

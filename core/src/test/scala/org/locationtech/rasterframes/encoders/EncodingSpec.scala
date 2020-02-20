@@ -24,16 +24,16 @@ package org.locationtech.rasterframes.encoders
 import java.io.File
 import java.net.URI
 
-import org.locationtech.rasterframes._
-import org.locationtech.jts.geom.Envelope
+import geotrellis.layer._
 import geotrellis.proj4._
-import geotrellis.raster.{CellType, Tile, TileFeature}
-import geotrellis.spark.{SpaceTimeKey, SpatialKey, TemporalProjectedExtent, TileLayerMetadata}
+import geotrellis.raster.{ArrayTile, CellType, Raster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.rf.TileUDT
-import org.locationtech.rasterframes.TestEnvironment
+import org.locationtech.jts.geom.Envelope
+import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
@@ -42,6 +42,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  * @since 9/18/17
  */
 class EncodingSpec extends TestEnvironment with TestData {
+
 
   import spark.implicits._
 
@@ -68,13 +69,6 @@ class EncodingSpec extends TestEnvironment with TestData {
       val ds = Seq((1, byteArrayTile: Tile), (2, null)).toDS
       write(ds)
       assert(ds.toDF.as[(Int, Tile)].collect().head === ((1, byteArrayTile)))
-    }
-
-    it("should code RDD[TileFeature]") {
-      val thing = TileFeature(byteArrayTile: Tile, "meta")
-      val ds = Seq(thing).toDS()
-      write(ds)
-      assert(ds.toDF.as[TileFeature[Tile, String]].collect().head === thing)
     }
 
     it("should code RDD[ProjectedRasterTile]") {
@@ -151,14 +145,28 @@ class EncodingSpec extends TestEnvironment with TestData {
       write(ds)
       assert(ds.first === env)
     }
+
+    it("should code RDD[Raster[Tile]]") {
+      import spark.implicits._
+      val t: Tile = ArrayTile(Array.emptyDoubleArray, 0, 0)
+      val e = Extent(1, 2 ,3, 4)
+      val r = Raster(t, e)
+      val ds = Seq(r).toDS()
+      ds.first().tile should be (t)
+      ds.first().extent should be (e)
+    }
   }
   describe("Dataframe encoding ops on spatial types") {
 
     it("should code RDD[Point]") {
-      val points = Seq(null, extent.center.jtsGeom, null)
+      val points = Seq(null, extent.center, null)
       val ds = points.toDS
       write(ds)
       assert(ds.collect().toSeq === points)
     }
+  }
+
+  override def additionalConf: SparkConf = {
+    super.additionalConf.set("spark.sql.codegen.logging.maxLines", Int.MaxValue.toString)
   }
 }

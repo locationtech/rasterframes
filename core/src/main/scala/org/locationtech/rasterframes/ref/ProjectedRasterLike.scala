@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.ref
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.CellGrid
+import geotrellis.raster.CellType
 import geotrellis.vector.Extent
 
 /**
@@ -30,7 +30,10 @@ import geotrellis.vector.Extent
  *
  * @since 11/3/18
  */
-trait ProjectedRasterLike extends CellGrid {
+trait ProjectedRasterLike {
   def crs: CRS
   def extent: Extent
+  def cellType: CellType
+  def cols: Int
+  def rows: Int
 }

@@ -326,9 +326,7 @@ class TileOps(TestEnvironment):
         self.assertTrue(np.array_equal(r2, np.array([[1,1], [1, 1]], dtype=r2.dtype)))
 
     def test_matmul(self):
-        # if sys.version >= '3.5':  # per https://docs.python.org/3.7/library/operator.html#operator.matmul new in 3.5
-        #     r1 = self.t1 @ self.t2
-        r1 = self.t1.__matmul__(self.t2)
+        r1 = self.t1 @ self.t2
 
         # The behavior of np.matmul with masked arrays is not well documented
         # it seems to treat the 2nd arg as if not a MaskedArray
@@ -444,22 +442,27 @@ class RasterJoin(TestEnvironment):
         e = Extent(0.0, 0.0, 40.0, 40.0)
         c = CRS('EPSG:32611')
 
+        # Note: there's a bug in Spark 2.x whereby the serialization of Extent
+        # reorders the fields, causing deserialization errors in the JVM side.
+        # So we end up manually forcing ordering with the use of `struct`.
+        # See https://stackoverflow.com/questions/35343525/how-do-i-order-fields-of-my-row-objects-in-spark-python/35343885#35343885
         left = self.spark.createDataFrame(
             [
                 Row(i=1, j='a', t=t,    u=t, e=e, c=c),
                 Row(i=1, j='b', t=None, u=t, e=e, c=c)
             ]
-        )
+        ).withColumn('e2', struct('e.xmin', 'e.ymin', 'e.xmax', 'e.ymax'))
+
 
         right = self.spark.createDataFrame(
             [
                 Row(i=1, r=Tile(ones, CellType.uint8()), e=e, c=c),
-            ])
+            ]).withColumn('e2', struct('e.xmin', 'e.ymin', 'e.xmax', 'e.ymax'))
 
         try:
             joined = left.raster_join(right,
                                       join_exprs=left.i == right.i,
-                                      left_extent=left.e, right_extent=right.e,
+                                      left_extent=left.e2, right_extent=right.e2,
                                       left_crs=left.c, right_crs=right.c)
 
             self.assertEqual(joined.count(), 2)

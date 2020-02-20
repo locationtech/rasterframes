@@ -32,7 +32,6 @@ import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestData._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.StandardEncoders
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile.prtEncoder
@@ -115,9 +114,10 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
         .toDF("tile")
         .withColumn("id", monotonically_increasing_id())
 
-      df.select(rf_agg_local_mean($"tile")).first() should be(three.toArrayTile())
+      val expected = three.toArrayTile().convert(DoubleConstantNoDataCellType)
+      df.select(rf_agg_local_mean($"tile")).first() should be(expected)
 
-      df.selectExpr("rf_agg_local_mean(tile)").as[Tile].first() should be(three.toArrayTile())
+      df.selectExpr("rf_agg_local_mean(tile)").as[Tile].first() should be(expected)
 
       noException should be thrownBy {
         df.groupBy($"id")
@@ -140,7 +140,8 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
       val t2 = df.selectExpr("rf_agg_local_no_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
       t1 should be(t2)
       val t3 = df.select(rf_local_add(rf_agg_local_data_cells($"tile"), rf_agg_local_no_data_cells($"tile"))).as[Tile].first()
-      t3 should be(three.toArrayTile())
+      val expected = three.toArrayTile().convert(IntConstantNoDataCellType)
+      t3 should be(expected)
       checkDocs("rf_agg_local_no_data_cells")
     }
   }
@@ -149,7 +150,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should create a global aggregate raster from proj_raster column") {
       implicit val enc = Encoders.tuple(
         StandardEncoders.extentEncoder,
-        StandardEncoders.crsEncoder,
+        StandardEncoders.crsSparkEncoder,
         ExpressionEncoder[Tile](),
         ExpressionEncoder[Tile](),
         ExpressionEncoder[Tile]()
@@ -157,7 +158,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
       val src = TestData.rgbCogSample
       val extent = src.extent
       val df = src
-        .toDF(TileDimensions(32, 49))
+        .toDF(Dimensions(32, 49))
         .as[(Extent, CRS, Tile, Tile, Tile)]
         .map(p => ProjectedRasterTile(p._3, p._1, p._2))
       val aoi = extent.reproject(src.crs, WebMercator).buffer(-(extent.width * 0.2))
@@ -173,7 +174,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     it("should create a global aggregate raster from separate tile, extent, and crs column") {
       val src = TestData.sampleGeoTiff
-      val df = src.toDF(TileDimensions(32, 32))
+      val df = src.toDF(Dimensions(32, 32))
       val extent = src.extent
       val aoi0 = extent.reproject(src.crs, WebMercator)
       val aoi = aoi0.buffer(-(aoi0.width * 0.2))
@@ -191,7 +192,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     ignore("should work in SQL") {
       val src = TestData.rgbCogSample
-      val df = src.toDF(TileDimensions(32, 32))
+      val df = src.toDF(Dimensions(32, 32))
       noException shouldBe thrownBy {
         df.selectExpr("rf_agg_overview_raster(500, 400, aoi, extent, crs, b_1)").as[Tile].first()
       }
@@ -211,14 +212,14 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     it("should compute an aggregate extent") {
       val src = TestData.l8Sample(1)
-      val df = src.toDF(TileDimensions(10, 10))
+      val df = src.toDF(Dimensions(10, 10))
       val result = df.select(rf_agg_extent($"extent")).first()
       result should be(src.extent)
     }
 
     it("should compute a reprojected aggregate extent") {
       val src = TestData.l8Sample(1)
-      val df = src.toDF(TileDimensions(10, 10))
+      val df = src.toDF(Dimensions(10, 10))
       val result = df.select(rf_agg_reprojected_extent($"extent", $"crs", WebMercator)).first()
       result should be(src.extent.reproject(src.crs, WebMercator))
     }

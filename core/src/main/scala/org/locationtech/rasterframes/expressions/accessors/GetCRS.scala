@@ -31,7 +31,7 @@ import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders.crsEncoder
+import org.locationtech.rasterframes.encoders.StandardEncoders.crsSparkEncoder
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.model.LazyCRS
 
