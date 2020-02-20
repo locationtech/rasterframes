@@ -313,7 +313,6 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
       withClue("max") {
         val max = ds.agg(rf_agg_local_max($"tiles"))
-        max.printSchema()
         val expected = Max(byteArrayTile, byteConstantTile)
         write(max)
         assert(max.as[Tile].first() === expected)

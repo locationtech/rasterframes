@@ -88,7 +88,7 @@ def _raster_join(df: DataFrame, other: DataFrame,
     else:
         jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf)
 
-    return DataFrame(jdf, ctx._spark_session)
+    return DataFrame(jdf, ctx._spark_session._wrapped)
 
 
 def _layer_reader(df_reader: DataFrameReader, format_key: str, path: Optional[str], **options: str) -> RasterFrameLayer:
