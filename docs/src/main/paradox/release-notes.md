@@ -24,15 +24,13 @@
   - Replace all uses of `TileDimensions` with `geotrellis.raster.Dimensions[Int]`.
 * Formally abandoned support for Python 2. Python 2 is dead. Long live Python 2.
 * Introduction of type hints in Python API. 
-
-## 0.8.x
-
-### 0.8.6
-
 * Add functions for changing cell values based on either conditions or to achieve a distribution of values. ([#449](https://github.com/locationtech/rasterframes/pull/449))
     * Add `rf_local_min`, `rf_local_max`, and `rf_local_clip` functions.
     * Add cell value scaling functions `rf_rescale` and `rf_standardize`.
     * Add `rf_where` function, similar in spirit to numpy's `where`, or a cell-wise version of Spark SQL's `when` and `otherwise`.
+
+
+## 0.8.x
 
 ### 0.8.5
 
