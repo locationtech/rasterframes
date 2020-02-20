@@ -26,7 +26,6 @@ signatures are handled here as well.
 from pyspark.sql.column import Column, _to_java_column
 from pyspark.sql.functions import lit
 from .rf_context import RFContext
-from .rf_types import CellType
 from .version import __version__
 
 from deprecation import deprecated
@@ -662,36 +661,6 @@ def rf_local_extract_bits(tile: Column_type, start_bit: Union[int, Column_type],
 def rf_round(tile_col: Column_type) -> Column:
     """Round cell values to the nearest integer without changing the cell type"""
     return _apply_column_function('rf_round', tile_col)
-
-
-def rf_local_less(left_tile_col, right_tile_col):
-    """Cellwise less than comparison between two tiles"""
-    return _apply_column_function('rf_local_less', left_tile_col, right_tile_col)
-
-
-def rf_local_less_equal(left_tile_col, right_tile_col):
-    """Cellwise less than or equal to comparison between two tiles"""
-    return _apply_column_function('rf_local_less_equal', left_tile_col, right_tile_col)
-
-
-def rf_local_greater(left_tile_col, right_tile_col):
-    """Cellwise greater than comparison between two tiles"""
-    return _apply_column_function('rf_local_greater', left_tile_col, right_tile_col)
-
-
-def rf_local_greater_equal(left_tile_col, right_tile_col):
-    """Cellwise greater than or equal to comparison between two tiles"""
-    return _apply_column_function('rf_local_greater_equal', left_tile_col, right_tile_col)
-
-
-def rf_local_equal(left_tile_col, right_tile_col):
-    """Cellwise equality comparison between two tiles"""
-    return _apply_column_function('rf_local_equal', left_tile_col, right_tile_col)
-
-
-def rf_local_unequal(left_tile_col, right_tile_col):
-    """Cellwise inequality comparison between two tiles"""
-    return _apply_column_function('rf_local_unequal', left_tile_col, right_tile_col)
 
 
 def rf_local_min(tile_col, min):

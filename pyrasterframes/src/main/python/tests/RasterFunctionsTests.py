@@ -249,7 +249,7 @@ class RasterFunctions(TestEnvironment):
         rf1 = self.rf.select(self.rf.tile,
                              rf_local_multiply(
                                  rf_convert_cell_type(
-                                     rf_local_greater_int(self.rf.tile, 25000),
+                                     rf_local_greater(self.rf.tile, 25000),
                                      "uint8"),
                                  lit(mask_value)).alias('mask'))
         rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value), False).alias('masked'))
