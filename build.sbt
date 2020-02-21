@@ -69,7 +69,8 @@ lazy val core = project
         ExclusionRule(organization = "org.scalatest")
       ),
       scaffeine,
-      scalatest
+      scalatest,
+      `scala-logging`
     ),
     buildInfoKeys ++= Seq[BuildInfoKey](
       version, scalaVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion

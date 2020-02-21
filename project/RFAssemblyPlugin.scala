@@ -56,7 +56,6 @@ object RFAssemblyPlugin extends AutoPlugin {
         "org.apache.http",
         "com.google.guava",
         "com.google.common",
-        "com.typesafe.scalalogging",
         "com.typesafe.config",
         "com.fasterxml.jackson",
         "io.netty"
