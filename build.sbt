@@ -67,7 +67,8 @@ lazy val core = project
         ExclusionRule(organization = "org.scalatest")
       ),
       scaffeine,
-      scalatest
+      scalatest,
+      `scala-logging`
     ),
     libraryDependencies ++= {
       val gv = rfGeoTrellisVersion.value

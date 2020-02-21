@@ -75,6 +75,10 @@ class TestEnvironment(unittest.TestCase):
 
         cls.img_uri = 'file://' + cls.img_path
 
+        cls.img_rgb_path = os.path.join(cls.resource_dir, 'L8-B4_3_2-Elkton-VA.tiff')
+
+        cls.img_rgb_uri = 'file://' + cls.img_rgb_path
+
     @classmethod
     def l8band_uri(cls, band_index):
         return 'file://' + os.path.join(cls.resource_dir, 'L8-B{}-Elkton-VA.tiff'.format(band_index))
