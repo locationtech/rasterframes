@@ -142,6 +142,7 @@ setuptools = 'setuptools>=0.8'
 ipython = 'ipython==6.2.1'
 ipykernel = 'ipykernel==4.8.0'
 pweave = 'Pweave==0.30.3'
+jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
 fiona = 'fiona==1.8.6'
 rasterio = 'rasterio>=1.0.0'
 folium = 'folium'
@@ -187,6 +188,7 @@ setup(
         ipython,
         ipykernel,
         pweave,
+        jupyter_client,
         fiona,
         rasterio,
         folium,
