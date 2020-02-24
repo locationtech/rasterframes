@@ -12,3 +12,4 @@ pytz
 matplotlib
 rtree
 Pillow
+deprecation
