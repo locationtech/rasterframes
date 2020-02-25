@@ -26,7 +26,7 @@ from . import TestEnvironment
 class GeotrellisTests(TestEnvironment):
 
     def test_write_geotrellis_layer(self):
-        rf = self.spark.read.geotiff(self.img_uri)
+        rf = self.spark.read.geotiff(self.img_uri).cache()
         rf_count = rf.count()
         self.assertTrue(rf_count > 0)
 
@@ -43,7 +43,7 @@ class GeotrellisTests(TestEnvironment):
 
         rf_gt.show(1)
 
-        shutil.rmtree(dest)
+        shutil.rmtree(dest, ignore_errors=True)
 
     def test_write_geotrellis_multiband_layer(self):
         rf = self.spark.read.geotiff(self.img_rgb_uri)
@@ -63,4 +63,4 @@ class GeotrellisTests(TestEnvironment):
 
         rf_gt.show(1)
 
-        shutil.rmtree(dest)
+        shutil.rmtree(dest, ignore_errors=True)

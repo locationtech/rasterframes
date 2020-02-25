@@ -41,7 +41,9 @@ jobs:
           <<: *restore_cache
 
       - run: ulimit -c unlimited -S
-      - run: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
+      - run:
+          command: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
+          no_output_timeout: 15m
 
       - run:
           command: |
