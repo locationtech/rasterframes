@@ -41,7 +41,8 @@ class GeotrellisTests(TestEnvironment):
         rf_gt_count = rf_gt.count()
         self.assertTrue(rf_gt_count > 0)
 
-        rf_gt.show(1)
+        # maybe CI is unhappy about print / show.
+        _ = rf_gt.take(1)
 
         shutil.rmtree(dest, ignore_errors=True)
 
@@ -61,6 +62,7 @@ class GeotrellisTests(TestEnvironment):
         rf_gt_count = rf_gt.count()
         self.assertTrue(rf_gt_count > 0)
 
-        rf_gt.show(1)
+        # maybe CI is unhappy about print / show.
+        _ = rf_gt.take(1)
 
         shutil.rmtree(dest, ignore_errors=True)

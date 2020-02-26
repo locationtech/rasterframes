@@ -222,4 +222,5 @@ workflows:
       - it
       - itWithoutGdal
       - docs
+      - test
 #      - staticAnalysis
