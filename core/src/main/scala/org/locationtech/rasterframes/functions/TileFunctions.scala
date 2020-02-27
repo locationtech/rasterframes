@@ -48,8 +48,8 @@ trait TileFunctions {
     TileToArrayDouble(col)
 
   /** Flattens Tile into an integer array. */
-  def rf_tile_to_array_int(col: Column): TypedColumn[Any, Array[Double]] =
-    TileToArrayDouble(col)
+  def rf_tile_to_array_int(col: Column): TypedColumn[Any, Array[Int]] =
+    TileToArrayInt(col)
 
   /** Convert array in `arrayCol` into a Tile of dimensions `cols` and `rows`*/
   def rf_array_to_tile(arrayCol: Column, cols: Int, rows: Int): TypedColumn[Any, Tile] = withTypedAlias("rf_array_to_tile")(

@@ -2,6 +2,7 @@ package org.apache.spark.sql.rf
 
 import java.lang.reflect.Constructor
 
+import org.apache.spark.sql.AnalysisException
 import org.apache.spark.sql.catalyst.FunctionIdentifier
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry.FunctionBuilder
@@ -12,7 +13,6 @@ import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.sources.BaseRelation
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.sql.{AnalysisException, DataFrame, Dataset, SQLContext}
 
 import scala.reflect._
 import scala.util.{Failure, Success, Try}
@@ -23,11 +23,6 @@ import scala.util.{Failure, Success, Try}
  * @since 2/13/18
  */
 object VersionShims {
-  def readJson(sqlContext: SQLContext, rows: Dataset[String]): DataFrame = {
-    // NB: Will get a deprecation warning for Spark 2.2.x
-    sqlContext.read.json(rows.rdd) // <-- deprecation warning expected
-  }
-
   def updateRelation(lr: LogicalRelation, base: BaseRelation): LogicalPlan = {
     val lrClazz = classOf[LogicalRelation]
     val ctor = lrClazz.getConstructors.head.asInstanceOf[Constructor[LogicalRelation]]

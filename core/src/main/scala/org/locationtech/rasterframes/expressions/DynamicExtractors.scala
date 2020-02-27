@@ -32,8 +32,8 @@ import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.{Envelope, Point}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.{LazyCRS, TileContext}
-import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef, RasterSource}
+import org.locationtech.rasterframes.model.{LazyCRS, LongExtent, TileContext}
+import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RFRasterSource, RasterRef}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 private[rasterframes]
@@ -76,7 +76,7 @@ object DynamicExtractors {
   /** Partial function for pulling a ProjectedRasterLike an input row. */
   lazy val projectedRasterLikeExtractor: PartialFunction[DataType, Any ⇒ ProjectedRasterLike] = {
     case _: RasterSourceUDT ⇒
-      (input: Any) => input.asInstanceOf[InternalRow].to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+      (input: Any) => input.asInstanceOf[InternalRow].to[RFRasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo[ProjectedRasterTile] =>
       (input: Any) => input.asInstanceOf[InternalRow].to[ProjectedRasterTile]
     case t if t.conformsTo[RasterRef] =>
@@ -84,11 +84,11 @@ object DynamicExtractors {
   }
 
   /** Partial function for pulling a CellGrid from an input row. */
-  lazy val gridExtractor: PartialFunction[DataType, InternalRow ⇒ CellGrid] = {
+  lazy val gridExtractor: PartialFunction[DataType, InternalRow ⇒ CellGrid[Int]] = {
     case _: TileUDT =>
       (row: InternalRow) => row.to[Tile](TileUDT.tileSerializer)
     case _: RasterSourceUDT =>
-      (row: InternalRow) => row.to[RasterSource](RasterSourceUDT.rasterSourceSerializer)
+      (row: InternalRow) => row.to[RFRasterSource](RasterSourceUDT.rasterSourceSerializer)
     case t if t.conformsTo[RasterRef] ⇒
       (row: InternalRow) => row.to[RasterRef]
     case t if t.conformsTo[ProjectedRasterTile] =>
@@ -96,20 +96,65 @@ object DynamicExtractors {
   }
 
   lazy val crsExtractor: PartialFunction[DataType, Any => CRS] = {
-    case _: StringType =>
-      (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
-    case t if t.conformsTo[CRS] =>
-      (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
+    val base: PartialFunction[DataType, Any ⇒ CRS] = {
+      case _: StringType =>
+        (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
+      case t if t.conformsTo[CRS] =>
+        (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
+    }
+
+    val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.crs))
+    fromPRL orElse base
+  }
+
+  /** This is necessary because extents created from Python Rows will reorder field names. */
+  object ExtentLike {
+
+    def rightShape(struct: StructType) =
+      struct.size == 4 && {
+        val n = struct.fieldNames.map(_.toLowerCase).toSet
+        n == Set("xmin", "ymin", "xmax", "ymax")|| n == Set("minx", "miny", "maxx", "maxy")
+      } && struct.fields.map(_.dataType).toSet == Set(DoubleType)
+
+
+    def unapply(dt: DataType): Option[Any => Extent] = dt match {
+      case dt: StructType if rightShape(dt) =>
+        Some((input: Any) => {
+          val row = input.asInstanceOf[InternalRow]
+
+          def maybeValue(name: String): Option[Double] = {
+            dt.indexWhere(_.name.toLowerCase == name) match {
+              case idx if idx >= 0 => Some(row.getDouble(idx))
+              case _ => None
+            }
+          }
+
+          def value(n1: String, n2: String): Double =
+            maybeValue(n1).orElse(maybeValue(n2))
+              .getOrElse(throw new IllegalArgumentException(s"Missing field $n1 or $n2"))
+
+          val xmin = value("xmin", "minx")
+          val ymin = value("ymin", "miny")
+          val xmax = value("xmax", "maxx")
+          val ymax = value("ymax", "maxy")
+          println(Extent(xmin, ymin, xmax, ymax))
+          Extent(xmin, ymin, xmax, ymax)
+        })
+      case _ => None
+    }
   }
 
   lazy val extentExtractor: PartialFunction[DataType, Any ⇒ Extent] = {
-    val base: PartialFunction[DataType, Any ⇒ Extent]= {
+    val base: PartialFunction[DataType, Any ⇒ Extent] = {
       case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
         (input: Any) => Extent(JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal)
       case t if t.conformsTo[Extent] =>
         (input: Any) => input.asInstanceOf[InternalRow].to[Extent]
       case t if t.conformsTo[Envelope] =>
         (input: Any) => Extent(input.asInstanceOf[InternalRow].to[Envelope])
+      case t if t.conformsTo[LongExtent] =>
+        (input: Any) => input.asInstanceOf[InternalRow].to[LongExtent].toExtent
+      case ExtentLike(e) => e
     }
 
     val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.extent))
@@ -122,6 +167,8 @@ object DynamicExtractors {
         (input: Any) => JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal
       case t if t.conformsTo[Extent] =>
         (input: Any) => input.asInstanceOf[InternalRow].to[Extent].jtsEnvelope
+      case t if t.conformsTo[LongExtent] =>
+        (input: Any) => input.asInstanceOf[InternalRow].to[LongExtent].toExtent.jtsEnvelope
       case t if t.conformsTo[Envelope] =>
         (input: Any) => input.asInstanceOf[InternalRow].to[Envelope]
     }
@@ -131,7 +178,7 @@ object DynamicExtractors {
   }
 
   lazy val centroidExtractor: PartialFunction[DataType, Any ⇒ Point] = {
-    extentExtractor.andThen(_.andThen(_.center.jtsGeom))
+    extentExtractor.andThen(_.andThen(_.center))
   }
 
   sealed trait TileOrNumberArg
@@ -158,8 +205,7 @@ object DynamicExtractors {
     case _: DoubleType | _: FloatType | _: DecimalType => {
       case d: Double  => DoubleArg(d)
       case f: Float   => DoubleArg(f.toDouble)
-      case d: Decimal => DoubleArg(d.toDouble)
-    }
+      case d: Decimal => DoubleArg(d.toDouble)    }
   }
 
   lazy val intArgExtractor: PartialFunction[DataType, Any => IntegerArg] = {

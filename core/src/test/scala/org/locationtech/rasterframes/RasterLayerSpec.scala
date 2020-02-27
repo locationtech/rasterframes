@@ -27,15 +27,14 @@ import java.net.URI
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 
+import geotrellis.layer._
 import geotrellis.proj4.{CRS, LatLng}
-import geotrellis.raster.{MultibandTile, ProjectedRaster, Raster, Tile, TileFeature, TileLayout, UByteCellType, UByteConstantNoDataCellType}
+import geotrellis.raster._
 import geotrellis.spark._
-import geotrellis.spark.tiling._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SQLContext, SparkSession}
-import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.ref.RasterSource
+import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 
@@ -92,7 +91,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
       assert(
         rf.select(rf_dimensions($"tile"))
           .collect()
-          .forall(_ == TileDimensions(10, 10))
+          .forall(_ == Dimensions(10, 10))
       )
 
       assert(rf.count() === 4)
@@ -209,7 +208,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
 
     it("should convert a GeoTiff to RasterFrameLayer") {
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
-      val (cols, rows) = praster.raster.dimensions
+      val Dimensions(cols, rows) = praster.raster.dimensions
 
       val layoutCols = math.ceil(cols / 128.0).toInt
       val layoutRows = math.ceil(rows / 128.0).toInt
@@ -235,13 +234,15 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
     }
 
     it("should create layer from arbitrary RasterFrame") {
-      val src = RasterSource(URI.create("https://raw.githubusercontent.com/locationtech/rasterframes/develop/core/src/test/resources/LC08_RGB_Norfolk_COG.tiff"))
+      val src = RFRasterSource(URI.create("https://raw.githubusercontent.com/locationtech/rasterframes/develop/core/src/test/resources/LC08_RGB_Norfolk_COG.tiff"))
       val srcCrs = src.crs
 
       def project(r: Raster[MultibandTile]): Seq[ProjectedRasterTile] =
         r.tile.bands.map(b => ProjectedRasterTile(b, r.extent, srcCrs))
 
-      val rasters = src.readAll(bands = Seq(0, 1, 2)).map(project).map(p => (p(0), p(1), p(2)))
+      val rasters = src.readAll(bands = Seq(0, 1, 2))
+        .map(project)
+        .map(p => (p(0), p(1), p(2)))
 
       val df = rasters.toDF("red", "green", "blue")
 
@@ -251,7 +252,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
       val layout = LayoutDefinition(extent, TileLayout(2, 2, 32, 32))
 
       val tlm =  new TileLayerMetadata[SpatialKey](
-         UByteConstantNoDataCellType,
+        UByteConstantNoDataCellType,
         layout,
         extent,
         crs,
@@ -259,9 +260,9 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
       )
       val layer = df.toLayer(tlm)
 
-      val TileDimensions(cols, rows) = tlm.totalDimensions
-      val prt = layer.toMultibandRaster(Seq($"red", $"green", $"blue"), cols, rows)
-      prt.tile.dimensions should be((cols, rows))
+      val Dimensions(cols, rows) = tlm.totalDimensions
+      val prt = layer.toMultibandRaster(Seq($"red", $"green", $"blue"), cols.toInt, rows.toInt)
+      prt.tile.dimensions should be(Dimensions(cols, rows))
       prt.crs should be(crs)
       prt.extent should be(extent)
      }
@@ -329,24 +330,24 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
     it("should restitch to raster") {
       // 774 × 500
       val praster: ProjectedRaster[Tile] = sampleGeoTiff.projectedRaster
-      val (cols, rows) = praster.raster.dimensions
+      val Dimensions(cols, rows) = praster.raster.dimensions
       val rf = praster.toLayer(64, 64)
       val raster = rf.toRaster($"tile", cols, rows)
 
       render(raster.tile, "normal")
-      assert(raster.raster.dimensions ===  (cols, rows))
+      assert(raster.raster.dimensions ===  Dimensions(cols, rows))
 
       val smaller = rf.toRaster($"tile", cols/4, rows/4)
       render(smaller.tile, "smaller")
-      assert(smaller.raster.dimensions ===  (cols/4, rows/4))
+      assert(smaller.raster.dimensions ===  Dimensions(cols/4, rows/4))
 
       val bigger = rf.toRaster($"tile", cols*4, rows*4)
       render(bigger.tile, "bigger")
-      assert(bigger.raster.dimensions ===  (cols*4, rows*4))
+      assert(bigger.raster.dimensions ===  Dimensions(cols*4, rows*4))
 
       val squished = rf.toRaster($"tile", cols*5/4, rows*3/4)
       render(squished.tile, "squished")
-      assert(squished.raster.dimensions === (cols*5/4, rows*3/4))
+      assert(squished.raster.dimensions === Dimensions(cols*5/4, rows*3/4))
     }
 
     it("shouldn't restitch raster that's has derived tiles") {

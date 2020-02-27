@@ -23,9 +23,9 @@ package org.locationtech.rasterframes.tiles
 
 import java.nio.ByteBuffer
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
 import org.locationtech.rasterframes.model.{Cells, TileDataContext}
 
 /**

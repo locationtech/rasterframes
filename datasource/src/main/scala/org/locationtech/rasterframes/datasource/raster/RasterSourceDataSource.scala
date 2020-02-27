@@ -24,11 +24,11 @@ package org.locationtech.rasterframes.datasource.raster
 import java.net.URI
 import java.util.UUID
 
+import geotrellis.raster.Dimensions
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.util._
 import org.apache.spark.sql.{DataFrame, DataFrameReader, SQLContext}
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
-import org.locationtech.rasterframes.model.TileDimensions
 import shapeless.tag
 import shapeless.tag.@@
 
@@ -109,10 +109,10 @@ object RasterSourceDataSource {
   implicit class ParamsDictAccessors(val parameters: Map[String, String]) extends AnyVal {
     def tokenize(csv: String): Seq[String] = csv.split(',').map(_.trim)
 
-    def tileDims: Option[TileDimensions] =
+    def tileDims: Option[Dimensions[Int]] =
       parameters.get(TILE_DIMS_PARAM)
         .map(tokenize(_).map(_.toInt))
-        .map { case Seq(cols, rows) => TileDimensions(cols, rows)}
+        .map { case Seq(cols, rows) => Dimensions(cols, rows)}
 
     def bandIndexes: Seq[Int] = parameters
       .get(BAND_INDEXES_PARAM)

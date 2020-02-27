@@ -44,10 +44,10 @@ class RasterSourceIT extends TestEnvironment with TestData {
         val bURI = new URI(
           "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/016/034/LC08_L1TP_016034_20181003_20181003_01_RT/LC08_L1TP_016034_20181003_20181003_01_RT_B2.TIF")
         val red = time("read B4") {
-          RasterSource(rURI).readAll()
+          RFRasterSource(rURI).readAll()
         }
         val blue = time("read B2") {
-          RasterSource(bURI).readAll()
+          RFRasterSource(bURI).readAll()
         }
         time("test empty") {
           red should not be empty
@@ -69,47 +69,47 @@ class RasterSourceIT extends TestEnvironment with TestData {
 
 
       it("should read JPEG2000 scene") {
-        RasterSource(localSentinel).readAll().flatMap(_.tile.statisticsDouble).size should be(64)
+        RFRasterSource(localSentinel).readAll().flatMap(_.tile.statisticsDouble).size should be(64)
       }
 
       it("should read small MRF scene with one band converted from MODIS HDF") {
         val (expectedTileCount, _) = expectedTileCountAndBands(2400, 2400)
-        RasterSource(modisConvertedMrfPath).readAll().flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+        RFRasterSource(modisConvertedMrfPath).readAll().flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
       }
 
       it("should read remote HTTP MRF scene") {
         val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
-        RasterSource(remoteHttpMrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+        RFRasterSource(remoteHttpMrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
       }
 
       it("should read remote S3 MRF scene") {
         val (expectedTileCount, bands) = expectedTileCountAndBands(6257, 7584, 4)
-        RasterSource(remoteS3MrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
+        RFRasterSource(remoteS3MrfPath).readAll(bands = bands).flatMap(_.tile.statisticsDouble).size should be (expectedTileCount)
       }
     }
   } else {
     describe("GDAL missing error support") {
       it("should throw exception reading JPEG2000 scene") {
         intercept[IllegalArgumentException] {
-          RasterSource(localSentinel)
+          RFRasterSource(localSentinel)
         }
       }
 
       it("should throw exception reading MRF scene with one band converted from MODIS HDF") {
         intercept[IllegalArgumentException] {
-          RasterSource(modisConvertedMrfPath)
+          RFRasterSource(modisConvertedMrfPath)
         }
       }
 
       it("should throw exception reading remote HTTP MRF scene") {
         intercept[IllegalArgumentException] {
-          RasterSource(remoteHttpMrfPath)
+          RFRasterSource(remoteHttpMrfPath)
         }
       }
 
       it("should throw exception reading remote S3 MRF scene") {
         intercept[IllegalArgumentException] {
-          RasterSource(remoteS3MrfPath)
+          RFRasterSource(remoteS3MrfPath)
         }
       }
     }

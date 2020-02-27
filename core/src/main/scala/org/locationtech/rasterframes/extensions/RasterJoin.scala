@@ -20,8 +20,10 @@
  */
 
 package org.locationtech.rasterframes.extensions
+import geotrellis.raster.Dimensions
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.SpatialRelation
@@ -34,7 +36,7 @@ import scala.util.Random
 object RasterJoin {
 
   /** Perform a raster join on dataframes that each have proj_raster columns, or crs and extent explicitly included. */
-  def apply(left: DataFrame, right: DataFrame): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     def usePRT(d: DataFrame) =
       d.projRasterColumns.headOption
         .map(p => (rf_crs(p),  rf_extent(p)))
@@ -48,19 +50,28 @@ object RasterJoin {
     val (ldf, lcrs, lextent) = usePRT(left)
     val (rdf, rcrs, rextent) = usePRT(right)
 
-    apply(ldf, rdf, lextent, lcrs, rextent, rcrs)
+    apply(ldf, rdf, lextent, lcrs, rextent, rcrs, fallbackDimensions)
   }
 
-  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     val leftGeom = st_geometry(leftExtent)
     val rightGeomReproj = st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
     val joinExpr = new Column(SpatialRelation.Intersects(leftGeom.expr, rightGeomReproj.expr))
-    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
+    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, fallbackDimensions)
   }
 
-  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame = {
+  private def checkType[T](col: Column, description: String, extractor: PartialFunction[DataType, Any => T]): Unit = {
+    require(extractor.isDefinedAt(col.expr.dataType), s"Expected column ${col} to be of type $description, but was ${col.expr.dataType}.")
+  }
+
+  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     // Convert resolved column into a symbolic one.
     def unresolved(c: Column): Column = col(c.columnName)
+
+//    checkType(leftExtent, "Extent", DynamicExtractors.extentExtractor)
+//    checkType(leftCRS, "CRS", DynamicExtractors.crsExtractor)
+//    checkType(rightExtent, "Extent", DynamicExtractors.extentExtractor)
+//    checkType(rightCRS, "CRS", DynamicExtractors.crsExtractor)
 
     // Unique id for temporary columns
     val id = Random.alphanumeric.take(5).mkString("_", "", "_")
@@ -80,7 +91,7 @@ object RasterJoin {
     // On the LHS we just want the first thing (subsequent ones should be identical.
     val leftAggCols = left.columns.map(s => first(left(s), true) as s)
     // On the RHS we collect result as a list.
-    val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rightCRS) as rightCRS2)
+    val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rf_crs(rightCRS)) as rightCRS2)
     val rightAggTiles = right.tileColumns.map(c => collect_list(ExtractTile(c)) as c.columnName)
     val rightAggOther = right.notTileColumns
       .filter(n => n.columnName != rightExtent.columnName && n.columnName != rightCRS.columnName)
@@ -89,20 +100,25 @@ object RasterJoin {
 
     // After the aggregation we take all the tiles we've collected and resample + merge
     // into LHS extent/CRS.
-    // Use a representative tile from the left for the tile dimensions
-    val destDims = left.tileColumns.headOption
-      .map(t => rf_dimensions(unresolved(t)))
-      .getOrElse(serialized_literal(NOMINAL_TILE_DIMS))
+    // Use a representative tile from the left for the tile dimensions.
+    // Assumes all LHS tiles in a row are of the same size.
+    val destDims =
+      if (left.tileColumns.nonEmpty)
+        rf_dimensions(coalesce(left.tileColumns.map(unresolved): _*))
+      else
+        serialized_literal(fallbackDimensions.getOrElse(NOMINAL_TILE_DIMS))
 
-    val reprojCols = rightAggTiles.map(t => reproject_and_merge(
-      col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), destDims
-    ) as t.columnName)
+    val reprojCols = rightAggTiles.map(t => {
+      reproject_and_merge(
+        col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), destDims
+      ) as t.columnName
+    })
 
     val finalCols = leftAggCols.map(unresolved) ++ reprojCols ++ rightAggOther.map(unresolved)
 
     // Here's the meat:
     left
-      // 1. Add a unique ID to each LHS row for subequent grouping.
+      // 1. Add a unique ID to each LHS row for subsequent grouping.
       .withColumn(id, monotonically_increasing_id())
       // 2. Perform the left-outer join
       .join(right, joinExprs, joinType = "left")

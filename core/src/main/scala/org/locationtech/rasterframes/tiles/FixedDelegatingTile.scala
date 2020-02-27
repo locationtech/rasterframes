@@ -23,11 +23,11 @@ package org.locationtech.rasterframes.tiles
 import geotrellis.raster.{ArrayTile, DelegatingTile, Tile}
 
 /**
- * Temporary workaroud for https://github.com/locationtech/geotrellis/issues/2907
- *
+ * Workaround for case where `combine` is invoked on two delegating tiles.
+ * Remove after https://github.com/locationtech/geotrellis/issues/3153 is fixed and integrated
  * @since 8/22/18
  */
-trait FixedDelegatingTile extends DelegatingTile {
+abstract class FixedDelegatingTile extends DelegatingTile {
   override def combine(r2: Tile)(f: (Int, Int) ⇒ Int): Tile = (delegate, r2) match {
     case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combine(r2.toArrayTile())(f)
     case _ ⇒ delegate.combine(r2)(f)

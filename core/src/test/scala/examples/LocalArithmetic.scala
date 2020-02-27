@@ -19,11 +19,9 @@
 
 package examples
 
-import org.locationtech.rasterframes._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.spark.io.kryo.KryoRegistrator
-import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.sql._
+import org.locationtech.rasterframes._
 
 /**
   * Boilerplate test run file
@@ -34,10 +32,7 @@ object LocalArithmetic extends App {
   implicit val spark = SparkSession.builder()
     .master("local[*]")
     .appName(getClass.getName)
-    .config("spark.serializer", classOf[KryoSerializer].getName)
-    .config("spark.kryoserializer.buffer.max", "500m")
-    .config("spark.kryo.registrationRequired", "false")
-    .config("spark.kryo.registrator", classOf[KryoRegistrator].getName)
+    .withKryoSerialization
     .getOrCreate()
     .withRasterFrames
 

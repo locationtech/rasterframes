@@ -32,6 +32,7 @@ import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.{SparkConf, SparkContext}
 import org.locationtech.jts.geom.Geometry
+import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.scalactic.Tolerance
@@ -131,6 +132,8 @@ trait TestEnvironment extends FunSpec
     docs shouldNot include("N/A")
   }
 
-  implicit def pairEnc: Encoder[(ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-  implicit def tripEnc: Encoder[(ProjectedRasterTile, ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
+  implicit def prt2Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
+  implicit def prt3Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
+  implicit def rr2Enc: Encoder[(RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rrEncoder, RasterRef.rrEncoder)
+  implicit def rr3Enc: Encoder[(RasterRef, RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rrEncoder, RasterRef.rrEncoder, RasterRef.rrEncoder)
 }

@@ -21,11 +21,9 @@
 
 package org.locationtech.rasterframes.util
 
+import geotrellis.layer._
 import geotrellis.raster.TileLayout
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader.GeoTiffInfo
-import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.spark.{KeyBounds, SpatialKey, TileLayerMetadata}
+import geotrellis.raster.io.geotiff.reader.GeoTiffInfo
 import geotrellis.util.ByteReader
 
 /**
@@ -47,8 +45,8 @@ trait GeoTiffInfoSupport {
     TileLayout(layoutCols, layoutRows, tileCols, tileRows)
   }
 
-  def extractGeoTiffLayout(reader: ByteReader): (GeoTiffReader.GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
-    val info: GeoTiffInfo = Shims.readGeoTiffInfo(reader, decompress = false, streaming = true, withOverviews = false)
+  def extractGeoTiffLayout(reader: ByteReader): (GeoTiffInfo, TileLayerMetadata[SpatialKey]) = {
+    val info: GeoTiffInfo = GeoTiffInfo.read(reader, streaming = true, withOverviews = false)
     (info, extractGeoTiffLayout(info))
   }
 

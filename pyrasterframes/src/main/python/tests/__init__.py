@@ -18,20 +18,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import glob
 import os
 import unittest
 
 from pyrasterframes.utils import create_rf_spark_session
 
-import sys
 
-if sys.version_info[0] > 2:
-    import builtins
-else:
-    import __builtin__ as builtins
+import builtins
 
 app_name = 'pyrasterframes test suite'
+
 
 def resource_dir():
     def pdir(curr):
@@ -78,6 +74,10 @@ class TestEnvironment(unittest.TestCase):
         cls.img_path = os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 
         cls.img_uri = 'file://' + cls.img_path
+
+        cls.img_rgb_path = os.path.join(cls.resource_dir, 'L8-B4_3_2-Elkton-VA.tiff')
+
+        cls.img_rgb_uri = 'file://' + cls.img_rgb_path
 
     @classmethod
     def l8band_uri(cls, band_index):

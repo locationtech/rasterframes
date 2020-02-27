@@ -30,7 +30,7 @@ import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.RasterSourceType
-import org.locationtech.rasterframes.ref.RasterSource
+import org.locationtech.rasterframes.ref.RFRasterSource
 import org.slf4j.LoggerFactory
 
 /**
@@ -53,12 +53,12 @@ case class URIToRasterSource(override val child: Expression)
   override protected def nullSafeEval(input: Any): Any =  {
     val uriString = input.asInstanceOf[UTF8String].toString
     val uri = URI.create(uriString)
-    val ref = RasterSource(uri)
+    val ref = RFRasterSource(uri)
     RasterSourceType.serialize(ref)
   }
 }
 
 object URIToRasterSource {
-  def apply(rasterURI: Column): TypedColumn[Any, RasterSource] =
-    new Column(new URIToRasterSource(rasterURI.expr)).as[RasterSource]
+  def apply(rasterURI: Column): TypedColumn[Any, RFRasterSource] =
+    new Column(new URIToRasterSource(rasterURI.expr)).as[RFRasterSource]
 }

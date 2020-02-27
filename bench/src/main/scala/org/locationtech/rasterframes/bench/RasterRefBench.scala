@@ -28,8 +28,7 @@ import org.apache.spark.sql._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs
 import org.locationtech.rasterframes.expressions.transformers.RasterRefToTile
-import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.ref.RasterSource
+import org.locationtech.rasterframes.ref.RFRasterSource
 import org.openjdk.jmh.annotations._
 
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -43,11 +42,11 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
 
   @Setup(Level.Trial)
   def setupData(): Unit = {
-    val r1 = RasterSource(remoteCOGSingleband1)
-    val r2 = RasterSource(remoteCOGSingleband2)
+    val r1 = RFRasterSource(remoteCOGSingleband1)
+    val r2 = RFRasterSource(remoteCOGSingleband2)
 
     singleDF = Seq((r1, r2)).toDF("B1", "B2")
-      .select(RasterRefToTile(RasterSourceToRasterRefs(Some(TileDimensions(r1.dimensions)), Seq(0), $"B1", $"B2")))
+      .select(RasterRefToTile(RasterSourceToRasterRefs(Some(r1.dimensions), Seq(0), $"B1", $"B2")))
 
     expandedDF = Seq((r1, r2)).toDF("B1", "B2")
       .select(RasterRefToTile(RasterSourceToRasterRefs($"B1", $"B2")))

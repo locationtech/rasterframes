@@ -23,14 +23,13 @@ package org.locationtech.rasterframes.functions
 import java.io.ByteArrayInputStream
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster._
+import geotrellis.raster.testkit.RasterMatchers
 import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions.sum
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.model.TileDimensions
-import org.locationtech.rasterframes.stats._
+import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.ColorRampNames
 
@@ -90,6 +89,7 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       checkDocs("rf_convert_cell_type")
     }
+
     it("should change NoData value") {
       val df = Seq((TestData.injectND(7)(three), TestData.injectND(12)(two))).toDF("three", "two")
 
@@ -108,21 +108,19 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       // Should maintain original cell type.
       ndCT.select(rf_cell_type($"two")).first().withDefaultNoData() should be(ct.withDefaultNoData())
     }
+
     it("should interpret cell values with a specified cell type") {
       checkDocs("rf_interpret_cell_type_as")
-      val df = Seq(randNDPRT)
-        .toDF("t")
+      val df = Seq(randNDPRT).toDF("t")
         .withColumn("tile", rf_interpret_cell_type_as($"t", "int8raw"))
       val resultTile = df.select("tile").as[Tile].first()
 
       resultTile.cellType should be(CellType.fromName("int8raw"))
       // should have same number of values that are -2 the old ND
-      val countOldNd = df
-        .select(
-          rf_tile_sum(rf_local_equal($"tile", ct.noDataValue)),
-          rf_no_data_cells($"t")
-        )
-        .first()
+      val countOldNd = df.select(
+        rf_tile_sum(rf_local_equal($"tile", ct.noDataValue)),
+        rf_no_data_cells($"t")
+      ).first()
       countOldNd._1 should be(countOldNd._2)
 
       // should not have no data any more (raw type)
@@ -352,7 +350,7 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
   describe("raster metadata") {
     it("should get the TileDimensions of a Tile") {
       val t = Seq(randPRT).toDF("tile").select(rf_dimensions($"tile")).first()
-      t should be(TileDimensions(randPRT.dimensions))
+      t should be(randPRT.dimensions)
       checkDocs("rf_dimensions")
     }
     it("should get the Extent of a ProjectedRasterTile") {
@@ -374,161 +372,22 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     it("should get the Geometry of a ProjectedRasterTile") {
       val g = Seq(randPRT).toDF("tile").select(rf_geometry($"tile")).first()
-      g should be(extent.jtsGeom)
+      g should be(extent.toPolygon())
       checkDocs("rf_geometry")
     }
+    implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rrEncoder)
 
-    it("should get the CRS of a RasteRef") {
-      val e = Seq(Tuple1(rasterRef)).toDF("ref").select(rf_crs($"ref")).first()
+    it("should get the CRS of a RasterRef") {
+      val e = Seq((1, TestData.rasterRef)).toDF("index", "ref").select(rf_crs($"ref")).first()
       e should be(rasterRef.crs)
     }
 
-    it("should get the Extent of a RasteRef") {
-      val e = Seq(Tuple1(rasterRef)).toDF("ref").select(rf_extent($"ref")).first()
+    it("should get the Extent of a RasterRef") {
+      val e = Seq((1, rasterRef)).toDF("index", "ref").select(rf_extent($"ref")).first()
       e should be(rasterRef.extent)
     }
   }
-  describe("per-tile stats") {
-    it("should compute data cell counts") {
-      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
-      df.select(rf_data_cells($"two")).first() shouldBe (cols * rows - numND).toLong
 
-      val df2 = randNDTilesWithNull.toDF("tile")
-      df2
-        .select(rf_data_cells($"tile") as "cells")
-        .agg(sum("cells"))
-        .as[Long]
-        .first() should be(expectedRandData)
-
-      checkDocs("rf_data_cells")
-    }
-    it("should compute no-data cell counts") {
-      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
-      df.select(rf_no_data_cells($"two")).first() should be(numND)
-
-      val df2 = randNDTilesWithNull.toDF("tile")
-      df2
-        .select(rf_no_data_cells($"tile") as "cells")
-        .agg(sum("cells"))
-        .as[Long]
-        .first() should be(expectedRandNoData)
-
-      checkDocs("rf_no_data_cells")
-    }
-
-    it("should properly count data and nodata cells on constant tiles") {
-      val rf = Seq(randPRT).toDF("tile")
-
-      val df = rf
-        .withColumn("make", rf_make_constant_tile(99, 3, 4, ByteConstantNoDataCellType))
-        .withColumn("make2", rf_with_no_data($"make", 99))
-
-      val counts = df
-        .select(
-          rf_no_data_cells($"make").alias("nodata1"),
-          rf_data_cells($"make").alias("data1"),
-          rf_no_data_cells($"make2").alias("nodata2"),
-          rf_data_cells($"make2").alias("data2")
-        )
-        .as[(Long, Long, Long, Long)]
-        .first()
-
-      counts should be((0l, 12l, 12l, 0l))
-    }
-
-    it("should detect no-data tiles") {
-      val df = Seq(nd).toDF("nd")
-      df.select(rf_is_no_data_tile($"nd")).first() should be(true)
-      val df2 = Seq(two).toDF("not_nd")
-      df2.select(rf_is_no_data_tile($"not_nd")).first() should be(false)
-      checkDocs("rf_is_no_data_tile")
-    }
-
-    it("should evaluate exists and for_all") {
-      val df0 = Seq(zero).toDF("tile")
-      df0.select(rf_exists($"tile")).first() should be(false)
-      df0.select(rf_for_all($"tile")).first() should be(false)
-
-      Seq(one).toDF("tile").select(rf_exists($"tile")).first() should be(true)
-      Seq(one).toDF("tile").select(rf_for_all($"tile")).first() should be(true)
-
-      val dfNd = Seq(TestData.injectND(1)(one)).toDF("tile")
-      dfNd.select(rf_exists($"tile")).first() should be(true)
-      dfNd.select(rf_for_all($"tile")).first() should be(false)
-
-      checkDocs("rf_exists")
-      checkDocs("rf_for_all")
-    }
-    it("should find the minimum cell value") {
-      val min = randNDPRT.toArray().filter(c => isData(c)).min.toDouble
-      val df = Seq(randNDPRT).toDF("rand")
-      df.select(rf_tile_min($"rand")).first() should be(min)
-      df.selectExpr("rf_tile_min(rand)").as[Double].first() should be(min)
-      checkDocs("rf_tile_min")
-    }
-
-    it("should find the maximum cell value") {
-      val max = randNDPRT.toArray().filter(c => isData(c)).max.toDouble
-      val df = Seq(randNDPRT).toDF("rand")
-      df.select(rf_tile_max($"rand")).first() should be(max)
-      df.selectExpr("rf_tile_max(rand)").as[Double].first() should be(max)
-      checkDocs("rf_tile_max")
-    }
-    it("should compute the tile mean cell value") {
-      val values = randNDPRT.toArray().filter(c => isData(c))
-      val mean = values.sum.toDouble / values.length
-      val df = Seq(randNDPRT).toDF("rand")
-      df.select(rf_tile_mean($"rand")).first() should be(mean)
-      df.selectExpr("rf_tile_mean(rand)").as[Double].first() should be(mean)
-      checkDocs("rf_tile_mean")
-    }
-
-    it("should compute the tile summary statistics") {
-      val values = randNDPRT.toArray().filter(c => isData(c))
-      val mean = values.sum.toDouble / values.length
-      val df = Seq(randNDPRT).toDF("rand")
-      val stats = df.select(rf_tile_stats($"rand")).first()
-      stats.mean should be(mean +- 0.00001)
-
-      val stats2 = df
-        .selectExpr("rf_tile_stats(rand) as stats")
-        .select($"stats".as[CellStatistics])
-        .first()
-      stats2 should be(stats)
-
-      df.select(rf_tile_stats($"rand") as "stats")
-        .select($"stats.mean")
-        .as[Double]
-        .first() should be(mean +- 0.00001)
-      df.selectExpr("rf_tile_stats(rand) as stats")
-        .select($"stats.no_data_cells")
-        .as[Long]
-        .first() should be <= (cols * rows - numND).toLong
-
-      val df2 = randNDTilesWithNull.toDF("tile")
-      df2
-        .select(rf_tile_stats($"tile")("data_cells") as "cells")
-        .agg(sum("cells"))
-        .as[Long]
-        .first() should be(expectedRandData)
-
-      checkDocs("rf_tile_stats")
-    }
-
-    it("should compute the tile histogram") {
-      val df = Seq(randNDPRT).toDF("rand")
-      val h1 = df.select(rf_tile_histogram($"rand")).first()
-
-      val h2 = df
-        .selectExpr("rf_tile_histogram(rand) as hist")
-        .select($"hist".as[CellHistogram])
-        .first()
-
-      h1 should be(h2)
-
-      checkDocs("rf_tile_histogram")
-    }
-  }
 
   describe("conversion operations") {
     it("should convert tile into array") {
@@ -542,6 +401,10 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       val df = Seq[Tile](tile).toDF("tile")
       val arrayDF = df.select(rf_tile_to_array_double($"tile").as[Array[Double]])
       arrayDF.first().sum should be(110.0 +- 0.0001)
+
+      val arrayDFInt = df.select(rf_tile_to_array_int($"tile"))
+      val arrayDFIntDType = arrayDFInt.dtypes
+      arrayDFIntDType(0)._2 should be("ArrayType(IntegerType,false)")
 
       checkDocs("rf_tile_to_array_int")
       checkDocs("rf_tile_to_array_double")
@@ -571,7 +434,7 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should convert a CRS, Extent and Tile into `proj_raster` structure ") {
-      implicit lazy val tripEnc = Encoders.tuple(extentEncoder, crsEncoder, singlebandTileEncoder)
+      implicit lazy val tripEnc = Encoders.tuple(extentEncoder, crsSparkEncoder, singlebandTileEncoder)
       val expected = ProjectedRasterTile(randomTile(2, 2, ByteConstantNoDataCellType), extent, crs: CRS)
       val df = Seq((expected.extent, expected.crs, expected: Tile)).toDF("extent", "crs", "tile")
       val pr = df.select(rf_proj_raster($"tile", $"extent", $"crs")).first()

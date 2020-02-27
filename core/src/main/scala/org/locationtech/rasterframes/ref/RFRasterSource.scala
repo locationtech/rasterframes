@@ -33,7 +33,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
-import org.locationtech.rasterframes.model.{FixedRasterExtent, TileContext, TileDimensions}
+import org.locationtech.rasterframes.model.TileContext
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, rfConfig}
 
 import scala.concurrent.duration.Duration
@@ -44,8 +44,8 @@ import scala.concurrent.duration.Duration
  * @since 8/21/18
  */
 @Experimental
-trait RasterSource extends ProjectedRasterLike with Serializable {
-  import RasterSource._
+abstract class RFRasterSource extends CellGrid[Int] with ProjectedRasterLike with Serializable {
+  import RFRasterSource._
 
   def crs: CRS
 
@@ -57,36 +57,38 @@ trait RasterSource extends ProjectedRasterLike with Serializable {
 
   def tags: Tags
 
-  def read(bounds: GridBounds, bands: Seq[Int]): Raster[MultibandTile] =
+  def read(bounds: GridBounds[Int], bands: Seq[Int]): Raster[MultibandTile] =
     readBounds(Seq(bounds), bands).next()
 
   def read(extent: Extent, bands: Seq[Int] = SINGLEBAND): Raster[MultibandTile] =
     read(rasterExtent.gridBoundsFor(extent, clamp = true), bands)
 
-  def readAll(dims: TileDimensions = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
+  def readAll(dims: Dimensions[Int] = NOMINAL_TILE_DIMS, bands: Seq[Int] = SINGLEBAND): Seq[Raster[MultibandTile]] =
     layoutBounds(dims).map(read(_, bands))
 
-  protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
+  def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]]
 
-  def rasterExtent = FixedRasterExtent(extent, cols, rows)
+  def rasterExtent = RasterExtent(extent, cols, rows)
 
   def cellSize = CellSize(extent, cols, rows)
 
-  def gridExtent = GridExtent(extent, cellSize)
+  def gridExtent: GridExtent[Int] = GridExtent[Int](extent, cellSize)
+
+  def gridBounds: GridBounds[Int] = GridBounds(0, 0, cols - 1, rows - 1)
 
   def tileContext: TileContext = TileContext(extent, crs)
 
-  def layoutExtents(dims: TileDimensions): Seq[Extent] = {
+  def layoutExtents(dims: Dimensions[Int]): Seq[Extent] = {
     val re = rasterExtent
     layoutBounds(dims).map(re.extentFor(_, clamp = true))
   }
 
-  def layoutBounds(dims: TileDimensions): Seq[GridBounds] = {
+  def layoutBounds(dims: Dimensions[Int]): Seq[GridBounds[Int]] = {
     gridBounds.split(dims.cols, dims.rows).toSeq
   }
 }
 
-object RasterSource extends LazyLogging {
+object RFRasterSource extends LazyLogging {
   final val SINGLEBAND = Seq(0)
   final val EMPTY_TAGS = Tags(Map.empty, List.empty)
 
@@ -94,20 +96,24 @@ object RasterSource extends LazyLogging {
 
   private[ref] val rsCache = Scaffeine()
     .recordStats()
-    .expireAfterAccess(RasterSource.cacheTimeout)
-    .build[String, RasterSource]
+    .expireAfterAccess(RFRasterSource.cacheTimeout)
+    .build[String, RFRasterSource]
 
   def cacheStats = rsCache.stats()
 
-  implicit def rsEncoder: ExpressionEncoder[RasterSource] = {
+  implicit def rsEncoder: ExpressionEncoder[RFRasterSource] = {
     RasterSourceUDT // Makes sure UDT is registered first
     ExpressionEncoder()
   }
 
-  def apply(source: URI): RasterSource =
+  def apply(source: URI): RFRasterSource =
     rsCache.get(
       source.toASCIIString, _ => source match {
-        case IsGDAL()          => GDALRasterSource(source)
+        case IsGDAL()          =>
+          if (rfConfig.getBoolean("jp2-gdal-thread-lock") && source.getPath.toLowerCase().endsWith("jp2"))
+            JP2GDALRasterSource(source)
+          else
+            GDALRasterSource(source)
         case IsHadoopGeoTiff() =>
           // TODO: How can we get the active hadoop configuration
           // TODO: without having to pass it through?
@@ -133,7 +139,7 @@ object RasterSource extends LazyLogging {
 
     /** Extractor for determining if a scheme indicates GDAL preference.  */
     def unapply(source: URI): Boolean = {
-      lazy val schemeIsGdal = Option(source.getScheme())
+      lazy val schemeIsGdal = Option(source.getScheme)
         .exists(_.startsWith("gdal"))
 
       gdalOnly(source) || ((preferGdal || schemeIsGdal) && GDALRasterSource.hasGDAL)
@@ -155,14 +161,14 @@ object RasterSource extends LazyLogging {
     }
   }
 
-  trait URIRasterSource { _: RasterSource =>
+  trait URIRasterSource { _: RFRasterSource =>
     def source: URI
 
     abstract override def toString: String = {
       s"${getClass.getSimpleName}(${source})"
     }
   }
-  trait URIRasterSourceDebugString { _: RasterSource with URIRasterSource with Product =>
+  trait URIRasterSourceDebugString { _: RFRasterSource with URIRasterSource with Product =>
     def toDebugString: String = {
       val buf = new StringBuilder()
       buf.append(productPrefix)

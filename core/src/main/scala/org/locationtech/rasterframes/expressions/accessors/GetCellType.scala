@@ -39,7 +39,7 @@ case class GetCellType(child: Expression) extends OnCellGridExpression with Code
 
   def dataType: DataType = schemaOf[CellType]
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
-  override def eval(cg: CellGrid): Any = cg.cellType.toInternalRow
+  override def eval(cg: CellGrid[Int]): Any = cg.cellType.toInternalRow
 }
 
 object GetCellType {

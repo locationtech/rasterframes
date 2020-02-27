@@ -50,12 +50,12 @@ lazy val core = project
   .settings(
     moduleName := "rasterframes",
     libraryDependencies ++= Seq(
+      `slf4j-api`,
       shapeless,
       `jts-core`,
+      `spray-json`,
       geomesa("z3").value,
       geomesa("spark-jts").value,
-      `geotrellis-contrib-vlm`,
-      `geotrellis-contrib-gdal`,
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,
@@ -67,10 +67,19 @@ lazy val core = project
         ExclusionRule(organization = "org.scalatest")
       ),
       scaffeine,
-      scalatest
+      scalatest,
+      `scala-logging`
     ),
+    libraryDependencies ++= {
+      val gv = rfGeoTrellisVersion.value
+      if (gv.startsWith("3")) Seq[ModuleID](
+        geotrellis("gdal").value,
+        geotrellis("s3-spark").value
+      )
+      else Seq.empty[ModuleID]
+    },
     buildInfoKeys ++= Seq[BuildInfoKey](
-      moduleName, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
+      version, scalaVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),
     buildInfoPackage := "org.locationtech.rasterframes",
     buildInfoObject := "RFBuildInfo",
@@ -125,8 +134,7 @@ lazy val experimental = project
       spark("sql").value % Provided
     ),
     fork in IntegrationTest := true,
-    javaOptions in IntegrationTest := Seq("-Xmx2G"),
-    parallelExecution in IntegrationTest := false
+    javaOptions in IntegrationTest := Seq("-Xmx2G")
   )
 
 lazy val docs = project
@@ -166,8 +174,6 @@ lazy val docs = project
   .settings(
     addMappingsToSiteDir(Compile / paradox / mappings, paradox / siteSubdirName)
   )
-
-//ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox)
 
 lazy val bench = project
   .dependsOn(core % "compile->test")

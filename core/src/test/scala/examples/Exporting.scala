@@ -20,14 +20,15 @@
 package examples
 import java.nio.file.Files
 
-import org.locationtech.rasterframes._
+import geotrellis.layer._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.raster.render._
-import geotrellis.spark.{LayerId, SpatialKey}
+import geotrellis.spark.store.LayerWriter
+import geotrellis.store.LayerId
+import geotrellis.store.index.ZCurveKeyIndexMethod
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
-import spray.json.JsValue
+import org.locationtech.rasterframes._
 
 object Exporting extends App {
 
@@ -152,16 +153,11 @@ object Exporting extends App {
   val tlRDD = equalized.toTileLayerRDD($"equalized").left.get
 
   // First create a GeoTrellis layer writer
-  import geotrellis.spark.io._
   val p = Files.createTempDirectory("gt-store")
   val writer: LayerWriter[LayerId] = LayerWriter(p.toUri)
 
   val layerId = LayerId("equalized", 0)
-  writer.write(layerId, tlRDD, index.ZCurveKeyIndexMethod)
-
-  // Take a look at the metadata in JSON format:
-  import spray.json.DefaultJsonProtocol._
-  AttributeStore(p.toUri).readMetadata[JsValue](layerId).prettyPrint
+  writer.write(layerId, tlRDD, ZCurveKeyIndexMethod)
 
   spark.stop()
 }

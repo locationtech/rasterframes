@@ -21,18 +21,18 @@
 
 package org.locationtech.rasterframes.functions
 import geotrellis.proj4.CRS
+import geotrellis.raster.Dimensions
 import geotrellis.vector.Extent
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.transformers._
-import org.locationtech.rasterframes.model.TileDimensions
 
 /** Functions associated with georectification, gridding, vector data, and spatial indexing.  */
 trait SpatialFunctions {
 
   /** Query the number of (cols, rows) in a Tile. */
-  def rf_dimensions(col: Column): TypedColumn[Any, TileDimensions] = GetDimensions(col)
+  def rf_dimensions(col: Column): TypedColumn[Any, Dimensions[Int]] = GetDimensions(col)
 
   /** Extracts the CRS from a RasterSource or ProjectedRasterTile */
   def rf_crs(col: Column): TypedColumn[Any, CRS] = GetCRS(col)

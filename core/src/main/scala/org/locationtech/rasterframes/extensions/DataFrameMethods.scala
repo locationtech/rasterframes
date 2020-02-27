@@ -22,8 +22,7 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
-import geotrellis.spark.io._
-import geotrellis.spark.{SpaceTimeKey, SpatialComponent, SpatialKey, TemporalKey, TileLayerMetadata}
+import geotrellis.layer._
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.expressions.Attribute
@@ -37,7 +36,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
 import spray.json.JsonFormat
-
+import org.locationtech.rasterframes.util.JsonCodecs._
 import scala.util.Try
 
 /**
@@ -168,7 +167,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @param right Right side of the join.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right)
+  def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right, None)
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -187,7 +186,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @return joined dataframe
     */
   def rasterJoin(right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS)
+    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS, None)
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -204,7 +203,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @return joined dataframe
     */
   def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS)
+    RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, None)
 
 
   /** Layout contents of RasterFrame to a layer. Assumes CRS and extent columns exist. */

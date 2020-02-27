@@ -29,6 +29,7 @@ from pyspark import Row
 from pyspark.sql.functions import *
 
 import numpy as np
+from deprecation import fail_if_not_removed
 from numpy.testing import assert_equal, assert_allclose
 
 from . import TestEnvironment
@@ -107,6 +108,15 @@ class RasterFunctions(TestEnvironment):
 
         df.first()
 
+    def test_st_geometry_from_struct(self):
+        from pyspark.sql import Row
+        from pyspark.sql.functions import struct
+        df = self.spark.createDataFrame([Row(xmin=0, ymin=1, xmax=2, ymax=3)])
+        df2 = df.select(st_geometry(struct(df.xmin, df.ymin, df.xmax, df.ymax)).alias('geom'))
+
+        actual_bounds = df2.first()['geom'].bounds
+        self.assertEqual((0.0, 1.0, 2.0, 3.0), actual_bounds)
+
     def test_agg_mean(self):
         mean = self.rf.agg(rf_agg_mean('tile')).first()['rf_agg_mean(tile)']
         self.assertTrue(self.rounded_compare(mean, 10160))
@@ -141,6 +151,12 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
+    @fail_if_not_removed
+    def test_add_scalar(self):
+        # Trivial test to trigger the deprecation failure at the right time.
+        result: Row = self.rf.select(rf_local_add_double('tile', 99.9), rf_local_add_int('tile', 42)).first()
+        self.assertTrue(True)
+        
     def test_agg_approx_quantiles(self):
         agg = self.rf.agg(rf_agg_approx_quantiles('tile', [0.1, 0.5, 0.9, 0.98]))
         result = agg.first()[0]
@@ -234,7 +250,7 @@ class RasterFunctions(TestEnvironment):
         rf1 = self.rf.select(self.rf.tile,
                              rf_local_multiply(
                                  rf_convert_cell_type(
-                                     rf_local_greater_int(self.rf.tile, 25000),
+                                     rf_local_greater(self.rf.tile, 25000),
                                      "uint8"),
                                  lit(mask_value)).alias('mask'))
         rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value), False).alias('masked'))
