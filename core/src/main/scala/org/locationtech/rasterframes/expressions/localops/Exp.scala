@@ -112,3 +112,4 @@ case class ExpM1(child: Expression) extends UnaryLocalRasterOp with CodegenFallb
 object ExpM1{
   def apply(tile: Column): Column = new Column(ExpM1(tile.expr))
 }
+

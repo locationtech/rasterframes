@@ -102,6 +102,7 @@ class RasterFunctions(TestEnvironment):
             .withColumn('log', rf_log('tile')) \
             .withColumn('exp', rf_exp('tile')) \
             .withColumn('expm1', rf_expm1('tile')) \
+            .withColumn('sqrt', rf_sqrt('tile')) \
             .withColumn('round', rf_round('tile')) \
             .withColumn('abs', rf_abs('tile'))
 

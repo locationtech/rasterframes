@@ -298,5 +298,15 @@ class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     }
 
+    it("should take square root") {
+      checkDocs("rf_sqrt")
+
+      val df = Seq(three).toDF("tile")
+      assertEqual(
+        df.select(rf_sqrt(rf_local_multiply($"tile", $"tile"))).as[ProjectedRasterTile].first(),
+        three
+      )
+    }
+
   }
 }
