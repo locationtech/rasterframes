@@ -28,6 +28,7 @@
     * Add `rf_local_min`, `rf_local_max`, and `rf_local_clip` functions.
     * Add cell value scaling functions `rf_rescale` and `rf_standardize`.
     * Add `rf_where` function, similar in spirit to numpy's `where`, or a cell-wise version of Spark SQL's `when` and `otherwise`.
+* Add `rf_sqrt` function to compute cell-wise square root.
 
 
 ## 0.8.x
