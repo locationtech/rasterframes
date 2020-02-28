@@ -21,10 +21,15 @@ import shutil
 import tempfile
 import pathlib
 from . import TestEnvironment
+from unittest import skipIf
+import os
 
 
 class GeotrellisTests(TestEnvironment):
 
+    on_circle_ci = os.environ.get('CIRCLECI', 'false') == 'true'
+
+    @skipIf(on_circle_ci, 'CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt')
     def test_write_geotrellis_layer(self):
         rf = self.spark.read.geotiff(self.img_uri).cache()
         rf_count = rf.count()
@@ -41,13 +46,13 @@ class GeotrellisTests(TestEnvironment):
         rf_gt_count = rf_gt.count()
         self.assertTrue(rf_gt_count > 0)
 
-        # maybe CI is unhappy about print / show.
         _ = rf_gt.take(1)
 
         shutil.rmtree(dest, ignore_errors=True)
 
+    @skipIf(on_circle_ci, 'CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt')
     def test_write_geotrellis_multiband_layer(self):
-        rf = self.spark.read.geotiff(self.img_rgb_uri)
+        rf = self.spark.read.geotiff(self.img_rgb_uri).cache()
         rf_count = rf.count()
         self.assertTrue(rf_count > 0)
 
@@ -62,7 +67,6 @@ class GeotrellisTests(TestEnvironment):
         rf_gt_count = rf_gt.count()
         self.assertTrue(rf_gt_count > 0)
 
-        # maybe CI is unhappy about print / show.
         _ = rf_gt.take(1)
 
         shutil.rmtree(dest, ignore_errors=True)
