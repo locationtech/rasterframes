@@ -41,7 +41,9 @@ jobs:
           <<: *restore_cache
 
       - run: ulimit -c unlimited -S
-      - run: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
+      - run:
+          command: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
+          no_output_timeout: 15m
 
       - run:
           command: |
@@ -76,7 +78,7 @@ jobs:
           <<: *restore_cache
 
       - run: ulimit -c unlimited -S
-      - run: pip3 install --quiet --user -r pyrasterframes/src/main/python/requirements.txt
+      - run: pip3 install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
       - run:
           command: cat /dev/null | sbt makeSite
           no_output_timeout: 30m
@@ -220,4 +222,5 @@ workflows:
       - it
       - itWithoutGdal
       - docs
+      - test
 #      - staticAnalysis
