@@ -114,7 +114,7 @@ object PythonBuildPlugin extends AutoPlugin {
       val wd = copyPySources.value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
-      val ver = version.value
+      val ver = (Python / version).value
       s.log.info(s"Running '${cmd.mkString(" ")}' in '$wd'")
       val ec = Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
       if (ec != 0)
