@@ -37,6 +37,23 @@ object PythonBuildPlugin extends AutoPlugin {
     val pythonCommand = settingKey[String]("Python command. Defaults to 'python'")
     val pySetup = inputKey[Int]("Run 'python setup.py <args>'. Returns exit code.")
     val pyWhl = taskKey[File]("Builds the Python wheel distribution")
+    val maven2PEP440: String => String = {
+      case VersionNumber(numbers, tags, extras) =>
+        if (numbers.isEmpty) throw new MessageOnlyException("Version string is not convertible to PEP440.")
+        val rc = "^[Rr][Cc](\\d+)$".r
+        val base = numbers.mkString(".")
+        val tag = tags match {
+          case Seq("SNAPSHOT") => ".dev"
+          case Seq(rc(num)) => ".rc" + num
+          case Seq(other) => ".dev+" + other
+          case many => ".dev" + "+" + many.mkString(".")
+        }
+        val ssep = if (tag.contains("+")) "." else "+"
+        val ext = if (extras.nonEmpty)
+          extras.map(_.replaceAllLiterally("+", "")).mkString(ssep, ".", "")
+        else ""
+        base + tag + ext
+    }
   }
   import autoImport._
 
@@ -121,6 +138,7 @@ object PythonBuildPlugin extends AutoPlugin {
     inConfig(Python)(Seq(
       sourceDirectory := (Compile / sourceDirectory).value / "python",
       sourceDirectories := Seq((Python / sourceDirectory).value),
+      version ~= maven2PEP440,
       target := (Compile / target).value / "python",
       includeFilter := "*",
       excludeFilter := HiddenFileFilter || "__pycache__" || "*.egg-info",
