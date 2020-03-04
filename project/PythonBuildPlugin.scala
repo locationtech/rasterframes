@@ -37,6 +37,34 @@ object PythonBuildPlugin extends AutoPlugin {
     val pythonCommand = settingKey[String]("Python command. Defaults to 'python'")
     val pySetup = inputKey[Int]("Run 'python setup.py <args>'. Returns exit code.")
     val pyWhl = taskKey[File]("Builds the Python wheel distribution")
+    val maven2PEP440: String => String = {
+      case VersionNumber(numbers, tags, extras) =>
+        if (numbers.isEmpty) throw new MessageOnlyException("Version string is not convertible to PEP440.")
+
+        // Reconstruct the primary version number
+        val base = numbers.mkString(".")
+
+        // Process items after the `-`. Due to PEP 440 constraints, some tags get converted
+        // to local version suffixes, while others map directly to prerelease suffixes.
+        val rc = "^[Rr][Cc](\\d+)$".r
+        val tag = tags match {
+          case Seq("SNAPSHOT") => ".dev"
+          case Seq(rc(num)) => ".rc" + num
+          case Seq(other) => ".dev+" + other
+          case many @ Seq(_, _) => ".dev+" + many.mkString(".")
+          case _ => ""
+        }
+
+        // sbt "extras" most closely map to PEP 440 local version suffixes.
+        // The local version components are separated by `.`, preceded by a single `+`, and not multiple `+` as in sbt.
+        // These next two expressions do the appropriate separator conversions while concatenating the components.
+        val ssep = if (tag.contains("+")) "." else "+"
+        val ext = if (extras.nonEmpty)
+          extras.map(_.replaceAllLiterally("+", "")).mkString(ssep, ".", "")
+        else ""
+
+        base + tag + ext
+    }
   }
   import autoImport._
 
@@ -97,7 +125,7 @@ object PythonBuildPlugin extends AutoPlugin {
       val wd = copyPySources.value
       val args = spaceDelimited("<args>").parsed
       val cmd = Seq(pythonCommand.value, "setup.py") ++ args
-      val ver = version.value
+      val ver = (Python / version).value
       s.log.info(s"Running '${cmd.mkString(" ")}' in '$wd'")
       val ec = Process(cmd, wd, "RASTERFRAMES_VERSION" -> ver).!
       if (ec != 0)
@@ -121,6 +149,7 @@ object PythonBuildPlugin extends AutoPlugin {
     inConfig(Python)(Seq(
       sourceDirectory := (Compile / sourceDirectory).value / "python",
       sourceDirectories := Seq((Python / sourceDirectory).value),
+      version ~= maven2PEP440,
       target := (Compile / target).value / "python",
       includeFilter := "*",
       excludeFilter := HiddenFileFilter || "__pycache__" || "*.egg-info",

@@ -20,18 +20,21 @@
 
 # Always prefer setuptools over distutils
 from setuptools import setup
-from os import path
+from os import path, environ, mkdir
 import sys
 from glob import glob
 from io import open
 import distutils.cmd
 
 try:
+    enver = environ.get('RASTERFRAMES_VERSION')
+    if enver is not None:
+        open('pyrasterframes/version.py', mode="w").write(f"__version__: str = '{enver}'\n")
     exec(open('pyrasterframes/version.py').read())  # executable python script contains __version__; credit pyspark
-except IOError:
-    print("Run setup via `sbt 'pySetup arg1 arg2'` to ensure correct access to all source files and binaries.")
+except IOError as e:
+    print(e)
+    print("Try running setup via `sbt 'pySetup arg1 arg2'` to ensure correct access to all source files and binaries.")
     sys.exit(-1)
-
 
 VERSION = __version__
 
