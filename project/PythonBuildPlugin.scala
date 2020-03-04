@@ -40,18 +40,29 @@ object PythonBuildPlugin extends AutoPlugin {
     val maven2PEP440: String => String = {
       case VersionNumber(numbers, tags, extras) =>
         if (numbers.isEmpty) throw new MessageOnlyException("Version string is not convertible to PEP440.")
-        val rc = "^[Rr][Cc](\\d+)$".r
+
+        // Reconstruct the primary version number
         val base = numbers.mkString(".")
+
+        // Process items after the `-`. Due to PEP 440 constraints, some tags get converted
+        // to local version suffixes, while others map directly to prerelease suffixes.
+        val rc = "^[Rr][Cc](\\d+)$".r
         val tag = tags match {
           case Seq("SNAPSHOT") => ".dev"
           case Seq(rc(num)) => ".rc" + num
           case Seq(other) => ".dev+" + other
-          case many => ".dev" + "+" + many.mkString(".")
+          case many @ Seq(_, _) => ".dev+" + many.mkString(".")
+          case _ => ""
         }
+
+        // sbt "extras" most closely map to PEP 440 local version suffixes.
+        // The local version components are separated by `.`, preceded by a single `+`, and not multiple `+` as in sbt.
+        // These next two expressions do the appropriate separator conversions while concatenating the components.
         val ssep = if (tag.contains("+")) "." else "+"
         val ext = if (extras.nonEmpty)
           extras.map(_.replaceAllLiterally("+", "")).mkString(ssep, ".", "")
         else ""
+
         base + tag + ext
     }
   }
