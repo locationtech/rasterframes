@@ -4,7 +4,7 @@
 
 ### 0.9.0
 
-* Upgraded to GeoTrellis 3.2.0. This includes a number of _breaking_ changes enumerated as a part of the [PR's](https://github.com/locationtech/rasterframes/pull/398) change log. These include:
+* Upgraded to GeoTrellis 3.3.0. This includes a number of _breaking_ changes enumerated as a part of the [PR's](https://github.com/locationtech/rasterframes/pull/398) change log. These include:
   - Add `Int` type parameter to `Grid`
   - Add `Int` type parameter to `CellGrid`
   - Add `Int` type parameter to `GridBounds`... or `TileBounds`
