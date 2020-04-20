@@ -17,16 +17,6 @@ orbs:
         steps:
           - run: 'true' # NOOP
 
-      install-envsubst:
-        description: Install base packages
-        steps:
-          - run:
-              name: Update apt
-              command: sudo apt-get update -q -y
-          - run:
-              name: Install secrets support
-              command: sudo apt-get install -y gettext-base
-
   python:
     commands:
       setup:
@@ -35,6 +25,7 @@ orbs:
           - run:
               name: Install Python and PIP
               command: |-
+                sudo apt-get update -q -y
                 sudo apt-get install python3 python3-pip
                 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
                 python -m pip install --user 'setuptools>=45.2'
