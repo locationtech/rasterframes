@@ -28,11 +28,11 @@ import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
+import org.locationtech.rasterframes.RasterSourceType
 import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.RasterSourceType
-import org.locationtech.rasterframes.tiles.{ProjectedRasterTile, ShowableTile}
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
  * A delayed-read projected raster implementation.

@@ -33,7 +33,7 @@ _save_cache: &save_cache
 jobs:
   test:
     <<: *defaults
-    resource_class: large
+    resource_class: medium
     steps:
       - checkout
       - run: *setenv
@@ -42,7 +42,13 @@ jobs:
 
       - run: ulimit -c unlimited -S
       - run:
-          command: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
+          name: Scala Tests
+          command: sbt -batch core/test datasource/test experimental/test
+          no_output_timeout: 15m
+
+      - run:
+          name: Python Tests
+          command: sbt -batch pyrasterframes/test
           no_output_timeout: 15m
 
       - run:
@@ -69,7 +75,7 @@ jobs:
 
   docs:
     <<: *defaults
-    resource_class: xlarge
+    resource_class: medium
     steps:
       - checkout
       - run: *setenv
@@ -108,7 +114,7 @@ jobs:
 
   it:
     <<: *defaults
-    resource_class: xlarge
+    resource_class: medium
     steps:
       - checkout
       - run: *setenv
@@ -141,7 +147,7 @@ jobs:
       TERM: dumb
     docker:
       - image: circleci/openjdk:8-jdk
-    resource_class: xlarge
+    resource_class: medium
     steps:
       - checkout
       - run: *setenv

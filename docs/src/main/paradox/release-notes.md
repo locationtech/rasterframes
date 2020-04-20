@@ -12,6 +12,7 @@
   - Update imports for layers, particularly `geotrellis.spark.tiling` to `geotrellis.layer`
   - Update imports for `geotrellis.spark.io` to `geotrellis.spark.store...`
   - Removed `FixedRasterExtent`
+  - Removed `FixedDelegatingTile`
   - Removed `org.locationtech.rasterframes.util.Shims`
   - Change `Extent.jtsGeom` to `Extent.toPolygon`
   - Change `TileLayerMetadata.gridBounds` to `TileLayerMetadata.tileBounds`
