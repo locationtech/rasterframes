@@ -42,8 +42,16 @@ jobs:
 
       - run: ulimit -c unlimited -S
       - run:
-          name: Scala Tests
-          command: sbt -batch core/test datasource/test experimental/test
+          name: "Scala Tests: core"
+          command: sbt -batch core/test
+          no_output_timeout: 15m
+      - run:
+          name: "Scala Tests: datasource"
+          command: sbt -batch datasource/test
+          no_output_timeout: 15m
+      - run:
+          name: "Scala Tests: experimental"
+          command: sbt -batch experimental/test
           no_output_timeout: 15m
 
       - run:
