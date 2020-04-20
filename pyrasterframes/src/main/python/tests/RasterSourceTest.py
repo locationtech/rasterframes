@@ -66,6 +66,7 @@ class RasterSourceTest(TestEnvironment):
         # when doing Show on a lazy tile we will see something like RasterRefTile(RasterRef(JVMGeoTiffRasterSource(...
         # use this trick to get the `show` string
         show_str_lazy = df_lazy.select('proj_raster')._jdf.showString(1, -1, False)
+        print(show_str_lazy)
         self.assertTrue('RasterRef' in show_str_lazy)
 
         # again for strict

@@ -32,7 +32,7 @@ import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.RasterSourceType
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.tiles.{ProjectedRasterTile, ShowableTile}
 
 /**
  * A delayed-read projected raster implementation.
@@ -73,6 +73,7 @@ object RasterRef extends LazyLogging {
     // NB: This saves us from stack overflow exception
     override def convert(ct: CellType): ProjectedRasterTile =
       ProjectedRasterTile(rr.realizedTile.convert(ct), extent, crs)
+    override def toString: String = s"$productPrefix($rr)"
   }
 
   val embeddedSchema: StructType = StructType(Seq(
