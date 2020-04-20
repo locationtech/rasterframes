@@ -137,7 +137,6 @@ object DynamicExtractors {
           val ymin = value("ymin", "miny")
           val xmax = value("xmax", "maxx")
           val ymax = value("ymax", "maxy")
-          println(Extent(xmin, ymin, xmax, ymax))
           Extent(xmin, ymin, xmax, ymax)
         })
       case _ => None

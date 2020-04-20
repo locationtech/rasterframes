@@ -1,1 +1,6 @@
--J-XX:MaxMetaspaceSize=1g
+-J-XX:+HeapDumpOnOutOfMemoryError
+-J-XX:HeapDumpPath=/tmp
+-J-XX:+CMSClassUnloadingEnabled
+-J-XX:MaxMetaspaceSize=256m
+-J-XX:ReservedCodeCacheSize=128m
+-J-Xmx512m

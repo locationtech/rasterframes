@@ -11,12 +11,13 @@ orbs:
         working_directory: ~/repo
         environment:
           SBT_VERSION: 1.3.8
-          JAVA_OPTS: -Xmx2g
     commands:
       setup:
         description: Setup for sbt build
         steps:
-          - run: 'true' # NOOP
+          - run:
+              name: Setup sbt
+              command: 'true' # NOOP
 
   python:
     commands:
@@ -51,7 +52,9 @@ orbs:
           - run:
               command: |
                 mkdir -p /tmp/core_dumps
+                ls -lh /tmp
                 cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+                cp -r /tmp/hsperfdata* /tmp/*.hprof /tmp/core_dumps 2> /dev/null || true
               when: on_fail
 
           - store_artifacts:
@@ -113,6 +116,10 @@ jobs:
       - rasterframes/restore-cache
 
       - run:
+          name: "Compile Scala"
+          command: sbt -v -batch compile
+
+      - run:
           name: "Scala Tests: core"
           command: sbt -batch core/test
 
@@ -125,7 +132,11 @@ jobs:
           command: sbt -batch experimental/test
 
       - run:
-          name: Python Tests
+          name: "Create PyRasterFrames package"
+          command: sbt -v -batch pyrasterframes/package
+
+      - run:
+          name: "Python Tests"
           command: sbt -batch pyrasterframes/test
 
       - rasterframes/save-artifacts
@@ -140,6 +151,7 @@ jobs:
       - python/requirements
       - rasterframes/setup
       - rasterframes/restore-cache
+
       - run:
           name: Build documentation
           command: cat /dev/null | sbt makeSite
