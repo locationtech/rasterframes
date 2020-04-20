@@ -144,7 +144,7 @@ ipykernel = 'ipykernel==4.8.0'
 ipython = 'ipython==6.2.1'
 jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
 matplotlib = 'matplotlib'
-numpy = 'numpy>=1.12.0,<=1.15.4'
+numpy = 'numpy>=1.17.3,<2.0'
 pandas = 'pandas>=0.25.3,<1.0'
 pweave = 'pweave==0.30.3'
 pypandoc = 'pypandoc'
