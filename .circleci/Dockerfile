@@ -1,89 +1,58 @@
 FROM circleci/openjdk:8-jdk
 
-ENV OPENJPEG_VERSION 2.3.1
-ENV GDAL_VERSION 2.4.1
-ENV SPATIALINDEX_VERSION 1.9.3
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+ENV MINICONDA_VERSION=4.8.2 \
+    MINICONDA_MD5=87e77f097f6ebb5127c77662dfc3165e \
+    CONDA_VERSION=4.8.2 \
+    CONDA_DIR=/opt/conda \
+    PYTHON_VERSION=3.7.7
 
-# most of these libraries required for
-# python-pip pandoc && pip install setuptools => required for pyrasterframes testing
+USER root
+
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+COPY --chown=3434:3434 fix-permissions /tmp
+
 RUN \
-    sudo apt-get update && \
-    sudo apt remove \
-      python python-minimal python2.7 python2.7-minimal \
-      libpython-stdlib libpython2.7 libpython2.7-minimal libpython2.7-stdlib \
-      && \
-    sudo apt-get install -y \
-      pandoc wget \
-      gcc g++ build-essential bash-completion cmake imagemagick \
-      libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev \
-      liblzma-dev libcurl4-gnutls-dev libproj-dev libgeos-dev libhdf4-alt-dev libpng-dev libffi-dev \
-      && \
-    sudo apt autoremove && \
-    sudo apt-get clean all
+    apt-get update && \
+    apt-get install -yq --no-install-recommends \
+        sudo \
+        wget \
+        bzip2 \
+        file \
+        libtinfo5 \
+        ca-certificates \
+        gettext-base \
+        locales && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN \
     cd /tmp && \
-    wget https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz && \
-    tar xzf Python-3.7.4.tgz && \
-    cd Python-3.7.4 && \
-    ./configure  --with-ensurepip=install --prefix=/usr/local --enable-optimization && \
-    make && \
-    sudo make altinstall && \
-    rm -rf Python-3.7.4*
+    mkdir -p $CONDA_DIR && \
+    wget --quiet https://repo.continuum.io/miniconda/Miniconda3-py37_${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    echo "${MINICONDA_MD5} *Miniconda3-py37_${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
+    /bin/bash Miniconda3-py37_${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR && \
+    rm Miniconda3-py37_${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    conda config --system --set auto_update_conda false && \
+    conda config --system --set show_channel_urls true && \
+    conda config --system --set channel_priority strict && \
+    if [ ! $PYTHON_VERSION = 'default' ]; then conda install --yes python=$PYTHON_VERSION; fi && \
+    conda list python | grep '^python ' | tr -s ' ' | cut -d '.' -f 1,2 | sed 's/$/.*/' >> $CONDA_DIR/conda-meta/pinned && \
+    conda install --quiet --yes conda && \
+    conda install --quiet --yes pip && \
+    echo "$CONDA_DIR/lib" > /etc/ld.so.conf.d/conda.conf && \
+    conda clean --all --force-pkgs-dirs --yes --quiet && \
+    sh /tmp/fix-permissions $CONDA_DIR 2> /dev/null
+
+COPY requirements-conda.txt /tmp/
 
 RUN \
-    sudo ln -s /usr/local/bin/python3.7 /usr/local/bin/python && \
-    sudo curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    sudo python get-pip.py && \
-    sudo pip3 install setuptools ipython==6.2.1
+    conda install --channel conda-forge --no-channel-priority --freeze-installed \
+        --file /tmp/requirements-conda.txt && \
+    conda clean --all --force-pkgs-dirs --yes --quiet && \
+    sh /tmp/fix-permissions $CONDA_DIR 2> /dev/null && \
+    ldconfig 2> /dev/null
 
-# install OpenJPEG
-RUN \
-    cd /tmp && \
-    wget https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz && \
-    tar -xf v${OPENJPEG_VERSION}.tar.gz && \
-    cd openjpeg-${OPENJPEG_VERSION}/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/ && \
-    make -j && \
-    sudo make install && \
-    cd /tmp && rm -Rf v${OPENJPEG_VERSION}.tar.gz openjpeg*
+USER 3434
 
-# Compile and install GDAL with Java bindings
-RUN \
-    cd /tmp && \
-    wget http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz && \
-    tar -xf gdal-${GDAL_VERSION}.tar.gz && \
-    cd gdal-${GDAL_VERSION} && \
-    ./configure \
-        --with-curl \
-        --with-hdf4 \
-        --with-geos \
-        --with-geotiff=internal \
-        --with-hide-internal-symbols \
-        --with-libtiff=internal \
-        --with-libz=internal \
-        --with-mrf \
-        --with-openjpeg \
-        --with-threads \
-        --without-jp2mrsid \
-        --without-netcdf \
-        --without-ecw && \
-    make -j 8 && \
-    sudo make install && \
-    sudo ldconfig && \
-    cd /tmp && sudo rm -Rf gdal*
-
-# Compile and install libspatialindex
-RUN \
-    cd /tmp && \
-    wget https://github.com/libspatialindex/libspatialindex/releases/download/${SPATIALINDEX_VERSION}/spatialindex-src-${SPATIALINDEX_VERSION}.tar.gz && \
-    tar -xf spatialindex-src-${SPATIALINDEX_VERSION}.tar.gz && \
-    cd spatialindex-src-${SPATIALINDEX_VERSION}/ && \
-    cmake  -DCMAKE_INSTALL_PREFIX=/usr/local/ && \
-    make && \
-    sudo make install && \
-    sudo ldconfig && \
-    cd /tmp && sudo rm -Rf spatialindex*
+WORKDIR /home/circleci
