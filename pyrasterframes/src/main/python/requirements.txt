@@ -1,5 +1,5 @@
 ipython==6.2.1
-pyspark==2.4.4
+pyspark==2.4.5
 gdal==2.4.4
 numpy>=1.17.3,<2.0
 pandas>=0.25.3,<1.0

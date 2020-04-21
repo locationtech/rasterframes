@@ -30,7 +30,7 @@
     * Add cell value scaling functions `rf_rescale` and `rf_standardize`.
     * Add `rf_where` function, similar in spirit to numpy's `where`, or a cell-wise version of Spark SQL's `when` and `otherwise`.
 * Add `rf_sqrt` function to compute cell-wise square root.
-
+* Upgraded to Spark 2.4.5
 
 ## 0.8.x
 
