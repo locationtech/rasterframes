@@ -7,6 +7,9 @@ orbs:
       default:
         docker:
           - image: docker.pkg.github.com/locationtech/rasterframes/miniconda-gdal:latest
+            auth:
+              username: $GITHUB_USERNAME
+              password: $GITHUB_PASSWORD
         resource_class: medium
         working_directory: ~/repo
         environment:
@@ -196,18 +199,22 @@ workflows:
   version: 2
   all:
     jobs:
-      - test
+      - test:
+          context: rasterframes
       - it:
+          context: rasterframes
           filters:
             branches:
               only:
                 - /feature\/.*-its/
       - itWithoutGdal:
+          context: rasterframes
           filters:
             branches:
               only:
                 - /feature\/.*-its/
       - docs:
+          context: rasterframes
           filters:
             branches:
               only:
