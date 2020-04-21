@@ -14,6 +14,7 @@ orbs:
         working_directory: ~/repo
         environment:
           SBT_VERSION: 1.3.8
+          SBT_OPTS: -Xmx512m
     commands:
       setup:
         description: Setup for sbt build
