@@ -14,7 +14,7 @@ orbs:
         working_directory: ~/repo
         environment:
           SBT_VERSION: 1.3.8
-          SBT_OPTS: -Xmx512m
+          SBT_OPTS: -Xmx768m
     commands:
       setup:
         description: Setup for sbt build
@@ -22,6 +22,14 @@ orbs:
           - run:
               name: Setup sbt
               command: 'true' # NOOP
+
+      compile:
+        description: Do just the compilation stage to minimize sbt memory footprint
+        steps:
+          - run:
+              name: "Compile Scala via sbt"
+              command: |-
+                sbt -v -batch compile test:compile it:compile
 
   python:
     commands:
@@ -115,10 +123,7 @@ jobs:
       - python/setup
       - rasterframes/setup
       - rasterframes/restore-cache
-
-      - run:
-          name: "Compile Scala"
-          command: sbt -v -batch compile
+      - sbt/compile
 
       - run:
           name: "Scala Tests: core"
@@ -154,10 +159,11 @@ jobs:
       - python/requirements
       - rasterframes/setup
       - rasterframes/restore-cache
+      - sbt/compile
 
       - run:
           name: Build documentation
-          command: cat /dev/null | sbt makeSite
+          command: sbt makeSite
           no_output_timeout: 30m
 
       - rasterframes/save-doc-artifacts
@@ -170,6 +176,7 @@ jobs:
       - sbt/setup
       - rasterframes/setup
       - rasterframes/restore-cache
+      - sbt/compile
 
       - run:
           name: Integration tests
@@ -191,6 +198,8 @@ jobs:
           name: Uninstall GDAL
           command: conda remove gdal -q -y --offline
 
+      - sbt/compile
+
       - run:
           name: Integration tests
           command: sbt it:test
@@ -208,6 +217,8 @@ workflows:
 
       - it:
           context: rasterframes
+#          requires:
+#            - test
           filters:
             branches:
               only:
@@ -216,6 +227,8 @@ workflows:
 
       - it-no-gdal:
           context: rasterframes
+#          requires:
+#            - test
           filters:
             branches:
               only:

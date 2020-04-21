@@ -117,7 +117,9 @@ lazy val datasource = project
       """
         |import org.locationtech.rasterframes.datasource.geotrellis._
         |import org.locationtech.rasterframes.datasource.geotiff._
-        |""".stripMargin
+        |""".stripMargin,
+    fork in IntegrationTest := true,
+    javaOptions in IntegrationTest := Seq("-Xmx1500m")
   )
 
 lazy val experimental = project
@@ -134,7 +136,7 @@ lazy val experimental = project
       spark("sql").value % Provided
     ),
     fork in IntegrationTest := true,
-    //javaOptions in IntegrationTest := Seq("-Xmx2G")
+    javaOptions in IntegrationTest := Seq("-Xmx1500m")
   )
 
 lazy val docs = project
