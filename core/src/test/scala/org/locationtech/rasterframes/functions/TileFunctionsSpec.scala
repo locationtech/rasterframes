@@ -261,8 +261,6 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should evaluate rf_where"){
       val df = Seq((randPRT, one, six)).toDF("t", "one", "six")
 
-      df.select(rf_render_matrix(rf_where(rf_local_greater($"t", 0), $"one", $"six") as "result")).show(false)
-
       val result = df.select(
         rf_for_all(
           rf_local_equal(

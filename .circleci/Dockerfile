@@ -53,6 +53,9 @@ RUN \
     sh /tmp/fix-permissions $CONDA_DIR 2> /dev/null && \
     ldconfig 2> /dev/null
 
+# Work-around for pyproj issue https://github.com/pyproj4/pyproj/issues/415
+ENV PROJ_LIB=/opt/conda/share/proj
+
 USER 3434
 
 WORKDIR /home/circleci
