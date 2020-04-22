@@ -116,8 +116,8 @@ If you would like to use RasterFrames in Scala, you'll need to add the following
 
 ```scala
 resolvers ++= Seq(
-    "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
-    "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis"
+      "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
+      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases"
 )
 libraryDependencies ++= Seq(
     "org.locationtech.rasterframes" %% "rasterframes" % ${VERSION},
@@ -126,6 +126,8 @@ libraryDependencies ++= Seq(
     "org.locationtech.rasterframes" %% "rasterframes-experimental" % ${VERSION}
 )
 ``` 
+
+RasterFrames is compatible with Spark 2.4.x.
 
 ## Installing GDAL Support
 

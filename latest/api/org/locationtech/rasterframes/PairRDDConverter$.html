@@ -282,7 +282,7 @@
               
         </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.PairRDDConverter#forSpaceTimeMultiband" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="forSpaceTimeMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,geotrellis.raster.MultibandTile]"></a>
+      <a id="forSpaceTimeMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,geotrellis.raster.MultibandTile]"></a>
       <a id="forSpaceTimeMultiband(Int):PairRDDConverter[SpaceTimeKey,MultibandTile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -290,16 +290,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forSpaceTimeMultiband</span><span class="params">(<span name="bands">bands: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+        <span class="name">forSpaceTimeMultiband</span><span class="params">(<span name="bands">bands: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@forSpaceTimeMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@forSpaceTimeMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Enables conversion of <code>RDD[(SpaceTimeKey, MultibandTile)]</code> to DataFrame.</p>
     </li><li name="org.locationtech.rasterframes.PairRDDConverter#forSpatialMultiband" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="forSpatialMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,geotrellis.raster.MultibandTile]"></a>
+      <a id="forSpatialMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,geotrellis.raster.MultibandTile]"></a>
       <a id="forSpatialMultiband(Int):PairRDDConverter[SpatialKey,MultibandTile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -307,10 +307,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forSpatialMultiband</span><span class="params">(<span name="bands">bands: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+        <span class="name">forSpatialMultiband</span><span class="params">(<span name="bands">bands: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@forSpatialMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@forSpatialMultiband(bands:Int):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -418,7 +418,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.PairRDDConverter#spaceTimeTileConverter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="spaceTimeTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,geotrellis.raster.Tile]"></a>
+      <a id="spaceTimeTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,geotrellis.raster.Tile]"></a>
       <a id="spaceTimeTileConverter:PairRDDConverter[SpaceTimeKey,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -426,16 +426,16 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">spaceTimeTileConverter</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">spaceTimeTileConverter</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spaceTimeTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,geotrellis.raster.Tile]" title="Permalink" target="_top">
+      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spaceTimeTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Enables conversion of <code>RDD[(SpaceTimeKey, Tile)]</code> to DataFrame.</p>
     </li><li name="org.locationtech.rasterframes.PairRDDConverter#spaceTimeTileFeatureConverter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="spaceTimeTileFeatureConverter[D](implicitevidence$2:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.spark.SpatialKey,geotrellis.spark.TemporalKey,geotrellis.raster.Tile,D)]}"></a>
+      <a id="spaceTimeTileFeatureConverter[D](implicitevidence$2:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.layer.SpatialKey,geotrellis.layer.TemporalKey,geotrellis.raster.Tile,D)]}"></a>
       <a id="spaceTimeTileFeatureConverter[D](Encoder[D]):PairRDDConverter[SpaceTimeKey,TileFeature[Tile,D]]{.../*2definitionsintyperefinement*/}"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -443,16 +443,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">spaceTimeTileFeatureConverter</span><span class="tparams">[<span name="D">D</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="org.apache.spark.sql.Encoder">Encoder</span>[<span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spaceTimeTileFeatureConverter.D">D</span>]</span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spaceTimeTileFeatureConverter.D">D</span>]] { ... /* 2 definitions in type refinement */ }</span>
+        <span class="name">spaceTimeTileFeatureConverter</span><span class="tparams">[<span name="D">D</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="org.apache.spark.sql.Encoder">Encoder</span>[<span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spaceTimeTileFeatureConverter.D">D</span>]</span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spaceTimeTileFeatureConverter.D">D</span>]] { ... /* 2 definitions in type refinement */ }</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spaceTimeTileFeatureConverter[D](implicitevidence$2:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.spark.SpatialKey,geotrellis.spark.TemporalKey,geotrellis.raster.Tile,D)]}" title="Permalink" target="_top">
+      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spaceTimeTileFeatureConverter[D](implicitevidence$2:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.layer.SpatialKey,geotrellis.layer.TemporalKey,geotrellis.raster.Tile,D)]}" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Enables conversion of <code>RDD[(SpaceTimeKey, TileFeature[Tile, D])]</code> to DataFrame.</p>
     </li><li name="org.locationtech.rasterframes.PairRDDConverter#spatialTileConverter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="spatialTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,geotrellis.raster.Tile]"></a>
+      <a id="spatialTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,geotrellis.raster.Tile]"></a>
       <a id="spatialTileConverter:PairRDDConverter[SpatialKey,Tile]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -460,16 +460,16 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">spatialTileConverter</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+        <span class="name">spatialTileConverter</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spatialTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,geotrellis.raster.Tile]" title="Permalink" target="_top">
+      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spatialTileConverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,geotrellis.raster.Tile]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Enables conversion of <code>RDD[(SpatialKey, Tile)]</code> to DataFrame.</p>
     </li><li name="org.locationtech.rasterframes.PairRDDConverter#spatialTileFeatureConverter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="spatialTileFeatureConverter[D](implicitevidence$1:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile,D)]}"></a>
+      <a id="spatialTileFeatureConverter[D](implicitevidence$1:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.layer.SpatialKey,geotrellis.raster.Tile,D)]}"></a>
       <a id="spatialTileFeatureConverter[D](Encoder[D]):PairRDDConverter[SpatialKey,TileFeature[Tile,D]]{.../*2definitionsintyperefinement*/}"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -477,10 +477,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">spatialTileFeatureConverter</span><span class="tparams">[<span name="D">D</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="org.apache.spark.sql.Encoder">Encoder</span>[<span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spatialTileFeatureConverter.D">D</span>]</span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spatialTileFeatureConverter.D">D</span>]] { ... /* 2 definitions in type refinement */ }</span>
+        <span class="name">spatialTileFeatureConverter</span><span class="tparams">[<span name="D">D</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="org.apache.spark.sql.Encoder">Encoder</span>[<span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spatialTileFeatureConverter.D">D</span>]</span>)</span><span class="result">: <a href="PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>, <span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>, <span class="extype" name="org.locationtech.rasterframes.PairRDDConverter.spatialTileFeatureConverter.D">D</span>]] { ... /* 2 definitions in type refinement */ }</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spatialTileFeatureConverter[D](implicitevidence$1:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.spark.SpatialKey,geotrellis.raster.Tile,D)]}" title="Permalink" target="_top">
+      <a href="../../../index.html#org.locationtech.rasterframes.PairRDDConverter$@spatialTileFeatureConverter[D](implicitevidence$1:org.apache.spark.sql.Encoder[D]):org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,geotrellis.raster.TileFeature[geotrellis.raster.Tile,D]]{implicitvalfeatureEncoder:org.apache.spark.sql.Encoder[D];implicitvalrowEncoder:org.apache.spark.sql.Encoder[(geotrellis.layer.SpatialKey,geotrellis.raster.Tile,D)]}" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

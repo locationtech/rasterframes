@@ -100,28 +100,6 @@
       </a>
     </span>
       <p class="shortcomment cmt">Represents the union of binary cell datas or a reference to the data.</p>
-    </li><li name="org.locationtech.rasterframes.model.FixedRasterExtent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="FixedRasterExtentextendsGridExtentwithGridwithProductwithSerializable"></a>
-      <a id="FixedRasterExtent:FixedRasterExtent"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="FixedRasterExtent.html"><span class="name">FixedRasterExtent</span></a><span class="params">(<span name="extent">extent: <span class="extype" name="geotrellis.vector.Extent">Extent</span></span>, <span name="cellwidth">cellwidth: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="cellheight">cellheight: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="cols">cols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rows">rows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result"> extends <span class="extype" name="geotrellis.raster.GridExtent">GridExtent</span> with <span class="extype" name="geotrellis.raster.Grid">Grid</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.model.package@FixedRasterExtentextendsGridExtentwithGridwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">This class is a copy of the GeoTrellis 2.x <code>RasterExtent</code>,
-with [GT 3.0 fixes](https://github.com/locationtech/geotrellis/pull/2953/files) incorporated into the
-new <code>GridExtent[T]</code> class.</p><div class="fullcomment"><div class="comment cmt"><p>This class is a copy of the GeoTrellis 2.x <code>RasterExtent</code>,
-with [GT 3.0 fixes](https://github.com/locationtech/geotrellis/pull/2953/files) incorporated into the
-new <code>GridExtent[T]</code> class. This class should be removed after RasterFrames is upgraded to GT 3.x.
-</p></div></div>
     </li><li name="org.locationtech.rasterframes.model.LazyCRS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LazyCRSextendsCRS"></a>
       <a id="LazyCRS:LazyCRS"></a>
@@ -135,6 +113,23 @@ new <code>GridExtent[T]</code> class. This class should be removed after RasterF
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.model.package@LazyCRSextendsCRS" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.model.LongExtent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LongExtentextendsProductwithSerializable"></a>
+      <a id="LongExtent:LongExtent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="LongExtent.html"><span class="name">LongExtent</span></a><span class="params">(<span name="xmin">xmin: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="ymin">ymin: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="xmax">xmax: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="ymax">ymax: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.model.package@LongExtentextendsProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -165,7 +160,7 @@ new <code>GridExtent[T]</code> class. This class should be removed after RasterF
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="TileDataContext.html"><span class="name">TileDataContext</span></a><span class="params">(<span name="cellType">cellType: <a href="../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="dimensions">dimensions: <a href="TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="TileDataContext.html"><span class="name">TileDataContext</span></a><span class="params">(<span name="cellType">cellType: <a href="../../../../geotrellis/raster/package.html#CellType=geotrellis.raster.DataTypewithgeotrellis.raster.NoDataHandling" class="extmbr" name="geotrellis.raster.CellType">CellType</a></span>, <span name="dimensions">dimensions: <span class="extype" name="geotrellis.raster.Dimensions">Dimensions</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.model.package@TileDataContextextendsProductwithSerializable" title="Permalink" target="_top">
@@ -173,24 +168,6 @@ new <code>GridExtent[T]</code> class. This class should be removed after RasterF
       </a>
     </span>
       <p class="shortcomment cmt">Encapsulates all information about a tile aside from actual cell values.</p>
-    </li><li name="org.locationtech.rasterframes.model.TileDimensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TileDimensionsextendsGridwithProductwithSerializable"></a>
-      <a id="TileDimensions:TileDimensions"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="TileDimensions.html"><span class="name">TileDimensions</span></a><span class="params">(<span name="cols">cols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="rows">rows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result"> extends <span class="extype" name="geotrellis.raster.Grid">Grid</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.model.package@TileDimensionsextendsGridwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Typed wrapper for tile size information.</p><div class="fullcomment"><div class="comment cmt"><p>Typed wrapper for tile size information.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2018-12-12</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -232,23 +209,6 @@ new <code>GridExtent[T]</code> class. This class should be removed after RasterF
       </a>
     </span>
       
-    </li><li name="org.locationtech.rasterframes.model.FixedRasterExtent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="FixedRasterExtent"></a>
-      <a id="FixedRasterExtent:FixedRasterExtent"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="FixedRasterExtent$.html"><span class="name">FixedRasterExtent</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.model.package@FixedRasterExtent" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">The companion object for the <a href="FixedRasterExtent.html" class="extype" name="org.locationtech.rasterframes.model.FixedRasterExtent">FixedRasterExtent</a> type.</p>
     </li><li name="org.locationtech.rasterframes.model.LazyCRS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LazyCRS"></a>
       <a id="LazyCRS:LazyCRS"></a>
@@ -262,6 +222,23 @@ new <code>GridExtent[T]</code> class. This class should be removed after RasterF
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.model.package@LazyCRS" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.model.LongExtent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LongExtent"></a>
+      <a id="LongExtent:LongExtent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="LongExtent$.html"><span class="name">LongExtent</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.model.package@LongExtent" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -296,23 +273,6 @@ new <code>GridExtent[T]</code> class. This class should be removed after RasterF
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.model.package@TileDataContext" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="org.locationtech.rasterframes.model.TileDimensions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TileDimensions"></a>
-      <a id="TileDimensions:TileDimensions"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="TileDimensions$.html"><span class="name">TileDimensions</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.model.package@TileDimensions" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

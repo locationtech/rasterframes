@@ -47,14 +47,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RasterRef</span><span class="params">(<span name="source">source: <a href="RasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.RasterSource">RasterSource</a></span>, <span name="bandIndex">bandIndex: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="subextent">subextent: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>, <span name="subgrid">subgrid: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>]</span>)</span><span class="result"> extends <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">RasterRef</span><span class="params">(<span name="source">source: <a href="RFRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.RFRasterSource">RFRasterSource</a></span>, <span name="bandIndex">bandIndex: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="subextent">subextent: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>, <span name="subgrid">subgrid: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]]</span>)</span><span class="result"> extends <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>] with <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A delayed-read projected raster implementation.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/21/18</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a>, <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>, <span class="extype" name="geotrellis.raster.Grid">Grid</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a>, <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>], <span class="extype" name="geotrellis.raster.Grid">Grid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -92,7 +92,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.locationtech.rasterframes.ref.RasterRef#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(source:org.locationtech.rasterframes.ref.RasterSource,bandIndex:Int,subextent:Option[geotrellis.vector.Extent],subgrid:Option[geotrellis.raster.GridBounds]):org.locationtech.rasterframes.ref.RasterRef"></a>
+      <a id="&lt;init&gt;(source:org.locationtech.rasterframes.ref.RFRasterSource,bandIndex:Int,subextent:Option[geotrellis.vector.Extent],subgrid:Option[geotrellis.raster.GridBounds[Int]]):org.locationtech.rasterframes.ref.RasterRef"></a>
       <a id="&lt;init&gt;:RasterRef"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -100,10 +100,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RasterRef</span><span class="params">(<span name="source">source: <a href="RasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.RasterSource">RasterSource</a></span>, <span name="bandIndex">bandIndex: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="subextent">subextent: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>, <span name="subgrid">subgrid: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>]</span>)</span>
+        <span class="name">RasterRef</span><span class="params">(<span name="source">source: <a href="RFRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.RFRasterSource">RFRasterSource</a></span>, <span name="bandIndex">bandIndex: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="subextent">subextent: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>, <span name="subgrid">subgrid: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@&lt;init&gt;(source:org.locationtech.rasterframes.ref.RasterSource,bandIndex:Int,subextent:Option[geotrellis.vector.Extent],subgrid:Option[geotrellis.raster.GridBounds]):org.locationtech.rasterframes.ref.RasterRef" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@&lt;init&gt;(source:org.locationtech.rasterframes.ref.RFRasterSource,bandIndex:Int,subextent:Option[geotrellis.vector.Extent],subgrid:Option[geotrellis.raster.GridBounds[Int]]):org.locationtech.rasterframes.ref.RasterRef" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -218,7 +218,7 @@
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterRef">RasterRef</a> → CellGrid</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterRef">RasterRef</a> → <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> → CellGrid</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -258,7 +258,7 @@
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterRef">RasterRef</a> → Grid</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterRef">RasterRef</a> → <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> → Grid</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.ref.RasterRef#crs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="crs:geotrellis.proj4.CRS"></a>
       <a id="crs:CRS"></a>
@@ -277,18 +277,18 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterRef">RasterRef</a> → <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a></dd></dl></div>
     </li><li name="geotrellis.raster.Grid#dimensions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="dimensions:(Int,Int)"></a>
-      <a id="dimensions:(Int,Int)"></a>
+      <a id="dimensions:geotrellis.raster.Dimensions[N]"></a>
+      <a id="dimensions:Dimensions[Int]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">dimensions</span><span class="result">: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>)</span>
+        <span class="name">dimensions</span><span class="result">: <span class="extype" name="geotrellis.raster.Dimensions">Dimensions</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@dimensions:(Int,Int)" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@dimensions:geotrellis.raster.Dimensions[N]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -368,39 +368,22 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.ref.RasterRef#grid" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="grid:geotrellis.raster.GridBounds"></a>
-      <a id="grid:GridBounds"></a>
+      <a id="grid:geotrellis.raster.GridBounds[Int]"></a>
+      <a id="grid:GridBounds[Int]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">grid</span><span class="result">: <span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span></span>
+        <span class="name">grid</span><span class="result">: <span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@grid:geotrellis.raster.GridBounds" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@grid:geotrellis.raster.GridBounds[Int]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
-    </li><li name="geotrellis.raster.Grid#gridBounds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="gridBounds:geotrellis.raster.GridBounds"></a>
-      <a id="gridBounds:GridBounds"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">gridBounds</span><span class="result">: <span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@gridBounds:geotrellis.raster.GridBounds" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -519,9 +502,9 @@
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterRef">RasterRef</a> → Grid</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.ref.RasterRef">RasterRef</a> → <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a> → Grid</dd></dl></div>
     </li><li name="geotrellis.raster.Grid#size" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="size:Int"></a>
+      <a id="size:N"></a>
       <a id="size:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -532,24 +515,24 @@
         <span class="name">size</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@size:Int" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@size:N" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Grid</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.ref.RasterRef#source" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="source:org.locationtech.rasterframes.ref.RasterSource"></a>
-      <a id="source:RasterSource"></a>
+      <a id="source:org.locationtech.rasterframes.ref.RFRasterSource"></a>
+      <a id="source:RFRasterSource"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">source</span><span class="result">: <a href="RasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.RasterSource">RasterSource</a></span>
+        <span class="name">source</span><span class="result">: <a href="RFRasterSource.html" class="extype" name="org.locationtech.rasterframes.ref.RFRasterSource">RFRasterSource</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@source:org.locationtech.rasterframes.ref.RasterSource" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@source:org.locationtech.rasterframes.ref.RFRasterSource" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -572,18 +555,18 @@
     </span>
       
     </li><li name="org.locationtech.rasterframes.ref.RasterRef#subgrid" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="subgrid:Option[geotrellis.raster.GridBounds]"></a>
-      <a id="subgrid:Option[GridBounds]"></a>
+      <a id="subgrid:Option[geotrellis.raster.GridBounds[Int]]"></a>
+      <a id="subgrid:Option[GridBounds[Int]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">subgrid</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>]</span>
+        <span class="name">subgrid</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@subgrid:Option[geotrellis.raster.GridBounds]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.ref.RasterRef@subgrid:Option[geotrellis.raster.GridBounds[Int]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -707,9 +690,9 @@
             </div><div class="parent" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">
               <h3>Inherited from <a href="ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a></h3>
             </div><div class="parent" name="geotrellis.raster.CellGrid">
-              <h3>Inherited from <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></h3>
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</h3>
             </div><div class="parent" name="geotrellis.raster.Grid">
-              <h3>Inherited from <span class="extype" name="geotrellis.raster.Grid">Grid</span></h3>
+              <h3>Inherited from <span class="extype" name="geotrellis.raster.Grid">Grid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</h3>
             </div><div class="parent" name="scala.Serializable">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
             </div><div class="parent" name="java.io.Serializable">

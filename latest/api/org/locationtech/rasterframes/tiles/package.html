@@ -66,27 +66,8 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="org.locationtech.rasterframes.tiles.FixedDelegatingTile" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="FixedDelegatingTileextendsDelegatingTile"></a>
-      <a id="FixedDelegatingTile:FixedDelegatingTile"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="FixedDelegatingTile.html"><span class="name">FixedDelegatingTile</span></a><span class="result"> extends <span class="extype" name="geotrellis.raster.DelegatingTile">DelegatingTile</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.tiles.package@FixedDelegatingTileextendsDelegatingTile" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Temporary workaroud for https://github.com/locationtech/geotrellis/issues/2907
-</p><div class="fullcomment"><div class="comment cmt"><p>Temporary workaroud for https://github.com/locationtech/geotrellis/issues/2907
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>8/22/18</p></dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.tiles.InternalRowTile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="InternalRowTileextendsFixedDelegatingTile"></a>
+              <ol><li name="org.locationtech.rasterframes.tiles.InternalRowTile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="InternalRowTileextendsDelegatingTile"></a>
       <a id="InternalRowTile:InternalRowTile"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -94,10 +75,10 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="InternalRowTile.html"><span class="name">InternalRowTile</span></a><span class="result"> extends <a href="FixedDelegatingTile.html" class="extype" name="org.locationtech.rasterframes.tiles.FixedDelegatingTile">FixedDelegatingTile</a></span>
+        <a href="InternalRowTile.html"><span class="name">InternalRowTile</span></a><span class="result"> extends <span class="extype" name="geotrellis.raster.DelegatingTile">DelegatingTile</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.tiles.package@InternalRowTileextendsFixedDelegatingTile" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.tiles.package@InternalRowTileextendsDelegatingTile" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -106,25 +87,25 @@ of providing compatible semantics over common operations.</p><div class="fullcom
 of providing compatible semantics over common operations.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>11/29/17</p></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.tiles.ProjectedRasterTile" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ProjectedRasterTileextendsFixedDelegatingTilewithProjectedRasterLike"></a>
+      <a id="ProjectedRasterTileextendsDelegatingTilewithProjectedRasterLike"></a>
       <a id="ProjectedRasterTile:ProjectedRasterTile"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ProjectedRasterTile.html"><span class="name">ProjectedRasterTile</span></a><span class="result"> extends <a href="FixedDelegatingTile.html" class="extype" name="org.locationtech.rasterframes.tiles.FixedDelegatingTile">FixedDelegatingTile</a> with <a href="../ref/ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a></span>
+        <a href="ProjectedRasterTile.html"><span class="name">ProjectedRasterTile</span></a><span class="result"> extends <span class="extype" name="geotrellis.raster.DelegatingTile">DelegatingTile</span> with <a href="../ref/ProjectedRasterLike.html" class="extype" name="org.locationtech.rasterframes.ref.ProjectedRasterLike">ProjectedRasterLike</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.tiles.package@ProjectedRasterTileextendsFixedDelegatingTilewithProjectedRasterLike" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.tiles.package@ProjectedRasterTileextendsDelegatingTilewithProjectedRasterLike" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A Tile that's also like a ProjectedRaster, with delayed evaluation support.</p><div class="fullcomment"><div class="comment cmt"><p>A Tile that's also like a ProjectedRaster, with delayed evaluation support.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>9/5/18</p></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.tiles.ShowableTile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ShowableTileextendsFixedDelegatingTile"></a>
+      <a id="ShowableTileextendsDelegatingTile"></a>
       <a id="ShowableTile:ShowableTile"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -132,10 +113,10 @@ of providing compatible semantics over common operations.
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ShowableTile.html"><span class="name">ShowableTile</span></a><span class="result"> extends <a href="FixedDelegatingTile.html" class="extype" name="org.locationtech.rasterframes.tiles.FixedDelegatingTile">FixedDelegatingTile</a></span>
+        <a href="ShowableTile.html"><span class="name">ShowableTile</span></a><span class="result"> extends <span class="extype" name="geotrellis.raster.DelegatingTile">DelegatingTile</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.tiles.package@ShowableTileextendsFixedDelegatingTile" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.tiles.package@ShowableTileextendsDelegatingTile" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

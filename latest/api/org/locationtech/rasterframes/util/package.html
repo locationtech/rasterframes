@@ -90,7 +90,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="org.locationtech.rasterframes.util.BoundsComponentOf" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BoundsComponentOf[K]=AnyRef{typeGet[M]=geotrellis.util.GetComponent[M,geotrellis.spark.Bounds[K]]}"></a>
+      <a id="BoundsComponentOf[K]=AnyRef{typeGet[M]=geotrellis.util.GetComponent[M,geotrellis.layer.Bounds[K]]}"></a>
       <a id="BoundsComponentOf[K]:BoundsComponentOf[K]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -98,10 +98,10 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">BoundsComponentOf</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a> { type Get[M] = geotrellis.util.GetComponent[M,geotrellis.spark.Bounds[K]] }</span>
+        <span class="name">BoundsComponentOf</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a> { type Get[M] = geotrellis.util.GetComponent[M,geotrellis.layer.Bounds[K]] }</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@BoundsComponentOf[K]=AnyRef{typeGet[M]=geotrellis.util.GetComponent[M,geotrellis.spark.Bounds[K]]}" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@BoundsComponentOf[K]=AnyRef{typeGet[M]=geotrellis.util.GetComponent[M,geotrellis.layer.Bounds[K]]}" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -244,6 +244,40 @@
     </span>
       <p class="shortcomment cmt">Utility mix-in for generating a tlm from GeoTiff headers.</p><div class="fullcomment"><div class="comment cmt"><p>Utility mix-in for generating a tlm from GeoTiff headers.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>5/4/18</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.util.GridHasGridBounds" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GridHasGridBounds[N]extendsAnyRef"></a>
+      <a id="GridHasGridBounds[N]:GridHasGridBounds[N]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$GridHasGridBounds.html"><span class="name">GridHasGridBounds</span></a><span class="tparams">[<span name="N">N</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@GridHasGridBounds[N]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.util.JsonCodecs" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="JsonCodecsextendsAnyRef"></a>
+      <a id="JsonCodecs:JsonCodecs"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonCodecs.html"><span class="name">JsonCodecs</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@JsonCodecsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="org.locationtech.rasterframes.util.KeyMethodsProvider" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="KeyMethodsProvider[K1,K2]=K1=&gt;geotrellis.spark.tiling.TilerKeyMethods[K1,K2]"></a>
       <a id="KeyMethodsProvider[K1,K2]:KeyMethodsProvider[K1,K2]"></a>
@@ -287,7 +321,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="RFKryoRegistrator.html"><span class="name">RFKryoRegistrator</span></a><span class="result"> extends <span class="extype" name="geotrellis.spark.io.kryo.KryoRegistrator">KryoRegistrator</span></span>
+        <a href="RFKryoRegistrator.html"><span class="name">RFKryoRegistrator</span></a><span class="result"> extends <span class="extype" name="geotrellis.spark.store.kryo.KryoRegistrator">KryoRegistrator</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.util.package@RFKryoRegistratorextendsKryoRegistrator" title="Permalink" target="_top">
@@ -348,18 +382,18 @@
     </span>
       
     </li><li name="org.locationtech.rasterframes.util.WithCropMethods" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="WithCropMethods[V&lt;:geotrellis.raster.CellGrid]=V=&gt;geotrellis.raster.crop.TileCropMethods[V]"></a>
-      <a id="WithCropMethods[V&lt;:CellGrid]:WithCropMethods[V]"></a>
+      <a id="WithCropMethods[V&lt;:geotrellis.raster.CellGrid[Int]]=V=&gt;geotrellis.raster.crop.TileCropMethods[V]"></a>
+      <a id="WithCropMethods[V&lt;:CellGrid[Int]]:WithCropMethods[V]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">WithCropMethods</span><span class="tparams">[<span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> = (<span class="extype" name="org.locationtech.rasterframes.util.WithCropMethods.V">V</span>) ⇒ <span class="extype" name="geotrellis.raster.crop.TileCropMethods">TileCropMethods</span>[<span class="extype" name="org.locationtech.rasterframes.util.WithCropMethods.V">V</span>]</span>
+        <span class="name">WithCropMethods</span><span class="tparams">[<span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>]</span><span class="result"> = (<span class="extype" name="org.locationtech.rasterframes.util.WithCropMethods.V">V</span>) ⇒ <span class="extype" name="geotrellis.raster.crop.TileCropMethods">TileCropMethods</span>[<span class="extype" name="org.locationtech.rasterframes.util.WithCropMethods.V">V</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@WithCropMethods[V&lt;:geotrellis.raster.CellGrid]=V=&gt;geotrellis.raster.crop.TileCropMethods[V]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@WithCropMethods[V&lt;:geotrellis.raster.CellGrid[Int]]=V=&gt;geotrellis.raster.crop.TileCropMethods[V]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -399,18 +433,18 @@
     </span>
       
     </li><li name="org.locationtech.rasterframes.util.WithPrototypeMethods" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="WithPrototypeMethods[V&lt;:geotrellis.raster.CellGrid]=V=&gt;geotrellis.raster.prototype.TilePrototypeMethods[V]"></a>
-      <a id="WithPrototypeMethods[V&lt;:CellGrid]:WithPrototypeMethods[V]"></a>
+      <a id="WithPrototypeMethods[V&lt;:geotrellis.raster.CellGrid[Int]]=V=&gt;geotrellis.raster.prototype.TilePrototypeMethods[V]"></a>
+      <a id="WithPrototypeMethods[V&lt;:CellGrid[Int]]:WithPrototypeMethods[V]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">WithPrototypeMethods</span><span class="tparams">[<span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> = (<span class="extype" name="org.locationtech.rasterframes.util.WithPrototypeMethods.V">V</span>) ⇒ <span class="extype" name="geotrellis.raster.prototype.TilePrototypeMethods">TilePrototypeMethods</span>[<span class="extype" name="org.locationtech.rasterframes.util.WithPrototypeMethods.V">V</span>]</span>
+        <span class="name">WithPrototypeMethods</span><span class="tparams">[<span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>]</span><span class="result"> = (<span class="extype" name="org.locationtech.rasterframes.util.WithPrototypeMethods.V">V</span>) ⇒ <span class="extype" name="geotrellis.raster.prototype.TilePrototypeMethods">TilePrototypeMethods</span>[<span class="extype" name="org.locationtech.rasterframes.util.WithPrototypeMethods.V">V</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@WithPrototypeMethods[V&lt;:geotrellis.raster.CellGrid]=V=&gt;geotrellis.raster.prototype.TilePrototypeMethods[V]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@WithPrototypeMethods[V&lt;:geotrellis.raster.CellGrid[Int]]=V=&gt;geotrellis.raster.prototype.TilePrototypeMethods[V]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -458,6 +492,23 @@
       <p class="shortcomment cmt">Variations of the GeoTrellis local algebra operations, except that
 NoData combined with a value results in the value being returned.</p><div class="fullcomment"><div class="comment cmt"><p>Variations of the GeoTrellis local algebra operations, except that
 NoData combined with a value results in the value being returned.</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>10/5/17</p></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.util.JsonCodecs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="JsonCodecs"></a>
+      <a id="JsonCodecs:JsonCodecs"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonCodecs$.html"><span class="name">JsonCodecs</span></a><span class="result"> extends <a href="JsonCodecs.html" class="extype" name="org.locationtech.rasterframes.util.JsonCodecs">JsonCodecs</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@JsonCodecs" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="org.locationtech.rasterframes.util.KryoSupport" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="KryoSupport"></a>
       <a id="KryoSupport:KryoSupport"></a>
@@ -494,23 +545,6 @@ NoData combined with a value results in the value being returned.</p></div><dl c
     </span>
       <p class="shortcomment cmt">Rework of process courtesy of @lossyrob for creating natural color RGB images in GeoTrellis.</p><div class="fullcomment"><div class="comment cmt"><p>Rework of process courtesy of @lossyrob for creating natural color RGB images in GeoTrellis.</p><p>Source: https://goo.gl/9ewJCG
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>3/27/18</p></dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.util.Shims" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Shims"></a>
-      <a id="Shims:Shims"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$Shims$.html"><span class="name">Shims</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@Shims" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="org.locationtech.rasterframes.util.SubdivideSupport" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SubdivideSupport"></a>
       <a id="SubdivideSupport:SubdivideSupport"></a>
@@ -528,24 +562,6 @@ NoData combined with a value results in the value being returned.</p></div><dl c
       </a>
     </span>
       
-    </li><li name="org.locationtech.rasterframes.util.debug" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="debug"></a>
-      <a id="debug:debug"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="debug/package.html"><span class="name">debug</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.util.package@debug" title="Permalink" target="_top">
-        <img src="../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Additional debugging routines.</p><div class="fullcomment"><div class="comment cmt"><p>Additional debugging routines. No guarantees these are or will remain stable.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>4/6/18</p></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.util#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="logger:com.typesafe.scalalogging.Logger"></a>
       <a id="logger:Logger"></a>

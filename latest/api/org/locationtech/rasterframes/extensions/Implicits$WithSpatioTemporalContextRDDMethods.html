@@ -45,13 +45,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">WithSpatioTemporalContextRDDMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <a href="SpatioTemporalContextRDDMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods">SpatioTemporalContextRDDMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>]</span>
+        <span class="name">WithSpatioTemporalContextRDDMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>]</span><span class="result"> extends <a href="SpatioTemporalContextRDDMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods">SpatioTemporalContextRDDMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>]</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="SpatioTemporalContextRDDMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods">SpatioTemporalContextRDDMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>], <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="SpatioTemporalContextRDDMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods">SpatioTemporalContextRDDMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>], <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -89,7 +89,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatioTemporalContextRDDMethods[T]"></a>
+      <a id="&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.layer.SpaceTimeKey,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpaceTimeKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatioTemporalContextRDDMethods[T]"></a>
       <a id="&lt;init&gt;:WithSpatioTemporalContextRDDMethods[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -97,10 +97,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">WithSpatioTemporalContextRDDMethods</span><span class="params">(<span name="self">self: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span>
+        <span class="name">WithSpatioTemporalContextRDDMethods</span><span class="params">(<span name="self">self: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatioTemporalContextRDDMethods[T]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@&lt;init&gt;(self:org.apache.spark.rdd.RDD[(geotrellis.layer.SpaceTimeKey,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpaceTimeKey]])(implicitspark:org.apache.spark.sql.SparkSession):Implicits.this.WithSpatioTemporalContextRDDMethods[T]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -365,7 +365,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods#self" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="self:org.apache.spark.rdd.RDD[(geotrellis.layer.SpaceTimeKey,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpaceTimeKey]]"></a>
       <a id="self:RDD[(SpaceTimeKey,T)]withMetadata[TileLayerMetadata[SpaceTimeKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -373,10 +373,10 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">self</span><span class="result">: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+        <span class="name">self</span><span class="result">: <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@self:org.apache.spark.rdd.RDD[(geotrellis.spark.SpaceTimeKey,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@self:org.apache.spark.rdd.RDD[(geotrellis.layer.SpaceTimeKey,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpaceTimeKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -399,7 +399,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(tileColumnName:String)(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(tileColumnName:String)(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(String)(PairRDDConverter[SpaceTimeKey,T]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -407,16 +407,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span name="tileColumnName">tileColumnName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="converter">converter: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span name="tileColumnName">tileColumnName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="converter">converter: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@toLayer(tileColumnName:String)(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@toLayer(tileColumnName:String)(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="SpatioTemporalContextRDDMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods">SpatioTemporalContextRDDMethods</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(PairRDDConverter[SpaceTimeKey,T]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -424,10 +424,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span class="implicit">implicit </span><span name="converter">converter: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span class="implicit">implicit </span><span name="converter">converter: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@toLayer(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithSpatioTemporalContextRDDMethods@toLayer(implicitconverter:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -530,7 +530,7 @@
         <div class="parent" name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods">
               <h3>Inherited from <a href="SpatioTemporalContextRDDMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.SpatioTemporalContextRDDMethods">SpatioTemporalContextRDDMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>]</h3>
             </div><div class="parent" name="geotrellis.util.MethodExtensions">
-              <h3>Inherited from <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]]</h3>
+              <h3>Inherited from <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithSpatioTemporalContextRDDMethods.T">T</span>)] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]]</h3>
             </div><div class="parent" name="scala.Serializable">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
             </div><div class="parent" name="java.io.Serializable">

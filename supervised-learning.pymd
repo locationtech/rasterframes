@@ -202,27 +202,21 @@ retiled = scored \
 retiled.printSchema()
 ```
 
-Take a look at a sample of the resulting output and the corresponding area's red-green-blue composite image.
-Recall the label coding: 1 is forest (purple), 2 is cropland (green) and 3 is developed areas(yellow).
+Take a look at a sample of the resulting prediction and the corresponding area's red-green-blue composite image. Note that because each `prediction` tile is rendered independently, the colors may not have the same meaning across rows.
 
-```python, display_rgb
-sample = retiled \
-    .select('prediction', 'red', 'grn', 'blu') \
-    .sort(-rf_tile_sum(rf_local_equal('prediction', lit(3.0)))) \
-    .first()
+```python
+scaling_quantiles = retiled.agg(
+                            rf_agg_approx_quantiles('red', [0.03, 0.97]).alias('red_q'),
+                            rf_agg_approx_quantiles('grn', [0.03, 0.97]).alias('grn_q'),
+                            rf_agg_approx_quantiles('blu', [0.03, 0.97]).alias('blu_q')
+                        ).first()
 
-sample_rgb = np.concatenate([sample['red'].cells[:, :, None],
-                             sample['grn'].cells[ :, :, None],
-                             sample['blu'].cells[ :, :, None]], axis=2)
-# plot  scaled RGB
-scaling_quantiles = np.nanpercentile(sample_rgb, [3.00, 97.00], axis=(0,1))
-scaled = np.clip(sample_rgb, scaling_quantiles[0, :], scaling_quantiles[1, :])
-scaled -= scaling_quantiles[0, :]
-scaled /= (scaling_quantiles[1, : ] - scaling_quantiles[0, :])
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
-ax1.imshow(scaled)
-
-# display prediction
-ax2.imshow(sample['prediction'].cells)
+retiled.select(
+                rf_render_png(
+                    rf_local_clamp('red', *scaling_quantiles['red_q']).alias('red'),
+                    rf_local_clamp('grn', *scaling_quantiles['grn_q']).alias('grn'),
+                    rf_local_clamp('blu', *scaling_quantiles['blu_q']).alias('blu')
+                  ).alias('tci'),
+                rf_render_color_ramp_png('prediction', 'ClassificationBoldLandUse').alias('prediction')
+            )
 ```

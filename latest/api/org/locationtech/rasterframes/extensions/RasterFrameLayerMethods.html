@@ -357,7 +357,7 @@
     </span>
       <p class="shortcomment cmt">Default RasterFrameLayer column name for an added spatial index.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrameLayer column name for an added spatial index.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="org.locationtech.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.StandardColumns#SPATIAL_KEY_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]"></a>
+      <a id="SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]"></a>
       <a id="SPATIAL_KEY_COLUMN:TypedColumn[Any,SpatialKey]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -365,16 +365,16 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">SPATIAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+        <span class="name">SPATIAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Default RasterFrameLayer spatial column name.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrameLayer spatial column name.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="org.locationtech.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.StandardColumns#TEMPORAL_KEY_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]"></a>
+      <a id="TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.TemporalKey]"></a>
       <a id="TEMPORAL_KEY_COLUMN:TypedColumn[Any,TemporalKey]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -382,10 +382,10 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">TEMPORAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span>]</span>
+        <span class="name">TEMPORAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.layer.TemporalKey">TemporalKey</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.TemporalKey]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -459,7 +459,7 @@
     </span>
       <p class="shortcomment cmt">Create a temporal key from the given time and assign it as thea temporal key for all rows.</p>
     </li><li name="org.locationtech.rasterframes.extensions.RasterFrameLayerMethods#addTemporalComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="addTemporalComponent(value:geotrellis.spark.TemporalKey):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="addTemporalComponent(value:geotrellis.layer.TemporalKey):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="addTemporalComponent(TemporalKey):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -467,10 +467,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">addTemporalComponent</span><span class="params">(<span name="value">value: <span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span></span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">addTemporalComponent</span><span class="params">(<span name="value">value: <span class="extype" name="geotrellis.layer.TemporalKey">TemporalKey</span></span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@addTemporalComponent(value:geotrellis.spark.TemporalKey):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@addTemporalComponent(value:geotrellis.layer.TemporalKey):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -675,7 +675,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.LayerSpatialColumnMethods#mapTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="mapTransform:geotrellis.spark.tiling.MapKeyTransform"></a>
+      <a id="mapTransform:geotrellis.layer.MapKeyTransform"></a>
       <a id="mapTransform:MapKeyTransform"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -683,10 +683,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">mapTransform</span><span class="result">: <span class="extype" name="geotrellis.spark.tiling.MapKeyTransform">MapKeyTransform</span></span>
+        <span class="name">mapTransform</span><span class="result">: <span class="extype" name="geotrellis.layer.MapKeyTransform">MapKeyTransform</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@mapTransform:geotrellis.spark.tiling.MapKeyTransform" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@mapTransform:geotrellis.layer.MapKeyTransform" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -766,7 +766,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
               
         </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.RasterFrameLayerMethods#spatialKeyColumn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="spatialKeyColumn:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]"></a>
+      <a id="spatialKeyColumn:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]"></a>
       <a id="spatialKeyColumn:TypedColumn[Any,SpatialKey]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -774,10 +774,10 @@ tile layer metadata. A more flexible spatial join is in the works.**
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">spatialKeyColumn</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+        <span class="name">spatialKeyColumn</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@spatialKeyColumn:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@spatialKeyColumn:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -800,7 +800,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.RasterFrameLayerMethods#tileLayerMetadata" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="tileLayerMetadata:Either[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="tileLayerMetadata:Either[geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpatialKey],geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpaceTimeKey]]"></a>
       <a id="tileLayerMetadata:Either[TileLayerMetadata[SpatialKey],TileLayerMetadata[SpaceTimeKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -808,10 +808,10 @@ tile layer metadata. A more flexible spatial join is in the works.**
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">tileLayerMetadata</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+        <span class="name">tileLayerMetadata</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>], <span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@tileLayerMetadata:Either[geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@tileLayerMetadata:Either[geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpatialKey],geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpaceTimeKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -835,7 +835,7 @@ tile layer metadata. A more flexible spatial join is in the works.**
       <p class="shortcomment cmt">Convert the Red, Green &amp; Blue assigned tiles in the RasterFrameLayer into a single color composite raster.</p><div class="fullcomment"><div class="comment cmt"><p>Convert the Red, Green &amp; Blue assigned tiles in the RasterFrameLayer into a single color composite raster.
 For RasterFrames keyed with temporal keys, they will be merged underterministically.</p></div></div>
     </li><li name="org.locationtech.rasterframes.extensions.RasterFrameLayerMethods#toMultibandTileLayerRDD" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toMultibandTileLayerRDD(tileCols:org.apache.spark.sql.Column*):Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="toMultibandTileLayerRDD(tileCols:org.apache.spark.sql.Column*):Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpaceTimeKey]]"></a>
       <a id="toMultibandTileLayerRDD(Column*):Either[MultibandTileLayerRDD[SpatialKey],MultibandTileLayerRDD[SpaceTimeKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -843,16 +843,16 @@ For RasterFrames keyed with temporal keys, they will be merged underterministica
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toMultibandTileLayerRDD</span><span class="params">(<span name="tileCols">tileCols: <span class="extype" name="org.apache.spark.sql.Column">Column</span>*</span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+        <span class="name">toMultibandTileLayerRDD</span><span class="params">(<span name="tileCols">tileCols: <span class="extype" name="org.apache.spark.sql.Column">Column</span>*</span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@toMultibandTileLayerRDD(tileCols:org.apache.spark.sql.Column*):Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@toMultibandTileLayerRDD(tileCols:org.apache.spark.sql.Column*):Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpaceTimeKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Convert the specified tile columns in a Rasterrame to a GeoTrellis <span class="extype" name="MultibandTileLayerRDD">MultibandTileLayerRDD</span></p>
     </li><li name="org.locationtech.rasterframes.extensions.RasterFrameLayerMethods#toMultibandTileLayerRDD" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toMultibandTileLayerRDD:Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="toMultibandTileLayerRDD:Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpaceTimeKey]]"></a>
       <a id="toMultibandTileLayerRDD:Either[MultibandTileLayerRDD[SpatialKey],MultibandTileLayerRDD[SpaceTimeKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -860,10 +860,10 @@ For RasterFrames keyed with temporal keys, they will be merged underterministica
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toMultibandTileLayerRDD</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+        <span class="name">toMultibandTileLayerRDD</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#MultibandTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.MultibandTile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.MultibandTileLayerRDD">MultibandTileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@toMultibandTileLayerRDD:Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@toMultibandTileLayerRDD:Either[geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpatialKey],geotrellis.spark.MultibandTileLayerRDD[geotrellis.layer.SpaceTimeKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -904,7 +904,7 @@ will be merge undeterministically.</p></div></div>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.RasterFrameLayerMethods#toTileLayerRDD" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toTileLayerRDD(tileCol:org.apache.spark.sql.Column):Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]"></a>
+      <a id="toTileLayerRDD(tileCol:org.apache.spark.sql.Column):Either[geotrellis.spark.TileLayerRDD[geotrellis.layer.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.layer.SpaceTimeKey]]"></a>
       <a id="toTileLayerRDD(Column):Either[TileLayerRDD[SpatialKey],TileLayerRDD[SpaceTimeKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -912,10 +912,10 @@ will be merge undeterministically.</p></div></div>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toTileLayerRDD</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#TileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.TileLayerRDD">TileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#TileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.Tile)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.TileLayerRDD">TileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]]</span>
+        <span class="name">toTileLayerRDD</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../../../geotrellis/spark/package.html#TileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.Tile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.TileLayerRDD">TileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>], <a href="../../../../geotrellis/spark/package.html#TileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,geotrellis.raster.Tile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="geotrellis.spark.TileLayerRDD">TileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@toTileLayerRDD(tileCol:org.apache.spark.sql.Column):Either[geotrellis.spark.TileLayerRDD[geotrellis.spark.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.spark.SpaceTimeKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.RasterFrameLayerMethods@toTileLayerRDD(tileCol:org.apache.spark.sql.Column):Either[geotrellis.spark.TileLayerRDD[geotrellis.layer.SpatialKey],geotrellis.spark.TileLayerRDD[geotrellis.layer.SpaceTimeKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

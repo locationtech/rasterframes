@@ -45,7 +45,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">WithProjectedRasterMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span></span>]</span><span class="result"> extends <a href="ProjectedRasterMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods">ProjectedRasterMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>
+        <span class="name">WithProjectedRasterMethods</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>]</span><span class="result"> extends <a href="ProjectedRasterMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods">ProjectedRasterMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>
       </span>
       </h4>
       
@@ -97,7 +97,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">WithProjectedRasterMethods</span><span class="params">(<span name="self">self: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../util/package.html#WithMergeMethods[V]=V=&gt;geotrellis.raster.merge.TileMergeMethods[V]" class="extmbr" name="org.locationtech.rasterframes.util.WithMergeMethods">WithMergeMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>, <span name="arg1">arg1: <a href="../util/package.html#WithPrototypeMethods[V&lt;:geotrellis.raster.CellGrid]=V=&gt;geotrellis.raster.prototype.TilePrototypeMethods[V]" class="extmbr" name="org.locationtech.rasterframes.util.WithPrototypeMethods">WithPrototypeMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span>
+        <span class="name">WithProjectedRasterMethods</span><span class="params">(<span name="self">self: <span class="extype" name="geotrellis.raster.ProjectedRaster">ProjectedRaster</span>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../util/package.html#WithMergeMethods[V]=V=&gt;geotrellis.raster.merge.TileMergeMethods[V]" class="extmbr" name="org.locationtech.rasterframes.util.WithMergeMethods">WithMergeMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>, <span name="arg1">arg1: <a href="../util/package.html#WithPrototypeMethods[V&lt;:geotrellis.raster.CellGrid[Int]]=V=&gt;geotrellis.raster.prototype.TilePrototypeMethods[V]" class="extmbr" name="org.locationtech.rasterframes.util.WithPrototypeMethods">WithPrototypeMethods</a>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@&lt;init&gt;(self:geotrellis.raster.ProjectedRaster[T])(implicitevidence$1:org.locationtech.rasterframes.util.WithMergeMethods[T],implicitevidence$2:org.locationtech.rasterframes.util.WithPrototypeMethods[T],implicitevidence$3:reflect.runtime.universe.TypeTag[T]):Implicits.this.WithProjectedRasterMethods[T]" title="Permalink" target="_top">
@@ -111,7 +111,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods.XTileLayerRDD" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]"></a>
+      <a id="XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]"></a>
       <a id="XTileLayerRDD[K]:XTileLayerRDD[K]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -119,10 +119,10 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">XTileLayerRDD</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods.XTileLayerRDD.K">K</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>)] with <span class="extype" name="geotrellis.spark.Metadata">Metadata</span>[<span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods.XTileLayerRDD.K">K</span>]]</span>
+        <span class="name">XTileLayerRDD</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <span class="extype" name="org.apache.spark.rdd.RDD">RDD</span>[(<span class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods.XTileLayerRDD.K">K</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>)] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods.XTileLayerRDD.K">K</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -373,7 +373,7 @@
     </span>
       <p class="shortcomment cmt">Default RasterFrameLayer column name for an added spatial index.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrameLayer column name for an added spatial index.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="org.locationtech.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.StandardColumns#SPATIAL_KEY_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]"></a>
+      <a id="SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]"></a>
       <a id="SPATIAL_KEY_COLUMN:TypedColumn[Any,SpatialKey]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -381,16 +381,16 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">SPATIAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+        <span class="name">SPATIAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@SPATIAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Default RasterFrameLayer spatial column name.</p><div class="fullcomment"><div class="comment cmt"><p>Default RasterFrameLayer spatial column name.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../StandardColumns.html" class="extype" name="org.locationtech.rasterframes.StandardColumns">StandardColumns</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.StandardColumns#TEMPORAL_KEY_COLUMN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]"></a>
+      <a id="TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.TemporalKey]"></a>
       <a id="TEMPORAL_KEY_COLUMN:TypedColumn[Any,TemporalKey]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -398,10 +398,10 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">TEMPORAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span>]</span>
+        <span class="name">TEMPORAL_KEY_COLUMN</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.layer.TemporalKey">TemporalKey</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@TEMPORAL_KEY_COLUMN:org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.TemporalKey]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -691,7 +691,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(Int,Int,ZonedDateTime)(SparkSession,PairRDDConverter[SpaceTimeKey,T]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -699,10 +699,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="timestamp">timestamp: <span class="extype" name="java.time.ZonedDateTime">ZonedDateTime</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="timestamp">timestamp: <span class="extype" name="java.time.ZonedDateTime">ZonedDateTime</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpaceTimeKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -711,7 +711,7 @@ given dimensions as the target per-row tile size and singular timestamp as the t
 given dimensions as the target per-row tile size and singular timestamp as the temporal component.
 </p></div><dl class="paramcmts block"><dt class="param">tileCols</dt><dd class="cmt"><p>Max number of horizontal cells per tile</p></dd><dt class="param">tileRows</dt><dd class="cmt"><p>Max number of vertical cells per tile.</p></dd><dt class="param">timestamp</dt><dd class="cmt"><p>Temporal key value to assign to tiles.</p></dd><dt class="param">spark</dt><dd class="cmt"><p><span class="extype" name="SparkSession">SparkSession</span> in which to create <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProjectedRasterMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods">ProjectedRasterMethods</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(tileCols:Int,tileRows:Int,tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(tileCols:Int,tileRows:Int,tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(Int,Int,String)(SparkSession,PairRDDConverter[SpatialKey,T]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -719,10 +719,10 @@ given dimensions as the target per-row tile size and singular timestamp as the t
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileColName">tileColName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileColName">tileColName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileCols:Int,tileRows:Int,tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileCols:Int,tileRows:Int,tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -731,7 +731,7 @@ given dimensions as the target per-row tile size.</p><div class="fullcomment"><d
 given dimensions as the target per-row tile size.
 </p></div><dl class="paramcmts block"><dt class="param">tileCols</dt><dd class="cmt"><p>Max number of horizontal cells per tile</p></dd><dt class="param">tileRows</dt><dd class="cmt"><p>Max number of vertical cells per tile</p></dd><dt class="param">tileColName</dt><dd class="cmt"><p>Name to give the created tile column</p></dd><dt class="param">spark</dt><dd class="cmt"><p><span class="extype" name="SparkSession">SparkSession</span> in which to create <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProjectedRasterMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods">ProjectedRasterMethods</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(Int,Int)(SparkSession,PairRDDConverter[SpatialKey,T]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -739,10 +739,10 @@ given dimensions as the target per-row tile size.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -751,7 +751,7 @@ given dimensions as the target per-row tile size.</p><div class="fullcomment"><d
 given dimensions as the target per-row tile size.
 </p></div><dl class="paramcmts block"><dt class="param">tileCols</dt><dd class="cmt"><p>Max number of horizontal cells per tile</p></dd><dt class="param">tileRows</dt><dd class="cmt"><p>Max number of vertical cells per tile</p></dd><dt class="param">spark</dt><dd class="cmt"><p><span class="extype" name="SparkSession">SparkSession</span> in which to create <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProjectedRasterMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods">ProjectedRasterMethods</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(String)(SparkSession,PairRDDConverter[SpatialKey,T]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -759,10 +759,10 @@ given dimensions as the target per-row tile size.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span name="tileColName">tileColName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span name="tileColName">tileColName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(tileColName:String)(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -771,7 +771,7 @@ single row.</p><div class="fullcomment"><div class="comment cmt"><p>Convert the 
 single row.
 </p></div><dl class="paramcmts block"><dt class="param">spark</dt><dd class="cmt"><p><span class="extype" name="SparkSession">SparkSession</span> in which to create <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProjectedRasterMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods">ProjectedRasterMethods</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(SparkSession,PairRDDConverter[SpatialKey,T]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -779,10 +779,10 @@ single row.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>, <span name="schema">schema: <a href="../PairRDDConverter.html" class="extype" name="org.locationtech.rasterframes.PairRDDConverter">PairRDDConverter</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>, <span class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.T">T</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.spark.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toLayer(implicitspark:org.apache.spark.sql.SparkSession,implicitschema:org.locationtech.rasterframes.PairRDDConverter[geotrellis.layer.SpatialKey,T]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -808,7 +808,7 @@ single row.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods#toTileLayerRDD" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toTileLayerRDD(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.spark.SpaceTimeKey]"></a>
+      <a id="toTileLayerRDD(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.layer.SpaceTimeKey]"></a>
       <a id="toTileLayerRDD(Int,Int,ZonedDateTime)(SparkSession):XTileLayerRDD[SpaceTimeKey]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -816,10 +816,10 @@ single row.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toTileLayerRDD</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="timestamp">timestamp: <span class="extype" name="java.time.ZonedDateTime">ZonedDateTime</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span><span class="result">: <a href="#XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.XTileLayerRDD">XTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpaceTimeKey">SpaceTimeKey</span>]</span>
+        <span class="name">toTileLayerRDD</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="timestamp">timestamp: <span class="extype" name="java.time.ZonedDateTime">ZonedDateTime</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span><span class="result">: <a href="#XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.XTileLayerRDD">XTileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toTileLayerRDD(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.spark.SpaceTimeKey]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toTileLayerRDD(tileCols:Int,tileRows:Int,timestamp:java.time.ZonedDateTime)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.layer.SpaceTimeKey]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -828,7 +828,7 @@ given dimensions as the target per-row tile size and singular timestamp as the t
 given dimensions as the target per-row tile size and singular timestamp as the temporal component.
 </p></div><dl class="paramcmts block"><dt class="param">tileCols</dt><dd class="cmt"><p>Max number of horizontal cells per tile</p></dd><dt class="param">tileRows</dt><dd class="cmt"><p>Max number of vertical cells per tile.</p></dd><dt class="param">timestamp</dt><dd class="cmt"><p>Temporal key value to assign to tiles.</p></dd><dt class="param">spark</dt><dd class="cmt"><p><span class="extype" name="SparkSession">SparkSession</span> in which to create RDD</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProjectedRasterMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods">ProjectedRasterMethods</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.ProjectedRasterMethods#toTileLayerRDD" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toTileLayerRDD(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.spark.SpatialKey]"></a>
+      <a id="toTileLayerRDD(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.layer.SpatialKey]"></a>
       <a id="toTileLayerRDD(Int,Int)(SparkSession):XTileLayerRDD[SpatialKey]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -836,10 +836,10 @@ given dimensions as the target per-row tile size and singular timestamp as the t
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toTileLayerRDD</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span><span class="result">: <a href="#XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.spark.Metadata[geotrellis.spark.TileLayerMetadata[K]]" class="extmbr" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.XTileLayerRDD">XTileLayerRDD</a>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>
+        <span class="name">toTileLayerRDD</span><span class="params">(<span name="tileCols">tileCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="tileRows">tileRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="spark">spark: <span class="extype" name="org.apache.spark.sql.SparkSession">SparkSession</span></span>)</span><span class="result">: <a href="#XTileLayerRDD[K]=org.apache.spark.rdd.RDD[(K,T)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" class="extmbr" name="org.locationtech.rasterframes.extensions.Implicits.WithProjectedRasterMethods.XTileLayerRDD">XTileLayerRDD</a>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toTileLayerRDD(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.spark.SpatialKey]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithProjectedRasterMethods@toTileLayerRDD(tileCols:Int,tileRows:Int)(implicitspark:org.apache.spark.sql.SparkSession):ProjectedRasterMethods.this.XTileLayerRDD[geotrellis.layer.SpatialKey]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

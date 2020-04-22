@@ -189,7 +189,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.5
+<i class="md-icon" title="Version">label_outline</i> 0.9.0
 </label>
 </li>
 </ul>
@@ -301,6 +301,12 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#rf-local-unequal" class="header">rf_local_unequal</a></li>
     <li><a href="reference.html#rf-local-is-in" class="header">rf_local_is_in</a></li>
     <li><a href="reference.html#rf-local-extract-bits" class="header">rf_local_extract_bits</a></li>
+    <li><a href="reference.html#rf-local-min" class="header">rf_local_min</a></li>
+    <li><a href="reference.html#rf-local-max" class="header">rf_local_max</a></li>
+    <li><a href="reference.html#rf-local-clamp" class="header">rf_local_clamp</a></li>
+    <li><a href="reference.html#rf-where" class="header">rf_where</a></li>
+    <li><a href="reference.html#rf-rescale" class="header">rf_rescale</a></li>
+    <li><a href="reference.html#rf-standardize" class="header">rf_standardize</a></li>
     <li><a href="reference.html#rf-round" class="header">rf_round</a></li>
     <li><a href="reference.html#rf-abs" class="header">rf_abs</a></li>
     <li><a href="reference.html#rf-exp" class="header">rf_exp</a></li>
@@ -311,6 +317,7 @@ spark = create_rf_spark_session()
     <li><a href="reference.html#rf-log10" class="header">rf_log10</a></li>
     <li><a href="reference.html#rf-log2" class="header">rf_log2</a></li>
     <li><a href="reference.html#rf-log1p" class="header">rf_log1p</a></li>
+    <li><a href="reference.html#rf-sqrt" class="header">rf_sqrt</a></li>
   </ul></li>
   <li><a href="reference.html#tile-statistics" class="header">Tile Statistics</a>
   <ul>
@@ -632,6 +639,37 @@ Tile rf_local_extract_bits(Tile tile, Int start_bit)
 </code></pre>
 <p>Extract value from specified bits of the cells&rsquo; underlying binary data. Working from the right, the bits from <code>start_bit</code> to <code>start_bit + num_bits</code> are extracted from cell values of the <code>tile</code>. The <code>start_bit</code> is zero indexed. If <code>num_bits</code> is not provided, a single bit is extracted.</p>
 <p>A common use case for this function is covered by <a href="reference.html#rf-mask-by-bits"><code>rf_mask_by_bits</code></a>.</p>
+<h3><a href="#rf-local-min" name="rf-local-min" class="anchor"><span class="anchor-link"></span></a>rf_local_min</h3>
+<pre><code>Tile rf_local_min(Tile tile, Tile max)
+Tile rf_local_min(Tile tile, Numeric max)
+</code></pre>
+<p>Performs cell-wise minimum two tiles or a tile and a scalar.</p>
+<h3><a href="#rf-local-max" name="rf-local-max" class="anchor"><span class="anchor-link"></span></a>rf_local_max</h3>
+<pre><code>Tile rf_local_max(Tile tile, Tile max)
+Tile rf_local_max(Tile tile, Numeric max)
+</code></pre>
+<p>Performs cell-wise maximum two tiles or a tile and a scalar.</p>
+<h3><a href="#rf-local-clamp" name="rf-local-clamp" class="anchor"><span class="anchor-link"></span></a>rf_local_clamp</h3>
+<pre><code>Tile rf_local_clamp(Tile tile, Tile min, Tile max)
+Tile rf_local_clamp(Tile tile, Numeric min, Tile max)
+Tile rf_local_clamp(Tile tile, Tile min, Numeric max)
+Tile rf_local_clamp(Tile tile, Numeric min, Numeric max)
+</code></pre>
+<p>Return the tile with its values limited to a range defined by min and max, inclusive. </p>
+<h3><a href="#rf-where" name="rf-where" class="anchor"><span class="anchor-link"></span></a>rf_where</h3>
+<pre><code>Tile rf_where(Tile condition, Tile x, Tile y)
+</code></pre>
+<p>Return a tile with cell values chosen from <code>x</code> or <code>y</code> depending on <code>condition</code>. Operates cell-wise in a similar fashion to Spark SQL <code>when</code> and <code>otherwise</code>.</p>
+<h3><a href="#rf-rescale" name="rf-rescale" class="anchor"><span class="anchor-link"></span></a>rf_rescale</h3>
+<pre><code>Tile rf_rescale(Tile tile)
+Tile rf_rescale(Tile tile, Double min, Double max)
+</code></pre>
+<p>Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range. If specified, the <code>min</code> parameter will become the zero value and the <code>max</code> parameter will become 1. See <a href="reference.html#rf_agg_stats"><code>rf_agg_stats</code></a>. Values outside the range will be set to 0 or 1. If <code>min</code> and <code>max</code> are not specified, the <strong>tile-wise</strong> minimum and maximum are used; this can result in inconsistent values across rows in a tile column.</p>
+<h3><a href="#rf-standardize" name="rf-standardize" class="anchor"><span class="anchor-link"></span></a>rf_standardize</h3>
+<pre><code>rf_standardize(Tile tile)
+rf_standardize(Tile tile, Double mean, Double stddev)
+</code></pre>
+<p>Standardize cell values such that the mean is zero and the standard deviation is one. If specified, the <code>mean</code> and <code>stddev</code> are applied to all tiles in the column. See <a href="reference.html#rf_agg_stats"><code>rf_agg_stats</code></a>. If not specified, each tile will be standardized according to the statistics of its cell values; this can result in inconsistent values across rows in a tile column.</p>
 <h3><a href="#rf-round" name="rf-round" class="anchor"><span class="anchor-link"></span></a>rf_round</h3>
 <pre><code>Tile rf_round(Tile tile)
 </code></pre>
@@ -672,6 +710,10 @@ Tile rf_local_extract_bits(Tile tile, Int start_bit)
 <pre><code>Tile rf_log1p(Tile tile)
 </code></pre>
 <p>Performs natural logarithm of cell values plus one. Inverse of <a href="reference.html#rf-expm1"><code>rf_expm1</code></a>.</p>
+<h3><a href="#rf-sqrt" name="rf-sqrt" class="anchor"><span class="anchor-link"></span></a>rf_sqrt</h3>
+<pre><code> Tile rf_sqrt(Tile tile)
+</code></pre>
+<p>Perform cell-wise square root.</p>
 <h2><a href="#tile-statistics" name="tile-statistics" class="anchor"><span class="anchor-link"></span></a>Tile Statistics</h2>
 <p>The following functions compute a statistical summary per row of a <code>tile</code> column. The statistics are computed across the cells of a single <code>tile</code>, within each DataFrame Row.</p>
 <h3><a href="#rf-tile-sum" name="rf-tile-sum" class="anchor"><span class="anchor-link"></span></a>rf_tile_sum</h3>
@@ -728,12 +770,12 @@ Tile rf_local_extract_bits(Tile tile, Int start_bit)
 <h3><a href="#rf-agg-data-cells" name="rf-agg-data-cells" class="anchor"><span class="anchor-link"></span></a>rf_agg_data_cells</h3>
 <pre><code>Long rf_agg_data_cells(Tile tile)
 </code></pre>
-<p><em>SQL</em>: <a href="reference.html#rf-agg-stats"><code>rf_agg_stats</code></a><code>(tile).dataCells</code></p>
+<p><em>SQL</em>: <a href="reference.html#rf-agg-stats"><code>rf_agg_stats</code></a><code>(tile).data_cells</code></p>
 <p>Aggregates over the <code>tile</code> and return the count of data cells. Equivalent to <a href="reference.html#rf-agg-stats"><code>rf_agg_stats</code></a><code>.dataCells</code>.</p>
 <h3><a href="#rf-agg-no-data-cells" name="rf-agg-no-data-cells" class="anchor"><span class="anchor-link"></span></a>rf_agg_no_data_cells</h3>
 <pre><code>Long rf_agg_no_data_cells(Tile tile)
 </code></pre>
-<p><em>SQL</em>: <a href="reference.html#rf-agg-stats"><code>rf_agg_stats</code></a><code>(tile).dataCells</code></p>
+<p><em>SQL</em>: <a href="reference.html#rf-agg-stats"><code>rf_agg_stats</code></a><code>(tile).no_data_cells</code></p>
 <p>Aggregates over the <code>tile</code> and return the count of NoData cells. Equivalent to <a href="reference.html#rf-agg-stats"><code>rf_agg_stats</code></a><code>.noDataCells</code>. C.F. <a href="reference.html#rf-no-data-cells"><code>rf_no_data_cells</code></a> a row-wise count of no data cells.</p>
 <h3><a href="#rf-agg-stats" name="rf-agg-stats" class="anchor"><span class="anchor-link"></span></a>rf_agg_stats</h3>
 <pre><code>Struct[Long, Long, Double, Double, Double, Double] rf_agg_stats(Tile tile)
@@ -853,13 +895,13 @@ Tile rf_agg_overview_raster(Tile tile_col, int cols, int rows, Extent aoi, Exten
 <p>Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer. This is useful when you want an RGB tile to render or to process with other color imagery tools. </p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.5/docs/src/main/paradox/reference.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.9.0/docs/src/main/paradox/reference.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.5
+0.9.0
 </span>
 </div>
 </article>

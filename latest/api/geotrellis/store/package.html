@@ -1,0 +1,1329 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>store - geotrellis.store</title>
+          <meta name="description" content="store - geotrellis.store" />
+          <meta name="keywords" content="store geotrellis.store" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'geotrellis.store.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="geotrellis">geotrellis</a></p>
+        <h1>store</h1><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">store</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="geotrellis.store.Implicits">Implicits</span>, <span class="extype" name="geotrellis.store.json.Implicits">store.json.Implicits</span>, <span class="extype" name="geotrellis.vector.io.json.CrsFormats">CrsFormats</span>, <span class="extype" name="geotrellis.store.json.KeyIndexFormats">KeyIndexFormats</span>, <span class="extype" name="geotrellis.store.avro.codecs.Implicits">store.avro.codecs.Implicits</span>, <span class="extype" name="geotrellis.store.avro.codecs.KeyCodecs">KeyCodecs</span>, <span class="extype" name="geotrellis.store.avro.codecs.TemporalProjectedExtentCodec">TemporalProjectedExtentCodec</span>, <span class="extype" name="geotrellis.store.avro.codecs.ProjectedExtentCodec">ProjectedExtentCodec</span>, <span class="extype" name="geotrellis.store.avro.codecs.ExtentCodec">ExtentCodec</span>, <span class="extype" name="geotrellis.store.avro.codecs.CRSCodec">CRSCodec</span>, <span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec">TileFeatureCodec</span>, <span class="extype" name="geotrellis.store.avro.codecs.ConstantTileCodecs">ConstantTileCodecs</span>, <span class="extype" name="geotrellis.store.avro.codecs.TileCodecs">TileCodecs</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="geotrellis.store"><span>store</span></li><li class="in" name="geotrellis.store.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.store.json.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.vector.io.json.CrsFormats"><span>CrsFormats</span></li><li class="in" name="geotrellis.store.json.KeyIndexFormats"><span>KeyIndexFormats</span></li><li class="in" name="geotrellis.store.avro.codecs.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.store.avro.codecs.KeyCodecs"><span>KeyCodecs</span></li><li class="in" name="geotrellis.store.avro.codecs.TemporalProjectedExtentCodec"><span>TemporalProjectedExtentCodec</span></li><li class="in" name="geotrellis.store.avro.codecs.ProjectedExtentCodec"><span>ProjectedExtentCodec</span></li><li class="in" name="geotrellis.store.avro.codecs.ExtentCodec"><span>ExtentCodec</span></li><li class="in" name="geotrellis.store.avro.codecs.CRSCodec"><span>CRSCodec</span></li><li class="in" name="geotrellis.store.avro.codecs.TileFeatureCodec"><span>TileFeatureCodec</span></li><li class="in" name="geotrellis.store.avro.codecs.ConstantTileCodecs"><span>ConstantTileCodecs</span></li><li class="in" name="geotrellis.store.avro.codecs.TileCodecs"><span>TileCodecs</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="geotrellis.store.Implicits.AttributeStoreOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="AttributeStoreOpsextendsAnyRef"></a>
+      <a id="AttributeStoreOps:AttributeStoreOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">AttributeStoreOps</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@AttributeStoreOpsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="geotrellis.store.avro.codecs.TileCodecs#bitArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bitArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.BitArrayTile]"></a>
+      <a id="bitArrayTileCodec:AvroRecordCodec[BitArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bitArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.BitArrayTile">BitArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@bitArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.BitArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#bitConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bitConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.BitConstantTile]"></a>
+      <a id="bitConstantTileCodec:AvroRecordCodec[BitConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bitConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.BitConstantTile">BitConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@bitConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.BitConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#byteArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="byteArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ByteArrayTile]"></a>
+      <a id="byteArrayTileCodec:AvroRecordCodec[ByteArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">byteArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.ByteArrayTile">ByteArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@byteArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ByteArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#byteConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="byteConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ByteConstantTile]"></a>
+      <a id="byteConstantTileCodec:AvroRecordCodec[ByteConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">byteConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.ByteConstantTile">ByteConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@byteConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ByteConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.Implicits#constantTileUnionCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="constantTileUnionCodec:geotrellis.store.avro.AvroUnionCodec[geotrellis.raster.ConstantTile]"></a>
+      <a id="constantTileUnionCodec:AvroUnionCodec[ConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">constantTileUnionCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroUnionCodec">AvroUnionCodec</span>[<span class="extype" name="geotrellis.raster.ConstantTile">ConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@constantTileUnionCodec:geotrellis.store.avro.AvroUnionCodec[geotrellis.raster.ConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.CRSCodec#crsCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crsCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.proj4.CRS]"></a>
+      <a id="crsCodec:AvroRecordCodec[CRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crsCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@crsCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.proj4.CRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CRSCodec</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#crsDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crsDecoder:io.circe.Decoder[geotrellis.proj4.CRS]"></a>
+      <a id="crsDecoder:Decoder[CRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crsDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@crsDecoder:io.circe.Decoder[geotrellis.proj4.CRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#crsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crsEncoder:io.circe.Encoder[geotrellis.proj4.CRS]"></a>
+      <a id="crsEncoder:Encoder[CRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crsEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@crsEncoder:io.circe.Encoder[geotrellis.proj4.CRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#doubleArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="doubleArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.DoubleArrayTile]"></a>
+      <a id="doubleArrayTileCodec:AvroRecordCodec[DoubleArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">doubleArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.DoubleArrayTile">DoubleArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@doubleArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.DoubleArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#doubleConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="doubleConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.DoubleConstantTile]"></a>
+      <a id="doubleConstantTileCodec:AvroRecordCodec[DoubleConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">doubleConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.DoubleConstantTile">DoubleConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@doubleConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.DoubleConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ExtentCodec#extentCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="extentCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.vector.Extent]"></a>
+      <a id="extentCodec:AvroRecordCodec[Extent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">extentCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.vector.Extent">Extent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@extentCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.vector.Extent]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ExtentCodec</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#floatArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="floatArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.FloatArrayTile]"></a>
+      <a id="floatArrayTileCodec:AvroRecordCodec[FloatArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">floatArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.FloatArrayTile">FloatArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@floatArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.FloatArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#floatConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="floatConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.FloatConstantTile]"></a>
+      <a id="floatConstantTileCodec:AvroRecordCodec[FloatConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">floatConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.FloatConstantTile">FloatConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@floatConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.FloatConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#floatingLayoutSchemeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="floatingLayoutSchemeEncoder:io.circe.Encoder[geotrellis.layer.FloatingLayoutScheme]"></a>
+      <a id="floatingLayoutSchemeEncoder:Encoder[FloatingLayoutScheme]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">floatingLayoutSchemeEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.layer.FloatingLayoutScheme">FloatingLayoutScheme</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@floatingLayoutSchemeEncoder:io.circe.Encoder[geotrellis.layer.FloatingLayoutScheme]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#floatingSchemeDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="floatingSchemeDecoder:io.circe.Decoder[geotrellis.layer.FloatingLayoutScheme]"></a>
+      <a id="floatingSchemeDecoder:Decoder[FloatingLayoutScheme]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">floatingSchemeDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.layer.FloatingLayoutScheme">FloatingLayoutScheme</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@floatingSchemeDecoder:io.circe.Decoder[geotrellis.layer.FloatingLayoutScheme]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.hadoop" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hadoop"></a>
+      <a id="hadoop:hadoop"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="hadoop/package.html"><span class="name">hadoop</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@hadoop" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.store.json.KeyIndexFormats#hilbert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hilbert:String"></a>
+      <a id="hilbert:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hilbert</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@hilbert:String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#hilbertSpaceTimeKeyIndexDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hilbertSpaceTimeKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.hilbert.HilbertSpaceTimeKeyIndex]"></a>
+      <a id="hilbertSpaceTimeKeyIndexDecoder:Decoder[HilbertSpaceTimeKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hilbertSpaceTimeKeyIndexDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.store.index.hilbert.HilbertSpaceTimeKeyIndex">HilbertSpaceTimeKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@hilbertSpaceTimeKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.hilbert.HilbertSpaceTimeKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#hilbertSpatialKeyIndexDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hilbertSpatialKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.hilbert.HilbertSpatialKeyIndex]"></a>
+      <a id="hilbertSpatialKeyIndexDecoder:Decoder[HilbertSpatialKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hilbertSpatialKeyIndexDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.store.index.hilbert.HilbertSpatialKeyIndex">HilbertSpatialKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@hilbertSpatialKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.hilbert.HilbertSpatialKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#hilbertSpatialKeyIndexEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hilbertSpatialKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.hilbert.HilbertSpatialKeyIndex]"></a>
+      <a id="hilbertSpatialKeyIndexEncoder:Encoder[HilbertSpatialKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hilbertSpatialKeyIndexEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.store.index.hilbert.HilbertSpatialKeyIndex">HilbertSpatialKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@hilbertSpatialKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.hilbert.HilbertSpatialKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#hilbertSpaсeTimeKeyIndexEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hilbertSpaсeTimeKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.hilbert.HilbertSpaceTimeKeyIndex]"></a>
+      <a id="hilbertSpaсeTimeKeyIndexEncoder:Encoder[HilbertSpaceTimeKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hilbertSpaсeTimeKeyIndexEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.store.index.hilbert.HilbertSpaceTimeKeyIndex">HilbertSpaceTimeKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@hilbertSpaсeTimeKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.hilbert.HilbertSpaceTimeKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#intArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="intArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.IntArrayTile]"></a>
+      <a id="intArrayTileCodec:AvroRecordCodec[IntArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">intArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.IntArrayTile">IntArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@intArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.IntArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#intConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="intConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.IntConstantTile]"></a>
+      <a id="intConstantTileCodec:AvroRecordCodec[IntConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">intConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.IntConstantTile">IntConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@intConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.IntConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#jsonCrsDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonCrsDecoder:io.circe.Decoder[geotrellis.vector.io.json.JsonCRS]"></a>
+      <a id="jsonCrsDecoder:Decoder[JsonCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonCrsDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.JsonCRS">JsonCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@jsonCrsDecoder:io.circe.Decoder[geotrellis.vector.io.json.JsonCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#jsonCrsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonCrsEncoder:io.circe.Encoder[geotrellis.vector.io.json.JsonCRS]"></a>
+      <a id="jsonCrsEncoder:Encoder[JsonCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonCrsEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.JsonCRS">JsonCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@jsonCrsEncoder:io.circe.Encoder[geotrellis.vector.io.json.JsonCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#keyIndexDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="keyIndexDecoder[K](implicitevidence$10:scala.reflect.ClassTag[K]):io.circe.Decoder[geotrellis.store.index.KeyIndex[K]]"></a>
+      <a id="keyIndexDecoder[K](ClassTag[K]):Decoder[KeyIndex[K]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">keyIndexDecoder</span><span class="tparams">[<span name="K">K</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="geotrellis.store.json.KeyIndexFormats.keyIndexDecoder.K">K</span>]</span>)</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.store.index.KeyIndex">KeyIndex</span>[<span class="extype" name="geotrellis.store.json.KeyIndexFormats.keyIndexDecoder.K">K</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@keyIndexDecoder[K](implicitevidence$10:scala.reflect.ClassTag[K]):io.circe.Decoder[geotrellis.store.index.KeyIndex[K]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#keyIndexEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="keyIndexEncoder[K](implicitevidence$9:scala.reflect.ClassTag[K]):io.circe.Encoder[geotrellis.store.index.KeyIndex[K]]"></a>
+      <a id="keyIndexEncoder[K](ClassTag[K]):Encoder[KeyIndex[K]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">keyIndexEncoder</span><span class="tparams">[<span name="K">K</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="geotrellis.store.json.KeyIndexFormats.keyIndexEncoder.K">K</span>]</span>)</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.store.index.KeyIndex">KeyIndex</span>[<span class="extype" name="geotrellis.store.json.KeyIndexFormats.keyIndexEncoder.K">K</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@keyIndexEncoder[K](implicitevidence$9:scala.reflect.ClassTag[K]):io.circe.Encoder[geotrellis.store.index.KeyIndex[K]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#layoutSchemeDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="layoutSchemeDecoder:io.circe.Decoder[geotrellis.layer.LayoutScheme]"></a>
+      <a id="layoutSchemeDecoder:Decoder[LayoutScheme]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layoutSchemeDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.layer.LayoutScheme">LayoutScheme</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@layoutSchemeDecoder:io.circe.Decoder[geotrellis.layer.LayoutScheme]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#layoutSchemeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="layoutSchemeEncoder:io.circe.Encoder[geotrellis.layer.LayoutScheme]"></a>
+      <a id="layoutSchemeEncoder:Encoder[LayoutScheme]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layoutSchemeEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.layer.LayoutScheme">LayoutScheme</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@layoutSchemeEncoder:io.circe.Encoder[geotrellis.layer.LayoutScheme]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#linkedCRSDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="linkedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.LinkedCRS]"></a>
+      <a id="linkedCRSDecoder:Decoder[LinkedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linkedCRSDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.LinkedCRS">LinkedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@linkedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.LinkedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#linkedCRSEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="linkedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.LinkedCRS]"></a>
+      <a id="linkedCRSEncoder:Encoder[LinkedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linkedCRSEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.LinkedCRS">LinkedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@linkedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.LinkedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#multibandTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multibandTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.MultibandTile]"></a>
+      <a id="multibandTileCodec:AvroRecordCodec[MultibandTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multibandTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@multibandTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.MultibandTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileFeatureCodec#multibandTileFeatureCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multibandTileFeatureCodec[T&lt;:geotrellis.raster.MultibandTile,D](implicitevidence$3:geotrellis.store.avro.AvroRecordCodec[T],implicitevidence$4:geotrellis.store.avro.AvroRecordCodec[D]):geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.TileFeature[T,D]]"></a>
+      <a id="multibandTileFeatureCodec[T&lt;:MultibandTile,D](AvroRecordCodec[T],AvroRecordCodec[D]):AvroRecordCodec[TileFeature[T,D]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multibandTileFeatureCodec</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span></span>, <span name="D">D</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.multibandTileFeatureCodec.T">T</span>]</span>, <span name="arg1">arg1: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.multibandTileFeatureCodec.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.multibandTileFeatureCodec.T">T</span>, <span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.multibandTileFeatureCodec.D">D</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@multibandTileFeatureCodec[T&lt;:geotrellis.raster.MultibandTile,D](implicitevidence$3:geotrellis.store.avro.AvroRecordCodec[T],implicitevidence$4:geotrellis.store.avro.AvroRecordCodec[D]):geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.TileFeature[T,D]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileFeatureCodec</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#namedCRSDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="namedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.NamedCRS]"></a>
+      <a id="namedCRSDecoder:Decoder[NamedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">namedCRSDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.NamedCRS">NamedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@namedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.NamedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#namedCRSEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="namedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.NamedCRS]"></a>
+      <a id="namedCRSEncoder:Encoder[NamedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">namedCRSEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.NamedCRS">NamedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@namedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.NamedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#paddedTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="paddedTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.PaddedTile]"></a>
+      <a id="paddedTileCodec:AvroRecordCodec[PaddedTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">paddedTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.PaddedTile">PaddedTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@paddedTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.PaddedTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ProjectedExtentCodec#projectedExtentCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="projectedExtentCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.vector.ProjectedExtent]"></a>
+      <a id="projectedExtentCodec:AvroRecordCodec[ProjectedExtent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">projectedExtentCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.vector.ProjectedExtent">ProjectedExtent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@projectedExtentCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.vector.ProjectedExtent]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ProjectedExtentCodec</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#rowMajorSpatialKeyIndexDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rowMajorSpatialKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.rowmajor.RowMajorSpatialKeyIndex]"></a>
+      <a id="rowMajorSpatialKeyIndexDecoder:Decoder[RowMajorSpatialKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rowMajorSpatialKeyIndexDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.store.index.rowmajor.RowMajorSpatialKeyIndex">RowMajorSpatialKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@rowMajorSpatialKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.rowmajor.RowMajorSpatialKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#rowMajorSpatialKeyIndexEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rowMajorSpatialKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.rowmajor.RowMajorSpatialKeyIndex]"></a>
+      <a id="rowMajorSpatialKeyIndexEncoder:Encoder[RowMajorSpatialKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rowMajorSpatialKeyIndexEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.store.index.rowmajor.RowMajorSpatialKeyIndex">RowMajorSpatialKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@rowMajorSpatialKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.rowmajor.RowMajorSpatialKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#rowmajor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rowmajor:String"></a>
+      <a id="rowmajor:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rowmajor</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@rowmajor:String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#schemaDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="schemaDecoder:io.circe.Decoder[org.apache.avro.Schema]"></a>
+      <a id="schemaDecoder:Decoder[Schema]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">schemaDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="org.apache.avro.Schema">Schema</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@schemaDecoder:io.circe.Decoder[org.apache.avro.Schema]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#schemaEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="schemaEncoder:io.circe.Encoder[org.apache.avro.Schema]"></a>
+      <a id="schemaEncoder:Encoder[Schema]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">schemaEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="org.apache.avro.Schema">Schema</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@schemaEncoder:io.circe.Encoder[org.apache.avro.Schema]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#shortArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shortArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ShortArrayTile]"></a>
+      <a id="shortArrayTileCodec:AvroRecordCodec[ShortArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shortArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.ShortArrayTile">ShortArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@shortArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ShortArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#shortConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shortConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ShortConstantTile]"></a>
+      <a id="shortConstantTileCodec:AvroRecordCodec[ShortConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shortConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.ShortConstantTile">ShortConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@shortConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.ShortConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.Implicits#simpleTileUnionCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="simpleTileUnionCodec:geotrellis.store.avro.AvroUnionCodec[geotrellis.raster.Tile]"></a>
+      <a id="simpleTileUnionCodec:AvroUnionCodec[Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">simpleTileUnionCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroUnionCodec">AvroUnionCodec</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@simpleTileUnionCodec:geotrellis.store.avro.AvroUnionCodec[geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.KeyCodecs#spaceTimeKeyAvroFormat" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spaceTimeKeyAvroFormat:geotrellis.store.avro.AvroRecordCodec[geotrellis.layer.SpaceTimeKey]"></a>
+      <a id="spaceTimeKeyAvroFormat:AvroRecordCodec[SpaceTimeKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spaceTimeKeyAvroFormat</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.layer.SpaceTimeKey">SpaceTimeKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@spaceTimeKeyAvroFormat:geotrellis.store.avro.AvroRecordCodec[geotrellis.layer.SpaceTimeKey]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.KeyCodecs#spatialKeyAvroFormat" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="spatialKeyAvroFormat:geotrellis.store.avro.AvroRecordCodec[geotrellis.layer.SpatialKey]"></a>
+      <a id="spatialKeyAvroFormat:AvroRecordCodec[SpatialKey]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">spatialKeyAvroFormat</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@spatialKeyAvroFormat:geotrellis.store.avro.AvroRecordCodec[geotrellis.layer.SpatialKey]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TemporalProjectedExtentCodec#temporalProjectedExtentCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="temporalProjectedExtentCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.layer.TemporalProjectedExtent]"></a>
+      <a id="temporalProjectedExtentCodec:AvroRecordCodec[TemporalProjectedExtent]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">temporalProjectedExtentCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.layer.TemporalProjectedExtent">TemporalProjectedExtent</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@temporalProjectedExtentCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.layer.TemporalProjectedExtent]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TemporalProjectedExtentCodec</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileFeatureCodec#tileFeatureCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileFeatureCodec[T&lt;:geotrellis.raster.Tile,D](implicitevidence$1:geotrellis.store.avro.AvroRecordCodec[T],implicitevidence$2:geotrellis.store.avro.AvroRecordCodec[D]):geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.TileFeature[T,D]]"></a>
+      <a id="tileFeatureCodec[T&lt;:Tile,D](AvroRecordCodec[T],AvroRecordCodec[D]):AvroRecordCodec[TileFeature[T,D]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileFeatureCodec</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="D">D</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.tileFeatureCodec.T">T</span>]</span>, <span name="arg1">arg1: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.tileFeatureCodec.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.TileFeature">TileFeature</span>[<span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.tileFeatureCodec.T">T</span>, <span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec.tileFeatureCodec.D">D</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@tileFeatureCodec[T&lt;:geotrellis.raster.Tile,D](implicitevidence$1:geotrellis.store.avro.AvroRecordCodec[T],implicitevidence$2:geotrellis.store.avro.AvroRecordCodec[D]):geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.TileFeature[T,D]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileFeatureCodec</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.Implicits#tileUnionCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileUnionCodec:geotrellis.store.avro.AvroUnionCodec[geotrellis.raster.Tile]"></a>
+      <a id="tileUnionCodec:AvroUnionCodec[Tile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileUnionCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroUnionCodec">AvroUnionCodec</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@tileUnionCodec:geotrellis.store.avro.AvroUnionCodec[geotrellis.raster.Tile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.Implicits#tupleCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tupleCodec[A,B](implicitevidence$1:geotrellis.store.avro.AvroRecordCodec[A],implicitevidence$2:geotrellis.store.avro.AvroRecordCodec[B]):geotrellis.store.avro.codecs.TupleCodec[A,B]"></a>
+      <a id="tupleCodec[A,B](AvroRecordCodec[A],AvroRecordCodec[B]):TupleCodec[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tupleCodec</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.store.avro.codecs.Implicits.tupleCodec.A">A</span>]</span>, <span name="arg1">arg1: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.store.avro.codecs.Implicits.tupleCodec.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.store.avro.codecs.TupleCodec">TupleCodec</span>[<span class="extype" name="geotrellis.store.avro.codecs.Implicits.tupleCodec.A">A</span>, <span class="extype" name="geotrellis.store.avro.codecs.Implicits.tupleCodec.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@tupleCodec[A,B](implicitevidence$1:geotrellis.store.avro.AvroRecordCodec[A],implicitevidence$2:geotrellis.store.avro.AvroRecordCodec[B]):geotrellis.store.avro.codecs.TupleCodec[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#uByteArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uByteArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UByteArrayTile]"></a>
+      <a id="uByteArrayTileCodec:AvroRecordCodec[UByteArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uByteArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.UByteArrayTile">UByteArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@uByteArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UByteArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#uByteConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uByteConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UByteConstantTile]"></a>
+      <a id="uByteConstantTileCodec:AvroRecordCodec[UByteConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uByteConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.UByteConstantTile">UByteConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@uByteConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UByteConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.TileCodecs#uShortArrayTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uShortArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UShortArrayTile]"></a>
+      <a id="uShortArrayTileCodec:AvroRecordCodec[UShortArrayTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uShortArrayTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.UShortArrayTile">UShortArrayTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@uShortArrayTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UShortArrayTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.avro.codecs.ConstantTileCodecs#uShortConstantTileCodec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uShortConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UShortConstantTile]"></a>
+      <a id="uShortConstantTileCodec:AvroRecordCodec[UShortConstantTile]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uShortConstantTileCodec</span><span class="result">: <span class="extype" name="geotrellis.store.avro.AvroRecordCodec">AvroRecordCodec</span>[<span class="extype" name="geotrellis.raster.UShortConstantTile">UShortConstantTile</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@uShortConstantTileCodec:geotrellis.store.avro.AvroRecordCodec[geotrellis.raster.UShortConstantTile]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ConstantTileCodecs</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#uriDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uriDecoder:io.circe.Decoder[java.net.URI]"></a>
+      <a id="uriDecoder:Decoder[URI]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uriDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="java.net.URI">URI</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@uriDecoder:io.circe.Decoder[java.net.URI]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#uriEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uriEncoder:io.circe.Encoder[java.net.URI]"></a>
+      <a id="uriEncoder:Encoder[URI]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uriEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="java.net.URI">URI</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@uriEncoder:io.circe.Encoder[java.net.URI]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#withCrsDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCrsDecoder[T](implicitevidence$2:io.circe.Decoder[T]):io.circe.Decoder[geotrellis.vector.io.json.WithCrs[T]]"></a>
+      <a id="withCrsDecoder[T](Decoder[T]):Decoder[WithCrs[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCrsDecoder</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsDecoder.T">T</span>]</span>)</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.WithCrs">WithCrs</span>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsDecoder.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@withCrsDecoder[T](implicitevidence$2:io.circe.Decoder[T]):io.circe.Decoder[geotrellis.vector.io.json.WithCrs[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#withCrsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCrsEncoder[T](implicitevidence$1:io.circe.Encoder[T]):io.circe.Encoder[geotrellis.vector.io.json.WithCrs[T]]"></a>
+      <a id="withCrsEncoder[T](Encoder[T]):Encoder[WithCrs[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCrsEncoder</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsEncoder.T">T</span>]</span>)</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.WithCrs">WithCrs</span>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsEncoder.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@withCrsEncoder[T](implicitevidence$1:io.circe.Encoder[T]):io.circe.Encoder[geotrellis.vector.io.json.WithCrs[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#zSpaceTimeKeyIndexDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zSpaceTimeKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.zcurve.ZSpaceTimeKeyIndex]"></a>
+      <a id="zSpaceTimeKeyIndexDecoder:Decoder[ZSpaceTimeKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zSpaceTimeKeyIndexDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.store.index.zcurve.ZSpaceTimeKeyIndex">ZSpaceTimeKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zSpaceTimeKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.zcurve.ZSpaceTimeKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#zSpaceTimeKeyIndexEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zSpaceTimeKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.zcurve.ZSpaceTimeKeyIndex]"></a>
+      <a id="zSpaceTimeKeyIndexEncoder:Encoder[ZSpaceTimeKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zSpaceTimeKeyIndexEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.store.index.zcurve.ZSpaceTimeKeyIndex">ZSpaceTimeKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zSpaceTimeKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.zcurve.ZSpaceTimeKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#zSpatialKeyIndexDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zSpatialKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.zcurve.ZSpatialKeyIndex]"></a>
+      <a id="zSpatialKeyIndexDecoder:Decoder[ZSpatialKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zSpatialKeyIndexDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.store.index.zcurve.ZSpatialKeyIndex">ZSpatialKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zSpatialKeyIndexDecoder:io.circe.Decoder[geotrellis.store.index.zcurve.ZSpatialKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#zSpatialKeyIndexEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zSpatialKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.zcurve.ZSpatialKeyIndex]"></a>
+      <a id="zSpatialKeyIndexEncoder:Encoder[ZSpatialKeyIndex]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zSpatialKeyIndexEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.store.index.zcurve.ZSpatialKeyIndex">ZSpatialKeyIndex</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zSpatialKeyIndexEncoder:io.circe.Encoder[geotrellis.store.index.zcurve.ZSpatialKeyIndex]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#zomedDateTimeDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zomedDateTimeDecoder:io.circe.Decoder[java.time.ZonedDateTime]"></a>
+      <a id="zomedDateTimeDecoder:Decoder[ZonedDateTime]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zomedDateTimeDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="java.time.ZonedDateTime">ZonedDateTime</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zomedDateTimeDecoder:io.circe.Decoder[java.time.ZonedDateTime]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#zonedDateTimeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zonedDateTimeEncoder:io.circe.Encoder[java.time.ZonedDateTime]"></a>
+      <a id="zonedDateTimeEncoder:Encoder[ZonedDateTime]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zonedDateTimeEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="java.time.ZonedDateTime">ZonedDateTime</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zonedDateTimeEncoder:io.circe.Encoder[java.time.ZonedDateTime]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#zoomedLayoutSchemeDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zoomedLayoutSchemeDecoder:io.circe.Decoder[geotrellis.layer.ZoomedLayoutScheme]"></a>
+      <a id="zoomedLayoutSchemeDecoder:Decoder[ZoomedLayoutScheme]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zoomedLayoutSchemeDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.layer.ZoomedLayoutScheme">ZoomedLayoutScheme</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zoomedLayoutSchemeDecoder:io.circe.Decoder[geotrellis.layer.ZoomedLayoutScheme]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.Implicits#zoomedLayoutSchemeEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zoomedLayoutSchemeEncoder:io.circe.Encoder[geotrellis.layer.ZoomedLayoutScheme]"></a>
+      <a id="zoomedLayoutSchemeEncoder:Encoder[ZoomedLayoutScheme]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zoomedLayoutSchemeEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.layer.ZoomedLayoutScheme">ZoomedLayoutScheme</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zoomedLayoutSchemeEncoder:io.circe.Encoder[geotrellis.layer.ZoomedLayoutScheme]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.store.json.KeyIndexFormats#zorder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zorder:String"></a>
+      <a id="zorder:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zorder</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.store.package@zorder:String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>KeyIndexFormats</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="geotrellis.store.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.store.json.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.json.Implicits">store.json.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.vector.io.json.CrsFormats">
+              <h3>Inherited from <span class="extype" name="geotrellis.vector.io.json.CrsFormats">CrsFormats</span></h3>
+            </div><div class="parent" name="geotrellis.store.json.KeyIndexFormats">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.json.KeyIndexFormats">KeyIndexFormats</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.Implicits">store.avro.codecs.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.KeyCodecs">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.KeyCodecs">KeyCodecs</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.TemporalProjectedExtentCodec">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.TemporalProjectedExtentCodec">TemporalProjectedExtentCodec</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.ProjectedExtentCodec">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.ProjectedExtentCodec">ProjectedExtentCodec</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.ExtentCodec">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.ExtentCodec">ExtentCodec</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.CRSCodec">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.CRSCodec">CRSCodec</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.TileFeatureCodec">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.TileFeatureCodec">TileFeatureCodec</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.ConstantTileCodecs">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.ConstantTileCodecs">ConstantTileCodecs</span></h3>
+            </div><div class="parent" name="geotrellis.store.avro.codecs.TileCodecs">
+              <h3>Inherited from <span class="extype" name="geotrellis.store.avro.codecs.TileCodecs">TileCodecs</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

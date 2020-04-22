@@ -569,7 +569,7 @@ the Extent and CRS details for each row. The join expression used is:</p><pre>st
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.extensions.Implicits.WithDataFrameMethods">WithDataFrameMethods</a> → MethodExtensions</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.DataFrameMethods#spatialKeyColumn" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="spatialKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]]"></a>
+      <a id="spatialKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]]"></a>
       <a id="spatialKeyColumn:Option[TypedColumn[Any,SpatialKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -577,10 +577,10 @@ the Extent and CRS details for each row. The join expression used is:</p><pre>st
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">spatialKeyColumn</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]]</span>
+        <span class="name">spatialKeyColumn</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithDataFrameMethods@spatialKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.SpatialKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithDataFrameMethods@spatialKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.SpatialKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -603,7 +603,7 @@ the Extent and CRS details for each row. The join expression used is:</p><pre>st
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.DataFrameMethods#temporalKeyColumn" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="temporalKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]]"></a>
+      <a id="temporalKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.TemporalKey]]"></a>
       <a id="temporalKeyColumn:Option[TypedColumn[Any,TemporalKey]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -611,10 +611,10 @@ the Extent and CRS details for each row. The join expression used is:</p><pre>st
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">temporalKeyColumn</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.spark.TemporalKey">TemporalKey</span>]]</span>
+        <span class="name">temporalKeyColumn</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="geotrellis.layer.TemporalKey">TemporalKey</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithDataFrameMethods@temporalKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.spark.TemporalKey]]" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithDataFrameMethods@temporalKeyColumn:Option[org.apache.spark.sql.TypedColumn[Any,geotrellis.layer.TemporalKey]]" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -637,7 +637,7 @@ the Extent and CRS details for each row. The join expression used is:</p><pre>st
     </span>
       <p class="shortcomment cmt">Get the columns that are of type <code>Tile</code></p><div class="fullcomment"><div class="comment cmt"><p>Get the columns that are of type <code>Tile</code></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DataFrameMethods.html" class="extype" name="org.locationtech.rasterframes.extensions.DataFrameMethods">DataFrameMethods</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.extensions.DataFrameMethods#toLayer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toLayer(tlm:geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]):org.locationtech.rasterframes.RasterFrameLayer"></a>
+      <a id="toLayer(tlm:geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpatialKey]):org.locationtech.rasterframes.RasterFrameLayer"></a>
       <a id="toLayer(TileLayerMetadata[SpatialKey]):RasterFrameLayer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -645,10 +645,10 @@ the Extent and CRS details for each row. The join expression used is:</p><pre>st
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toLayer</span><span class="params">(<span name="tlm">tlm: <span class="extype" name="geotrellis.spark.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.spark.SpatialKey">SpatialKey</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
+        <span class="name">toLayer</span><span class="params">(<span name="tlm">tlm: <span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]</span>)</span><span class="result">: <a href="../package.html#RasterFrameLayer=shapeless.tag.@@[org.apache.spark.sql.DataFrame,org.locationtech.rasterframes.package.RasterFrameTag]" class="extmbr" name="org.locationtech.rasterframes.RasterFrameLayer">RasterFrameLayer</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithDataFrameMethods@toLayer(tlm:geotrellis.spark.TileLayerMetadata[geotrellis.spark.SpatialKey]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
+      <a href="../../../../index.html#org.locationtech.rasterframes.extensions.Implicits$WithDataFrameMethods@toLayer(tlm:geotrellis.layer.TileLayerMetadata[geotrellis.layer.SpatialKey]):org.locationtech.rasterframes.RasterFrameLayer" title="Permalink" target="_top">
         <img src="../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

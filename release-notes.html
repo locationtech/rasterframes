@@ -171,6 +171,7 @@ locationtech/rasterframes
 <ul>
   <li><a href="release-notes.html#release-notes" class="header">Release Notes</a>
   <ul>
+    <li><a href="release-notes.html#0-9-x" class="header">0.9.x</a></li>
     <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a></li>
     <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a></li>
     <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a></li>
@@ -183,7 +184,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.8.5
+<i class="md-icon" title="Version">label_outline</i> 0.9.0
 </label>
 </li>
 </ul>
@@ -198,6 +199,7 @@ locationtech/rasterframes
 <ul>
   <li><a href="release-notes.html#release-notes" class="header">Release Notes</a>
   <ul>
+    <li><a href="release-notes.html#0-9-x" class="header">0.9.x</a></li>
     <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a></li>
     <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a></li>
     <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a></li>
@@ -213,6 +215,41 @@ locationtech/rasterframes
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#release-notes" name="release-notes" class="anchor"><span class="anchor-link"></span></a>Release Notes</h1>
+<h2><a href="#0-9-x" name="0-9-x" class="anchor"><span class="anchor-link"></span></a>0.9.x</h2>
+<h3><a href="#0-9-0" name="0-9-0" class="anchor"><span class="anchor-link"></span></a>0.9.0</h3>
+<ul>
+  <li>Upgraded to GeoTrellis 3.3.0. This includes a number of <em>breaking</em> changes enumerated as a part of the <a href="https://github.com/locationtech/rasterframes/pull/398">PR&rsquo;s</a> change log. These include:</li>
+  <li>Add <code>Int</code> type parameter to <code>Grid</code></li>
+  <li>Add <code>Int</code> type parameter to <code>CellGrid</code></li>
+  <li>Add <code>Int</code> type parameter to <code>GridBounds</code>&hellip; or <code>TileBounds</code></li>
+  <li>Use <code>GridBounds.toGridType</code> to coerce from <code>Int</code> to <code>Long</code> type parameter</li>
+  <li>Update imports for layers, particularly <code>geotrellis.spark.tiling</code> to <code>geotrellis.layer</code></li>
+  <li>Update imports for <code>geotrellis.spark.io</code> to <code>geotrellis.spark.store...</code></li>
+  <li>Removed <code>FixedRasterExtent</code></li>
+  <li>Removed <code>FixedDelegatingTile</code></li>
+  <li>Removed <code>org.locationtech.rasterframes.util.Shims</code></li>
+  <li>Change <code>Extent.jtsGeom</code> to <code>Extent.toPolygon</code></li>
+  <li>Change <code>TileLayerMetadata.gridBounds</code> to <code>TileLayerMetadata.tileBounds</code></li>
+  <li>Add <code>geotrellis-gdal</code> dependency</li>
+  <li>Remove any conversions between JTS geometry and old <code>geotrellis.vector</code> geometry</li>
+  <li>Changed <code>org.locationtech.rasterframes.encoders.StandardEncoders.crsEncoder</code> to <code>crsSparkEncoder</code></li>
+  <li>Change <code>(cols, rows)</code> dimension destructuring to <code>Dimensions(cols, rows)</code></li>
+  <li>Revisit use of <code>Tile</code> equality since <a href="https://github.com/locationtech/geotrellis/pull/2991">it&rsquo;s more strict</a></li>
+  <li>Update <code>reference.conf</code> to use <code>geotrellis.raster.gdal</code> namespace.</li>
+  <li>Replace all uses of <code>TileDimensions</code> with <code>geotrellis.raster.Dimensions[Int]</code>.</li>
+  <li>Upgraded to <code>gdal-warp-bindings</code> 1.0.0.</li>
+  <li>Upgraded to Spark 2.4.5</li>
+  <li>Formally abandoned support for Python 2. Python 2 is dead. Long live Python 2.</li>
+  <li>Introduction of type hints in Python API.</li>
+  <li>Add functions for changing cell values based on either conditions or to achieve a distribution of values. (<a href="https://github.com/locationtech/rasterframes/pull/449">#449</a>)
+    <ul>
+      <li>Add <code>rf_local_min</code>, <code>rf_local_max</code>, and <code>rf_local_clip</code> functions.</li>
+      <li>Add cell value scaling functions <code>rf_rescale</code> and <code>rf_standardize</code>.</li>
+      <li>Add <code>rf_where</code> function, similar in spirit to numpy&rsquo;s <code>where</code>, or a cell-wise version of Spark SQL&rsquo;s <code>when</code> and <code>otherwise</code>.</li>
+    </ul>
+  </li>
+  <li>Add <code>rf_sqrt</code> function to compute cell-wise square root.</li>
+</ul>
 <h2><a href="#0-8-x" name="0-8-x" class="anchor"><span class="anchor-link"></span></a>0.8.x</h2>
 <h3><a href="#0-8-5" name="0-8-5" class="anchor"><span class="anchor-link"></span></a>0.8.5</h3>
 <ul>
@@ -429,13 +466,13 @@ locationtech/rasterframes
 </ul>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.8.5/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.9.0/docs/src/main/paradox/release-notes.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.8.5
+0.9.0
 </span>
 </div>
 </article>

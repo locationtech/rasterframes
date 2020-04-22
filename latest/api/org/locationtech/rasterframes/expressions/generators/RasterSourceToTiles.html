@@ -47,7 +47,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RasterSourceToTiles</span><span class="params">(<span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>]</span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Generator">Generator</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">RasterSourceToTiles</span><span class="params">(<span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>]</span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.Dimensions">Dimensions</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Generator">Generator</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.ExpectsInputTypes">ExpectsInputTypes</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
@@ -93,7 +93,7 @@ native internal sub-tiling, if any (and requested).
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(children:Seq[org.apache.spark.sql.catalyst.expressions.Expression],bandIndexes:Seq[Int],subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions]):org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles"></a>
+      <a id="&lt;init&gt;(children:Seq[org.apache.spark.sql.catalyst.expressions.Expression],bandIndexes:Seq[Int],subtileDims:Option[geotrellis.raster.Dimensions[Int]]):org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles"></a>
       <a id="&lt;init&gt;:RasterSourceToTiles"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -101,10 +101,10 @@ native internal sub-tiling, if any (and requested).
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RasterSourceToTiles</span><span class="params">(<span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>]</span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a>] = <span class="symbol">None</span></span>)</span>
+        <span class="name">RasterSourceToTiles</span><span class="params">(<span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>]</span>, <span name="bandIndexes">bandIndexes: <span class="extype" name="scala.Seq">Seq</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="subtileDims">subtileDims: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.Dimensions">Dimensions</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]] = <span class="symbol">None</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles@&lt;init&gt;(children:Seq[org.apache.spark.sql.catalyst.expressions.Expression],bandIndexes:Seq[Int],subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions]):org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles@&lt;init&gt;(children:Seq[org.apache.spark.sql.catalyst.expressions.Expression],bandIndexes:Seq[Int],subtileDims:Option[geotrellis.raster.Dimensions[Int]]):org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1185,18 +1185,18 @@ native internal sub-tiling, if any (and requested).
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles#subtileDims" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions]"></a>
-      <a id="subtileDims:Option[TileDimensions]"></a>
+      <a id="subtileDims:Option[geotrellis.raster.Dimensions[Int]]"></a>
+      <a id="subtileDims:Option[Dimensions[Int]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">subtileDims</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../../model/TileDimensions.html" class="extype" name="org.locationtech.rasterframes.model.TileDimensions">TileDimensions</a>]</span>
+        <span class="name">subtileDims</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.raster.Dimensions">Dimensions</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles@subtileDims:Option[org.locationtech.rasterframes.model.TileDimensions]" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.generators.RasterSourceToTiles@subtileDims:Option[geotrellis.raster.Dimensions[Int]]" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

@@ -1,0 +1,781 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>layer - geotrellis.layer</title>
+          <meta name="description" content="layer - geotrellis.layer" />
+          <meta name="keywords" content="layer geotrellis.layer" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'geotrellis.layer.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="geotrellis">geotrellis</a></p>
+        <h1>layer</h1><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">layer</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="geotrellis.layer.Implicits">Implicits</span>, <span class="extype" name="geotrellis.layer.mask.Implicits">layer.mask.Implicits</span>, <span class="extype" name="geotrellis.layer.mapalgebra.local.temporal.Implicits">layer.mapalgebra.local.temporal.Implicits</span>, <span class="extype" name="geotrellis.layer.mapalgebra.local.Implicits">layer.mapalgebra.local.Implicits</span>, <span class="extype" name="geotrellis.layer.mapalgebra.focal.hillshade.Implicits">layer.mapalgebra.focal.hillshade.Implicits</span>, <span class="extype" name="geotrellis.layer.mapalgebra.focal.Implicits">layer.mapalgebra.focal.Implicits</span>, <span class="extype" name="geotrellis.layer.mapalgebra.Implicits">layer.mapalgebra.Implicits</span>, <span class="extype" name="geotrellis.layer.stitch.Implicits">layer.stitch.Implicits</span>, <span class="extype" name="geotrellis.vector.io.json.CrsFormats">CrsFormats</span>, <span class="extype" name="geotrellis.layer.buffer.Implicits">layer.buffer.Implicits</span>, <span class="extype" name="geotrellis.layer.merge.Implicits">layer.merge.Implicits</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="geotrellis.layer"><span>layer</span></li><li class="in" name="geotrellis.layer.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.mask.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.mapalgebra.local.temporal.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.mapalgebra.local.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.mapalgebra.focal.hillshade.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.mapalgebra.focal.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.mapalgebra.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.stitch.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.vector.io.json.CrsFormats"><span>CrsFormats</span></li><li class="in" name="geotrellis.layer.buffer.Implicits"><span>Implicits</span></li><li class="in" name="geotrellis.layer.merge.Implicits"><span>Implicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="geotrellis.layer.MultibandRasterCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultibandRasterCollection[M&lt;:&lt;?&gt;]=Seq[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]withgeotrellis.layer.Metadata[M]"></a>
+      <a id="MultibandRasterCollection[M]:MultibandRasterCollection[M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MultibandRasterCollection</span><span class="tparams">[<span name="M">M</span>]</span><span class="result"> = <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>]] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.MultibandRasterCollection.M">M</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@MultibandRasterCollection[M]=Seq[geotrellis.raster.Raster[geotrellis.raster.MultibandTile]]withgeotrellis.layer.Metadata[M]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.layer.MultibandTileLayerCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultibandTileLayerCollection[K&lt;:&lt;?&gt;]=Seq[(K,geotrellis.raster.MultibandTile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]"></a>
+      <a id="MultibandTileLayerCollection[K]:MultibandTileLayerCollection[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">MultibandTileLayerCollection</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="geotrellis.layer.MultibandTileLayerCollection.K">K</span>, <span class="extype" name="geotrellis.raster.MultibandTile">MultibandTile</span>)] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.MultibandTileLayerCollection.K">K</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@MultibandTileLayerCollection[K]=Seq[(K,geotrellis.raster.MultibandTile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.layer.RasterCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RasterCollection[M&lt;:&lt;?&gt;]=Seq[geotrellis.raster.Raster[geotrellis.raster.Tile]]withgeotrellis.layer.Metadata[M]"></a>
+      <a id="RasterCollection[M]:RasterCollection[M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">RasterCollection</span><span class="tparams">[<span name="M">M</span>]</span><span class="result"> = <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="geotrellis.raster.Raster">Raster</span>[<span class="extype" name="geotrellis.raster.Tile">Tile</span>]] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.RasterCollection.M">M</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@RasterCollection[M]=Seq[geotrellis.raster.Raster[geotrellis.raster.Tile]]withgeotrellis.layer.Metadata[M]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.layer.SpatialComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SpatialComponent[K]=geotrellis.util.Component[K,geotrellis.layer.SpatialKey]"></a>
+      <a id="SpatialComponent[K]:SpatialComponent[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SpatialComponent</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <span class="extype" name="geotrellis.util.Component">Component</span>[<span class="extype" name="geotrellis.layer.SpatialComponent.K">K</span>, <span class="extype" name="geotrellis.layer.SpatialKey">SpatialKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@SpatialComponent[K]=geotrellis.util.Component[K,geotrellis.layer.SpatialKey]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.layer.TemporalComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TemporalComponent[K]=geotrellis.util.Component[K,geotrellis.layer.TemporalKey]"></a>
+      <a id="TemporalComponent[K]:TemporalComponent[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TemporalComponent</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <span class="extype" name="geotrellis.util.Component">Component</span>[<span class="extype" name="geotrellis.layer.TemporalComponent.K">K</span>, <span class="extype" name="geotrellis.layer.TemporalKey">TemporalKey</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@TemporalComponent[K]=geotrellis.util.Component[K,geotrellis.layer.TemporalKey]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.layer.TileBounds" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TileBounds=geotrellis.raster.GridBounds[Int]"></a>
+      <a id="TileBounds:TileBounds"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TileBounds</span><span class="result"> = <span class="extype" name="geotrellis.raster.GridBounds">GridBounds</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@TileBounds=geotrellis.raster.GridBounds[Int]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.layer.TileLayerCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TileLayerCollection[K&lt;:&lt;?&gt;]=Seq[(K,geotrellis.raster.Tile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]"></a>
+      <a id="TileLayerCollection[K]:TileLayerCollection[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TileLayerCollection</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> = <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="geotrellis.layer.TileLayerCollection.K">K</span>, <span class="extype" name="geotrellis.raster.Tile">Tile</span>)] with <span class="extype" name="geotrellis.layer.Metadata">Metadata</span>[<span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.TileLayerCollection.K">K</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@TileLayerCollection[K]=Seq[(K,geotrellis.raster.Tile)]withgeotrellis.layer.Metadata[geotrellis.layer.TileLayerMetadata[K]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="geotrellis.layer.Implicits.TileToLayoutOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TileToLayoutOpsextendsAnyRef"></a>
+      <a id="TileToLayoutOps:TileToLayoutOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TileToLayoutOps</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@TileToLayoutOpsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.Implicits.WithContextCollectionWrapper" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="WithContextCollectionWrapper[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;,M&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="WithContextCollectionWrapper[K,V,M]:WithContextCollectionWrapper[K,V,M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">WithContextCollectionWrapper</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>, <span name="M">M</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@WithContextCollectionWrapper[K,V,M]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.Implicits.withCellGridLayoutCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCellGridLayoutCollectionMethods[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;,M&lt;:&lt;?&gt;]extendsCellGridLayoutCollectionMethods[K,V,M]"></a>
+      <a id="withCellGridLayoutCollectionMethods[K,V&lt;:CellGrid[Int],M]:withCellGridLayoutCollectionMethods[K,V,M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCellGridLayoutCollectionMethods</span><span class="tparams">[<span name="K">K</span>, <span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="M">M</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.CellGridLayoutCollectionMethods">CellGridLayoutCollectionMethods</span>[<span class="extype" name="geotrellis.layer.Implicits.withCellGridLayoutCollectionMethods.K">K</span>, <span class="extype" name="geotrellis.layer.Implicits.withCellGridLayoutCollectionMethods.V">V</span>, <span class="extype" name="geotrellis.layer.Implicits.withCellGridLayoutCollectionMethods.M">M</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCellGridLayoutCollectionMethods[K,V&lt;:geotrellis.raster.CellGrid[Int],M]extendsCellGridLayoutCollectionMethods[K,V,M]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.Implicits.withCollectionCombineMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCollectionCombineMethods[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;]extendsCollectionCombineMethods[K,V]"></a>
+      <a id="withCollectionCombineMethods[K,V]:withCollectionCombineMethods[K,V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCollectionCombineMethods</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.mapalgebra.CollectionCombineMethods">CollectionCombineMethods</span>[<span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionCombineMethods.K">K</span>, <span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionCombineMethods.V">V</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCollectionCombineMethods[K,V]extendsCollectionCombineMethods[K,V]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.Implicits.withCollectionCombineTraversableMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCollectionCombineTraversableMethods[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="withCollectionCombineTraversableMethods[K,V]:withCollectionCombineTraversableMethods[K,V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCollectionCombineTraversableMethods</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCollectionCombineTraversableMethods[K,V]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesOptionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCollectionMapValuesOptionMethods[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;]extendsMethodExtensions[Seq[(K,(V,Option[V]))]]"></a>
+      <a id="withCollectionMapValuesOptionMethods[K,V]:withCollectionMapValuesOptionMethods[K,V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCollectionMapValuesOptionMethods</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesOptionMethods.K">K</span>, (<span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesOptionMethods.V">V</span>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesOptionMethods.V">V</span>]))]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCollectionMapValuesOptionMethods[K,V]extendsMethodExtensions[Seq[(K,(V,Option[V]))]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesTupleMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCollectionMapValuesTupleMethods[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;]extendsMethodExtensions[Seq[(K,(V,V))]]"></a>
+      <a id="withCollectionMapValuesTupleMethods[K,V]:withCollectionMapValuesTupleMethods[K,V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCollectionMapValuesTupleMethods</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesTupleMethods.K">K</span>, (<span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesTupleMethods.V">V</span>, <span class="extype" name="geotrellis.layer.mapalgebra.Implicits.withCollectionMapValuesTupleMethods.V">V</span>))]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCollectionMapValuesTupleMethods[K,V]extendsMethodExtensions[Seq[(K,(V,V))]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.buffer.Implicits.withCollectionsBufferTilesMethodsWrapper" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCollectionsBufferTilesMethodsWrapper[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;]extendsCollectionBufferTilesMethods[K,V]"></a>
+      <a id="withCollectionsBufferTilesMethodsWrapper[K,V&lt;:CellGrid[Int]]:withCollectionsBufferTilesMethodsWrapper[K,V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCollectionsBufferTilesMethodsWrapper</span><span class="tparams">[<span name="K">K</span>, <span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.buffer.CollectionBufferTilesMethods">CollectionBufferTilesMethods</span>[<span class="extype" name="geotrellis.layer.buffer.Implicits.withCollectionsBufferTilesMethodsWrapper.K">K</span>, <span class="extype" name="geotrellis.layer.buffer.Implicits.withCollectionsBufferTilesMethodsWrapper.V">V</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCollectionsBufferTilesMethodsWrapper[K,V&lt;:geotrellis.raster.CellGrid[Int]]extendsCollectionBufferTilesMethods[K,V]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.focal.hillshade.Implicits.withElevationTileLayerCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withElevationTileLayerCollectionMethods[K&lt;:&lt;?&gt;]extendsCollectionFocalOperation[K]withHillshadeTileLayerCollectionMethods[K]withSerializable"></a>
+      <a id="withElevationTileLayerCollectionMethods[K]:withElevationTileLayerCollectionMethods[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withElevationTileLayerCollectionMethods</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.mapalgebra.focal.CollectionFocalOperation">CollectionFocalOperation</span>[<span class="extype" name="geotrellis.layer.mapalgebra.focal.hillshade.Implicits.withElevationTileLayerCollectionMethods.K">K</span>] with <span class="extype" name="geotrellis.layer.mapalgebra.focal.hillshade.HillshadeTileLayerCollectionMethods">HillshadeTileLayerCollectionMethods</span>[<span class="extype" name="geotrellis.layer.mapalgebra.focal.hillshade.Implicits.withElevationTileLayerCollectionMethods.K">K</span>] with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withElevationTileLayerCollectionMethods[K]extendsCollectionFocalOperation[K]withHillshadeTileLayerCollectionMethods[K]withSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.focal.Implicits.withFocalTileLayerCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFocalTileLayerCollectionMethods[K&lt;:&lt;?&gt;]extendsCollectionFocalOperation[K]withFocalTileLayerCollectionMethods[K]"></a>
+      <a id="withFocalTileLayerCollectionMethods[K]:withFocalTileLayerCollectionMethods[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFocalTileLayerCollectionMethods</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.mapalgebra.focal.CollectionFocalOperation">CollectionFocalOperation</span>[<span class="extype" name="geotrellis.layer.mapalgebra.focal.Implicits.withFocalTileLayerCollectionMethods.K">K</span>] with <span class="extype" name="geotrellis.layer.mapalgebra.focal.FocalTileLayerCollectionMethods">FocalTileLayerCollectionMethods</span>[<span class="extype" name="geotrellis.layer.mapalgebra.focal.Implicits.withFocalTileLayerCollectionMethods.K">K</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withFocalTileLayerCollectionMethods[K]extendsCollectionFocalOperation[K]withFocalTileLayerCollectionMethods[K]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.local.temporal.Implicits.withLocalTemporalTileCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withLocalTemporalTileCollectionMethods[K&lt;:&lt;?&gt;]extendsLocalTemporalTileCollectionMethods[K]"></a>
+      <a id="withLocalTemporalTileCollectionMethods[K]:withLocalTemporalTileCollectionMethods[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withLocalTemporalTileCollectionMethods</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.mapalgebra.local.temporal.LocalTemporalTileCollectionMethods">LocalTemporalTileCollectionMethods</span>[<span class="extype" name="geotrellis.layer.mapalgebra.local.temporal.Implicits.withLocalTemporalTileCollectionMethods.K">K</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withLocalTemporalTileCollectionMethods[K]extendsLocalTemporalTileCollectionMethods[K]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.local.Implicits.withLocalTileCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withLocalTileCollectionMethods[K&lt;:&lt;?&gt;]extendsLocalTileCollectionMethods[K]"></a>
+      <a id="withLocalTileCollectionMethods[K]:withLocalTileCollectionMethods[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withLocalTileCollectionMethods</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.mapalgebra.local.LocalTileCollectionMethods">LocalTileCollectionMethods</span>[<span class="extype" name="geotrellis.layer.mapalgebra.local.Implicits.withLocalTileCollectionMethods.K">K</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withLocalTileCollectionMethods[K]extendsLocalTileCollectionMethods[K]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mapalgebra.local.Implicits.withLocalTileCollectionSeqMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withLocalTileCollectionSeqMethods[K&lt;:&lt;?&gt;]extendsLocalTileCollectionSeqMethods[K]"></a>
+      <a id="withLocalTileCollectionSeqMethods[K]:withLocalTileCollectionSeqMethods[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withLocalTileCollectionSeqMethods</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.mapalgebra.local.LocalTileCollectionSeqMethods">LocalTileCollectionSeqMethods</span>[<span class="extype" name="geotrellis.layer.mapalgebra.local.Implicits.withLocalTileCollectionSeqMethods.K">K</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withLocalTileCollectionSeqMethods[K]extendsLocalTileCollectionSeqMethods[K]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.merge.Implicits.withMergableMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withMergableMethods[T&lt;:&lt;?&gt;]extendsMethodExtensions[T]"></a>
+      <a id="withMergableMethods[T]:withMergableMethods[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withMergableMethods</span><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.util.MethodExtensions">MethodExtensions</span>[<span class="extype" name="geotrellis.layer.merge.Implicits.withMergableMethods.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withMergableMethods[T]extendsMethodExtensions[T]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.stitch.Implicits.withSpatialTileCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withSpatialTileCollectionMethods[V&lt;:&lt;?&gt;]extendsSpatialTileCollectionStitchMethods[V]"></a>
+      <a id="withSpatialTileCollectionMethods[V&lt;:CellGrid[Int]]:withSpatialTileCollectionMethods[V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withSpatialTileCollectionMethods</span><span class="tparams">[<span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.stitch.SpatialTileCollectionStitchMethods">SpatialTileCollectionStitchMethods</span>[<span class="extype" name="geotrellis.layer.stitch.Implicits.withSpatialTileCollectionMethods.V">V</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withSpatialTileCollectionMethods[V&lt;:geotrellis.raster.CellGrid[Int]]extendsSpatialTileCollectionStitchMethods[V]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.stitch.Implicits.withSpatialTileLayoutCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withSpatialTileLayoutCollectionMethods[V&lt;:&lt;?&gt;,M&lt;:&lt;?&gt;]extendsSpatialTileLayoutCollectionStitchMethods[V,M]"></a>
+      <a id="withSpatialTileLayoutCollectionMethods[V&lt;:CellGrid[Int],M]:withSpatialTileLayoutCollectionMethods[V,M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withSpatialTileLayoutCollectionMethods</span><span class="tparams">[<span name="V">V &lt;: <span class="extype" name="geotrellis.raster.CellGrid">CellGrid</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>, <span name="M">M</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.stitch.SpatialTileLayoutCollectionStitchMethods">SpatialTileLayoutCollectionStitchMethods</span>[<span class="extype" name="geotrellis.layer.stitch.Implicits.withSpatialTileLayoutCollectionMethods.V">V</span>, <span class="extype" name="geotrellis.layer.stitch.Implicits.withSpatialTileLayoutCollectionMethods.M">M</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withSpatialTileLayoutCollectionMethods[V&lt;:geotrellis.raster.CellGrid[Int],M]extendsSpatialTileLayoutCollectionStitchMethods[V,M]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.mask.Implicits.withTileCollectionMaskMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withTileCollectionMaskMethods[K&lt;:&lt;?&gt;,V&lt;:&lt;?&gt;,M&lt;:&lt;?&gt;]extendsTileCollectionMaskMethods[K,V,M]"></a>
+      <a id="withTileCollectionMaskMethods[K,V,M]:withTileCollectionMaskMethods[K,V,M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTileCollectionMaskMethods</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>, <span name="M">M</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.mask.TileCollectionMaskMethods">TileCollectionMaskMethods</span>[<span class="extype" name="geotrellis.layer.mask.Implicits.withTileCollectionMaskMethods.K">K</span>, <span class="extype" name="geotrellis.layer.mask.Implicits.withTileCollectionMaskMethods.V">V</span>, <span class="extype" name="geotrellis.layer.mask.Implicits.withTileCollectionMaskMethods.M">M</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withTileCollectionMaskMethods[K,V,M]extendsTileCollectionMaskMethods[K,V,M]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.layer.Implicits.withTileLayerCollectionMethods" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withTileLayerCollectionMethods[K&lt;:&lt;?&gt;]extendsTileLayerCollectionMethods[K]"></a>
+      <a id="withTileLayerCollectionMethods[K]:withTileLayerCollectionMethods[K]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTileLayerCollectionMethods</span><span class="tparams">[<span name="K">K</span>]</span><span class="result"> extends <span class="extype" name="geotrellis.layer.TileLayerCollectionMethods">TileLayerCollectionMethods</span>[<span class="extype" name="geotrellis.layer.Implicits.withTileLayerCollectionMethods.K">K</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withTileLayerCollectionMethods[K]extendsTileLayerCollectionMethods[K]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="geotrellis.vector.io.json.CrsFormats#crsDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crsDecoder:io.circe.Decoder[geotrellis.proj4.CRS]"></a>
+      <a id="crsDecoder:Decoder[CRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crsDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@crsDecoder:io.circe.Decoder[geotrellis.proj4.CRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#crsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="crsEncoder:io.circe.Encoder[geotrellis.proj4.CRS]"></a>
+      <a id="crsEncoder:Encoder[CRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">crsEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.proj4.CRS">CRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@crsEncoder:io.circe.Encoder[geotrellis.proj4.CRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#jsonCrsDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonCrsDecoder:io.circe.Decoder[geotrellis.vector.io.json.JsonCRS]"></a>
+      <a id="jsonCrsDecoder:Decoder[JsonCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonCrsDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.JsonCRS">JsonCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@jsonCrsDecoder:io.circe.Decoder[geotrellis.vector.io.json.JsonCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#jsonCrsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonCrsEncoder:io.circe.Encoder[geotrellis.vector.io.json.JsonCRS]"></a>
+      <a id="jsonCrsEncoder:Encoder[JsonCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonCrsEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.JsonCRS">JsonCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@jsonCrsEncoder:io.circe.Encoder[geotrellis.vector.io.json.JsonCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#linkedCRSDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="linkedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.LinkedCRS]"></a>
+      <a id="linkedCRSDecoder:Decoder[LinkedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linkedCRSDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.LinkedCRS">LinkedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@linkedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.LinkedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#linkedCRSEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="linkedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.LinkedCRS]"></a>
+      <a id="linkedCRSEncoder:Encoder[LinkedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linkedCRSEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.LinkedCRS">LinkedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@linkedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.LinkedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.layer.Implicits#longToInstant" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="longToInstant(millis:Long):java.time.Instant"></a>
+      <a id="longToInstant(Long):Instant"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">longToInstant</span><span class="params">(<span name="millis">millis: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <span class="extype" name="java.time.Instant">Instant</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@longToInstant(millis:Long):java.time.Instant" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#namedCRSDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="namedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.NamedCRS]"></a>
+      <a id="namedCRSDecoder:Decoder[NamedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">namedCRSDecoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.NamedCRS">NamedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@namedCRSDecoder:io.circe.Decoder[geotrellis.vector.io.json.NamedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#namedCRSEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="namedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.NamedCRS]"></a>
+      <a id="namedCRSEncoder:Encoder[NamedCRS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">namedCRSEncoder</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.NamedCRS">NamedCRS</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@namedCRSEncoder:io.circe.Encoder[geotrellis.vector.io.json.NamedCRS]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.layer.Implicits#tileLayerMetadataToMapKeyTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tileLayerMetadataToMapKeyTransform[K](tm:geotrellis.layer.TileLayerMetadata[K]):geotrellis.layer.MapKeyTransform"></a>
+      <a id="tileLayerMetadataToMapKeyTransform[K](TileLayerMetadata[K]):MapKeyTransform"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tileLayerMetadataToMapKeyTransform</span><span class="tparams">[<span name="K">K</span>]</span><span class="params">(<span name="tm">tm: <span class="extype" name="geotrellis.layer.TileLayerMetadata">TileLayerMetadata</span>[<span class="extype" name="geotrellis.layer.Implicits.tileLayerMetadataToMapKeyTransform.K">K</span>]</span>)</span><span class="result">: <span class="extype" name="geotrellis.layer.MapKeyTransform">MapKeyTransform</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@tileLayerMetadataToMapKeyTransform[K](tm:geotrellis.layer.TileLayerMetadata[K]):geotrellis.layer.MapKeyTransform" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Implicits</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#withCrsDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCrsDecoder[T](implicitevidence$2:io.circe.Decoder[T]):io.circe.Decoder[geotrellis.vector.io.json.WithCrs[T]]"></a>
+      <a id="withCrsDecoder[T](Decoder[T]):Decoder[WithCrs[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCrsDecoder</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsDecoder.T">T</span>]</span>)</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Decoder" class="extype" target="_top">Decoder</a>[<span class="extype" name="geotrellis.vector.io.json.WithCrs">WithCrs</span>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsDecoder.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCrsDecoder[T](implicitevidence$2:io.circe.Decoder[T]):io.circe.Decoder[geotrellis.vector.io.json.WithCrs[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li><li name="geotrellis.vector.io.json.CrsFormats#withCrsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withCrsEncoder[T](implicitevidence$1:io.circe.Encoder[T]):io.circe.Encoder[geotrellis.vector.io.json.WithCrs[T]]"></a>
+      <a id="withCrsEncoder[T](Encoder[T]):Encoder[WithCrs[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withCrsEncoder</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsEncoder.T">T</span>]</span>)</span><span class="result">: <a href="https://circe.github.io/circe/api/index.html#io.circe.Encoder" class="extype" target="_top">Encoder</a>[<span class="extype" name="geotrellis.vector.io.json.WithCrs">WithCrs</span>[<span class="extype" name="geotrellis.vector.io.json.CrsFormats.withCrsEncoder.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#geotrellis.layer.package@withCrsEncoder[T](implicitevidence$1:io.circe.Encoder[T]):io.circe.Encoder[geotrellis.vector.io.json.WithCrs[T]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CrsFormats</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="geotrellis.layer.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.Implicits">Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.mask.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.mask.Implicits">layer.mask.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.mapalgebra.local.temporal.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.mapalgebra.local.temporal.Implicits">layer.mapalgebra.local.temporal.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.mapalgebra.local.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.mapalgebra.local.Implicits">layer.mapalgebra.local.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.mapalgebra.focal.hillshade.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.mapalgebra.focal.hillshade.Implicits">layer.mapalgebra.focal.hillshade.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.mapalgebra.focal.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.mapalgebra.focal.Implicits">layer.mapalgebra.focal.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.mapalgebra.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.mapalgebra.Implicits">layer.mapalgebra.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.stitch.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.stitch.Implicits">layer.stitch.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.vector.io.json.CrsFormats">
+              <h3>Inherited from <span class="extype" name="geotrellis.vector.io.json.CrsFormats">CrsFormats</span></h3>
+            </div><div class="parent" name="geotrellis.layer.buffer.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.buffer.Implicits">layer.buffer.Implicits</span></h3>
+            </div><div class="parent" name="geotrellis.layer.merge.Implicits">
+              <h3>Inherited from <span class="extype" name="geotrellis.layer.merge.Implicits">layer.merge.Implicits</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
