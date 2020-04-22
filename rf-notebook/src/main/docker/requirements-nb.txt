@@ -1,5 +1,5 @@
-pyspark=2.4.4
-gdal=2.4.3
+pyspark=2.4.5
+gdal=2.4.4
 numpy>=1.17.3,<2.0
 pandas>=0.25.3,<1.0
 shapely>=1.6.4,<1.7

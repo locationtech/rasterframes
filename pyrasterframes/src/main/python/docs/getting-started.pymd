@@ -127,7 +127,7 @@ libraryDependencies ++= Seq(
 )
 ``` 
 
-RasterFrames is compatible with Spark 2.4.4.
+RasterFrames is compatible with Spark 2.4.x.
 
 ## Installing GDAL Support
 

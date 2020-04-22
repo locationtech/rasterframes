@@ -34,7 +34,7 @@ import org.locationtech.rasterframes.model.{Cells, TileDataContext}
  *
  * @since 11/29/17
  */
-class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
+class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   import InternalRowTile._
 
   override def toArrayTile(): ArrayTile = realizedTile.toArrayTile()

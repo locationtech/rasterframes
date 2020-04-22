@@ -36,7 +36,8 @@ object RFProjectPlugin extends AutoPlugin {
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
     fork in Test := true,
-    javaOptions in Test := Seq("-Xmx2G", "-Djava.library.path=/usr/local/lib"),
+    javaOptions in Test := Seq("-Xmx1500m", "-XX:+HeapDumpOnOutOfMemoryError",
+      "-XX:HeapDumpPath=/tmp"),
     parallelExecution in Test := false,
     testOptions in Test += Tests.Argument("-oDF"),
     developers := List(

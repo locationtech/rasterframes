@@ -269,7 +269,7 @@ class GeoTiffDataSourceSpec
       s"https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/" +
         s"MCD43A4.A2019059.h11v08.006.2019072203257_B0${band}.TIF"
 
-    it("shoud write multiband") {
+    it("should write multiband") {
       import org.locationtech.rasterframes.datasource.raster._
 
       val cat = s"""

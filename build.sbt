@@ -134,7 +134,7 @@ lazy val experimental = project
       spark("sql").value % Provided
     ),
     fork in IntegrationTest := true,
-    javaOptions in IntegrationTest := Seq("-Xmx2G")
+    //javaOptions in IntegrationTest := Seq("-Xmx2G")
   )
 
 lazy val docs = project

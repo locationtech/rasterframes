@@ -1,208 +1,223 @@
-version: 2
+version: 2.1
 
-_defaults: &defaults
-  working_directory: ~/repo
-  environment:
-    TERM: dumb
-  docker:
-    - image: s22s/rasterframes-circleci:9b7682ef
+orbs:
+  sbt:
+    description: SBT build/test runtime
+    executors:
+      default:
+        docker:
+          - image: docker.pkg.github.com/locationtech/rasterframes/miniconda-gdal:latest
+            auth:
+              username: $GITHUB_USERNAME
+              password: $GITHUB_PASSWORD
+        resource_class: medium
+        working_directory: ~/repo
+        environment:
+          SBT_VERSION: 1.3.8
+          SBT_OPTS: -Xmx512m
+    commands:
+      setup:
+        description: Setup for sbt build
+        steps:
+          - run:
+              name: Setup sbt
+              command: 'true' # NOOP
 
-_setenv: &setenv
-  name: set CloudRepo credentials
-  command: |-
-    [ -d $HOME/.sbt ] || mkdir $HOME/.sbt
-    printf "realm=s22s.mycloudrepo.io\nhost=s22s.mycloudrepo.io\nuser=$CLOUDREPO_USER\npassword=$CLOUDREPO_PASSWORD\n" > $HOME/.sbt/.credentials
+  python:
+    commands:
+      setup:
+        description: Ensure a minimal python environment is avalable and ready
+        steps:
+          - run:
+              name: Install Python and PIP
+              command: |-
+                sudo apt-get update -q -y
+                sudo apt-get install python3 python3-pip
+                sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+                python -m pip install --user 'setuptools>=45.2'
 
-_delenv: &unsetenv
-  name: delete CloudRepo credential
-  command: rm -rf  $HOME/.sbt/.credentials || true
+      requirements:
+        description: Install packages identified in requirements file
+        steps:
+          - run:
+              name: Install requirements
+              command: pip3 install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
 
-_restore_cache: &restore_cache
-  keys:
-    - v3-dependencies-{{ checksum "build.sbt" }}
-    - v3-dependencies-
+  rasterframes:
+    commands:
+      setup:
+        steps:
+          - run:
+              name: Enable saving core files
+              command: ulimit -c unlimited -S
 
-_save_cache: &save_cache
-  key: v3-dependencies--{{ checksum "build.sbt" }}
-  paths:
-    - ~/.cache/coursier
-    - ~/.ivy2/cache
-    - ~/.sbt
-    - ~/.local
+      save-artifacts:
+        steps:
+          - run:
+              command: |
+                mkdir -p /tmp/core_dumps
+                ls -lh /tmp
+                cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+                cp -r /tmp/hsperfdata* /tmp/*.hprof /tmp/core_dumps 2> /dev/null || true
+              when: on_fail
+
+          - store_artifacts:
+              path: /tmp/core_dumps
+
+          - store_test_results:
+              path: core/target/test-reports
+
+          - store_test_results:
+              path: datasource/target/test-reports
+
+          - store_test_results:
+              path: experimental/target/test-reports
+
+      save-doc-artifacts:
+        steps:
+          - run:
+              command: |
+                mkdir -p /tmp/core_dumps
+                cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+                mkdir -p /tmp/markdown
+                cp /home/circleci/repo/pyrasterframes/target/python/docs/*.md /tmp/markdown 2> /dev/null || true
+              when: on_fail
+
+          - store_artifacts:
+              path: /tmp/core_dumps
+
+          - store_artifacts:
+              path: /tmp/markdown
+
+          - store_artifacts:
+              path: docs/target/site
+              destination: rf-site
+
+      save-cache:
+        steps:
+          - save_cache:
+              key: v4-dependencies--{{ checksum "build.sbt" }}
+              paths:
+                - ~/.ivy2/cache
+                - ~/.sbt
+                - ~/.cache/coursier
+                - ~/.local
+
+      restore-cache:
+        steps:
+          - restore_cache:
+              keys:
+                - v4-dependencies-{{ checksum "build.sbt" }}
 
 jobs:
   test:
-    <<: *defaults
-    resource_class: large
+    executor: sbt/default
     steps:
       - checkout
-      - run: *setenv
-      - restore_cache:
-          <<: *restore_cache
-
-      - run: ulimit -c unlimited -S
-      - run:
-          command: cat /dev/null | sbt -batch core/test datasource/test experimental/test pyrasterframes/test
-          no_output_timeout: 15m
+      - sbt/setup
+      - python/setup
+      - rasterframes/setup
+      - rasterframes/restore-cache
 
       - run:
-          command: |
-            mkdir -p /tmp/core_dumps
-            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
-          when: on_fail
+          name: "Compile Scala"
+          command: sbt -v -batch compile
 
-      - store_artifacts:
-          path: /tmp/core_dumps
+      - run:
+          name: "Scala Tests: core"
+          command: sbt -batch core/test
 
-      - store_test_results:
-          path: core/target/test-reports
+      - run:
+          name: "Scala Tests: datasource"
+          command: sbt -batch datasource/test
 
-      - store_test_results:
-          path: datasource/target/test-reports
+      - run:
+          name: "Scala Tests: experimental"
+          command: sbt -batch experimental/test
 
-      - store_test_results:
-          path: experimental/target/test-reports
+      - run:
+          name: "Create PyRasterFrames package"
+          command: |-
+            python -m pip install --user pyspark==2.4.5
+            sbt -v -batch pyrasterframes/package
 
-      - run: *unsetenv
-      - save_cache:
-          <<: *save_cache
+      - run:
+          name: "Python Tests"
+          command: sbt -batch pyrasterframes/test
+
+      - rasterframes/save-artifacts
+      - rasterframes/save-cache
 
   docs:
-    <<: *defaults
-    resource_class: xlarge
+    executor: sbt/default
     steps:
       - checkout
-      - run: *setenv
+      - sbt/setup
+      - python/setup
+      - python/requirements
+      - rasterframes/setup
+      - rasterframes/restore-cache
 
-      - restore_cache:
-          <<: *restore_cache
-
-      - run: ulimit -c unlimited -S
-      - run: pip3 install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
       - run:
+          name: Build documentation
           command: cat /dev/null | sbt makeSite
-          no_output_timeout: 30m
+          no-output-timeout: 30m
 
-      - run:
-          command: |
-            mkdir -p /tmp/core_dumps
-            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
-            mkdir -p /tmp/markdown
-            cp /home/circleci/repo/pyrasterframes/target/python/docs/*.md /tmp/markdown 2> /dev/null || true
-          when: on_fail
-
-      - store_artifacts:
-          path: /tmp/core_dumps
-
-      - store_artifacts:
-          path: /tmp/markdown
-
-      - store_artifacts:
-          path: docs/target/site
-          destination: rf-site
-
-      - run: *unsetenv
-
-      - save_cache:
-          <<: *save_cache
+      - rasterframes/save-doc-artifacts
+      - rasterframes/save-cache
 
   it:
-    <<: *defaults
-    resource_class: xlarge
+    executor: sbt/default
     steps:
       - checkout
-      - run: *setenv
+      - sbt/setup
+      - rasterframes/setup
+      - rasterframes/restore-cache
 
-      - restore_cache:
-          <<: *restore_cache
-
-      - run: ulimit -c unlimited -S
       - run:
+          name: Integration tests
           command: cat /dev/null | sbt it:test
           no_output_timeout: 30m
 
-      - run:
-          command: |
-            mkdir -p /tmp/core_dumps
-            cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
-          when: on_fail
-
-      - store_artifacts:
-          path: /tmp/core_dumps
-
-      - run: *unsetenv
-
-      - save_cache:
-          <<: *save_cache
+      - rasterframes/save-artifacts
+      - rasterframes/save-cache
 
   itWithoutGdal:
-    working_directory: ~/repo
-    environment:
-      TERM: dumb
-    docker:
-      - image: circleci/openjdk:8-jdk
-    resource_class: xlarge
+    executor: sbt/default
     steps:
       - checkout
-      - run: *setenv
-
-      - restore_cache:
-          <<: *restore_cache
+      - sbt/setup
+      - rasterframes/setup
+      - rasterframes/restore-cache
 
       - run:
+          name: Integration tests
           command: cat /dev/null | sbt it:test
           no_output_timeout: 30m
-      - run: *unsetenv
 
-      - save_cache:
-          <<: *save_cache
-
-  staticAnalysis:
-    <<: *defaults
-
-    steps:
-      - checkout
-      - run: *setenv
-      - restore_cache:
-          <<: *restore_cache
-
-      - run: cat /dev/null | sbt dependencyCheck
-      - run: cat /dev/null | sbt --debug dumpLicenseReport
-
-      - run: *unsetenv
-
-      - save_cache:
-          <<: *save_cache
-      - store_artifacts:
-          path: datasource/target/scala-2.11/dependency-check-report.html
-          destination: dependency-check-report-datasource.html
-      - store_artifacts:
-          path: experimental/target/scala-2.11/dependency-check-report.html
-          destination: dependency-check-report-experimental.html
-      - store_artifacts:
-          path: core/target/scala-2.11/dependency-check-report.html
-          destination: dependency-check-report-core.html
-      - store_artifacts:
-          path: pyrasterframes/target/scala-2.11/dependency-check-report.html
-          destination: dependency-check-report-pyrasterframes.html
-
+      - rasterframes/save-artifacts
+      - rasterframes/save-cache
 
 workflows:
   version: 2
   all:
     jobs:
-      - test
+      - test:
+          context: rasterframes
       - it:
+          context: rasterframes
           filters:
             branches:
               only:
                 - /feature\/.*-its/
       - itWithoutGdal:
+          context: rasterframes
           filters:
             branches:
               only:
                 - /feature\/.*-its/
       - docs:
+          context: rasterframes
           filters:
             branches:
               only:
@@ -219,8 +234,7 @@ workflows:
               only:
                 - develop
     jobs:
+      - test
       - it
       - itWithoutGdal
       - docs
-      - test
-#      - staticAnalysis

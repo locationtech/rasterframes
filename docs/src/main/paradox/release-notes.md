@@ -4,7 +4,7 @@
 
 ### 0.9.0
 
-* Upgraded to GeoTrellis 3.2.0. This includes a number of _breaking_ changes enumerated as a part of the [PR's](https://github.com/locationtech/rasterframes/pull/398) change log. These include:
+* Upgraded to GeoTrellis 3.3.0. This includes a number of _breaking_ changes enumerated as a part of the [PR's](https://github.com/locationtech/rasterframes/pull/398) change log. These include:
   - Add `Int` type parameter to `Grid`
   - Add `Int` type parameter to `CellGrid`
   - Add `Int` type parameter to `GridBounds`... or `TileBounds`
@@ -12,6 +12,7 @@
   - Update imports for layers, particularly `geotrellis.spark.tiling` to `geotrellis.layer`
   - Update imports for `geotrellis.spark.io` to `geotrellis.spark.store...`
   - Removed `FixedRasterExtent`
+  - Removed `FixedDelegatingTile`
   - Removed `org.locationtech.rasterframes.util.Shims`
   - Change `Extent.jtsGeom` to `Extent.toPolygon`
   - Change `TileLayerMetadata.gridBounds` to `TileLayerMetadata.tileBounds`
@@ -29,7 +30,7 @@
     * Add cell value scaling functions `rf_rescale` and `rf_standardize`.
     * Add `rf_where` function, similar in spirit to numpy's `where`, or a cell-wise version of Spark SQL's `when` and `otherwise`.
 * Add `rf_sqrt` function to compute cell-wise square root.
-
+* Upgraded to Spark 2.4.5
 
 ## 0.8.x
 

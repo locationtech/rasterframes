@@ -23,10 +23,27 @@ import unittest
 
 from pyrasterframes.utils import create_rf_spark_session
 
-
 import builtins
 
-app_name = 'pyrasterframes test suite'
+app_name = 'PyRasterFrames test suite'
+
+# Setuptools/easy_install doesn't properly set the execute bit on the Spark scripts,
+# So this preemptively attempts to do it.
+def _chmodit():
+    try:
+        from importlib.util import find_spec
+        module_home = find_spec("pyspark").origin
+        print(module_home)
+        bin_dir = os.path.join(os.path.dirname(module_home), 'bin')
+        for filename in os.listdir(bin_dir):
+            try:
+                os.chmod(os.path.join(bin_dir, filename), mode=0o555, follow_symlinks=True)
+            except OSError:
+                pass
+    except ImportError:
+        pass
+
+_chmodit()
 
 
 def resource_dir():

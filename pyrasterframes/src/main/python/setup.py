@@ -132,27 +132,33 @@ class PweaveNotebooks(PweaveDocs):
     def dest_file(self, src_file):
         return path.splitext(src_file)[0] + '.ipynb'
 
-pytz = 'pytz'
-shapely = 'Shapely>=1.6.0'
-pyspark ='pyspark==2.4.4'
-numpy = 'numpy>=1.12.0'
-matplotlib ='matplotlib'
-pandas = 'pandas>=0.24.2'
-geopandas = 'geopandas'
-requests = 'requests'
-pytest_runner = 'pytest-runner'
-setuptools = 'setuptools>=0.8'
-ipython = 'ipython==6.2.1'
-ipykernel = 'ipykernel==4.8.0'
-pweave = 'Pweave==0.30.3'
-jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
-fiona = 'fiona==1.8.6'
-rasterio = 'rasterio>=1.0.0'
-folium = 'folium'
-pytest = 'pytest>=4.0.0,<5.0.0'
-pypandoc = 'pypandoc'
+
 boto3 = 'boto3'
 deprecation = 'deprecation'
+descartes = 'descartes'
+fiona = 'fiona==1.8.6'
+folium = 'folium'
+gdal = 'gdal==2.4.4'
+geopandas = 'geopandas>=0.7'
+ipykernel = 'ipykernel==4.8.0'
+ipython = 'ipython==6.2.1'
+jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
+matplotlib = 'matplotlib'
+numpy = 'numpy>=1.17.3,<2.0'
+pandas = 'pandas>=0.25.3,<1.0'
+pweave = 'pweave==0.30.3'
+pypandoc = 'pypandoc'
+pyspark = 'pyspark==2.4.5'
+pytest = 'pytest>=4.0.0,<5.0.0'
+pytest_runner = 'pytest-runner'
+pytz = 'pytz'
+rasterio = 'rasterio>=1.0.0'
+requests = 'requests'
+setuptools = 'setuptools>=45.2.0'
+shapely = 'Shapely>=1.6.0'
+tabulate = 'tabulate'
+tqdm = 'tqdm'
+utm = 'utm'
 
 setup(
     name='pyrasterframes',
@@ -170,6 +176,7 @@ setup(
     },
     python_requires=">=3.5",
     install_requires=[
+        gdal,
         pytz,
         shapely,
         pyspark,
