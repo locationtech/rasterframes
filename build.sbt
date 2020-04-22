@@ -113,13 +113,13 @@ lazy val datasource = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
-    initialCommands in console := (initialCommands in console).value +
+    console / initialCommands := (console / initialCommands).value +
       """
         |import org.locationtech.rasterframes.datasource.geotrellis._
         |import org.locationtech.rasterframes.datasource.geotiff._
         |""".stripMargin,
-    fork in IntegrationTest := true,
-    javaOptions in IntegrationTest := Seq("-Xmx1500m")
+    IntegrationTest / fork := true,
+    IntegrationTest / javaOptions := Seq("-Xmx3g")
   )
 
 lazy val experimental = project
@@ -135,8 +135,8 @@ lazy val experimental = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
-    fork in IntegrationTest := true,
-    javaOptions in IntegrationTest := Seq("-Xmx1500m")
+    IntegrationTest / fork := true,
+    IntegrationTest / javaOptions := (datasource / IntegrationTest / javaOptions).value
   )
 
 lazy val docs = project

@@ -171,6 +171,7 @@ jobs:
 
   it:
     executor: sbt/default
+    resource_class: large
     steps:
       - checkout
       - sbt/setup
@@ -188,6 +189,7 @@ jobs:
 
   it-no-gdal:
     executor: sbt/default
+    resource_class: large
     steps:
       - checkout
       - sbt/setup
