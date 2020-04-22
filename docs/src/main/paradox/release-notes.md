@@ -23,6 +23,8 @@
   - Revisit use of `Tile` equality since [it's more strict](https://github.com/locationtech/geotrellis/pull/2991)
   - Update `reference.conf` to use `geotrellis.raster.gdal` namespace.
   - Replace all uses of `TileDimensions` with `geotrellis.raster.Dimensions[Int]`.
+* Upgraded to `gdal-warp-bindings` 1.0.0.  
+* Upgraded to Spark 2.4.5
 * Formally abandoned support for Python 2. Python 2 is dead. Long live Python 2.
 * Introduction of type hints in Python API. 
 * Add functions for changing cell values based on either conditions or to achieve a distribution of values. ([#449](https://github.com/locationtech/rasterframes/pull/449))
@@ -30,7 +32,6 @@
     * Add cell value scaling functions `rf_rescale` and `rf_standardize`.
     * Add `rf_where` function, similar in spirit to numpy's `where`, or a cell-wise version of Spark SQL's `when` and `otherwise`.
 * Add `rf_sqrt` function to compute cell-wise square root.
-* Upgraded to Spark 2.4.5
 
 ## 0.8.x
 

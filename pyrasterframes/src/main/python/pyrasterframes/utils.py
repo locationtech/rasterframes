@@ -68,6 +68,12 @@ Try running 'sbt pyrasterframes/clean pyrasterframes/package' first. """.format(
     return jarpath[0]
 
 
+def quiet_logs(sc):
+    logger = sc._jvm.org.apache.log4j
+    logger.LogManager.getLogger("geotrellis.raster.gdal").setLevel(logger.Level.ERROR)
+    logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
+
+
 def create_rf_spark_session(master="local[*]", **kwargs: str) -> SparkSession:
     """ Create a SparkSession with pyrasterframes enabled and configured. """
     jar_path = find_pyrasterframes_assembly()
@@ -85,6 +91,8 @@ def create_rf_spark_session(master="local[*]", **kwargs: str) -> SparkSession:
              .withKryoSerialization()
              .config(conf=conf)  # user can override the defaults
              .getOrCreate())
+
+    quiet_logs(spark)
 
     try:
         spark.withRasterFrames()

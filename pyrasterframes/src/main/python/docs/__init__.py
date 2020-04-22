@@ -20,6 +20,25 @@
 
 from pweave import PwebPandocFormatter
 
+# Setuptools/easy_install doesn't properly set the execute bit on the Spark scripts,
+# So this preemptively attempts to do it.
+def _chmodit():
+    try:
+        from importlib.util import find_spec
+        import os
+        module_home = find_spec("pyspark").origin
+        print(module_home)
+        bin_dir = os.path.join(os.path.dirname(module_home), 'bin')
+        for filename in os.listdir(bin_dir):
+            try:
+                os.chmod(os.path.join(bin_dir, filename), mode=0o555, follow_symlinks=True)
+            except OSError:
+                pass
+    except ImportError:
+        pass
+
+_chmodit()
+
 
 class PegdownMarkdownFormatter(PwebPandocFormatter):
     def __init__(self, *args, **kwargs):
