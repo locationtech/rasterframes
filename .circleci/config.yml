@@ -14,7 +14,7 @@ orbs:
         working_directory: ~/repo
         environment:
           SBT_VERSION: 1.3.8
-          SBT_OPTS: -Xmx512m
+          SBT_OPTS: -Xmx768m
     commands:
       setup:
         description: Setup for sbt build
@@ -22,6 +22,14 @@ orbs:
           - run:
               name: Setup sbt
               command: 'true' # NOOP
+
+      compile:
+        description: Do just the compilation stage to minimize sbt memory footprint
+        steps:
+          - run:
+              name: "Compile Scala via sbt"
+              command: |-
+                sbt -v -batch compile test:compile it:compile
 
   python:
     commands:
@@ -31,9 +39,6 @@ orbs:
           - run:
               name: Install Python and PIP
               command: |-
-                sudo apt-get update -q -y
-                sudo apt-get install python3 python3-pip
-                sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
                 python -m pip install --user 'setuptools>=45.2'
 
       requirements:
@@ -118,10 +123,7 @@ jobs:
       - python/setup
       - rasterframes/setup
       - rasterframes/restore-cache
-
-      - run:
-          name: "Compile Scala"
-          command: sbt -v -batch compile
+      - sbt/compile
 
       - run:
           name: "Scala Tests: core"
@@ -157,33 +159,37 @@ jobs:
       - python/requirements
       - rasterframes/setup
       - rasterframes/restore-cache
+      - sbt/compile
 
       - run:
           name: Build documentation
-          command: cat /dev/null | sbt makeSite
-          no-output-timeout: 30m
+          command: sbt makeSite
+          no_output_timeout: 30m
 
       - rasterframes/save-doc-artifacts
       - rasterframes/save-cache
 
   it:
     executor: sbt/default
+    resource_class: large
     steps:
       - checkout
       - sbt/setup
       - rasterframes/setup
       - rasterframes/restore-cache
+      - sbt/compile
 
       - run:
           name: Integration tests
-          command: cat /dev/null | sbt it:test
+          command: sbt it:test
           no_output_timeout: 30m
 
       - rasterframes/save-artifacts
       - rasterframes/save-cache
 
-  itWithoutGdal:
+  it-no-gdal:
     executor: sbt/default
+    resource_class: large
     steps:
       - checkout
       - sbt/setup
@@ -191,8 +197,14 @@ jobs:
       - rasterframes/restore-cache
 
       - run:
+          name: Uninstall GDAL
+          command: conda remove gdal -q -y --offline
+
+      - sbt/compile
+
+      - run:
           name: Integration tests
-          command: cat /dev/null | sbt it:test
+          command: sbt it:test
           no_output_timeout: 30m
 
       - rasterframes/save-artifacts
@@ -204,18 +216,27 @@ workflows:
     jobs:
       - test:
           context: rasterframes
+
       - it:
           context: rasterframes
+#          requires:
+#            - test
           filters:
             branches:
               only:
-                - /feature\/.*-its/
-      - itWithoutGdal:
+                - /feature\/.*-it.*/
+                - /it\/.*/
+
+      - it-no-gdal:
           context: rasterframes
+#          requires:
+#            - test
           filters:
             branches:
               only:
-                - /feature\/.*-its/
+                - /feature\/.*-it.*/
+                - /it\/.*/
+
       - docs:
           context: rasterframes
           filters:
@@ -236,5 +257,5 @@ workflows:
     jobs:
       - test
       - it
-      - itWithoutGdal
+      - it-no-gdal
       - docs

@@ -10,6 +10,7 @@ USER root
 
 ENV PATH=$CONDA_DIR/bin:$PATH
 
+# circleci is 3434
 COPY --chown=3434:3434 fix-permissions /tmp
 
 RUN \
@@ -40,6 +41,7 @@ RUN \
     conda list python | grep '^python ' | tr -s ' ' | cut -d '.' -f 1,2 | sed 's/$/.*/' >> $CONDA_DIR/conda-meta/pinned && \
     conda install --quiet --yes conda && \
     conda install --quiet --yes pip && \
+    pip config set global.progress_bar off && \
     echo "$CONDA_DIR/lib" > /etc/ld.so.conf.d/conda.conf && \
     conda clean --all --force-pkgs-dirs --yes --quiet && \
     sh /tmp/fix-permissions $CONDA_DIR 2> /dev/null
