@@ -8,10 +8,11 @@
     a. `clean`  
     b. `test it:test`  
     c. `makeSite`  
-    d. `publishSigned` (LocationTech credentials required)  
-    e. `sonatypeReleaseAll`. It can take a while, but should eventually show up [here](https://search.maven.org/search?q=g:org.locationtech.rasterframes).  
-    f. `docs/ghpagesPushSite`  
-    g. `rf-notebook/publish`  
+    d. `rf-notebook/publishLocal`    
+    e. `publishSigned` (LocationTech credentials required)  
+    f. `sonatypeReleaseAll`. It can take a while, but should eventually show up [here](https://search.maven.org/search?q=g:org.locationtech.rasterframes).  
+    g. `docs/ghpagesPushSite`  
+    h. `rf-notebook/publish`
 6. `cd pyrasterframes/target/python/dist`
 7. `python3 -m twine upload pyrasterframes-x.y.z-py2.py3-none-any.whl`
 8. Commit any changes that were necessary.
