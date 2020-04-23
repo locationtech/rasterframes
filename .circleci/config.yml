@@ -255,7 +255,11 @@ workflows:
               only:
                 - develop
     jobs:
-      - test
-      - it
-      - it-no-gdal
-      - docs
+      - test:
+          context: rasterframes
+      - it:
+          context: rasterframes
+      - it-no-gdal:
+          context: rasterframes
+      - docs:
+          context: rasterframes
