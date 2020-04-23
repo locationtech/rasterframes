@@ -219,8 +219,8 @@ workflows:
 
       - it:
           context: rasterframes
-#          requires:
-#            - test
+          requires:
+            - test
           filters:
             branches:
               only:
@@ -229,8 +229,8 @@ workflows:
 
       - it-no-gdal:
           context: rasterframes
-#          requires:
-#            - test
+          requires:
+            - test
           filters:
             branches:
               only:
