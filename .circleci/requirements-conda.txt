@@ -1,0 +1,3 @@
+gdal==2.4.4
+libspatialindex
+rtree

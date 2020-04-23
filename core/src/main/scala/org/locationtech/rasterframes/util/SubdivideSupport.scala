@@ -22,8 +22,8 @@
 package org.locationtech.rasterframes.util
 
 import geotrellis.raster.crop.Crop
-import geotrellis.raster.{CellGrid, TileLayout}
-import geotrellis.spark.{Bounds, KeyBounds, SpatialComponent, SpatialKey, TileLayerMetadata}
+import geotrellis.raster.{CellGrid, Dimensions, TileLayout}
+import geotrellis.layer._
 import geotrellis.util._
 
 /**
@@ -98,9 +98,9 @@ trait SubdivideSupport {
     }
   }
 
-  implicit class TileHasSubdivide[T <: CellGrid: WithCropMethods](self: T) {
+  implicit class TileHasSubdivide[T <: CellGrid[Int]: WithCropMethods](self: T) {
     def subdivide(divs: Int): Seq[T] = {
-      val (cols, rows) = self.dimensions
+      val Dimensions(cols, rows) = self.dimensions
       val (newCols, newRows) = (cols/divs, rows/divs)
       for {
         i ← 0 until divs

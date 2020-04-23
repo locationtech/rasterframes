@@ -36,7 +36,7 @@ import scala.reflect.ClassTag
 
 trait TileFeatureSupport {
 
-  implicit class TileFeatureMethodsWrapper[V <: CellGrid: ClassTag: WithMergeMethods: WithPrototypeMethods: WithCropMethods: WithMaskMethods, D: MergeableData](val self: TileFeature[V, D])
+  implicit class TileFeatureMethodsWrapper[V <: CellGrid[Int]: ClassTag: WithMergeMethods: WithPrototypeMethods: WithCropMethods: WithMaskMethods, D: MergeableData](val self: TileFeature[V, D])
     extends TileMergeMethods[TileFeature[V, D]]
       with TilePrototypeMethods[TileFeature[V,D]]
       with TileCropMethods[TileFeature[V,D]]
@@ -47,7 +47,7 @@ trait TileFeatureSupport {
       TileFeature(self.tile.merge(other.tile), MergeableData[D].merge(self.data,other.data))
 
     def merge(other: TileFeature[V, D], col: Int, row: Int): TileFeature[V, D] =
-      TileFeature(Shims.merge(self.tile, other.tile, col, row), MergeableData[D].merge(self.data, other.data))
+      TileFeature(self.tile.merge(other.tile, col, row), MergeableData[D].merge(self.data, other.data))
 
     override def merge(extent: Extent, otherExtent: Extent, other: TileFeature[V, D], method: ResampleMethod): TileFeature[V, D] =
       TileFeature(self.tile.merge(extent, otherExtent, other.tile, method), MergeableData[D].merge(self.data,other.data))
@@ -61,7 +61,7 @@ trait TileFeatureSupport {
     override def crop(srcExtent: Extent, extent: Extent, options: Crop.Options): TileFeature[V, D] =
       TileFeature(self.tile.crop(srcExtent, extent, options), self.data)
 
-    override def crop(gb: GridBounds, options: Crop.Options): TileFeature[V, D] =
+    override def crop(gb: GridBounds[Int], options: Crop.Options): TileFeature[V, D] =
       TileFeature(self.tile.crop(gb, options), self.data)
 
     override def localMask(r: TileFeature[V, D], readMask: Int, writeMask: Int): TileFeature[V, D] =

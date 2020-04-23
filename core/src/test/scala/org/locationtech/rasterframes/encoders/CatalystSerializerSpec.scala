@@ -24,21 +24,20 @@ package org.locationtech.rasterframes.encoders
 import java.time.ZonedDateTime
 
 import geotrellis.proj4._
-import geotrellis.raster.{CellSize, CellType, TileLayout, UShortUserDefinedNoDataCellType}
-import geotrellis.spark.tiling.LayoutDefinition
-import geotrellis.spark.{KeyBounds, SpaceTimeKey, SpatialKey, TileLayerMetadata}
+import geotrellis.raster.{CellSize, CellType, Dimensions, TileLayout, UShortUserDefinedNoDataCellType}
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.rasterframes.{TestData, TestEnvironment}
 import org.locationtech.rasterframes.encoders.StandardEncoders._
-import org.locationtech.rasterframes.model.{CellContext, TileContext, TileDataContext, TileDimensions}
-import org.locationtech.rasterframes.ref.{RasterRef, RasterSource}
+import org.locationtech.rasterframes.model.{CellContext, TileContext, TileDataContext}
+import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef}
 import org.scalatest.Assertion
 
 class CatalystSerializerSpec extends TestEnvironment {
   import TestData._
 
-  val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), TileDimensions(12, 23))
+  val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), Dimensions(12, 23))
   val tc = TileContext(Extent(1, 2, 3, 4), WebMercator)
   val cc = CellContext(tc, dc, 34, 45)
   val ext = Extent(1.2, 2.3, 3.4, 4.5)
@@ -106,7 +105,7 @@ class CatalystSerializerSpec extends TestEnvironment {
 
     it("should serialize RasterRef") {
       // TODO: Decide if RasterRef should be encoded 'flat', non-'flat', or depends
-      val src = RasterSource(remoteCOGSingleband1)
+      val src = RFRasterSource(remoteCOGSingleband1)
       val ext = src.extent.buffer(-3.0)
       val value = RasterRef(src, 0, Some(ext), Some(src.rasterExtent.gridBoundsFor(ext)))
       assertConsistent(value)

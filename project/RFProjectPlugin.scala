@@ -28,7 +28,7 @@ object RFProjectPlugin extends AutoPlugin {
       "-Ywarn-unused-import"
     ),
     scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
-    console / scalacOptions := Seq("-feature"),
+    Compile / console / scalacOptions := Seq("-feature"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     cancelable in Global := true,
     publishTo in ThisBuild := sonatypePublishTo.value,
@@ -36,7 +36,8 @@ object RFProjectPlugin extends AutoPlugin {
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
     fork in Test := true,
-    javaOptions in Test := Seq("-Xmx2G", "-Djava.library.path=/usr/local/lib"),
+    javaOptions in Test := Seq("-Xmx1500m", "-XX:+HeapDumpOnOutOfMemoryError",
+      "-XX:HeapDumpPath=/tmp"),
     parallelExecution in Test := false,
     testOptions in Test += Tests.Argument("-oDF"),
     developers := List(
@@ -44,6 +45,12 @@ object RFProjectPlugin extends AutoPlugin {
         id = "metasim",
         name = "Simeon H.K. Fitch",
         email = "fitch@astraea.earth",
+        url = url("http://www.astraea.earth")
+      ),
+      Developer(
+        id = "vpipkt",
+        name = "Jason Brown",
+        email = "jbrown@astraea.earth",
         url = url("http://www.astraea.earth")
       ),
       Developer(
@@ -58,12 +65,6 @@ object RFProjectPlugin extends AutoPlugin {
         email = "bguseman@astraea.earth",
         url = url("http://www.astraea.earth")
       ),
-      Developer(
-        id = "vpipkt",
-        name = "Jason Brown",
-        email = "jbrown@astraea.earth",
-        url = url("http://www.astraea.earth")
-      )
     ),
     initialCommands in console :=
       """

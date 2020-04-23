@@ -32,6 +32,6 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
  */
 object ProjectedExtentEncoder {
   def apply(): ExpressionEncoder[ProjectedExtent] = {
-    DelegatingSubfieldEncoder("extent" -> extentEncoder, "crs" -> crsEncoder)
+    DelegatingSubfieldEncoder("extent" -> extentEncoder, "crs" -> crsSparkEncoder)
   }
 }

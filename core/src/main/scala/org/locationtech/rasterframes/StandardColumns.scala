@@ -25,7 +25,7 @@ import java.sql.Timestamp
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.Tile
-import geotrellis.spark.{SpatialKey, TemporalKey}
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions.col
 import org.locationtech.jts.geom.{Point => jtsPoint, Polygon => jtsPolygon}

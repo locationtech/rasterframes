@@ -21,14 +21,13 @@
 
 package org.locationtech.rasterframes.expressions
 
+import geotrellis.layer._
 import geotrellis.raster.Tile
 import geotrellis.spark._
-import geotrellis.spark.tiling.FloatingLayoutScheme
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.aggregates.ProjectedLayerMetadataAggregate
-import org.locationtech.rasterframes.model.TileDimensions
 
 class ProjectedLayerMetadataAggregateSpec extends TestEnvironment {
 
@@ -49,7 +48,7 @@ class ProjectedLayerMetadataAggregateSpec extends TestEnvironment {
         .map { case (ext, tile) => (ProjectedExtent(ext, crs), tile) }
         .rdd.collectMetadata[SpatialKey](FloatingLayoutScheme(tileDims._1, tileDims._2))
 
-      val md = df.select(ProjectedLayerMetadataAggregate(crs, TileDimensions(tileDims), $"extent",
+      val md = df.select(ProjectedLayerMetadataAggregate(crs, tileDims, $"extent",
         serialized_literal(crs), rf_cell_type($"tile"), rf_dimensions($"tile")))
       val tlm2 = md.first()
 

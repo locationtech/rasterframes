@@ -50,12 +50,12 @@ lazy val core = project
   .settings(
     moduleName := "rasterframes",
     libraryDependencies ++= Seq(
+      `slf4j-api`,
       shapeless,
       `jts-core`,
+      `spray-json`,
       geomesa("z3").value,
       geomesa("spark-jts").value,
-      `geotrellis-contrib-vlm`,
-      `geotrellis-contrib-gdal`,
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,
@@ -67,10 +67,19 @@ lazy val core = project
         ExclusionRule(organization = "org.scalatest")
       ),
       scaffeine,
-      scalatest
+      scalatest,
+      `scala-logging`
     ),
+    libraryDependencies ++= {
+      val gv = rfGeoTrellisVersion.value
+      if (gv.startsWith("3")) Seq[ModuleID](
+        geotrellis("gdal").value,
+        geotrellis("s3-spark").value
+      )
+      else Seq.empty[ModuleID]
+    },
     buildInfoKeys ++= Seq[BuildInfoKey](
-      moduleName, version, scalaVersion, sbtVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
+      version, scalaVersion, rfGeoTrellisVersion, rfGeoMesaVersion, rfSparkVersion
     ),
     buildInfoPackage := "org.locationtech.rasterframes",
     buildInfoObject := "RFBuildInfo",
@@ -104,11 +113,13 @@ lazy val datasource = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
-    initialCommands in console := (initialCommands in console).value +
+    console / initialCommands := (console / initialCommands).value +
       """
         |import org.locationtech.rasterframes.datasource.geotrellis._
         |import org.locationtech.rasterframes.datasource.geotiff._
-        |""".stripMargin
+        |""".stripMargin,
+    IntegrationTest / fork := true,
+    IntegrationTest / javaOptions := Seq("-Xmx3g")
   )
 
 lazy val experimental = project
@@ -124,9 +135,8 @@ lazy val experimental = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
-    fork in IntegrationTest := true,
-    javaOptions in IntegrationTest := Seq("-Xmx2G"),
-    parallelExecution in IntegrationTest := false
+    IntegrationTest / fork := true,
+    IntegrationTest / javaOptions := (datasource / IntegrationTest / javaOptions).value
   )
 
 lazy val docs = project
@@ -166,8 +176,6 @@ lazy val docs = project
   .settings(
     addMappingsToSiteDir(Compile / paradox / mappings, paradox / siteSubdirName)
   )
-
-//ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox)
 
 lazy val bench = project
   .dependsOn(core % "compile->test")

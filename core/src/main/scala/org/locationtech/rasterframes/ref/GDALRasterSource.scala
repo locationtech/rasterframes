@@ -21,21 +21,23 @@
 
 package org.locationtech.rasterframes.ref
 
+import java.io.IOException
 import java.net.URI
 
 import com.azavea.gdal.GDALWarp
 import com.typesafe.scalalogging.LazyLogging
-import geotrellis.contrib.vlm.gdal.{GDALRasterSource => VLMRasterSource}
 import geotrellis.proj4.CRS
+import geotrellis.raster.gdal.{GDALRasterSource => VLMRasterSource}
 import geotrellis.raster.io.geotiff.Tags
 import geotrellis.raster.{CellType, GridBounds, MultibandTile, Raster}
 import geotrellis.vector.Extent
-import org.locationtech.rasterframes.ref.RasterSource.URIRasterSource
+import org.locationtech.rasterframes.ref.RFRasterSource.URIRasterSource
 
-case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSource {
+
+case class GDALRasterSource(source: URI) extends RFRasterSource with URIRasterSource {
 
   @transient
-  private lazy val gdal: VLMRasterSource = {
+  protected lazy val gdal: VLMRasterSource = {
     val cleaned = source.toASCIIString
       .replace("gdal+", "")
       .replace("gdal:/", "")
@@ -60,14 +62,19 @@ case class GDALRasterSource(source: URI) extends RasterSource with URIRasterSour
 
   override def bandCount: Int = tiffInfo.bandCount
 
-  override def cols: Int = tiffInfo.cols
+  override def cols: Int = tiffInfo.cols.toInt
 
-  override def rows: Int = tiffInfo.rows
+  override def rows: Int = tiffInfo.rows.toInt
 
   override def tags: Tags = Tags(metadata, List.empty)
 
-  override protected def readBounds(bounds: Traversable[GridBounds], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
-    gdal.readBounds(bounds, bands)
+  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
+    try {
+      gdal.readBounds(bounds.map(_.toGridType[Long]), bands)
+    }
+    catch {
+      case e: Exception => throw new IOException(s"Error reading '$source'", e)
+    }
 }
 
 object GDALRasterSource extends LazyLogging {

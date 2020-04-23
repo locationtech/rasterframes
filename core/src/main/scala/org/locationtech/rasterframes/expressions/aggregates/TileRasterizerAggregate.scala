@@ -21,11 +21,11 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import geotrellis.layer._
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
 import geotrellis.raster.resample.{Bilinear, ResampleMethod}
-import geotrellis.raster.{ArrayTile, CellType, MultibandTile, ProjectedRaster, Tile}
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
+import geotrellis.raster.{ArrayTile, CellType, Dimensions, MultibandTile, ProjectedRaster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
@@ -33,7 +33,6 @@ import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 
@@ -98,8 +97,9 @@ object TileRasterizerAggregate {
   object ProjectedRasterDefinition {
     def apply(tlm: TileLayerMetadata[_], sampler: ResampleMethod): ProjectedRasterDefinition = {
       // Try to determine the actual dimensions of our data coverage
-      val TileDimensions(cols, rows) = tlm.totalDimensions
-      new ProjectedRasterDefinition(cols, rows, tlm.cellType, tlm.crs, tlm.extent, sampler)
+      val Dimensions(cols, rows) = tlm.totalDimensions
+      require(cols <= Int.MaxValue && rows <= Int.MaxValue, s"Can't construct a Raster of size $cols x $rows. (Too big!)")
+      new ProjectedRasterDefinition(cols.toInt, rows.toInt, tlm.cellType, tlm.crs, tlm.extent, sampler)
     }
   }
 
@@ -114,7 +114,7 @@ object TileRasterizerAggregate {
   }
 
   /** Extract a multiband raster from all tile columns. */
-  def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[TileDimensions]): ProjectedRaster[MultibandTile] = {
+  def collect(df: DataFrame, destCRS: CRS, destExtent: Option[Extent], rasterDims: Option[Dimensions[Int]]): ProjectedRaster[MultibandTile] = {
     val tileCols = WithDataFrameMethods(df).tileColumns
     require(tileCols.nonEmpty, "need at least one tile column")
     // Select the anchoring Tile, Extent and CRS columns

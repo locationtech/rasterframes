@@ -27,12 +27,12 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.types.{DataType, StringType}
+import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders.crsEncoder
-import org.locationtech.rasterframes.expressions.DynamicExtractors.projectedRasterLikeExtractor
+import org.locationtech.rasterframes.encoders.StandardEncoders.crsSparkEncoder
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.model.LazyCRS
 
 /**
@@ -52,9 +52,8 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
   override def nodeName: String = "rf_crs"
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (child.dataType != StringType && !projectedRasterLikeExtractor.isDefinedAt(child.dataType)) {
-      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `String` or `ProjectedRasterLike`.")
-    }
+    if (!crsExtractor.isDefinedAt(child.dataType) )
+      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a CRS or something with one.")
     else TypeCheckSuccess
   }
 
@@ -62,8 +61,8 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
     input match {
       case s: UTF8String => LazyCRS(s.toString).toInternalRow
       case row: InternalRow ⇒
-        val prl = projectedRasterLikeExtractor(child.dataType)(row)
-        prl.crs.toInternalRow
+        val crs = crsExtractor(child.dataType)(row)
+        crs.toInternalRow
       case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
     }
   }

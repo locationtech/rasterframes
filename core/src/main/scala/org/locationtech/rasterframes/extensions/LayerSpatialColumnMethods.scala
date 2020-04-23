@@ -25,10 +25,9 @@ import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.RasterFrameLayer
 import org.locationtech.jts.geom.Point
 import geotrellis.proj4.LatLng
-import geotrellis.spark.SpatialKey
-import geotrellis.spark.tiling.MapKeyTransform
+import geotrellis.layer._
 import geotrellis.util.MethodExtensions
-import geotrellis.vector.Extent
+import geotrellis.vector._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.{asc, udf => sparkUdf}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
@@ -89,7 +88,7 @@ trait LayerSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with 
    * @return updated RasterFrameLayer
    */
   def withGeometry(colName: String = GEOMETRY_COLUMN.columnName): RasterFrameLayer = {
-    val key2Bounds = sparkUdf(keyCol2Extent andThen (_.jtsGeom))
+    val key2Bounds = sparkUdf(keyCol2Extent andThen (_.toPolygon()))
     self.withColumn(colName, key2Bounds(self.spatialKeyColumn)).certify
   }
 
@@ -100,7 +99,7 @@ trait LayerSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with 
    * @return updated RasterFrameLayer
    */
   def withCenter(colName: String = CENTER_COLUMN.columnName): RasterFrameLayer = {
-    val key2Center = sparkUdf(keyCol2Extent andThen (_.center.jtsGeom))
+    val key2Center = sparkUdf(keyCol2Extent andThen (_.center))
     self.withColumn(colName, key2Center(self.spatialKeyColumn).as[Point]).certify
   }
 

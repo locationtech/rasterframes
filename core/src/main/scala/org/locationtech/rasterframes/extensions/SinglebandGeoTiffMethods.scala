@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
+import geotrellis.raster.Dimensions
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
@@ -29,11 +30,10 @@ import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
-  def toDF(dims: TileDimensions = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
+  def toDF(dims: Dimensions[Int] = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
 
     val segmentLayout = self.imageData.segmentLayout
     val re = self.rasterExtent

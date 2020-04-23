@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.tiles
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.raster.{CellType, ProjectedRaster, Tile}
+import geotrellis.raster.{ArrayTile, CellType, DelegatingTile, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
  *
  * @since 9/5/18
  */
-trait ProjectedRasterTile extends FixedDelegatingTile with ProjectedRasterLike {
+abstract class ProjectedRasterTile extends DelegatingTile with ProjectedRasterLike {
   def extent: Extent
   def crs: CRS
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
@@ -69,6 +69,20 @@ object ProjectedRasterTile {
       val c = crs.toProj4String
       s"[${ShowableTile.show(t)}, $e, $c]"
     }
+
+    // Not sure why the following are still needed with this being closed:
+    // https://github.com/locationtech/geotrellis/issues/3153
+    // Without them, TileFunctionsSpec.`conditional cell values`.`should evaluate rf_where` fails
+    override def combine(r2: Tile)(f: (Int, Int) ⇒ Int): Tile = (delegate, r2) match {
+      case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combine(r2.toArrayTile())(f)
+      case _ ⇒ delegate.combine(r2)(f)
+    }
+
+    override def combineDouble(r2: Tile)(f: (Double, Double) ⇒ Double): Tile = (delegate, r2) match {
+      case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combineDouble(r2.toArrayTile())(f)
+      case _ ⇒ delegate.combineDouble(r2)(f)
+    }
+
   }
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
     override val schema: StructType = StructType(Seq(

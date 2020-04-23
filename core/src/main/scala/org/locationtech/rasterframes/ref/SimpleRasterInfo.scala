@@ -22,18 +22,17 @@
 package org.locationtech.rasterframes.ref
 
 import com.github.blemale.scaffeine.Scaffeine
-import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
-import geotrellis.contrib.vlm.{RasterSource => GTRasterSource}
 import geotrellis.proj4.CRS
+import geotrellis.raster.geotiff.GeoTiffRasterSource
 import geotrellis.raster.io.geotiff.Tags
-import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-import geotrellis.raster.{CellType, RasterExtent}
+import geotrellis.raster.io.geotiff.reader.GeoTiffInfo
+import geotrellis.raster.{CellType, RasterExtent, RasterSource => GTRasterSource}
 import geotrellis.vector.Extent
-import org.locationtech.rasterframes.ref.RasterSource.EMPTY_TAGS
+import org.locationtech.rasterframes.ref.RFRasterSource.EMPTY_TAGS
 
 case class SimpleRasterInfo(
-  cols: Int,
-  rows: Int,
+  cols: Long,
+  rows: Long,
   cellType: CellType,
   extent: Extent,
   rasterExtent: RasterExtent,
@@ -49,7 +48,7 @@ object SimpleRasterInfo {
   def apply(key: String, builder: String => SimpleRasterInfo): SimpleRasterInfo =
     cache.get(key, builder)
 
-  def apply(info: GeoTiffReader.GeoTiffInfo): SimpleRasterInfo =
+  def apply(info: GeoTiffInfo): SimpleRasterInfo =
     SimpleRasterInfo(
       info.segmentLayout.totalCols,
       info.segmentLayout.totalRows,
@@ -68,12 +67,12 @@ object SimpleRasterInfo {
       case _                       => EMPTY_TAGS
     }
 
-    SimpleRasterInfo(
+    new SimpleRasterInfo(
       rs.cols,
       rs.rows,
       rs.cellType,
       rs.extent,
-      rs.rasterExtent,
+      rs.gridExtent.toRasterExtent(),
       rs.crs,
       fetchTags,
       rs.bandCount,

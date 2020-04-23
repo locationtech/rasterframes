@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.datasource.raster
 
+import geotrellis.raster.Dimensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.sources.{BaseRelation, TableScan}
@@ -32,7 +33,6 @@ import org.locationtech.rasterframes.expressions.accessors.{GetCRS, GetExtent}
 import org.locationtech.rasterframes.expressions.generators.{RasterSourceToRasterRefs, RasterSourceToTiles}
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, URIToRasterSource, XZ2Indexer}
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
@@ -51,7 +51,7 @@ case class RasterSourceRelation(
   sqlContext: SQLContext,
   catalogTable: RasterSourceCatalogRef,
   bandIndexes: Seq[Int],
-  subtileDims: Option[TileDimensions],
+  subtileDims: Option[Dimensions[Int]],
   lazyTiles: Boolean,
   spatialIndexPartitions: Option[Int]
 ) extends BaseRelation with TableScan {

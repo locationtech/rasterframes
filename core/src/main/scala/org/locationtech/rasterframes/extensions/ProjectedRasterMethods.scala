@@ -23,9 +23,9 @@ package org.locationtech.rasterframes.extensions
 
 import java.time.ZonedDateTime
 
-import geotrellis.raster.{CellGrid, ProjectedRaster}
+import geotrellis.raster.{CellGrid, Dimensions, ProjectedRaster}
 import geotrellis.spark._
-import geotrellis.spark.tiling._
+import geotrellis.layer._
 import geotrellis.util.MethodExtensions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -39,7 +39,7 @@ import scala.reflect.runtime.universe._
  *
  * @since 8/10/17
  */
-abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithPrototypeMethods: TypeTag]
+abstract class ProjectedRasterMethods[T <: CellGrid[Int]: WithMergeMethods: WithPrototypeMethods: TypeTag]
   extends MethodExtensions[ProjectedRaster[T]] with StandardColumns {
   import Implicits.{WithSpatialContextRDDMethods, WithSpatioTemporalContextRDDMethods}
   type XTileLayerRDD[K] = RDD[(K, T)] with Metadata[TileLayerMetadata[K]]
@@ -61,7 +61,7 @@ abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithProto
    */
   def toLayer(tileColName: String)
     (implicit spark: SparkSession, schema: PairRDDConverter[SpatialKey, T]): RasterFrameLayer = {
-    val (cols, rows) = self.raster.dimensions
+    val Dimensions(cols, rows) = self.raster.dimensions
     toLayer(cols, rows, tileColName)
   }
 
@@ -114,11 +114,18 @@ abstract class ProjectedRasterMethods[T <: CellGrid: WithMergeMethods: WithProto
    */
   def toTileLayerRDD(tileCols: Int,
                      tileRows: Int)(implicit spark: SparkSession): XTileLayerRDD[SpatialKey] = {
+
+    // TODO: get rid of this sloppy type leakage hack. Might not be necessary anyway.
+    def toArrayTile[T <: CellGrid[Int]](tile: T): T =
+      tile.getClass.getMethods
+        .find(_.getName == "toArrayTile")
+        .map(_.invoke(tile).asInstanceOf[T])
+        .getOrElse(tile)
+
     val layout = LayoutDefinition(self.raster.rasterExtent, tileCols, tileRows)
     val kb = KeyBounds(SpatialKey(0, 0), SpatialKey(layout.layoutCols - 1, layout.layoutRows - 1))
     val tlm = TileLayerMetadata(self.tile.cellType, layout, self.extent, self.crs, kb)
-
-    val rdd = spark.sparkContext.makeRDD(Seq((self.projectedExtent, Shims.toArrayTile(self.tile))))
+    val rdd = spark.sparkContext.makeRDD(Seq((self.projectedExtent, toArrayTile(self.tile))))
 
     implicit val tct = typeTag[T].asClassTag
 

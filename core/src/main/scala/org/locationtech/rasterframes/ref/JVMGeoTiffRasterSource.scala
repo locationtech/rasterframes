@@ -23,6 +23,7 @@ package org.locationtech.rasterframes.ref
 
 import java.net.URI
 
-import geotrellis.contrib.vlm.geotiff.GeoTiffRasterSource
+import geotrellis.raster.geotiff.GeoTiffRasterSource
+
 
 case class JVMGeoTiffRasterSource(source: URI) extends DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))

@@ -18,20 +18,33 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import glob
 import os
 import unittest
 
 from pyrasterframes.utils import create_rf_spark_session
 
-import sys
+import builtins
 
-if sys.version_info[0] > 2:
-    import builtins
-else:
-    import __builtin__ as builtins
+app_name = 'PyRasterFrames test suite'
 
-app_name = 'pyrasterframes test suite'
+# Setuptools/easy_install doesn't properly set the execute bit on the Spark scripts,
+# So this preemptively attempts to do it.
+def _chmodit():
+    try:
+        from importlib.util import find_spec
+        module_home = find_spec("pyspark").origin
+        print(module_home)
+        bin_dir = os.path.join(os.path.dirname(module_home), 'bin')
+        for filename in os.listdir(bin_dir):
+            try:
+                os.chmod(os.path.join(bin_dir, filename), mode=0o555, follow_symlinks=True)
+            except OSError:
+                pass
+    except ImportError:
+        pass
+
+_chmodit()
+
 
 def resource_dir():
     def pdir(curr):
@@ -78,6 +91,10 @@ class TestEnvironment(unittest.TestCase):
         cls.img_path = os.path.join(cls.resource_dir, 'L8-B8-Robinson-IL.tiff')
 
         cls.img_uri = 'file://' + cls.img_path
+
+        cls.img_rgb_path = os.path.join(cls.resource_dir, 'L8-B4_3_2-Elkton-VA.tiff')
+
+        cls.img_rgb_uri = 'file://' + cls.img_rgb_path
 
     @classmethod
     def l8band_uri(cls, band_index):

@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes.expressions.generators
 
 import com.typesafe.scalalogging.Logger
+import geotrellis.raster.Dimensions
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -31,7 +32,6 @@ import org.locationtech.rasterframes
 import org.locationtech.rasterframes.RasterSourceType
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
-import org.locationtech.rasterframes.model.TileDimensions
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
@@ -45,7 +45,7 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[TileDimensions] = None) extends Expression
+case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes  {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
@@ -84,7 +84,7 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
 
 object RasterSourceToTiles {
   def apply(rrs: Column*): TypedColumn[Any, ProjectedRasterTile] = apply(None, Seq(0), rrs: _*)
-  def apply(subtileDims: Option[TileDimensions], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
+  def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
     new Column(new RasterSourceToTiles(rrs.map(_.expr), bandIndexes, subtileDims)).as[ProjectedRasterTile]
 }
 

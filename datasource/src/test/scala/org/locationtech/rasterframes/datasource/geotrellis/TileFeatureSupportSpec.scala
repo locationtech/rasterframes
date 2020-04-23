@@ -21,16 +21,17 @@
 
 package org.locationtech.rasterframes.datasource.geotrellis
 
+import geotrellis.layer.LayoutDefinition
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.geotrellis.TileFeatureSupport._
-import org.locationtech.rasterframes.util.{WithCropMethods, WithMaskMethods, WithMergeMethods, WithPrototypeMethods}
+import org.locationtech.rasterframes.util._
 import geotrellis.proj4.LatLng
 import geotrellis.raster.crop.Crop
 import geotrellis.raster.rasterize.Rasterizer
 import geotrellis.raster.resample.Bilinear
-import geotrellis.raster.{CellGrid, GridBounds, IntCellType, ShortCellType, ShortConstantNoDataCellType, Tile, TileFeature, TileLayout}
+import geotrellis.raster._
 import geotrellis.spark.tiling.Implicits._
-import geotrellis.spark.tiling._
+import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -133,7 +134,7 @@ class TileFeatureSupportSpec extends TestEnvironment
     }
   }
 
-  private def testAllOps[V <: CellGrid: ClassTag: WithMergeMethods: WithPrototypeMethods:
+  private def testAllOps[V <: CellGrid[Int]: ClassTag: WithMergeMethods: WithPrototypeMethods:
     WithCropMethods: WithMaskMethods, D: MergeableData](tf1: TileFeature[V, D], tf2: TileFeature[V, D]) = {
     
     assert(tf1.prototype(20, 20) == TileFeature(tf1.tile.prototype(20, 20), MergeableData[D].prototype(tf1.data)))

@@ -24,11 +24,10 @@ package org.locationtech.rasterframes.datasource.geotiff
 import java.net.URI
 
 import com.typesafe.scalalogging.Logger
-import geotrellis.proj4.CRS
+import geotrellis.layer._
 import geotrellis.spark._
-import geotrellis.spark.io._
-import geotrellis.spark.io.hadoop._
-import geotrellis.util._
+import geotrellis.proj4.CRS
+import geotrellis.store.hadoop.util.HdfsRangeReader
 import geotrellis.vector.Extent
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
@@ -41,6 +40,9 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
+import JsonCodecs._
+import geotrellis.raster.CellGrid
+import geotrellis.spark.store.hadoop.{HadoopGeoTiffRDD, HadoopGeoTiffReader}
 
 /**
  * Spark SQL data source over a single GeoTiff file. Works best with CoG compliant ones.
@@ -112,9 +114,16 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
         }
     }
     else {
+      // TODO: get rid of this sloppy type leakage hack. Might not be necessary anyway.
+      def toArrayTile[T <: CellGrid[Int]](tile: T): T =
+        tile.getClass.getMethods
+          .find(_.getName == "toArrayTile")
+          .map(_.invoke(tile).asInstanceOf[T])
+          .getOrElse(tile)
+
       //logger.warn("GeoTIFF is not already tiled. In-memory read required: " + uri)
       val geotiff = HadoopGeoTiffReader.readMultiband(new Path(uri))
-      val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, Shims.toArrayTile(geotiff.tile))))
+      val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, toArrayTile(geotiff.tile))))
 
       rdd.tileToLayout(tlm)
         .map { case (sk, tiles) ⇒

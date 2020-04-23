@@ -56,6 +56,67 @@ trait LocalFunctions {
   /** Cellwise division of a tile by a scalar value. */
   def rf_local_divide[T: Numeric](tileCol: Column, value: T): Column = Divide(tileCol, value)
 
+  /** Cellwise minimum between Tiles. */
+  def rf_local_min(left: Column, right: Column): Column = Min(left, right)
+
+  /** Cellwise minimum between Tiles. */
+  def rf_local_min[T: Numeric](left: Column, right: T): Column = Min(left, right)
+
+  /** Cellwise maximum between Tiles. */
+  def rf_local_max(left: Column, right: Column): Column = Max(left, right)
+
+  /** Cellwise maximum between Tiles. */
+  def rf_local_max[T: Numeric](left: Column, right: T): Column = Max(left, right)
+
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp(tile: Column, min: Column, max: Column) = Clamp(tile, min, max)
+
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp[T: Numeric](tile: Column, min: T, max: Column) = Clamp(tile, min, max)
+
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp[T: Numeric](tile: Column, min: Column, max: T) = Clamp(tile, min, max)
+
+  /** Return the tile with its values limited to a range defined by min and max. */
+  def rf_local_clamp[T: Numeric](tile: Column, min: T, max: T) = Clamp(tile, min, max)
+
+  /** Return a tile with cell values chosen from `x` or `y` depending on `condition`.
+      Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`. */
+  def rf_where(condition: Column, x: Column, y: Column): Column = Where(condition, x, y)
+
+  /** Standardize cell values such that the mean is zero and the standard deviation is one.
+    * The `mean` and `stddev` are applied to all tiles in the column.
+    */
+  def rf_standardize(tile: Column, mean: Column, stddev: Column): Column = Standardize(tile, mean, stddev)
+
+  /** Standardize cell values such that the mean is zero and the standard deviation is one.
+    * The `mean` and `stddev` are applied to all tiles in the column.
+    */
+  def rf_standardize(tile: Column, mean: Double, stddev: Double): Column = Standardize(tile, mean, stddev)
+
+  /** Standardize cell values such that the mean is zero and the standard deviation is one.
+    * Each tile will be standardized according to the statistics of its cell values; this can result in inconsistent values across rows in a tile column. */
+  def rf_standardize(tile: Column): Column = Standardize(tile)
+
+
+  /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    * Cells with the tile-wise minimum value will become the zero value and those at the tile-wise maximum value will become 1.
+    *  This can result in inconsistent values across rows in a tile column.
+    */
+  def rf_rescale(tile: Column): Column = Rescale(tile)
+
+  /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    * The `min` parameter will become the zero value and the `max` parameter will become 1.
+    * Values outside the range will be set to 0 or 1.
+    */
+  def rf_rescale(tile: Column, min: Column, max: Column): Column = Rescale(tile, min, max)
+
+  /** Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+    * The `min` parameter will become the zero value and the `max` parameter will become 1.
+    * Values outside the range will be set to 0 or 1.
+    */
+  def rf_rescale(tile: Column, min: Double, max: Double): Column = Rescale(tile, min, max)
+
   /** Perform an arbitrary GeoTrellis `LocalTileBinaryOp` between two Tile columns. */
   def rf_local_algebra(op: LocalTileBinaryOp, left: Column, right: Column): TypedColumn[Any, Tile] =
     withTypedAlias(opName(op), left, right)(udf[Tile, Tile, Tile](op.apply).apply(left, right))
@@ -237,6 +298,9 @@ trait LocalFunctions {
 
   /** Exponential of cell values, less one*/
   def rf_expm1(tileCol: Column): Column = ExpM1(tileCol)
+
+  /** Square root of cell values */
+  def rf_sqrt(tileCol: Column): Column = Sqrt(tileCol)
 
   /** Return the incoming tile untouched. */
   def rf_identity(tileCol: Column): Column = Identity(tileCol)

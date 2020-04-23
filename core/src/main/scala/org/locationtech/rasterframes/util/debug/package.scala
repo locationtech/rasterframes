@@ -21,37 +21,10 @@
 
 package org.locationtech.rasterframes.util
 
-import org.locationtech.rasterframes._
-import geotrellis.proj4.LatLng
-import geotrellis.vector.{Feature, Geometry}
-import geotrellis.vector.io.json.JsonFeatureCollection
-import spray.json.JsValue
-
 /**
  * Additional debugging routines. No guarantees these are or will remain stable.
  *
  * @since 4/6/18
  */
 package object debug {
-  implicit class RasterFrameWithDebug(val self: RasterFrameLayer)  {
-
-    /** Renders the whole schema with metadata as a JSON string. */
-    def describeFullSchema: String = {
-      self.schema.prettyJson
-    }
-
-    /** Renders all the extents in this RasterFrameLayer as GeoJSON in EPSG:4326. This does a full
-     * table scan and collects **all** the geometry into the driver, and then converts it into a
-     * Spray JSON data structure. Not performant, and for debugging only. */
-    def geoJsonExtents: JsValue = {
-      import spray.json.DefaultJsonProtocol._
-
-      val features = self
-        .select(GEOMETRY_COLUMN, SPATIAL_KEY_COLUMN)
-        .collect()
-        .map{ case (p, s) ⇒ Feature(Geometry(p).reproject(self.crs, LatLng), Map("col" -> s.col, "row" -> s.row)) }
-
-      JsonFeatureCollection(features).toJson
-    }
-  }
 }

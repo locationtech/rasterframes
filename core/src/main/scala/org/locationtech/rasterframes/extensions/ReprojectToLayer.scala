@@ -21,10 +21,11 @@
 
 package org.locationtech.rasterframes.extensions
 
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
+import geotrellis.layer._
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.broadcast
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.StandardEncoders.crsSparkEncoder
 import org.locationtech.rasterframes.util._
 
 /** Algorithm for projecting an arbitrary RasterFrame into a layer with consistent CRS and gridding. */
@@ -32,11 +33,11 @@ object ReprojectToLayer {
   def apply(df: DataFrame, tlm: TileLayerMetadata[SpatialKey]): RasterFrameLayer = {
     // create a destination dataframe with crs and extend columns
     // use RasterJoin to do the rest.
-    val gb = tlm.gridBounds
+    val gb = tlm.tileBounds
     val crs = tlm.crs
 
     import df.sparkSession.implicits._
-    implicit val enc = Encoders.tuple(spatialKeyEncoder, extentEncoder, crsEncoder)
+    implicit val enc = Encoders.tuple(spatialKeyEncoder, extentEncoder, crsSparkEncoder)
 
     val gridItems = for {
       (col, row) <- gb.coordsIter
@@ -47,7 +48,7 @@ object ReprojectToLayer {
     // Create effectively a target RasterFrame, but with no tiles.
     val dest = gridItems.toSeq.toDF(SPATIAL_KEY_COLUMN.columnName, EXTENT_COLUMN.columnName, CRS_COLUMN.columnName)
 
-    val joined = RasterJoin(broadcast(dest), df)
+    val joined = RasterJoin(broadcast(dest), df, Some(tlm.tileLayout.tileDimensions))
 
     joined.asLayer(SPATIAL_KEY_COLUMN, tlm)
   }

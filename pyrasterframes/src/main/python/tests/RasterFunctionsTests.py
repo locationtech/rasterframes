@@ -29,9 +29,9 @@ from pyspark import Row
 from pyspark.sql.functions import *
 
 import numpy as np
+from deprecation import fail_if_not_removed
 from numpy.testing import assert_equal, assert_allclose
 
-from unittest import skip
 from . import TestEnvironment
 
 
@@ -102,10 +102,20 @@ class RasterFunctions(TestEnvironment):
             .withColumn('log', rf_log('tile')) \
             .withColumn('exp', rf_exp('tile')) \
             .withColumn('expm1', rf_expm1('tile')) \
+            .withColumn('sqrt', rf_sqrt('tile')) \
             .withColumn('round', rf_round('tile')) \
             .withColumn('abs', rf_abs('tile'))
 
         df.first()
+
+    def test_st_geometry_from_struct(self):
+        from pyspark.sql import Row
+        from pyspark.sql.functions import struct
+        df = self.spark.createDataFrame([Row(xmin=0, ymin=1, xmax=2, ymax=3)])
+        df2 = df.select(st_geometry(struct(df.xmin, df.ymin, df.xmax, df.ymax)).alias('geom'))
+
+        actual_bounds = df2.first()['geom'].bounds
+        self.assertEqual((0.0, 1.0, 2.0, 3.0), actual_bounds)
 
     def test_agg_mean(self):
         mean = self.rf.agg(rf_agg_mean('tile')).first()['rf_agg_mean(tile)']
@@ -141,6 +151,12 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(row['rf_agg_no_data_cells(tile)'], 1000)
         self.assertEqual(row['rf_agg_stats(tile)'].data_cells, row['rf_agg_data_cells(tile)'])
 
+    @fail_if_not_removed
+    def test_add_scalar(self):
+        # Trivial test to trigger the deprecation failure at the right time.
+        result: Row = self.rf.select(rf_local_add_double('tile', 99.9), rf_local_add_int('tile', 42)).first()
+        self.assertTrue(True)
+        
     def test_agg_approx_quantiles(self):
         agg = self.rf.agg(rf_agg_approx_quantiles('tile', [0.1, 0.5, 0.9, 0.98]))
         result = agg.first()[0]
@@ -234,7 +250,7 @@ class RasterFunctions(TestEnvironment):
         rf1 = self.rf.select(self.rf.tile,
                              rf_local_multiply(
                                  rf_convert_cell_type(
-                                     rf_local_greater_int(self.rf.tile, 25000),
+                                     rf_local_greater(self.rf.tile, 25000),
                                      "uint8"),
                                  lit(mask_value)).alias('mask'))
         rf2 = rf1.select(rf1.tile, rf_mask_by_value(rf1.tile, rf1.mask, lit(mask_value), False).alias('masked'))
@@ -504,6 +520,107 @@ class RasterFunctions(TestEnvironment):
         self.assertEqual(result['in_list'].cells.sum(), 2,
                          "Tile value {} should contain two 1s as: [[1, 0, 1],[0, 0, 0]]"
                          .format(result['in_list'].cells))
+
+    def test_local_min_max_clamp(self):
+        tile = Tile(np.random.randint(-20, 20, (10, 10)), CellType.int8())
+        min_tile = Tile(np.random.randint(-20, 0, (10, 10)), CellType.int8())
+        max_tile = Tile(np.random.randint(0, 20, (10, 10)), CellType.int8())
+
+        df = self.spark.createDataFrame([Row(t=tile, mn=min_tile, mx=max_tile)])
+        assert_equal(
+            df.select(rf_local_min('t', 'mn')).first()[0].cells,
+            np.clip(tile.cells, None, min_tile.cells)
+        )
+
+        assert_equal(
+            df.select(rf_local_min('t', -5)).first()[0].cells,
+            np.clip(tile.cells, None, -5)
+        )
+
+        assert_equal(
+            df.select(rf_local_max('t', 'mx')).first()[0].cells,
+            np.clip(tile.cells, max_tile.cells, None)
+        )
+
+        assert_equal(
+            df.select(rf_local_max('t', 5)).first()[0].cells,
+            np.clip(tile.cells, 5, None)
+        )
+
+        assert_equal(
+            df.select(rf_local_clamp('t', 'mn', 'mx')).first()[0].cells,
+            np.clip(tile.cells, min_tile.cells, max_tile.cells)
+        )
+
+    def test_rf_where(self):
+        cond = Tile(np.random.binomial(1, 0.35, (10, 10)), CellType.uint8())
+        x = Tile(np.random.randint(-20, 10, (10, 10)), CellType.int8())
+        y = Tile(np.random.randint(0, 30, (10, 10)), CellType.int8())
+
+        df = self.spark.createDataFrame([Row(cond=cond, x=x, y=y)])
+        result = df.select(rf_where('cond', 'x', 'y')).first()[0].cells
+        assert_equal(result, np.where(cond.cells, x.cells, y.cells))
+
+    def test_rf_standardize(self):
+        from pyspark.sql.functions import sqrt as F_sqrt
+        stats = self.prdf.select(rf_agg_stats('proj_raster').alias('stat')) \
+            .select('stat.mean', F_sqrt('stat.variance').alias('sttdev')) \
+            .first()
+
+        result = self.prdf.select(rf_standardize('proj_raster', stats[0], stats[1]).alias('z')) \
+                        .select(rf_agg_stats('z').alias('z_stat')) \
+                        .select('z_stat.mean', 'z_stat.variance') \
+                        .first()
+
+        self.assertAlmostEqual(result[0], 0.0)
+        self.assertAlmostEqual(result[1], 1.0)
+
+    def test_rf_standardize_per_tile(self):
+
+        # 10k samples so should be pretty stable
+        x = Tile(np.random.randint(-20, 0, (100, 100)), CellType.int8())
+        df = self.spark.createDataFrame([Row(x=x)])
+
+        result = df.select(rf_standardize('x').alias('z')) \
+            .select(rf_agg_stats('z').alias('z_stat')) \
+            .select('z_stat.mean', 'z_stat.variance') \
+            .first()
+
+        self.assertAlmostEqual(result[0], 0.0)
+        self.assertAlmostEqual(result[1], 1.0)
+
+    def test_rf_rescale(self):
+        from pyspark.sql.functions import min as F_min
+        from pyspark.sql.functions import max as F_max
+
+        x1 = Tile(np.random.randint(-60, 12, (10, 10)), CellType.int8())
+        x2 = Tile(np.random.randint(15, 122, (10, 10)), CellType.int8())
+        df = self.spark.createDataFrame([Row(x=x1), Row(x=x2)])
+        # Note there will be some clipping
+        rescaled = df.select(rf_rescale('x', -20, 50).alias('x_prime'), 'x')
+        result = rescaled \
+            .agg(
+            F_max(rf_tile_min('x_prime')),
+            F_min(rf_tile_max('x_prime'))
+        ).first()
+
+        self.assertGreater(result[0], 0.0, f'Expected max tile_min to be > 0 (strictly); but it is '
+                                           f'{rescaled.select("x", "x_prime", rf_tile_min("x_prime")).take(2)}')
+        self.assertLess(result[1], 1.0, f'Expected min tile_max to be < 1 (strictly); it is'
+                                        f'{rescaled.select(rf_tile_max("x_prime")).take(2)}')
+
+    def test_rf_rescale_per_tile(self):
+        x1 = Tile(np.random.randint(-20, 42, (10, 10)), CellType.int8())
+        x2 = Tile(np.random.randint(20, 242, (10, 10)), CellType.int8())
+        df = self.spark.createDataFrame([Row(x=x1), Row(x=x2)])
+        result = df.select(rf_rescale('x').alias('x_prime')) \
+            .agg(rf_agg_stats('x_prime').alias('stat')) \
+            .select('stat.min', 'stat.max') \
+            .first()
+
+        self.assertEqual(result[0], 0.0)
+        self.assertEqual(result[1], 1.0)
+
 
     def test_rf_agg_overview_raster(self):
         width = 500

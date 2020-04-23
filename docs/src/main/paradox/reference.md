@@ -451,6 +451,54 @@ Extract value from specified bits of the cells' underlying binary data. Working 
 
 A common use case for this function is covered by @ref:[`rf_mask_by_bits`](reference.md#rf-mask-by-bits).
 
+
+### rf_local_min
+
+    Tile rf_local_min(Tile tile, Tile max)
+    Tile rf_local_min(Tile tile, Numeric max)
+    
+Performs cell-wise minimum two tiles or a tile and a scalar.
+
+### rf_local_max
+
+    Tile rf_local_max(Tile tile, Tile max)
+    Tile rf_local_max(Tile tile, Numeric max)
+    
+Performs cell-wise maximum two tiles or a tile and a scalar.
+
+### rf_local_clamp
+
+    Tile rf_local_clamp(Tile tile, Tile min, Tile max)
+    Tile rf_local_clamp(Tile tile, Numeric min, Tile max)
+    Tile rf_local_clamp(Tile tile, Tile min, Numeric max)
+    Tile rf_local_clamp(Tile tile, Numeric min, Numeric max)
+    
+Return the tile with its values limited to a range defined by min and max, inclusive. 
+
+### rf_where
+
+    Tile rf_where(Tile condition, Tile x, Tile y)
+    
+Return a tile with cell values chosen from `x` or `y` depending on `condition`. 
+Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`.
+
+### rf_rescale
+
+    Tile rf_rescale(Tile tile)
+    Tile rf_rescale(Tile tile, Double min, Double max)
+    
+Rescale cell values such that the minimum is zero and the maximum is one. Other values will be linearly interpolated into the range.
+If specified, the `min` parameter will become the zero value and the `max` parameter will become 1. See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats).
+Values outside the range will be set to 0 or 1.
+If `min` and `max` are not specified, the __tile-wise__ minimum and maximum are used; this can result in inconsistent values across rows in a tile column.
+
+### rf_standardize
+
+    rf_standardize(Tile tile)
+    rf_standardize(Tile tile, Double mean, Double stddev)
+ 
+Standardize cell values such that the mean is zero and the standard deviation is one. If specified, the `mean` and `stddev` are applied to all tiles in the column.  See @ref:[`rf_agg_stats`](reference.md#rf_agg_stats). If not specified, each tile will be standardized according to the statistics of its cell values; this can result in inconsistent values across rows in a tile column.
+ 
 ### rf_round
 
     Tile rf_round(Tile tile)
@@ -511,6 +559,13 @@ Performs cell-wise logarithm with base 2.
 
 Performs natural logarithm of cell values plus one. Inverse of @ref:[`rf_expm1`](reference.md#rf-expm1).
 
+
+### rf_sqrt
+
+     Tile rf_sqrt(Tile tile)
+     
+Perform cell-wise square root.
+
 ## Tile Statistics
 
 The following functions compute a statistical summary per row of a `tile` column. The statistics are computed across the cells of a single `tile`, within each DataFrame Row.
@@ -530,7 +585,7 @@ Computes the sum of cells in each row of column `tile`, ignoring NoData values.
 Computes the mean of cells in each row of column `tile`, ignoring NoData values.
 
 
-### rf_tile_min
+### rf_tile_min 
 
     Double rf_tile_min(Tile tile)
 
@@ -608,7 +663,7 @@ Aggregates over the `tile` and return the mean of cell values, ignoring NoData. 
 
     Long rf_agg_data_cells(Tile tile)
 
-_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).dataCells`
+_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).data_cells`
 
 Aggregates over the `tile` and return the count of data cells. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.dataCells`.
 
@@ -616,7 +671,7 @@ Aggregates over the `tile` and return the count of data cells. Equivalent to @re
 
     Long rf_agg_no_data_cells(Tile tile)
 
-_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).dataCells`
+_SQL_: @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`(tile).no_data_cells`
 
 Aggregates over the `tile` and return the count of NoData cells. Equivalent to @ref:[`rf_agg_stats`](reference.md#rf-agg-stats)`.noDataCells`. C.F. @ref:[`rf_no_data_cells`](reference.md#rf-no-data-cells) a row-wise count of no data cells.
 

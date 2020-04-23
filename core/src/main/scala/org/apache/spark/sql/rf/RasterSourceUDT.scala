@@ -27,7 +27,7 @@ import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _}
 import org.locationtech.rasterframes.encoders.CatalystSerializer
-import org.locationtech.rasterframes.ref.RasterSource
+import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.util.KryoSupport
 
 /**
@@ -36,25 +36,25 @@ import org.locationtech.rasterframes.util.KryoSupport
  * @since 9/5/18
  */
 @SQLUserDefinedType(udt = classOf[RasterSourceUDT])
-class RasterSourceUDT extends UserDefinedType[RasterSource] {
+class RasterSourceUDT extends UserDefinedType[RFRasterSource] {
   import RasterSourceUDT._
   override def typeName = "rastersource"
 
   override def pyUDT: String = "pyrasterframes.rf_types.RasterSourceUDT"
 
-  def userClass: Class[RasterSource] = classOf[RasterSource]
+  def userClass: Class[RFRasterSource] = classOf[RFRasterSource]
 
-  override def sqlType: DataType = schemaOf[RasterSource]
+  override def sqlType: DataType = schemaOf[RFRasterSource]
 
-  override def serialize(obj: RasterSource): InternalRow =
+  override def serialize(obj: RFRasterSource): InternalRow =
     Option(obj)
       .map(_.toInternalRow)
       .orNull
 
-  override def deserialize(datum: Any): RasterSource =
+  override def deserialize(datum: Any): RFRasterSource =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒ ir.to[RasterSource]
+        case ir: InternalRow ⇒ ir.to[RFRasterSource]
       }
       .orNull
 
@@ -65,24 +65,24 @@ class RasterSourceUDT extends UserDefinedType[RasterSource] {
 }
 
 object RasterSourceUDT {
-  UDTRegistration.register(classOf[RasterSource].getName, classOf[RasterSourceUDT].getName)
+  UDTRegistration.register(classOf[RFRasterSource].getName, classOf[RasterSourceUDT].getName)
 
   /** Deserialize a byte array, also used inside the Python API */
-  def from(byteArray: Array[Byte]): RasterSource = CatalystSerializer.CatalystIO.rowIO.create(byteArray).to[RasterSource]
+  def from(byteArray: Array[Byte]): RFRasterSource = CatalystSerializer.CatalystIO.rowIO.create(byteArray).to[RFRasterSource]
 
-  implicit val rasterSourceSerializer: CatalystSerializer[RasterSource] = new CatalystSerializer[RasterSource] {
+  implicit val rasterSourceSerializer: CatalystSerializer[RFRasterSource] = new CatalystSerializer[RFRasterSource] {
 
     override val schema: StructType = StructType(Seq(
       StructField("raster_source_kryo", BinaryType, false)
     ))
 
-    override def to[R](t: RasterSource, io: CatalystIO[R]): R = {
+    override def to[R](t: RFRasterSource, io: CatalystIO[R]): R = {
       val buf = KryoSupport.serialize(t)
       io.create(buf.array())
     }
 
-    override def from[R](row: R, io: CatalystIO[R]): RasterSource = {
-      KryoSupport.deserialize[RasterSource](ByteBuffer.wrap(io.getByteArray(row, 0)))
+    override def from[R](row: R, io: CatalystIO[R]): RFRasterSource = {
+      KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(io.getByteArray(row, 0)))
     }
   }
 }

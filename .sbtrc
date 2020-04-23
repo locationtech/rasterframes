@@ -1,1 +1,1 @@
-alias openHere=eval "open .".!
+alias openHere=eval scala.sys.process.Process(Seq("open", ".")).!

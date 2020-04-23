@@ -23,9 +23,9 @@ package org.locationtech.rasterframes.tiles
 
 import java.nio.ByteBuffer
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
 import org.locationtech.rasterframes.model.{Cells, TileDataContext}
 
 /**
@@ -34,7 +34,7 @@ import org.locationtech.rasterframes.model.{Cells, TileDataContext}
  *
  * @since 11/29/17
  */
-class InternalRowTile(val mem: InternalRow) extends FixedDelegatingTile {
+class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   import InternalRowTile._
 
   override def toArrayTile(): ArrayTile = realizedTile.toArrayTile()
