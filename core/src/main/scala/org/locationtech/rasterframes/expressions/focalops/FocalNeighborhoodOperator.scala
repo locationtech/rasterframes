@@ -21,16 +21,11 @@
 
 package org.locationtech.rasterframes.expressions.focalops
 
-import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.focal.Neighborhood
-import org.apache.spark.sql.Column
-import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOperator}
 
-case class FocalMean(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOperator {
-  override def nodeName: String = "rf_focal_mean"
-  override protected def op(t: Tile): Tile = t.focalMean(neighborhood)
-}
-
-object FocalMean {
-  def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMean(tile.expr, neighborhood))
+trait FocalNeighborhoodOperator extends UnaryRasterOperator with NullToValue with CodegenFallback {
+  override def na: Any = null
+  def neighborhood: Neighborhood
 }

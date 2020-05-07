@@ -26,11 +26,13 @@ import geotrellis.raster.mapalgebra.focal.Neighborhood
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression
 
-case class FocalMean(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOperator {
-  override def nodeName: String = "rf_focal_mean"
-  override protected def op(t: Tile): Tile = t.focalMean(neighborhood)
+case class FocalMode(child: Expression, neighborhood: Neighborhood)   extends FocalNeighborhoodOperator {
+  override def nodeName: String = "rf_focal_mode"
+  override protected def op(t: Tile): Tile = t.focalMode(neighborhood)
 }
 
-object FocalMean {
-  def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMean(tile.expr, neighborhood))
+object FocalMode {
+  def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMode(tile.expr, neighborhood))
 }
+
+

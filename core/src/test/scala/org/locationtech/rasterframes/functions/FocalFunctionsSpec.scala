@@ -22,18 +22,36 @@
 package org.locationtech.rasterframes.functions
 import geotrellis.raster.testkit.RasterMatchers
 import org.locationtech.rasterframes.TestEnvironment
-import geotrellis.raster._
-import geotrellis.raster.mapalgebra.focal.Square
-import geotrellis.raster.testkit.RasterMatchers
-import org.apache.spark.sql.functions._
-import org.locationtech.rasterframes.expressions.accessors.ExtractTile
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import org.locationtech.rasterframes._
 
 class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
-
-  import TestData._
-  import spark.implicits._
-
-
+  describe("focal operations") {
+    it("should provide focal mean") {
+      checkDocs("rf_focal_mean")
+      fail()
+    }
+    it("should provide focal mode") {
+      checkDocs("rf_focal_mode")
+      fail()
+    }
+    it("should provide focal median") {
+      checkDocs("rf_focal_median")
+      fail()
+    }
+    it("should provide focal min") {
+      checkDocs("rf_focal_min")
+      fail()
+    }
+    it("should provide focal max") {
+      checkDocs("rf_focal_max")
+      fail()
+    }
+    it("should provide focal Moran's I") {
+      checkDocs("rf_focal_moransi")
+      fail()
+    }
+    it("should provide convolve") {
+      checkDocs("rf_convolve")
+      fail()
+    }
+  }
 }

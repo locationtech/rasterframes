@@ -24,11 +24,29 @@ package org.locationtech.rasterframes.functions
 import geotrellis.raster.Neighborhood
 import geotrellis.raster.mapalgebra.focal.Kernel
 import org.apache.spark.sql.Column
-import org.locationtech.rasterframes.expressions.focalops.{Convolve, FocalMean}
+import org.locationtech.rasterframes.expressions.focalops._
 
 trait FocalFunctions {
   def rf_focal_mean(tileCol: Column, neighborhood: Neighborhood): Column =
     FocalMean(tileCol, neighborhood)
+
+  def rf_focal_median(tileCol: Column, neighborhood: Neighborhood): Column =
+    FocalMedian(tileCol, neighborhood)
+
+  def rf_focal_mode(tileCol: Column, neighborhood: Neighborhood): Column =
+    FocalMode(tileCol, neighborhood)
+
+  def rf_focal_max(tileCol: Column, neighborhood: Neighborhood): Column =
+    FocalMax(tileCol, neighborhood)
+
+  def rf_focal_min(tileCol: Column, neighborhood: Neighborhood): Column =
+    FocalMin(tileCol, neighborhood)
+
+  def rf_focal_stddev(tileCol: Column, neighborhood: Neighborhood): Column =
+    FocalStdDev(tileCol, neighborhood)
+
+  def rf_focal_moransi(tileCol: Column, neighborhood: Neighborhood): Column =
+    FocalMoransI(tileCol, neighborhood)
 
   def rf_convolve(tileCol: Column, kernel: Kernel): Column =
     Convolve(tileCol, kernel)

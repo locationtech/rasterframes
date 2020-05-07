@@ -22,22 +22,11 @@
 package org.locationtech.rasterframes.expressions.focalops
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.focal.Kernel
-import org.apache.spark.sql.{Column, TypedColumn}
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.Column
+import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOperator}
 
-@ExpressionDescription(
-  usage = "_FUNC_(tile, kernel) - ",
-  arguments = """
-  Arguments:
-    * tile -
-    * kernel - """,
-  examples = """
-  Examples:
-    > SELECT  _FUNC_(tile, Square(1));
-       ..."""
-)
 case class Convolve(child: Expression, kernel: Kernel) extends UnaryRasterOperator with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_convolve"
   override def na: Any = null
