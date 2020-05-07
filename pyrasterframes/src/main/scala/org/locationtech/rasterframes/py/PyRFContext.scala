@@ -235,7 +235,7 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   def _resolveRasterRef(srcBin: Array[Byte], bandIndex: jInt, xmin: jDouble, ymin: jDouble, xmax: jDouble, ymax: jDouble): AnyRef = {
     val src = KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(srcBin))
     val extent = Extent(xmin, ymin, xmax, ymax)
-    RasterRef(src, bandIndex, Some(extent), None)
+    RasterRef(src, bandIndex, Some(extent), None, 0.toShort)
   }
 
   def _dfToMarkdown(df: DataFrame, numRows: Int, truncate: Boolean): String = {

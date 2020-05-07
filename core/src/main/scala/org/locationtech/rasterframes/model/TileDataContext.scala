@@ -24,35 +24,43 @@ package org.locationtech.rasterframes.model
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.raster.{CellType, Dimensions, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.types.{ShortType, StructField, StructType}
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
+import org.locationtech.rasterframes.tiles.HasBufferSize
 
 /** Encapsulates all information about a tile aside from actual cell values. */
-case class TileDataContext(cellType: CellType, dimensions: Dimensions[Int])
+case class TileDataContext(cellType: CellType, dimensions: Dimensions[Int], bufferSize: Short)
 object TileDataContext {
 
   /** Extracts the TileDataContext from a Tile. */
   def apply(t: Tile): TileDataContext = {
     require(t.cols <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.cols}")
     require(t.rows <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.rows}")
+    val bufferSize = t match{
+      case hb: HasBufferSize => hb.bufferSize
+      case _ => 0.toShort
+    }
     TileDataContext(
-      t.cellType, t.dimensions
+      t.cellType, t.dimensions, bufferSize
     )
   }
 
   implicit val serializer: CatalystSerializer[TileDataContext] = new CatalystSerializer[TileDataContext] {
     override val schema: StructType =  StructType(Seq(
       StructField("cellType", schemaOf[CellType], false),
-      StructField("dimensions", schemaOf[Dimensions[Int]], false)
+      StructField("dimensions", schemaOf[Dimensions[Int]], false),
+      StructField("bufferSize", ShortType, false)
     ))
 
     override protected def to[R](t: TileDataContext, io: CatalystIO[R]): R = io.create(
       io.to(t.cellType),
-      io.to(t.dimensions)
+      io.to(t.dimensions),
+      t.bufferSize
     )
     override protected def from[R](t: R, io: CatalystIO[R]): TileDataContext = TileDataContext(
       io.get[CellType](t, 0),
-      io.get[Dimensions[Int]](t, 1)
+      io.get[Dimensions[Int]](t, 1),
+      io.getShort(t, 2)
     )
   }
 

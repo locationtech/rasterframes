@@ -55,6 +55,7 @@ case class RealizeTile(child: Expression) extends UnaryExpression with CodegenFa
   override protected def nullSafeEval(input: Any): Any = {
     val in = row(input)
     val tile = tileableExtractor(child.dataType)(in)
+    // TODO: This operation might be more efficient if we bypass toArrayTile and copy directly into Tungsten.
     (tile.toArrayTile(): Tile).toInternalRow
   }
 }

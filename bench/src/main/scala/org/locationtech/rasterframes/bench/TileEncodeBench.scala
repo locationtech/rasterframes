@@ -56,7 +56,7 @@ class TileEncodeBench extends SparkEnv {
       case "rasterRef" ⇒
         val baseCOG = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_B1.TIF"
         val extent = Extent(253785.0, 3235185.0, 485115.0, 3471015.0)
-        tile = RasterRefTile(RasterRef(RFRasterSource(URI.create(baseCOG)), 0, Some(extent), None))
+        tile = RasterRefTile(RasterRef(RFRasterSource(URI.create(baseCOG)), 0, Some(extent), None, 0.toShort))
       case _ ⇒
         tile = randomTile(tileSize, tileSize, cellTypeName)
     }

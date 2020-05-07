@@ -40,11 +40,12 @@ class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val bands = parameters.bandIndexes
     val tiling = parameters.tileDims.orElse(Some(NOMINAL_TILE_DIMS))
+    val bufferSize = parameters.bufferSize
     val lazyTiles = parameters.lazyTiles
     val spatialIndex = parameters.spatialIndex
     val spec = parameters.pathSpec
     val catRef = spec.fold(_.registerAsTable(sqlContext), identity)
-    RasterSourceRelation(sqlContext, catRef, bands, tiling, lazyTiles, spatialIndex)
+    RasterSourceRelation(sqlContext, catRef, bands, tiling, bufferSize, lazyTiles, spatialIndex)
   }
 }
 
@@ -54,6 +55,7 @@ object RasterSourceDataSource {
   final val PATHS_PARAM = "paths"
   final val BAND_INDEXES_PARAM = "band_indexes"
   final val TILE_DIMS_PARAM = "tile_dimensions"
+  final val BUFFER_SIZE_PARAM = "buffer_size"
   final val CATALOG_TABLE_PARAM = "catalog_table"
   final val CATALOG_TABLE_COLS_PARAM = "catalog_col_names"
   final val CATALOG_CSV_PARAM = "catalog_csv"
@@ -121,6 +123,9 @@ object RasterSourceDataSource {
 
     def lazyTiles: Boolean = parameters
       .get(LAZY_TILES_PARAM).forall(_.toBoolean)
+
+    def bufferSize: Short = parameters
+      .get(BUFFER_SIZE_PARAM).map(_.toShort).getOrElse(0.toShort)
 
     def spatialIndex: Option[Int] = parameters
       .get(SPATIAL_INDEX_PARTITIONS_PARAM).flatMap(p => Try(p.toInt).toOption)
@@ -190,6 +195,11 @@ object RasterSourceDataSource {
     def withTileDimensions(cols: Int, rows: Int): TaggedReader =
       tag[ReaderTag][DataFrameReader](
         reader.option(RasterSourceDataSource.TILE_DIMS_PARAM, s"$cols,$rows")
+      )
+
+    def withBufferSize(bufferSize: Short): TaggedReader =
+      tag[ReaderTag][DataFrameReader](
+        reader.option(RasterSourceDataSource.BUFFER_SIZE_PARAM, bufferSize.toShort)
       )
 
     /** Indicate if tile reading should be delayed until cells are fetched. Defaults to `true`. */

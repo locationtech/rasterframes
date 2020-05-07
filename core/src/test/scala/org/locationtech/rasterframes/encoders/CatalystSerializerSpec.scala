@@ -37,7 +37,7 @@ import org.scalatest.Assertion
 class CatalystSerializerSpec extends TestEnvironment {
   import TestData._
 
-  val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), Dimensions(12, 23))
+  val dc = TileDataContext(UShortUserDefinedNoDataCellType(3), Dimensions(12, 23), 0.toShort)
   val tc = TileContext(Extent(1, 2, 3, 4), WebMercator)
   val cc = CellContext(tc, dc, 34, 45)
   val ext = Extent(1.2, 2.3, 3.4, 4.5)
@@ -107,7 +107,7 @@ class CatalystSerializerSpec extends TestEnvironment {
       // TODO: Decide if RasterRef should be encoded 'flat', non-'flat', or depends
       val src = RFRasterSource(remoteCOGSingleband1)
       val ext = src.extent.buffer(-3.0)
-      val value = RasterRef(src, 0, Some(ext), Some(src.rasterExtent.gridBoundsFor(ext)))
+      val value = RasterRef(src, 0, Some(ext), Some(src.rasterExtent.gridBoundsFor(ext)), 0.toShort)
       assertConsistent(value)
       assertInvertable(value)
     }
