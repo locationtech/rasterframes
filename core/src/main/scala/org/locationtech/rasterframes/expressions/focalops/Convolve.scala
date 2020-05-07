@@ -20,31 +20,30 @@
  */
 
 package org.locationtech.rasterframes.expressions.focalops
-
 import geotrellis.raster.Tile
-import geotrellis.raster.mapalgebra.focal.Neighborhood
+import geotrellis.raster.mapalgebra.focal.Kernel
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOperator}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, neighborhood) - ",
+  usage = "_FUNC_(tile, kernel) - ",
   arguments = """
   Arguments:
     * tile -
-    * neighborhood - """,
+    * kernel - """,
   examples = """
   Examples:
     > SELECT  _FUNC_(tile, Square(1));
        ..."""
 )
-case class FocalMean(child: Expression, neighborhood: Neighborhood) extends UnaryRasterOperator with NullToValue with CodegenFallback {
-  override def nodeName: String = "rf_focal_mean"
+case class Convolve(child: Expression, kernel: Kernel) extends UnaryRasterOperator with NullToValue with CodegenFallback {
+  override def nodeName: String = "rf_convolve"
   override def na: Any = null
-  override protected def op(t: Tile): Tile = t.focalMean(neighborhood)
+  override protected def op(t: Tile): Tile = t.convolve(kernel)
 }
 
-object FocalMean {
-  def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMean(tile.expr, neighborhood))
+object Convolve {
+  def apply(tile: Column, kernel: Kernel): Column = new Column(Convolve(tile.expr, kernel))
 }
