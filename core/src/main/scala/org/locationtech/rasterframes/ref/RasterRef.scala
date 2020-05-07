@@ -59,6 +59,7 @@ case class RasterRef(
 
   protected lazy val realizedTile: Tile = {
     RasterRef.log.trace(s"Fetching $extent ($grid) from band $bandIndex of $source")
+    // TODO: if there's a non-zero bufferSize, apply it here.
     source.read(grid, Seq(bandIndex)).tile.band(0)
   }
 }

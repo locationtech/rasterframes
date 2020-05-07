@@ -40,6 +40,7 @@ case class Cells(data: Either[Array[Byte], RasterRef]) {
     data.fold(
       bytes => {
         val t = ArrayTile.fromBytes(bytes, ctx.cellType, ctx.dimensions.cols, ctx.dimensions.rows)
+        // Replace this with a tree rewrite on Cast(tileCol, StringType) => ShowableTile(tileCol)
         if (Cells.showableTiles) new ShowableTile(t)
         else t
       },
