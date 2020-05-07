@@ -19,32 +19,32 @@
  *
  */
 
-package org.locationtech.rasterframes.expressions.localops
+package org.locationtech.rasterframes.expressions.focalops
 
 import geotrellis.raster.Tile
-import org.apache.spark.sql.Column
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import geotrellis.raster.mapalgebra.focal.Neighborhood
+import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.{UnaryRasterOperator, fpTile}
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOperator}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Perform cell-wise square root",
+  usage = "_FUNC_(tile) - ",
   arguments = """
   Arguments:
-    * tile - input tile
-  """,
-  examples =
-    """
-    Examples:
-      > SELECT _FUNC_(tile)
-      ... """
+    * tile -
+    * neighborhood - """,
+  examples = """
+  Examples:
+    > SELECT  _FUNC_(tile, Square(1);
+       ..."""
 )
-case class Sqrt(child: Expression) extends UnaryRasterOperator with CodegenFallback {
-  override val nodeName: String = "rf_sqrt"
-  override protected def op(tile: Tile): Tile = fpTile(tile).localPow(0.5)
-  override def dataType: DataType = child.dataType
+case class FocalMean(child: Expression, neighborhood: Neighborhood) extends UnaryRasterOperator with NullToValue with CodegenFallback {
+  override def nodeName: String = "rf_focal_mean"
+  override def na: Any = null
+  override protected def op(t: Tile): Tile = t.focalMean(neighborhood)
 }
-object Sqrt {
-  def apply(tile: Column): Column = new Column(Sqrt(tile.expr))
+
+object FocalMean {
+  def apply(tile: Column, neighborhood: Neighborhood): TypedColumn[Any, Tile] = FocalMean(tile, neighborhood)
 }

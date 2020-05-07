@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterFunction}
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -39,7 +39,7 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        false"""
 )
-case class IsNoDataTile(child: Expression) extends UnaryRasterOp
+case class IsNoDataTile(child: Expression) extends UnaryRasterFunction
   with CodegenFallback with NullToValue {
   override def nodeName: String = "rf_is_no_data_tile"
   override def na: Any = true

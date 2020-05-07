@@ -29,7 +29,7 @@ import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 import org.locationtech.rasterframes.model.TileContext
 
 /** Boilerplate for expressions operating on a single Tile-like . */
-trait UnaryRasterOp extends UnaryExpression {
+trait UnaryRasterFunction extends UnaryExpression {
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")

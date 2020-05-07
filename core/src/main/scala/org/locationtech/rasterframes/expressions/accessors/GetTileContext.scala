@@ -22,16 +22,16 @@
 package org.locationtech.rasterframes.expressions.accessors
 
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 
-case class GetTileContext(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class GetTileContext(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   override def dataType: DataType = schemaOf[TileContext]
 
   override def nodeName: String = "get_tile_context"

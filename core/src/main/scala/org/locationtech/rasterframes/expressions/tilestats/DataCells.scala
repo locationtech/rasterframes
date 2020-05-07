@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterFunction}
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
@@ -39,7 +39,7 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        357"""
 )
-case class DataCells(child: Expression) extends UnaryRasterOp
+case class DataCells(child: Expression) extends UnaryRasterFunction
   with CodegenFallback with NullToValue {
   override def nodeName: String = "rf_data_cells"
   override def dataType: DataType = LongType

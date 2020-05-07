@@ -21,14 +21,14 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types.{DataType, DataTypes, IntegerType}
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 
 @ExpressionDescription(
@@ -37,7 +37,7 @@ import org.locationtech.rasterframes.model.TileContext
   Arguments:
     * tile - tile to convert"""
 )
-case class TileToArrayInt(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class TileToArrayInt(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   override def nodeName: String = "rf_tile_to_array_int"
   override def dataType: DataType = DataTypes.createArrayType(IntegerType, false)
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {

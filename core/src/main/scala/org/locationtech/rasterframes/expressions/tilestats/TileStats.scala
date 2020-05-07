@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.stats.CellStatistics
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.CatalystTypeConverters
@@ -29,7 +29,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 
 @ExpressionDescription(
@@ -42,7 +42,7 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class TileStats(child: Expression) extends UnaryRasterOp
+case class TileStats(child: Expression) extends UnaryRasterFunction
   with CodegenFallback {
   override def nodeName: String = "rf_tile_stats"
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
