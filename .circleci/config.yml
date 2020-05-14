@@ -46,7 +46,7 @@ orbs:
         steps:
           - run:
               name: Install requirements
-              command: pip3 install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
+              command: python -m pip install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
 
   rasterframes:
     commands:
@@ -152,6 +152,7 @@ jobs:
 
   docs:
     executor: sbt/default
+    resource_class: large
     steps:
       - checkout
       - sbt/setup
