@@ -46,7 +46,7 @@ orbs:
         steps:
           - run:
               name: Install requirements
-              command: pip3 install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
+              command: pip install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
 
   rasterframes:
     commands:
