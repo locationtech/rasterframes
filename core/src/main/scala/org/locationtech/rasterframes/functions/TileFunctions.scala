@@ -28,14 +28,15 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.expressions.TileAssembler
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.generators._
+import org.locationtech.rasterframes.expressions.localops.Resample.ResampleNearest
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderColorRampPNG, RenderCompositePNG}
 import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import org.locationtech.rasterframes.util.{withTypedAlias, ColorRampNames, _}
-import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions => F}
+import org.locationtech.rasterframes.util.{ColorRampNames, withTypedAlias, _}
+import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions ⇒ F}
 
 /** Functions associated with creating and transforming tiles, including tile-wise statistics and rendering. */
 trait TileFunctions {
@@ -104,11 +105,21 @@ trait TileFunctions {
 
   /** Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less
    * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
-  def rf_resample[T: Numeric](tileCol: Column, factorValue: T) = Resample(tileCol, factorValue)
+  def rf_resample[T: Numeric](tileCol: Column, factorValue: T) = ResampleNearest(tileCol, factorValue)
 
   /** Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less
-   * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
-  def rf_resample(tileCol: Column, factorCol: Column) = Resample(tileCol, factorCol)
+    * than one will downsample tile; greater than one will upsample. Uses nearest-neighbor. */
+  def rf_resample(tileCol: Column, factorCol: Column) = ResampleNearest(tileCol, factorCol)
+
+  /**  */
+  def rf_resample[T: Numeric](tileCol: Column, factorVal: T, methodName: Column) = Resample(tileCol, factorVal, methodName)
+
+  def rf_resample[T: Numeric](tileCol: Column, factorVal: T, methodName: String) = Resample(tileCol, factorVal, methodName)
+
+  def rf_resample(tileCol: Column, factorCol: Column, methodName: Column) = Resample(tileCol, factorCol, methodName)
+
+  def rf_resample(tileCol: Column, factorCol: Column, methodName: String) = Resample(tileCol, factorCol, lit(methodName))
+
 
   /** Assign a `NoData` value to the tile column. */
   def rf_with_no_data(col: Column, nodata: Double): Column = SetNoDataValue(col, nodata)
