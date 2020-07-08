@@ -89,7 +89,81 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       assertEqual(df3.selectExpr("rf_resample_nearest(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
       assertEqual(df3.selectExpr("rf_resample(tile, factor, \"nearest_neighbor\")").as[ProjectedRasterTile].first(), lowRes)
 
-      checkDocs("rf_resample")
+      checkDocs("rf_resample_nearest")
     }
+
+    it("should resample aggregating") {
+      checkDocs("rf_resample")
+
+      // test of an aggregating method for  resample
+      def original = {
+        // format: off
+        def base = ArrayTile(Array(
+          1, 1, 2, 2,
+          1, 3, 6, 2,
+          3, 3, 4, 4,
+          3, 7, 5, 4
+        ), 4, 4)
+        // format: on
+        ProjectedRasterTile(base.convert(ct), extent, crs)
+      }
+
+      def expectedMax = ProjectedRasterTile(
+        ArrayTile(Array(
+          3, 6,
+          7, 5), //2x2 tile
+          2, 2).convert(ct), extent, crs)
+
+      def expectedMode = ProjectedRasterTile(
+        ArrayTile(Array(
+          1, 2,
+          3, 4
+        ), 2, 2).convert(ct), extent, crs)
+
+      def expectedAverage = ProjectedRasterTile(
+        ArrayTile(Array(
+          6.0/4, 12.0/4,
+          4.0, 17.0/4),
+          2, 2).convert(FloatConstantNoDataCellType), extent, crs)
+
+      def df = Seq(original).toDF("tile")
+
+      val maybeMax = df.select(rf_resample($"tile", 0.5, "Max")).as[ProjectedRasterTile].first()
+      assertEqual(maybeMax, expectedMax)
+
+      val maybeMode = df.select(rf_resample($"tile", 0.5, "mode")).as[ProjectedRasterTile].first()
+      assertEqual(maybeMode, expectedMode)
+
+      val maybeAverage = df.select(rf_resample($"tile", 0.5, "average")).as[ProjectedRasterTile].first()
+      assertEqual(maybeAverage, expectedAverage)
+
+    }
+    it("should resample bilinear") {
+      def original = {
+        def base = ArrayTile(Array(
+          0, 1, 2, 3,
+          1, 2, 3, 4,
+          2, 3, 4, 5,
+          3, 4, 5, 6
+        ), 4, 4)
+
+        ProjectedRasterTile(base.convert(ct), extent, crs)
+      }
+
+      def expected2x2 = ProjectedRasterTile(
+        ArrayTile(Array(
+          1, 3,
+          3, 5
+        ), 2, 2).convert(FloatConstantNoDataCellType), extent, crs
+      )
+
+      def df = Seq(original).toDF("tile")
+      val result = df.select(
+        rf_resample($"tile", 0.5, "bilinear"))
+        .as[ProjectedRasterTile].first()
+
+      assertEqual(result, expected2x2)
+    }
+
   }
 }
