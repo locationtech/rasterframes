@@ -45,7 +45,7 @@ trait DataFrameRenderers {
           if (renderTiles && DynamicExtractors.tileExtractor.isDefinedAt(c.dataType))
             concat(
               lit("<img src=\"data:image/png;base64,"),
-              base64(rf_render_png(rf_resample(resolved, 0.5), ColorRamps.Viridis)), // TODO: how to expose?
+              base64(rf_render_png(rf_resample(resolved, 0.5), ColorRamps.Viridis)), // TODO: how to expose options?
               lit("\"></img>")
             )
           else if (renderTiles && c.dataType == BinaryType)

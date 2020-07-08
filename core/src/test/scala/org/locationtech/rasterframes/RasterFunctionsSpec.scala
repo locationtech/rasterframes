@@ -47,7 +47,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_render_matrix")
     }
 
-    it("should resample") {
+    it("should resample nearest") {
       def lowRes = {
         def base = ArrayTile(Array(1, 2, 3, 4), 2, 2)
 
@@ -74,6 +74,9 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val maybeUp = df.select(rf_resample($"tile", lit(2))).as[ProjectedRasterTile].first()
       assertEqual(maybeUp, upsampled)
 
+      val maybeUpDouble = df.select(rf_resample($"tile", 2.0)).as[ProjectedRasterTile].first()
+      assertEqual(maybeUpDouble, upsampled)
+
       def df2 = Seq((lowRes, fourByFour)).toDF("tile1", "tile2")
 
       val maybeUpShape = df2.select(rf_resample($"tile1", $"tile2")).as[ProjectedRasterTile].first()
@@ -82,8 +85,9 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       // Downsample by double argument < 1
       def df3 = Seq(upsampled).toDF("tile").withColumn("factor", lit(0.5))
 
-      assertEqual(df3.selectExpr("rf_resample(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
-      assertEqual(df3.selectExpr("rf_resample(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample_nearest(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample_nearest(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample(tile, factor, \"nearest_neighbor\")").as[ProjectedRasterTile].first(), lowRes)
 
       checkDocs("rf_resample")
     }

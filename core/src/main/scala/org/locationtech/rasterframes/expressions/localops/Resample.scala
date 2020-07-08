@@ -56,13 +56,17 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
      }
 
    // These methods define the core algorithms to be used.
-  def op(left: Tile, right: Tile, method: ResampleMethod): Tile =
-      targetFloatIfNeeded(left, method)
-        .resample(right.cols, right.rows, method)
+  def op(left: Tile, right: Tile, method: String): Tile = {
+    val m = stringToMethod(method)
+    targetFloatIfNeeded(left, m)
+      .resample(right.cols, right.rows, m)
+  }
 
-  def op(left: Tile, right: Double, method: ResampleMethod): Tile =
-    targetFloatIfNeeded(left, method)
-      .resample((left.cols * right).toInt, (left.rows * right).toInt, method)
+  def op(left: Tile, right: Double, method: String): Tile = {
+    val m = stringToMethod(method)
+    targetFloatIfNeeded(left, m)
+      .resample((left.cols * right).toInt, (left.rows * right).toInt, m)
+  }
 
 
   override def checkInputDataTypes(): TypeCheckResult = {
@@ -83,13 +87,13 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
     implicit val tileSer = TileUDT.tileSerializer
 
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(input1))
-    val m = stringToMethod(input3.asInstanceOf[UTF8String].toString)
+    val methodString = input3.asInstanceOf[UTF8String].toString
 
     val result: Tile = tileOrNumberExtractor(right.dataType)(input2) match {
       // in this case we expect the left and right contexts to vary. no warnings raised.
-      case TileArg(rightTile, _) ⇒ op(leftTile, rightTile, m)
-      case DoubleArg(d) ⇒ op(leftTile, d, m)
-      case IntegerArg(i) ⇒ op(leftTile, i.toDouble, m)
+      case TileArg(rightTile, _) ⇒ op(leftTile, rightTile, methodString)
+      case DoubleArg(d) ⇒ op(leftTile, d, methodString)
+      case IntegerArg(i) ⇒ op(leftTile, i.toDouble, methodString)
     }
 
     // reassemble the leftTile with its context. Note that this operation does not change Extent and CRS
@@ -134,7 +138,8 @@ object Resample {
     > SELECT _FUNC_(tile1, tile2, lit("cubic_spline"));
        ..."""
   )
-  case class Resample(left: Expression, factor: Expression, method: Expression) extends ResampleBase(left, factor, method)
+  case class Resample(left: Expression, factor: Expression, method: Expression)
+    extends ResampleBase(left, factor, method)
 
   def apply(left: Column, right: Column, methodName: String): Column =
     new Column(Resample(left.expr, right.expr, lit(methodName).expr))
@@ -167,8 +172,6 @@ object Resample {
     def apply[N: Numeric](tile: Column, value: N): Column =
       new Column(ResampleNearest(tile.expr, lit(value).expr))
   }
-
-
 
   def stringToMethod(methodName: String): ResampleMethod = {
     methodName.toLowerCase().trim().replaceAll("_", "") match {
