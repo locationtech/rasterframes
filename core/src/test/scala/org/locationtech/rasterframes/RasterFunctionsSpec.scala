@@ -170,8 +170,10 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       // this is a case we see in ExtensionMethodSpec calling DataFrame.toMarkdown
       // this surfaced a serialization issue with ResampleBase so we'll leave it here
       val df = sampleTileLayerRDD.toLayer
-      val result = df.select(rf_resample(df.col("`tile`"), 0.5)).as[Tile].collect()
-      result.length should be > (0)
+      noException shouldBe thrownBy {
+        df.select(rf_resample(df.col("`tile`"), 0.5)).as[Tile]
+          .collect()
+      }
     }
 
   }

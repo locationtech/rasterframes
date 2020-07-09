@@ -165,9 +165,10 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * }}}
     *
     * @param right Right side of the join.
+    * @param resampleMethod string indicating method to use for resampling.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right, "nearest", None)
+  def rasterJoin(right: DataFrame, resampleMethod: String = "nearest"): DataFrame = RasterJoin(self, right, resampleMethod, None)
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -183,10 +184,11 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @param leftCRS this (left) datafrasme's CRS column
     * @param rightExtent right dataframe's CRS extent
     * @param rightCRS right dataframe's CRS column
+    * @param resampleMethod string indicating method to use for resampling.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS, "nearest", None)
+  def rasterJoin(right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: String): DataFrame =
+    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS, resampleMethod, None)
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -200,10 +202,11 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @param leftCRS this (left) datafrasme's CRS column
     * @param rightExtent right dataframe's CRS extent
     * @param rightCRS right dataframe's CRS column
+    * @param resampleMethod string indicating method to use for resampling.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, "nearest", None)
+  def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: String): DataFrame =
+    RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, resampleMethod, None)
 
 
   /** Layout contents of RasterFrame to a layer. Assumes CRS and extent columns exist. */

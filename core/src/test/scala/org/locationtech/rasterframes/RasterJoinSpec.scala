@@ -171,6 +171,20 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
         val joined2 = df2.rasterJoin(df1)
       }
     }
+
+    it("should honor resampling options") {
+      // test case. replicate existing test condition and check that resampling option results in different output
+      val filterExpr = st_intersects(rf_geometry($"tile"), st_point(704940.0, 4251130.0))
+      val result = b4nativeRf.rasterJoin(b4warpedRf.withColumnRenamed("tile2", "nearest"), "nearest")
+        .rasterJoin(b4warpedRf.withColumnRenamed("tile2", "CubicSpline"), "cubicSpline")
+        .withColumn("diff", rf_local_subtract($"nearest", $"cubicSpline"))
+        .agg(rf_agg_stats($"diff") as "stats")
+        .select($"stats.min" as "min", $"stats.max" as "max")
+        .first()
+
+      // This just tests that the tiles are not identical
+      result.getAs[Double]("min") should be > (0.0)
+    }
   }
 
   override def additionalConf: SparkConf = super.additionalConf.set("spark.sql.codegen.comments", "true")
