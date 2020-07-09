@@ -72,7 +72,7 @@ def _convert_df(df: DataFrame, sp_key=None, metadata=None) -> RasterFrameLayer:
 def _raster_join(df: DataFrame, other: DataFrame,
                  left_extent=None, left_crs=None,
                  right_extent=None, right_crs=None,
-                 join_exprs=None, resampling_method='nearest') -> DataFrame:
+                 join_exprs=None, resampling_method='nearest_neighbor') -> DataFrame:
     ctx = SparkContext._active_spark_context._rf_context
     assert resampling_method in ['nearest_neighbor', 'bilinear', 'cubic_convolution', 'cubic_spline', 'lanczos',
                                  'average', 'mode', 'median', 'max', 'min', 'sum']
