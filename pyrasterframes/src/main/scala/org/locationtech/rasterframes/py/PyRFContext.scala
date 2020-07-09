@@ -109,19 +109,19 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   /**
     * Left spatial join managing reprojection and merging of `other`
     */
-  def rasterJoin(df: DataFrame, other: DataFrame): DataFrame = RasterJoin(df, other, None)
+  def rasterJoin(df: DataFrame, other: DataFrame, resamplingMethod: String): DataFrame = RasterJoin(df, other, resamplingMethod, None)
 
   /**
     * Left spatial join managing reprojection and merging of `other`; uses extent and CRS columns to determine if rows intersect
     */
-  def rasterJoin(df: DataFrame, other: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(df, other, leftExtent, leftCRS, rightExtent, rightCRS, None)
+  def rasterJoin(df: DataFrame, other: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resamplingMethod: String): DataFrame =
+    RasterJoin(df, other, leftExtent, leftCRS, rightExtent, rightCRS, resamplingMethod, None)
 
   /**
     * Left spatial join managing reprojection and merging of `other`; uses joinExprs to conduct initial join then extent and CRS columns to determine if rows intersect
     */
-  def rasterJoin(df: DataFrame, other: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(df, other, joinExprs, leftExtent, leftCRS, rightExtent, rightCRS, None)
+  def rasterJoin(df: DataFrame, other: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resamplingMethod: String): DataFrame =
+    RasterJoin(df, other, joinExprs, leftExtent, leftCRS, rightExtent, rightCRS, resamplingMethod, None)
 
 
   /**

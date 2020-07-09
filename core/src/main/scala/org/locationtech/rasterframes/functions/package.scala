@@ -26,7 +26,6 @@ import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
-import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 

@@ -72,21 +72,25 @@ def _convert_df(df: DataFrame, sp_key=None, metadata=None) -> RasterFrameLayer:
 def _raster_join(df: DataFrame, other: DataFrame,
                  left_extent=None, left_crs=None,
                  right_extent=None, right_crs=None,
-                 join_exprs=None) -> DataFrame:
+                 join_exprs=None, resampling_method='nearest') -> DataFrame:
     ctx = SparkContext._active_spark_context._rf_context
+    assert resampling_method in ['nearest_neighbor', 'bilinear', 'cubic_convolution', 'cubic_spline', 'lanczos',
+                                 'average', 'mode', 'median', 'max', 'min', 'sum']
     if join_exprs is not None:
         assert left_extent is not None and left_crs is not None and right_extent is not None and right_crs is not None
         # Note the order of arguments here.
         cols = [join_exprs, left_extent, left_crs, right_extent, right_crs]
-        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, *[_to_java_column(c) for c in cols])
+        args = [_to_java_column(c) for c in cols] + [resampling_method]
+        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, *args)
 
     elif left_extent is not None:
         assert left_crs is not None and right_extent is not None and right_crs is not None
         cols = [left_extent, left_crs, right_extent, right_crs]
-        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, *[_to_java_column(c) for c in cols])
+        args = [_to_java_column(c) for c in cols] + [resampling_method]
+        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, args)
 
     else:
-        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf)
+        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, resampling_method)
 
     return DataFrame(jdf, ctx._spark_session._wrapped)
 
