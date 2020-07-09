@@ -428,6 +428,15 @@ class RasterJoin(TestEnvironment):
         self.assertTrue(rf_joined_3.count(), self.rf.count())
         self.assertTrue(len(rf_joined_3.columns) == len(self.rf.columns) + len(rf_prime.columns) - 2)
 
+        result_methods = self.rf \
+            .raster_join(rf_prime.withColumnRenamed('tile2', 'bilinear'), "bilinear") \
+            .raster_join(rf_prime.withColumnRenamed('tile2', 'cubic_spline'), "cubic_spline") \
+            .select(rf_local_subtract('bilinear', 'cubic_spline').alias('diff')) \
+            .agg(rf_agg_stats('diff').alias('stats')) \
+            .select("stats.min") \
+            .first()
+        self.assertGreater(result_methods, 0.0)
+
         # throws if you don't  pass  in all expected columns
         with self.assertRaises(AssertionError):
             self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)

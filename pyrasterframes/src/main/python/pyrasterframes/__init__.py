@@ -87,7 +87,7 @@ def _raster_join(df: DataFrame, other: DataFrame,
         assert left_crs is not None and right_extent is not None and right_crs is not None
         cols = [left_extent, left_crs, right_extent, right_crs]
         args = [_to_java_column(c) for c in cols] + [resampling_method]
-        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, args)
+        jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, *args)
 
     else:
         jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, resampling_method)
