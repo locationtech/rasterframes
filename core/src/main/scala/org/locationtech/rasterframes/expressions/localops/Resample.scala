@@ -41,8 +41,7 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors._
 
 abstract class ResampleBase(left: Expression, right: Expression, method: Expression)
   extends TernaryExpression
-  with CodegenFallback {
-
+  with CodegenFallback with Serializable {
 
   override val nodeName: String = "rf_resample"
   override def dataType: DataType = left.dataType

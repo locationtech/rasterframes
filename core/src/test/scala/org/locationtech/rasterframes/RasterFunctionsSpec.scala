@@ -138,6 +138,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       assertEqual(maybeAverage, expectedAverage)
 
     }
+
     it("should resample bilinear") {
       def original = {
         def base = ArrayTile(Array(
@@ -163,6 +164,14 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
         .as[ProjectedRasterTile].first()
 
       assertEqual(result, expected2x2)
+    }
+
+    it("should resample from TileLayerRDD") {
+      // this is a case we see in ExtensionMethodSpec calling DataFrame.toMarkdown
+      // this surfaced a serialization issue with ResampleBase so we'll leave it here
+      val df = sampleTileLayerRDD.toLayer
+      val result = df.select(rf_resample(df.col("`tile`"), 0.5)).as[Tile].collect()
+      result.length should be > (0)
     }
 
   }
