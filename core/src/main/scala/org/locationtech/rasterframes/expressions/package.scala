@@ -31,7 +31,6 @@ import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
-import org.locationtech.rasterframes.expressions.localops.Resample.{ResampleNearest, Resample}
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._

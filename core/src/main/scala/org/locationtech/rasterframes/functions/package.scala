@@ -21,10 +21,12 @@
 package org.locationtech.rasterframes
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
+import geotrellis.raster.resample._
 import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 
@@ -97,7 +99,7 @@ package object functions {
   private[rasterframes] val tileOnes: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
     makeConstantTile(1, cols, rows, cellTypeName)
 
-  val reproject_and_merge_f: (Row, Row, Seq[Tile], Seq[Row], Seq[Row], Row) => Tile = (leftExtentEnc: Row, leftCRSEnc: Row, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[Row], leftDimsEnc: Row) => {
+  val reproject_and_merge_f: (Row, Row, Seq[Tile], Seq[Row], Seq[Row], Row, String) => Tile = (leftExtentEnc: Row, leftCRSEnc: Row, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[Row], leftDimsEnc: Row, resampleMethod: String) => {
     if (tiles.isEmpty) null
     else {
       require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
@@ -105,8 +107,23 @@ package object functions {
       val leftExtent = leftExtentEnc.to[Extent]
       val leftDims = leftDimsEnc.to[Dimensions[Int]]
       val leftCRS = leftCRSEnc.to[CRS]
-      val rightExtents = rightExtentEnc.map(_.to[Extent])
-      val rightCRSs = rightCRSEnc.map(_.to[CRS])
+      lazy val rightExtents = rightExtentEnc.map(_.to[Extent])
+      lazy val rightCRSs = rightCRSEnc.map(_.to[CRS])
+      lazy val resample = resampleMethod //.getString(0)
+        .toLowerCase().trim().replaceAll("_", "") match {
+        case "nearestneighbor" | "nearest" ⇒ NearestNeighbor
+        case "bilinear" ⇒ Bilinear
+        case "cubicconvolution" ⇒ CubicConvolution
+        case "cubicspline" ⇒ CubicSpline
+        case "lanczos" | "lanzos" ⇒ Lanczos
+        // aggregates
+        case "average" ⇒ Average
+        case "mode" ⇒ Mode
+        case "median" ⇒ Median
+        case "max" ⇒ Max
+        case "min" ⇒ Min
+        case "sum" ⇒ Sum
+      }
 
       if (leftExtent == null || leftDims == null || leftCRS == null) null
       else {
@@ -114,7 +131,7 @@ package object functions {
         val cellType = tiles.map(_.cellType).reduceOption(_ union _).getOrElse(tiles.head.cellType)
 
         // TODO: how to allow control over... expression?
-        val projOpts = Reproject.Options.DEFAULT
+        val projOpts = Reproject.Options(resample)
         val dest: Tile = ArrayTile.empty(cellType, leftDims.cols, leftDims.rows)
         //is there a GT function to do all this?
         tiles.zip(rightExtents).zip(rightCRSs).map {

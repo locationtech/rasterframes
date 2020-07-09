@@ -28,7 +28,6 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.expressions.TileAssembler
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.generators._
-import org.locationtech.rasterframes.expressions.localops.Resample.ResampleNearest
 import org.locationtech.rasterframes.expressions.localops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers.RenderPNG.{RenderColorRampPNG, RenderCompositePNG}

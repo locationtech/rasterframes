@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions.localops
 
 import geotrellis.raster.Tile
 import geotrellis.raster.resample._
-import geotrellis.raster.resample.{Max ⇒ RMax, Min ⇒ RMin, Resample ⇒ GTResample}
+import geotrellis.raster.resample.{Max ⇒ RMax, Min ⇒ RMin}
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
@@ -43,7 +43,6 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
   extends TernaryExpression
   with CodegenFallback {
 
-  import Resample.stringToMethod
 
   override val nodeName: String = "rf_resample"
   override def dataType: DataType = left.dataType
@@ -54,6 +53,22 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
       case NearestNeighbor | Mode | RMax | RMin | Sum  ⇒ t
       case _ ⇒ fpTile(t)
      }
+
+  def stringToMethod(methodName: String): ResampleMethod =
+    methodName.toLowerCase().trim().replaceAll("_", "") match {
+      case "nearestneighbor" | "nearest" ⇒ NearestNeighbor
+      case "bilinear" ⇒ Bilinear
+      case "cubicconvolution" ⇒ CubicConvolution
+      case "cubicspline" ⇒ CubicSpline
+      case "lanczos" | "lanzos" ⇒ Lanczos
+      // aggregates
+      case "average" ⇒ Average
+      case "mode" ⇒ Mode
+      case "median" ⇒ Median
+      case "max" ⇒ RMax
+      case "min" ⇒ RMin
+      case "sum" ⇒ Sum
+    }
 
    // These methods define the core algorithms to be used.
   def op(left: Tile, right: Tile, method: String): Tile = {
@@ -67,7 +82,6 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
     targetFloatIfNeeded(left, m)
       .resample((left.cols * right).toInt, (left.rows * right).toInt, m)
   }
-
 
   override def checkInputDataTypes(): TypeCheckResult = {
     // copypasta from BinaryLocalRasterOp
@@ -118,75 +132,59 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
 
 }
 
+@ExpressionDescription(
+  usage = "_FUNC_(tile, factor, method_name) - Resample tile to different dimension based on scalar `factor` or a tile whose dimension to match. Scalar less than one will downsample tile; greater than one will upsample. Uses resampling method named in the `method_name`." +
+    "Methods average, mode, median, max, min, and sum aggregate over cells when downsampling",
+  arguments = """
+Arguments:
+  * tile - tile
+  * factor  - scalar or tile to match dimension
+  * method_name - one the following options: nearest_neighbor, bilinear, cubic_convolution, cubic_spline, lanczos, average, mode, median, max, min, sum
+                  This option can be CamelCase as well
+""",
+  examples = """
+Examples:
+  > SELECT _FUNC_(tile, 0.2, median);
+     ...
+  > SELECT _FUNC_(tile1, tile2, lit("cubic_spline"));
+     ..."""
+)
+case class Resample(left: Expression, factor: Expression, method: Expression)
+  extends ResampleBase(left, factor, method)
 
 object Resample {
-
-  @ExpressionDescription(
-    usage = "_FUNC_(tile, factor, method_name) - Resample tile to different dimension based on scalar `factor` or a tile whose dimension to match. Scalar less than one will downsample tile; greater than one will upsample. Uses resampling method named in the `method_name`." +
-      "Methods average, mode, median, max, min, and sum aggregate over cells when downsampling",
-    arguments = """
-  Arguments:
-    * tile - tile
-    * factor  - scalar or tile to match dimension
-    * method_name - one the following options: nearest_neighbor, bilinear, cubic_convolution, cubic_spline, lanczos, average, mode, median, max, min, sum
-                    This option can be CamelCase as well
-  """,
-    examples = """
-  Examples:
-    > SELECT _FUNC_(tile, 0.2, median);
-       ...
-    > SELECT _FUNC_(tile1, tile2, lit("cubic_spline"));
-       ..."""
-  )
-  case class Resample(left: Expression, factor: Expression, method: Expression)
-    extends ResampleBase(left, factor, method)
-
   def apply(left: Column, right: Column, methodName: String): Column =
     new Column(Resample(left.expr, right.expr, lit(methodName).expr))
 
   def apply(left: Column, right: Column, method: Column): Column =
     new Column(Resample(left.expr, right.expr, method.expr))
 
-  def apply[N: Numeric](left: Column, right: N, method: String) = new Column(Resample(left.expr, lit(right).expr, lit(method).expr))
+  def apply[N: Numeric](left: Column, right: N, method: String): Column = new Column(Resample(left.expr, lit(right).expr, lit(method).expr))
 
-  def apply[N: Numeric](left: Column, right: N, method: Column) = new Column(Resample(left.expr, lit(right).expr, method.expr))
+  def apply[N: Numeric](left: Column, right: N, method: Column): Column = new Column(Resample(left.expr, lit(right).expr, method.expr))
 
-  @ExpressionDescription(
-   usage = "_FUNC_(tile, factor) - Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less than one will downsample tile; greater than one will upsample. Uses nearest-neighbor value.",
-   arguments = """
-    Arguments:
-      * tile - tile
-      * rhs  - scalar or tile to match dimension""",
-   examples = """
-    Examples:
-      > SELECT _FUNC_(tile, 2.0);
-         ...
-      > SELECT _FUNC_(tile1, tile2);
-         ...""")
-  case class ResampleNearest(tile: Expression, target: Expression)
-    extends ResampleBase(tile, target, Literal("nearest"))
-  object ResampleNearest {
-    def apply(tile: Column, target: Column): Column =
-      new Column(ResampleNearest(tile.expr, target.expr))
-
-    def apply[N: Numeric](tile: Column, value: N): Column =
-      new Column(ResampleNearest(tile.expr, lit(value).expr))
-  }
-
-  def stringToMethod(methodName: String): ResampleMethod = {
-    methodName.toLowerCase().trim().replaceAll("_", "") match {
-      case "nearestneighbor" | "nearest" ⇒ NearestNeighbor
-      case "bilinear" ⇒ Bilinear
-      case "cubicconvolution" ⇒ CubicConvolution
-      case "cubicspline" ⇒ CubicSpline
-      case "lanczos" | "lanzos" ⇒ Lanczos
-      // aggregates
-      case "average" ⇒ Average
-      case "mode" ⇒ Mode
-      case "median" ⇒ Median
-      case "max" ⇒ RMax
-      case "min" ⇒ RMin
-      case "sum" ⇒ Sum
-    }
-  }
 }
+
+@ExpressionDescription(
+ usage = "_FUNC_(tile, factor) - Resample tile to different size based on scalar factor or tile whose dimension to match. Scalar less than one will downsample tile; greater than one will upsample. Uses nearest-neighbor value.",
+ arguments = """
+  Arguments:
+    * tile - tile
+    * rhs  - scalar or tile to match dimension""",
+ examples = """
+  Examples:
+    > SELECT _FUNC_(tile, 2.0);
+       ...
+    > SELECT _FUNC_(tile1, tile2);
+       ...""")
+case class ResampleNearest(tile: Expression, target: Expression)
+  extends ResampleBase(tile, target, Literal("nearest"))
+object ResampleNearest {
+  def apply(tile: Column, target: Column): Column =
+    new Column(ResampleNearest(tile.expr, target.expr))
+
+  def apply[N: Numeric](tile: Column, value: N): Column =
+    new Column(ResampleNearest(tile.expr, lit(value).expr))
+}
+
+

@@ -167,7 +167,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @param right Right side of the join.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right, None)
+  def rasterJoin(right: DataFrame): DataFrame = RasterJoin(self, right, "nearest", None)
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -186,7 +186,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @return joined dataframe
     */
   def rasterJoin(right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS, None)
+    RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS, "nearest", None)
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -203,7 +203,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @return joined dataframe
     */
   def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, None)
+    RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, "nearest", None)
 
 
   /** Layout contents of RasterFrame to a layer. Assumes CRS and extent columns exist. */

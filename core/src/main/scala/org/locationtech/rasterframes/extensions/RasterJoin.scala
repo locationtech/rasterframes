@@ -36,7 +36,7 @@ import scala.util.Random
 object RasterJoin {
 
   /** Perform a raster join on dataframes that each have proj_raster columns, or crs and extent explicitly included. */
-  def apply(left: DataFrame, right: DataFrame, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, resampleMethod: String, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     def usePRT(d: DataFrame) =
       d.projRasterColumns.headOption
         .map(p => (rf_crs(p),  rf_extent(p)))
@@ -50,21 +50,21 @@ object RasterJoin {
     val (ldf, lcrs, lextent) = usePRT(left)
     val (rdf, rcrs, rextent) = usePRT(right)
 
-    apply(ldf, rdf, lextent, lcrs, rextent, rcrs, fallbackDimensions)
+    apply(ldf, rdf, lextent, lcrs, rextent, rcrs, resampleMethod, fallbackDimensions)
   }
 
-  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: String, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     val leftGeom = st_geometry(leftExtent)
     val rightGeomReproj = st_reproject(st_geometry(rightExtent), rightCRS, leftCRS)
     val joinExpr = new Column(SpatialRelation.Intersects(leftGeom.expr, rightGeomReproj.expr))
-    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, fallbackDimensions)
+    apply(left, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, resampleMethod, fallbackDimensions)
   }
 
   private def checkType[T](col: Column, description: String, extractor: PartialFunction[DataType, Any => T]): Unit = {
     require(extractor.isDefinedAt(col.expr.dataType), s"Expected column ${col} to be of type $description, but was ${col.expr.dataType}.")
   }
 
-  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
+  def apply(left: DataFrame, right: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: String, fallbackDimensions: Option[Dimensions[Int]]): DataFrame = {
     // Convert resolved column into a symbolic one.
     def unresolved(c: Column): Column = col(c.columnName)
 
@@ -84,14 +84,14 @@ object RasterJoin {
     val rightExtent2 = id + "extent"
     // Post aggregation right crs. We create a new name.
     val rightCRS2 = id + "crs"
-
+    val method = id + "method"
 
     // Gathering up various expressions we'll use to construct the result.
     // After joining We will be doing a groupBy the LHS. We have to define the aggregations to perform after the groupBy.
     // On the LHS we just want the first thing (subsequent ones should be identical.
     val leftAggCols = left.columns.map(s => first(left(s), true) as s)
     // On the RHS we collect result as a list.
-    val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rf_crs(rightCRS)) as rightCRS2)
+    val rightAggCtx = Seq(collect_list(rightExtent) as rightExtent2, collect_list(rf_crs(rightCRS)) as rightCRS2, lit(resampleMethod) as method)
     val rightAggTiles = right.tileColumns.map(c => collect_list(ExtractTile(c)) as c.columnName)
     val rightAggOther = right.notTileColumns
       .filter(n => n.columnName != rightExtent.columnName && n.columnName != rightCRS.columnName)
@@ -110,7 +110,7 @@ object RasterJoin {
 
     val reprojCols = rightAggTiles.map(t => {
       reproject_and_merge(
-        col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), destDims
+        col(leftExtent2), col(leftCRS2), col(t.columnName), col(rightExtent2), col(rightCRS2), destDims, lit(resampleMethod)
       ) as t.columnName
     })
 

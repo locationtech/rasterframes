@@ -48,7 +48,7 @@ object ReprojectToLayer {
     // Create effectively a target RasterFrame, but with no tiles.
     val dest = gridItems.toSeq.toDF(SPATIAL_KEY_COLUMN.columnName, EXTENT_COLUMN.columnName, CRS_COLUMN.columnName)
 
-    val joined = RasterJoin(broadcast(dest), df, Some(tlm.tileLayout.tileDimensions))
+    val joined = RasterJoin(broadcast(dest), df, "nearest", Some(tlm.tileLayout.tileDimensions))
 
     joined.asLayer(SPATIAL_KEY_COLUMN, tlm)
   }
