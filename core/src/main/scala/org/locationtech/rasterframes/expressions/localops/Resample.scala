@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions.localops
 
 import geotrellis.raster.Tile
 import geotrellis.raster.resample._
-import geotrellis.raster.resample.{Max ⇒ RMax, Min ⇒ RMin}
+import geotrellis.raster.resample.{ResampleMethod ⇒ GTResampleMethod, Max ⇒ RMax, Min ⇒ RMin}
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
@@ -34,6 +34,7 @@ import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.util.ResampleMethod
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.{fpTile, row}
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
@@ -47,40 +48,21 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
   override def dataType: DataType = left.dataType
   override def children: Seq[Expression] = Seq(left, right, method)
 
-  def targetFloatIfNeeded(t: Tile, method: ResampleMethod): Tile =
+  def targetFloatIfNeeded(t: Tile, method: GTResampleMethod): Tile =
      method match {
       case NearestNeighbor | Mode | RMax | RMin | Sum  ⇒ t
       case _ ⇒ fpTile(t)
      }
 
-  def stringToMethod(methodName: String): ResampleMethod =
-    methodName.toLowerCase().trim().replaceAll("_", "") match {
-      case "nearestneighbor" | "nearest" ⇒ NearestNeighbor
-      case "bilinear" ⇒ Bilinear
-      case "cubicconvolution" ⇒ CubicConvolution
-      case "cubicspline" ⇒ CubicSpline
-      case "lanczos" | "lanzos" ⇒ Lanczos
-      // aggregates
-      case "average" ⇒ Average
-      case "mode" ⇒ Mode
-      case "median" ⇒ Median
-      case "max" ⇒ RMax
-      case "min" ⇒ RMin
-      case "sum" ⇒ Sum
-    }
-
    // These methods define the core algorithms to be used.
-  def op(left: Tile, right: Tile, method: String): Tile = {
-    val m = stringToMethod(method)
-    targetFloatIfNeeded(left, m)
-      .resample(right.cols, right.rows, m)
-  }
+  def op(left: Tile, right: Tile, method: GTResampleMethod): Tile =
+    op(left, right.cols, right.rows, method)
 
-  def op(left: Tile, right: Double, method: String): Tile = {
-    val m = stringToMethod(method)
-    targetFloatIfNeeded(left, m)
-      .resample((left.cols * right).toInt, (left.rows * right).toInt, m)
-  }
+  def op(left: Tile, right: Double, method: GTResampleMethod): Tile =
+    op(left, (left.cols * right).toInt, (left.rows * right).toInt, method)
+
+  def op(tile: Tile, newCols: Int, newRows: Int, method: GTResampleMethod): Tile =
+    targetFloatIfNeeded(tile, method).resample(newCols, newRows, method)
 
   override def checkInputDataTypes(): TypeCheckResult = {
     // copypasta from BinaryLocalRasterOp
@@ -102,11 +84,16 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(input1))
     val methodString = input3.asInstanceOf[UTF8String].toString
 
+    val resamplingMethod = methodString match {
+      case ResampleMethod(mm) => mm
+      case _ => throw new IllegalArgumentException("Unrecognized resampling method specified")
+    }
+
     val result: Tile = tileOrNumberExtractor(right.dataType)(input2) match {
       // in this case we expect the left and right contexts to vary. no warnings raised.
-      case TileArg(rightTile, _) ⇒ op(leftTile, rightTile, methodString)
-      case DoubleArg(d) ⇒ op(leftTile, d, methodString)
-      case IntegerArg(i) ⇒ op(leftTile, i.toDouble, methodString)
+      case TileArg(rightTile, _) ⇒ op(leftTile, rightTile, resamplingMethod)
+      case DoubleArg(d) ⇒ op(leftTile, d, resamplingMethod)
+      case IntegerArg(i) ⇒ op(leftTile, i.toDouble, resamplingMethod)
     }
 
     // reassemble the leftTile with its context. Note that this operation does not change Extent and CRS
@@ -177,7 +164,9 @@ object Resample {
     > SELECT _FUNC_(tile1, tile2);
        ...""")
 case class ResampleNearest(tile: Expression, target: Expression)
-  extends ResampleBase(tile, target, Literal("nearest"))
+  extends ResampleBase(tile, target, Literal("nearest")) {
+  override val nodeName: String = "rf_resample_nearest"
+}
 object ResampleNearest {
   def apply(tile: Column, target: Column): Column =
     new Column(ResampleNearest(tile.expr, target.expr))

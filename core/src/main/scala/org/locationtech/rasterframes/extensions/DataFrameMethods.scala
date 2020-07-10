@@ -23,6 +23,7 @@ package org.locationtech.rasterframes.extensions
 
 import geotrellis.proj4.CRS
 import geotrellis.layer._
+import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod => GTResampleMethod}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.expressions.Attribute
@@ -37,6 +38,7 @@ import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
 import spray.json.JsonFormat
 import org.locationtech.rasterframes.util.JsonCodecs._
+
 import scala.util.Try
 
 /**
@@ -168,7 +170,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @param resampleMethod string indicating method to use for resampling.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame, resampleMethod: String = "nearest"): DataFrame = RasterJoin(self, right, resampleMethod, None)
+  def rasterJoin(right: DataFrame, resampleMethod: GTResampleMethod = NearestNeighbor): DataFrame = RasterJoin(self, right, resampleMethod, None)
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -187,7 +189,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @param resampleMethod string indicating method to use for resampling.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: String): DataFrame =
+  def rasterJoin(right: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: GTResampleMethod): DataFrame =
     RasterJoin(self, right, leftExtent, leftCRS, rightExtent, rightCRS, resampleMethod, None)
 
   /**
@@ -205,7 +207,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     * @param resampleMethod string indicating method to use for resampling.
     * @return joined dataframe
     */
-  def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: String): DataFrame =
+  def rasterJoin(right: DataFrame, joinExpr: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resampleMethod: GTResampleMethod): DataFrame =
     RasterJoin(self, right, joinExpr, leftExtent, leftCRS, rightExtent, rightCRS, resampleMethod, None)
 
 

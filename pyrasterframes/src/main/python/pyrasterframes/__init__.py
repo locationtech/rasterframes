@@ -74,7 +74,8 @@ def _raster_join(df: DataFrame, other: DataFrame,
                  right_extent=None, right_crs=None,
                  join_exprs=None, resampling_method='nearest_neighbor') -> DataFrame:
     ctx = SparkContext._active_spark_context._rf_context
-    assert resampling_method in ['nearest_neighbor', 'bilinear', 'cubic_convolution', 'cubic_spline', 'lanczos',
+    resampling_method = resampling_method.lower().strip().replace('_', '')
+    assert resampling_method in ['nearestneighbor', 'bilinear', 'cubicconvolution', 'cubicspline', 'lanczos',
                                  'average', 'mode', 'median', 'max', 'min', 'sum']
     if join_exprs is not None:
         assert left_extent is not None and left_crs is not None and right_extent is not None and right_crs is not None

@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes
 
-import geotrellis.raster.resample.Bilinear
+import geotrellis.raster.resample._
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{Dimensions, IntConstantNoDataCellType, Raster, Tile}
 import org.apache.spark.SparkConf
@@ -175,8 +175,8 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     it("should honor resampling options") {
       // test case. replicate existing test condition and check that resampling option results in different output
       val filterExpr = st_intersects(rf_geometry($"tile"), st_point(704940.0, 4251130.0))
-      val result = b4nativeRf.rasterJoin(b4warpedRf.withColumnRenamed("tile2", "nearest"), "nearest")
-        .rasterJoin(b4warpedRf.withColumnRenamed("tile2", "CubicSpline"), "cubicSpline")
+      val result = b4nativeRf.rasterJoin(b4warpedRf.withColumnRenamed("tile2", "nearest"), NearestNeighbor)
+        .rasterJoin(b4warpedRf.withColumnRenamed("tile2", "CubicSpline"), CubicSpline)
         .withColumn("diff", rf_local_subtract($"nearest", $"cubicSpline"))
         .agg(rf_agg_stats($"diff") as "stats")
         .select($"stats.min" as "min", $"stats.max" as "max")

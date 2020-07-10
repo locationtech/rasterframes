@@ -168,9 +168,14 @@ In __SQL__, three parameters are required for `rf_resample`.:
     Tile rf_resample_nearest(Tile tile, Tile shape_tile)
 
 
-Change the tile dimension by upsampling or downsampling. Passing a numeric `factor` will scale the number of columns and rows in the tile: 1.0 is the same number of columns and row; less than one downsamples the tile; and greater than one upsamples the tile. Passing a tile as the second argument resamples such that the output has the same dimension (number of columns and rows) as `shape_tile`. Resampling methods can be one of: nearest_neighbor, bilinear, cubic_convolution, cubic_spline, lanczos, average, mode, median, max, min, or sum.
+Change the tile dimension by upsampling or downsampling. Passing a numeric `factor` will scale the number of columns and rows in the tile: 1.0 is the same number of columns and row; less than one downsamples the tile; and greater than one upsamples the tile. Passing a tile as the second argument resamples such that the output has the same dimension (number of columns and rows) as `shape_tile`. 
 
-Note the last six options apply aggregates when downsampling. For example a 0.25 factor and `max` method returns the maximum value in a 4x4 neighborhood.
+There are two categories: point resampling methods and aggregating resampling methods. 
+Resampling method to use can be specified by one of the following strings, possibly in a column.
+The point resampling methods are: `"nearest_neighbor"`, `"bilinear"`, `"cubic_convolution"`, `"cubic_spline"`, and `"lanczos"`.
+The aggregating resampling methods are: `"average"`, `"mode"`, `"median"`, `"max"`, "`min`", or `"sum"`.
+
+Note the aggregating methods are intended for downsampling. For example a 0.25 factor and `max` method returns the maximum value in a 4x4 neighborhood.
 
 If `tile` has an integer `CellType`, the returned tile will be coerced to a floating point with the following methods: bilinear, cubic_convolution, cubic_spline, lanczos, average, and median.
 
