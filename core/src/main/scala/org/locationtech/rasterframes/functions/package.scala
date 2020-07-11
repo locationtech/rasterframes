@@ -21,13 +21,13 @@
 package org.locationtech.rasterframes
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
-import geotrellis.raster.resample._
 import geotrellis.raster.{Tile, _}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.util.ResampleMethod
 
 /**
  * Module utils.
@@ -108,20 +108,9 @@ package object functions {
       val leftCRS = leftCRSEnc.to[CRS]
       lazy val rightExtents = rightExtentEnc.map(_.to[Extent])
       lazy val rightCRSs = rightCRSEnc.map(_.to[CRS])
-      lazy val resample = resampleMethod //.getString(0)
-        .toLowerCase().trim().replaceAll("_", "") match {
-        case "nearestneighbor" | "nearest" ⇒ NearestNeighbor
-        case "bilinear" ⇒ Bilinear
-        case "cubicconvolution" ⇒ CubicConvolution
-        case "cubicspline" ⇒ CubicSpline
-        case "lanczos" | "lanzos" ⇒ Lanczos
-        // aggregates
-        case "average" ⇒ Average
-        case "mode" ⇒ Mode
-        case "median" ⇒ Median
-        case "max" ⇒ Max
-        case "min" ⇒ Min
-        case "sum" ⇒ Sum
+      lazy val resample = resampleMethod match {
+        case ResampleMethod(mm) ⇒ mm
+        case _ ⇒ throw new IllegalArgumentException(s"Unable to parse ResampleMethod for ${resampleMethod}.")
       }
 
       if (leftExtent == null || leftDims == null || leftCRS == null) null
