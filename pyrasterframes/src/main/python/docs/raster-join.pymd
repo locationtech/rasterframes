@@ -17,7 +17,7 @@ A common operation for raster data is reprojecting or warping the data to a diff
   
 In RasterFrames, you can perform a **Raster Join** on two DataFrames containing raster data. 
 The operation will perform a _spatial join_ based on the [CRS][CRS] and [extent][extent] data in each DataFrame. By default it is a left join and uses an intersection operator.
-For each candidate row, all _tile_ columns on the right hand side are warped to match the left hand side's [CRS][CRS], [extent][extent], and dimensions. Warping relies on GeoTrellis library code and uses nearest neighbor resampling method. 
+For each candidate row, all _tile_ columns on the right hand side are warped to match the left hand side's [CRS][CRS], [extent][extent], and dimensions. Warping relies on GeoTrellis library code. You can specify the resampling method to be applied as one of: nearest_neighbor, bilinear, cubic_convolution, cubic_spline, lanczos, average, mode, median, max, min, or sum.
 The operation is also an aggregate, with multiple intersecting right-hand side tiles `merge`d into the result. There is no guarantee about the ordering of tiles used to select cell values in the case of overlapping tiles.
 When using the @ref:[`raster` DataSource](raster-join.md) you will automatically get the @ref:[CRS][CRS] and @ref:[extent][extent] information needed to do this operation.
 
@@ -36,7 +36,7 @@ landsat8 = spark.read.raster('https://landsat-pds.s3.us-west-2.amazonaws.com/c1/
                              spatial_index_partitions=True) \
                   .withColumnRenamed('proj_raster', 'landsat')
 
-rj = landsat8.raster_join(modis)
+rj = landsat8.raster_join(modis, "cubic")
 
 # Show some non-empty tiles
 rj.select('landsat', 'modis', 'crs', 'extent') \
@@ -53,6 +53,8 @@ The following optional arguments are allowed:
  * `right_extent` - the column on the right-hand DataFrame giving the [extent][extent] of the tile columns
  * `right_crs` - the column on the right-hand DataFrame giving the [CRS][CRS] of the tile columns
  * `join_exprs` - a single column expression as would be used in the [`on` parameter of `join`](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame.join)
+ * `resampling_method` - resampling algorithm to use in reprojection of right-hand tile column
+ 
  
  
  Note that the `join_exprs` will override the join behavior described above. By default the expression is equivalent to:
@@ -64,6 +66,10 @@ st_intersects(
 )
 ```
 
+Resampling method to use can be specified by passing one of the following strings into `resampling_method` parameter.
+The point resampling methods are: `"nearest_neighbor"`, `"bilinear"`, `"cubic_convolution"`, `"cubic_spline"`, and `"lanczos"`.
+The aggregating resampling methods are: `"average"`, `"mode"`, `"median"`, `"max"`, "`min`", or `"sum"`.
+Note the aggregating methods are intended for downsampling. For example a 0.25 factor and `max` method returns the maximum value in a 4x4 neighborhood.
 
 
 [CRS]: concepts.md#coordinate-reference-system--crs

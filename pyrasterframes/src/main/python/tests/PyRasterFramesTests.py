@@ -409,7 +409,7 @@ class RasterJoin(TestEnvironment):
     def test_raster_join(self):
         # re-read the same source
         rf_prime = self.spark.read.geotiff(self.img_uri) \
-            .withColumnRenamed('tile', 'tile2').alias('rf_prime')
+            .withColumnRenamed('tile', 'tile2')
 
         rf_joined = self.rf.raster_join(rf_prime)
 
@@ -431,6 +431,25 @@ class RasterJoin(TestEnvironment):
         # throws if you don't  pass  in all expected columns
         with self.assertRaises(AssertionError):
             self.rf.raster_join(rf_prime, join_exprs=self.rf.extent)
+
+    def test_raster_join_resample_method(self):
+        import os
+        from pyspark.sql.functions import col
+        df = self.spark.read.raster('file://' + os.path.join(self.resource_dir, 'L8-B4-Elkton-VA.tiff')) \
+            .select(col('proj_raster').alias('tile'))
+        df_prime = self.spark.read.raster('file://' + os.path.join(self.resource_dir, 'L8-B4-Elkton-VA-4326.tiff')) \
+            .select(col('proj_raster').alias('tile2'))
+
+        result_methods = df \
+            .raster_join(df_prime.withColumnRenamed('tile2', 'bilinear'), resampling_method="bilinear") \
+            .select('tile', rf_proj_raster('bilinear', rf_extent('tile'), rf_crs('tile')).alias('bilinear')) \
+            .raster_join(df_prime.withColumnRenamed('tile2', 'cubic_spline'), resampling_method="cubic_spline") \
+            .select(rf_local_subtract('bilinear', 'cubic_spline').alias('diff')) \
+            .agg(rf_agg_stats('diff').alias('stats')) \
+            .select("stats.min") \
+            .first()
+
+        self.assertGreater(result_methods[0], 0.0)
 
     def test_raster_join_with_null_left_head(self):
         # https://github.com/locationtech/rasterframes/issues/462

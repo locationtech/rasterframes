@@ -186,6 +186,43 @@ package object util extends DataFrameRenderers {
     def apply() = mapping.keys.toSeq
   }
 
+  object ResampleMethod {
+    import geotrellis.raster.resample.{ResampleMethod ⇒ GTResampleMethod, _}
+    def unapply(name: String): Option[GTResampleMethod] = {
+      name.toLowerCase().trim().replaceAll("_", "") match {
+        case "nearestneighbor" | "nearest" ⇒ Some(NearestNeighbor)
+        case "bilinear" ⇒ Some(Bilinear)
+        case "cubicconvolution" ⇒ Some(CubicConvolution)
+        case "cubicspline" ⇒ Some(CubicSpline)
+        case "lanczos" | "lanzos" ⇒ Some(Lanczos)
+        // aggregates
+        case "average" ⇒ Some(Average)
+        case "mode" ⇒ Some(Mode)
+        case "median" ⇒ Some(Median)
+        case "max" ⇒ Some(Max)
+        case "min" ⇒ Some(Min)
+        case "sum" ⇒ Some(Sum)
+        case _ => None
+      }
+    }
+    def apply(gtr: GTResampleMethod): String = {
+      gtr match {
+        case NearestNeighbor ⇒ "nearest"
+        case Bilinear ⇒ "bilinear"
+        case CubicConvolution ⇒ "cubicconvolution"
+        case CubicSpline ⇒ "cubicspline"
+        case Lanczos ⇒ "lanczos"
+        case Average ⇒ "average"
+        case Mode ⇒ "mode"
+        case Median ⇒ "median"
+        case Max ⇒ "max"
+        case Min ⇒ "min"
+        case Sum ⇒ "sum"
+        case _ ⇒ throw new IllegalArgumentException(s"Unrecogized ResampleMethod ${gtr.toString()}")
+      }
+    }
+  }
+
   private[rasterframes]
   def toParquetFriendlyColumnName(name: String) = name.replaceAll("[ ,;{}()\n\t=]", "_")
 

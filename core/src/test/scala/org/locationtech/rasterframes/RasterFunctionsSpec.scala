@@ -47,7 +47,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_render_matrix")
     }
 
-    it("should resample") {
+    it("should resample nearest") {
       def lowRes = {
         def base = ArrayTile(Array(1, 2, 3, 4), 2, 2)
 
@@ -74,6 +74,9 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       val maybeUp = df.select(rf_resample($"tile", lit(2))).as[ProjectedRasterTile].first()
       assertEqual(maybeUp, upsampled)
 
+      val maybeUpDouble = df.select(rf_resample($"tile", 2.0)).as[ProjectedRasterTile].first()
+      assertEqual(maybeUpDouble, upsampled)
+
       def df2 = Seq((lowRes, fourByFour)).toDF("tile1", "tile2")
 
       val maybeUpShape = df2.select(rf_resample($"tile1", $"tile2")).as[ProjectedRasterTile].first()
@@ -82,10 +85,96 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       // Downsample by double argument < 1
       def df3 = Seq(upsampled).toDF("tile").withColumn("factor", lit(0.5))
 
-      assertEqual(df3.selectExpr("rf_resample(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
-      assertEqual(df3.selectExpr("rf_resample(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample_nearest(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample_nearest(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample(tile, factor, \"nearest_neighbor\")").as[ProjectedRasterTile].first(), lowRes)
 
-      checkDocs("rf_resample")
+      checkDocs("rf_resample_nearest")
     }
+
+    it("should resample aggregating") {
+      checkDocs("rf_resample")
+
+      // test of an aggregating method for  resample
+      def original = {
+        // format: off
+        def base = ArrayTile(Array(
+          1, 1, 2, 2,
+          1, 3, 6, 2,
+          3, 3, 4, 4,
+          3, 7, 5, 4
+        ), 4, 4)
+        // format: on
+        ProjectedRasterTile(base.convert(ct), extent, crs)
+      }
+
+      def expectedMax = ProjectedRasterTile(
+        ArrayTile(Array(
+          3, 6,
+          7, 5), //2x2 tile
+          2, 2).convert(ct), extent, crs)
+
+      def expectedMode = ProjectedRasterTile(
+        ArrayTile(Array(
+          1, 2,
+          3, 4
+        ), 2, 2).convert(ct), extent, crs)
+
+      def expectedAverage = ProjectedRasterTile(
+        ArrayTile(Array(
+          6.0/4, 12.0/4,
+          4.0, 17.0/4),
+          2, 2).convert(FloatConstantNoDataCellType), extent, crs)
+
+      def df = Seq(original).toDF("tile")
+
+      val maybeMax = df.select(rf_resample($"tile", 0.5, "Max")).as[ProjectedRasterTile].first()
+      assertEqual(maybeMax, expectedMax)
+
+      val maybeMode = df.select(rf_resample($"tile", 0.5, "mode")).as[ProjectedRasterTile].first()
+      assertEqual(maybeMode, expectedMode)
+
+      val maybeAverage = df.select(rf_resample($"tile", 0.5, "average")).as[ProjectedRasterTile].first()
+      assertEqual(maybeAverage, expectedAverage)
+
+    }
+
+    it("should resample bilinear") {
+      def original = {
+        def base = ArrayTile(Array(
+          0, 1, 2, 3,
+          1, 2, 3, 4,
+          2, 3, 4, 5,
+          3, 4, 5, 6
+        ), 4, 4)
+
+        ProjectedRasterTile(base.convert(ct), extent, crs)
+      }
+
+      def expected2x2 = ProjectedRasterTile(
+        ArrayTile(Array(
+          1, 3,
+          3, 5
+        ), 2, 2).convert(FloatConstantNoDataCellType), extent, crs
+      )
+
+      def df = Seq(original).toDF("tile")
+      val result = df.select(
+        rf_resample($"tile", 0.5, "bilinear"))
+        .as[ProjectedRasterTile].first()
+
+      assertEqual(result, expected2x2)
+    }
+
+    it("should resample from TileLayerRDD") {
+      // this is a case we see in ExtensionMethodSpec calling DataFrame.toMarkdown
+      // this surfaced a serialization issue with ResampleBase so we'll leave it here
+      val df = sampleTileLayerRDD.toLayer
+      noException shouldBe thrownBy {
+        df.select(rf_resample(df.col("`tile`"), 0.5)).as[Tile]
+          .collect()
+      }
+    }
+
   }
 }
