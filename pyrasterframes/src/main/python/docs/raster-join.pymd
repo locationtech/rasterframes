@@ -36,7 +36,7 @@ landsat8 = spark.read.raster('https://landsat-pds.s3.us-west-2.amazonaws.com/c1/
                              spatial_index_partitions=True) \
                   .withColumnRenamed('proj_raster', 'landsat')
 
-rj = landsat8.raster_join(modis, "cubic")
+rj = landsat8.raster_join(modis, resampling_method="cubic_convolution")
 
 # Show some non-empty tiles
 rj.select('landsat', 'modis', 'crs', 'extent') \
