@@ -53,7 +53,8 @@ package object geotiff {
       tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](
         writer.format(GeoTiffDataSource.SHORT_NAME)
       )
-
+  }
+  implicit class GeoTiffFormatHasOptions[T](val writer: GeoTiffRasterFrameWriter[T]) {
     def withDimensions(cols: Int, rows: Int): GeoTiffRasterFrameWriter[T] =
       tag[GeoTiffRasterFrameWriterTag][DataFrameWriter[T]](
         writer

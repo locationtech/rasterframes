@@ -166,6 +166,11 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         gdal.bandCount should be (3)
       }
 
+      it("should support nested vsi file paths") {
+        val path = URI.create("gdal://vsihdfs/hdfs://dp-01.tap-psnc.net:9000/user/dpuser/images/landsat/LC081900242018092001T1-SC20200409091832/LC08_L1TP_190024_20180920_20180928_01_T1_sr_band1.tif")
+        assert(RFRasterSource(path).isInstanceOf[GDALRasterSource])
+      }
+
       it("should interpret no scheme as file://") {
         val localSrc = geotiffDir.resolve("LC08_B7_Memphis_COG.tiff").toString
         val schemelessUri = new URI(localSrc)
