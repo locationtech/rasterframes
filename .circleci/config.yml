@@ -6,11 +6,7 @@ orbs:
     executors:
       default:
         docker:
-          - image: docker.pkg.github.com/locationtech/rasterframes/miniconda-gdal:latest
-            auth:
-              username: $GITHUB_USERNAME
-              password: $GITHUB_PASSWORD
-        resource_class: medium
+          - image: s22s/miniconda-gdal:latest
         working_directory: ~/repo
         environment:
           SBT_VERSION: 1.3.8
@@ -152,7 +148,6 @@ jobs:
 
   docs:
     executor: sbt/default
-    resource_class: large
     steps:
       - checkout
       - sbt/setup
@@ -172,7 +167,6 @@ jobs:
 
   it:
     executor: sbt/default
-    resource_class: large
     steps:
       - checkout
       - sbt/setup
@@ -190,7 +184,6 @@ jobs:
 
   it-no-gdal:
     executor: sbt/default
-    resource_class: large
     steps:
       - checkout
       - sbt/setup
@@ -215,11 +208,9 @@ workflows:
   version: 2
   all:
     jobs:
-      - test:
-          context: rasterframes
+      - test
 
       - it:
-          context: rasterframes
           requires:
             - test
           filters:
@@ -229,7 +220,6 @@ workflows:
                 - /it\/.*/
 
       - it-no-gdal:
-          context: rasterframes
           requires:
             - test
           filters:
@@ -239,7 +229,6 @@ workflows:
                 - /it\/.*/
 
       - docs:
-          context: rasterframes
           filters:
             branches:
               only:
@@ -256,11 +245,7 @@ workflows:
               only:
                 - develop
     jobs:
-      - test:
-          context: rasterframes
-      - it:
-          context: rasterframes
-      - it-no-gdal:
-          context: rasterframes
-      - docs:
-          context: rasterframes
+      - test
+      - it
+      - it-no-gdal
+      - docs
