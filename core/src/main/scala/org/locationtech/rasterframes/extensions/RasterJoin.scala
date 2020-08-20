@@ -104,7 +104,7 @@ object RasterJoin {
     // Assumes all LHS tiles in a row are of the same size.
     val destDims =
       if (left.tileColumns.nonEmpty)
-        rf_dimensions(coalesce(left.tileColumns.map(unresolved): _*))
+        coalesce(left.tileColumns.map(unresolved).map(rf_dimensions): _*)
       else
         serialized_literal(fallbackDimensions.getOrElse(NOMINAL_TILE_DIMS))
 

@@ -27,7 +27,7 @@ import geotrellis.raster._
 import geotrellis.raster.testkit.RasterMatchers
 import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
-import org.apache.spark.sql.functions.sum
+import org.apache.spark.sql.functions.{count, sum, isnull}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
@@ -354,6 +354,17 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       t should be(randPRT.dimensions)
       checkDocs("rf_dimensions")
     }
+
+    it("should get null for null tile dimensions") {
+      val result = (Seq(randPRT) :+ null).toDF("tile")
+        .select(rf_dimensions($"tile") as "dim")
+        .select(isnull($"dim").cast("long") as "n")
+        .agg(sum("n"), count("n"))
+        .first()
+      result.getAs[Long](0) should be (1)
+      result.getAs[Long](1) should be (2)
+    }
+
     it("should get the Extent of a ProjectedRasterTile") {
       val e = Seq(randPRT).toDF("tile").select(rf_extent($"tile")).first()
       e should be(extent)
