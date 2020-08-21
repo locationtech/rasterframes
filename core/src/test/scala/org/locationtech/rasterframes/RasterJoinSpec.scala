@@ -172,6 +172,16 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       }
     }
 
+    it("should raster join multiple times on projected raster"){
+      val df0 = Seq(one).toDF("proj_raster")
+      val result = df0.select($"proj_raster" as "t1")
+        .rasterJoin(df0.select($"proj_raster" as "t2"))
+        .rasterJoin(df0.select($"proj_raster" as "t3"))
+
+      result.tileColumns.length should be (3)
+      result.count() should be (1)
+    }
+
     it("should honor resampling options") {
       // test case. replicate existing test condition and check that resampling option results in different output
       val filterExpr = st_intersects(rf_geometry($"tile"), st_point(704940.0, 4251130.0))
