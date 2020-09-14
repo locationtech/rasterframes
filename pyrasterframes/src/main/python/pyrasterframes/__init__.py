@@ -118,7 +118,7 @@ def _raster_reader(
         catalog_col_names: Optional[List[str]] = None,
         band_indexes: Optional[List[int]] = None,
         tile_dimensions: Tuple[int] = (256, 256),
-        lazy_tiles: bool = True,
+        lazy_tiles: bool = False,
         spatial_index_partitions=None,
         **options: str) -> DataFrame:
     """
