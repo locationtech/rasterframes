@@ -136,7 +136,6 @@ jobs:
       - run:
           name: "Create PyRasterFrames package"
           command: |-
-            python -m pip install --user pyspark==2.4.5
             sbt -v -batch pyrasterframes/package
 
       - run:
