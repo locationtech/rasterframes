@@ -198,7 +198,6 @@ setup(
         pytest_runner,
         setuptools,
         ipython,
-        # ipykernel,
         pweave,
         jupyter_client,
         nbclient,
