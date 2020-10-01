@@ -102,7 +102,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
     it("should read sub-tile") {
       withClue("remoteCOGSingleband") {
-        val src = RFRasterSource(remoteCOGSingleband1)
+        val src = RFRasterSource(remoteMODIS)
         val raster = src.read(sub(src.extent))
         assert(raster.size > 0 && raster.size < src.size)
       }

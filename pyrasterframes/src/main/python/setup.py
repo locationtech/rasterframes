@@ -144,11 +144,13 @@ ipykernel = 'ipykernel==4.8.0'
 ipython = 'ipython==6.2.1'
 jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
 matplotlib = 'matplotlib'
+nbclient = 'nbclient==0.1.0'  # compatible with our pweave => jupyter_client restrictions
+nbconvert = 'nbconvert==5.5.0'
 numpy = 'numpy>=1.17.3,<2.0'
 pandas = 'pandas>=0.25.3,<1.0'
 pweave = 'pweave==0.30.3'
 pypandoc = 'pypandoc'
-pyspark = 'pyspark==2.4.5'
+pyspark = 'pyspark==2.4.7'
 pytest = 'pytest>=4.0.0,<5.0.0'
 pytest_runner = 'pytest-runner'
 pytz = 'pytz'
@@ -196,9 +198,10 @@ setup(
         pytest_runner,
         setuptools,
         ipython,
-        ipykernel,
         pweave,
         jupyter_client,
+        nbclient,
+        nbconvert,
         fiona,
         rasterio,
         folium,
