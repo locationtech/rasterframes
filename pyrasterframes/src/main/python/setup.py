@@ -145,7 +145,7 @@ ipython = 'ipython'
 jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
 nbclient = 'nbclient==0.1.0'  # compatible with our pweave => jupyter_client restrictions
 matplotlib = 'matplotlib'
-nbconvert = 'nbconvert'
+nbconvert = 'nbconvert==5.5.0'
 numpy = 'numpy'
 pandas = 'pandas'
 pweave = 'pweave==0.30.3'
