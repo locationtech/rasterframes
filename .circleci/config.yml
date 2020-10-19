@@ -42,7 +42,8 @@ orbs:
         steps:
           - run:
               name: Install requirements
-              command: python -m pip install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
+              command: conda install -c conda-forge --file pyrasterframes/src/main/python/requirements-condaforge.txt
+
 
   rasterframes:
     commands:

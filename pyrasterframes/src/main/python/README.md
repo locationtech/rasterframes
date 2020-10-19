@@ -38,6 +38,15 @@ Issue tracking is through [github](https://github.com/locationtech/rasterframes/
 
 Community contributions are always welcome. To get started, please review our [contribution guidelines](https://github.com/locationtech/rasterframes/blob/develop/CONTRIBUTING.md), [code of conduct](https://github.com/locationtech/rasterframes/blob/develop/CODE_OF_CONDUCT.md), and [developer's guide](../../../README.md).  Reach out to us on [gitter][gitter] so the community can help you get started!
 
+## Development environment setup
 
+For best results, we suggest using `conda` and the `conda-forge` channel to install the compiled dependencies before installing the packages in `setup.py`. Assuming you're in the same directory as this file:
+
+    conda create -n rasterframes python==3.7
+    conda install --file ./requirements-condaforge.txt
+    
+Then you can install the source dependencies:
+
+    pip install -e . 
 
 [gitter]: https://gitter.im/locationtech/rasterframes

@@ -226,7 +226,7 @@ def _folium_map_formatter(map) -> str:
 
 try:
     from IPython import get_ipython
-    from IPython.display import display_png, display_markdown, display
+    from IPython.display import display_png, display_markdown, display_html, display
     # modifications to currently running ipython session, if we are in one; these enable nicer visualization for Pandas
     if get_ipython() is not None:
         import pandas
@@ -259,9 +259,12 @@ try:
         pyspark.sql.DataFrame.showHTML = spark_df_to_html
         Tile.show = plot_tile
 
-        # This is a trick we may have to introduce above.
-        # from IPython.display import display_html
-        # display_html(rf.showHTML(truncate=True), raw=True)
+        def _display(df: pyspark.sql.DataFrame, num_rows: int = 5, truncate: bool = False) -> ():
+            # noinspection PyTypeChecker
+            display_html(spark_df_to_html(df, num_rows, truncate), raw=True)
+
+        pyspark.sql.DataFrame.display = _display
+
 
 except ImportError as e:
     pass
