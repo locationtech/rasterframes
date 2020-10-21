@@ -27,3 +27,4 @@ tour/*.tiff
 scoverage-report*
 
 zz-*
+rf-notebook/src/main/notebooks/.ipython

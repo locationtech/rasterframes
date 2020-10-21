@@ -1,0 +1,82 @@
+# IPython/Jupyter Extensions
+
+The `pyrasterframes.rf_ipython` module injects a number of visualization extensions into the IPython environment, enhancing visualization of `DataFrame`s and `Tile`s.
+
+By default, the last expression's result in a IPython cell is passed to the `IPython.display.display` function. This function in turn looks for a [`DisplayFormatter`](https://ipython.readthedocs.io/en/stable/api/generated/IPython.core.formatters.html#IPython.core.formatters.DisplayFormatter) associated with the type, which in turn converts the instance to a display-appropriate representation, based on MIME type. For example, each `DisplayFormatter` may `plain/text` version for the IPython shell, and a `text/html` version for a Jupyter Notebook.
+
+```python imports, echo=False, results='hidden'
+from pyrasterframes.all import *
+from pyspark.sql.functions import col
+spark = create_rf_spark_session()
+```
+
+## Initialize Sample
+
+First we read in a sample image as tiles:
+
+```python raster_read
+uri = 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/' \
+      'MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF'
+
+# here we flatten the projected raster structure 
+df = spark.read.raster(uri) \
+        .withColumn('tile', rf_tile('proj_raster')) \
+        .withColumn('crs', rf_crs(col('proj_raster'))) \
+        .withColumn('extent', rf_extent(col('proj_raster'))) \
+        .drop('proj_raster')
+```
+ 
+Print the schema to confirm it's "shape":
+
+```python schema
+df.printSchema()
+```
+
+# Tile Display
+
+Let's look at a single tile. A `pyrasterframes.rf_types.Tile` will automatically render nicely in Jupyter or IPython.
+
+```python single_tile
+tile = df.select(df.tile).first()['tile']
+tile
+```
+
+If you access the tile's `cells` you get the underlying numpy ndarray (more specifically in this case, `numpy.ma.MaskedArray`).
+
+```python cells
+tile.cells
+```
+
+If you just want the string representation of the Tile, use `str`:
+
+```python tile_as_string
+str(tile)
+```
+
+## pyspark.sql.DataFrame Display
+
+There is also a capability for HTML rendering of the spark DataFrame. Rendering work is done on the JVM and the HTML string representation is provided for IPython to display.
+
+```python spark_dataframe
+df.select('tile', 'extent')
+```
+
+### Changing number of rows
+
+Because the `IPython.display.display` function doesn't accept any parameters, we have to provide a different means of passing parameters to the rendering code. Pandas does it with global settings via `set_option`/`get_option`. We take a more functional approach and have the user invoke an explicit `display` method:
+
+```python custom_display 
+df.display(num_rows=1, truncate=True)
+```  
+
+
+## pandas.DataFrame Display
+
+The same thing works for Pandas DataFrame if it contains a column of `Tile`s.
+
+```python pandas_dataframe
+# Limit copy of data from Spark to a few tiles.
+pandas_df = df.limit(4).toPandas()
+pandas_df.drop(['proj_raster_path'], axis=1)
+```
+

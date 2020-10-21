@@ -35,7 +35,7 @@ This form of `(x - y) / (x + y)` is common in remote sensing and is called a nor
 
 ```python, read_rasters
 from pyspark.sql import Row
-uri_pattern = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B0{}.tif'
+uri_pattern = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/B0{}.tif'
 catalog_df = spark.createDataFrame([
     Row(red=uri_pattern.format(4), nir=uri_pattern.format(8))
 ])

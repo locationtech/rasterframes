@@ -18,10 +18,14 @@
 #
 
 # noinspection PyUnresolvedReferences
-import pyrasterframes
+from pyrasterframes import *
 # noinspection PyUnresolvedReferences
 from pyrasterframes.rasterfunctions import *
 # noinspection PyUnresolvedReferences
 from pyrasterframes.utils import create_rf_spark_session
 # noinspection PyUnresolvedReferences
 import pyrasterframes.rf_ipython
+import pyspark
+
+print(f"RasterFrames version {pyrasterframes.__version__}; PySpark version {pyspark.__version__}")
+

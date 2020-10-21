@@ -79,6 +79,8 @@ class IpythonTests(TestEnvironment):
             row_count = data.count('<tr>')
         ip.mime_renderers['text/html'] = counter
 
+        # ip.mime_renderers['text/markdown'] = lambda a, b: print(a, b)
+
         self.df.display(num_rows=num_rows)
 
         # Plus one for the header row.

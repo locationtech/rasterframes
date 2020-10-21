@@ -189,6 +189,7 @@ setup(
         pyspark,
         numpy,
         pandas,
+        tabulate,
         deprecation,
     ],
     setup_requires=[

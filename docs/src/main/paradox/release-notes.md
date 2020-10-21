@@ -6,12 +6,13 @@
 
 * Upgraded to Spark 2.4.7
 * Added `pyspark.sql.DataFrame.display(num_rows, truncate)` extension method when `rf_ipython` is imported.
+* Added users' manual section on IPython display enhancements.
 * Added `method_name` parameter to the `rf_resample` method.
    * __BREAKING__: In SQL, the function `rf_resample` now takes 3 arguments. You can use `rf_resample_nearest` with two arguments or refactor to `rf_resample(t, v, "nearest")`.
 * Added resample method parameter to SQL and Python APIs. @ref:[See updated docs](raster-join.md).
 * Upgraded many of the pyrasterframes dependencies, including: 
   `descartes`, `fiona`, `folium`, `geopandas`, `matplotlib`, `numpy`, `pandas`, `rasterio`, `shapely`
-
+* Changed `rasterframes.prefer-gdal` configuration parameter to default to `False`, as JVM GeoTIFF performs just as well for COGs as the GDAL one.
 
 ### 0.9.0
 
