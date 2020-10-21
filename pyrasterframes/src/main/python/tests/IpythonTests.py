@@ -72,11 +72,13 @@ class IpythonTests(TestEnvironment):
         ip = globalipapp.get_ipython()
 
         num_rows = 2
-        row_count = 0
 
-        def counter(data, _):
-            nonlocal row_count
-            row_count = data.count('<tr>')
+        result = {}
+
+        def counter(data, md):
+            nonlocal result
+            result['payload'] = (data, md)
+            result['row_count'] = data.count('<tr>')
         ip.mime_renderers['text/html'] = counter
 
         # ip.mime_renderers['text/markdown'] = lambda a, b: print(a, b)
@@ -84,4 +86,5 @@ class IpythonTests(TestEnvironment):
         self.df.display(num_rows=num_rows)
 
         # Plus one for the header row.
-        self.assertIs(row_count, num_rows+1)
+        self.assertIs(result['row_count'], num_rows+1, msg=f"Received: {result['payload']}")
+        
