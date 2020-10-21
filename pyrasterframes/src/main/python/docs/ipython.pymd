@@ -26,7 +26,7 @@ df = spark.read.raster(uri) \
         .drop('proj_raster')
 ```
  
-Print the schema to confirm it's "shape":
+Print the schema to confirm its "shape":
 
 ```python schema
 df.printSchema()
@@ -41,21 +41,9 @@ tile = df.select(df.tile).first()['tile']
 tile
 ```
 
-If you access the tile's `cells` you get the underlying numpy ndarray (more specifically in this case, `numpy.ma.MaskedArray`).
-
-```python cells
-tile.cells
-```
-
-If you just want the string representation of the Tile, use `str`:
-
-```python tile_as_string
-str(tile)
-```
-
 ## pyspark.sql.DataFrame Display
 
-There is also a capability for HTML rendering of the spark DataFrame. Rendering work is done on the JVM and the HTML string representation is provided for IPython to display.
+There is also a capability for HTML rendering of the spark DataFrame.
 
 ```python spark_dataframe
 df.select('tile', 'extent')

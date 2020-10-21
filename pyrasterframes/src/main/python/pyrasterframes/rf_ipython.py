@@ -143,25 +143,11 @@ def pandas_df_to_html(df: DataFrame) -> Optional[str]:
     # honor the existing options on display
     if not pd.get_option("display.notebook_repr_html"):
         return None
-    return pandas_df_to_mime(df, 'text/html')
-
-
-def pandas_df_to_markdown(df: DataFrame) -> Optional[str]:
-    """Provide HTML formatting for pandas.DataFrame with rf_types.Tile in the columns.  """
-    return pandas_df_to_mime(df, 'text/markdown')
-
-
-def pandas_df_to_mime(df: DataFrame, mimetype: str) -> str:
-    """Provide HTML formatting for pandas.DataFrame with rf_types.Tile in the columns.  """
-    import pandas as pd
 
     default_max_colwidth = pd.get_option('display.max_colwidth')  # we'll try to politely put it back
 
     if len(df) == 0:
-        if "html" in mimetype:
-            return df._repr_html_()
-        else:
-            return ""
+        return df._repr_html_()
 
     tile_cols = []
     geom_cols = []
@@ -204,22 +190,16 @@ def pandas_df_to_mime(df: DataFrame, mimetype: str) -> str:
 
     # This is needed to avoid our tile being rendered as `<img src="only up to fifty char...`
     pd.set_option('display.max_colwidth', None)
-
-    if 'html' in mimetype:
-        # `escape` means our `< img` does not get changed to `&lt; img`
-        rendering = df.to_html(escape=False,  # means our `< img` does not get changed to `&lt; img`
-                               formatters=formatter,  # apply custom format to columns
-                               render_links=True,  # common in raster frames
-                               notebook=True,
-                               max_rows=pd.get_option("display.max_rows"),  # retain existing options
-                               max_cols=pd.get_option("display.max_columns"),
-                               show_dimensions=pd.get_option("display.show_dimensions"),
-                               )
-    else:
-        rendering = df.to_markdown()
-
+    return_html = df.to_html(escape=False,  # means our `< img` does not get changed to `&lt; img`
+                             formatters=formatter,  # apply custom format to columns
+                             render_links=True,  # common in raster frames
+                             notebook=True,
+                             max_rows=pd.get_option("display.max_rows"),  # retain existing options
+                             max_cols=pd.get_option("display.max_columns"),
+                             show_dimensions=pd.get_option("display.show_dimensions"),
+                             )
     pd.set_option('display.max_colwidth', default_max_colwidth)
-    return rendering
+    return return_html
 
 
 def spark_df_to_markdown(df: DataFrame, num_rows: int = 5, truncate: bool = False) -> str:
@@ -270,7 +250,7 @@ try:
         # Markdown. These will likely only effect docs build.
         markdown_formatter = formatters['text/markdown']
         # Pandas doesn't have a markdown
-        markdown_formatter.for_type(pandas.DataFrame, pandas_df_to_markdown)
+        markdown_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
         markdown_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
         # Running loose here by embedding tile as `img` tag.
         markdown_formatter.for_type(Tile, tile_to_html)
@@ -286,7 +266,8 @@ try:
         Tile.show = plot_tile
 
         # noinspection PyTypeChecker
-        def _display(df: pyspark.sql.DataFrame, num_rows: int = 5, truncate: bool = False) -> ():
+        def _display(df: pyspark.sql.DataFrame, num_rows: int = 5, truncate: bool = False,
+                     mimetype: str = 'text/html') -> ():
             """
             Invoke IPython `display` with specific controls.
             :param num_rows: number of rows to render
@@ -294,13 +275,10 @@ try:
             :return: None
             """
 
-            # It's infuriating that hacks like this seem to be the only way to
-            # determine your execution context.
-            env = str(type(get_ipython()))
-            if "Terminal" in env:
-                display_markdown(spark_df_to_markdown(df, num_rows, truncate), raw=True)
-            else:
+            if "html" in mimetype:
                 display_html(spark_df_to_html(df, num_rows, truncate), raw=True)
+            else:
+                display_markdown(spark_df_to_markdown(df, num_rows, truncate), raw=True)
 
 
         # Add enhanced display function
