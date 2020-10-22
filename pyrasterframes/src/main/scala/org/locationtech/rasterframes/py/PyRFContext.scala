@@ -26,17 +26,19 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, MultibandTile}
 import geotrellis.spark._
 import geotrellis.layer._
+import geotrellis.raster.render.ColorRamp
 import geotrellis.vector.Extent
 import org.apache.spark.sql._
 import org.locationtech.rasterframes
-import org.locationtech.rasterframes.util.ResampleMethod
+import org.locationtech.rasterframes.expressions.transformers.RenderPNG.RenderColorRampPNG
+import org.locationtech.rasterframes.util.{ColorRampNames, KryoSupport, ResampleMethod}
 import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.model.LazyCRS
-import org.locationtech.rasterframes.ref.{GDALRasterSource, RasterRef, RFRasterSource}
-import org.locationtech.rasterframes.util.KryoSupport
+import org.locationtech.rasterframes.ref.{GDALRasterSource, RFRasterSource, RasterRef}
 import org.locationtech.rasterframes.{RasterFunctions, _}
 import spray.json._
 import org.locationtech.rasterframes.util.JsonCodecs._
+
 import scala.collection.JavaConverters._
 
 /**
@@ -258,14 +260,22 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     RasterRef(src, bandIndex, Some(extent), None)
   }
 
-  def _dfToMarkdown(df: DataFrame, numRows: Int, truncate: Boolean): String = {
+  def _nameToCR(colorRampName: String): ColorRamp =
+    colorRampName match {
+      case ColorRampNames(ramp) => ramp
+      case _ => throw new IllegalArgumentException(
+        s"Provided color ramp name '${colorRampName}' does not match one of " + ColorRampNames().mkString("\n\t", "\n\t", "\n")
+      )
+    }
+
+  def _dfToMarkdown(df: DataFrame, numRows: Int, truncate: Boolean, colorRampName: String): String = {
     import rasterframes.util.DFWithPrettyPrint
-    df.toMarkdown(numRows, truncate, renderTiles = true)
+    df.toMarkdown(numRows, truncate, renderTiles = true, _nameToCR(colorRampName))
   }
 
-  def _dfToHTML(df: DataFrame, numRows: Int, truncate: Boolean): String = {
+  def _dfToHTML(df: DataFrame, numRows: Int, truncate: Boolean, colorRampName: String): String = {
     import rasterframes.util.DFWithPrettyPrint
-    df.toHTML(numRows, truncate, renderTiles = true)
+    df.toHTML(numRows, truncate, renderTiles = true, _nameToCR(colorRampName))
   }
 
   def _reprojectExtent(extent: Extent, srcCRS: String, destCRS: String): Extent =

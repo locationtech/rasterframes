@@ -202,14 +202,14 @@ def pandas_df_to_html(df: DataFrame) -> Optional[str]:
     return return_html
 
 
-def spark_df_to_markdown(df: DataFrame, num_rows: int = 5, truncate: bool = False) -> str:
+def spark_df_to_text(df: DataFrame,
+                     num_rows: int = 5,
+                     truncate: bool = False,
+                     color_ramp_name: str = "Viridis",
+                     mimetype: str = "text/html") -> str:
     from pyrasterframes import RFContext
-    return RFContext.active().call("_dfToMarkdown", df._jdf, num_rows, truncate)
-
-
-def spark_df_to_html(df: DataFrame, num_rows: int = 5, truncate: bool = False) -> str:
-    from pyrasterframes import RFContext
-    return RFContext.active().call("_dfToHTML", df._jdf, num_rows, truncate)
+    fname = '_dfToHTML' if 'html' in mimetype else '_dfToMarkdown'
+    return RFContext.active().call(fname, df._jdf, num_rows, truncate, color_ramp_name)
 
 
 def _folium_map_formatter(map) -> str:
@@ -244,14 +244,14 @@ try:
         # HTML
         html_formatter = formatters['text/html']
         html_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
-        html_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_html)
+        html_formatter.for_type(pyspark.sql.DataFrame, partial(spark_df_to_text, mimetype="text/html"))
         html_formatter.for_type(Tile, tile_to_html)
 
         # Markdown. These will likely only effect docs build.
         markdown_formatter = formatters['text/markdown']
         # Pandas doesn't have a markdown
         markdown_formatter.for_type(pandas.DataFrame, pandas_df_to_html)
-        markdown_formatter.for_type(pyspark.sql.DataFrame, spark_df_to_markdown)
+        markdown_formatter.for_type(pyspark.sql.DataFrame, partial(spark_df_to_text, mimetype="text/markdown"))
         # Running loose here by embedding tile as `img` tag.
         markdown_formatter.for_type(Tile, tile_to_html)
 
@@ -266,7 +266,10 @@ try:
         Tile.show = plot_tile
 
         # noinspection PyTypeChecker
-        def _display(df: pyspark.sql.DataFrame, num_rows: int = 5, truncate: bool = False,
+        def _display(df: pyspark.sql.DataFrame,
+                     num_rows: int = 5,
+                     truncate: bool = False,
+                     color_ramp_name: str = "Viridis",
                      mimetype: str = 'text/html') -> ():
             """
             Invoke IPython `display` with specific controls.
@@ -275,10 +278,12 @@ try:
             :return: None
             """
 
+            text = spark_df_to_text(df, num_rows, truncate, color_ramp_name, mimetype)
+
             if "html" in mimetype:
-                display_html(spark_df_to_html(df, num_rows, truncate), raw=True)
+                display_html(text, raw=True)
             else:
-                display_markdown(spark_df_to_markdown(df, num_rows, truncate), raw=True)
+                display_markdown(text, raw=True)
 
 
         # Add enhanced display function

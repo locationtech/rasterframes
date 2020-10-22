@@ -21,11 +21,11 @@
 
 package org.locationtech.rasterframes.util
 
-import geotrellis.raster.render.ColorRamps
-import org.apache.spark.sql.Dataset
+import geotrellis.raster.render.{ColorRamp, ColorRamps}
+import org.apache.spark.sql.{Column, Dataset}
 import org.apache.spark.sql.functions.{base64, concat, concat_ws, length, lit, substring, when}
 import org.apache.spark.sql.jts.JTSTypes
-import org.apache.spark.sql.types.{StringType, StructField, BinaryType}
+import org.apache.spark.sql.types.{BinaryType, StringType, StructField}
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.{rfConfig, rf_render_png, rf_resample}
 import org.apache.spark.sql.rf.WithTypeConformity
@@ -37,24 +37,28 @@ trait DataFrameRenderers {
   private val truncateWidth = rfConfig.getInt("max-truncate-row-element-length")
 
   implicit class DFWithPrettyPrint(val df: Dataset[_]) {
+    def isPNG(col: Column) =
+      substring(col, 0, 8) ===
+        lit(Array[Byte](137.asInstanceOf[Byte], 80, 78, 71, 13, 10, 26, 10))
 
-    private def stringifyRowElements(cols: Seq[StructField], truncate: Boolean, renderTiles: Boolean) = {
+    private def stringifyRowElements(
+      cols: Seq[StructField], truncate: Boolean, renderTiles: Boolean, colorRamp: ColorRamp) =
       cols
         .map(c => {
           val resolved = df.col(s"`${c.name}`")
           if (renderTiles && DynamicExtractors.tileExtractor.isDefinedAt(c.dataType))
             concat(
               lit("<img src=\"data:image/png;base64,"),
-              base64(rf_render_png(rf_resample(resolved, 0.5), ColorRamps.Viridis)), // TODO: how to expose options?
+              base64(rf_render_png(rf_resample(resolved, 0.5), colorRamp)),
               lit("\"></img>")
             )
-          else if (renderTiles && c.dataType == BinaryType)
+          else if (renderTiles && c.dataType == BinaryType) {
             when(
-              substring(resolved, 0, 8) === lit(Array[Byte](137.asInstanceOf[Byte], 80, 78, 71, 13, 10, 26, 10)),
+              isPNG(resolved),
               concat(lit("<img src=\"data:image/png;base64,"), base64(resolved), lit("\"></img>"))
             )
               .otherwise(resolved.cast(StringType))
-          else {
+          } else {
             val isGeom = WithTypeConformity(c.dataType).conformsTo(JTSTypes.GeometryTypeInstance)
             val str = resolved.cast(StringType)
             if (truncate || isGeom)
@@ -65,13 +69,14 @@ trait DataFrameRenderers {
             else str
           }
         })
-    }
 
-    def toMarkdown(numRows: Int = 5, truncate: Boolean = false, renderTiles: Boolean = true): String = {
+
+    def toMarkdown(numRows: Int = 5, truncate: Boolean = false,
+      renderTiles: Boolean = true, colorRamp: ColorRamp = ColorRamps.Viridis): String = {
       import df.sqlContext.implicits._
       val cols = df.schema.fields
       val header = cols.map(_.name).mkString("| ", " | ", " |") + "\n" + ("|---" * cols.length) + "|\n"
-      val stringifiers = stringifyRowElements(cols, truncate, renderTiles)
+      val stringifiers = stringifyRowElements(cols, truncate, renderTiles, colorRamp)
       val cat = concat_ws(" | ", stringifiers: _*)
       val rows = df
         .select(cat)
@@ -84,15 +89,24 @@ trait DataFrameRenderers {
       val body = rows
         .mkString("| ", " |\n| ", " |")
 
-      val caption = if (rows.length >= numRows) s"\n_Showing only top $numRows rows_.\n\n" else ""
+      val caption = if (rows.length >= numRows) s"\n_Showing top $numRows rows_.\n\n" else ""
       caption + header + body
     }
 
-    def toHTML(numRows: Int = 5, truncate: Boolean = false, renderTiles: Boolean = true): String = {
+    /**
+      * Render a sample of the dataframe as HTML.
+      * @param numRows number of rows to render
+      * @param truncate if `true`, limit the width of each column to `rasterframes.max-truncate-row-element-length` configuration.
+      * @param renderTiles if `false`, do not create PNGs of tiles.
+      * @param colorRamp color ramp for tile rendering
+      * @return HTML string.
+      */
+    def toHTML(numRows: Int = 5, truncate: Boolean = false,
+      renderTiles: Boolean = true, colorRamp: ColorRamp = ColorRamps.Viridis): String = {
       import df.sqlContext.implicits._
       val cols = df.schema.fields
       val header = "<thead>\n" + cols.map(_.name).mkString("<tr><th>", "</th><th>", "</th></tr>\n") + "</thead>\n"
-      val stringifiers = stringifyRowElements(cols, truncate, renderTiles)
+      val stringifiers = stringifyRowElements(cols, truncate, renderTiles, colorRamp)
       val cat = concat_ws("</td><td>", stringifiers: _*)
       val rows = df
         .select(cat).limit(numRows)
@@ -102,7 +116,7 @@ trait DataFrameRenderers {
       val body = rows
         .mkString("<tr><td>", "</td></tr>\n<tr><td>", "</td></tr>\n")
 
-      val caption = if (rows.length >= numRows) s"<caption>Showing only top $numRows rows</caption>\n" else ""
+      val caption = if (rows.length >= numRows) s"<caption>Showing top $numRows rows</caption>\n" else ""
 
       "<table>\n" + caption + header + "<tbody>\n" + body + "</tbody>\n" + "</table>"
     }

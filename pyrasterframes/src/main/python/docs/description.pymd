@@ -12,12 +12,14 @@ spark = create_rf_spark_session()
 df = spark.read.raster('https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/MCD43A4.A2019059.h11v08.006.2019072203257_B02.TIF')
 
 
-df = df.select(
-    lit('2019-02-28').alias('timestamp'),
-    rf_crs('proj_raster').alias('crs'),
-    rf_extent('proj_raster').alias('extent'),
-    col('proj_raster').alias('tile')
-) \
+df = df \
+    .limit(10) \
+    .select(
+        lit('2019-02-28').alias('timestamp'),
+        rf_crs('proj_raster').alias('crs'),
+        rf_extent('proj_raster').alias('extent'),
+        col('proj_raster').alias('tile')
+    ) \
     .orderBy(-rf_data_cells('tile')) \
     .limit(4)
 
@@ -54,7 +56,7 @@ RasterFrames introduces georectified raster imagery to Spark SQL. It quantizes s
 As shown in the figure below, a "RasterFrame" is a Spark DataFrame with one or more columns of type @ref:[_tile_](concepts.md#tile). A _tile_ column typically represents a single frequency band of sensor data, such as "blue" or "near infrared", but can also be quality assurance information, land classification assignments, or any other raster spatial data. Along with _tile_ columns there is typically an @ref:[`extent`](concepts.md#extent) specifying the geographic location of the data, the map projection of that geometry (@ref:[`crs`](concepts.md#coordinate-reference-system--crs-)), and a `timestamp` column representing the acquisition time. These columns can all be used in the `WHERE` clause when filtering.
 
 ```python show_example_df, echo=False
-df
+df.display(color_ramp_name='Magma')
 ```
 
 RasterFrames also includes support for working with vector data, such as [GeoJSON][GeoJSON]. RasterFrames vector data operations let you filter with geospatial relationships like contains or intersects, mask cells, convert vectors to rasters, and more.
