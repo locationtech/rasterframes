@@ -153,6 +153,6 @@ case class RasterSourceRelation(
         .repartitionByRange(numParts,$"spatial_index")
       indexed.rdd
     }
-    else df.rdd
+    else df.repartition(numParts).rdd
   }
 }

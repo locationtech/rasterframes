@@ -4,67 +4,91 @@ The `pyrasterframes.rf_ipython` module injects a number of visualization extensi
 
 By default, the last expression's result in a IPython cell is passed to the `IPython.display.display` function. This function in turn looks for a [`DisplayFormatter`](https://ipython.readthedocs.io/en/stable/api/generated/IPython.core.formatters.html#IPython.core.formatters.DisplayFormatter) associated with the type, which in turn converts the instance to a display-appropriate representation, based on MIME type. For example, each `DisplayFormatter` may `plain/text` version for the IPython shell, and a `text/html` version for a Jupyter Notebook.
 
-```python imports, echo=False, results='hidden'
-from pyrasterframes.all import *
-from pyspark.sql.functions import col
+This will be our setup for the following examples:
+
+```python setup
+from pyrasterframes import *
+from pyrasterframes.rasterfunctions import *
+from pyrasterframes.utils import create_rf_spark_session
+import pyrasterframes.rf_ipython
+from IPython.display import display
+import os.path
 spark = create_rf_spark_session()
+def scene(band):
+    b = str(band).zfill(2) # converts int 2 to '02'
+    return 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/' \
+             'MCD43A4.A2019059.h11v08.006.2019072203257_B{}.TIF'.format(b)
+rf = spark.read.raster(scene(2), tile_dimensions=(256, 256))
 ```
 
-## Initialize Sample
+## Tile Samples
 
-First we read in a sample image as tiles:
+We have some convenience methods to quickly visualize tiles (see discussion of the RasterFrame @ref:[schema](raster-read.md#single-raster) for orientation to the concept) when inspecting a subset of the data in a Notebook.
 
-```python raster_read
-uri = 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/' \
-      'MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF'
+In an IPython or Jupyter interpreter, a `Tile` object will be displayed as an image with limited metadata.
 
-# here we flatten the projected raster structure 
-df = spark.read.raster(uri) \
-        .withColumn('tile', rf_tile('proj_raster')) \
-        .withColumn('crs', rf_crs(col('proj_raster'))) \
-        .withColumn('extent', rf_extent(col('proj_raster'))) \
-        .drop('proj_raster')
-```
- 
-Print the schema to confirm its "shape":
-
-```python schema
-df.printSchema()
+```python, sample_tile
+sample_tile = rf.select(rf_tile('proj_raster').alias('tile')).first()['tile']
+sample_tile # or `display(sample_tile)`
 ```
 
-# Tile Display
+## DataFrame Samples
 
-Let's look at a single tile. A `pyrasterframes.rf_types.Tile` will automatically render nicely in Jupyter or IPython.
+Within an IPython or Jupyter interpreter, a Spark and Pandas DataFrames containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of these DataFrame types.
 
-```python single_tile
-tile = df.select(df.tile).first()['tile']
-tile
+```python display_samples
+rf # or `display(rf)`, or `rf.display()`
 ```
 
-## pyspark.sql.DataFrame Display
+### Changing Number of Rows
 
-There is also a capability for HTML rendering of the spark DataFrame.
+By default the RasterFrame sample display renders 5 rows. Because the `IPython.display.display` function doesn't pass parameters to the underlying rendering functions, we have to provide a different means of passing parameters to the rendering code. Pandas approach to this is to use  global settings via `set_option`/`get_option`. We take a more functional approach and have the user invoke an explicit `display` method:
 
-```python spark_dataframe
-df.select('tile', 'extent')
-```
-
-### Changing number of rows
-
-Because the `IPython.display.display` function doesn't accept any parameters, we have to provide a different means of passing parameters to the rendering code. Pandas does it with global settings via `set_option`/`get_option`. We take a more functional approach and have the user invoke an explicit `display` method:
-
-```python custom_display 
-df.display(num_rows=1, truncate=True)
+```python custom_display, evaluate=False 
+rf.display(num_rows=1, truncate=True)
 ```  
 
+```python custom_display_mime, echo=False 
+rf.display(num_rows=1, truncate=True, mimetype='text/markdown')
+```  
 
-## pandas.DataFrame Display
+### Pandas
 
-The same thing works for Pandas DataFrame if it contains a column of `Tile`s.
+There is similar rendering support injected into the Pandas by the `rf_ipython` module, for Pandas Dataframes having Tiles in them: 
 
 ```python pandas_dataframe
 # Limit copy of data from Spark to a few tiles.
-pandas_df = df.limit(4).toPandas()
-pandas_df.drop(['proj_raster_path'], axis=1)
+pandas_df = rf.select(rf_tile('proj_raster'), rf_extent('proj_raster')).limit(4).toPandas()
+pandas_df # or `display(pandas_df)`
 ```
 
+## Sample Colorization
+
+RasterFrames uses the "Viridis" color ramp as the default color profile for tile column. There are other options for reasoning about how color should be applied in the results.
+
+### Color Composite 
+
+As shown in @ref:[Writing Raster Data section](raster-write.md) section, composites can be constructed for visualization:
+
+```python, png_color_composite
+from IPython.display import Image # For telling IPython how to interpret the PNG byte array
+# Select red, green, and blue, respectively
+three_band_rf = spark.read.raster(source=[[scene(1), scene(4), scene(3)]])
+composite_rf = three_band_rf.withColumn('png',
+                    rf_render_png('proj_raster_0', 'proj_raster_1', 'proj_raster_2'))
+png_bytes = composite_rf.select('png').first()['png'] 
+Image(png_bytes)
+```
+
+```python, png_render, echo=False
+from IPython.display import display_markdown
+display_markdown(pyrasterframes.rf_ipython.binary_to_html(png_bytes), raw=True)
+```
+
+### Custom Color Ramp
+
+You can also apply a different color ramp to a single-channel Tile using the @ref[`rf_render_color_ramp_png`](reference.md#rf-render-color-ramp-png) function. See the function documentation for information about the available color maps.
+
+```python, color_map
+rf.select(rf_render_color_ramp_png('proj_raster', 'Magma'))
+```
