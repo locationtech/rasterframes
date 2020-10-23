@@ -39,19 +39,6 @@ Within an IPython or Jupyter interpreter, a Spark and Pandas DataFrames containi
 ```python display_samples
 rf # or `display(rf)`, or `rf.display()`
 ```
-
-### Changing Number of Rows
-
-By default the RasterFrame sample display renders 5 rows. Because the `IPython.display.display` function doesn't pass parameters to the underlying rendering functions, we have to provide a different means of passing parameters to the rendering code. Pandas approach to this is to use  global settings via `set_option`/`get_option`. We take a more functional approach and have the user invoke an explicit `display` method:
-
-```python custom_display, evaluate=False 
-rf.display(num_rows=1, truncate=True)
-```  
-
-```python custom_display_mime, echo=False 
-rf.display(num_rows=1, truncate=True, mimetype='text/markdown')
-```  
-
 ### Pandas
 
 There is similar rendering support injected into the Pandas by the `rf_ipython` module, for Pandas Dataframes having Tiles in them: 
@@ -62,11 +49,38 @@ pandas_df = rf.select(rf_tile('proj_raster'), rf_extent('proj_raster')).limit(4)
 pandas_df # or `display(pandas_df)`
 ```
 
-## Sample Colorization
+### Changing Number of Rows
+
+By default the RasterFrame sample display renders 5 rows. Because the `IPython.display.display` function doesn't pass parameters to the underlying rendering functions, we have to provide a different means of passing parameters to the rendering code. Pandas approach to this is to use  global settings via `set_option`/`get_option`. We take a more functional approach and offer an explicit `display` method with configuration parameters.
+
+```python custom_display, evaluate=False 
+rf.display(num_rows=1, truncate=True)
+```  
+
+```python custom_display_mime, echo=False 
+rf.display(num_rows=1, truncate=True, mimetype='text/markdown')
+```  
+
+
+### Sample Colorization
 
 RasterFrames uses the "Viridis" color ramp as the default color profile for tile column. There are other options for reasoning about how color should be applied in the results.
 
-### Color Composite 
+
+```python custom_display, eval=False
+df.display(num_rows=2, truncate=True, color_ramp_name='Magma')
+```  
+
+```python custom_display, echo=False 
+# Pweave-only hack.
+df.display(num_rows=2, truncate=True, color_ramp_name='Magma', mimetype='text/markdown')
+```  
+
+@@@ note
+See the @ref:[Function Reference](reference.md#rf-render-color-ramp-png) for the list of color ramp names.
+@@@
+
+## Viewing Color Composites
 
 As shown in @ref:[Writing Raster Data section](raster-write.md) section, composites can be constructed for visualization:
 
@@ -87,7 +101,7 @@ display_markdown(pyrasterframes.rf_ipython.binary_to_html(png_bytes), raw=True)
 
 ### Custom Color Ramp
 
-You can also apply a different color ramp to a single-channel Tile using the @ref[`rf_render_color_ramp_png`](reference.md#rf-render-color-ramp-png) function. See the function documentation for information about the available color maps.
+As with Tile samples, you can apply a different color ramp to a single-channel Tile using the @ref[`rf_render_color_ramp_png`](reference.md#rf-render-color-ramp-png) function. See the function documentation for information about the available color maps.
 
 ```python, color_map
 rf.select(rf_render_color_ramp_png('proj_raster', 'Magma'))

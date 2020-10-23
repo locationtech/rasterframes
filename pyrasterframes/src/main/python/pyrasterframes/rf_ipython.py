@@ -275,6 +275,30 @@ try:
             Invoke IPython `display` with specific controls.
             :param num_rows: number of rows to render
             :param truncate: If `True`, shorten width of columns to no more than 40 characters
+            :param color_ramp_name: Color ramp name to use, e.g.:
+                 * "BlueToOrange"
+                 * "LightYellowToOrange"
+                 * "BlueToRed"
+                 * "GreenToRedOrange"
+                 * "LightToDarkSunset"
+                 * "LightToDarkGreen"
+                 * "HeatmapYellowToRed"
+                 * "HeatmapBlueToYellowToRedSpectrum"
+                 * "HeatmapDarkRedToYellowWhite"
+                 * "HeatmapLightPurpleToDarkPurpleToWhite"
+                 * "ClassificationBoldLandUse"
+                 * "ClassificationMutedTerrain"
+                 * "Magma"
+                 * "Inferno"
+                 * "Plasma"
+                 * "Viridis"
+                 * "Greyscale2"
+                 * "Greyscale8"
+                 * "Greyscale32"
+                 * "Greyscale64"
+                 * "Greyscale128"
+                 * "Greyscale256"
+            :param mimetype: `text/html` or `text/markdown`
             :return: None
             """
 
