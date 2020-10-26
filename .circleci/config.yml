@@ -41,8 +41,12 @@ orbs:
         description: Install packages identified in requirements file
         steps:
           - run:
-              name: Install requirements
+              name: Install Conda requirements
               command: /opt/conda/bin/conda install -c conda-forge --yes --file pyrasterframes/src/main/python/requirements-condaforge.txt
+          - run:
+              name: Install setup requirements
+              command: python -m pip install -e .
+              working_directory: pyrasterframes/src/main/python
 
 
   rasterframes:
