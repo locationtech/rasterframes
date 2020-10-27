@@ -62,6 +62,6 @@ Additional, Python sepcific build instruction may be found at [pyrasterframes/sr
 
 ## Copyright and License
 
-RasterFrames is released under the Apache 2.0 License, copyright Astraea, Inc. 2017-2019.
+RasterFrames is released under the Apache 2.0 License, copyright Astraea, Inc. 2017-2020.
 
 

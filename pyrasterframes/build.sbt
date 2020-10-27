@@ -9,7 +9,7 @@ Python / doc := (Python / doc / target).toTask.dependsOn(
   Def.sequential(
     assembly,
     Test / compile,
-    pySetup.toTask(" pweave")
+    pySetup.toTask(" pweave --quick True")
   )
 ).value
 

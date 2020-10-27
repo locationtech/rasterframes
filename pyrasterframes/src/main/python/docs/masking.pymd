@@ -30,9 +30,9 @@ The first step is to create a catalog with our band of interest and the SCL band
 ```python, blue_scl_cat
 from pyspark.sql import Row
 
-blue_uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
-green_uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B03.tif'
-scl_uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/SCL.tif'
+blue_uri = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/B02.tif'
+green_uri = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/B03.tif'
+scl_uri = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/SCL.tif'
 cat = spark.createDataFrame([Row(blue=blue_uri, green=green_uri, scl=scl_uri),])
 unmasked = spark.read.raster(cat, catalog_col_names=['blue', 'green', 'scl'])
 unmasked.printSchema()

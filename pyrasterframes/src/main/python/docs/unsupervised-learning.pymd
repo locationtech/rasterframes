@@ -32,8 +32,7 @@ The first step is to create a Spark DataFrame of our imagery data. To achieve th
 
 
 ```python, catalog
-filenamePattern = "https://github.com/locationtech/rasterframes/" \
-                  "raw/develop/core/src/test/resources/L8-B{}-Elkton-VA.tiff"
+filenamePattern = "https://rasterframes.s3.amazonaws.com/samples/elkton/L8-B{}-Elkton-VA.tiff"
 catalog_df = pd.DataFrame([
     {'b' + str(b): filenamePattern.format(b) for b in range(1, 8)}
 ])

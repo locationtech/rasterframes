@@ -29,18 +29,20 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 ## Detailed Contents
 
-@@ toc { depth=4 }
+@@ toc { depth=3 }
 
 @@@ index
-* [Overview](description.md)
-* [Getting Started](getting-started.md)
-* [Concepts](concepts.md)
-* [Raster Data I/O](raster-io.md)
-* [Vector Data](vector-data.md)
-* [Raster Processing](raster-processing.md)
-* [Numpy and Pandas](numpy-pandas.md) 
-* [Scala and SQL](languages.md)
-* [Function Reference](reference.md)
-* [Release Notes](release-notes.md)
+* @ref:[Overview](description.md)
+* @ref:[Getting Started](getting-started.md)
+* @ref:[Concepts](concepts.md)
+* @ref:[Raster Data I/O](raster-io.md)
+* @ref:[Vector Data](vector-data.md)
+* @ref:[Raster Processing](raster-processing.md)
+* @ref:[Machine Learning](machine-learning.md)
+* @ref:[Numpy and Pandas](numpy-pandas.md) 
+* @ref:[IPython Extensions](ipython.md) 
+* @ref:[Scala and SQL](languages.md)
+* @ref:[Function Reference](reference.md)
+* @ref:[Release Notes](release-notes.md)
 @@@
 

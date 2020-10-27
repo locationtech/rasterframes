@@ -42,7 +42,8 @@ orbs:
         steps:
           - run:
               name: Install requirements
-              command: python -m pip install --progress-bar=off --user -r pyrasterframes/src/main/python/requirements.txt
+              command: /opt/conda/bin/conda install -c conda-forge --yes --file pyrasterframes/src/main/python/requirements-condaforge.txt
+
 
   rasterframes:
     commands:
@@ -117,6 +118,7 @@ jobs:
       - checkout
       - sbt/setup
       - python/setup
+      - python/requirements
       - rasterframes/setup
       - rasterframes/restore-cache
       - sbt/compile

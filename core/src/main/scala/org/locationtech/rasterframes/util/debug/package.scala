@@ -21,10 +21,46 @@
 
 package org.locationtech.rasterframes.util
 
+import java.lang.reflect.{AccessibleObject, Modifier}
+
+import org.apache.spark.Partition
+import org.apache.spark.rdd.RDD
+
+import scala.util.Try
+
 /**
  * Additional debugging routines. No guarantees these are or will remain stable.
  *
  * @since 4/6/18
  */
 package object debug {
+
+  implicit class DescribeablePartition(val p: Partition) extends AnyVal {
+    def describe: String = Try {
+      def acc[A <: AccessibleObject](a: A): A = {
+        a.setAccessible(true); a
+      }
+
+      val getters = p.getClass.getDeclaredMethods
+        .filter(_.getParameterCount == 0)
+        .filter(m ⇒ (m.getModifiers & Modifier.PUBLIC) > 0)
+        .filterNot(_.getName == "hashCode")
+        .map(acc)
+        .map(m ⇒ m.getName + "=" + String.valueOf(m.invoke(p)))
+
+      val fields = p.getClass.getDeclaredFields
+        .filter(f ⇒ (f.getModifiers & Modifier.PUBLIC) > 0)
+        .map(acc)
+        .map(m ⇒ m.getName + "=" + String.valueOf(m.get(p)))
+
+      p.getClass.getSimpleName + "(" + (fields ++ getters).mkString(", ") + ")"
+
+    }.getOrElse(p.toString)
+  }
+
+  implicit class RDDWithPartitionDescribe(val r: RDD[_]) extends AnyVal {
+    def describePartitions: String = r.partitions.map(p ⇒ ("Partition " + p.index) -> p.describe).mkString("\n")
+  }
+
 }
+

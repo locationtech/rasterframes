@@ -40,7 +40,7 @@ CellType.float64()
 We can also inspect the cell type of a given _tile_ or `proj_raster` column.
 
 ```python, ct_from_sen
-cell_types = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif') \
+cell_types = spark.read.raster('https://rasterframes.s3.amazonaws.com/samples/luray_snp/B02.tif') \
     .select(rf_cell_type('proj_raster')).distinct()
 cell_types    
 ```

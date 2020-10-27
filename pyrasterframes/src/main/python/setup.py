@@ -132,35 +132,40 @@ class PweaveNotebooks(PweaveDocs):
     def dest_file(self, src_file):
         return path.splitext(src_file)[0] + '.ipynb'
 
+# WARNING: Changing this version bounding will result in branca's use of jinja2
+# to throw a `NotImplementedError: Can't perform this operation for unregistered loader type`
+pytest = 'pytest>=4.0.0,<5.0.0'
 
+
+pyspark = 'pyspark==2.4.7'
 boto3 = 'boto3'
 deprecation = 'deprecation'
 descartes = 'descartes'
-fiona = 'fiona==1.8.6'
+matplotlib = 'matplotlib'
+fiona = 'fiona'
 folium = 'folium'
 gdal = 'gdal==2.4.4'
-geopandas = 'geopandas>=0.7'
-ipykernel = 'ipykernel==4.8.0'
-ipython = 'ipython==6.2.1'
-jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
-matplotlib = 'matplotlib'
-nbclient = 'nbclient==0.1.0'  # compatible with our pweave => jupyter_client restrictions
-nbconvert = 'nbconvert==5.5.0'
-numpy = 'numpy>=1.17.3,<2.0'
-pandas = 'pandas>=0.25.3,<1.0'
-pweave = 'pweave==0.30.3'
+geopandas = 'geopandas'
+ipykernel = 'ipykernel'
+ipython = 'ipython'
+numpy = 'numpy'
+pandas = 'pandas'
 pypandoc = 'pypandoc'
-pyspark = 'pyspark==2.4.7'
-pytest = 'pytest>=4.0.0,<5.0.0'
 pytest_runner = 'pytest-runner'
 pytz = 'pytz'
-rasterio = 'rasterio>=1.0.0'
+rasterio = 'rasterio'
 requests = 'requests'
-setuptools = 'setuptools>=45.2.0'
-shapely = 'Shapely>=1.6.0'
+setuptools = 'setuptools'
+shapely = 'Shapely'
 tabulate = 'tabulate'
 tqdm = 'tqdm'
 utm = 'utm'
+
+# Documentation build stuff. Until we can replace pweave, these pins are necessary
+pweave = 'pweave==0.30.3'
+jupyter_client = 'jupyter-client<6.0'  # v6 breaks pweave
+nbclient = 'nbclient==0.1.0'  # compatible with our pweave => jupyter_client restrictions
+nbconvert = 'nbconvert==5.5.0'
 
 setup(
     name='pyrasterframes',
@@ -184,6 +189,7 @@ setup(
         pyspark,
         numpy,
         pandas,
+        tabulate,
         deprecation,
     ],
     setup_requires=[
