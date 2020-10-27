@@ -106,6 +106,8 @@ class PweaveDocs(distutils.cmd.Command):
             if (not self.quick) or (not path.exists(dest)) or (path.getmtime(dest) < path.getmtime(file)):
                 print(_divided('Running %s' % name))
                 try:
+                    from time import time
+                    start_time = time()
                     pweave.weave(file=str(file), doctype=self.format)
                     if self.format == 'markdown':
                         if not path.exists(dest):
@@ -115,7 +117,8 @@ class PweaveDocs(distutils.cmd.Command):
                                 for word in bad_words:
                                     if word in line:
                                         raise ChildProcessError("Error detected on line %s in %s:\n%s" % (n + 1, dest, line))
-
+                    end_time = time()
+                    print(f"⏱  '{name}' took {end_time - start_time}s  ⏱")
                 except Exception:
                     print(_divided('%s Failed:' % file))
                     print(traceback.format_exc())

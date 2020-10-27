@@ -30,7 +30,6 @@ import geotrellis.raster.render.ColorRamp
 import geotrellis.vector.Extent
 import org.apache.spark.sql._
 import org.locationtech.rasterframes
-import org.locationtech.rasterframes.expressions.transformers.RenderPNG.RenderColorRampPNG
 import org.locationtech.rasterframes.util.{ColorRampNames, KryoSupport, ResampleMethod}
 import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.model.LazyCRS

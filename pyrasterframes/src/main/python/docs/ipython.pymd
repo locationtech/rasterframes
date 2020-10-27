@@ -37,7 +37,7 @@ sample_tile # or `display(sample_tile)`
 Within an IPython or Jupyter interpreter, a Spark and Pandas DataFrames containing a column of _tiles_ will be rendered as the samples discussed above. Simply import the `rf_ipython` submodule to enable enhanced HTML rendering of these DataFrame types.
 
 ```python display_samples
-rf # or `display(rf)`, or `rf.display()`
+rf.drop('proj_raster_path') # or `display(rf)`, or `rf.display()`
 ```
 ### Pandas
 
@@ -62,18 +62,18 @@ rf.display(num_rows=1, truncate=True, mimetype='text/markdown')
 ```  
 
 
-### Sample Colorization
+### Customizing Color Mapping
 
-RasterFrames uses the "Viridis" color ramp as the default color profile for tile column. There are other options for reasoning about how color should be applied in the results.
+RasterFrames uses the "Viridis" color ramp as the default color profile for tile column. There are other options for reasoning about how color should be applied in the results. You can also apply a different color ramp to a single-channel Tile using one of the @ref[available color ramps](reference.md#rf-render-color-ramp-png).
 
 
 ```python custom_display, eval=False
-df.display(num_rows=2, truncate=True, color_ramp_name='Magma')
+rf.display(num_rows=2, truncate=True, color_ramp_name='Magma')
 ```  
 
-```python custom_display, echo=False 
+```python custom_display_hack, echo=False 
 # Pweave-only hack.
-df.display(num_rows=2, truncate=True, color_ramp_name='Magma', mimetype='text/markdown')
+rf.display(num_rows=2, truncate=True, color_ramp_name='Magma', mimetype='text/markdown')
 ```  
 
 @@@ note
