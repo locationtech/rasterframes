@@ -22,14 +22,14 @@
 package org.locationtech.rasterframes.expressions.transformers
 
 import geotrellis.raster.Tile
-import geotrellis.raster.render.ColorRamp
+import geotrellis.raster.render.{ColorRamp, Png}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.{BinaryType, DataType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
-
+import org.locationtech.rasterframes.util.EqualIntervalMapFromRamp
 /**
   * Converts a tile into a PNG encoded byte array.
   * @param child tile column
@@ -37,8 +37,27 @@ import org.locationtech.rasterframes.model.TileContext
   */
 abstract class RenderPNG(child: Expression, ramp: Option[ColorRamp]) extends UnaryRasterOp with CodegenFallback with Serializable {
   override def dataType: DataType = BinaryType
+
+  def render(tile: Tile, colorRamp: ColorRamp): Png = {
+    if(!tile.cellType.isFloatingPoint) {
+      val histogram = tile.histogram
+      if (histogram.bucketCount() < colorRamp.numStops) {
+        histogram.minMaxValues() match {
+          case Some((min, max)) =>
+            val cmap = colorRamp.toEqualIntervalMap(min, max, histogram.bucketCount())
+            return tile.renderPng(cmap)
+          case _ =>  ()
+        }
+      }
+    }
+    tile.renderPng(colorRamp)
+  }
+
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
-    val png = ramp.map(tile.renderPng).getOrElse(tile.renderPng())
+    val png = ramp match {
+      case Some(cr) => render(tile, cr)
+      case _ => tile.renderPng()
+    }
     png.bytes
   }
 }

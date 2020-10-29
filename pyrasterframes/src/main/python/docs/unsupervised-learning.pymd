@@ -128,7 +128,8 @@ aoi = Extent.from_row(
            .first()[0]
 )
 
-retiled.select(rf_agg_overview_raster('prediction', 558, 507, aoi, 'extent', 'crs'))
+overview = retiled.select(rf_agg_overview_raster('prediction', 558, 507, aoi, 'extent', 'crs').alias('overview'))
+overview
 ```
 
 

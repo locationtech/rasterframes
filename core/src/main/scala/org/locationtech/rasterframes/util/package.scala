@@ -28,8 +28,8 @@ import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
-import geotrellis.raster.render.{ColorRamp, ColorRamps}
-import geotrellis.raster.{CellGrid, Grid, GridBounds}
+import geotrellis.raster.render.{ColorRamp, ColorRamps, GreaterThan}
+import geotrellis.raster.{CellGrid, ColorMap, Grid, GridBounds}
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.GetComponent
 import org.apache.spark.sql._
@@ -218,11 +218,23 @@ package object util extends DataFrameRenderers {
         case Max ⇒ "max"
         case Min ⇒ "min"
         case Sum ⇒ "sum"
-        case _ ⇒ throw new IllegalArgumentException(s"Unrecogized ResampleMethod ${gtr.toString()}")
+        case _ ⇒ throw new IllegalArgumentException(s"Unrecogized ResampleMethod ${gtr.toString}")
       }
     }
   }
 
+  implicit class EqualIntervalMapFromRamp(val ramp: ColorRamp) {
+    def toEqualIntervalMap(min: Double, max: Double, num: Int): ColorMap = {
+      if (num < 2)
+        ramp.toColorMap(Array(max - min))
+      else {
+        val rng = 0 until num
+        val delta = (max - min) / (num - 1)
+        val breaks = rng.map(i => min + i * delta)
+        ramp.toColorMap(breaks.toVector)
+      }
+    }
+  }
   private[rasterframes]
   def toParquetFriendlyColumnName(name: String) = name.replaceAll("[ ,;{}()\n\t=]", "_")
 

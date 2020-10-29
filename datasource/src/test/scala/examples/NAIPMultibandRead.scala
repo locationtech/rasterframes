@@ -22,12 +22,9 @@
 package examples
 
 import org.apache.spark.sql.SparkSession
-import geotrellis.proj4.LatLng
-import org.apache.spark.sql.SparkSession
-import org.locationtech.rasterframes
 import org.locationtech.rasterframes.datasource.raster._
+import org.locationtech.rasterframes.util.DFWithPrettyPrint
 import org.locationtech.rasterframes.{util, _}
-import rasterframes.util.DFWithPrettyPrint
 
 object NAIPMultibandRead extends App {
   implicit val spark = SparkSession.builder()
