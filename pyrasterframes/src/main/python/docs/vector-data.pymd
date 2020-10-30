@@ -14,7 +14,7 @@ from pyrasterframes.utils import create_rf_spark_session
 import pyrasterframes.rf_ipython
 import geopandas
 import folium
-spark = create_rf_spark_session('local[2]')
+spark = create_rf_spark_session('local[2, 2]')
 ```
 
 ## GeoJSON DataSource

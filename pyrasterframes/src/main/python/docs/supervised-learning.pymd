@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 import os
 
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 ```
 
 ## Create and Read Raster Catalog

@@ -12,7 +12,7 @@ from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 import pandas as pd
 import os
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 ```
 
 ## Python

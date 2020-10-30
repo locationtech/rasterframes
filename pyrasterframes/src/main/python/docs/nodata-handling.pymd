@@ -19,7 +19,7 @@ import pandas as pd
 import numpy as np
 from pyrasterframes.rf_types import Tile
 
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 ```
 
 The `CellType` class from the `rf_types` submodule allows us to create a representation of any valid cell type. There are convenience methods to create instances for a variety of basic types.

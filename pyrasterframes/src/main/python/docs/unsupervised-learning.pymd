@@ -11,7 +11,7 @@ from pyrasterframes.utils import create_rf_spark_session
 
 import os
 
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 
 ```
 

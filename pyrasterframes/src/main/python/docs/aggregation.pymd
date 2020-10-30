@@ -11,7 +11,7 @@ import os
 import numpy as np
 np.set_printoptions(precision=3, floatmode='maxprec')
 
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 ```
 
 There are three types of aggregate functions available in RasterFrames: _tile_ aggregate, DataFrame aggregate, and element-wise local aggregate. In the @ref:[tile aggregate functions](reference.md#tile-statistics), we are computing a statistical summary per row of a _tile_ column in a DataFrame. In the @ref:[DataFrame aggregate functions](reference.md#aggregate-tile-statistics), we are computing statistical summaries over all of the cell values *and* across all of the rows in the DataFrame or group. In the @ref:[element-wise local aggregate functions](reference.md#tile-local-aggregate-statistics), we are computing the element-wise statistical summary across a DataFrame or group of _tiles_. In the latter two cases, when @ref:[vector data](vector-data.md) is the grouping column, the results are @ref:[zonal statistics](zonal-algebra.md).
