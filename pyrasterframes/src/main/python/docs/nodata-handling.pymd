@@ -15,7 +15,6 @@ import pyrasterframes
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
-from IPython.display import display
 import pandas as pd
 import numpy as np
 from pyrasterframes.rf_types import Tile
@@ -88,12 +87,12 @@ y = Tile(np.zeros((tile_size, tile_size), dtype='int16'))
 
 rf = spark.createDataFrame([Row(x=x, y=y)])
 print('x')
-display(x)
+x
 ```
 
 ```python, display_1
 print('y')
-display(y)
+y
 ```
 
 Now, let's create a new column from `x` with the value of 1 changed to NoData. Then, we will add this new column with NoData to the `y` column. As shown below, the result of the sum also has NoData (represented in white). In general for local algebra operations, Data + NoData = NoData.
@@ -103,12 +102,12 @@ masked_rf = rf.withColumn('x_nd', rf_mask_by_value('x', 'x', lit(1)) )
 masked_rf = masked_rf.withColumn('x_nd_y_sum', rf_local_add('x_nd', 'y'))
 row = masked_rf.collect()[0]
 print('x with NoData')
-display(row.x_nd)
+row.x_nd
 ```
 
 ```python, display_3
 print('x with NoData plus y')
-display(row.x_nd_y_sum)
+row.x_nd_y_sum
 ```
 To see more information about possible operations on _tile_ columns, see the @ref:[local map algebra](local-algebra.md) page and @ref:[function reference](reference.md#local-map-algebra).
 
@@ -126,7 +125,7 @@ for i in range(4):
 x = Tile(x)
 
 rf = spark.createDataFrame([Row(tile=x)])
-display(x)
+x
 ```
 
 First, we mask the value of 1 by making a new _tile_ column with the user defined cell type 'uint16ud1'. Then, we mask out the value of two by making a _tile_ column with the cell type 'uint16ud2'.
@@ -148,13 +147,13 @@ collected = masked_rf.collect()
 Let's look at the new _tiles_ we created. The _tile_ named `tile_nd_1` has the 1 values masked out as expected.
 
 ```python, display_4
-display(collected[0].tile_nd_1)
+collected[0].tile_nd_1
 ```
 
 And the _tile_ named `tile_nd_2` has the values of 1 and 2 masked out. This is because we created the _tile_ by setting a new user defined NoData value to `tile_nd_1`, and the values previously masked out in `tile_nd_1` stayed masked when creating `tile_nd_2`.
 
 ```python, display_5
-display(collected[0].tile_nd_2)
+collected[0].tile_nd_2
 ```
 
 
@@ -220,7 +219,7 @@ for i in range(4):
 x = Tile(x, CellType.int16())
 
 rf = spark.createDataFrame([Row(tile=x)])
-display(x)
+x
 ```
 
 First we create the two new masked _tile_ columns as before. One with only the value of 1 masked, and the other with and values of 1 and 2 masked.
