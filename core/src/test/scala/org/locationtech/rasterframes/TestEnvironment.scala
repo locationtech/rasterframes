@@ -50,7 +50,8 @@ trait TestEnvironment extends FunSpec
     outputDir
   }
 
-  def sparkMaster: String = "local[*]"
+  // allow 2 retries, should stabilize CI builds. https://spark.apache.org/docs/2.4.7/submitting-applications.html#master-urls
+  def sparkMaster: String = "local[*, 2]"
 
   def additionalConf = new SparkConf(false)
 
