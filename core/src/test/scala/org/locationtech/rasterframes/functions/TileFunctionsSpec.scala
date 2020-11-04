@@ -32,9 +32,7 @@ import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.functions.{count, isnull, sum}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.expressions.transformers.DebugRender.TileAsMatrix
 import org.locationtech.rasterframes.ref.RasterRef
-import org.locationtech.rasterframes.stats.CellHistogram
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.ColorRampNames
 import org.scalatest.Inspectors
