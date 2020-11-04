@@ -28,7 +28,7 @@ import geotrellis.raster.mapalgebra.local.LocalTileBinaryOp
 import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
-import geotrellis.raster.render.{ColorRamp, ColorRamps, GreaterThan}
+import geotrellis.raster.render.{ColorRamp, ColorRamps}
 import geotrellis.raster.{CellGrid, ColorMap, Grid, GridBounds}
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.GetComponent
@@ -187,7 +187,7 @@ package object util extends DataFrameRenderers {
   }
 
   object ResampleMethod {
-    import geotrellis.raster.resample.{ResampleMethod ⇒ GTResampleMethod, _}
+    import geotrellis.raster.resample.{ResampleMethod => GTResampleMethod, _}
     def unapply(name: String): Option[GTResampleMethod] = {
       name.toLowerCase().trim().replaceAll("_", "") match {
         case "nearestneighbor" | "nearest" ⇒ Some(NearestNeighbor)
@@ -226,7 +226,7 @@ package object util extends DataFrameRenderers {
   implicit class EqualIntervalMapFromRamp(val ramp: ColorRamp) {
     def toEqualIntervalMap(min: Double, max: Double, num: Int): ColorMap = {
       if (num < 2)
-        ramp.toColorMap(Array(max - min))
+        ramp.toColorMap(Array(min, max))
       else {
         val rng = 0 until num
         val delta = (max - min) / (num - 1)
