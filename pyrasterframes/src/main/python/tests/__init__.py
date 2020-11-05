@@ -61,6 +61,7 @@ def resource_dir():
 
 def spark_test_session():
     spark = create_rf_spark_session(**{
+        'spark.master': 'local[*, 2]',
         'spark.ui.enabled': 'false',
         'spark.app.name': app_name
     })
