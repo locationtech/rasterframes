@@ -73,18 +73,20 @@ class IpythonTests(TestEnvironment):
 
         num_rows = 2
 
-        result = {}
+        result = {
+            'row_count': 0,
+            'payload': None
+        }
 
         def counter(data, md):
             nonlocal result
             result['payload'] = (data, md)
             result['row_count'] = data.count('<tr>')
+
         ip.mime_renderers['text/html'] = counter
 
-        # ip.mime_renderers['text/markdown'] = lambda a, b: print(a, b)
-
-        self.df.display(num_rows=num_rows)
+        self.df.display(num_rows=num_rows, truncate=True, color_ramp_name="Magma")
 
         # Plus one for the header row.
         self.assertIs(result['row_count'], num_rows+1, msg=f"Received: {result['payload']}")
-        
+
