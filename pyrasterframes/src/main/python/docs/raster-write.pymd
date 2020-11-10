@@ -15,6 +15,7 @@ import pyrasterframes.rf_ipython
 from IPython.display import display
 import os.path
 spark = create_rf_spark_session(**{
+    'spark.master': 'local[*, 2]',
     'spark.driver.memory': '4G',
     'spark.ui.enabled': 'false'
 })

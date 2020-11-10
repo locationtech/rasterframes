@@ -20,20 +20,24 @@
  */
 
 package org.locationtech.rasterframes.functions
+import java.awt.Color
+import java.awt.image.IndexColorModel
 import java.io.ByteArrayInputStream
 
 import geotrellis.proj4.CRS
 import geotrellis.raster._
+import geotrellis.raster.render.Png
 import geotrellis.raster.testkit.RasterMatchers
 import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
-import org.apache.spark.sql.functions.{count, sum, isnull}
+import org.apache.spark.sql.functions.{count, isnull, sum}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.ColorRampNames
+import org.scalatest.Inspectors
 
-class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
+class TileFunctionsSpec extends TestEnvironment with RasterMatchers with Inspectors {
   import TestData._
   import spark.implicits._
 
@@ -314,7 +318,7 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should evaluate rf_rescale") {
-      import org.apache.spark.sql.functions.{min, max}
+      import org.apache.spark.sql.functions.{max, min}
       val df = Seq(randPRT, six, one).toDF("tile")
       val stats = df.agg(rf_agg_stats($"tile").alias("stat")).select($"stat.min", $"stat.max")
         .first()
@@ -516,10 +520,72 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       val expr = df.select(rf_render_png($"red", "HeatmapBlueToYellowToRedSpectrum"))
 
       val pngData = expr.first()
-
+      // Transform it back into a raster.
       val image = ImageIO.read(new ByteArrayInputStream(pngData))
       image.getWidth should be(red.cols)
       image.getHeight should be(red.rows)
+    }
+
+    // Using "distance" as a measure that the colors are spread out across the ramp
+    implicit class ColorHasDistance(left: Color) {
+      /** Computes Euclidean distance in RGB space. */
+      def distance(right: Color) = math.sqrt(
+        math.pow(left.getRed - right.getRed, 2) +
+          math.pow(left.getGreen - right.getGreen, 2) +
+          math.pow(left.getBlue - right.getBlue, 2)
+      )
+    }
+
+    it("should distribute classes across color ramp") {
+      val testCases = Map(
+        "labels" -> TestData.l8Labels.toProjectedRasterTile,
+        "zeros" -> TestData.zero,
+        "non-zero" -> TestData.one,
+        "with-nodata" -> TestData.injectND(4)(TestData.one.convert(UByteUserDefinedNoDataCellType(255.toByte))),
+        "all-nodata" -> TestData.zero.withNoData(Some(0))
+      )
+      val ramp = ColorRamps.BlueToRed
+
+      forEvery(testCases) { case (key, raster) =>
+
+        val df = Seq(raster).toDF("labels")
+
+        val expr = df.select(rf_render_png($"labels", ramp))
+
+        val pngData = expr.first()
+        Png(pngData).write("/tmp/color-ramp.png")
+
+        // Inspect the parsed image
+        val image = ImageIO.read(new ByteArrayInputStream(pngData))
+
+        // Transform it back into a raster.
+        val buffer = Array.ofDim[Int](image.getWidth * image.getHeight)
+        image.getData.getSamples(0, 0, image.getWidth, image.getHeight, 0, buffer)
+
+        // Then back into a tile
+        val retiled = ArrayTile(buffer, image.getWidth, image.getHeight).interpretAs(raster.cellType)
+        // Test that the data distributions were preserved
+        withClue(key + " distribution") {
+          retiled.cellType should be(raster.cellType)
+          val rasterHist = raster.histogram
+          if (rasterHist.bucketCount() > 0)
+            retiled.histogram.binCounts().map(_._2) should be(rasterHist.binCounts().map(_._2))
+        }
+
+        withClue(key + "channel distances") {
+          image.getColorModel match {
+            case cm: IndexColorModel =>
+              val colorMap = Array.ofDim[Int](cm.getMapSize)
+              cm.getRGBs(colorMap)
+              colorMap.distinct.length shouldBe <= (ramp.numStops)
+              val usedColors = colorMap.map(new Color(_, true)).filter(_.getAlpha > 0)
+              // Before the fix the distances were 56.753854494650845, 98.73702446397704, 42.21374183841087
+              val distances = usedColors.combinations(2).map(a => a(0).distance(a(1)))
+              distances.forall(_ > 200) should be(true)
+            case _ => fail("Unexpected color model")
+          }
+        }
+      }
     }
   }
 }

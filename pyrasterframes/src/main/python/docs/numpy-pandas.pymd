@@ -37,7 +37,7 @@ import pyrasterframes
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 from IPython.display import display
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 
 ```
 

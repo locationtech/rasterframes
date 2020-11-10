@@ -16,7 +16,7 @@ from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 import pyrasterframes.rf_ipython
 import pandas as pd
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 ```
 
 ### One-D

@@ -13,7 +13,7 @@ from pyrasterframes.utils import create_rf_spark_session
 import pyrasterframes.rf_ipython
 from IPython.display import display
 import os.path
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 def scene(band):
     b = str(band).zfill(2) # converts int 2 to '02'
     return 'https://modis-pds.s3.amazonaws.com/MCD43A4.006/11/08/2019059/' \

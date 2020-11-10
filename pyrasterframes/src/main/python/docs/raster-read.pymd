@@ -8,6 +8,7 @@ from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import *
 spark = create_rf_spark_session(**{
+    'spark.master': 'local[*, 2]',
     'spark.driver.memory': '3g'
 })
 ```

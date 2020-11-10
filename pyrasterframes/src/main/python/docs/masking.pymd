@@ -10,7 +10,10 @@ import pandas as pd
 import numpy as np
 from pyrasterframes.rf_types import Tile
 
-spark = create_rf_spark_session()
+spark = create_rf_spark_session(**{
+    "spark.master": "local[*, 2]",
+    "spark.driver.memory": "2g", 
+})
 ```
 
 Masking is a common operation in raster processing. It is setting certain cells to the @ref:[NoData value](nodata-handling.md). This is usually done to remove low-quality observations from the raster processing. Another related use case is to @ref:["clip"](masking.md#clipping) a raster to a given polygon.  
@@ -34,7 +37,7 @@ blue_uri = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/B02.tif'
 green_uri = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/B03.tif'
 scl_uri = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/SCL.tif'
 cat = spark.createDataFrame([Row(blue=blue_uri, green=green_uri, scl=scl_uri),])
-unmasked = spark.read.raster(cat, catalog_col_names=['blue', 'green', 'scl'])
+unmasked = spark.read.raster(cat, catalog_col_names=['blue', 'green', 'scl']).cache()
 unmasked.printSchema()
 ```
 
@@ -70,7 +73,7 @@ Now we set cells of our `blue` column to NoData for all locations where the `scl
 ```python, apply_mask_blue
 from pyspark.sql.functions import lit
 
-masked = converted.withColumn('blue_masked', rf_mask_by_values('blue', 'scl', [0, 1, 8, 9, 10]))
+masked = converted.withColumn('blue_masked', rf_mask_by_values('blue', 'scl', [0, 1, 8, 9, 10])).cache()
 masked
 ```
 
@@ -84,13 +87,13 @@ It's also nice to view a sample. The white regions are areas of NoData.
 
 ```python, display_blu, caption='Blue band masked against selected SCL values'
 sample = masked.orderBy(-rf_no_data_cells('blue_masked')).select(rf_tile('blue_masked'), rf_tile('scl')).first()
-display(sample[0])
+sample[0]
 ```
 
 And the original SCL data. The bright yellow is a cloudy region in the original image.
 
 ```python, display_scl, caption='SCL tile for above'
-display(sample[1])
+sample[1]
 ```
 
 ### Transferring Mask
@@ -116,7 +119,8 @@ mask = base_url + 'BQA.TIF'
 l8_df = spark.read.raster([[data4, data2, mask]]) \
                .withColumnRenamed('proj_raster_0', 'data') \
                .withColumnRenamed('proj_raster_1', 'data2') \
-               .withColumnRenamed('proj_raster_2', 'mask')
+               .withColumnRenamed('proj_raster_2', 'mask') \
+               .repartition(200).cache()
 ```
 
 Masking is described [on the Landsat Missions page](https://www.usgs.gov/land-resources/nli/landsat/landsat-collection-1-level-1-quality-assessment-band). It is pretty dense. Focus for this data set is the Collection 1 Level-1 for Landsat 8. 
@@ -182,7 +186,7 @@ Second, we will rasterize the geometry, or burn-in the geometry into the same gr
 
 ```python, rasterize
 to_clip = to_rasterize.withColumn('clip_raster', 
-                                 rf_rasterize('geom_native', rf_geometry('blue_masked'), lit(1), rf_dimensions('blue_masked').cols, rf_dimensions('blue_masked').rows))
+                                 rf_rasterize('geom_native', rf_geometry('blue_masked'), lit(1), rf_dimensions('blue_masked').cols, rf_dimensions('blue_masked').rows)).cache()
 
 # visualize some of the edges of our circle
 to_clip.select('blue_masked', 'clip_raster') \

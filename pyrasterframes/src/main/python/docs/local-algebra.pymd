@@ -9,7 +9,7 @@ import pyrasterframes.rf_ipython
 import pandas as pd
 import os
 
-spark = create_rf_spark_session()
+spark = create_rf_spark_session('local[*, 2]')
 ```
 
 [Local map algebra](https://gisgeography.com/map-algebra-global-zonal-focal-local/) raster operations are element-wise operations on a single _tile_,  between a _tile_ and a scalar, between two _tiles_, or among many _tiles_. These operations are common in processing of earth observation imagery and other image data.
@@ -66,7 +66,7 @@ We can inspect a sample of the data. Yellow indicates very healthy vegetation, a
 
 ```python, show_tile
 t = df.select(rf_tile('ndvi').alias('ndvi')).first()['ndvi']
-display(t)
+t
 ```
 
 We continue examining NDVI in the @ref:[time series](time-series.md) section.
