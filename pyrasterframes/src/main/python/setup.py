@@ -190,6 +190,7 @@ setup(
         numpy,
         pandas,
         tabulate,
+        deprecation,
     ],
     setup_requires=[
         pytz,
@@ -210,7 +211,6 @@ setup(
         fiona,
         rasterio,
         folium,
-        deprecation,
     ],
     tests_require=[
         pytest,
