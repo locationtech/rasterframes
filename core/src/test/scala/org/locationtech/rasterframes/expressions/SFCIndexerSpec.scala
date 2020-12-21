@@ -55,7 +55,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
   val xzExpected = testExtents.map(e => xzsfc.index(e.xmin, e.ymin, e.xmax, e.ymax))
   val zExpected = (crs: CRS) => testExtents.map(reproject(crs)).map(e => {
     val p = e.center.reproject(crs, LatLng)
-    zsfc.index(p.x, p.y).z
+    zsfc.index(p.x, p.y)
   })
 
   describe("Centroid extraction") {
@@ -208,7 +208,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
       }
       withClue("Z2") {
         val sfc = new Z2SFC(3)
-        val expected = testExtents.map(e => sfc.index(e.center.x, e.center.y).z)
+        val expected = testExtents.map(e => sfc.index(e.center.x, e.center.y))
         val indexes = df.select(rf_z2_index($"extent", serialized_literal(crs), 3)).collect()
         forEvery(indexes.zip(expected)) { case (i, e) =>
           i should be(e)

@@ -75,6 +75,8 @@ object RFDependenciesPlugin extends AutoPlugin {
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "2.4.7",
     rfGeoTrellisVersion := "3.3.0",
-    rfGeoMesaVersion := "2.2.1"
+//    rfGeoMesaVersion := "2.2.1"
+     rfGeoMesaVersion := "3.1.0"
+    // rfGeoMesaVersion := "3.2.0-SNAPSHOT"
   )
 }

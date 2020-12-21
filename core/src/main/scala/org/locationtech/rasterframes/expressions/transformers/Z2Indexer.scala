@@ -80,7 +80,7 @@ case class Z2Indexer(left: Expression, right: Expression, indexResolution: Short
       trans(coord)
     }
 
-    indexer.index(pt.getX, pt.getY, lenient = false).z
+    indexer.index(pt.getX, pt.getY, lenient = false)
   }
 }
 

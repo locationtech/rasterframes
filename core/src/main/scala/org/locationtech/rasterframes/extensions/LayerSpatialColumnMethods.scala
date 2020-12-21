@@ -121,7 +121,7 @@ trait LayerSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with 
    * @return RasterFrameLayer with index column.
    */
   def withSpatialIndex(colName: String = SPATIAL_INDEX_COLUMN.columnName, applyOrdering: Boolean = true): RasterFrameLayer = {
-    val zindex = sparkUdf(keyCol2LatLng andThen (p ⇒ Z2SFC.index(p._1, p._2).z))
+    val zindex = sparkUdf(keyCol2LatLng andThen (p ⇒ Z2SFC.index(p._1, p._2)))
     self.withColumn(colName, zindex(self.spatialKeyColumn)) match {
       case rf if applyOrdering ⇒ rf.orderBy(asc(colName)).certify
       case rf ⇒ rf.certify
