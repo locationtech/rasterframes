@@ -17,7 +17,6 @@ Please see the [Getting Started](http://rasterframes.io/getting-started.html) se
 * [Gitter Channel](https://gitter.im/locationtech/rasterframes)
 * [Submit an Issue](https://github.com/locationtech/rasterframes/issues) 
 
-
 ## Contributing
 
 Community contributions are always welcome. To get started, please review our [contribution guidelines](https://github.com/locationtech/rasterframes/blob/develop/CONTRIBUTING.md), [code of conduct](https://github.com/locationtech/rasterframes/blob/develop/CODE_OF_CONDUCT.md), and reach out to us on [gitter](https://gitter.im/locationtech/rasterframes) so the community can help you get started!
@@ -62,6 +61,11 @@ Additional, Python sepcific build instruction may be found at [pyrasterframes/sr
 
 ## Copyright and License
 
-RasterFrames is released under the Apache 2.0 License, copyright Astraea, Inc. 2017-2020.
+RasterFrames is released under the commercial-friendly Apache 2.0 License, copyright Astraea, Inc. 2017-2021.
+
+## Commercial Support
+
+As the sponsors and developers of RasterFrames, [Astraea, Inc.](https://astraea.earth/) is uniquely positioned to expand its capabilities. If you need additional functionality or just some architectural guidance to get your project off to the right start, we can provide a full range of [consulting and development services](https://astraea.earth/services/) around RasterFrames. We can be reached at [info@astraea.io](mailto:info@astraea.io).
+
 
 
