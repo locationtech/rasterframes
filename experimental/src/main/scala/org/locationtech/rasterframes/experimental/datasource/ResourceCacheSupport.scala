@@ -88,7 +88,7 @@ trait ResourceCacheSupport extends DownloadSupport {
       catch {
         case NonFatal(_) ⇒
           Try(fs.delete(dest, false))
-          logger.warn(s"'$uri' not found")
+          logger.debug(s"'$uri' not found")
           None
       }
     }
