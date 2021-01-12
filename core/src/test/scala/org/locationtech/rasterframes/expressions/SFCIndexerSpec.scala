@@ -200,7 +200,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
       val crs: CRS = LatLng
       withClue("XZ2") {
         val sfc = XZ2SFC(3)
-        val expected = testExtents.map(e => sfc.index(e.xmin, e.ymin, e.xmax, e.ymax))
+        val expected = testExtents.map(e => sfc.index(e.xmin, e.ymin, e.xmax, e.ymax, lenient = true))
         val indexes = df.select(rf_xz2_index($"extent", serialized_literal(crs), 3)).collect()
         forEvery(indexes.zip(expected)) { case (i, e) =>
           i should be(e)
@@ -210,6 +210,38 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
         val sfc = new Z2SFC(3)
         val expected = testExtents.map(e => sfc.index(e.center.x, e.center.y).z)
         val indexes = df.select(rf_z2_index($"extent", serialized_literal(crs), 3)).collect()
+        forEvery(indexes.zip(expected)) { case (i, e) =>
+          i should be(e)
+        }
+      }
+    }
+    it("should be lenient from RasterSource") {
+      val extents = Seq(
+        Extent(-181, -91, -179.5, -89.5),
+        Extent(-181, 89.5, -179.5, 91),
+        Extent(179.5, -91, 181, -89.5),
+        Extent(179.5, 89.5, 181, 91)
+      )
+
+      val crs: CRS = LatLng
+      val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
+      val srcs = extents
+        .map(InMemoryRasterSource(tile, _, crs): RFRasterSource)
+        .toDF("src")
+
+      withClue("XZ2") {
+        val expected = extents.map(e ⇒ xzsfc.index(e.xmin, e.ymin, e.xmax, e.ymax, lenient = true))
+        val indexes = srcs.select(rf_xz2_index($"src")).collect()
+        forEvery(indexes.zip(expected)) { case (i, e) =>
+          i should be(e)
+        }
+      }
+      withClue("Z2") {
+        val expected = extents.map({ e ⇒
+          val p = e.center
+          zsfc.index(p.x, p.y, lenient = true).z
+        })
+        val indexes = srcs.select(rf_z2_index($"src")).collect()
         forEvery(indexes.zip(expected)) { case (i, e) =>
           i should be(e)
         }
