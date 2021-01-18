@@ -30,17 +30,26 @@ from pyspark.ml import Pipeline
 
 The first step is to create a Spark DataFrame of our imagery data. To achieve that we will create a catalog DataFrame using the pattern from [the I/O page](raster-io.html#Single-Scene--Multiple-Bands). In the catalog, each row represents a distinct area and time, and each column is the URI to a band's image product. The resulting Spark DataFrame may have many rows per URI, with a column corresponding to each band.
 
-
 ```python, catalog
 filenamePattern = "https://rasterframes.s3.amazonaws.com/samples/elkton/L8-B{}-Elkton-VA.tiff"
 catalog_df = pd.DataFrame([
     {'b' + str(b): filenamePattern.format(b) for b in range(1, 8)}
 ])
 
-df = spark.read.raster(catalog_df, catalog_col_names=catalog_df.columns)
+tile_size = 256
+df = spark.read.raster(catalog_df, catalog_col_names=catalog_df.columns, tile_size=tile_size)
 df = df.withColumn('crs', rf_crs(df.b1)) \
        .withColumn('extent', rf_extent(df.b1))
 df.printSchema()
+```
+
+In this small example, all the images in our `catalog_df` have the same @ref:[CRS](concepts.md#coordinate-reference-system-crs-), which we verify in the code snippet below. The `crs` object will be useful for visualization later. 
+
+```python, crses
+crses = df.select('crs.crsProj4').distinct().collect()
+print('Found ', len(crses), 'distinct CRS: ', crses)
+assert len(crses) == 1
+crs = crses[0]['crsProj4']
 ```
 
 ## Create ML Pipeline
@@ -51,7 +60,7 @@ SparkML requires that each observation be in its own row, and features for each 
 exploder = TileExploder()
 ```
 
-To "vectorize" the the band columns, we use the SparkML `VectorAssembler`. Each of the seven bands is a different feature.
+To "vectorize" the band columns, we use the SparkML `VectorAssembler`. Each of the seven bands is a different feature.
 
 ```python, assembler
 assembler = VectorAssembler() \
@@ -111,29 +120,22 @@ We can recreate the tiled data structure using the metadata added by the `TileEx
 ```python, assemble
 from pyrasterframes.rf_types import CellType
 
-tile_dims = df.select(rf_dimensions(df.b1).alias('dims')).first()['dims']
 retiled = clustered.groupBy('extent', 'crs') \
     .agg(
         rf_assemble_tile('column_index', 'row_index', 'prediction',
-            tile_dims['cols'], tile_dims['rows'], CellType.int8()).alias('prediction')
+            tile_size, tile_size, CellType.int8())
 )
 ```
 
-The resulting output is shown below.
+Next we will @ref:[write the output to a GeoTiff file](raster-write.md#geotiffs). Doing so in this case works quickly and well for a few specific reasons that may not hold in all cases. We can write the data at full resolution, by omitting the `raster_dimensions` argument, because we know the input raster dimensions are small. Also, the data is all in a single CRS, as we demonstrated above. Because the `catalog_df` is only a single row, we know the output GeoTIFF value at a given location corresponds to a single input. Finally, the `retiled` `DataFrame` only has a single `Tile` column, so the band interpretation is trivial.
 
 ```python, viz
-from pyrasterframes.rf_types import Extent
-aoi = Extent.from_row(
-    retiled.agg(rf_agg_reprojected_extent('extent', 'crs', 'epsg:3857')) \
-           .first()[0]
-)
+output_tif = 'unsupervised.tif'
 
-retiled.select(rf_agg_overview_raster('prediction', 558, 507, aoi, 'extent', 'crs'))
-```
+retiled.write.geotiff(output_tif, crs=crs)
 
-
-```python, viz-true-color, evaluate=False, echo=False
-#For comparison, the true color composite of the original data.
-#  this is really dark
-df.select(rf_render_png('b4', 'b3', 'b2'))
+with rasterio.open(output_tif) as src:
+    for b in range(1, src.count + 1):
+        print("Tags on band", b, src.tags(b))
+    show(src)
 ```

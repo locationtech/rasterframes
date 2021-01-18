@@ -53,11 +53,29 @@ ov
 
 ## GeoTIFFs
 
-GeoTIFF is one of the most common file formats for spatial data, providing flexibility in data encoding, representation, and storage. RasterFrames provides a specialized Spark DataFrame writer for rendering a RasterFrame to a GeoTIFF.
+GeoTIFF is one of the most common file formats for spatial data, providing flexibility in data encoding, representation, and storage. RasterFrames provides a specialized Spark DataFrame writer for rendering a RasterFrame to a GeoTIFF. It is accessed by calling `dataframe.write.geotiff`.
 
-One downside to GeoTIFF is that it is <b><u>not</u></b> a big-data native format. To create a GeoTIFF, all the data to be encoded has to be in the memory of one computer (in Spark parlance, this is a "collect"), limiting its maximum size substantially compared to that of a full cluster environment. When rendering GeoTIFFs in RasterFrames, you must either specify the dimensions of the output raster, or deliberately limit the size of the collected data.
+### Limitations and mitigations
 
-Fortunately, we can use the cluster computing capability to downsample the data into a more manageable size. For sake of example, let's render an overview of a scene's red band as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)).
+One downside to GeoTIFF is that it is <b><u>not</u></b> a big-data native format. To create a GeoTIFF, all the data to be written must be `collect`ed in the memory of the Spark driver. This means you must actively limit the size of the data to be written. It is trivial to lazily read a set of inputs that cannot feasibly be written to GeoTIFF in the same environment. 
+
+When writing GeoTIFFs in RasterFrames, you should limit the size of the collected data. Consider filtering the dataframe by time or @ref:[spatial filters](vector-data.md#geomesa-functions-and-spatial-relations).
+
+You can also specify the dimensions of the GeoTIFF file to be written using the `raster_dimensions` parameter as described below.
+
+### Parameters
+
+If there are many _tile_ or projected raster columns in the DataFrame, the GeoTIFF writer will write each one as a separate band in the file. Each band in the output will be tagged the input column names for reference.
+
+* `path`: the path local to the driver where the file will be written
+* `crs`: the PROJ4 string of the CRS the GeoTIFF is to be written in
+* `raster_dimensions`: optional, a tuple of two ints giving the size of the resulting file. If specified, RasterFrames will downsample the data in distributed fashion using bilinear resampling. If not specified, the default is to write the dataframe at full resolution, which can result in an `OutOfMemoryError`.
+
+### Example 
+
+See also the example in the @ref:[unsupervised learning page](unsupervised-learning.md).
+
+Let's render an overview of a scene's red band as a small raster, reprojecting it to latitude and longitude coordinates on the [WGS84](https://en.wikipedia.org/wiki/World_Geodetic_System) reference ellipsoid (aka [EPSG:4326](https://spatialreference.org/ref/epsg/4326/)).
 
 ```python write_geotiff
 outfile = os.path.join('/tmp', 'geotiff-overview.tif')
@@ -78,14 +96,9 @@ with rasterio.open(outfile) as src:
         histtype='stepfilled', title="Overview Histogram")
 ```
 
-If there are many _tile_ or projected raster columns in the DataFrame, the GeoTIFF writer will write each one as a separate band in the file. Each band in the output will be tagged the input column names for reference.
-
-@@@ note
-If no `raster_dimensions` column is specified the DataFrame contents are written at full resolution. As shown in the example above, you can also specify the size of the output GeoTIFF. Bilinear resampling is used. 
-@@@
 
 @@@ warning
-Attempting to write a full resolution GeoTIFF constructed from multiple scenes is likely to result in an out of memory error. The `raster_dimensions` parameter needs to be used in these cases.
+Attempting to write a full resolution GeoTIFF constructed from multiple scenes is likely to result in an out of memory error. Consider filtering the dataframe more aggressively and using a smaller value for the `raster_dimensions` parameter.
 @@@
 
 ### Color Composites
