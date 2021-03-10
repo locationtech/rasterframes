@@ -82,8 +82,13 @@ case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: E
       // Optimized pass-through case.
       case (s: LazyCRS, r: LazyCRS) if s.encoded == r.encoded => geometry.eval(input)
       case _ =>
-        val geom = JTSTypes.GeometryTypeInstance.deserialize(geometry.eval(input))
-        JTSTypes.GeometryTypeInstance.serialize(reproject(geom, src, dst))
+        if (geometry.eval(input) != null) {
+          val geom = JTSTypes.GeometryTypeInstance.deserialize(geometry.eval(input))
+          JTSTypes.GeometryTypeInstance.serialize(reproject(geom, src, dst))
+        }
+        else {
+          null
+        }
     }
   }
 }
