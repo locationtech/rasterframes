@@ -6,7 +6,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.isCellTrue
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 import spire.syntax.cfor.cfor
 
@@ -23,7 +23,7 @@ import spire.syntax.cfor.cfor
        true
     """
 )
-case class ForAll(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class ForAll(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   override def nodeName: String = "for_all"
   override def dataType: DataType = BooleanType
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ForAll.op(tile)

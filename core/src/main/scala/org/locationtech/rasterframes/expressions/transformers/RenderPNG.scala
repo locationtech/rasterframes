@@ -27,7 +27,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.{BinaryType, DataType}
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 
 /**
@@ -35,7 +35,7 @@ import org.locationtech.rasterframes.model.TileContext
   * @param child tile column
   * @param ramp color ramp to use for non-composite tiles.
   */
-abstract class RenderPNG(child: Expression, ramp: Option[ColorRamp]) extends UnaryRasterOp with CodegenFallback with Serializable {
+abstract class RenderPNG(child: Expression, ramp: Option[ColorRamp]) extends UnaryRasterFunction with CodegenFallback with Serializable {
   override def dataType: DataType = BinaryType
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     val png = ramp.map(tile.renderPng).getOrElse(tile.renderPng())

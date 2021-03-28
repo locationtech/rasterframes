@@ -23,38 +23,26 @@ package org.locationtech.rasterframes.expressions
 
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import org.locationtech.rasterframes.model.TileContext
 import org.slf4j.LoggerFactory
 
 /** Operation on a tile returning a tile. */
-trait UnaryLocalRasterOp extends UnaryExpression {
+trait UnaryRasterOperator extends UnaryRasterFunction {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def dataType: DataType = child.dataType
 
-  override def checkInputDataTypes(): TypeCheckResult = {
-    if (!tileExtractor.isDefinedAt(child.dataType)) {
-      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")
-    }
-    else TypeCheckSuccess
-  }
-
-  override protected def nullSafeEval(input: Any): Any = {
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     implicit val tileSer = TileUDT.tileSerializer
-    val (childTile, childCtx) = tileExtractor(child.dataType)(row(input))
 
-    childCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(op(childTile)).toInternalRow
-      case None => op(childTile).toInternalRow
+    ctx match {
+      case Some(ctx) => ctx.toProjectRasterTile(op(tile)).toInternalRow
+      case None => op(tile).toInternalRow
     }
   }
 
   protected def op(child: Tile): Tile
 }
-
