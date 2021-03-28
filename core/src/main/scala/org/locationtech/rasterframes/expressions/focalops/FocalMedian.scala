@@ -20,19 +20,17 @@
  */
 
 package org.locationtech.rasterframes.expressions.focalops
+
 import geotrellis.raster.Tile
-import geotrellis.raster.mapalgebra.focal.Kernel
+import geotrellis.raster.mapalgebra.focal.Neighborhood
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOperator}
 
-case class Convolve(child: Expression, kernel: Kernel) extends UnaryRasterOperator with NullToValue with CodegenFallback {
-  override def nodeName: String = "rf_convolve"
-  override def na: Any = null
-  override protected def op(t: Tile): Tile = t.convolve(kernel)
+case class FocalMedian(child: Expression, neighborhood: Neighborhood)   extends FocalNeighborhoodOperator {
+  override def nodeName: String = "rf_focal_median"
+  override protected def op(t: Tile): Tile = t.focalMedian(neighborhood)
 }
 
-object Convolve {
-  def apply(tile: Column, kernel: Kernel): Column = new Column(Convolve(tile.expr, kernel))
+object FocalMedian {
+  def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMedian(tile.expr, neighborhood))
 }
