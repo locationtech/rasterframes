@@ -92,7 +92,8 @@ object RasterRef extends LazyLogging {
     StructField("source", RasterSourceType.sqlType, true),
     StructField("bandIndex", IntegerType, false),
     StructField("subextent", schemaOf[Extent], true),
-    StructField("subgrid", schemaOf[GridBounds[Int]], true)
+    StructField("subgrid", schemaOf[GridBounds[Int]], true),
+    StructField("bufferSize", ShortType, false)
   ))
 
   implicit val rasterRefSerializer: CatalystSerializer[RasterRef] = new CatalystSerializer[RasterRef] {

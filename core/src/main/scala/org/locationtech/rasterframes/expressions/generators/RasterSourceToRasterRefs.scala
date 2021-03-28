@@ -44,7 +44,6 @@ import scala.util.control.NonFatal
  */
 case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None, bufferSize: Short) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes {
-    require(bufferSize > 0)
 
   override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
   override def nodeName: String = "rf_raster_source_to_raster_ref"
