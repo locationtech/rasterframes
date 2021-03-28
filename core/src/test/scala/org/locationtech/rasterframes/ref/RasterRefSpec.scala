@@ -50,9 +50,9 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   trait Fixture {
     val src = RFRasterSource(remoteCOGSingleband1)
-    val fullRaster = RasterRef(src, 0, None, None)
+    val fullRaster = RasterRef(src, 0, None, None, 0)
     val subExtent = sub(src.extent)
-    val subRaster = RasterRef(src, 0, Some(subExtent), Some(src.rasterExtent.gridBoundsFor(subExtent)))
+    val subRaster = RasterRef(src, 0, Some(subExtent), Some(src.rasterExtent.gridBoundsFor(subExtent)), 0)
   }
 
   import spark.implicits._
@@ -174,7 +174,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       val src = RFRasterSource(remoteMODIS)
       val dims = src
         .layoutExtents(NOMINAL_TILE_DIMS)
-        .map(e => RasterRef(src, 0, Some(e), None))
+        .map(e => RasterRef(src, 0, Some(e), None, 0))
         .map(_.dimensions)
         .distinct
 
@@ -185,12 +185,42 @@ class RasterRefSpec extends TestEnvironment with TestData {
     }
   }
 
+  describe("buffering") {
+    val src = RFRasterSource(remoteMODIS)
+    val refs = src
+      .layoutExtents(NOMINAL_TILE_DIMS)
+      .map(e => RasterRef(src, 0, Some(e), None, bufferSize = 3))
+    val refTiles =  refs.map(r => RasterRefTile(r))
+
+    it("should maintain reported tile size with buffering") {
+      val dims = refTiles
+        .map(_.dimensions)
+        .distinct
+
+      forEvery(dims) { d =>
+        d._1 should be <= NOMINAL_TILE_SIZE
+        d._2 should be <= NOMINAL_TILE_SIZE
+      }
+    }
+
+    it("should read a buffered ref") {
+      val ref = refs.head
+
+      val tile = RasterRefTile(ref)
+      // RasterRefTile is lazy on tile content
+      val v = tile.get(0, 0)
+      // I can't inspect the BufferTile because its hidden behind RasterRefTile.delegate
+      info(s"tile.get(max+1, max+1): ${tile.get(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE)}")
+    }
+
+  }
+
   describe("RasterSourceToRasterRefs") {
     it("should convert and expand RasterSource") {
       val src = RFRasterSource(remoteMODIS)
       import spark.implicits._
       val df = Seq(src).toDF("src")
-      val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), $"src"))
+      val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), 0.toShort, $"src"))
       refs.count() should be (1)
     }
 
@@ -198,7 +228,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       val src = RFRasterSource(remoteMODIS)
       import spark.implicits._
       val df = Seq(src).toDF("src")
-      val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), $"src") as "proj_raster")
+      val refs = df.select(RasterSourceToRasterRefs(Some(NOMINAL_TILE_DIMS), Seq(0), 0.toShort, $"src") as "proj_raster")
 
       refs.count() shouldBe > (1L)
 

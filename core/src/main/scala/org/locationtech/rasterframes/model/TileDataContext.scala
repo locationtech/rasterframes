@@ -35,6 +35,7 @@ object TileDataContext {
   def apply(t: Tile): TileDataContext = {
     require(t.cols <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.cols}")
     require(t.rows <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.rows}")
+    // TODO EAC: match on BufferTile and add the information to TileDataContext
     TileDataContext(
       t.cellType, t.dimensions
     )

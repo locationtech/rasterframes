@@ -16,5 +16,4 @@ addSbtPlugin("com.github.gseitz" %% "sbt-release" % "1.0.9")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.19")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.0")
-
-
+addSbtPlugin("com.softwaremill.clippy" % "plugin-sbt" % "0.6.1")

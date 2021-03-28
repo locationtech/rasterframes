@@ -24,6 +24,8 @@ addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("ghpagesPushSite", "docs/ghpagesPushSite")
 addCommandAlias("console", "datasource/console")
 
+clippyColorsEnabled := true
+
 // Prefer our own IntegrationTest config definition, which inherits from Test.
 lazy val IntegrationTest = config("it") extend Test
 
@@ -113,12 +115,17 @@ lazy val datasource = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
+    scalacOptions in (Compile, console) ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
+    scalacOptions in (Test, console) ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
+    clippyColorsEnabled := true,
     console / initialCommands := (console / initialCommands).value +
       """
         |import org.locationtech.rasterframes.datasource.geotrellis._
         |import org.locationtech.rasterframes.datasource.geotiff._
+        |import org.locationtech.rasterframes.datasource.raster._
         |""".stripMargin,
     IntegrationTest / fork := true,
+    Test / fork := true,
     IntegrationTest / javaOptions := Seq("-Xmx3g")
   )
 
@@ -180,4 +187,3 @@ lazy val docs = project
 lazy val bench = project
   .dependsOn(core % "compile->test")
   .settings(publish / skip := true)
-

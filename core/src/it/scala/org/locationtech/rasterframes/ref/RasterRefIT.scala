@@ -39,9 +39,9 @@ class RasterRefIT extends TestEnvironment {
       // [west, south, east, north]
       val area = Extent(31.115, 29.963, 31.148, 29.99).reproject(LatLng, redScene.crs)
 
-      val red = RasterRef(redScene, 0, Some(area), None)
-      val green = RasterRef(RFRasterSource(scene(3)), 0, Some(area), None)
-      val blue = RasterRef(RFRasterSource(scene(2)), 0, Some(area), None)
+      val red = RasterRef(redScene, 0, Some(area), None, 0)
+      val green = RasterRef(RFRasterSource(scene(3)), 0, Some(area), None, 0)
+      val blue = RasterRef(RFRasterSource(scene(2)), 0, Some(area), None, 0)
 
       val rf = Seq((red, green, blue)).toDF("red", "green", "blue")
       val df = rf.select(
@@ -54,7 +54,7 @@ class RasterRefIT extends TestEnvironment {
         stats should be ('defined)
         stats.get.dataCells shouldBe > (1000L)
       }
-      
+
       import geotrellis.raster.io.geotiff.compression.DeflateCompression
       import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
       import geotrellis.raster.io.geotiff.{GeoTiffOptions, MultibandGeoTiff, Tiled}

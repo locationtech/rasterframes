@@ -46,7 +46,7 @@ class RasterRefBench  extends SparkEnv with LazyLogging {
     val r2 = RFRasterSource(remoteCOGSingleband2)
 
     singleDF = Seq((r1, r2)).toDF("B1", "B2")
-      .select(RasterRefToTile(RasterSourceToRasterRefs(Some(r1.dimensions), Seq(0), $"B1", $"B2")))
+      .select(RasterRefToTile(RasterSourceToRasterRefs(Some(r1.dimensions), Seq(0), 0: Short, $"B1", $"B2")))
 
     expandedDF = Seq((r1, r2)).toDF("B1", "B2")
       .select(RasterRefToTile(RasterSourceToRasterRefs($"B1", $"B2")))

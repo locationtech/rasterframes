@@ -182,7 +182,7 @@ trait TestData {
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
 
-  def rasterRef = RasterRef(RFRasterSource(TestData.l8samplePath), 0, None, None)
+  def rasterRef = RasterRef(RFRasterSource(TestData.l8samplePath), 0, None, None, 0)
   def lazyPRT = rasterRef.tile
 
 
