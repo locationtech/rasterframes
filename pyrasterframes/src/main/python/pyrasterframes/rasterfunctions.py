@@ -825,6 +825,20 @@ def rf_moransI(tile_col: Column_type, neighborhood: str) -> Column:
     jfcn = RFContext.active().lookup('rf_focal_max')
     return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
 
+def rf_aspect(tile_col: Column_type) -> Column:
+    """Calculates the aspect of each cell in an elevation raster"""
+    return _apply_column_function('rf_aspect', tile_col)
+
+def rf_slope(tile_col: Column_type, z_factor: float) -> Column:
+    """Calculates the aspect of each cell in an elevation raster"""
+    jfcn = RFContext.active().lookup('rf_slope')
+    return Column(jfcn(_to_java_column(tile_col), float(z_factor)))
+
+def rf_hillshade(tile_col: Column_type, azimuth: float, altitude: float, z_factor: float) -> Column:
+    """Calculates the hillshade of each cell in an elevation raster"""
+    jfcn = RFContext.active().lookup('rf_hillshade')
+    return Column(jfcn(_to_java_column(tile_col), float(azimuth), float(altitude), float(z_factor)))
+
 def rf_resample(tile_col: Column_type, scale_factor: Union[int, float, Column_type]) -> Column:
     """Resample tile to different size based on scalar factor or tile whose dimension to match
     Scalar less than one will downsample tile; greater than one will upsample. Uses nearest-neighbor."""

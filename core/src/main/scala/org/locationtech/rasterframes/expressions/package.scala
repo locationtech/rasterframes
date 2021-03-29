@@ -143,6 +143,10 @@ package object expressions {
     registry.registerExpression[FocalStdDev](FocalStdDev.name)
     registry.registerExpression[Convolve](Convolve.name)
 
+    registry.registerExpression[Slope](Slope.name)
+    registry.registerExpression[Aspect](Aspect.name)
+    registry.registerExpression[Hillshade](Hillshade.name)
+
     registry.registerExpression[Mask.MaskByDefined]("rf_mask")
     registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")
     registry.registerExpression[Mask.MaskByValue]("rf_mask_by_value")

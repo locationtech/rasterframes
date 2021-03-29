@@ -50,4 +50,13 @@ trait FocalFunctions {
 
   def rf_convolve(tileCol: Column, kernel: Kernel): Column =
     Convolve(tileCol, kernel)
+
+  def rf_aspect(tileCol: Column): Column =
+    Aspect(tileCol)
+
+  def rf_slope(tileCol: Column, zFactor: Double): Column =
+    Slope(tileCol, zFactor)
+
+  def rf_hillshade(tileCol: Column, azimuth: Double, altitude: Double, zFactor: Double): Column =
+    Hillshade(tileCol, azimuth, altitude, zFactor)
 }
