@@ -26,4 +26,4 @@ import org.locationtech.rasterframes.functions._
  * Mix-in for UDFs for working with Tiles in Spark DataFrames.
  * @since 4/3/17
  */
-trait RasterFunctions extends TileFunctions with LocalFunctions with SpatialFunctions with AggregateFunctions
+trait RasterFunctions extends TileFunctions with LocalFunctions with SpatialFunctions with AggregateFunctions with FocalFunctions
