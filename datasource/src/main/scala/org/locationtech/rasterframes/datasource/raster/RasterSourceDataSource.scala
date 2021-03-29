@@ -124,7 +124,11 @@ object RasterSourceDataSource {
     def lazyTiles: Boolean = parameters
       .get(LAZY_TILES_PARAM).forall(_.toBoolean)
 
-    def bufferSize: Short = parameters.get(BUFFER_SIZE_PARAM).map(_.toShort).getOrElse(-1.toShort)
+    def bufferSize: Short = {
+      val size = parameters.get(BUFFER_SIZE_PARAM).map(_.toShort).getOrElse(0.toShort)
+      require(size >= 0, s"Invalid $BUFFER_SIZE_PARAM: $size")
+      size
+    }
 
     def spatialIndex: Option[Int] = parameters
       .get(SPATIAL_INDEX_PARTITIONS_PARAM).flatMap(p => Try(p.toInt).toOption)

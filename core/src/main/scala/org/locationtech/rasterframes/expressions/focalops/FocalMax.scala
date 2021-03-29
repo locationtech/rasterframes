@@ -27,10 +27,11 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression
 
 case class FocalMax(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOperator {
-  override def nodeName: String = "rf_focal_max"
+  override def nodeName: String = FocalMax.name
   override protected def op(t: Tile): Tile = t.focalMax(neighborhood)
 }
 
 object FocalMax {
+  def name: String = "rf_focal_max"
   def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMax(tile.expr, neighborhood))
 }

@@ -32,6 +32,7 @@ import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.D
 import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
+import org.locationtech.rasterframes.expressions.focalops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
 
@@ -132,6 +133,15 @@ package object expressions {
     registry.registerExpression[LocalCountAggregate.LocalDataCellsUDAF]("rf_agg_local_data_cells")
     registry.registerExpression[LocalCountAggregate.LocalNoDataCellsUDAF]("rf_agg_local_no_data_cells")
     registry.registerExpression[LocalMeanAggregate]("rf_agg_local_mean")
+
+    registry.registerExpression[FocalMax](FocalMax.name)
+    registry.registerExpression[FocalMin](FocalMin.name)
+    registry.registerExpression[FocalMean](FocalMean.name)
+    registry.registerExpression[FocalMode](FocalMode.name)
+    registry.registerExpression[FocalMedian](FocalMedian.name)
+    registry.registerExpression[FocalMoransI](FocalMoransI.name)
+    registry.registerExpression[FocalStdDev](FocalStdDev.name)
+    registry.registerExpression[Convolve](Convolve.name)
 
     registry.registerExpression[Mask.MaskByDefined]("rf_mask")
     registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")

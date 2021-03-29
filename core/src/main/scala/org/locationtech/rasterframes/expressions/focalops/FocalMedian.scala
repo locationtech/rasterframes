@@ -27,10 +27,11 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression
 
 case class FocalMedian(child: Expression, neighborhood: Neighborhood)   extends FocalNeighborhoodOperator {
-  override def nodeName: String = "rf_focal_median"
+  override def nodeName: String = FocalMedian.name
   override protected def op(t: Tile): Tile = t.focalMedian(neighborhood)
 }
 
 object FocalMedian {
+  def name: String = "rf_focal_median"
   def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMedian(tile.expr, neighborhood))
 }

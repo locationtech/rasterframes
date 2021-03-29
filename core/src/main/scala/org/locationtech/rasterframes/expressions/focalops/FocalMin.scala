@@ -26,10 +26,11 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression
 
 case class FocalMin(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOperator {
-  override def nodeName: String = "rf_focal_min"
+  override def nodeName: String = FocalMin.name
   override protected def op(t: Tile): Tile = t.focalMin(neighborhood)
 }
 
 object FocalMin {
+  def name: String = "rf_focal_min"
   def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMin(tile.expr, neighborhood))
 }

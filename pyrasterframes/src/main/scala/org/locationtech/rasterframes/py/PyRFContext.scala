@@ -38,6 +38,7 @@ import org.locationtech.rasterframes.{RasterFunctions, _}
 import spray.json._
 import org.locationtech.rasterframes.util.JsonCodecs._
 import scala.collection.JavaConverters._
+import geotrellis.raster.mapalgebra.focal.{Neighborhood, Square}
 
 /**
  * py4j access wrapper to RasterFrameLayer entry points.
@@ -148,6 +149,8 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     * Convenience functions for use in Python
     */
   def _parse_cell_type(name: String): CellType = CellType.fromName(name)
+
+  def _parse_neighborhood(name: String): Neighborhood = Square(1)
 
   /**
     * Convenience list of valid cell type strings

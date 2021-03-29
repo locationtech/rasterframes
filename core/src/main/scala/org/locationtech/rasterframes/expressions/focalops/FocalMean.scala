@@ -27,10 +27,11 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression
 
 case class FocalMean(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOperator {
-  override def nodeName: String = "rf_focal_mean"
+  override def nodeName: String = FocalMean.name
   override protected def op(t: Tile): Tile = t.focalMean(neighborhood)
 }
 
 object FocalMean {
+  def name:String = "rf_focal_mean"
   def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMean(tile.expr, neighborhood))
 }

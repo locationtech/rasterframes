@@ -28,11 +28,12 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOperator}
 
 case class Convolve(child: Expression, kernel: Kernel) extends UnaryRasterOperator with NullToValue with CodegenFallback {
-  override def nodeName: String = "rf_convolve"
+  override def nodeName: String = Convolve.name
   override def na: Any = null
   override protected def op(t: Tile): Tile = t.convolve(kernel)
 }
 
 object Convolve {
+  def name: String = "rf_convolve"
   def apply(tile: Column, kernel: Kernel): Column = new Column(Convolve(tile.expr, kernel))
 }

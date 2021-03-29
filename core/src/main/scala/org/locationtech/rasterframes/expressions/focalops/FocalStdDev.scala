@@ -27,11 +27,12 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.Expression
 
 case class FocalStdDev(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOperator {
-  override def nodeName: String = "rf_focal_stddev"
+  override def nodeName: String = FocalStdDev.name
 
   override protected def op(t: Tile): Tile = t.focalStandardDeviation(neighborhood)
 }
 
 object FocalStdDev {
+  def name: String = "rf_focal_stddevd"
   def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalStdDev(tile.expr, neighborhood))
 }
