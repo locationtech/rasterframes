@@ -28,7 +28,7 @@ import org.locationtech.rasterframes.model.TileContext
 import geotrellis.raster.CellSize
 
 case class Hillshade(child: Expression, azimuth: Double, altitude: Double, zFactor: Double) extends SurfaceOperation {
-  override def nodeName: String = Slope.name
+  override def nodeName: String = Hillshade.name
   override protected def op(t: Tile, ctx: TileContext): Tile = {
     t.hillshade(CellSize(ctx.extent, cols = t.cols, rows = t.rows), azimuth, altitude, zFactor)
   }
