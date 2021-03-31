@@ -71,7 +71,7 @@ rf.agg(rf_agg_local_mean('tile')) \
 We can also count the total number of data and NoData cells over all the _tiles_ in a DataFrame using @ref:[`rf_agg_data_cells`](reference.md#rf-agg-data-cells) and @ref:[`rf_agg_no_data_cells`](reference.md#rf-agg-no-data-cells). There are ~3.8 million data cells and ~1.9 million NoData cells in this DataFrame. See the section on @ref:["NoData" handling](nodata-handling.md) for additional discussion on handling missing data.
 
 ```python, cell_counts
-rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
+rf = spark.read.raster('https://rasterframes.s3.amazonaws.com/samples/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
 stats = rf.agg(rf_agg_data_cells('proj_raster'), rf_agg_no_data_cells('proj_raster'))
 stats
 ```
@@ -83,7 +83,7 @@ The statistical summary functions return a summary of cell values: number of dat
 The @ref:[`rf_tile_stats`](reference.md#rf-tile-stats) function computes summary statistics separately for each row in a _tile_ column as shown below.
 
 ```python, tile_stats
-rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
+rf = spark.read.raster('https://rasterframes.s3.amazonaws.com/samples/luray_snp/B02.tif')
 stats = rf.select(rf_tile_stats('proj_raster').alias('stats'))
 
 stats.printSchema()
@@ -125,7 +125,7 @@ The @ref:[`rf_tile_histogram`](reference.md#rf-tile-histogram) function computes
 ```python, tile_histogram
 import matplotlib.pyplot as plt
 
-rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
+rf = spark.read.raster('https://rasterframes.s3.amazonaws.com/samples/MCD43A4.006/11/05/2018233/MCD43A4.A2018233.h11v05.006.2018242035530_B02.TIF')
 
 hist_df = rf.select(rf_tile_histogram('proj_raster')['bins'].alias('bins'))
 hist_df.printSchema()

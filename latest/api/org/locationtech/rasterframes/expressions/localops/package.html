@@ -567,7 +567,7 @@
               
         </dd></dl></div>
     </li><li name="org.locationtech.rasterframes.expressions.localops.Resample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ResampleextendsBinaryExpressionwithBinaryLocalRasterOpwithCodegenFallbackwithProductwithSerializable"></a>
+      <a id="ResampleextendsResampleBasewithProductwithSerializable"></a>
       <a id="Resample:Resample"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -575,10 +575,47 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Resample.html"><span class="name">Resample</span></a><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="Resample.html"><span class="name">Resample</span></a><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="factor">factor: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="method">method: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.package@ResampleextendsBinaryExpressionwithBinaryLocalRasterOpwithCodegenFallbackwithProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.package@ResampleextendsResampleBasewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@ExpressionDescription</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ResampleBaseextendsTernaryExpressionwithCodegenFallbackwithSerializable"></a>
+      <a id="ResampleBase:ResampleBase"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ResampleBase.html"><span class="name">ResampleBase</span></a><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.package@ResampleBaseextendsTernaryExpressionwithCodegenFallbackwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleNearest" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ResampleNearestextendsResampleBasewithProductwithSerializable"></a>
+      <a id="ResampleNearest:ResampleNearest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ResampleNearest.html"><span class="name">ResampleNearest</span></a><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="target">target: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.package@ResampleNearestextendsResampleBasewithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -1151,6 +1188,23 @@
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.package@Resample" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleNearest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ResampleNearest"></a>
+      <a id="ResampleNearest:ResampleNearest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ResampleNearest$.html"><span class="name">ResampleNearest</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.package@ResampleNearest" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

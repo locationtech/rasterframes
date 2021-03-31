@@ -865,7 +865,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rf_render_png</span><span class="params">(<span name="red">red: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="green">green: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="blue">blue: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
+        <span class="name">rf_render_png</span><span class="params">(<span name="red">red: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="green">green: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="blue">blue: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_render_png(red:org.apache.spark.sql.Column,green:org.apache.spark.sql.Column,blue:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Array[Byte]]" title="Permalink" target="_top">
@@ -882,7 +882,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rf_render_png</span><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="colorRampName">colorRampName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
+        <span class="name">rf_render_png</span><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="colorRampName">colorRampName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_render_png(tile:org.apache.spark.sql.Column,colorRampName:String):org.apache.spark.sql.TypedColumn[Any,Array[Byte]]" title="Permalink" target="_top">
@@ -899,7 +899,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rf_render_png</span><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="colors">colors: <span class="extype" name="geotrellis.raster.render.ColorRamp">ColorRamp</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
+        <span class="name">rf_render_png</span><span class="params">(<span name="tile">tile: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="colors">colors: <span class="extype" name="geotrellis.raster.render.ColorRamp">ColorRamp</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_render_png(tile:org.apache.spark.sql.Column,colors:geotrellis.raster.render.ColorRamp):org.apache.spark.sql.TypedColumn[Any,Array[Byte]]" title="Permalink" target="_top">
@@ -907,6 +907,74 @@
       </a>
     </span>
       <p class="shortcomment cmt">Converts tiles in a column into PNG encoded byte array, using given ColorRamp to assign values to colors.</p><div class="fullcomment"><div class="comment cmt"><p>Converts tiles in a column into PNG encoded byte array, using given ColorRamp to assign values to colors.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TileFunctions.html" class="extype" name="org.locationtech.rasterframes.functions.TileFunctions">TileFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.functions.TileFunctions#rf_resample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_resample(tileCol:org.apache.spark.sql.Column,factorCol:org.apache.spark.sql.Column,methodName:String):org.apache.spark.sql.Column"></a>
+      <a id="rf_resample(Column,Column,String):Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_resample</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="factorCol">factorCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="methodName">methodName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_resample(tileCol:org.apache.spark.sql.Column,factorCol:org.apache.spark.sql.Column,methodName:String):org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TileFunctions.html" class="extype" name="org.locationtech.rasterframes.functions.TileFunctions">TileFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.functions.TileFunctions#rf_resample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_resample(tileCol:org.apache.spark.sql.Column,factorCol:org.apache.spark.sql.Column,methodName:org.apache.spark.sql.Column):org.apache.spark.sql.Column"></a>
+      <a id="rf_resample(Column,Column,Column):Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_resample</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="factorCol">factorCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="methodName">methodName: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_resample(tileCol:org.apache.spark.sql.Column,factorCol:org.apache.spark.sql.Column,methodName:org.apache.spark.sql.Column):org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TileFunctions.html" class="extype" name="org.locationtech.rasterframes.functions.TileFunctions">TileFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.functions.TileFunctions#rf_resample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_resample[T](tileCol:org.apache.spark.sql.Column,factorVal:T,methodName:String)(implicitevidence$3:Numeric[T]):org.apache.spark.sql.Column"></a>
+      <a id="rf_resample[T](Column,T,String)(Numeric[T]):Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_resample</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="factorVal">factorVal: <span class="extype" name="org.locationtech.rasterframes.functions.TileFunctions.rf_resample.T">T</span></span>, <span name="methodName">methodName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="org.locationtech.rasterframes.functions.TileFunctions.rf_resample.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_resample[T](tileCol:org.apache.spark.sql.Column,factorVal:T,methodName:String)(implicitevidence$3:Numeric[T]):org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TileFunctions.html" class="extype" name="org.locationtech.rasterframes.functions.TileFunctions">TileFunctions</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.functions.TileFunctions#rf_resample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rf_resample[T](tileCol:org.apache.spark.sql.Column,factorVal:T,methodName:org.apache.spark.sql.Column)(implicitevidence$2:Numeric[T]):org.apache.spark.sql.Column"></a>
+      <a id="rf_resample[T](Column,T,Column)(Numeric[T]):Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rf_resample</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="tileCol">tileCol: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>, <span name="factorVal">factorVal: <span class="extype" name="org.locationtech.rasterframes.functions.TileFunctions.rf_resample.T">T</span></span>, <span name="methodName">methodName: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Numeric">Numeric</span>[<span class="extype" name="org.locationtech.rasterframes.functions.TileFunctions.rf_resample.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_resample[T](tileCol:org.apache.spark.sql.Column,factorVal:T,methodName:org.apache.spark.sql.Column)(implicitevidence$2:Numeric[T]):org.apache.spark.sql.Column" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TileFunctions.html" class="extype" name="org.locationtech.rasterframes.functions.TileFunctions">TileFunctions</a></dd></dl></div>
     </li><li name="org.locationtech.rasterframes.functions.TileFunctions#rf_resample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rf_resample(tileCol:org.apache.spark.sql.Column,factorCol:org.apache.spark.sql.Column):org.apache.spark.sql.Column"></a>
       <a id="rf_resample(Column,Column):Column"></a>
@@ -1088,7 +1156,7 @@ than one will downsample tile; greater than one will upsample. Uses nearest-neig
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rf_tile_to_array_double</span><span class="params">(<span name="col">col: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>]]</span>
+        <span class="name">rf_tile_to_array_double</span><span class="params">(<span name="col">col: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_tile_to_array_double(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Array[Double]]" title="Permalink" target="_top">
@@ -1105,7 +1173,7 @@ than one will downsample tile; greater than one will upsample. Uses nearest-neig
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rf_tile_to_array_int</span><span class="params">(<span name="col">col: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]]</span>
+        <span class="name">rf_tile_to_array_int</span><span class="params">(<span name="col">col: <span class="extype" name="org.apache.spark.sql.Column">Column</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.TypedColumn">TypedColumn</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../index.html#org.locationtech.rasterframes.functions.TileFunctions$@rf_tile_to_array_int(col:org.apache.spark.sql.Column):org.apache.spark.sql.TypedColumn[Any,Array[Int]]" title="Permalink" target="_top">

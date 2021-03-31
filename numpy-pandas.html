@@ -159,9 +159,14 @@ locationtech/rasterframes
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="raster-join.html" class="page">Raster Join</a></li>
-    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="machine-learning.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a></li>
+    <li><a href="supervised-learning.html" class="page">Supervised Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="active page">NumPy and Pandas</a></li>
+  <li><a href="ipython.html" class="page">IPython/Jupyter Extensions</a></li>
   <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release Notes</a></li>
@@ -184,7 +189,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.9.0
+<i class="md-icon" title="Version">label_outline</i> 0.9.1
 </label>
 </li>
 </ul>
@@ -229,14 +234,14 @@ t = Tile(np.random.randn(4, 4))
 print(str(t))
 </code></pre>
 <pre><code>Tile(dimensions=[4, 4], cell_type=CellType(float64, nan), cells=
-[[0.10240555381925405 0.8013275640696462 1.259357116427215
-  -0.3733748872754837]
- [-0.5619532578672226 2.074449212998257 -1.2473384707334263
-  -1.3326147119857557]
- [1.1381035568902023 1.2985280028905166 0.2693251625712327
-  1.2101877442007243]
- [-0.9262041632950695 0.4773738051118583 0.23511277292648441
-  0.7031229413080382]])
+[[-1.6976645785431788 1.438251238090458 0.4955673143482285
+  0.07987907645882293]
+ [1.0223194602865753 0.12571050448043788 1.407536778526134
+  0.4216599411257001]
+ [0.2354512884489902 0.8334623245039772 -0.19812995197824723
+  0.42326157852859847]
+ [0.18779749791929626 0.0837735225844472 -0.34216861550958694
+  0.8240808442602573]])
 </code></pre>
 <p>You can access the NumPy array with the <code>cells</code> member of <code>Tile</code>.</p>
 <pre class="prettyprint"><code class="language-python">t.cells.shape, t.cells.nbytes
@@ -300,7 +305,7 @@ np.abs(diff.cells).max()
 <p>We can also inspect an image of the difference between the two <em>tiles</em>, which is just random noise. Both <em>tiles</em> have the same structure of NoData, as exhibited by the white areas.</p>
 <pre class="prettyprint"><code class="language-python">diff.show(0, 100)
 </code></pre>
-<pre><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x127cc7910&gt;
+<pre><code>&lt;AxesSubplot:&gt;
 </code></pre>
 <p><img src="figures/numpy-pandas_udf_diff_noise_tile_1.png" /></p>
 <h2><a href="#creating-a-spark-dataframe" name="creating-a-spark-dataframe" class="anchor"><span class="anchor-link"></span></a>Creating a Spark DataFrame</h2>
@@ -328,13 +333,13 @@ spark_df.count()
 </code></pre>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.9.0/pyrasterframes/target/python/docs/numpy-pandas.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.9.1/pyrasterframes/target/python/docs/numpy-pandas.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.9.0
+0.9.1
 </span>
 </div>
 </article>
@@ -357,13 +362,13 @@ Supervised Machine Learning
 </span>
 </div>
 </a>
-<a href="languages.html" title="Scala and SQL" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="ipython.html" title="IPython/Jupyter Extensions" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-Scala and SQL
+IPython/Jupyter Extensions
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

@@ -159,9 +159,14 @@ locationtech/rasterframes
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="raster-join.html" class="page">Raster Join</a></li>
-    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="machine-learning.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a></li>
+    <li><a href="supervised-learning.html" class="page">Supervised Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="ipython.html" class="page">IPython/Jupyter Extensions</a></li>
   <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="active page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release Notes</a></li>
@@ -189,7 +194,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.9.0
+<i class="md-icon" title="Version">label_outline</i> 0.9.1
 </label>
 </li>
 </ul>
@@ -451,11 +456,22 @@ Tile rf_interpret_cell_type_as(Tile tile_col, String cell_type)
 </code></pre>
 <p>Change the interpretation of the <code>tile_col</code>&rsquo;s cell values according to specified <code>cell_type</code>. In Python you can pass a CellType object to <code>cell_type</code>.</p>
 <h3><a href="#rf-resample" name="rf-resample" class="anchor"><span class="anchor-link"></span></a>rf_resample</h3>
-<pre><code>Tile rf_resample(Tile tile, Double factor)
-Tile rf_resample(Tile tile, Int factor)
-Tile rf_resample(Tile tile, Tile shape_tile)
+<pre><code>Tile rf_resample(Tile tile, Double factor, [String method])
+Tile rf_resample(Tile tile, Int factor, [String method])
+Tile rf_resample(Tile tile, Tile shape_tile, [String method])
 </code></pre>
-<p>Change the tile dimension. Passing a numeric <code>factor</code> will scale the number of columns and rows in the tile: 1.0 is the same number of columns and row; less than one downsamples the tile; and greater than one upsamples the tile. Passing a <code>shape_tile</code> as the second argument outputs <code>tile</code> having the same number of columns and rows as <code>shape_tile</code>. All resampling is by nearest neighbor method.</p>
+<p>In <strong>SQL</strong>, three parameters are required for <code>rf_resample</code>.:</p>
+<pre><code>Tile rf_resample(Tile tile, Double factor, String method)
+Tile rf_resample(Tile tile, Int factor, String method)
+Tile rf_resample(Tile tile, Tile shape_tile, String method)
+Tile rf_resample_nearest(Tile tile, Double factor)
+Tile rf_resample_nearest(Tile tile, Int factor)
+Tile rf_resample_nearest(Tile tile, Tile shape_tile)
+</code></pre>
+<p>Change the tile dimension by upsampling or downsampling. Passing a numeric <code>factor</code> will scale the number of columns and rows in the tile: 1.0 is the same number of columns and row; less than one downsamples the tile; and greater than one upsamples the tile. Passing a tile as the second argument resamples such that the output has the same dimension (number of columns and rows) as <code>shape_tile</code>. </p>
+<p>There are two categories: point resampling methods and aggregating resampling methods. Resampling method to use can be specified by one of the following strings, possibly in a column. The point resampling methods are: <code>&quot;nearest_neighbor&quot;</code>, <code>&quot;bilinear&quot;</code>, <code>&quot;cubic_convolution&quot;</code>, <code>&quot;cubic_spline&quot;</code>, and <code>&quot;lanczos&quot;</code>. The aggregating resampling methods are: <code>&quot;average&quot;</code>, <code>&quot;mode&quot;</code>, <code>&quot;median&quot;</code>, <code>&quot;max&quot;</code>, &ldquo;<code>min</code>&rdquo;, or <code>&quot;sum&quot;</code>.</p>
+<p>Note the aggregating methods are intended for downsampling. For example a 0.25 factor and <code>max</code> method returns the maximum value in a 4x4 neighborhood.</p>
+<p>If <code>tile</code> has an integer <code>CellType</code>, the returned tile will be coerced to a floating point with the following methods: bilinear, cubic_convolution, cubic_spline, lanczos, average, and median.</p>
 <h2><a href="#tile-creation" name="tile-creation" class="anchor"><span class="anchor-link"></span></a>Tile Creation</h2>
 <p>Functions to create a new Tile column, either from scratch or from existing data not yet in a <code>tile</code>.</p>
 <h3><a href="#rf-make-zeros-tile" name="rf-make-zeros-tile" class="anchor"><span class="anchor-link"></span></a>rf_make_zeros_tile</h3>
@@ -895,13 +911,13 @@ Tile rf_agg_overview_raster(Tile tile_col, int cols, int rows, Extent aoi, Exten
 <p>Merges three bands into a single byte-packed RGB composite. It first scales each cell to fit into an unsigned byte, in the range 0-255, and then merges all three channels to fit into a 32-bit unsigned integer. This is useful when you want an RGB tile to render or to process with other color imagery tools. </p>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.9.0/docs/src/main/paradox/reference.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.9.1/docs/src/main/paradox/reference.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.9.0
+0.9.1
 </span>
 </div>
 </article>

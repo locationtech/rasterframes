@@ -47,7 +47,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Resample</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span> with <a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a> with <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <span class="name">Resample</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="factor">factor: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="method">method: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span><span class="result"> extends <a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4>
       
@@ -56,7 +56,7 @@
               
         </dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span>, <a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a>, <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span>, <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>, <span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode">TreeNode</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span>, <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span>, <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>, <span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode">TreeNode</span>[<span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span>], <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -74,7 +74,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="org.locationtech.rasterframes.expressions.localops.Resample"><span>Resample</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback"><span>CodegenFallback</span></li><li class="in" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp"><span>BinaryLocalRasterOp</span></li><li class="in" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression"><span>BinaryExpression</span></li><li class="in" name="org.apache.spark.sql.catalyst.expressions.Expression"><span>Expression</span></li><li class="in" name="org.apache.spark.sql.catalyst.trees.TreeNode"><span>TreeNode</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="org.locationtech.rasterframes.expressions.localops.Resample"><span>Resample</span></li><li class="in" name="org.locationtech.rasterframes.expressions.localops.ResampleBase"><span>ResampleBase</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback"><span>CodegenFallback</span></li><li class="in" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression"><span>TernaryExpression</span></li><li class="in" name="org.apache.spark.sql.catalyst.expressions.Expression"><span>Expression</span></li><li class="in" name="org.apache.spark.sql.catalyst.trees.TreeNode"><span>TreeNode</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -94,7 +94,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.locationtech.rasterframes.expressions.localops.Resample#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(left:org.apache.spark.sql.catalyst.expressions.Expression,right:org.apache.spark.sql.catalyst.expressions.Expression):org.locationtech.rasterframes.expressions.localops.Resample"></a>
+      <a id="&lt;init&gt;(left:org.apache.spark.sql.catalyst.expressions.Expression,factor:org.apache.spark.sql.catalyst.expressions.Expression,method:org.apache.spark.sql.catalyst.expressions.Expression):org.locationtech.rasterframes.expressions.localops.Resample"></a>
       <a id="&lt;init&gt;:Resample"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -102,10 +102,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Resample</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="right">right: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span>
+        <span class="name">Resample</span><span class="params">(<span name="left">left: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="factor">factor: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>, <span name="method">method: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@&lt;init&gt;(left:org.apache.spark.sql.catalyst.expressions.Expression,right:org.apache.spark.sql.catalyst.expressions.Expression):org.locationtech.rasterframes.expressions.localops.Resample" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@&lt;init&gt;(left:org.apache.spark.sql.catalyst.expressions.Expression,factor:org.apache.spark.sql.catalyst.expressions.Expression,method:org.apache.spark.sql.catalyst.expressions.Expression):org.locationtech.rasterframes.expressions.localops.Resample" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -255,7 +255,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Expression</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp#checkInputDataTypes" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#checkInputDataTypes" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="checkInputDataTypes():org.apache.spark.sql.catalyst.analysis.TypeCheckResult"></a>
       <a id="checkInputDataTypes():TypeCheckResult"></a>
       <h4 class="signature">
@@ -271,13 +271,13 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a> → Expression</dd></dl></div>
-    </li><li name="org.apache.spark.sql.catalyst.expressions.BinaryExpression#children" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> → Expression</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#children" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="children:Seq[org.apache.spark.sql.catalyst.expressions.Expression]"></a>
       <a id="children:Seq[Expression]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">final </span>
+        <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
@@ -288,7 +288,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>BinaryExpression → TreeNode</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> → TreeNode</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.expressions.Expression#childrenResolved" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="childrenResolved:Boolean"></a>
       <a id="childrenResolved:Boolean"></a>
@@ -397,7 +397,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp#dataType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#dataType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dataType:org.apache.spark.sql.types.DataType"></a>
       <a id="dataType:DataType"></a>
       <h4 class="signature">
@@ -413,24 +413,24 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a> → Expression</dd></dl></div>
-    </li><li name="org.apache.spark.sql.catalyst.expressions.BinaryExpression#defineCodeGen" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="defineCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
-      <a id="defineCodeGen(CodegenContext,ExprCode,(String,String)⇒String):ExprCode"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> → Expression</dd></dl></div>
+    </li><li name="org.apache.spark.sql.catalyst.expressions.TernaryExpression#defineCodeGen" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="defineCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
+      <a id="defineCodeGen(CodegenContext,ExprCode,(String,String,String)⇒String):ExprCode"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">defineCodeGen</span><span class="params">(<span name="ctx">ctx: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext">CodegenContext</span></span>, <span name="ev">ev: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>, <span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>
+        <span class="name">defineCodeGen</span><span class="params">(<span name="ctx">ctx: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext">CodegenContext</span></span>, <span name="ev">ev: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>, <span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@defineCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@defineCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>BinaryExpression</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TernaryExpression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.expressions.Expression#deterministic" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="deterministic:Boolean"></a>
       <a id="deterministic:Boolean"></a>
@@ -482,7 +482,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#eval" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#eval" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eval(input:org.apache.spark.sql.catalyst.InternalRow):Any"></a>
       <a id="eval(InternalRow):Any"></a>
       <h4 class="signature">
@@ -498,7 +498,24 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.expressions.localops.Resample">Resample</a> → BinaryExpression → Expression</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> → TernaryExpression → Expression</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#factor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="factor:org.apache.spark.sql.catalyst.expressions.Expression"></a>
+      <a id="factor:Expression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">factor</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@factor:org.apache.spark.sql.catalyst.expressions.Expression" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#fastEquals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fastEquals(other:org.apache.spark.sql.catalyst.trees.TreeNode[_]):Boolean"></a>
       <a id="fastEquals(TreeNode[_]):Boolean"></a>
@@ -590,7 +607,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
-    </li><li name="org.apache.spark.sql.catalyst.expressions.BinaryExpression#foldable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.apache.spark.sql.catalyst.expressions.TernaryExpression#foldable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="foldable:Boolean"></a>
       <a id="foldable:Boolean"></a>
       <h4 class="signature">
@@ -606,7 +623,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>BinaryExpression → Expression</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TernaryExpression → Expression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#foreach" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="foreach(f:BaseType=&gt;Unit):Unit"></a>
       <a id="foreach((Expression)⇒Unit):Unit"></a>
@@ -760,7 +777,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#left" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#left" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="left:org.apache.spark.sql.catalyst.expressions.Expression"></a>
       <a id="left:Expression"></a>
       <h4 class="signature">
@@ -776,24 +793,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.expressions.localops.Resample">Resample</a> → BinaryExpression</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="logger:com.typesafe.scalalogging.Logger"></a>
-      <a id="logger:Logger"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@logger:com.typesafe.scalalogging.Logger" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a></dd></dl></div>
+      
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#makeCopy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="makeCopy(newArgs:Array[AnyRef]):BaseType"></a>
       <a id="makeCopy(Array[AnyRef]):Expression"></a>
@@ -803,7 +803,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">makeCopy</span><span class="params">(<span name="newArgs">newArgs: <span class="extype" name="scala.Array">Array</span>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
+        <span class="name">makeCopy</span><span class="params">(<span name="newArgs">newArgs: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@makeCopy(newArgs:Array[AnyRef]):BaseType" title="Permalink" target="_top">
@@ -854,7 +854,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">mapProductIterator</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>) ⇒ <span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>
+        <span class="name">mapProductIterator</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a>) ⇒ <span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@mapProductIterator[B](f:Any=&gt;B)(implicitevidence$1:scala.reflect.ClassTag[B]):Array[B]" title="Permalink" target="_top">
@@ -862,6 +862,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#method" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="method:org.apache.spark.sql.catalyst.expressions.Expression"></a>
+      <a id="method:Expression"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">method</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@method:org.apache.spark.sql.catalyst.expressions.Expression" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -879,7 +896,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#nodeName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#nodeName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="nodeName:String"></a>
       <a id="nodeName:String"></a>
       <h4 class="signature">
@@ -895,7 +912,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.expressions.localops.Resample">Resample</a> → TreeNode</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> → TreeNode</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <a id="notify():Unit"></a>
@@ -930,41 +947,41 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="org.apache.spark.sql.catalyst.expressions.BinaryExpression#nullSafeCodeGen" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="nullSafeCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
-      <a id="nullSafeCodeGen(CodegenContext,ExprCode,(String,String)⇒String):ExprCode"></a>
+    </li><li name="org.apache.spark.sql.catalyst.expressions.TernaryExpression#nullSafeCodeGen" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nullSafeCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode"></a>
+      <a id="nullSafeCodeGen(CodegenContext,ExprCode,(String,String,String)⇒String):ExprCode"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">nullSafeCodeGen</span><span class="params">(<span name="ctx">ctx: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext">CodegenContext</span></span>, <span name="ev">ev: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>, <span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>
+        <span class="name">nullSafeCodeGen</span><span class="params">(<span name="ctx">ctx: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext">CodegenContext</span></span>, <span name="ev">ev: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>, <span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.ExprCode">ExprCode</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@nullSafeCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@nullSafeCodeGen(ctx:org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext,ev:org.apache.spark.sql.catalyst.expressions.codegen.ExprCode,f:(String,String,String)=&gt;String):org.apache.spark.sql.catalyst.expressions.codegen.ExprCode" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>BinaryExpression</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp#nullSafeEval" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="nullSafeEval(input1:Any,input2:Any):Any"></a>
-      <a id="nullSafeEval(Any,Any):Any"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TernaryExpression</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#nullSafeEval" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nullSafeEval(input1:Any,input2:Any,input3:Any):Any"></a>
+      <a id="nullSafeEval(Any,Any,Any):Any"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">nullSafeEval</span><span class="params">(<span name="input1">input1: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="input2">input2: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>
+        <span class="name">nullSafeEval</span><span class="params">(<span name="input1">input1: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="input2">input2: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="input3">input3: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Any" class="extype" target="_top">Any</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@nullSafeEval(input1:Any,input2:Any):Any" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@nullSafeEval(input1:Any,input2:Any,input3:Any):Any" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a> → BinaryExpression</dd></dl></div>
-    </li><li name="org.apache.spark.sql.catalyst.expressions.BinaryExpression#nullable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a> → TernaryExpression</dd></dl></div>
+    </li><li name="org.apache.spark.sql.catalyst.expressions.TernaryExpression#nullable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="nullable:Boolean"></a>
       <a id="nullable:Boolean"></a>
       <h4 class="signature">
@@ -980,7 +997,7 @@
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>BinaryExpression → Expression</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TernaryExpression → Expression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#numberedTreeString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="numberedTreeString:String"></a>
       <a id="numberedTreeString:String"></a>
@@ -998,57 +1015,57 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreeNode</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#op" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="op(left:geotrellis.raster.Tile,right:Int):geotrellis.raster.Tile"></a>
-      <a id="op(Tile,Int):Tile"></a>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#op" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="op(tile:geotrellis.raster.Tile,newCols:Int,newRows:Int,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile"></a>
+      <a id="op(Tile,Int,Int,ResampleMethod):Tile"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">op</span><span class="params">(<span name="left">left: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="right">right: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>
+        <span class="name">op</span><span class="params">(<span name="tile">tile: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="newCols">newCols: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="newRows">newRows: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="method">method: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@op(left:geotrellis.raster.Tile,right:Int):geotrellis.raster.Tile" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@op(tile:geotrellis.raster.Tile,newCols:Int,newRows:Int,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.expressions.localops.Resample">Resample</a> → <a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a></dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#op" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="op(left:geotrellis.raster.Tile,right:Double):geotrellis.raster.Tile"></a>
-      <a id="op(Tile,Double):Tile"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#op" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="op(left:geotrellis.raster.Tile,right:Double,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile"></a>
+      <a id="op(Tile,Double,ResampleMethod):Tile"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">op</span><span class="params">(<span name="left">left: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="right">right: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>
+        <span class="name">op</span><span class="params">(<span name="left">left: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="right">right: <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Double" class="extype" target="_top">Double</a></span>, <span name="method">method: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@op(left:geotrellis.raster.Tile,right:Double):geotrellis.raster.Tile" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@op(left:geotrellis.raster.Tile,right:Double,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.expressions.localops.Resample">Resample</a> → <a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a></dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#op" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="op(left:geotrellis.raster.Tile,right:geotrellis.raster.Tile):geotrellis.raster.Tile"></a>
-      <a id="op(Tile,Tile):Tile"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a></dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#op" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="op(left:geotrellis.raster.Tile,right:geotrellis.raster.Tile,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile"></a>
+      <a id="op(Tile,Tile,ResampleMethod):Tile"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">op</span><span class="params">(<span name="left">left: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="right">right: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>
+        <span class="name">op</span><span class="params">(<span name="left">left: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="right">right: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="method">method: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@op(left:geotrellis.raster.Tile,right:geotrellis.raster.Tile):geotrellis.raster.Tile" title="Permalink" target="_top">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@op(left:geotrellis.raster.Tile,right:geotrellis.raster.Tile,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.expressions.localops.Resample">Resample</a> → <a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a></dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#origin" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="origin:org.apache.spark.sql.catalyst.trees.Origin"></a>
       <a id="origin:Origin"></a>
@@ -1168,23 +1185,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Expression</dd></dl></div>
-    </li><li name="org.locationtech.rasterframes.expressions.localops.Resample#right" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="right:org.apache.spark.sql.catalyst.expressions.Expression"></a>
-      <a id="right:Expression"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">right</span><span class="result">: <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@right:org.apache.spark.sql.catalyst.expressions.Expression" title="Permalink" target="_top">
-        <img src="../../../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.locationtech.rasterframes.expressions.localops.Resample">Resample</a> → BinaryExpression</dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.expressions.Expression#semanticEquals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="semanticEquals(other:org.apache.spark.sql.catalyst.expressions.Expression):Boolean"></a>
       <a id="semanticEquals(Expression):Boolean"></a>
@@ -1287,6 +1287,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.locationtech.rasterframes.expressions.localops.ResampleBase#targetFloatIfNeeded" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="targetFloatIfNeeded(t:geotrellis.raster.Tile,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile"></a>
+      <a id="targetFloatIfNeeded(Tile,ResampleMethod):Tile"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">targetFloatIfNeeded</span><span class="params">(<span name="t">t: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>, <span name="method">method: <span class="extype" name="geotrellis.raster.resample.ResampleMethod">ResampleMethod</span></span>)</span><span class="result">: <span class="extype" name="geotrellis.raster.Tile">Tile</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#org.locationtech.rasterframes.expressions.localops.Resample@targetFloatIfNeeded(t:geotrellis.raster.Tile,method:geotrellis.raster.resample.ResampleMethod):geotrellis.raster.Tile" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a></dd></dl></div>
     </li><li name="org.apache.spark.sql.catalyst.trees.TreeNode#toJSON" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toJSON:String"></a>
       <a id="toJSON:String"></a>
@@ -1535,16 +1552,16 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Serializable">
+        <div class="parent" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">
+              <h3>Inherited from <a href="ResampleBase.html" class="extype" name="org.locationtech.rasterframes.expressions.localops.ResampleBase">ResampleBase</a></h3>
+            </div><div class="parent" name="scala.Serializable">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.12/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
             </div><div class="parent" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">
               <h3>Inherited from <span class="extype" name="org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback">CodegenFallback</span></h3>
-            </div><div class="parent" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">
-              <h3>Inherited from <a href="../BinaryLocalRasterOp.html" class="extype" name="org.locationtech.rasterframes.expressions.BinaryLocalRasterOp">BinaryLocalRasterOp</a></h3>
-            </div><div class="parent" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">
-              <h3>Inherited from <span class="extype" name="org.apache.spark.sql.catalyst.expressions.BinaryExpression">BinaryExpression</span></h3>
+            </div><div class="parent" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">
+              <h3>Inherited from <span class="extype" name="org.apache.spark.sql.catalyst.expressions.TernaryExpression">TernaryExpression</span></h3>
             </div><div class="parent" name="org.apache.spark.sql.catalyst.expressions.Expression">
               <h3>Inherited from <span class="extype" name="org.apache.spark.sql.catalyst.expressions.Expression">Expression</span></h3>
             </div><div class="parent" name="org.apache.spark.sql.catalyst.trees.TreeNode">

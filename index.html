@@ -154,9 +154,14 @@ locationtech/rasterframes
     <li><a href="aggregation.html" class="page">Aggregation</a></li>
     <li><a href="time-series.html" class="page">Time Series</a></li>
     <li><a href="raster-join.html" class="page">Raster Join</a></li>
-    <li><a href="machine-learning.html" class="page">Machine Learning</a></li>
+  </ul></li>
+  <li><a href="machine-learning.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a></li>
+    <li><a href="supervised-learning.html" class="page">Supervised Machine Learning</a></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a></li>
+  <li><a href="ipython.html" class="page">IPython/Jupyter Extensions</a></li>
   <li><a href="languages.html" class="page">Scala and SQL</a></li>
   <li><a href="reference.html" class="page">Function Reference</a></li>
   <li><a href="release-notes.html" class="page">Release Notes</a></li>
@@ -166,6 +171,8 @@ locationtech/rasterframes
 <ul>
   <li><a href="index.html#rasterframes" class="header">RasterFrames</a>
   <ul>
+    <li><a href="index.html#license" class="header">License</a></li>
+    <li><a href="index.html#commercial-support" class="header">Commercial Support</a></li>
     <li><a href="index.html#related-links" class="header">Related Links</a></li>
     <li><a href="index.html#detailed-contents" class="header">Detailed Contents</a></li>
   </ul></li>
@@ -176,7 +183,7 @@ locationtech/rasterframes
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.9.0
+<i class="md-icon" title="Version">label_outline</i> 0.9.1
 </label>
 </li>
 </ul>
@@ -191,6 +198,8 @@ locationtech/rasterframes
 <ul>
   <li><a href="index.html#rasterframes" class="header">RasterFrames</a>
   <ul>
+    <li><a href="index.html#license" class="header">License</a></li>
+    <li><a href="index.html#commercial-support" class="header">Commercial Support</a></li>
     <li><a href="index.html#related-links" class="header">Related Links</a></li>
     <li><a href="index.html#detailed-contents" class="header">Detailed Contents</a></li>
   </ul></li>
@@ -210,9 +219,12 @@ locationtech/rasterframes
 <p>Through its custom <a href="https://rasterframes.io/raster-read.html">Spark DataSource</a>, RasterFrames can read various raster formats &ndash; including GeoTIFF, JP2000, MRF, and HDF &ndash; and from an <a href="https://rasterframes.io/raster-read.html#uri-formats">array of services</a>, such as HTTP, FTP, HDFS, S3 and WASB. It also supports reading the vector formats GeoJSON and WKT/WKB. RasterFrame contents can be filtered, transformed, summarized, resampled, and rasterized through <a href="https://rasterframes.io/reference.html">200+ raster and vector functions</a>.</p>
 <p>As part of the LocationTech family of projects, RasterFrames builds upon the strong foundations provided by GeoMesa (spatial operations) , GeoTrellis (raster operations), JTS (geometry modeling) and SFCurve (spatiotemporal indexing), integrating various aspects of these projects into a unified, DataFrame-centric analytics package.</p>
 <p><img src="static/rasterframes-locationtech-stack.png" /></p>
+<h2><a href="#license" name="license" class="anchor"><span class="anchor-link"></span></a>License</h2>
 <p>RasterFrames is released under the commercial-friendly <a href="https://github.com/locationtech/rasterframes/blob/develop/LICENSE">Apache 2.0</a> open source license.</p>
 <p>To learn more, please see the <a href="getting-started.html">Getting Started</a> section of this manual.</p>
 <p>The source code can be found on GitHub at <a href="https://github.com/locationtech/rasterframes">locationtech/rasterframes</a>.</p>
+<h2><a href="#commercial-support" name="commercial-support" class="anchor"><span class="anchor-link"></span></a>Commercial Support</h2>
+<p>As the sponsors and developers of RasterFrames, <a href="https://astraea.earth/">Astraea, Inc.</a> is uniquely positioned to expand its capabilities. If you need additional functionality or just some architectural guidance to get your project off to the right start, we can provide a full range of <a href="https://astraea.earth/services/">consulting and development services</a> around RasterFrames. We can be reached at <a href="mailto:info@astraea.io">info@astraea.io</a>.</p>
 <hr/>
 <h2><a href="#related-links" name="related-links" class="anchor"><span class="anchor-link"></span></a>Related Links</h2>
 <ul>
@@ -263,17 +275,9 @@ locationtech/rasterframes
   <ul>
     <li><a href="raster-catalogs.html" class="page">Raster Catalogs</a>
     <ul>
-      <li><a href="raster-catalogs.html#creating-a-catalog" class="header">Creating a Catalog</a>
-      <ul>
-        <li><a href="raster-catalogs.html#one-d" class="header">One-D</a></li>
-        <li><a href="raster-catalogs.html#two-d" class="header">Two-D</a></li>
-      </ul></li>
+      <li><a href="raster-catalogs.html#creating-a-catalog" class="header">Creating a Catalog</a></li>
       <li><a href="raster-catalogs.html#using-external-catalogs" class="header">Using External Catalogs</a></li>
-      <li><a href="raster-catalogs.html#using-built-in-catalogs" class="header">Using Built-in Catalogs</a>
-      <ul>
-        <li><a href="raster-catalogs.html#modis" class="header">MODIS</a></li>
-        <li><a href="raster-catalogs.html#landsat-8" class="header">Landsat 8</a></li>
-      </ul></li>
+      <li><a href="raster-catalogs.html#using-built-in-catalogs" class="header">Using Built-in Catalogs</a></li>
     </ul></li>
     <li><a href="raster-read.html" class="page">Reading Raster Data</a>
     <ul>
@@ -284,27 +288,13 @@ locationtech/rasterframes
       <li><a href="raster-read.html#raster-catalogs" class="header">Raster Catalogs</a></li>
       <li><a href="raster-read.html#lazy-raster-reading" class="header">Lazy Raster Reading</a></li>
       <li><a href="raster-read.html#spatial-indexing-and-partitioning" class="header">Spatial Indexing and Partitioning</a></li>
-      <li><a href="raster-read.html#geotrellis" class="header">GeoTrellis</a>
-      <ul>
-        <li><a href="raster-read.html#geotrellis-catalogs" class="header">GeoTrellis Catalogs</a></li>
-        <li><a href="raster-read.html#geotrellis-layers" class="header">GeoTrellis Layers</a></li>
-      </ul></li>
+      <li><a href="raster-read.html#geotrellis" class="header">GeoTrellis</a></li>
     </ul></li>
     <li><a href="raster-write.html" class="page">Writing Raster Data</a>
     <ul>
-      <li><a href="raster-write.html#tile-samples" class="header">Tile Samples</a></li>
-      <li><a href="raster-write.html#dataframe-samples" class="header">DataFrame Samples</a></li>
-      <li><a href="raster-write.html#rendering-samples-with-color" class="header">Rendering Samples with Color</a>
-      <ul>
-        <li><a href="raster-write.html#color-composites" class="header">Color Composites</a></li>
-        <li><a href="raster-write.html#custom-color-map" class="header">Custom Color Map</a></li>
-      </ul></li>
-      <li><a href="raster-write.html#geotiffs" class="header">GeoTIFFs</a>
-      <ul>
-        <li><a href="raster-write.html#downsampling" class="header">Downsampling</a></li>
-        <li><a href="raster-write.html#color-composites" class="header">Color Composites</a></li>
-      </ul></li>
+      <li><a href="raster-write.html#ipython-jupyter" class="header">IPython/Jupyter</a></li>
       <li><a href="raster-write.html#overview-rasters" class="header">Overview Rasters</a></li>
+      <li><a href="raster-write.html#geotiffs" class="header">GeoTIFFs</a></li>
       <li><a href="raster-write.html#geotrellis-layers" class="header">GeoTrellis Layers</a></li>
       <li><a href="raster-write.html#parquet" class="header">Parquet</a></li>
     </ul></li>
@@ -325,10 +315,7 @@ locationtech/rasterframes
     <li><a href="nodata-handling.html" class="page">&ldquo;NoData&rdquo; Handling</a>
     <ul>
       <li><a href="nodata-handling.html#what-is-nodata-" class="header">What is NoData?</a></li>
-      <li><a href="nodata-handling.html#cell-types" class="header">Cell Types</a>
-      <ul>
-        <li><a href="nodata-handling.html#understanding-cell-types-and-nodata" class="header">Understanding Cell Types and NoData</a></li>
-      </ul></li>
+      <li><a href="nodata-handling.html#cell-types" class="header">Cell Types</a></li>
       <li><a href="nodata-handling.html#nodata-and-local-arithmetic" class="header">NoData and Local Arithmetic</a></li>
       <li><a href="nodata-handling.html#changing-a-tiles-nodata-values" class="header">Changing a Tile&rsquo;s NoData Values</a></li>
       <li><a href="nodata-handling.html#combining-tiles-with-different-data-types" class="header">Combining Tiles with Different Data Types</a></li>
@@ -336,12 +323,7 @@ locationtech/rasterframes
     </ul></li>
     <li><a href="masking.html" class="page">Masking</a>
     <ul>
-      <li><a href="masking.html#masking-sentinel-2" class="header">Masking Sentinel 2</a>
-      <ul>
-        <li><a href="masking.html#define-celltype-for-masked-tile" class="header">Define CellType for Masked Tile</a></li>
-        <li><a href="masking.html#apply-mask-from-quality-band" class="header">Apply Mask from Quality Band</a></li>
-        <li><a href="masking.html#transferring-mask" class="header">Transferring Mask</a></li>
-      </ul></li>
+      <li><a href="masking.html#masking-sentinel-2" class="header">Masking Sentinel 2</a></li>
       <li><a href="masking.html#masking-landsat-8" class="header">Masking Landsat 8</a></li>
       <li><a href="masking.html#clipping" class="header">Clipping</a></li>
     </ul></li>
@@ -374,25 +356,25 @@ locationtech/rasterframes
       <li><a href="raster-join.html#example-code" class="header">Example Code</a></li>
       <li><a href="raster-join.html#additional-options" class="header">Additional Options</a></li>
     </ul></li>
-    <li><a href="machine-learning.html" class="page">Machine Learning</a>
+  </ul></li>
+  <li><a href="machine-learning.html" class="page">Machine Learning</a>
+  <ul>
+    <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a>
     <ul>
-      <li><a href="unsupervised-learning.html" class="page">Unsupervised Machine Learning</a>
-      <ul>
-        <li><a href="unsupervised-learning.html#imports-and-data-preparation" class="header">Imports and Data Preparation</a></li>
-        <li><a href="unsupervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
-        <li><a href="unsupervised-learning.html#fit-the-model-and-score" class="header">Fit the Model and Score</a></li>
-        <li><a href="unsupervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
-      </ul></li>
-      <li><a href="supervised-learning.html" class="page">Supervised Machine Learning</a>
-      <ul>
-        <li><a href="supervised-learning.html#create-and-read-raster-catalog" class="header">Create and Read Raster Catalog</a></li>
-        <li><a href="supervised-learning.html#data-prep" class="header">Data Prep</a></li>
-        <li><a href="supervised-learning.html#masking-poor-quality-cells" class="header">Masking Poor Quality Cells</a></li>
-        <li><a href="supervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
-        <li><a href="supervised-learning.html#train-the-model" class="header">Train the Model</a></li>
-        <li><a href="supervised-learning.html#model-evaluation" class="header">Model Evaluation</a></li>
-        <li><a href="supervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
-      </ul></li>
+      <li><a href="unsupervised-learning.html#imports-and-data-preparation" class="header">Imports and Data Preparation</a></li>
+      <li><a href="unsupervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
+      <li><a href="unsupervised-learning.html#fit-the-model-and-score" class="header">Fit the Model and Score</a></li>
+      <li><a href="unsupervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
+    </ul></li>
+    <li><a href="supervised-learning.html" class="page">Supervised Machine Learning</a>
+    <ul>
+      <li><a href="supervised-learning.html#create-and-read-raster-catalog" class="header">Create and Read Raster Catalog</a></li>
+      <li><a href="supervised-learning.html#data-prep" class="header">Data Prep</a></li>
+      <li><a href="supervised-learning.html#masking-poor-quality-cells" class="header">Masking Poor Quality Cells</a></li>
+      <li><a href="supervised-learning.html#create-ml-pipeline" class="header">Create ML Pipeline</a></li>
+      <li><a href="supervised-learning.html#train-the-model" class="header">Train the Model</a></li>
+      <li><a href="supervised-learning.html#model-evaluation" class="header">Model Evaluation</a></li>
+      <li><a href="supervised-learning.html#visualize-prediction" class="header">Visualize Prediction</a></li>
     </ul></li>
   </ul></li>
   <li><a href="numpy-pandas.html" class="page">NumPy and Pandas</a>
@@ -402,6 +384,20 @@ locationtech/rasterframes
     <li><a href="numpy-pandas.html#dataframe-topandas" class="header">DataFrame <code>toPandas</code></a></li>
     <li><a href="numpy-pandas.html#user-defined-functions" class="header">User Defined Functions</a></li>
     <li><a href="numpy-pandas.html#creating-a-spark-dataframe" class="header">Creating a Spark DataFrame</a></li>
+  </ul></li>
+  <li><a href="ipython.html" class="page">IPython/Jupyter Extensions</a>
+  <ul>
+    <li><a href="ipython.html#tile-samples" class="header">Tile Samples</a></li>
+    <li><a href="ipython.html#dataframe-samples" class="header">DataFrame Samples</a>
+    <ul>
+      <li><a href="ipython.html#changing-number-of-rows" class="header">Changing Number of Rows</a></li>
+      <li><a href="ipython.html#pandas" class="header">Pandas</a></li>
+    </ul></li>
+    <li><a href="ipython.html#sample-colorization" class="header">Sample Colorization</a>
+    <ul>
+      <li><a href="ipython.html#color-composite" class="header">Color Composite</a></li>
+      <li><a href="ipython.html#custom-color-ramp" class="header">Custom Color Ramp</a></li>
+    </ul></li>
   </ul></li>
   <li><a href="languages.html" class="page">Scala and SQL</a>
   <ul>
@@ -559,6 +555,7 @@ locationtech/rasterframes
   <ul>
     <li><a href="release-notes.html#0-9-x" class="header">0.9.x</a>
     <ul>
+      <li><a href="release-notes.html#0-9-1" class="header">0.9.1</a></li>
       <li><a href="release-notes.html#0-9-0" class="header">0.9.0</a></li>
     </ul></li>
     <li><a href="release-notes.html#0-8-x" class="header">0.8.x</a>
@@ -568,10 +565,7 @@ locationtech/rasterframes
       <li><a href="release-notes.html#0-8-3" class="header">0.8.3</a></li>
       <li><a href="release-notes.html#0-8-2" class="header">0.8.2</a></li>
       <li><a href="release-notes.html#0-8-1" class="header">0.8.1</a></li>
-      <li><a href="release-notes.html#0-8-0" class="header">0.8.0</a>
-      <ul>
-        <li><a href="release-notes.html#known-issues" class="header">Known issues</a></li>
-      </ul></li>
+      <li><a href="release-notes.html#0-8-0" class="header">0.8.0</a></li>
     </ul></li>
     <li><a href="release-notes.html#0-7-x" class="header">0.7.x</a>
     <ul>
@@ -581,10 +575,7 @@ locationtech/rasterframes
     <li><a href="release-notes.html#0-6-x" class="header">0.6.x</a>
     <ul>
       <li><a href="release-notes.html#0-6-1" class="header">0.6.1</a></li>
-      <li><a href="release-notes.html#0-6-0" class="header">0.6.0</a>
-      <ul>
-        <li><a href="release-notes.html#known-issues" class="header">Known Issues</a></li>
-      </ul></li>
+      <li><a href="release-notes.html#0-6-0" class="header">0.6.0</a></li>
     </ul></li>
     <li><a href="release-notes.html#0-5-x" class="header">0.5.x</a>
     <ul>
@@ -602,13 +593,13 @@ locationtech/rasterframes
 </div>
 </div>
 <div>
-<a href="https://github.com/locationtech/rasterframes/tree/v0.9.0/docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/locationtech/rasterframes/tree/v0.9.1/docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.9.0
+0.9.1
 </span>
 </div>
 </article>
