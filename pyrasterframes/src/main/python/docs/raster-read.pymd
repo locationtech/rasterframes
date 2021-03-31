@@ -7,7 +7,10 @@ import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import *
-spark = create_rf_spark_session()
+spark = create_rf_spark_session(**{
+    'spark.driver.memory': '4G',
+    'spark.ui.enabled': 'false'
+})
 ```
 
 RasterFrames registers a DataSource named `raster` that enables reading of GeoTIFFs (and other formats when @ref:[GDAL is installed](getting-started.md#installing-gdal)) from arbitrary URIs. The `raster` DataSource operates on either a single raster file location or another DataFrame, called a _catalog_, containing pointers to many raster file locations.

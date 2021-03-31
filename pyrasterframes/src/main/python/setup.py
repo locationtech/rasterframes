@@ -37,6 +37,7 @@ except IOError as e:
     sys.exit(-1)
 
 VERSION = __version__
+print(f"setup.py sees the version as {VERSION}")
 
 here = path.abspath(path.dirname(__file__))
 
@@ -98,8 +99,11 @@ class PweaveDocs(distutils.cmd.Command):
                 'class': PegdownMarkdownFormatter,
                 'description': 'Pegdown compatible markdown'
             }
+        if self.format == 'notebook':
+            # Just convert to an unevaluated notebook.
+            pweave.rcParams["chunk"]["defaultoptions"].update({'evaluate': False})
 
-        for file in sorted(self.files, reverse=True):
+        for file in sorted(self.files, reverse=False):
             name = path.splitext(path.basename(file))[0]
             dest = self.dest_file(file)
 

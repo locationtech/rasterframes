@@ -13,6 +13,7 @@
 * Upgraded many of the pyrasterframes dependencies, including: 
   `descartes`, `fiona`, `folium`, `geopandas`, `matplotlib`, `numpy`, `pandas`, `rasterio`, `shapely`
 * Changed `rasterframes.prefer-gdal` configuration parameter to default to `False`, as JVM GeoTIFF performs just as well for COGs as the GDAL one.
+* Fixed [#545](https://github.com/locationtech/rasterframes/issues/545).
 
 ### 0.9.0
 

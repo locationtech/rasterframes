@@ -69,7 +69,7 @@ If there are many _tile_ or projected raster columns in the DataFrame, the GeoTI
 
 * `path`: the path local to the driver where the file will be written
 * `crs`: the PROJ4 string of the CRS the GeoTIFF is to be written in
-* `raster_dimensions`: optional, a tuple of two ints giving the size of the resulting file. If specified, RasterFrames will downsample the data in distributed fashion using bilinear resampling. If not specified, the default is to write the dataframe at full resolution, which can result in an `OutOfMemoryError`.
+* `raster_dimensions`: optional, a tuple of two ints giving the size of the resulting file. If specified, RasterFrames will downsample the data in distributed fashion using bilinear resampling. If not specified, the default is to write the dataframe at full resolution, which can result in an out of memory error.
 
 ### Example 
 

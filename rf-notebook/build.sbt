@@ -30,7 +30,7 @@ Docker / mappings := Def.sequential(
 
     val py = (LocalProject("pyrasterframes") / pyWhl).value
 
-    Def.taskDyn {
+    val _ = Def.taskDyn {
       val withNB = includeNotebooks.value
       if (withNB)
         (LocalProject("pyrasterframes") / pySetup).toTask(" notebooks")

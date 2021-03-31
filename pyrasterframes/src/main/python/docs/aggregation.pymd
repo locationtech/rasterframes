@@ -2,7 +2,6 @@
 
 ```python, setup, echo=False
 from pyrasterframes import rf_ipython
-from docs import *
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql import *

@@ -9,7 +9,7 @@ import xerial.sbt.Sonatype.autoImport._
  */
 object RFProjectPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
-  override def requires = GitPlugin
+  override def requires = GitPlugin && RFDependenciesPlugin
 
   override def projectSettings = Seq(
     organization := "org.locationtech.rasterframes",
@@ -22,6 +22,7 @@ object RFProjectPlugin extends AutoPlugin {
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion := "2.11.12",
     scalacOptions ++= Seq(
+      "-target:jvm-1.8",
       "-feature",
       "-deprecation",
       "-Ywarn-dead-code",
@@ -30,14 +31,22 @@ object RFProjectPlugin extends AutoPlugin {
     scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
     Compile / console / scalacOptions := Seq("-feature"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    initialize := {
+      val _ = initialize.value // run the previous initialization
+      val sparkVer = VersionNumber(RFDependenciesPlugin.autoImport.rfSparkVersion.value)
+      if (sparkVer.matchesSemVer(SemanticSelector("<3.0"))) {
+        val curr = VersionNumber(sys.props("java.specification.version"))
+        val req = SemanticSelector("=1.8")
+        assert(curr.matchesSemVer(req), s"Java $req required for $sparkVer. Found $curr.")
+      }
+    },
     cancelable in Global := true,
     publishTo in ThisBuild := sonatypePublishTo.value,
     publishMavenStyle := true,
     publishArtifact in (Compile, packageDoc) := true,
     publishArtifact in Test := false,
     fork in Test := true,
-    javaOptions in Test := Seq("-Xmx1500m", "-XX:+HeapDumpOnOutOfMemoryError",
-      "-XX:HeapDumpPath=/tmp"),
+    javaOptions in Test := Seq("-Xmx1500m", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=/tmp"),
     parallelExecution in Test := false,
     testOptions in Test += Tests.Argument("-oDF"),
     developers := List(
@@ -45,19 +54,19 @@ object RFProjectPlugin extends AutoPlugin {
         id = "metasim",
         name = "Simeon H.K. Fitch",
         email = "fitch@astraea.earth",
-        url = url("http://www.astraea.earth")
+        url = url("https://github.com/metasim")
       ),
       Developer(
         id = "vpipkt",
         name = "Jason Brown",
         email = "jbrown@astraea.earth",
-        url = url("http://www.astraea.earth")
+        url = url("https://github.com/vpipkt")
       ),
       Developer(
-        id = "mteldridge",
-        name = "Matt Eldridge",
-        email = "meldridge@astraea.earth",
-        url = url("http://www.astraea.earth")
+        id = "echeipesh",
+        name = "Eugene Cheipesh",
+        email = "echeipesh@gmail.com",
+        url = url("https://github.com/echeipesh")
       ),
       Developer(
         id = "bguseman",

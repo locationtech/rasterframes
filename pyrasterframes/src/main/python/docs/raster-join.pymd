@@ -7,7 +7,10 @@ import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import *
-spark = create_rf_spark_session()
+spark = create_rf_spark_session(**{
+    'spark.driver.memory': '4G',
+    'spark.ui.enabled': 'false'
+})
 
 ```
 
