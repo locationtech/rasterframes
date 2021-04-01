@@ -22,22 +22,25 @@ from unittest import skip
 
 
 import pyrasterframes
-import pyrasterframes.rf_ipython
-from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
-
-from IPython.display import display_markdown
-from IPython.display import display_html
 
 import numpy as np
 
 from py4j.protocol import Py4JJavaError
+from IPython.testing import globalipapp
 from . import TestEnvironment
 
 class IpythonTests(TestEnvironment):
 
-    def setUp(self):
-        self.create_layer()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        globalipapp.start_ipython()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        globalipapp.get_ipython().atexit_operations()
+
 
     @skip("Pending fix for issue #458")
     def test_all_nodata_tile(self):
@@ -60,3 +63,28 @@ class IpythonTests(TestEnvironment):
             self.fail("test_all_nodata_tile failed with Py4JJavaError")
         except:
             self.fail("um")
+
+    def test_display_extension(self):
+        # noinspection PyUnresolvedReferences
+        import pyrasterframes.rf_ipython
+
+        self.create_layer()
+        ip = globalipapp.get_ipython()
+
+        num_rows = 2
+
+        result = {}
+
+        def counter(data, md):
+            nonlocal result
+            result['payload'] = (data, md)
+            result['row_count'] = data.count('<tr>')
+        ip.mime_renderers['text/html'] = counter
+
+        # ip.mime_renderers['text/markdown'] = lambda a, b: print(a, b)
+
+        self.df.display(num_rows=num_rows)
+
+        # Plus one for the header row.
+        self.assertIs(result['row_count'], num_rows+1, msg=f"Received: {result['payload']}")
+        

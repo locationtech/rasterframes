@@ -20,4 +20,4 @@
 #
 
 # Translating Java version from version.sbt to PEP440 norms
-__version__: str = '0.9.0'
+__version__: str = '0.9.1'

@@ -29,6 +29,7 @@ import geotrellis.layer._
 import geotrellis.vector.Extent
 import org.apache.spark.sql._
 import org.locationtech.rasterframes
+import org.locationtech.rasterframes.util.ResampleMethod
 import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.ref.{GDALRasterSource, RasterRef, RFRasterSource}
@@ -109,19 +110,38 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
   /**
     * Left spatial join managing reprojection and merging of `other`
     */
-  def rasterJoin(df: DataFrame, other: DataFrame): DataFrame = RasterJoin(df, other, None)
+  def rasterJoin(df: DataFrame, other: DataFrame, resamplingMethod: String): DataFrame = {
+    val m = resamplingMethod match {
+      case ResampleMethod(mm) ⇒ mm
+      case _ ⇒ throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
+    }
+    RasterJoin(df, other, m, None)
+  }
 
   /**
     * Left spatial join managing reprojection and merging of `other`; uses extent and CRS columns to determine if rows intersect
     */
-  def rasterJoin(df: DataFrame, other: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(df, other, leftExtent, leftCRS, rightExtent, rightCRS, None)
+  def rasterJoin(df: DataFrame, other: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resamplingMethod: String): DataFrame = {
+    val m = resamplingMethod match {
+      case ResampleMethod(mm) ⇒ mm
+      case _ ⇒ throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
+    }
+
+    RasterJoin(df, other, leftExtent, leftCRS, rightExtent, rightCRS, m, None)
+  }
 
   /**
     * Left spatial join managing reprojection and merging of `other`; uses joinExprs to conduct initial join then extent and CRS columns to determine if rows intersect
     */
-  def rasterJoin(df: DataFrame, other: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column): DataFrame =
-    RasterJoin(df, other, joinExprs, leftExtent, leftCRS, rightExtent, rightCRS, None)
+  def rasterJoin(df: DataFrame, other: DataFrame, joinExprs: Column, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resamplingMethod: String): DataFrame = {
+
+
+    val m = resamplingMethod match {
+      case ResampleMethod(mm) ⇒ mm
+      case _ ⇒ throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
+    }
+    RasterJoin(df, other, joinExprs, leftExtent, leftCRS, rightExtent, rightCRS, m, None)
+  }
 
 
   /**

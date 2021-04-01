@@ -41,8 +41,6 @@ def simplify(g, tol):
 park_vector = park_vector.withColumn('geo_simp', simplify('geometry', lit(0.001))) \
                          .select('geo_simp') \
                          .hint('broadcast')
-
-
 ```
 
 ## Catalog Read
@@ -56,7 +54,7 @@ park_cat = cat \
                     (cat.acquisition_date > lit('2018-02-19')) &
                     (cat.acquisition_date < lit('2018-07-01'))            
                     ) \
-            .crossJoin(park_vector.filter('OBJECTID == 380')) #only coyahuga
+            .crossJoin(park_vector.filter('UNIT_CODE == "CUVA"')) #only coyahuga
                 
 ```
 

@@ -9,7 +9,6 @@
 * @ref:[Aggregation](aggregation.md)
 * @ref:[Time Series](time-series.md)
 * @ref:[Raster Join](raster-join.md)
-* @ref:[Machine Learning](machine-learning.md)
 
 @@@
 

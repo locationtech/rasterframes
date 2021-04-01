@@ -12,17 +12,20 @@ RUN \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Spark dependencies
-ENV APACHE_SPARK_VERSION 2.4.5
+ENV APACHE_SPARK_VERSION 2.4.7
 ENV HADOOP_VERSION 2.7
-ENV APACHE_SPARK_CHECKSUM 2426a20c548bdfc07df288cd1d18d1da6b3189d0b78dee76fa034c52a4e02895f0ad460720c526f163ba63a17efae4764c46a1cd8f9b04c60f9937a554db85d2
-ENV APACHE_SPARK_FILENAME spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
-ENV APACHE_SPARK_REMOTE_PATH spark-${APACHE_SPARK_VERSION}/${APACHE_SPARK_FILENAME}
+# On MacOS compute this with `shasum -a 512`
+ARG APACHE_SPARK_CHECKSUM="0f5455672045f6110b030ce343c049855b7ba86c0ecb5e39a075ff9d093c7f648da55ded12e72ffe65d84c32dcd5418a6d764f2d6295a3f894a4286cc80ef478"
+ARG APACHE_SPARK_FILENAME="spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
+ARG APACHE_SPARK_REMOTE_PATH="spark-${APACHE_SPARK_VERSION}/${APACHE_SPARK_FILENAME}"
 
 RUN \
     cd /tmp && \
-    wget --quiet http://apache.mirrors.pair.com/spark/${APACHE_SPARK_REMOTE_PATH} && \
-    echo "${APACHE_SPARK_CHECKSUM} *${APACHE_SPARK_FILENAME}" | sha512sum -c - && \
+    wget --quiet https://archive.apache.org/dist/spark/${APACHE_SPARK_REMOTE_PATH} && \
+    echo "${APACHE_SPARK_CHECKSUM} *${APACHE_SPARK_FILENAME}" | sha512sum -c -
+
+RUN \
+    cd /tmp && \
     tar xzf ${APACHE_SPARK_FILENAME} -C /usr/local --owner root --group root --no-same-owner && \
     rm ${APACHE_SPARK_FILENAME}
 

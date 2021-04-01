@@ -31,7 +31,7 @@ class RaterSourceDataSourceIT extends TestEnvironment with TestData {
       // A regression test.
       val rf = spark.read.raster
         .withSpatialIndex()
-        .load("https://s22s-test-geotiffs.s3.amazonaws.com/water_class/seasonality_90W_50N.tif")
+        .load("https://rasterframes.s3.amazonaws.com/samples/water_class/seasonality_90W_50N.tif")
 
       val target_rf =
         rf.select(rf_extent($"proj_raster").alias("extent"), rf_crs($"proj_raster").alias("crs"), rf_tile($"proj_raster").alias("target"))

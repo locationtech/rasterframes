@@ -7,7 +7,10 @@ import pandas as pd
 from pyrasterframes.utils import create_rf_spark_session
 from pyrasterframes.rasterfunctions import *
 from pyspark.sql.functions import *
-spark = create_rf_spark_session()
+spark = create_rf_spark_session(**{
+    'spark.driver.memory': '4G',
+    'spark.ui.enabled': 'false'
+})
 ```
 
 RasterFrames registers a DataSource named `raster` that enables reading of GeoTIFFs (and other formats when @ref:[GDAL is installed](getting-started.md#installing-gdal)) from arbitrary URIs. The `raster` DataSource operates on either a single raster file location or another DataFrame, called a _catalog_, containing pointers to many raster file locations.
@@ -19,7 +22,7 @@ RasterFrames can also read from @ref:[GeoTrellis catalogs and layers](raster-rea
 The simplest way to use the `raster` reader is with a single raster from a single URI or file. In the examples that follow we'll be reading from a Sentinel-2 scene stored in an AWS S3 bucket.
 
 ```python, read_one_uri
-rf = spark.read.raster('https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif')
+rf = spark.read.raster('https://rasterframes.s3.amazonaws.com/samples/luray_snp/B02.tif')
 rf.printSchema()
 ```
 
@@ -158,7 +161,7 @@ For example, we can read a four-band (red, green, blue, and near-infrared) image
 
 ```python, multiband
 mb = spark.read.raster(
-    's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
+    'https://rasterframes.s3.amazonaws.com/samples/naip/m_3807863_nw_17_1_20160620.tif',
     band_indexes=[0, 1, 2, 3],
 )
 display(mb)
@@ -173,8 +176,8 @@ Here is a trivial example with a _catalog_ over multiband rasters. We specify tw
 ```python, multiband_catalog
 import pandas as pd
 mb_cat = pd.DataFrame([
-    {'foo': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif',
-     'bar': 's3://s22s-test-geotiffs/naip/m_3807863_nw_17_1_20160620.tif'
+    {'foo': 'https://rasterframes.s3.amazonaws.com/samples/naip/m_3807863_nw_17_1_20160620.tif',
+     'bar': 'https://rasterframes.s3.amazonaws.com/samples/naip/m_3807863_nw_17_1_20160620.tif'
     },
 ])
 mb2 = spark.read.raster(
@@ -273,7 +276,7 @@ By default, reading raster pixel values is delayed until it is absolutely needed
 Consider the following two reads of the same data source. In the first, the lazy case, there is a pointer to the URI, extent and band to read. This will not be evaluated until the cell values are absolutely required. The second case shows the option to force the raster to be fully loaded right away.
 
 ```python, lazy_demo_1
-uri = 'https://s22s-test-geotiffs.s3.amazonaws.com/luray_snp/B02.tif'
+uri = 'https://rasterframes.s3.amazonaws.com/samples/luray_snp/B02.tif'
 lazy = spark.read.raster(uri).select(col('proj_raster.tile').cast('string'))
 lazy
 ```
@@ -286,6 +289,11 @@ non_lazy
 In the initial examples on this page, you may have noticed that the realized (non-lazy) _tiles_ are shown, but we did not change `lazy_tiles`. Instead, we used @ref:[`rf_tile`](reference.md#rf-tile) to explicitly request the realized _tile_ from the lazy representation.
 
 ## Spatial Indexing and Partitioning
+
+@@@ warning
+This is an experimental feature, and may be removed.
+@@@
+
 
 It's often desirable to take extra steps in ensuring your data is effectively distributed over your computing resources. One way of doing that is using something called a ["space filling curve"](https://en.wikipedia.org/wiki/Space-filling_curve), which turns an N-dimensional value into a one dimensional value, with properties that favor keeping entities near each other in N-space near each other in index space. In particular RasterFrames support space-filling curves mapping the geographic location of _tiles_ to a one-dimensional index space called [`xz2`](https://www.geomesa.org/documentation/user/datastores/index_overview.html). To have RasterFrames add a spatial index based partitioning on a raster reads, use the `spatial_index_partitions` parameter. By default it will use the same number of partitions as configured in [`spark.sql.shuffle.partitions`](https://spark.apache.org/docs/latest/sql-performance-tuning.html#other-configuration-options).
  

@@ -102,7 +102,7 @@ class RasterSourceSpec extends TestEnvironment with TestData {
     }
     it("should read sub-tile") {
       withClue("remoteCOGSingleband") {
-        val src = RFRasterSource(remoteCOGSingleband1)
+        val src = RFRasterSource(remoteMODIS)
         val raster = src.read(sub(src.extent))
         assert(raster.size > 0 && raster.size < src.size)
       }
@@ -164,6 +164,11 @@ class RasterSourceSpec extends TestEnvironment with TestData {
         val gdal = GDALRasterSource(archiveURI)
 
         gdal.bandCount should be (3)
+      }
+
+      it("should support nested vsi file paths") {
+        val path = URI.create("gdal://vsihdfs/hdfs://dp-01.tap-psnc.net:9000/user/dpuser/images/landsat/LC081900242018092001T1-SC20200409091832/LC08_L1TP_190024_20180920_20180928_01_T1_sr_band1.tif")
+        assert(RFRasterSource(path).isInstanceOf[GDALRasterSource])
       }
 
       it("should interpret no scheme as file://") {

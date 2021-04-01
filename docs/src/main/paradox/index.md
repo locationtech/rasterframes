@@ -12,11 +12,17 @@ As part of the LocationTech family of projects, RasterFrames builds upon the str
 
 ![](static/rasterframes-locationtech-stack.png)
 
+## License
+
 RasterFrames is released under the commercial-friendly [Apache 2.0](https://github.com/locationtech/rasterframes/blob/develop/LICENSE) open source license.
 
 To learn more, please see the @ref:[Getting Started](getting-started.md) section of this manual.
 
 The source code can be found on GitHub at [locationtech/rasterframes](https://github.com/locationtech/rasterframes).
+
+## Commercial Support
+
+As the sponsors and developers of RasterFrames, [Astraea, Inc.](https://astraea.earth/) is uniquely positioned to expand its capabilities. If you need additional functionality or just some architectural guidance to get your project off to the right start, we can provide a full range of [consulting and development services](https://astraea.earth/services/) around RasterFrames. We can be reached at [info@astraea.io](mailto:info@astraea.io).
 
 <hr/>
 
@@ -29,18 +35,20 @@ The source code can be found on GitHub at [locationtech/rasterframes](https://gi
 
 ## Detailed Contents
 
-@@ toc { depth=4 }
+@@ toc { depth=3 }
 
 @@@ index
-* [Overview](description.md)
-* [Getting Started](getting-started.md)
-* [Concepts](concepts.md)
-* [Raster Data I/O](raster-io.md)
-* [Vector Data](vector-data.md)
-* [Raster Processing](raster-processing.md)
-* [Numpy and Pandas](numpy-pandas.md) 
-* [Scala and SQL](languages.md)
-* [Function Reference](reference.md)
-* [Release Notes](release-notes.md)
+* @ref:[Overview](description.md)
+* @ref:[Getting Started](getting-started.md)
+* @ref:[Concepts](concepts.md)
+* @ref:[Raster Data I/O](raster-io.md)
+* @ref:[Vector Data](vector-data.md)
+* @ref:[Raster Processing](raster-processing.md)
+* @ref:[Machine Learning](machine-learning.md)
+* @ref:[Numpy and Pandas](numpy-pandas.md) 
+* @ref:[IPython Extensions](ipython.md) 
+* @ref:[Scala and SQL](languages.md)
+* @ref:[Function Reference](reference.md)
+* @ref:[Release Notes](release-notes.md)
 @@@
 

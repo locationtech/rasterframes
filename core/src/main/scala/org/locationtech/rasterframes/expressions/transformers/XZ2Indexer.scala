@@ -83,7 +83,7 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
 
     val index = indexer.index(
       env.getMinX, env.getMinY, env.getMaxX, env.getMaxY,
-      lenient = false
+      lenient = true
     )
     index
   }

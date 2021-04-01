@@ -25,7 +25,7 @@ import os
 from . import RFContext
 from typing import Union, Dict
 
-__all__ = ["create_rf_spark_session", "find_pyrasterframes_jar_dir", "find_pyrasterframes_assembly", "gdal_version"]
+__all__ = ["create_rf_spark_session", "find_pyrasterframes_jar_dir", "find_pyrasterframes_assembly", "gdal_version", 'is_notebook', 'gdal_version', 'build_info', 'quiet_logs']
 
 
 def find_pyrasterframes_jar_dir() -> str:

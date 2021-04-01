@@ -23,6 +23,7 @@ package org.locationtech
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.{Dimensions, Tile, TileFeature, isData}
+import geotrellis.raster.resample._
 import geotrellis.layer._
 import geotrellis.spark.ContextRDD
 import org.apache.spark.rdd.RDD
@@ -145,6 +146,9 @@ package object rasterframes extends StandardColumns
   def isCellTrue(t: Tile, col: Int, row: Int): Boolean =
     if (t.cellType.isFloatingPoint) isCellTrue(t.getDouble(col, row))
     else isCellTrue(t.get(col, row))
+
+
+
 
 
 }
