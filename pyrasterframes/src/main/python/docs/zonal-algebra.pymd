@@ -121,7 +121,7 @@ rf_ndvi = rf_park_tile \
 
 zonal_mean = rf_ndvi \
         .groupby('OBJECTID', 'UNIT_NAME') \
-        .agg(rf_agg_mean('ndvi'))
+        .agg(rf_agg_mean('ndvi_masked'))
 
 zonal_mean
 ```

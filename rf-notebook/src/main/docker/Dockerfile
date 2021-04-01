@@ -22,8 +22,11 @@ ARG APACHE_SPARK_REMOTE_PATH="spark-${APACHE_SPARK_VERSION}/${APACHE_SPARK_FILEN
 RUN \
     cd /tmp && \
     wget --quiet https://archive.apache.org/dist/spark/${APACHE_SPARK_REMOTE_PATH} && \
-    echo "${APACHE_SPARK_CHECKSUM} *${APACHE_SPARK_FILENAME}" | sha512sum -c - && \
-    tar xzf ${APACHE_SPARK_FILENAME} -C /opt --owner root --group root --no-same-owner && \
+    echo "${APACHE_SPARK_CHECKSUM} *${APACHE_SPARK_FILENAME}" | sha512sum -c -
+
+RUN \
+    cd /tmp && \
+    tar xzf ${APACHE_SPARK_FILENAME} -C /usr/local --owner root --group root --no-same-owner && \
     rm ${APACHE_SPARK_FILENAME}
 
 RUN cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark

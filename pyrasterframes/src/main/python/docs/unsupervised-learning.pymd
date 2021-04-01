@@ -130,6 +130,7 @@ retiled = clustered.groupBy('extent', 'crs') \
 Next we will @ref:[write the output to a GeoTiff file](raster-write.md#geotiffs). Doing so in this case works quickly and well for a few specific reasons that may not hold in all cases. We can write the data at full resolution, by omitting the `raster_dimensions` argument, because we know the input raster dimensions are small. Also, the data is all in a single CRS, as we demonstrated above. Because the `catalog_df` is only a single row, we know the output GeoTIFF value at a given location corresponds to a single input. Finally, the `retiled` `DataFrame` only has a single `Tile` column, so the band interpretation is trivial.
 
 ```python, viz
+import rasterio
 output_tif = 'unsupervised.tif'
 
 retiled.write.geotiff(output_tif, crs=crs)
@@ -137,5 +138,5 @@ retiled.write.geotiff(output_tif, crs=crs)
 with rasterio.open(output_tif) as src:
     for b in range(1, src.count + 1):
         print("Tags on band", b, src.tags(b))
-    show(src)
+    display(src)
 ```
