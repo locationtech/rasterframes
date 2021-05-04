@@ -24,26 +24,57 @@ package org.locationtech.rasterframes.expressions.focalops
 import org.slf4j.LoggerFactory
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.Tile
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
+import org.locationtech.rasterframes.expressions.row
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.TileContext
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterFunction}
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
+import org.locationtech.rasterframes.ref.RasterRef
+import org.apache.spark.sql.catalyst.expressions.UnaryExpression
+
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import geotrellis.raster.Tile
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
+import org.apache.spark.sql.catalyst.expressions.UnaryExpression
+import org.locationtech.rasterframes.model.TileContext
+import org.locationtech.rasterframes.expressions.NullToValue
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /** Operation on a tile returning a tile. */
-trait SurfaceOperation extends UnaryRasterFunction with NullToValue with CodegenFallback  {
+trait SurfaceOperation extends UnaryExpression with NullToValue with CodegenFallback  {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def dataType: DataType = child.dataType
   override def na: Any = null
 
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
+  override def checkInputDataTypes(): TypeCheckResult = {
+    if (!tileExtractor.isDefinedAt(child.dataType)) {
+      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")
+    } else TypeCheckSuccess
+  }
 
+  override protected def nullSafeEval(input: Any): Any = {
+    val (tile, ctx) = tileExtractor(child.dataType)(row(input))
+
+    val literral = tile match {
+      case RasterRef.RasterRefTile(ref) => ref.realizedTile
+      case prt: ProjectedRasterTile => prt
+    }
+    eval(literral, ctx)
+  }
+
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     ctx match {
-      case Some(ctx) => ctx.toProjectRasterTile(op(tile, ctx)).toInternalRow
-      case None => new NotImplementedError("Surface operation requires ProjectedRasterTile")
+      case Some(ctx) =>
+        val ret = op(tile, ctx)
+        ctx.toProjectRasterTile(ret).toInternalRow
+
+      case None =>
+        new NotImplementedError("Surface operation requires ProjectedRasterTile")
     }
   }
 

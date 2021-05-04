@@ -52,7 +52,7 @@ case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[E
   protected lazy val grid: GridBounds[Int] =
     subgrid.getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
 
-  protected lazy val realizedTile: Tile = {
+  lazy val realizedTile: Tile = {
     RasterRef.log.trace(s"Fetching $extent ($grid) from band $bandIndex of $source")
     // Pixel bounds we would like to read, including buffer
     val bufferedGrid = grid.buffer(bufferSize)
