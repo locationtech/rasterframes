@@ -36,7 +36,7 @@ import org.apache.spark.sql.rf.RasterSourceUDT
 import org.locationtech.rasterframes.model.TileContext
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, rfConfig}
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 /**
  * Abstraction over fetching geospatial raster data.
@@ -92,7 +92,7 @@ object RFRasterSource extends LazyLogging {
   final val SINGLEBAND = Seq(0)
   final val EMPTY_TAGS = Tags(Map.empty, List.empty)
 
-  val cacheTimeout: Duration = Duration.fromNanos(rfConfig.getDuration("raster-source-cache-timeout").toNanos)
+  val cacheTimeout: FiniteDuration = Duration.fromNanos(rfConfig.getDuration("raster-source-cache-timeout").toNanos)
 
   private[ref] val rsCache = Scaffeine()
     .recordStats()

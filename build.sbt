@@ -113,6 +113,8 @@ lazy val datasource = project
       spark("mllib").value % Provided,
       spark("sql").value % Provided
     ),
+    Compile / console / scalacOptions ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
+    Test / console / scalacOptions ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
     console / initialCommands := (console / initialCommands).value +
       """
         |import org.locationtech.rasterframes.datasource.geotrellis._
@@ -180,4 +182,3 @@ lazy val docs = project
 lazy val bench = project
   .dependsOn(core % "compile->test")
   .settings(publish / skip := true)
-

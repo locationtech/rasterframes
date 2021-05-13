@@ -27,7 +27,8 @@ import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
 import geotrellis.raster.{MultibandTile, ProjectedRaster, Tile, TileLayout}
-import geotrellis.layer._
+import geotrellis.layer.{SpatialKey, SpaceTimeKey, TemporalKey, SpatialComponent, Boundable, Bounds, KeyBounds,
+  TileLayerMetadata, LayoutDefinition}
 import geotrellis.spark._
 import geotrellis.spark.tiling.Tiler
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, TileLayerRDD}

@@ -25,7 +25,7 @@ import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.RasterFrameLayer
 import org.locationtech.jts.geom.Point
 import geotrellis.proj4.LatLng
-import geotrellis.layer._
+import geotrellis.layer.{SpatialKey, MapKeyTransform}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector._
 import org.apache.spark.sql.Row
@@ -121,7 +121,7 @@ trait LayerSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with 
    * @return RasterFrameLayer with index column.
    */
   def withSpatialIndex(colName: String = SPATIAL_INDEX_COLUMN.columnName, applyOrdering: Boolean = true): RasterFrameLayer = {
-    val zindex = sparkUdf(keyCol2LatLng andThen (p ⇒ Z2SFC.index(p._1, p._2).z))
+    val zindex = sparkUdf(keyCol2LatLng andThen (p ⇒ Z2SFC.index(p._1, p._2)))
     self.withColumn(colName, zindex(self.spatialKeyColumn)) match {
       case rf if applyOrdering ⇒ rf.orderBy(asc(colName)).certify
       case rf ⇒ rf.certify

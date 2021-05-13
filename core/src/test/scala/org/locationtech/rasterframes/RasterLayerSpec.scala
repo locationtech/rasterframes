@@ -27,7 +27,7 @@ import java.net.URI
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 
-import geotrellis.layer._
+import geotrellis.layer.{withMergableMethods => _, _}
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster._
 import geotrellis.spark._

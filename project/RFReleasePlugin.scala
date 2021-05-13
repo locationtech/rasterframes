@@ -35,8 +35,8 @@ object RFReleasePlugin extends AutoPlugin {
   override def trigger: PluginTrigger = noTrigger
   override def requires = RFProjectPlugin && SitePlugin && GhpagesPlugin
   override def projectSettings = {
-    val buildSite: State ⇒ State = releaseStepTask(makeSite in LocalProject("docs"))
-    val publishSite: State ⇒ State = releaseStepTask(ghpagesPushSite in LocalProject("docs"))
+    val buildSite: State ⇒ State = releaseStepTask(LocalProject("docs") / makeSite)
+    val publishSite: State ⇒ State = releaseStepTask(LocalProject("docs") / ghpagesPushSite)
     Seq(
       releaseIgnoreUntrackedFiles := true,
       releaseTagName := s"${version.value}",

@@ -170,7 +170,7 @@ object PythonBuildPlugin extends AutoPlugin {
         val ver = version.value
         dest / s"${art.name}-$ver-py3-none-any.whl"
       },
-      testQuick := pySetup.toTask(" test").value,
+      testQuick := pySetup.toTask(" test"),
       executeTests := Def.task {
         val resultCode = pySetup.toTask(" test").value
         val msg = resultCode match {
@@ -208,7 +208,7 @@ object PythonBuildPlugin extends AutoPlugin {
             pendingCount = 0
           )
         }
-        result
+
         Tests.Output(result.result, Map("Python Tests" -> result), Iterable(pySummary))
       }.dependsOn(assembly).value
     )) ++

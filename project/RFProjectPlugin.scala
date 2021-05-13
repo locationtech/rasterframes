@@ -20,7 +20,7 @@ object RFProjectPlugin extends AutoPlugin {
     scmInfo := Some(ScmInfo(url("https://github.com/locationtech/rasterframes"), "git@github.com:locationtech/rasterframes.git")),
     description := "RasterFrames brings the power of Spark DataFrames to geospatial raster data.",
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
-    scalaVersion := "2.11.12",
+    scalaVersion := "2.12.13",
     scalacOptions ++= Seq(
       "-target:jvm-1.8",
       "-feature",
@@ -28,7 +28,7 @@ object RFProjectPlugin extends AutoPlugin {
       "-Ywarn-dead-code",
       "-Ywarn-unused-import"
     ),
-    scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
+    Compile / doc / scalacOptions ++= Seq("-no-link-warnings"),
     Compile / console / scalacOptions := Seq("-feature"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     initialize := {
@@ -40,15 +40,15 @@ object RFProjectPlugin extends AutoPlugin {
         assert(curr.matchesSemVer(req), s"Java $req required for $sparkVer. Found $curr.")
       }
     },
-    cancelable in Global := true,
-    publishTo in ThisBuild := sonatypePublishTo.value,
+    Global / cancelable := true,
+    ThisBuild / publishTo := sonatypePublishTo.value,
     publishMavenStyle := true,
-    publishArtifact in (Compile, packageDoc) := true,
-    publishArtifact in Test := false,
-    fork in Test := true,
-    javaOptions in Test := Seq("-Xmx1500m", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=/tmp"),
-    parallelExecution in Test := false,
-    testOptions in Test += Tests.Argument("-oDF"),
+    Compile / packageDoc / publishArtifact := true,
+    Test / publishArtifact := false,
+    Test / fork := true,
+    Test / javaOptions := Seq("-Xmx1500m", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=/tmp"),
+    Test / parallelExecution := false,
+    Test / testOptions += Tests.Argument("-oDF"),
     developers := List(
       Developer(
         id = "metasim",
@@ -75,7 +75,7 @@ object RFProjectPlugin extends AutoPlugin {
         url = url("http://www.astraea.earth")
       ),
     ),
-    initialCommands in console :=
+    console / initialCommands :=
       """
         |import org.apache.spark._
         |import org.apache.spark.sql._
@@ -91,6 +91,6 @@ object RFProjectPlugin extends AutoPlugin {
         |spark.sparkContext.setLogLevel("ERROR")
         |import spark.implicits._
       """.stripMargin.trim,
-    cleanupCommands in console := "spark.stop()"
+    console / cleanupCommands := "spark.stop()"
   )
 }

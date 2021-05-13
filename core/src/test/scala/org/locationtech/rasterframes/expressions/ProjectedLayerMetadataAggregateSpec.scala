@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions
 
-import geotrellis.layer._
+import geotrellis.layer.{withMergableMethods => _, _}
 import geotrellis.raster.Tile
 import geotrellis.spark._
 import geotrellis.vector.{Extent, ProjectedExtent}

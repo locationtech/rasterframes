@@ -43,12 +43,12 @@ object RFAssemblyPlugin extends AutoPlugin {
   }
 
   override def projectSettings = Seq(
-    test in assembly := {},
+    assembly / test := {},
     autoImport.assemblyExcludedJarPatterns := Seq(
       "scalatest.*".r,
       "junit.*".r
     ),
-    assemblyShadeRules in assembly := {
+    assembly / assemblyShadeRules:= {
       val shadePrefixes = Seq(
         "shapeless",
         "com.amazonaws",
@@ -62,18 +62,18 @@ object RFAssemblyPlugin extends AutoPlugin {
       )
       shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"shaded.rasterframes.$p.@1").inAll)
     },
-    assemblyOption in assembly :=
-      (assemblyOption in assembly).value.copy(includeScala = false),
-    assemblyJarName in assembly := s"${normalizedName.value}-assembly-${version.value}.jar",
-    assemblyExcludedJars in assembly := {
-      val cp = (fullClasspath in assembly).value
+    assembly / assemblyOption :=
+      (assembly / assemblyOption).value.copy(includeScala = false),
+    assembly / assemblyJarName := s"${normalizedName.value}-assembly-${version.value}.jar",
+    assembly / assemblyExcludedJars := {
+      val cp = (assembly / fullClasspath).value
       val excludedJarPatterns = autoImport.assemblyExcludedJarPatterns.value
       cp filter { jar ⇒
         excludedJarPatterns
           .exists(_ =~ jar.data.getName)
       }
     },
-    assemblyMergeStrategy in assembly := {
+    assembly / assemblyMergeStrategy := {
       case "logback.xml" ⇒ MergeStrategy.singleOrError
       case "git.properties" ⇒ MergeStrategy.discard
       case x if Assembly.isConfigFile(x) ⇒ MergeStrategy.concat
