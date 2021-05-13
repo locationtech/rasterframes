@@ -27,8 +27,7 @@ import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod}
 import geotrellis.raster.{MultibandTile, ProjectedRaster, Tile, TileLayout}
-import geotrellis.layer.{SpatialKey, SpaceTimeKey, TemporalKey, SpatialComponent, Boundable, Bounds, KeyBounds,
-  TileLayerMetadata, LayoutDefinition}
+import geotrellis.layer.{SpatialKey, SpaceTimeKey, TemporalKey, SpatialComponent, Boundable, Bounds, KeyBounds, TileLayerMetadata, LayoutDefinition}
 import geotrellis.spark._
 import geotrellis.spark.tiling.Tiler
 import geotrellis.spark.{ContextRDD, MultibandTileLayerRDD, TileLayerRDD}
@@ -205,7 +204,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
       implicit val enc = Encoders.product[KeyBounds[T]]
       val keyBounds = keys
         .map(k ⇒ KeyBounds(k, k))
-        .reduce(_ combine _)
+        .reduce{(_: KeyBounds[T]) combine (_: KeyBounds[T])}
 
       val gridExtent = trans(keyBounds.toGridBounds())
       val newExtent = gridExtent.intersection(extent).getOrElse(gridExtent)

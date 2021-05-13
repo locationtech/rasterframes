@@ -77,7 +77,7 @@ case class IsIn(left: Expression, right: Expression) extends BinaryExpression wi
 
   protected def op(left: Tile, right: IndexedSeq[AnyRef]): Tile = {
     def fn(i: Int): Boolean = right.contains(i)
-    IfCell(left, fn(_), 1, 0)
+    IfCell(left, fn(_: Int), 1, 0)
   }
 
 }
