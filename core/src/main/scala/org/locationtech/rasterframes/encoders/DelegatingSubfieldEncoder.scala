@@ -69,6 +69,6 @@ object DelegatingSubfieldEncoder {
 
     val deserializer: Expression = NewInstance(runtimeClass[T], fieldDeserializers, parentType, propagateNull = false)
 
-    ExpressionEncoder(schema, flat = false, serializer.flatten, deserializer, typeToClassTag[T])
+    ExpressionEncoder(serializer, deserializer, typeToClassTag[T])
   }
 }

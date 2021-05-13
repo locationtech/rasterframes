@@ -61,14 +61,10 @@ object CatalystSerializerEncoder {
       nullSafeCodeGen(ctx, ev, input => s"${ev.value} = ($objType) $cs.fromInternalRow($input);")
     }
   }
-  def apply[T: TypeTag: CatalystSerializer](flat: Boolean = false): ExpressionEncoder[T] = {
+  def apply[T: TypeTag: CatalystSerializer](): ExpressionEncoder[T] = {
     val serde = CatalystSerializer[T]
 
-    val schema = if (flat)
-      StructType(Seq(
-        StructField("value", serde.schema, true)
-      ))
-    else serde.schema
+    val schema = serde.schema
 
     val parentType: DataType = ScalaReflection.dataTypeFor[T]
 
@@ -78,6 +74,6 @@ object CatalystSerializerEncoder {
 
     val deserializer: Expression = CatDeserializeFromRow(GetColumnByOrdinal(0, schema), serde, parentType)
 
-    ExpressionEncoder(schema, flat = flat, Seq(serializer), deserializer, typeToClassTag[T])
+    ExpressionEncoder(serializer, deserializer, typeToClassTag[T])
   }
 }

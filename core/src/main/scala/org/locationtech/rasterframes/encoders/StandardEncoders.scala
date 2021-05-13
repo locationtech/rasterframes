@@ -70,7 +70,7 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def tileContextEncoder: ExpressionEncoder[TileContext] = TileContext.encoder
   implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = TileDataContext.encoder
   implicit def extentTilePairEncoder: Encoder[(ProjectedExtent, Tile)] = Encoders.tuple(projectedExtentEncoder, singlebandTileEncoder)
-  implicit def tileDimensionsEncoder: Encoder[Dimensions[Int]] = CatalystSerializerEncoder[Dimensions[Int]](true)
+  implicit def tileDimensionsEncoder: Encoder[Dimensions[Int]] = CatalystSerializerEncoder[Dimensions[Int]]()
 }
 
 object StandardEncoders extends StandardEncoders

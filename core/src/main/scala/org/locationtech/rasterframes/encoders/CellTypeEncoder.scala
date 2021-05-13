@@ -59,6 +59,6 @@ object CellTypeEncoder {
     val deserializer: Expression =
       StaticInvoke(CellType.getClass, ctType, "fromName", InvokeSafely(inputRow, "toString", intermediateType) :: Nil)
 
-    ExpressionEncoder[CellType](schema, flat = false, Seq(serializer), deserializer, classTag[CellType])
+    ExpressionEncoder[CellType](serializer, deserializer, classTag[CellType])
   }
 }

@@ -65,6 +65,6 @@ object StringBackedEncoder {
         InvokeSafely(inputRow, "toString", intermediateType) :: Nil
       )
 
-    ExpressionEncoder[T](schema, flat = false, Seq(serializer), deserializer, typeToClassTag[T])
+    ExpressionEncoder[T](serializer, deserializer, typeToClassTag[T])
   }
 }

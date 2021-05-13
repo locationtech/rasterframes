@@ -108,5 +108,5 @@ object RasterRef extends LazyLogging {
     )
   }
 
-  implicit def rrEncoder: ExpressionEncoder[RasterRef] = CatalystSerializerEncoder[RasterRef](true)
+  implicit def rrEncoder: ExpressionEncoder[RasterRef] = CatalystSerializerEncoder[RasterRef]()
 }

@@ -65,7 +65,6 @@ package object rf {
   implicit class WithPPrint[T](enc: ExpressionEncoder[T]) {
     def pprint(): Unit = {
       println(enc.getClass.getSimpleName + "{")
-      println("\tflat=" + enc.flat)
       println("\tschema=" + enc.schema)
       println("\tserializers=" + enc.serializer)
       println("\tnamedExpressions=" + enc.namedExpressions)

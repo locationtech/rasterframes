@@ -57,6 +57,6 @@ object EnvelopeEncoder {
       dataType, false
     )
 
-    new ExpressionEncoder[Envelope](schema, flat = false, serializer.flatten, deserializer, classTag[Envelope])
+    new ExpressionEncoder[Envelope](serializer, deserializer, classTag[Envelope])
   }
 }
