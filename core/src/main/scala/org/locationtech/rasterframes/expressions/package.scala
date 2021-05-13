@@ -53,7 +53,7 @@ package object expressions {
   private[expressions]
   def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
     val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF(f, dataType, Seq(child), Seq(true), nullable = nullable, udfName = Some(name))
+    ScalaUDF(f, dataType, Seq(child), udfName = Some(name))
   }
 
   def register(sqlContext: SQLContext): Unit = {
