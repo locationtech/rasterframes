@@ -162,7 +162,7 @@ object LocalStatsAggregate {
       ..."""
   )
   class LocalStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
-    extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+    extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalStatsAggregate()), Complete, false, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_local_stats"
   }
@@ -179,4 +179,3 @@ object LocalStatsAggregate {
     val SUM_SQRS = 4
   }
 }
-

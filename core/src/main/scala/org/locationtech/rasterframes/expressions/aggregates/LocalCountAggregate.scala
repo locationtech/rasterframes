@@ -85,7 +85,7 @@ object LocalCountAggregate {
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise count of non-no-data values."
   )
-  class LocalDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+  class LocalDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(true)), Complete, false, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_local_data_cells"
   }
@@ -100,7 +100,7 @@ object LocalCountAggregate {
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise count of no-data values."
   )
-  class LocalNoDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
+  class LocalNoDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
     def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(false)), Complete, false, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_local_no_data_cells"
   }
