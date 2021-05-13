@@ -133,7 +133,7 @@ object VersionShims {
         val df = clazz.getAnnotation(classOf[ExpressionDescription])
         if (df != null) {
           if (df.extended().isEmpty) {
-            new ExpressionInfo(clazz.getCanonicalName, null, name, df.usage(), df.arguments(), df.examples(), df.note(), df.since())
+            new ExpressionInfo(clazz.getCanonicalName, null, name, df.usage(), df.arguments(), df.examples(), df.note(), df.group(), df.since(), df.deprecated())
           } else {
             // This exists for the backward compatibility with old `ExpressionDescription`s defining
             // the extended description in `extended()`.
