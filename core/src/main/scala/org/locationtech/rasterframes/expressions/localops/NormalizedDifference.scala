@@ -31,7 +31,9 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 
 @ExpressionDescription(
   usage = "_FUNC_(left, right) - Computes the normalized difference '(left - right) / (left + right)' between two tile columns",
-  note = "Common usage includes computing NDVI via red and NIR bands.",
+  note = """"
+    Common usage includes computing NDVI via red and NIR bands.
+  """,
   arguments = """
   Arguments:
     * left - first tile argument

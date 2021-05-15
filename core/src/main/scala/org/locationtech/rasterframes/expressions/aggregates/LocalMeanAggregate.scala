@@ -34,7 +34,9 @@ import org.locationtech.rasterframes.expressions.accessors.RealizeTile
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Computes a new tile contining the mean cell values across all tiles in column.",
-  note = "All tiles in the column must be the same size."
+  note = """"
+    All tiles in the column must be the same size.
+  """
 )
 case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
 
