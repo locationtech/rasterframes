@@ -57,20 +57,6 @@ object RFDependenciesPlugin extends AutoPlugin {
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
       "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/"
     ),
-    /** https://github.com/lucidworks/spark-solr/issues/179
-      * Thanks @pomadchin for the tip! */
-    dependencyOverrides ++= {
-      val deps = Seq(
-        "com.fasterxml.jackson.core" % "jackson-core" % "2.6.7",
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7",
-        "com.fasterxml.jackson.core" % "jackson-annotations" % "2.6.7"
-      )
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        // if Scala 2.12+ is used
-        case Some((2, scalaMajor)) if scalaMajor >= 12 => deps
-        case _ => deps :+ "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.7"
-      }
-    },
     // dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.f746890",
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "3.0.1",
