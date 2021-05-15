@@ -37,10 +37,13 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.scalactic.Tolerance
 import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
+
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.slf4j.LoggerFactory
 
-trait TestEnvironment extends FunSpec
+trait TestEnvironment extends AnyFunSpec
   with Matchers with Inspectors with Tolerance with RasterMatchers {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 

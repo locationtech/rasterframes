@@ -40,7 +40,7 @@ object RFDependenciesPlugin extends AutoPlugin {
       "org.locationtech.geomesa" %% s"geomesa-$module" % rfGeoMesaVersion.value
     }
 
-    val scalatest = "org.scalatest" %% "scalatest" % "3.0.3" % Test
+    val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
     val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.16.1"
     val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.25"
