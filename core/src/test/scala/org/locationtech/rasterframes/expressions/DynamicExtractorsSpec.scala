@@ -66,7 +66,7 @@ class DynamicExtractorsSpec  extends TestEnvironment with Inspectors {
         val special = SnowflakeExtent1(expected.xmax, expected.ymin, expected.xmin, expected.ymax)
         val df = Seq(Tuple1(special)).toDF("extent")
         val encodedType = df.schema.fields(0).dataType
-        val encodedRow = SnowflakeExtent1.enc.toRow(special)
+        val encodedRow = SnowflakeExtent1.enc.createSerializer().apply(special)
         extentExtractor.isDefinedAt(encodedType) should be(true)
         extentExtractor(encodedType)(encodedRow) should be(expected)
       }
@@ -75,7 +75,7 @@ class DynamicExtractorsSpec  extends TestEnvironment with Inspectors {
         val special = SnowflakeExtent2(expected.xmax, expected.ymin, expected.xmin, expected.ymax)
         val df = Seq(Tuple1(special)).toDF("extent")
         val encodedType = df.schema.fields(0).dataType
-        val encodedRow = SnowflakeExtent2.enc.toRow(special)
+        val encodedRow = SnowflakeExtent2.enc.createSerializer().apply(special)
         extentExtractor.isDefinedAt(encodedType) should be(true)
         extentExtractor(encodedType)(encodedRow) should be(expected)
       }

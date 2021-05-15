@@ -71,12 +71,12 @@ class CatalystSerializerBench extends SparkEnv {
 
   @Benchmark
   def exprEncodeEpsg(): InternalRow = {
-    crsEnc.toRow(epsg)
+    crsEnc.createSerializer().apply(epsg)
   }
 
   @Benchmark
   def exprEncodeProj4(): InternalRow = {
-    crsEnc.toRow(proj4)
+    crsEnc.createSerializer().apply(proj4)
   }
 
 //  @Benchmark

@@ -64,7 +64,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
     it("should (en/de)code tile") {
       forEveryConfig { tile ⇒
-        val row = tileEncoder.toRow(tile)
+        val row = tileEncoder.createSerializer().apply(tile)
         assert(!row.isNullAt(0))
         val tileAgain = TileType.deserialize(row.getStruct(0, TileType.sqlType.size))
         assert(tileAgain === tile)

@@ -64,13 +64,12 @@ class TileEncodeBench extends SparkEnv {
 
   @Benchmark
   def encode(): InternalRow = {
-    tileEncoder.toRow(tile)
+    tileEncoder.createSerializer.apply(tile)
   }
 
   @Benchmark
   def roundTrip(): Tile = {
-    val row = tileEncoder.toRow(tile)
-    boundEncoder.fromRow(row)
+    val row = tileEncoder.createSerializer().apply(tile)
+    boundEncoder.createDeserializer().apply(row)
   }
 }
-
