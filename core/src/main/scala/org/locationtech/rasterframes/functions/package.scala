@@ -174,6 +174,6 @@ package object functions {
     sqlContext.udf.register("rf_make_ones_tile", tileOnes)
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)
-    sqlContext.udf.register("rf_array_to_tile", arrayToTile)
+    // sqlContext.udf.register("rf_array_to_tile", arrayToTile)
   }
 }

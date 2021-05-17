@@ -113,5 +113,5 @@ object ProjectedRasterTile {
     }
   }
 
-  implicit val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = CatalystSerializerEncoder[ProjectedRasterTile](true)
+  implicit val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = CatalystSerializerEncoder[ProjectedRasterTile]()
 }
