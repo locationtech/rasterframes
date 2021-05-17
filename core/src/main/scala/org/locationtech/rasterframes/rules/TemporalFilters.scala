@@ -32,11 +32,11 @@ import org.apache.spark.sql.sources.Filter
  */
 object TemporalFilters {
 
-  case class BetweenTimes(attribute: String, start: Timestamp, end: Timestamp) extends Filter {
+  case class BetweenTimes(attribute: String, start: Timestamp, end: Timestamp) {
     def references: Array[String] = Array(attribute)
   }
 
-  case class BetweenDates(attribute: String, start: Date, end: Date) extends Filter {
+  case class BetweenDates(attribute: String, start: Date, end: Date) {
     def references: Array[String] = Array(attribute)
   }
 }

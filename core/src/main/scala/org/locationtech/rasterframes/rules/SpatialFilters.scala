@@ -30,11 +30,11 @@ import org.apache.spark.sql.sources.Filter
  * @since 1/11/18
  */
 object SpatialFilters {
-  case class Intersects(attribute: String, value: Geometry) extends Filter {
+  case class Intersects(attribute: String, value: Geometry) {
     def references: Array[String] = Array(attribute)
   }
 
-  case class Contains(attribute: String, value: Geometry) extends Filter {
+  case class Contains(attribute: String, value: Geometry) {
     def references: Array[String] = Array(attribute)
   }
 }

@@ -47,30 +47,36 @@ object FilterTranslator {
   def translateFilter(predicate: Expression): Option[Filter] = {
     predicate match {
       case Intersects(a: Attribute, Literal(geom, udt: AbstractGeometryUDT[_])) ⇒
-        Some(SpatialFilters.Intersects(a.name, udt.deserialize(geom)))
+        // Some(SpatialFilters.Intersects(a.name, udt.deserialize(geom)))
+        ???
 
       case Contains(a: Attribute, Literal(geom, udt: AbstractGeometryUDT[_])) ⇒
-        Some(SpatialFilters.Contains(a.name, udt.deserialize(geom)))
+        // Some(SpatialFilters.Contains(a.name, udt.deserialize(geom)))
+        ???
 
       case Intersects(a: Attribute, GeometryLiteral(_, geom)) ⇒
-        Some(SpatialFilters.Intersects(a.name, geom))
+        // Some(SpatialFilters.Intersects(a.name, geom))
+        ???
 
       case Contains(a: Attribute, GeometryLiteral(_, geom)) ⇒
-        Some(SpatialFilters.Contains(a.name, geom))
+        // Some(SpatialFilters.Contains(a.name, geom))
+        ???
 
       case expressions.And(
         expressions.GreaterThanOrEqual(a: Attribute, Literal(start, TimestampType)),
         expressions.LessThanOrEqual(b: Attribute, Literal(end, TimestampType))
       ) if a.name == b.name ⇒
         val toScala = createToScalaConverter(TimestampType)(_: Any).asInstanceOf[Timestamp]
-        Some(TemporalFilters.BetweenTimes(a.name, toScala(start), toScala(end)))
+        // Some(TemporalFilters.BetweenTimes(a.name, toScala(start), toScala(end)))
+        ???
 
       case expressions.And(
         expressions.GreaterThanOrEqual(a: Attribute, Literal(start, DateType)),
         expressions.LessThanOrEqual(b: Attribute, Literal(end, DateType))
       ) if a.name == b.name ⇒
         val toScala = createToScalaConverter(DateType)(_: Any).asInstanceOf[Date]
-        Some(TemporalFilters.BetweenDates(a.name, toScala(start), toScala(end)))
+        // Some(TemporalFilters.BetweenDates(a.name, toScala(start), toScala(end)))
+        ???
 
       // TODO: Need to figure out how to generalize over capturing right-hand pairs
       case expressions.And(expressions.And(left,
@@ -82,7 +88,7 @@ object FilterTranslator {
         for {
           leftFilter ← translateFilter(left)
           rightFilter = TemporalFilters.BetweenTimes(a.name, toScala(start), toScala(end))
-        } yield sources.And(leftFilter, rightFilter)
+        } yield sources.And(leftFilter, ???)
 
 
       // TODO: Ditto as above
@@ -94,7 +100,7 @@ object FilterTranslator {
         for {
           leftFilter ← translateFilter(left)
           rightFilter = TemporalFilters.BetweenDates(a.name, toScala(start), toScala(end))
-        } yield sources.And(leftFilter, rightFilter)
+        } yield sources.And(leftFilter, ???)
 
 
       case expressions.EqualTo(a: Attribute, Literal(v, t)) =>

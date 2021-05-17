@@ -185,17 +185,17 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   def applyFilter[K: Boundable: SpatialComponent, T](query: BLQ[K, T], predicate: Filter): BLQ[K, T] = {
     predicate match {
       // GT limits disjunctions to a single type
-      case sources.Or(sfIntersects(C.EX, left), sfIntersects(C.EX, right)) ⇒
-        query.where(LayerFilter.Or(
-          Intersects(Extent(left.getEnvelopeInternal)),
-          Intersects(Extent(right.getEnvelopeInternal))
-        ))
-      case sfIntersects(C.EX, rhs: geom.Point) ⇒
-        query.where(Contains(rhs))
-      case sfContains(C.EX, rhs: geom.Point) ⇒
-        query.where(Contains(rhs))
-      case sfIntersects(C.EX, rhs) ⇒
-        query.where(Intersects(Extent(rhs.getEnvelopeInternal)))
+      // case sources.Or(sfIntersects(C.EX, left), sfIntersects(C.EX, right)) ⇒
+      //   query.where(LayerFilter.Or(
+      //     Intersects(Extent(left.getEnvelopeInternal)),
+      //     Intersects(Extent(right.getEnvelopeInternal))
+      //   ))
+      // case sfIntersects(C.EX, rhs: geom.Point) ⇒
+      //   query.where(Contains(rhs))
+      // case sfContains(C.EX, rhs: geom.Point) ⇒
+      //   query.where(Contains(rhs))
+      // case sfIntersects(C.EX, rhs) ⇒
+      //   query.where(Intersects(Extent(rhs.getEnvelopeInternal)))
       case _ ⇒
         val msg = "Unable to convert filter into GeoTrellis query: " + predicate
         if(failOnUnrecognizedFilter)
@@ -213,10 +213,10 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     predicate match {
       case sources.EqualTo(C.TS, ts: Timestamp) ⇒
         q.where(At(toZDT(ts)))
-      case BetweenTimes(C.TS, start: Timestamp, end: Timestamp) ⇒
-        q.where(Between(toZDT(start), toZDT(end)))
-      case BetweenDates(C.TS, start: Date, end: Date) ⇒
-        q.where(Between(toZDT2(start), toZDT2(end)))
+      // case BetweenTimes(C.TS, start: Timestamp, end: Timestamp) ⇒
+      //   q.where(Between(toZDT(start), toZDT(end)))
+      // case BetweenDates(C.TS, start: Date, end: Date) ⇒
+      //   q.where(Between(toZDT2(start), toZDT2(end)))
       case _ ⇒ applyFilter(q, predicate)
     }
   }
