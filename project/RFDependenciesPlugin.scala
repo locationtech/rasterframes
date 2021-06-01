@@ -42,9 +42,9 @@ object RFDependenciesPlugin extends AutoPlugin {
 
     val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
-    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.16.1"
-    val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.25"
-    val scaffeine = "com.github.blemale" %% "scaffeine" % "3.1.0"
+    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.17.0"
+    val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.28"
+    val scaffeine = "com.github.blemale" %% "scaffeine" % "4.0.2"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
   }
@@ -59,7 +59,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     ),
     // dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.f746890",
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-    rfSparkVersion := "3.0.1",
+    rfSparkVersion := "3.1.1",
     rfGeoTrellisVersion := "3.6.0",
     rfGeoMesaVersion := "3.2.0"
   )
