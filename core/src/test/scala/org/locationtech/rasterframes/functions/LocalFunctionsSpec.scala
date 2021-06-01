@@ -97,19 +97,20 @@ class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
   describe("scalar tile operations") {
     it("should rf_local_add") {
-      val df = Seq(one).toDF("one")
-      val maybeThree = df.select(rf_local_add($"one", 2)).as[ProjectedRasterTile]
+      val df = Seq(one).toDF("raster")
+      df.printSchema()
+      val maybeThree = df.select(rf_local_add($"raster", 2)).as[ProjectedRasterTile]
       assertEqual(maybeThree.first(), three)
 
-      val maybeThreeD = df.select(rf_local_add($"one", 2.1)).as[ProjectedRasterTile]
+      val maybeThreeD = df.select(rf_local_add($"raster", 2.1)).as[ProjectedRasterTile]
       assertEqual(maybeThreeD.first(), three.convert(DoubleConstantNoDataCellType).localAdd(0.1))
 
-      val maybeThreeTile = df.select(rf_local_add(ExtractTile($"one"), 2)).as[Tile]
+      val maybeThreeTile = df.select(rf_local_add(ExtractTile($"raster"), 2)).as[Tile]
       assertEqual(maybeThreeTile.first(), three.toArrayTile())
     }
 
     it("should rf_local_subtract") {
-      val df = Seq(three).toDF("three")
+      val df = Seq((two, three)).toDF("two","three")
 
       val maybeOne = df.select(rf_local_subtract($"three", 2)).as[ProjectedRasterTile]
       assertEqual(maybeOne.first(), one)
@@ -122,7 +123,7 @@ class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should rf_local_multiply") {
-      val df = Seq(three).toDF("three")
+      val df = Seq((two, three)).toDF("two", "three")
 
       val maybeSix = df.select(rf_local_multiply($"three", 2)).as[ProjectedRasterTile]
       assertEqual(maybeSix.first(), six)
@@ -135,7 +136,7 @@ class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should rf_local_divide") {
-      val df = Seq(six).toDF("six")
+      val df = Seq((one, six)).toDF("one", "six")
 
       val maybeThree = df.select(rf_local_divide($"six", 2)).as[ProjectedRasterTile]
       assertEqual(maybeThree.first(), three)
@@ -200,9 +201,9 @@ class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
     it("should abs cell values") {
       val minus = one.mapTile(t => t.convert(IntConstantNoDataCellType) * -1)
-      val df = Seq((minus, one)).toDF("minus", "one")
-
-      assertEqual(df.select(rf_abs($"minus").as[ProjectedRasterTile]).first(), one)
+      val df = Seq((one, minus)).toDF("one", "minus")
+      val abs_df = df.select(rf_abs($"minus")).as[ProjectedRasterTile]
+      assertEqual(abs_df.first(), one)
 
       checkDocs("rf_abs")
     }
@@ -213,11 +214,11 @@ class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
       val threesDouble = TestData.projectedRasterTile(cols, rows, 3.0, extent, crs, DoubleConstantNoDataCellType)
       val zerosDouble = TestData.projectedRasterTile(cols, rows, 0.0, extent, crs, DoubleConstantNoDataCellType)
 
-      val df1 = Seq(thousand).toDF("tile")
+      val df1 = Seq((one, thousand)).toDF("one", "tile")
       assertEqual(df1.select(rf_log10($"tile")).as[ProjectedRasterTile].first(), threesDouble)
 
       // ln random tile == rf_log10 random tile / rf_log10(e); random tile square to ensure all positive cell values
-      val df2 = Seq(randPositiveDoubleTile).toDF("tile")
+      val df2 = Seq((one, randPositiveDoubleTile)).toDF("one", "tile")
       val log10e = math.log10(math.E)
       assertEqual(
         df2.select(rf_log($"tile")).as[ProjectedRasterTile].first(),
