@@ -98,7 +98,7 @@ trait StandardSerializers {
 
   implicit val crsSerializer: CatalystSerializer[CRS] = new CatalystSerializer[CRS] {
     override val schema: StructType = StructType(Seq(
-      StructField("crsProj4", StringType, false)
+      StructField("crsProj4", StringType, true)
     ))
 
     override def to[R](t: CRS, io: CatalystIO[R]): R = io.create(
@@ -118,7 +118,7 @@ trait StandardSerializers {
     import StandardSerializers._
 
     override val schema: StructType = StructType(Seq(
-      StructField("cellTypeName", StringType, false)
+      StructField("cellTypeName", StringType, true)
     ))
 
     override def to[R](t: CellType, io: CatalystIO[R]): R = io.create(
