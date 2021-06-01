@@ -37,7 +37,10 @@ import scala.util.control.NonFatal
  *
  * @since 5/4/18
  */
-trait ResourceCacheSupport extends DownloadSupport {
+trait ResourceCacheSupport {
+import com.typesafe.scalalogging.Logger
+import org.slf4j.LoggerFactory
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   def maxCacheFileAgeHours: Int = sys.props.get("rasterframes.resource.age.max")
     .flatMap(v ⇒ Try(v.toInt).toOption)
@@ -45,14 +48,14 @@ trait ResourceCacheSupport extends DownloadSupport {
 
   protected def expired(p: HadoopPath)(implicit fs: FileSystem): Boolean = {
     if(!fs.exists(p)) {
-      logger.debug(s"'$p' does not yet exist")
+      // logger.debug(s"'$p' does not yet exist")
       true
     }
     else {
 
       val time = fs.getFileStatus(p).getModificationTime
       val exp = Instant.ofEpochMilli(time).plus(Duration.ofHours(maxCacheFileAgeHours)).isBefore(Instant.now())
-      if(exp) logger.debug(s"'$p' is expired with mod time of '$time'")
+      // if(exp) logger.debug(s"'$p' is expired with mod time of '$time'")
       exp
     }
   }
@@ -81,14 +84,15 @@ trait ResourceCacheSupport extends DownloadSupport {
     val dest = cacheName(Left(uri))
     dest.when(f ⇒ !expired(f)).orElse {
       try {
-        val bytes = getBytes(uri)
-        withResource(fs.create(dest))(_.write(bytes))
-        Some(dest)
+        // val bytes = getBytes(uri)
+        // withResource(fs.create(dest))(_.write(bytes))
+        // Some(dest)
+        ???
       }
       catch {
         case NonFatal(_) ⇒
-          Try(fs.delete(dest, false))
-          logger.debug(s"'$uri' not found")
+          // Try(fs.delete(dest, false))
+          // logger.debug(s"'$uri' not found")
           None
       }
     }
