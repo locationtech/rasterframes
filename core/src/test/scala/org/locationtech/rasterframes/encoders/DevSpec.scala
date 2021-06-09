@@ -22,11 +22,11 @@
 package org.locationtech.rasterframes.encoders
 
 import cats.data
-
 import geotrellis.proj4._
 import geotrellis.raster.{CellSize, CellType, Dimensions, TileLayout, UShortUserDefinedNoDataCellType}
 import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
+import org.apache.spark.sql.catalyst.ScalaReflection.universe.typeTag
 import org.apache.spark.sql.{Dataset, Encoder, Row}
 import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, encoderFor}
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, BoundReference, Expression, IsNull, KnownNotNull}
@@ -36,56 +36,13 @@ import org.locationtech.rasterframes.model.{CellContext, TileContext, TileDataCo
 import org.scalatest.Assertion
 
 
+case class SpecialKey(z: Int, y: Int)
+case class BoxBounds[T](a: T, b: T)
+
 class DevSpec extends TestEnvironment {
   import TestData._
 
-  describe("home rolled encoders") {
-    import spark.implicits._
-    it("matches spark serializers") {
-      val home = Person.encoder
-      val mySerializerDescription = home.treeString
-      info(mySerializerDescription )
-
-      val baked = implicitly[Encoder[Person]].asInstanceOf[ExpressionEncoder[Person]].objSerializer
-      val sparkSerializerDescription = baked.treeString
-      info(sparkSerializerDescription )
-
-      mySerializerDescription shouldBe sparkSerializerDescription
-    }
-
-    it ("Round-trip Person through DataFrame") {
-      implicit def en: Encoder[Person] = {
-        new ExpressionEncoder[Person](Person.encoder, Person.decoder, typeToClassTag[Person])
-      }
-      val ds = Seq(Person("Bob", 11), Person("Eugene", 10)).toDS
-
-      ds.printSchema()
-      ds.show()
-
-      val df = ds.toDF()
-
-      val me = df.as[Person].first()
-      info(me.toString)
-    }
-
-    it ("Round-trip School through DataFrame") {
-      implicit def en: Encoder[School] = {
-        new ExpressionEncoder[School](School.encoder, School.decoder, typeToClassTag[School])
-      }
-
-      val teacher = Person("Sid", 0)
-      val student = Person("Eugene", 10)
-      val school = School(teacher, student)
-      val ds = Seq(school).toDS
-
-      ds.printSchema()
-      ds.show()
-
-      val df = ds.toDF()
-
-      val it = df.as[School].first()
-      info(it.toString)
-    }
+  describe("automatic derivation"){
   }
 
   describe("scalar tile operations") {
@@ -102,22 +59,6 @@ class DevSpec extends TestEnvironment {
       info(de.numberedTreeString)
     }
 
-
-    ignore("=== DeSer for Person ===") {
-      import org.apache.spark.sql.catalyst.ScalaReflection.deserializerForType
-      import scala.reflect.runtime.universe._
-
-      val de = deserializerForType(typeOf[Person])
-
-      info(de.numberedTreeString)
-    }
-
-    it("Person Frame"){
-      val ds = Seq((Person("Bob", 11), Person("Eugene", 10))).toDS
-      ds.printSchema()
-      ds.show()
-    }
-
     ignore("does it really serialize CRS?") {
       val first = CRSEncoder()
 
@@ -131,27 +72,28 @@ class DevSpec extends TestEnvironment {
       out shouldBe LatLng
     }
 
-    it("person") {
-      val data = List(Person("Eugene", 39), Person("Bob", 45))
+    it("prt encoder"){
+      val en = ProjectedRasterTile.prtEncoder
+      info(en.objSerializer.treeString)
+      info(en.deserializer.treeString)
+    }
+
+    it("should get schema") {
+      val dt = org.apache.spark.sql.catalyst.ScalaReflection.schemaFor[SpatialKey]
+      info(dt.dataType.simpleString)
+    }
+
+    it("should round trip SpatialKey") {
+
+      implicit val en = implicitly[Encoder[KeyBounds[SpatialKey]]]
+      val data = Seq(KeyBounds(SpatialKey(45,42), SpatialKey(51,52)))
       val ds = data.toDS
       ds.printSchema()
       ds.show()
       val df = ds.toDF()
 
-      val me = df.as[Person].first()
-      info(me.toString)
-    }
-
-    it("person encoder"){
-      val en = ExpressionEncoder[Person]
-      info(en.objSerializer.treeString)
-      info(en.deserializer.treeString)
-    }
-
-    it("prt encoder"){
-      val en = ProjectedRasterTile.prtEncoder
-      info(en.objSerializer.treeString)
-      info(en.deserializer.treeString)
+      val out = df.as[KeyBounds[SpatialKey]].first()
+      info(out.toString)
     }
 
     it("should round trip ProjectedRasterTile") {

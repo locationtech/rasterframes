@@ -48,14 +48,14 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = ExpressionEncoder()
   implicit def layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = ExpressionEncoder()
   implicit def stkBoundsEncoder: ExpressionEncoder[KeyBounds[SpaceTimeKey]] = ExpressionEncoder()
-  implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder[Extent]()
+  implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder()
   implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
   implicit def rasterEncoder: ExpressionEncoder[Raster[Tile]] = ExpressionEncoder()
-  implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
-  implicit def crsSparkEncoder: ExpressionEncoder[CRS] = CRSEncoder()
-  implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ProjectedExtentEncoder()
-  implicit def temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = TemporalProjectedExtentEncoder()
-  implicit def cellTypeEncoder: ExpressionEncoder[CellType] = CellTypeEncoder()
+  implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = ExpressionEncoder()
+  implicit def crsSparkEncoder: ExpressionEncoder[CRS] = ExpressionEncoder()
+  implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ExpressionEncoder()
+  implicit def temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = ExpressionEncoder()
+  implicit def cellTypeEncoder: ExpressionEncoder[CellType] = ExpressionEncoder()
   implicit def cellSizeEncoder: ExpressionEncoder[CellSize] = ExpressionEncoder()
   implicit def uriEncoder: ExpressionEncoder[URI] = URIEncoder()
   implicit def envelopeEncoder: ExpressionEncoder[Envelope] = EnvelopeEncoder()
@@ -65,12 +65,11 @@ trait StandardEncoders extends SpatialEncoders {
   implicit def cellHistEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
   implicit def localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
   implicit def tilelayoutEncoder: ExpressionEncoder[TileLayout] = ExpressionEncoder()
-  implicit def cellContextEncoder: ExpressionEncoder[CellContext] = CellContext.encoder
-  implicit def cellsEncoder: ExpressionEncoder[Cells] = Cells.encoder
-  implicit def tileContextEncoder: ExpressionEncoder[TileContext] = TileContext.encoder
-  implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = TileDataContext.encoder
-  implicit def extentTilePairEncoder: Encoder[(ProjectedExtent, Tile)] = Encoders.tuple(projectedExtentEncoder, singlebandTileEncoder)
-  implicit def tileDimensionsEncoder: Encoder[Dimensions[Int]] = CatalystSerializerEncoder[Dimensions[Int]]()
+  implicit def cellContextEncoder: ExpressionEncoder[CellContext] = ExpressionEncoder()
+  //implicit def cellsEncoder: ExpressionEncoder[Cells] = Cells.encoder
+  implicit def tileContextEncoder: ExpressionEncoder[TileContext] = ExpressionEncoder()
+  implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = ExpressionEncoder()
+  implicit def tileDimensionsEncoder: Encoder[Dimensions[Int]] = ExpressionEncoder()
 }
 
 object StandardEncoders extends StandardEncoders

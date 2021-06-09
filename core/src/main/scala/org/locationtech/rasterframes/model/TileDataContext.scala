@@ -56,5 +56,5 @@ object TileDataContext {
     )
   }
 
-  implicit def encoder: ExpressionEncoder[TileDataContext] = CatalystSerializerEncoder[TileDataContext]()
+  //implicit def encoder: ExpressionEncoder[TileDataContext] = CatalystSerializerEncoder[TileDataContext]()
 }
