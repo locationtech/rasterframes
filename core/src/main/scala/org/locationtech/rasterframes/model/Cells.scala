@@ -28,7 +28,7 @@ import org.locationtech.rasterframes
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile.ConcreteProjectedRasterTile
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.tiles.ShowableTile
 
 /** Represents the union of binary cell datas or a reference to the data.*/
@@ -53,8 +53,8 @@ object Cells {
   /** Extracts the Cells from a Tile. */
   def apply(t: Tile): Cells = {
     t match {
-      case prt: ConcreteProjectedRasterTile =>
-        apply(prt.t)
+      case prt: ProjectedRasterTile =>
+        apply(prt.tile)
       case ref: RasterRefTile =>
         Cells(Right(ref.rr))
       case const: ConstantTile =>

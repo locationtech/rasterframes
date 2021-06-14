@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.ref
 
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, CellType, GridBounds, Tile}
+import geotrellis.raster.{CellGrid, CellType, DelegatingTile, GridBounds, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.RasterSourceUDT
@@ -47,7 +47,7 @@ case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[E
   def cols: Int = grid.width
   def rows: Int = grid.height
   def cellType: CellType = source.cellType
-  def tile: ProjectedRasterTile = RasterRefTile(this)
+  def tile: Tile = RasterRefTile(this)
 
   protected lazy val grid: GridBounds[Int] =
     subgrid.getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
@@ -61,18 +61,14 @@ case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[E
 object RasterRef extends LazyLogging {
   private val log = logger
 
-  case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
-    def extent: Extent = rr.extent
-    def crs: CRS = rr.crs
-    override def cellType = rr.cellType
-
+  case class RasterRefTile(rr: RasterRef) extends DelegatingTile {
     override def cols: Int = rr.cols
     override def rows: Int = rr.rows
 
     protected def delegate: Tile = rr.realizedTile
     // NB: This saves us from stack overflow exception
-    override def convert(ct: CellType): ProjectedRasterTile =
-      ProjectedRasterTile(rr.realizedTile.convert(ct), extent, crs)
+    override def convert(ct: CellType): Tile =
+      rr.realizedTile.convert(ct)
     override def toString: String = s"$productPrefix($rr)"
   }
 

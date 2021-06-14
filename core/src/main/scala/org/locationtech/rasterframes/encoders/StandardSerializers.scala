@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.encoders
 
 import java.nio.ByteBuffer
-
 import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import geotrellis.raster._
@@ -31,7 +30,7 @@ import geotrellis.vector._
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.types._
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.rasterframes.TileType
+import org.locationtech.rasterframes.{CrsType, TileType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.util.KryoSupport
@@ -132,7 +131,7 @@ trait StandardSerializers {
   implicit val projectedExtentSerializer: CatalystSerializer[ProjectedExtent] = new CatalystSerializer[ProjectedExtent] {
     override val schema: StructType = StructType(Seq(
       StructField("extent", schemaOf[Extent], false),
-      StructField("crs", schemaOf[CRS], false)
+      StructField("crs", CrsType, false)
     ))
 
     override protected def to[R](t: ProjectedExtent, io: CatalystSerializer.CatalystIO[R]): R = io.create(

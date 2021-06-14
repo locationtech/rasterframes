@@ -23,12 +23,12 @@ package org.locationtech.rasterframes.tiles
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.SinglebandGeoTiff
-import geotrellis.raster.{ArrayTile, CellType, DelegatingTile, ProjectedRaster, Tile}
+import geotrellis.raster.{DelegatingTile, ProjectedRaster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{StructField, StructType}
-import org.locationtech.rasterframes.TileType
+import org.locationtech.rasterframes.{CrsType, TileType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.model.TileContext
@@ -40,78 +40,50 @@ import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
  *
  * @since 9/5/18
  */
-abstract class ProjectedRasterTile extends DelegatingTile with ProjectedRasterLike {
-  def extent: Extent
-  def crs: CRS
+case class ProjectedRasterTile(tile: Tile, extent: Extent, crs: CRS) extends DelegatingTile with ProjectedRasterLike {
+  def delegate: Tile = tile
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
   def projectedRaster: ProjectedRaster[Tile] = ProjectedRaster[Tile](this, extent, crs)
   def mapTile(f: Tile => Tile): ProjectedRasterTile = ProjectedRasterTile(f(this), extent, crs)
 }
 
 object ProjectedRasterTile {
-  def apply(t: Tile, extent: Extent, crs: CRS): ProjectedRasterTile =
-    ConcreteProjectedRasterTile(t, extent, crs)
   def apply(pr: ProjectedRaster[Tile]): ProjectedRasterTile =
-    ConcreteProjectedRasterTile(pr.tile, pr.extent, pr.crs)
+    ProjectedRasterTile(pr.tile, pr.extent, pr.crs)
   def apply(tiff: SinglebandGeoTiff): ProjectedRasterTile =
-    ConcreteProjectedRasterTile(tiff.tile, tiff.extent, tiff.crs)
+    ProjectedRasterTile(tiff.tile, tiff.extent, tiff.crs)
+  def apply(tile: RasterRefTile): ProjectedRasterTile =
+    ProjectedRasterTile(tile, tile.rr.extent, tile.rr.crs)
 
-  case class ConcreteProjectedRasterTile(t: Tile, extent: Extent, crs: CRS)
-      extends ProjectedRasterTile {
-    def delegate: Tile = t
-
-    // NB: Don't be tempted to move this into the parent trait. Will get stack overflow.
-    override def convert(cellType: CellType): Tile =
-      ConcreteProjectedRasterTile(t.convert(cellType), extent, crs)
-
-    override def toString: String = {
-      val e = s"(${extent.xmin}, ${extent.ymin}, ${extent.xmax}, ${extent.ymax})"
-      val c = crs.toProj4String
-      s"[${ShowableTile.show(t)}, $e, $c]"
-    }
-
-    // Not sure why the following are still needed with this being closed:
-    // https://github.com/locationtech/geotrellis/issues/3153
-    // Without them, TileFunctionsSpec.`conditional cell values`.`should evaluate rf_where` fails
-    override def combine(r2: Tile)(f: (Int, Int) ⇒ Int): Tile = (delegate, r2) match {
-      case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combine(r2.toArrayTile())(f)
-      case _ ⇒ delegate.combine(r2)(f)
-    }
-
-    override def combineDouble(r2: Tile)(f: (Double, Double) ⇒ Double): Tile = (delegate, r2) match {
-      case (del: ArrayTile, r2: DelegatingTile) ⇒ del.combineDouble(r2.toArrayTile())(f)
-      case _ ⇒ delegate.combineDouble(r2)(f)
-    }
-
-  }
   implicit val serializer: CatalystSerializer[ProjectedRasterTile] = new CatalystSerializer[ProjectedRasterTile] {
     override val schema: StructType = StructType(Seq(
-      StructField("tile_context", schemaOf[TileContext], true),
-      StructField("tile", TileType, false))
-    )
+      StructField("tile", TileType, false),
+      StructField("extent", schemaOf[Extent], false),
+      StructField("crs", CrsType, false)))
 
     override protected def to[R](t: ProjectedRasterTile, io: CatalystIO[R]): R = io.create(
-      t match {
-        case _: RasterRefTile => null
-        case o => io.to(TileContext(o.extent, o.crs))
-      },
-      io.to[Tile](t)(TileUDT.tileSerializer)
+      io.to[Tile](t)(TileUDT.tileSerializer),
+      io.to[Extent](t.extent),
+      io.to[CRS](t.crs)
     )
 
     override protected def from[R](t: R, io: CatalystIO[R]): ProjectedRasterTile = {
-      val tile = io.get[Tile](t, 1)(TileUDT.tileSerializer)
+      val tile = io.get[Tile](t, ordinal = 0)(TileUDT.tileSerializer)
+
       tile match {
-        case r: RasterRefTile => r
+        case r: RasterRefTile =>
+          ProjectedRasterTile(r, r.rr.extent, r.rr.crs)
         case _ =>
-          val ctx = io.get[TileContext](t, 0)
+          val extent = io.get[Extent](t, ordinal = 1)
+          val crs = io.get[CRS](t, ordinal = 2)
           val resolved = tile match {
             case i: InternalRowTile => i.toArrayTile()
             case o => o
           }
-          ProjectedRasterTile(resolved, ctx.extent, ctx.crs)
+          ProjectedRasterTile(resolved, extent, crs)
       }
     }
   }
 
-  implicit val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = CatalystSerializerEncoder[ProjectedRasterTile]()
+  implicit val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder[ProjectedRasterTile]()
 }

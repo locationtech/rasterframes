@@ -246,7 +246,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
     it("should resolve a RasterRefTile") {
       new Fixture {
-        val t: ProjectedRasterTile = RasterRefTile(subRaster)
+        val t: ProjectedRasterTile = ProjectedRasterTile(RasterRefTile(subRaster))
         val result = Seq(t).toDF("tile").select(rf_tile($"tile")).first()
         result.isInstanceOf[RasterRefTile] should be(false)
         assertEqual(t.toArrayTile(), result)
@@ -257,7 +257,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         // SimpleRasterInfo is a proxy for header data requests.
         val startStats = SimpleRasterInfo.cacheStats
-        val t: ProjectedRasterTile = RasterRefTile(subRaster)
+        val t: ProjectedRasterTile = ProjectedRasterTile(RasterRefTile(subRaster))
         val df = Seq(t, subRaster.tile).toDF("tile")
         val result = df.first()
         SimpleRasterInfo.cacheStats.hitCount() should be(startStats.hitCount())

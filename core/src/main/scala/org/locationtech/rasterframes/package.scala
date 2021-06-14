@@ -27,7 +27,7 @@ import geotrellis.raster.resample._
 import geotrellis.layer._
 import geotrellis.spark.ContextRDD
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
+import org.apache.spark.sql.rf.{CrsUDT, RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.{DataFrame, SQLContext, rf}
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
@@ -86,6 +86,9 @@ package object rasterframes extends StandardColumns
 
   /** TileUDT type reference. */
   def TileType = new TileUDT()
+
+  /** CrsUDT type reference. */
+  def CrsType = new CrsUDT()
 
   /** RasterSourceUDT type reference. */
   def RasterSourceType = new RasterSourceUDT()
