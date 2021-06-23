@@ -3,3 +3,4 @@ org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisLayerDataSource
 org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisCatalog
 org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource
 org.locationtech.rasterframes.datasource.geojson.GeoJsonDataSource
+org.locationtech.rasterframes.datasource.stac.api.StacApiDataSource

@@ -39,6 +39,9 @@ class GeoJsonDataSourceTest extends TestEnvironment {
         .geojson
         .option(GeoJsonDataSource.INFER_SCHEMA, false)
         .load(example1)
+
+      results.printSchema()
+
       assert(results.columns.length === 2)
       assert(results.schema.fields(1).dataType.isInstanceOf[MapType])
       assert(results.count() === 3)
@@ -49,6 +52,9 @@ class GeoJsonDataSourceTest extends TestEnvironment {
         .geojson
         .option(GeoJsonDataSource.INFER_SCHEMA, true)
         .load(example1)
+
+      results.printSchema()
+
       assert(results.columns.length === 4)
       assert(results.schema.fields(1).dataType == LongType)
       assert(results.count() === 3)

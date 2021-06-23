@@ -108,6 +108,9 @@ lazy val datasource = project
   .settings(
     moduleName := "rasterframes-datasource",
     libraryDependencies ++= Seq(
+      compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.6",
+      stac4s,
       geotrellis("s3").value,
       spark("core").value % Provided,
       spark("mllib").value % Provided,

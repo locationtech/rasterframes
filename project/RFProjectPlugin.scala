@@ -73,7 +73,7 @@ object RFProjectPlugin extends AutoPlugin {
         name = "Ben Guseman",
         email = "bguseman@astraea.earth",
         url = url("http://www.astraea.earth")
-      ),
+      )
     ),
     console / initialCommands :=
       """
