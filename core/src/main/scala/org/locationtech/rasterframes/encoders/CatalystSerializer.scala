@@ -163,7 +163,7 @@ object CatalystSerializer extends StandardSerializers {
         result.toMap.asInstanceOf[Map[K, V]]
       }
 
-      def getInstant(d: InternalRow, ordinal: Int): Instant = Instant.ofEpochMilli(d.get(ordinal, TimestampType).asInstanceOf[Long])
+      def getInstant(d: InternalRow, ordinal: Int): Instant = d.get(ordinal, TimestampType).asInstanceOf[Instant]
     }
   }
 

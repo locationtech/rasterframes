@@ -192,6 +192,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData {
         .toDF("B1", "B2", "B3")
         .withColumn("foo", lit("something"))
 
+      bandPaths.printSchema()
+
       val df = spark.read.raster
         .fromCatalog(bandPaths, "B1", "B2", "B3")
         .withTileDimensions(128, 128)
