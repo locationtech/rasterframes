@@ -28,6 +28,9 @@ import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
+import java.time.Instant
+import scala.collection.mutable
+
 /**
  * Typeclass for converting to/from JVM object to catalyst encoding. The reason this exists is that
  * instantiating and binding `ExpressionEncoder[T]` is *very* expensive, and not suitable for
@@ -75,6 +78,9 @@ object CatalystSerializer extends StandardSerializers {
     def getDouble(d: R, ordinal: Int): Double
     def getString(d: R, ordinal: Int): String
     def getByteArray(d: R, ordinal: Int): Array[Byte]
+    def getArray[T >: Null](d: R, ordinal: Int): Array[T]
+    def getMap[K >: Null, V >: Null](d: R, ordinal: Int): Map[K, V]
+    def getInstant(d: R, ordinal: Int): Instant
     def encode(str: String): AnyRef
   }
 
@@ -103,6 +109,10 @@ object CatalystSerializer extends StandardSerializers {
       override def getSeq[T >: Null: CatalystSerializer](d: R, ordinal: Int): Seq[T] =
         d.getSeq[Row](ordinal).map(_.to[T])
       override def encode(str: String): String = str
+
+      def getArray[T >: Null](d: R, ordinal: Int): Array[T] = d.get(ordinal).asInstanceOf[Array[T]]
+      def getMap[K >: Null, V >: Null](d: R, ordinal: Int): Map[K, V] = d.get(ordinal).asInstanceOf[Map[K, V]]
+      def getInstant(d: R, ordinal: Int): Instant = d.getInstant(ordinal)
     }
 
     implicit val rowIO: CatalystIO[Row] = new AbstractRowEncoder[Row] {
@@ -139,6 +149,21 @@ object CatalystSerializer extends StandardSerializers {
         result.toSeq
       }
       override def encode(str: String): UTF8String = UTF8String.fromString(str)
+
+      def getArray[T >: Null](d: InternalRow, ordinal: Int): Array[T] = d.getArray(ordinal).array.asInstanceOf[Array[T]]
+
+      def getMap[K >: Null, V >: Null](d: InternalRow, ordinal: Int): Map[K, V] = {
+        val md = d.getMap(ordinal)
+        val kd = md.keyArray().array
+        val vd = md.valueArray().array
+        val result: mutable.Map[Any, Any] = mutable.Map.empty
+
+        (0 until md.numElements()).map { idx => result.put(kd(idx), vd(idx)) }
+
+        result.toMap.asInstanceOf[Map[K, V]]
+      }
+
+      def getInstant(d: InternalRow, ordinal: Int): Instant = Instant.ofEpochMilli(d.get(ordinal, TimestampType).asInstanceOf[Long])
     }
   }
 

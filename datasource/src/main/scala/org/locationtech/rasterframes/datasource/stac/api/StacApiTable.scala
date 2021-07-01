@@ -1,13 +1,16 @@
 package org.locationtech.rasterframes.datasource.stac.api
 
+import org.locationtech.rasterframes.datasource.stac.api.encoders._
+import com.azavea.stac4s.StacItem
 import com.azavea.stac4s.api.client.SearchFilters
 import eu.timepit.refined.types.numeric.NonNegInt
 import org.apache.spark.sql.connector.catalog.{SupportsRead, Table, TableCapability}
 import org.apache.spark.sql.connector.read.ScanBuilder
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
 import org.locationtech.rasterframes.datasource.stac.api.StacApiDataSource.{ASSET_LIMIT_PARAM, SEARCH_FILTERS_PARAM, URI_PARAM}
 import org.locationtech.rasterframes.datasource.{intParam, jsonParam, uriParam}
+import org.locationtech.rasterframes.encoders.CatalystSerializer.schemaOf
 import sttp.model.Uri
 
 import scala.collection.JavaConverters._
@@ -18,7 +21,7 @@ class StacApiTable extends Table with SupportsRead {
 
   def name(): String = this.getClass.toString
 
-  def schema(): StructType = StructType(Array(StructField("value", StringType)))
+  def schema(): StructType = schemaOf[StacItem]
 
   def capabilities(): util.Set[TableCapability] = Set(TableCapability.BATCH_READ).asJava
 

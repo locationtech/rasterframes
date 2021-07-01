@@ -1,14 +1,15 @@
 package org.locationtech.rasterframes.datasource.stac.api
 
+import org.locationtech.rasterframes.datasource.stac.api.encoders._
 import cats.effect.IO
 import com.azavea.stac4s.StacItem
 import geotrellis.store.util.BlockingThreadPool
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.read.{InputPartition, PartitionReader, PartitionReaderFactory}
-import org.apache.spark.unsafe.types.UTF8String
 import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import com.azavea.stac4s.api.client._
 import eu.timepit.refined.types.numeric.NonNegInt
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import sttp.model.Uri
 
 case class StacApiPartition(uri: Uri, searchFilters: SearchFilters, searchLimit: Option[NonNegInt]) extends InputPartition
@@ -29,10 +30,9 @@ class StacApiPartitionReader(partition: StacApiPartition) extends PartitionReade
     AsyncHttpClientCatsBackend
       .resource[IO]()
       .use { backend =>
-        val stream = SttpStacClient(backend, partition.uri).search(partition.searchFilters)
-        partition
-          .searchLimit
-          .fold(stream)(n => stream.take(n.value))
+        SttpStacClient(backend, partition.uri)
+          .search(partition.searchFilters)
+          .take(partition.searchLimit.map(_.value))
           .compile
           .toList
       }
@@ -42,11 +42,7 @@ class StacApiPartitionReader(partition: StacApiPartition) extends PartitionReade
 
   def next: Boolean = partitionValues.hasNext
 
-  def get: InternalRow = {
-    val partitionValue = partitionValues.next
-    val stringUtf = UTF8String.fromString(partitionValue.toString)
-    InternalRow(stringUtf)
-  }
+  def get: InternalRow = partitionValues.next.toInternalRow
 
   def close(): Unit = { }
 }
