@@ -25,10 +25,13 @@ package object api {
     def flattenAssets(implicit spark: SparkSession): StacApiDataFrame = {
       import spark.implicits._
       tag[StacApiDataFrameTag][DataFrame](
-        df.select(df.columns.map {
-          case "assets" => explode($"assets")
-          case s => $"$s"
-        }: _*)
+        df
+          .select(df.columns.map {
+            case "assets" => explode($"assets")
+            case s        => $"$s"
+          }: _*)
+          .withColumnRenamed("key", "assetName")
+          .withColumnRenamed("value", "asset")
       )
     }
   }

@@ -161,6 +161,8 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
 
     val assets = items.flattenAssets
 
+    println(assets.printSchema())
+
     // println(assets.collect().toList.head)
 
     // items.select($"id", explode($"assets")).printSchema()
