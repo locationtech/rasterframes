@@ -23,23 +23,26 @@ package org.locationtech.rasterframes.datasource.stac.api
 
 import org.locationtech.rasterframes.datasource.raster._
 import org.locationtech.rasterframes.datasource.stac.api.encoders._
-import cats.syntax.option._
-import eu.timepit.refined.auto._
-import com.azavea.stac4s.StacItem
-import com.azavea.stac4s.api.client.SearchFilters
-import com.sun.jndi.toolkit.dir.SearchFilter
-import eu.timepit.refined.types.numeric.NonNegInt
-import org.apache.spark.sql.Encoder
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.functions.{explode, lit}
-import org.locationtech.rasterframes.TestData.l8SamplePath
-import org.locationtech.rasterframes.TestEnvironment
-import org.locationtech.rasterframes.encoders.CatalystSerializerEncoder
 
-class STACAPIDataSourceTest extends TestEnvironment {
+import com.azavea.stac4s.StacItem
+import com.azavea.stac4s.api.client.SttpStacClient
+import cats.syntax.option._
+import cats.effect.IO
+import eu.timepit.refined.auto._
+import eu.timepit.refined.types.numeric.NonNegInt
+import geotrellis.store.util.BlockingThreadPool
+import geotrellis.vector.Point
+import org.apache.spark.sql.functions.explode
+import org.locationtech.rasterframes.TestEnvironment
+import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
+import sttp.client3.UriContext
+
+class STACAPIDataSourceTest extends TestEnvironment { self =>
 
   describe("STAC API spark reader") {
     it("Should read from Franklin service") {
+      import spark.implicits._
+
       val results =
         spark
           .read
@@ -51,11 +54,7 @@ class STACAPIDataSourceTest extends TestEnvironment {
       results.rdd.partitions.length shouldBe 1
       results.count() shouldBe 1
 
-      import spark.implicits._
-
-      // implicit val stacItemEncoder: Encoder[StacItem] = CatalystSerializerEncoder[StacItem]()
-
-      println(results.collect().toList)
+      println(results.as[StacItem].collect().toList)
 
       val ddf = results.select($"id", explode($"assets"))
 
@@ -65,9 +64,52 @@ class STACAPIDataSourceTest extends TestEnvironment {
 
     }
 
-    it("should fetch rasters from Franklin service") {
+    it("Should read from Astraea Earth service") {
       import spark.implicits._
 
+      val results =
+        spark
+          .read
+          .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = (1: NonNegInt).some)
+          .load
+
+      results.printSchema()
+
+      results.rdd.partitions.length shouldBe 1
+      results.count() shouldBe 1
+
+      println(results.as[StacItem].collect().toList)
+
+      val ddf = results.select($"id", explode($"assets"))
+
+      ddf.printSchema()
+
+      println(ddf.select($"id", $"value.href" as "band").collect().toList)
+
+    }
+
+    ignore("manual test") {
+      implicit val cs = IO.contextShift(BlockingThreadPool.executionContext)
+      val realitems: List[StacItem] = AsyncHttpClientCatsBackend
+        .resource[IO]()
+        .use { backend =>
+          SttpStacClient(backend, uri"https://eod-catalog-svc-prod.astraea.earth/")
+            .search
+            .take(1)
+            .compile
+            .toList
+        }
+        .unsafeRunSync()
+        .map(_.copy(geometry = Point(1, 1)))
+
+      import spark.implicits._
+
+      println(sc.parallelize(realitems).toDF().as[StacItem].collect().toList.head)
+
+    }
+
+    it("should fetch rasters from Franklin service") {
+      import spark.implicits._
       val items =
         spark
           .read
