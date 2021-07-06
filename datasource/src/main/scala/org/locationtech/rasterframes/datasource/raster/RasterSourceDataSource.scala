@@ -23,12 +23,12 @@ package org.locationtech.rasterframes.datasource.raster
 
 import java.net.URI
 import java.util.UUID
-
 import geotrellis.raster.Dimensions
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.util._
-import org.apache.spark.sql.{DataFrame, DataFrameReader, SQLContext}
+import org.apache.spark.sql.{DataFrame, DataFrameReader, SQLContext, SparkSession}
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
+import org.locationtech.rasterframes.datasource.stac.api.StacApiDataFrame
 import shapeless.tag
 import shapeless.tag.@@
 
@@ -211,6 +211,11 @@ object RasterSourceDataSource {
         reader.option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tableName)
           .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
       )
+
+    def fromCatalog(catalog: StacApiDataFrame)(implicit spark: SparkSession): TaggedReader = {
+      import spark.implicits._
+      fromCatalog(catalog.select($"value.href" as "band"), "band")
+    }
 
     def fromCSV(catalogCSV: String, bandColumnNames: String*): TaggedReader =
       tag[ReaderTag][DataFrameReader](

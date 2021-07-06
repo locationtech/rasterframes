@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.datasource.stac.api
 
 import org.locationtech.rasterframes.datasource.raster._
 import org.locationtech.rasterframes.datasource.stac.api.encoders._
-
 import com.azavea.stac4s.StacItem
 import com.azavea.stac4s.api.client.SttpStacClient
 import cats.syntax.option._
@@ -32,12 +31,13 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.types.numeric.NonNegInt
 import geotrellis.store.util.BlockingThreadPool
 import geotrellis.vector.Point
-import org.apache.spark.sql.functions.explode
+import org.apache.spark.sql.functions.{explode, lit}
+import org.locationtech.rasterframes.TestData.l8SamplePath
 import org.locationtech.rasterframes.TestEnvironment
 import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import sttp.client3.UriContext
 
-class STACAPIDataSourceTest extends TestEnvironment { self =>
+class StacApiDataSourceTest extends TestEnvironment { self =>
 
   describe("STAC API spark reader") {
     it("Should read from Franklin service") {
@@ -149,5 +149,49 @@ class STACAPIDataSourceTest extends TestEnvironment { self =>
 
       println(rasters.collect().toList)
     }
+  }
+
+  it("should fetch rasters from Franklin service w syntax") {
+    import spark.implicits._
+    val items =
+      spark
+        .read
+        .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = (1: NonNegInt).some)
+        .loadStac
+
+    val assets = items.flattenAssets
+
+    println(assets.collect().toList)
+
+
+    val rasters = spark.read.raster
+      .fromCatalog(assets)
+      .withTileDimensions(128, 128)
+      .withBandIndexes(0)
+      .load()
+
+    rasters.printSchema()
+
+    println(rasters.collect().toList)
+  }
+
+  it("basic read") {
+    import spark.implicits._
+    val bandPaths = Seq((
+      l8SamplePath(1).toASCIIString,
+      l8SamplePath(2).toASCIIString,
+      l8SamplePath(3).toASCIIString))
+      .toDF("B1", "B2", "B3")
+      .withColumn("foo", lit("something"))
+
+    val df = spark.read.raster
+      .fromCatalog(bandPaths, "B1", "B2", "B3")
+      .withTileDimensions(128, 128)
+      .load()
+
+    df.schema.size should be(7)
+    df.select($"B1_path").distinct().count() should be (1)
+
+    println(df.collect().toList)
   }
 }
