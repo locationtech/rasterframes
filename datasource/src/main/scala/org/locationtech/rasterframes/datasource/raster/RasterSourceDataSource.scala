@@ -214,7 +214,12 @@ object RasterSourceDataSource {
 
     def fromCatalog(catalog: StacApiDataFrame)(implicit spark: SparkSession): TaggedReader = {
       import spark.implicits._
-      fromCatalog(catalog.select($"value.href" as "band"), "band")
+      fromCatalog(catalog.filter($"key" === "AOT_60m" ).select($"value.href" as "band"), "band")
+    }
+
+    def fromCatalog(catalog: StacApiDataFrame, assets: String*)(implicit spark: SparkSession): TaggedReader = {
+      import spark.implicits._
+      fromCatalog(catalog.filter($"key" isInCollection assets).select($"value.href" as "band"), "band")
     }
 
     def fromCSV(catalogCSV: String, bandColumnNames: String*): TaggedReader =

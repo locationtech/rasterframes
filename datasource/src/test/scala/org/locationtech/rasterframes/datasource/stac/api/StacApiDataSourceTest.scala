@@ -161,11 +161,13 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
 
     val assets = items.flattenAssets
 
-    println(assets.collect().toList)
+    // println(assets.collect().toList.head)
+
+    // items.select($"id", explode($"assets")).printSchema()
 
 
     val rasters = spark.read.raster
-      .fromCatalog(assets)
+      .fromCatalog(assets, "AOT_60m")
       .withTileDimensions(128, 128)
       .withBandIndexes(0)
       .load()
