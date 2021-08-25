@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.expressions.localops
 
 import geotrellis.raster.Tile
 import geotrellis.raster.resample._
-import geotrellis.raster.resample.{ResampleMethod ⇒ GTResampleMethod, Max ⇒ RMax, Min ⇒ RMin}
+import geotrellis.raster.resample.{Max => RMax, Min => RMin, ResampleMethod => GTResampleMethod}
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
@@ -31,17 +31,15 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure,
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal, TernaryExpression}
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.util.ResampleMethod
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.{fpTile, row}
+import org.locationtech.rasterframes.expressions.{RasterResult, fpTile, row}
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 
 
 abstract class ResampleBase(left: Expression, right: Expression, method: Expression)
-  extends TernaryExpression
+  extends TernaryExpression with RasterResult
   with CodegenFallback with Serializable {
 
   override val nodeName: String = "rf_resample"
@@ -79,7 +77,6 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
 
   override def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
     // more copypasta from BinaryLocalRasterOp
-    implicit val tileSer = TileUDT.tileSerializer
 
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(input1))
     val methodString = input3.asInstanceOf[UTF8String].toString
@@ -97,10 +94,7 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
     }
 
     // reassemble the leftTile with its context. Note that this operation does not change Extent and CRS
-    leftCtx match {
-      case Some(ctx) ⇒ ctx.toProjectRasterTile(result).toInternalRow
-      case None ⇒ result.toInternalRow
-    }
+    toInternalRow(result, leftCtx)
   }
 
   override def eval(input: InternalRow): Any = {

@@ -25,7 +25,7 @@ import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.raster.{CellType, Dimensions, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
-import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
+import org.locationtech.rasterframes.encoders.{CatalystSerializer}
 
 /** Encapsulates all information about a tile aside from actual cell values. */
 case class TileDataContext(cellType: CellType, dimensions: Dimensions[Int])
@@ -56,5 +56,5 @@ object TileDataContext {
     )
   }
 
-  //implicit def encoder: ExpressionEncoder[TileDataContext] = CatalystSerializerEncoder[TileDataContext]()
+  implicit def encoder: ExpressionEncoder[TileDataContext] = ExpressionEncoder[TileDataContext]()
 }

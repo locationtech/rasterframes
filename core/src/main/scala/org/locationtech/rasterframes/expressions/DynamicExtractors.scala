@@ -22,85 +22,100 @@
 package org.locationtech.rasterframes.expressions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, Raster, Tile}
+import geotrellis.raster.{CellGrid, Tile}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.{Envelope, Point}
+import org.locationtech.rasterframes.{RasterSourceType, TileType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.encoders.cachedDeserializer
 import org.locationtech.rasterframes.model.{LazyCRS, LongExtent, TileContext}
-import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RFRasterSource, RasterRef}
+import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.apache.spark.sql.rf.CrsUDT
 
 private[rasterframes]
 object DynamicExtractors {
   /** Partial function for pulling a tile and its context from an input row. */
   lazy val tileExtractor: PartialFunction[DataType, InternalRow => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
-      (row: InternalRow) =>
-        (row.to[Tile](TileUDT.tileSerializer), None)
-    case t if t.conformsTo[ProjectedRasterTile] =>
+      (row: InternalRow) => (TileType.deserialize(row), None)
+    case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
+      val fromRow = cachedDeserializer[ProjectedRasterTile]
       (row: InternalRow) => {
-        val prt = row.to[ProjectedRasterTile]
+        val prt = fromRow(row)
         (prt, Some(TileContext(prt)))
       }
   }
 
   lazy val rasterRefExtractor: PartialFunction[DataType, InternalRow => RasterRef] = {
-    case t if t.conformsTo[RasterRef] =>
-      (row: InternalRow) => row.to[RasterRef]
+    case t if t.conformsToSchema(RasterRef.rrEncoder.schema) ⇒
+      val des = cachedDeserializer[RasterRef]
+      (row: InternalRow) => des(row)
   }
 
   lazy val tileableExtractor: PartialFunction[DataType, InternalRow => Tile] =
     tileExtractor.andThen(_.andThen(_._1)).orElse(rasterRefExtractor.andThen(_.andThen(_.tile)))
 
-  lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
-    case _: TileUDT =>
-      (row: Row) =>  (row.to[Tile](TileUDT.tileSerializer), None)
-    case t if t.conformsTo[Raster[Tile]] =>
-      (row: Row) => {
-        val rt = row.to[Raster[Tile]]
-        (rt.tile, None)
-      }
-    case t if t.conformsTo[ProjectedRasterTile] =>
-      (row: Row) => {
-        val prt = row.to[ProjectedRasterTile]
-        (prt, Some(TileContext(prt)))
-      }
-  }
+  //lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
+  //  case _: TileUDT =>
+  //    (row: Row) =>  (row.to[Tile](TileUDT.tileSerializer), None)
+  //  case t if t.conformsTo[Raster[Tile]] =>
+  //    (row: Row) => {
+  //      val rt = row.to[Raster[Tile]]
+  //      (rt.tile, None)
+  //    }
+  //  case t if t.conformsTo[ProjectedRasterTile] =>
+  //    (row: Row) => {
+  //      val prt = row.to[ProjectedRasterTile]
+  //      (prt, Some(TileContext(prt)))
+  //    }
+  //}
 
   /** Partial function for pulling a ProjectedRasterLike an input row. */
   lazy val projectedRasterLikeExtractor: PartialFunction[DataType, Any ⇒ ProjectedRasterLike] = {
     case _: RasterSourceUDT ⇒
-      (input: Any) => input.asInstanceOf[InternalRow].to[RFRasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo[ProjectedRasterTile] =>
-      (input: Any) => input.asInstanceOf[InternalRow].to[ProjectedRasterTile]
-    case t if t.conformsTo[RasterRef] =>
-      (input: Any) => input.asInstanceOf[InternalRow].to[RasterRef]
+      (input: Any) =>
+        val row = input.asInstanceOf[InternalRow]
+        RasterSourceType.deserialize(row)
+    case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
+      val fromRow = cachedDeserializer[ProjectedRasterTile]
+      (input: Any) =>
+        val row = input.asInstanceOf[InternalRow]
+        fromRow(row)
+    case t if t.conformsToSchema(RasterRef.rrEncoder.schema) ⇒
+      val fromRow = cachedDeserializer[RasterRef]
+      (row: Any) => fromRow(row.asInstanceOf[InternalRow])
   }
 
   /** Partial function for pulling a CellGrid from an input row. */
   lazy val gridExtractor: PartialFunction[DataType, InternalRow ⇒ CellGrid[Int]] = {
     case _: TileUDT =>
-      (row: InternalRow) => row.to[Tile](TileUDT.tileSerializer)
+      // TODO EAC: is there way to extract grid from TileUDT without reading the cells with an expression?
+      (row: InternalRow) => TileType.deserialize(row)
     case _: RasterSourceUDT =>
-      (row: InternalRow) => row.to[RFRasterSource](RasterSourceUDT.rasterSourceSerializer)
-    case t if t.conformsTo[RasterRef] ⇒
-      (row: InternalRow) => row.to[RasterRef]
-    case t if t.conformsTo[ProjectedRasterTile] =>
-      (row: InternalRow) => row.to[ProjectedRasterTile]
+      val udt = new RasterSourceUDT()
+      (row: InternalRow) => udt.deserialize(row)
+    case t if t.conformsToSchema(RasterRef.rrEncoder.schema) ⇒
+      val fromRow = cachedDeserializer[RasterRef]
+      (row: InternalRow) => fromRow(row)
+    case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
+      val fromRow = cachedDeserializer[ProjectedRasterTile]
+      (row: InternalRow) => fromRow(row)
   }
 
   lazy val crsExtractor: PartialFunction[DataType, Any => CRS] = {
     val base: PartialFunction[DataType, Any ⇒ CRS] = {
       case _: StringType =>
         (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
-      case t if t.conformsTo[CRS] =>
-        (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
+      case _: CrsUDT =>
+        (v: Any) => ???
+      // case t if t.conformsTo[CRS] =>
+      //   (v: Any) => v.asInstanceOf[InternalRow].to[CRS]
     }
 
     val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.crs))
@@ -161,7 +176,7 @@ object DynamicExtractors {
   }
 
   lazy val envelopeExtractor: PartialFunction[DataType, Any => Envelope] = {
-    val base = PartialFunction[DataType, Any => Envelope] {
+    val base: PartialFunction[DataType, Any => Envelope] = {
       case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
         (input: Any) => JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal
       case t if t.conformsTo[Extent] =>

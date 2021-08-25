@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.rules
 
 import java.sql.{Date, Timestamp}
 
-import org.apache.spark.sql.sources.Filter
 
 /**
  * New filter types captured and rewritten for use in spatiotemporal data sources that can handle them.

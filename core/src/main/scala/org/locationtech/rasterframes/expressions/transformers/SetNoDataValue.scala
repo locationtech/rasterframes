@@ -28,11 +28,9 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure,
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import org.locationtech.rasterframes.expressions.row
+import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.slf4j.LoggerFactory
 
 @ExpressionDescription(
@@ -46,7 +44,7 @@ import org.slf4j.LoggerFactory
     > SELECT _FUNC_(tile, 1.5);
        ..."""
 )
-case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExpression with CodegenFallback {
+case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExpression with RasterResult with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override val nodeName: String = "rf_with_no_data"
@@ -63,7 +61,6 @@ case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExp
   }
 
   override protected def nullSafeEval(input1: Any, input2: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(input1))
 
     val result = numberArgExtractor(right.dataType)(input2) match {
@@ -71,10 +68,7 @@ case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExp
       case IntegerArg(i) => leftTile.withNoData(Some(i.toDouble))
     }
 
-    leftCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
-      case None => result.toInternalRow
-    }
+    toInternalRow(result, leftCtx)
   }
 }
 

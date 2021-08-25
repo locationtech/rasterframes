@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.expressions.transformers
 
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.jts.geom.Geometry
 import geotrellis.proj4.CRS

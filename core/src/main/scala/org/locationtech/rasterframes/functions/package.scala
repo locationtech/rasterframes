@@ -71,7 +71,7 @@ package object functions {
     }
   }
 
-  private[rasterframes] val arrayToTile: (Array[_], Int, Int) ⇒ Tile = (a, cols, rows) ⇒ {
+  private[rasterframes] val arrayToTileFunc3: (Array[Double], Int, Int) ⇒ Tile = (a, cols, rows) ⇒ {
     arrayToTile(cols, rows).apply(a)
   }
 
@@ -105,9 +105,9 @@ package object functions {
 
       val leftExtent = leftExtentEnc.to[Extent]
       val leftDims = leftDimsEnc.to[Dimensions[Int]]
-      val leftCRS = leftCRSEnc.to[CRS]
+      val leftCRS = ??? //leftCRSEnc.to[CRS]
       lazy val rightExtents = rightExtentEnc.map(_.to[Extent])
-      lazy val rightCRSs = rightCRSEnc.map(_.to[CRS])
+      lazy val rightCRSs = ??? //rightCRSEnc.map(_.to[CRS])
       lazy val resample = resampleMethod match {
         case ResampleMethod(mm) ⇒ mm
         case _ ⇒ throw new IllegalArgumentException(s"Unable to parse ResampleMethod for ${resampleMethod}.")
@@ -174,6 +174,6 @@ package object functions {
     sqlContext.udf.register("rf_make_ones_tile", tileOnes)
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)
-//    sqlContext.udf.register("rf_array_to_tile", arrayToTile)
+    // sqlContext.udf.register("rf_array_to_tile", arrayToTileFunc3)
   }
 }

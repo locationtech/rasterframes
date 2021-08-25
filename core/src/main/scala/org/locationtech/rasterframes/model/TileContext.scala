@@ -29,6 +29,7 @@ import org.apache.spark.sql.types.{StructField, StructType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.CrsType
 
 case class TileContext(extent: Extent, crs: CRS) {
   def toProjectRasterTile(t: Tile): ProjectedRasterTile = ProjectedRasterTile(t, extent, crs)
@@ -43,15 +44,15 @@ object TileContext {
   implicit val serializer: CatalystSerializer[TileContext] = new CatalystSerializer[TileContext] {
     override val schema: StructType = StructType(Seq(
       StructField("extent", schemaOf[Extent], false),
-      StructField("crs", schemaOf[CRS], false)
+      StructField("crs", CrsType, false)
     ))
     override protected def to[R](t: TileContext, io: CatalystSerializer.CatalystIO[R]): R = io.create(
       io.to(t.extent),
-      io.to(t.crs)
+      ???
     )
     override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): TileContext = TileContext(
       io.get[Extent](t, 0),
-      io.get[CRS](t, 1)
+      ???
     )
   }
   implicit def encoder: ExpressionEncoder[TileContext] = CatalystSerializerEncoder[TileContext]()

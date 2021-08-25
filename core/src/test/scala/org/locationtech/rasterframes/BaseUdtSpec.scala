@@ -29,15 +29,6 @@ class BaseUdtSpec extends TestEnvironment with TestData with Inspectors {
 
   spark.version
 
-  it("should (de)serialize CellType") {
-    val udt = new CellTypeUDT()
-    val in: CellType = geotrellis.raster.DoubleUserDefinedNoDataCellType(-1.0)
-    val row = udt.serialize(in)
-    val out = udt.deserialize(row)
-    out shouldBe in
-    info(out.toString)
-  }
-
   it("should (de)serialize CRS") {
     val udt = new CrsUDT()
     val in = geotrellis.proj4.LatLng

@@ -122,7 +122,7 @@ object ProjectedLayerMetadataAggregate {
     implicit val serializer: CatalystSerializer[InputRecord] = new CatalystSerializer[InputRecord]{
       override val schema: StructType = StructType(Seq(
         StructField("extent", CatalystSerializer[Extent].schema, false),
-        StructField("crs", CatalystSerializer[CRS].schema, false),
+        StructField("crs", CrsType, false),
         StructField("cellType", CatalystSerializer[CellType].schema, false),
         StructField("tileSize", CatalystSerializer[Dimensions[Int]].schema, false)
       ))
@@ -132,7 +132,7 @@ object ProjectedLayerMetadataAggregate {
 
       override protected def from[R](t: R, io: CatalystIO[R]): InputRecord = InputRecord(
         io.get[Extent](t, 0),
-        io.get[CRS](t, 1),
+        ???,
         io.get[CellType](t, 2),
         io.get[Dimensions[Int]](t, 3)
       )

@@ -75,7 +75,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     StructType(Seq(
       StructField(SPATIAL_KEY_COLUMN.columnName, skSchema, nullable = false, skMetadata),
       StructField(EXTENT_COLUMN.columnName, schemaOf[Extent], nullable = true),
-      StructField(CRS_COLUMN.columnName, schemaOf[CRS], nullable = true),
+      StructField(CRS_COLUMN.columnName, CrsType, nullable = true),
       StructField(METADATA_COLUMN.columnName,
         DataTypes.createMapType(StringType, StringType, false)
       )
@@ -93,7 +93,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     val trans = tlm.mapTransform
     val metadata = info.tags.headTags
 
-    val encodedCRS = tlm.crs.toRow
+    val encodedCRS = ??? // tlm.crs.toRow
 
     if(info.segmentLayout.isTiled) {
       // TODO: Figure out how to do tile filtering via the range reader.

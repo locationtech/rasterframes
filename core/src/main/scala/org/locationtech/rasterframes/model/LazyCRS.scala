@@ -78,6 +78,4 @@ object LazyCRS {
     else throw new IllegalArgumentException(
       s"CRS string must be either EPSG code, +proj string, or OGC WKT (WKT1). Argument value was ${if (value.length > 50) value.substring(0, 50) + "..." else value} ")
   }
-
-  implicit val crsSererializer: CatalystSerializer[LazyCRS] = CatalystSerializer.crsSerializer.asInstanceOf[CatalystSerializer[LazyCRS]]
 }

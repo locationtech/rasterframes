@@ -83,13 +83,13 @@ object GeoTrellisCatalog {
       val headerRows = layerSpecs
         .map{case (index, layer) ⇒(index, attributes.readHeader[io.circe.JsonObject](layer.id))}
         .map(mergeId.tupled)
-        .map(io.circe.Printer.noSpaces.pretty)
+        .map(io.circe.Printer.noSpaces.print)
         .toDS
 
       val metadataRows = layerSpecs
         .map{case (index, layer) ⇒ (index, attributes.readMetadata[io.circe.JsonObject](layer.id))}
         .map(mergeId.tupled)
-        .map(io.circe.Printer.noSpaces.pretty)
+        .map(io.circe.Printer.noSpaces.print)
         .toDS
 
 

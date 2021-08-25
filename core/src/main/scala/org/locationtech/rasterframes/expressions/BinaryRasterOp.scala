@@ -26,14 +26,12 @@ import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.BinaryExpression
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.slf4j.LoggerFactory
 
 /** Operation combining two tiles into a new tile. */
-trait BinaryRasterOp extends BinaryExpression {
+trait BinaryRasterOp extends BinaryExpression with RasterResult {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def dataType: DataType = left.dataType
@@ -51,7 +49,6 @@ trait BinaryRasterOp extends BinaryExpression {
   protected def op(left: Tile, right: Tile): Tile
 
   override protected def nullSafeEval(input1: Any, input2: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
     val (leftTile, leftCtx) = tileExtractor(left.dataType)(row(input1))
     val (rightTile, rightCtx) = tileExtractor(right.dataType)(row(input2))
 
@@ -65,9 +62,6 @@ trait BinaryRasterOp extends BinaryExpression {
 
     val result = op(leftTile, rightTile)
 
-    leftCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
-      case None => result.toInternalRow
-    }
+    toInternalRow(result, leftCtx)
   }
 }

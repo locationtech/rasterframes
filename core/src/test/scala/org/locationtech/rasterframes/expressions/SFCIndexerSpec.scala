@@ -27,7 +27,7 @@ import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.jts.JTSTypes
 import org.locationtech.geomesa.curve.{XZ2SFC, Z2SFC}
 import org.locationtech.rasterframes.{TestEnvironment, _}
-import org.locationtech.rasterframes.encoders.serialized_literal
+import org.locationtech.rasterframes.encoders.{cachedSerializer, serialized_literal}
 import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RFRasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.scalatest.Inspectors
@@ -80,10 +80,13 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
     it("should extract from ProjectedRasterTile") {
       val crs: CRS = WebMercator
       val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
-      val dt = schemaOf[ProjectedRasterTile]
+      val dt = ProjectedRasterTile.prtEncoder.schema
       val extractor = DynamicExtractors.centroidExtractor(dt)
-      val inputs = testExtents.map(ProjectedRasterTile(tile, _, crs))
-        .map(_.toInternalRow).map(extractor)
+      val ser = cachedSerializer[ProjectedRasterTile]
+      val inputs = testExtents
+        .map(ProjectedRasterTile(tile, _, crs))
+        .map(prt => ser(prt)).map(extractor)
+
       forEvery(inputs.zip(expected)) { case (i, e) =>
         i should be(e)
       }

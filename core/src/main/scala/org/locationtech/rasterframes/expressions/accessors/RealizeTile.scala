@@ -26,11 +26,9 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, UnaryExpression}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions._
 
@@ -46,16 +44,17 @@ case class RealizeTile(child: Expression) extends UnaryExpression with CodegenFa
 
   override def nodeName: String = "rf_tile"
 
+  private lazy val tileSer = TileType.serialize _
+
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileableExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a tiled raster type.")
     } else TypeCheckSuccess
   }
-  implicit val tileSer = TileUDT.tileSerializer
   override protected def nullSafeEval(input: Any): Any = {
     val in = row(input)
     val tile = tileableExtractor(child.dataType)(in)
-    (tile.toArrayTile(): Tile).toInternalRow
+    tileSer(tile.toArrayTile())
   }
 }
 

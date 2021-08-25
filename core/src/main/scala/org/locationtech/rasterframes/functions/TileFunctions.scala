@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.functions
 import geotrellis.raster.render.ColorRamp
 import geotrellis.raster.{CellType, Tile}
-import org.apache.spark.sql.functions.{lit, udf}
+import org.apache.spark.sql.functions.{lit, typedLit, udf}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.expressions.TileAssembler
@@ -36,6 +36,7 @@ import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.{ColorRampNames, withTypedAlias, _}
 import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions ⇒ F}
+import org.apache.spark.sql.catalyst.expressions.Literal
 
 /** Functions associated with creating and transforming tiles, including tile-wise statistics and rendering. */
 trait TileFunctions {
@@ -145,8 +146,7 @@ trait TileFunctions {
 
   /** Create a column constant tiles of zero */
   def rf_make_zeros_tile(cols: Int, rows: Int, cellTypeName: String): TypedColumn[Any, Tile] = {
-    import org.apache.spark.sql.rf.TileUDT.tileSerializer
-    val constTile = encoders.serialized_literal(F.tileZeros(cols, rows, cellTypeName))
+    val constTile = typedLit(F.tileZeros(cols, rows, cellTypeName))
     withTypedAlias(s"rf_make_zeros_tile($cols, $rows, $cellTypeName)")(constTile)
   }
 
@@ -156,8 +156,7 @@ trait TileFunctions {
 
   /** Creates a column of tiles containing all ones */
   def rf_make_ones_tile(cols: Int, rows: Int, cellTypeName: String): TypedColumn[Any, Tile] = {
-    import org.apache.spark.sql.rf.TileUDT.tileSerializer
-    val constTile = encoders.serialized_literal(F.tileOnes(cols, rows, cellTypeName))
+    val constTile = typedLit(F.tileOnes(cols, rows, cellTypeName))
     withTypedAlias(s"rf_make_ones_tile($cols, $rows, $cellTypeName)")(constTile)
   }
 

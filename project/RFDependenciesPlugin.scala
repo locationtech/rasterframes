@@ -47,6 +47,8 @@ object RFDependenciesPlugin extends AutoPlugin {
     val scaffeine = "com.github.blemale" %% "scaffeine" % "4.0.2"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
+    val stac4s = "com.azavea.stac4s" %% "client" % "0.6.0-2-g5e6a7ab-SNAPSHOT"
+    val frameless = "org.typelevel" %% "frameless-dataset" % "0.10.1"
   }
   import autoImport._
 
@@ -55,7 +57,9 @@ object RFDependenciesPlugin extends AutoPlugin {
       "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
       "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
-      "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/"
+      "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/",
+      "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+      "jitpack" at "https://jitpack.io"
     ),
     // dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.f746890",
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py

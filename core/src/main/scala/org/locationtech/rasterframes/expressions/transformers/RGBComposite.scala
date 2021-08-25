@@ -27,12 +27,10 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, TernaryExpression}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.expressions.row
+import org.locationtech.rasterframes.expressions.{RasterResult, row}
 
 /**
   * Expression to combine the given tile columns into an 32-bit RGB composite.
@@ -50,7 +48,7 @@ import org.locationtech.rasterframes.expressions.row
     * blue - tile column representing the blue channel"""
 )
 case class RGBComposite(red: Expression, green: Expression, blue: Expression) extends TernaryExpression
-  with CodegenFallback {
+  with RasterResult with CodegenFallback {
 
   override def nodeName: String = "rf_rgb_composite"
 
@@ -84,14 +82,11 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
     // Pick the first available TileContext, if any, and reassociate with the result
     val ctx = Seq(rc, gc, bc).flatten.headOption
     val composite = ArrayMultibandTile(
-      r.rescale(0, 255), g.rescale(0, 255), b.rescale(0, 255)
+      r.rescale(0, 255),
+      g.rescale(0, 255),
+      b.rescale(0, 255)
     ).color()
-    ctx match {
-      case Some(c) => c.toProjectRasterTile(composite).toInternalRow
-      case None =>
-        implicit val tileSer = TileUDT.tileSerializer
-        composite.toInternalRow
-    }
+    toInternalRow(composite, ctx)
   }
 }
 

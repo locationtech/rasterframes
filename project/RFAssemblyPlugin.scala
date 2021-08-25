@@ -63,7 +63,7 @@ object RFAssemblyPlugin extends AutoPlugin {
       shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"shaded.rasterframes.$p.@1").inAll)
     },
     assembly / assemblyOption :=
-      (assembly / assemblyOption).value.copy(includeScala = false),
+      (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / assemblyJarName := s"${normalizedName.value}-assembly-${version.value}.jar",
     assembly / assemblyExcludedJars := {
       val cp = (assembly / fullClasspath).value

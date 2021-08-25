@@ -30,7 +30,7 @@ import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes
 import org.locationtech.rasterframes.RasterSourceType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.expressions.RasterResult
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
@@ -46,7 +46,7 @@ import scala.util.control.NonFatal
  * @since 9/6/18
  */
 case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
-  with Generator with CodegenFallback with ExpectsInputTypes  {
+  with RasterResult with Generator with CodegenFallback with ExpectsInputTypes  {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
@@ -57,7 +57,7 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
     child <- children
     basename = child.name
     name <- bandNames(basename, bandIndexes)
-  } yield StructField(name, schemaOf[ProjectedRasterTile], true))
+  } yield StructField(name, ProjectedRasterTile.prtEncoder.schema, true))
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
@@ -71,7 +71,7 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
             case _ => null
           })
       }
-      tiles.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(_.toInternalRow)): _*))
+      tiles.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(prt => toInternalRow(prt))): _*))
     }
     catch {
       case NonFatal(ex) ⇒
