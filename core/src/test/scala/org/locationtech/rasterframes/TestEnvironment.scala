@@ -47,6 +47,7 @@ trait TestEnvironment extends AnyFunSpec
   with Matchers with Inspectors with Tolerance with RasterMatchers {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
+
   lazy val scratchDir: Path = {
     val outputDir = Files.createTempDirectory("rf-scratch-")
     outputDir.toFile.deleteOnExit()
@@ -58,7 +59,7 @@ trait TestEnvironment extends AnyFunSpec
 
   def additionalConf = new SparkConf(false)
 
-  implicit lazy val spark: SparkSession = {
+  implicit val spark: SparkSession = {
     val session = SparkSession.builder
       .master(sparkMaster)
       .withKryoSerialization

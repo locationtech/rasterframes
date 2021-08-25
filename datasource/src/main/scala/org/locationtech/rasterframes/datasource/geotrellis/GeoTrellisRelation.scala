@@ -34,7 +34,6 @@ import geotrellis.spark.util.KryoWrapper
 import geotrellis.store._
 import geotrellis.store.avro.AvroRecordCodec
 import geotrellis.util._
-import geotrellis.vector._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.rdd.RDD
@@ -43,12 +42,9 @@ import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
-import org.locationtech.jts.geom
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
 import org.locationtech.rasterframes.datasource.geotrellis.TileFeatureSupport._
-import org.locationtech.rasterframes.rules.SpatialFilters.{Contains => sfContains, Intersects => sfIntersects}
-import org.locationtech.rasterframes.rules.TemporalFilters.{BetweenDates, BetweenTimes}
 import org.locationtech.rasterframes.rules.{SpatialRelationReceiver, splitFilters}
 import org.locationtech.rasterframes.util.JsonCodecs._
 import org.locationtech.rasterframes.util.SubdivideSupport._

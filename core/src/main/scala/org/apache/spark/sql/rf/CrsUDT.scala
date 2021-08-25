@@ -21,9 +21,10 @@
 
 package org.apache.spark.sql.rf
 import geotrellis.proj4.CRS
-import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.model.LazyCRS
+import org.apache.spark.sql.catalyst.InternalRow
 
 
 @SQLUserDefinedType(udt = classOf[CrsUDT])
@@ -34,19 +35,22 @@ class CrsUDT extends UserDefinedType[CRS] {
 
   def userClass: Class[CRS] = classOf[CRS]
 
-  def sqlType: DataType = schemaOf[CRS]
+  def sqlType: DataType = StringType
 
-  override def serialize(obj: CRS): InternalRow = {
+  override def serialize(obj: CRS): UTF8String =
     Option(obj)
-      .map(_.toInternalRow)
+      .map { crs => UTF8String.fromString(obj.toProj4String) }
       .orNull
-  }
 
   override def deserialize(datum: Any): CRS =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒ ir.to[CRS]
-      }.orNull
+        case ir: InternalRow ⇒
+          LazyCRS(ir.getString(0))
+        case s: UTF8String ⇒
+          LazyCRS(s.toString)
+      }
+      .orNull
 
   override def acceptsType(dataType: DataType): Boolean = dataType match {
     case _: CrsUDT ⇒ true

@@ -1,7 +1,6 @@
 package org.locationtech.rasterframes.datasource.stac
 
 import com.azavea.stac4s.api.client.SearchFilters
-import eu.timepit.refined.types.numeric.NonNegInt
 import org.apache.spark.sql.{DataFrame, DataFrameReader}
 import io.circe.syntax._
 import fs2.Stream
@@ -47,12 +46,12 @@ package object api {
 
   implicit class DataFrameReaderStacApiOps(val reader: DataFrameReader) extends AnyVal {
     def stacApi(): StacApiDataFrameReader = tag[StacApiDataFrameTag][DataFrameReader](reader.format(StacApiDataSource.SHORT_NAME))
-    def stacApi(uri: String, filters: SearchFilters = SearchFilters(), searchLimit: Option[NonNegInt] = None): StacApiDataFrameReader =
+    def stacApi(uri: String, filters: SearchFilters = SearchFilters(), searchLimit: Option[Int] = None): StacApiDataFrameReader =
       tag[StacApiDataFrameTag][DataFrameReader](
         stacApi()
           .option(StacApiDataSource.URI_PARAM, uri)
           .option(StacApiDataSource.SEARCH_FILTERS_PARAM, filters.asJson.noSpaces)
-          .option(StacApiDataSource.ASSET_LIMIT_PARAM, searchLimit.map(_.value))
+          .option(StacApiDataSource.ASSET_LIMIT_PARAM, searchLimit)
       )
   }
 }

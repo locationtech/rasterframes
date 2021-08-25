@@ -50,7 +50,7 @@ class TileExploderSpec extends TestEnvironment with TestData {
     it("should explode proj_raster") {
       val randPRT = TestData.projectedRasterTile(10, 10, scala.util.Random.nextInt(), extent, LatLng, IntCellType)
 
-      val df = Seq(randPRT).toDF("proj_raster").withColumn("other", lit("stuff"))
+      val df = Seq(Option(randPRT)).toDF("proj_raster").withColumn("other", lit("stuff"))
 
       val exploder = new TileExploder()
       val newSchema = exploder.transformSchema(df.schema)

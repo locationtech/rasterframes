@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.expressions
 
-import org.locationtech.rasterframes.expressions.DynamicExtractors.rowTileExtractor
 import geotrellis.raster.Tile
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
@@ -41,7 +40,7 @@ trait UnaryRasterAggregate extends DeclarativeAggregate {
 
   protected val extractTileFromAny = (a: Any) => a match {
     case t: Tile => t
-    case r: Row => rowTileExtractor(child.dataType)(r)._1
+    case r: Row => ??? //rowTileExtractor(child.dataType)(r)._1
     case null => null
   }
 }

@@ -50,6 +50,7 @@ import scala.reflect.ClassTag
  * @since 4/3/17
  */
 trait TestData {
+
   val extent = Extent(10, 20, 30, 40)
   val crs = LatLng
   val ct = ByteUserDefinedNoDataCellType(-2)
@@ -200,10 +201,10 @@ trait TestData {
     val coll = fact.createGeometryCollection(Array(point, line, poly, mpoint, mline, mpoly))
     val all = Seq(point, line, poly, mpoint, mline, mpoly, coll)
     lazy val geoJson = {
-      import scala.collection.JavaConversions._
+      import scala.collection.JavaConverters._
       val p = Paths.get(TestData.getClass
         .getResource("/L8-Labels-Elkton-VA.geojson").toURI)
-      Files.readAllLines(p).mkString("\n")
+      Files.readAllLines(p).asScala.mkString("\n")
     }
     lazy val features = GeomData.geoJson.parseGeoJson[JsonFeatureCollection]
       .getAllPolygonFeatures[_root_.io.circe.JsonObject]()

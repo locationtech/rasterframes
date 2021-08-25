@@ -40,6 +40,7 @@ import spray.json.JsonFormat
 import org.locationtech.rasterframes.util.JsonCodecs._
 
 import scala.util.Try
+import org.apache.spark.sql.rf.CrsUDT
 
 /**
  * Extension methods over [[DataFrame]].
@@ -99,7 +100,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Get the columns that look like `ProjectedRasterTile`s. */
   def projRasterColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsTo[ProjectedRasterTile])
+      .filter(_.dataType.conformsToSchema(ProjectedRasterTile.prtEncoder.schema))
       .map(f => self.col(f.name))
 
   /** Get the columns that look like `Extent`s. */
@@ -111,7 +112,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Get the columns that look like `CRS`s. */
   def crsColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsTo[CRS])
+      .filter(_.dataType.isInstanceOf[CrsUDT])
       .map(f => self.col(f.name))
 
   /** Get the columns that are not of type `Tile` */

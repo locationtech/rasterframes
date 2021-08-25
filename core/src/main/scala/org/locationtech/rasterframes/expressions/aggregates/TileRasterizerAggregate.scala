@@ -48,7 +48,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
   override def deterministic: Boolean = true
 
   override def inputSchema: StructType = StructType(Seq(
-    StructField("crs", schemaOf[CRS], false),
+    StructField("crs", CrsType, false),
     StructField("extent", schemaOf[Extent], false),
     StructField("tile", TileType)
   ))
@@ -64,7 +64,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
   }
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val crs = input.getAs[Row](0).to[CRS]
+    val crs = ??? // input.getAs[Row](0).to[CRS]
     val extent = input.getAs[Row](1).to[Extent]
 
     val localExtent = extent.reproject(crs, prd.destinationCRS)

@@ -26,7 +26,7 @@ import org.apache.spark.sql.types.{DataType, _}
 import org.locationtech.rasterframes.encoders.CatalystSerializer.schemaOf
 import org.locationtech.rasterframes.encoders.StandardSerializers
 
-
+// TODO: this does not seem helpful, we should try to use TypedEncoder for Dimensions
 @SQLUserDefinedType(udt = classOf[DimensionsUDT])
 class DimensionsUDT extends UserDefinedType[Dimensions[_]] {
   override def typeName: String = DimensionsUDT.typeName

@@ -28,9 +28,7 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure,
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, TernaryExpression}
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions._
 import org.locationtech.rasterframes.expressions.tilestats.TileStats
@@ -48,7 +46,7 @@ import org.locationtech.rasterframes.expressions.tilestats.TileStats
     > SELECT  _FUNC_(tile, lit(-2.2), lit(2.2))
        ..."""
 )
-case class Rescale(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with CodegenFallback with Serializable {
+case class Rescale(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
   override val nodeName: String = "rf_rescale"
 
   override def children: Seq[Expression] = Seq(child1, child2, child3)
@@ -66,19 +64,11 @@ case class Rescale(child1: Expression, child2: Expression, child3: Expression) e
 
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
     val (childTile, childCtx) = tileExtractor(child1.dataType)(row(input1))
-
     val min =  doubleArgExtractor(child2.dataType)(input2).value
-
     val max = doubleArgExtractor(child3.dataType)(input3).value
-
     val result = op(childTile, min, max)
-
-    childCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
-      case None => result.toInternalRow
-    }
+    toInternalRow(result, childCtx)
   }
 
   protected def op(tile: Tile, min: Double, max: Double): Tile = {
@@ -108,5 +98,3 @@ object Rescale {
     new Column(Rescale(tile.expr, min, max))
   }
 }
-
-

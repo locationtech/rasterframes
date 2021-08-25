@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.encoders
 
 import CatalystSerializer.CatalystIO
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Row}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types._
@@ -183,5 +183,11 @@ object CatalystSerializer extends StandardSerializers {
   implicit class WithTypeConformity(val left: DataType) extends AnyVal {
     def conformsTo[T >: Null: CatalystSerializer]: Boolean =
       org.apache.spark.sql.rf.WithTypeConformity(left).conformsTo(schemaOf[T])
+  }
+
+  implicit class WithTypeConformityToEncoder(val left: DataType) extends AnyVal {
+    def conformsToSchema[A](schema: StructType): Boolean = {
+      org.apache.spark.sql.rf.WithTypeConformity(left).conformsTo(schema)
+    }
   }
 }

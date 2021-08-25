@@ -26,7 +26,7 @@ import java.nio.ByteBuffer
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
-import org.locationtech.rasterframes.model.{Cells, TileDataContext}
+import org.locationtech.rasterframes.model.{TileDataContext}
 
 /**
  * Wrapper around a `Tile` encoded in a Catalyst `InternalRow`, for the purpose
@@ -40,14 +40,12 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   override def toArrayTile(): ArrayTile = realizedTile.toArrayTile()
 
   // TODO: We want to reimplement relevant delegated methods so that they read directly from tungsten storage
-  lazy val realizedTile: Tile = cells.toTile(cellContext)
+  def realizedTile: Tile = ???
 
   protected override def delegate: Tile = realizedTile
 
   private def cellContext: TileDataContext =
     CatalystIO[InternalRow].get[TileDataContext](mem, 0)
-
-  private def cells: Cells = CatalystIO[InternalRow].get[Cells](mem, 1)
 
   /** Retrieve the cell type from the internal encoding. */
   override def cellType: CellType = cellContext.cellType
@@ -59,12 +57,7 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
   override def rows: Int = cellContext.dimensions.rows
 
   /** Get the internally encoded tile data cells. */
-  override lazy val toBytes: Array[Byte] = {
-    cells.data.left
-      .getOrElse(throw new IllegalStateException(
-        "Expected tile cell bytes, but received RasterRef instead: " + cells.data.right.get)
-      )
-  }
+  override def toBytes: Array[Byte] = ???
 
   private lazy val toByteBuffer: ByteBuffer = {
     val data = toBytes

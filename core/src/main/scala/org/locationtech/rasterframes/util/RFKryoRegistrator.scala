@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.util
 
-import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.ref.{DelegatingRasterSource, RasterRef, RFRasterSource}
 import org.locationtech.rasterframes.ref._
 import com.esotericsoftware.kryo.Kryo
@@ -39,7 +38,6 @@ class RFKryoRegistrator extends KryoRegistrator {
     super.registerClasses(kryo)
     kryo.register(classOf[RFRasterSource])
     kryo.register(classOf[RasterRef])
-    kryo.register(classOf[RasterRefTile])
     kryo.register(classOf[DelegatingRasterSource])
     kryo.register(classOf[JVMGeoTiffRasterSource])
     kryo.register(classOf[InMemoryRasterSource])

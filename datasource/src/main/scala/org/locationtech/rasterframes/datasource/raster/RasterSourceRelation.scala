@@ -28,7 +28,6 @@ import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.accessors.{GetCRS, GetExtent}
 import org.locationtech.rasterframes.expressions.generators.{RasterSourceToRasterRefs, RasterSourceToTiles}
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
@@ -83,7 +82,7 @@ case class RasterSourceRelation(
     sqlContext.sparkSession.sessionState.conf.numShufflePartitions
 
   override def schema: StructType = {
-    val tileSchema = schemaOf[ProjectedRasterTile]
+    val tileSchema = ProjectedRasterTile.prtEncoder.schema
     val paths = for {
       pathCol <- pathColNames
     } yield StructField(pathCol, StringType, false)
@@ -129,21 +128,20 @@ case class RasterSourceRelation(
       // There's some unintentional fragility here in that the structure of the expression
       // is expected to line up with our column structure here.
       val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, srcs: _*) as refColNames
+      RasterRefToTile
 
       // RasterSourceToRasterRef is a generator, which means you have to do the Tile conversion
       // in a separate select statement (Query planner doesn't know how many columns ahead of time).
       val refsToTiles = for {
         (refColName, tileColName) <- refColNames.zip(tileColNames)
-      } yield RasterRefToTile(col(refColName)) as tileColName
+      } yield  col(refColName) as tileColName
 
       withPaths
         .select(extras ++ paths :+ refs: _*)
         .select(paths ++ refsToTiles ++ extras: _*)
-    }
-    else {
+    } else {
       val tiles = RasterSourceToTiles(subtileDims, bandIndexes, srcs: _*) as tileColNames
-      withPaths
-        .select((paths :+ tiles) ++ extras: _*)
+      withPaths.select(paths  ++ extras: _*)
     }
 
     if (spatialIndexPartitions.isDefined) {

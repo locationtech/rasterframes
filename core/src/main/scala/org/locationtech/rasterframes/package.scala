@@ -27,7 +27,7 @@ import geotrellis.raster.resample._
 import geotrellis.layer._
 import geotrellis.spark.ContextRDD
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.rf.{CrsUDT, RasterSourceUDT, TileUDT}
+import org.apache.spark.sql.rf.{DimensionsUDT, TileUDT}
 import org.apache.spark.sql.{DataFrame, SQLContext, rf}
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
@@ -47,7 +47,6 @@ package object rasterframes extends StandardColumns
   // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
   protected def logger: Logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  private[rasterframes]
   def rfConfig = ConfigFactory.load().getConfig("rasterframes")
 
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
@@ -88,10 +87,8 @@ package object rasterframes extends StandardColumns
   def TileType = new TileUDT()
 
   /** CrsUDT type reference. */
-  def CrsType = new CrsUDT()
-
-  /** RasterSourceUDT type reference. */
-  def RasterSourceType = new RasterSourceUDT()
+  def CrsType = new rf.CrsUDT()
+  def DimensionType = new DimensionsUDT()
 
   /**
    * A RasterFrameLayer is just a DataFrame with certain invariants, enforced via the methods that create and transform them:

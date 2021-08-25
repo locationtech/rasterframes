@@ -51,7 +51,7 @@ trait StacSerializers {
   implicit def setInjection[T]: Injection[Set[T], List[T]] = Injection(_.toList, _.toSet)
 
   /** TypedExpressionEncoder upcasts ExpressionEncoder up to Encoder, we need an ExpressionEncoder there */
-  implicit def typedToExpressionEncoder[T: TypedEncoder]: ExpressionEncoder[T] =
+  def typedToExpressionEncoder[T: TypedEncoder]: ExpressionEncoder[T] =
     TypedExpressionEncoder[T].asInstanceOf[ExpressionEncoder[T]]
 
   /** High priority specific product encoder derivation. Without it, the default spark would be used. */

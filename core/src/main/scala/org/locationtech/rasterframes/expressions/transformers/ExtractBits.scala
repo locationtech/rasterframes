@@ -27,9 +27,7 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, TernaryExpression}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions._
 
@@ -46,7 +44,7 @@ import org.locationtech.rasterframes.expressions._
     > SELECT  _FUNC_(tile, lit(4), lit(2))
        ..."""
 )
-case class ExtractBits(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with CodegenFallback with Serializable {
+case class ExtractBits(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
   override val nodeName: String = "rf_local_extract_bits"
 
   override def children: Seq[Expression] = Seq(child1, child2, child3)
@@ -64,17 +62,11 @@ case class ExtractBits(child1: Expression, child2: Expression, child3: Expressio
 
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
     val (childTile, childCtx) = tileExtractor(child1.dataType)(row(input1))
-
     val startBits = intArgExtractor(child2.dataType)(input2).value
-
     val numBits = intArgExtractor(child2.dataType)(input3).value
-
-    childCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(op(childTile, startBits, numBits)).toInternalRow
-      case None => op(childTile, startBits, numBits).toInternalRow
-    }
+    val result = op(childTile, startBits, numBits)
+    toInternalRow(result,childCtx)
   }
 
   protected def op(tile: Tile, startBit: Int, numBits: Int): Tile = ExtractBits(tile, startBit, numBits)

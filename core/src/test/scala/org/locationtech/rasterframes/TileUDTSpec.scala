@@ -23,9 +23,7 @@ package org.locationtech.rasterframes
 import geotrellis.raster
 import geotrellis.raster.{CellType, Dimensions, NoNoData, Tile}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.StringType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.tiles.ShowableTile
 import org.scalatest.Inspectors
 
@@ -39,7 +37,6 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
   spark.version
   val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
-  implicit val ser = TileUDT.tileSerializer
 
   describe("TileUDT") {
     val tileSizes = Seq(2, 7, 64, 128, 511)
@@ -74,7 +71,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     it("should extract properties") {
       forEveryConfig { tile ⇒
         val row = TileType.serialize(tile)
-        val wrapper = row.to[Tile]
+        val wrapper = TileType.deserialize(row)
         assert(wrapper.cols === tile.cols)
         assert(wrapper.rows === tile.rows)
         assert(wrapper.cellType === tile.cellType)
@@ -84,7 +81,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     it("should directly extract cells") {
       forEveryConfig { tile ⇒
         val row = TileType.serialize(tile)
-        val wrapper = row.to[Tile]
+        val wrapper = TileType.deserialize(row)
         val Dimensions(cols,rows) = wrapper.dimensions
         val indexes = Seq((0, 0), (cols - 1, rows - 1), (cols/2, rows/2), (1, 1))
         forAll(indexes) { case (c, r) ⇒

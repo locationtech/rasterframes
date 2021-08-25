@@ -26,14 +26,12 @@ import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.slf4j.LoggerFactory
 
 /** Operation on a tile returning a tile. */
-trait UnaryLocalRasterOp extends UnaryExpression {
+trait UnaryLocalRasterOp extends UnaryExpression with RasterResult {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def dataType: DataType = child.dataType
@@ -46,13 +44,9 @@ trait UnaryLocalRasterOp extends UnaryExpression {
   }
 
   override protected def nullSafeEval(input: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
     val (childTile, childCtx) = tileExtractor(child.dataType)(row(input))
-
-    childCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(op(childTile)).toInternalRow
-      case None => op(childTile).toInternalRow
-    }
+    val result = op(childTile)
+    toInternalRow(result, childCtx)
   }
 
   protected def op(child: Tile): Tile

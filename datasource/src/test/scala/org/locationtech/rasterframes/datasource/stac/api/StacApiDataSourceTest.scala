@@ -24,11 +24,10 @@ package org.locationtech.rasterframes.datasource.stac.api
 import org.locationtech.rasterframes.datasource.raster._
 import org.locationtech.rasterframes.datasource.stac.api.encoders._
 import com.azavea.stac4s.StacItem
-import com.azavea.stac4s.api.client.SttpStacClient
+import com.azavea.stac4s.api.client.{SearchFilters, SttpStacClient}
 import cats.syntax.option._
 import cats.effect.IO
 import eu.timepit.refined.auto._
-import eu.timepit.refined.types.numeric.NonNegInt
 import geotrellis.store.util.BlockingThreadPool
 import geotrellis.vector.Point
 import org.apache.spark.sql.functions.{explode, lit}
@@ -43,11 +42,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
     it("Should read from Franklin service") {
       import spark.implicits._
 
-      val results =
-        spark
-          .read
-          .stacApi("https://franklin.nasa-hsi.azavea.com/", searchLimit = (1: NonNegInt).some)
-          .load
+      val results = spark.read.stacApi("https://franklin.nasa-hsi.azavea.com/", searchLimit = Some(1)).load
 
       results.printSchema()
 
@@ -59,7 +54,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
       val ddf = results.select($"id", explode($"assets"))
 
       ddf.printSchema()
-
+      ddf.show
       println(ddf.select($"id", $"value.href" as "band").collect().toList)
 
     }
@@ -67,12 +62,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
     it("Should read from Astraea Earth service") {
       import spark.implicits._
 
-      val results =
-        spark
-          .read
-          .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = (1: NonNegInt).some)
-          .load
-
+      val results = spark.read.stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = Some(1)).load
       results.printSchema()
 
       results.rdd.partitions.length shouldBe 1
@@ -113,7 +103,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
       val items =
         spark
           .read
-          .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = (1: NonNegInt).some)
+          .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = 1.some)
           .load
 
       println(items.collect().toList.length)
@@ -149,6 +139,41 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
 
       println(rasters.collect().toList)
     }
+
+    it("should fetch rasters from Datacube service") {
+      import spark.implicits._
+      val items = spark.read.stacApi("https://datacube.services.geo.ca/api",  filters = SearchFilters(collections=List("markham")), searchLimit = Some(1)).load
+
+      println(items.collect().toList.length)
+
+      val assets = items.select($"id", explode($"assets")).select($"value.href" as "band").limit(1)
+
+      println(assets.collect().toList)
+
+      /*val bandPaths = Seq((
+        l8SamplePath(1).toASCIIString,
+        l8SamplePath(2).toASCIIString,
+        l8SamplePath(3).toASCIIString))
+        .toDF("B1", "B2", "B3")
+        .withColumn("foo", lit("something"))
+
+      val df = spark.read.raster
+        .fromCatalog(bandPaths, "B1", "B2", "B3")
+        .withTileDimensions(128, 128)
+        .load()
+
+      df.schema.size should be(7)
+      df.select($"B1_path").distinct().count() should be (1)*/
+
+      // println(df.collect().toList)
+
+      val rasters = spark.read.raster.fromCatalog(assets, "band").withTileDimensions(1024, 1024).withBandIndexes(0).load()
+
+      rasters.printSchema()
+
+      println("--- Loading ---")
+      info(rasters.count().toString)
+    }
   }
 
   it("should fetch rasters from Franklin service w syntax") {
@@ -156,7 +181,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
     val items =
       spark
         .read
-        .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = (1: NonNegInt).some)
+        .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = 1.some)
         .loadStac
 
     val assets = items.flattenAssets
@@ -193,9 +218,16 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
       .withTileDimensions(128, 128)
       .load()
 
-    df.schema.size should be(7)
-    df.select($"B1_path").distinct().count() should be (1)
+    import org.apache.spark.sql.execution.debug._
+    df.explain("codegen")
+    println("-------------------------------------------------------------")
+    df.debugCodegen()
+    df.collect()
 
-    println(df.collect().toList)
+    //
+    //df.schema.size should be(7)
+    //df.select($"B1_path").distinct().count() should be (1)
+    //
+    //println(df.collect().toList)
   }
 }

@@ -22,17 +22,16 @@
 package org.locationtech.rasterframes.extensions
 
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterFrameLayer
+import org.locationtech.rasterframes.{RasterFrameLayer, StandardColumns, crsSparkEncoder}
 import org.locationtech.jts.geom.Point
 import geotrellis.proj4.LatLng
-import geotrellis.layer.{SpatialKey, MapKeyTransform}
+import geotrellis.layer.{MapKeyTransform, SpatialKey}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.{asc, udf => sparkUdf}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
 import org.locationtech.geomesa.curve.Z2SFC
-import org.locationtech.rasterframes.StandardColumns
 import org.locationtech.rasterframes.encoders.serialized_literal
 
 /**

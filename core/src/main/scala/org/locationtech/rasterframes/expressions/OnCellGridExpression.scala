@@ -35,6 +35,12 @@ import org.apache.spark.sql.catalyst.expressions.UnaryExpression
  * @since 11/4/18
  */
 trait OnCellGridExpression extends UnaryExpression {
+
+  private lazy val fromRow: InternalRow => CellGrid[Int] = {
+    if (child.resolved) gridExtractor(child.dataType)
+    else throw new IllegalStateException(s"Child expression unbound: ${child}")
+  }
+
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!gridExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `Grid`.")
@@ -44,9 +50,7 @@ trait OnCellGridExpression extends UnaryExpression {
 
   final override protected def nullSafeEval(input: Any): Any = {
     input match {
-      case row: InternalRow ⇒
-        val g = gridExtractor(child.dataType)(row)
-        eval(g)
+      case row: InternalRow ⇒ eval(fromRow(row))
       case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
     }
   }

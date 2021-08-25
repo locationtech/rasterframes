@@ -32,7 +32,6 @@ import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.util.DataBiasedOp._
 
 class StatFunctionsSpec extends TestEnvironment with TestData {
-
   import spark.implicits._
 
   val df = TestData.sampleGeoTiff
@@ -82,7 +81,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
   describe("per-tile stats") {
     it("should compute data cell counts") {
-      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
+      val df = Seq(Option(TestData.injectND(numND)(two))).toDF("two")
       df.select(rf_data_cells($"two")).first() shouldBe (cols * rows - numND).toLong
 
       val df2 = randNDTilesWithNull.toDF("tile")
@@ -95,7 +94,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       checkDocs("rf_data_cells")
     }
     it("should compute no-data cell counts") {
-      val df = Seq(TestData.injectND(numND)(two)).toDF("two")
+      val df = Seq(Option(TestData.injectND(numND)(two))).toDF("two")
       df.select(rf_no_data_cells($"two")).first() should be(numND)
 
       val df2 = randNDTilesWithNull.toDF("tile")
@@ -109,7 +108,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should properly count data and nodata cells on constant tiles") {
-      val rf = Seq(randPRT).toDF("tile")
+      val rf = Seq(Option(randPRT)).toDF("tile")
 
       val df = rf
         .withColumn("make", rf_make_constant_tile(99, 3, 4, ByteConstantNoDataCellType))
@@ -129,22 +128,22 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should detect no-data tiles") {
-      val df = Seq(nd).toDF("nd")
+      val df = Seq(Option(nd)).toDF("nd")
       df.select(rf_is_no_data_tile($"nd")).first() should be(true)
-      val df2 = Seq(two).toDF("not_nd")
+      val df2 = Seq(Option(two)).toDF("not_nd")
       df2.select(rf_is_no_data_tile($"not_nd")).first() should be(false)
       checkDocs("rf_is_no_data_tile")
     }
 
     it("should evaluate exists and for_all") {
-      val df0 = Seq(zero).toDF("tile")
+      val df0 = Seq(Option(zero)).toDF("tile")
       df0.select(rf_exists($"tile")).first() should be(false)
       df0.select(rf_for_all($"tile")).first() should be(false)
 
-      Seq(one).toDF("tile").select(rf_exists($"tile")).first() should be(true)
-      Seq(one).toDF("tile").select(rf_for_all($"tile")).first() should be(true)
+      Seq(Option(one)).toDF("tile").select(rf_exists($"tile")).first() should be(true)
+      Seq(Option(one)).toDF("tile").select(rf_for_all($"tile")).first() should be(true)
 
-      val dfNd = Seq(TestData.injectND(1)(one)).toDF("tile")
+      val dfNd = Seq(Option(TestData.injectND(1)(one))).toDF("tile")
       dfNd.select(rf_exists($"tile")).first() should be(true)
       dfNd.select(rf_for_all($"tile")).first() should be(false)
 
@@ -156,7 +155,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       checkDocs("rf_local_is_in")
 
       // tile is 3 by 3 with values, 1 to 9
-      val rf = Seq(byteArrayTile).toDF("t")
+      val rf = Seq(Option(byteArrayTile)).toDF("t")
         .withColumn("one", lit(1))
         .withColumn("five", lit(5))
         .withColumn("ten", lit(10))
@@ -195,7 +194,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     it("should compute the tile mean cell value") {
       val values = randNDPRT.toArray().filter(c => isData(c))
       val mean = values.sum.toDouble / values.length
-      val df = Seq(randNDPRT).toDF("rand")
+      val df = Seq(Option(randNDPRT)).toDF("rand")
       df.select(rf_tile_mean($"rand")).first() should be(mean)
       df.selectExpr("rf_tile_mean(rand)").as[Double].first() should be(mean)
       checkDocs("rf_tile_mean")
@@ -204,7 +203,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     it("should compute the tile summary statistics") {
       val values = randNDPRT.toArray().filter(c => isData(c))
       val mean = values.sum.toDouble / values.length
-      val df = Seq(randNDPRT).toDF("rand")
+      val df = Seq(Option(randNDPRT)).toDF("rand")
       val stats = df.select(rf_tile_stats($"rand")).first()
       stats.mean should be(mean +- 0.00001)
 
@@ -234,7 +233,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute the tile histogram") {
-      val df = Seq(randNDPRT).toDF("rand")
+      val df = Seq(Option(randNDPRT)).toDF("rand")
       val h1 = df.select(rf_tile_histogram($"rand")).first()
 
       val h2 = df
@@ -278,7 +277,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       forEvery(ct) { c =>
         val expected = CellType.fromName(c)
         val tile = randomTile(5, 5, expected)
-        val result = Seq(tile).toDF("tile").select(rf_cell_type($"tile")).first()
+        val result = Seq(Option(tile)).toDF("tile").select(rf_cell_type($"tile")).first()
         result should be(expected)
       }
     }
@@ -289,7 +288,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     val tile3 = randomTile(255, 255, IntCellType)
 
     it("should compute accurate item counts") {
-      val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
+      val ds = Seq[Option[Tile]](Option(tile1), Option(tile2), Option(tile3)).toDF("tiles")
       val checkedValues = Seq[Double](0, 4, 7, 13, 26)
       val result = checkedValues.map(x => ds.select(rf_tile_histogram($"tiles")).first().itemCount(x))
       forEvery(checkedValues) { x =>
@@ -298,7 +297,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("Should compute quantiles") {
-      val ds = Seq[Tile](tile1, tile2, tile3).toDF("tiles")
+      val ds = Seq[Option[Tile]](Option(tile1), Option(tile2), Option(tile3)).toDF("tiles")
       val numBreaks = 5
       val breaks = ds.select(rf_tile_histogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
       assert(breaks(1).length === numBreaks)
@@ -308,7 +307,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
     it("should support local min/max") {
       import spark.implicits._
-      val ds = Seq[Tile](byteArrayTile, byteConstantTile).toDF("tiles")
+      val ds = Seq[Option[Tile]](Option(byteArrayTile), Option(byteConstantTile)).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
       withClue("max") {
@@ -356,7 +355,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute per-tile histogram") {
-      val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatCellType)).toDF("tiles")
+      val ds = Seq.fill[Option[Tile]](3)(Option(randomTile(5, 5, FloatCellType))).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
       val r1 = ds.select(rf_tile_histogram($"tiles"))
@@ -386,7 +385,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       val tileSize = 5
       val rows = 10
       val ds = Seq
-        .fill[Tile](rows)(randomTile(tileSize, tileSize, FloatConstantNoDataCellType))
+        .fill[Option[Tile]](rows)(Option(randomTile(tileSize, tileSize, FloatConstantNoDataCellType)))
         .toDF("tiles")
       ds.createOrReplaceTempView("tmp")
       val agg = ds.select(rf_agg_approx_histogram($"tiles"))
@@ -443,7 +442,9 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
       val ds = (Seq
         .fill[Tile](30)(randomTile(5, 5, FloatConstantNoDataCellType))
-        .map(injectND(2)) :+ null).toDF("tiles")
+        .map(injectND(2)) :+ null)
+        .map(Option.apply)
+        .toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
       val agg = ds.select(rf_agg_local_stats($"tiles") as "stats")
@@ -475,8 +476,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       val completeTile = squareIncrementingTile(4).convert(IntConstantNoDataCellType)
       val incompleteTile = injectND(2)(completeTile)
 
-      val ds = (Seq.fill(20)(completeTile) :+ null).toDF("tiles")
-      val dsNd = (Seq.fill(20)(completeTile) :+ incompleteTile :+ null).toDF("tiles")
+      val ds = (Seq.fill(20)(completeTile).map(Option(_)) :+ null).toDF("tiles")
+      val dsNd = (Seq.fill(20)(completeTile) :+ incompleteTile :+ null).map(Option.apply).toDF("tiles")
 
       // counted everything properly
       val countTile = ds.select(rf_agg_local_data_cells($"tiles")).first()
@@ -507,7 +508,9 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     val nds = 2
     val tiles = (Seq
       .fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
-      .map(injectND(nds)) :+ null).toDF("tiles")
+      .map(injectND(nds)) :+ null)
+      .map(Option.apply)
+      .toDF("tiles")
 
     it("should count cells by NoData state") {
       val counts = tiles.select(rf_no_data_cells($"tiles")).collect().dropRight(1)
@@ -522,6 +525,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
       val ndTiles =
         (Seq.fill[Tile](count)(ArrayTile.empty(UByteConstantNoDataCellType, tsize, tsize)) :+ null)
+          .map(Option.apply)
           .toDF("tiles")
       val ndCount2 = ndTiles.select("*").where(rf_is_no_data_tile($"tiles")).count()
       ndCount2 should be(count + 1)
@@ -580,7 +584,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
   describe("proj_raster handling") {
     it("should handle proj_raster structures") {
-      val df = Seq(lazyPRT, lazyPRT).toDF("tile")
+      val df = Seq(Option(lazyPRT), Option(lazyPRT)).toDF("tile")
 
       val targets = Seq[Column => Column](
         rf_is_no_data_tile,
@@ -608,4 +612,3 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
   }
 }
-

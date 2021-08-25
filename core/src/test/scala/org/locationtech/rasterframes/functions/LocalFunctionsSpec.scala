@@ -29,6 +29,7 @@ import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
+
 class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
   import TestData._
@@ -96,7 +97,6 @@ class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
   describe("scalar tile operations") {
     it("should rf_local_add") {
       val df = Seq(Option(one)).toDF("raster")
-      df.printSchema()
       val maybeThree = df.select(rf_local_add($"raster", 2).as[ProjectedRasterTile])
       assertEqual(maybeThree.first(), three)
 

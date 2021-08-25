@@ -23,11 +23,9 @@ package org.apache.spark.sql.rf
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, _}
-import org.locationtech.rasterframes.encoders.CatalystSerializer
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.model.{Cells, TileDataContext}
-import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.tiles.InternalRowTile
+import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.ref.RasterRef
+import org.locationtech.rasterframes.tiles.{ShowableTile, ProjectedRasterTile}
 
 
 /**
@@ -37,30 +35,65 @@ import org.locationtech.rasterframes.tiles.InternalRowTile
  */
 @SQLUserDefinedType(udt = classOf[TileUDT])
 class TileUDT extends UserDefinedType[Tile] {
-  import TileUDT._
   override def typeName = TileUDT.typeName
 
   override def pyUDT: String = "pyrasterframes.rf_types.TileUDT"
 
   def userClass: Class[Tile] = classOf[Tile]
 
-  def sqlType: StructType = schemaOf[Tile]
+  def sqlType: StructType = StructType(Seq(
+    StructField("cell_type", StringType, false),
+    StructField("cols", IntegerType, false),
+    StructField("rows", IntegerType, false),
+    StructField("cells", BinaryType, true),
+    StructField("ref", RasterRef.rrEncoder.schema, true)
+  ))
 
-  override def serialize(obj: Tile): InternalRow =
-    Option(obj)
-      .map(_.toInternalRow)
-      .orNull
+  private lazy val serRef = RasterRef.rrEncoder.createSerializer()
+  private lazy val desRef = RasterRef.rrEncoder.resolveAndBind().createDeserializer()
 
-  override def deserialize(datum: Any): Tile =
-    Option(datum)
-      .collect {
-        case ir: InternalRow ⇒ ir.to[Tile]
-      }
-      .map {
-        case realIRT: InternalRowTile ⇒ realIRT.realizedTile
-        case other ⇒ other
-      }
-      .orNull
+  override def serialize(obj: Tile): InternalRow = {
+    if (obj == null) return null
+    obj match {
+      case ref: RasterRef =>
+        val ct = UTF8String.fromString(ref.cellType.toString())
+        InternalRow(ct, ref.cols, ref.rows, null, serRef(ref))
+      case ProjectedRasterTile(ref: RasterRef, extent, crs) =>
+        val ct = UTF8String.fromString(ref.cellType.toString())
+        InternalRow(ct, ref.cols, ref.rows, null, serRef(ref))
+      case prt: ProjectedRasterTile =>
+        val tile = prt.tile
+        val ct = UTF8String.fromString(tile.cellType.toString())
+        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null)
+      case const: ConstantTile =>
+        // Must expand constant tiles so they can be interpreted properly in catalyst and Python.
+        val tile = const.toArrayTile()
+        val ct = UTF8String.fromString(tile.cellType.toString())
+        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null)
+      case tile =>
+        val ct = UTF8String.fromString(tile.cellType.toString())
+        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null)
+    }
+  }
+
+  override def deserialize(datum: Any): Tile = {
+    if (datum == null) return null
+    val row = datum.asInstanceOf[InternalRow]
+
+    val tile: Tile = if (! row.isNullAt(4)) {
+      val ir = row.getStruct(4, 4)
+      val ref = desRef(ir)
+      ref
+    } else {
+      val ct = CellType.fromName(row.getString(0))
+      val cols = row.getInt(1)
+      val rows = row.getInt(2)
+      val bytes = row.getBinary(3)
+      ArrayTile.fromBytes(bytes, ct, cols, rows)
+    }
+
+    if (TileUDT.showableTiles) new ShowableTile(tile) else tile
+  }
 
   override def acceptsType(dataType: DataType): Boolean = dataType match {
     case _: TileUDT ⇒ true
@@ -68,35 +101,10 @@ class TileUDT extends UserDefinedType[Tile] {
   }
 }
 
-case object TileUDT  {
+case object TileUDT {
+  private val showableTiles = org.locationtech.rasterframes.rfConfig.getBoolean("showable-tiles")
+
   UDTRegistration.register(classOf[Tile].getName, classOf[TileUDT].getName)
 
   final val typeName: String = "tile"
-
-  implicit val tileSerializer: CatalystSerializer[Tile] = new CatalystSerializer[Tile] {
-
-    override val schema: StructType = StructType(Seq(
-      StructField("cell_context", schemaOf[TileDataContext], true),
-      StructField("cell_data", schemaOf[Cells], false)
-    ))
-
-    override def to[R](t: Tile, io: CatalystIO[R]): R = io.create(
-      t match {
-        case _: RasterRefTile => null
-        case o => io.to(TileDataContext(o))
-      },
-      io.to(Cells(t))
-    )
-
-    override def from[R](row: R, io: CatalystIO[R]): Tile = {
-      val cells = io.get[Cells](row, 1)
-
-      row match {
-        case ir: InternalRow if !cells.isRef ⇒ new InternalRowTile(ir)
-        case _ ⇒
-          val ctx = io.get[TileDataContext](row, 0)
-          cells.toTile(ctx)
-      }
-    }
-  }
 }

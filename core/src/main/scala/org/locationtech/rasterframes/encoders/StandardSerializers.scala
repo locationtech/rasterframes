@@ -30,7 +30,7 @@ import geotrellis.vector._
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.types._
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.rasterframes.{CrsType, TileType}
+import org.locationtech.rasterframes.{CrsType}
 import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
 import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.util.KryoSupport
@@ -95,22 +95,22 @@ trait StandardSerializers {
     )
   }
 
-  implicit val crsSerializer: CatalystSerializer[CRS] = new CatalystSerializer[CRS] {
-    override val schema: StructType = StructType(Seq(
-      StructField("crsProj4", StringType, true)
-    ))
+  // implicit val crsSerializer: CatalystSerializer[CRS] = new CatalystSerializer[CRS] {
+  //   override val schema: StructType = StructType(Seq(
+  //     StructField("crsProj4", StringType, true)
+  //   ))
 
-    override def to[R](t: CRS, io: CatalystIO[R]): R = io.create(
-      io.encode(
-        // Don't do this... it's 1000x slower to decode.
-        //t.epsgCode.map(c => "EPSG:" + c).getOrElse(t.toProj4String)
-        t.toProj4String
-      )
-    )
+  //   override def to[R](t: CRS, io: CatalystIO[R]): R = io.create(
+  //     io.encode(
+  //       // Don't do this... it's 1000x slower to decode.
+  //       //t.epsgCode.map(c => "EPSG:" + c).getOrElse(t.toProj4String)
+  //       t.toProj4String
+  //     )
+  //   )
 
-    override def from[R](row: R, io: CatalystIO[R]): CRS =
-      LazyCRS(io.getString(row, 0))
-  }
+  //   override def from[R](row: R, io: CatalystIO[R]): CRS =
+  //     LazyCRS(io.getString(row, 0))
+  // }
 
   implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
 
@@ -128,22 +128,22 @@ trait StandardSerializers {
       s2ctCache.get(io.getString(row, 0))
   }
 
-  implicit val projectedExtentSerializer: CatalystSerializer[ProjectedExtent] = new CatalystSerializer[ProjectedExtent] {
-    override val schema: StructType = StructType(Seq(
-      StructField("extent", schemaOf[Extent], false),
-      StructField("crs", CrsType, false)
-    ))
+  // implicit val projectedExtentSerializer: CatalystSerializer[ProjectedExtent] = new CatalystSerializer[ProjectedExtent] {
+  //   override val schema: StructType = StructType(Seq(
+  //     StructField("extent", schemaOf[Extent], false),
+  //     StructField("crs", CrsType, false)
+  //   ))
 
-    override protected def to[R](t: ProjectedExtent, io: CatalystSerializer.CatalystIO[R]): R = io.create(
-      io.to(t.extent),
-      io.to(t.crs)
-    )
+  //   override protected def to[R](t: ProjectedExtent, io: CatalystSerializer.CatalystIO[R]): R = io.create(
+  //     io.to(t.extent),
+  //     io.to(t.crs)
+  //   )
 
-    override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): ProjectedExtent = ProjectedExtent(
-      io.get[Extent](t, 0),
-      io.get[CRS](t, 1)
-    )
-  }
+  //   override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): ProjectedExtent = ProjectedExtent(
+  //     io.get[Extent](t, 0),
+  //     io.get[CRS](t, 1)
+  //   )
+  // }
 
   implicit val spatialKeySerializer: CatalystSerializer[SpatialKey] = new CatalystSerializer[SpatialKey] {
     override val schema: StructType = StructType(Seq(
@@ -261,7 +261,7 @@ trait StandardSerializers {
       StructField("cellType", schemaOf[CellType], false),
       StructField("layout", schemaOf[LayoutDefinition], false),
       StructField("extent", schemaOf[Extent], false),
-      StructField("crs", schemaOf[CRS], false),
+      StructField("crs", CrsType, false),
       StructField("bounds", schemaOf[KeyBounds[T]], false)
     ))
 
@@ -269,7 +269,7 @@ trait StandardSerializers {
       io.to(t.cellType),
       io.to(t.layout),
       io.to(t.extent),
-      io.to(t.crs),
+      ???,
       io.to(t.bounds.head)
     )
 
@@ -277,28 +277,8 @@ trait StandardSerializers {
       io.get[CellType](t, 0),
       io.get[LayoutDefinition](t, 1),
       io.get[Extent](t, 2),
-      io.get[CRS](t, 3),
+      ???,
       io.get[KeyBounds[T]](t, 4)
-    )
-  }
-
-  implicit def rasterSerializer: CatalystSerializer[Raster[Tile]] = new CatalystSerializer[Raster[Tile]] {
-
-    import org.apache.spark.sql.rf.TileUDT.tileSerializer
-
-    override val schema: StructType = StructType(Seq(
-      StructField("tile", TileType, false),
-      StructField("extent", schemaOf[Extent], false)
-    ))
-
-    override protected def to[R](t: Raster[Tile], io: CatalystIO[R]): R = io.create(
-      io.to(t.tile),
-      io.to(t.extent)
-    )
-
-    override protected def from[R](t: R, io: CatalystIO[R]): Raster[Tile] = Raster(
-      io.get[Tile](t, 0),
-      io.get[Extent](t, 1)
     )
   }
 

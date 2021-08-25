@@ -24,6 +24,7 @@ object RFProjectPlugin extends AutoPlugin {
     scalacOptions ++= Seq(
       "-target:jvm-1.8",
       "-feature",
+      "-language:higherKinds",
       "-deprecation",
       "-Ywarn-dead-code",
       "-Ywarn-unused-import"

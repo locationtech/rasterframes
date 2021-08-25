@@ -33,6 +33,8 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
   import spark.implicits._
 
   describe("masking by defined") {
+    spark.version
+
     it("should mask one tile against another") {
       val df = Seq[Tile](randPRT).toDF("tile")
 

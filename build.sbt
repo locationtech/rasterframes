@@ -52,6 +52,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       `slf4j-api`,
       shapeless,
+      frameless,
       `jts-core`,
       `spray-json`,
       geomesa("z3").value,

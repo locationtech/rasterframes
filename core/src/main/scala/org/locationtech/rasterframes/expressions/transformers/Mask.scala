@@ -24,18 +24,16 @@ package org.locationtech.rasterframes.expressions.transformers
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster
 import geotrellis.raster.{NoNoData, Tile}
-import geotrellis.raster.mapalgebra.local.{Undefined, InverseMask ⇒ gtInverseMask, Mask ⇒ gtMask}
+import geotrellis.raster.mapalgebra.local.{Undefined, InverseMask => gtInverseMask, Mask => gtMask}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal, TernaryExpression}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.localops.IsIn
-import org.locationtech.rasterframes.expressions.row
+import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.slf4j.LoggerFactory
 
 /** Convert cells in the `left` to NoData based on another tile's contents
@@ -47,7 +45,7 @@ import org.slf4j.LoggerFactory
   * @param inverse if true, and defined is true, set `left` to NoData where `middle` is NOT nodata
   */
 abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, undefined: Boolean, inverse: Boolean)
-  extends TernaryExpression with CodegenFallback with Serializable {
+  extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
   // aliases.
   def targetExp = left
   def maskExp = middle
@@ -71,7 +69,6 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
   override def makeCopy(newArgs: Array[AnyRef]): Expression = super.makeCopy(newArgs)
 
   override protected def nullSafeEval(targetInput: Any, maskInput: Any, maskValueInput: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
     val (targetTile, targetCtx) = tileExtractor(targetExp.dataType)(row(targetInput))
 
     require(! targetTile.cellType.isInstanceOf[NoNoData],
@@ -100,10 +97,7 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
     else
       gtMask(targetTile, masking, 1, raster.NODATA)
 
-    targetCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
-      case None      => result.toInternalRow
-    }
+    toInternalRow(result, targetCtx)
   }
 }
 object Mask {
