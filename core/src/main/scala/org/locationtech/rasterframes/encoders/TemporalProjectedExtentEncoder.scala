@@ -19,7 +19,7 @@
  *
  */
 
-package org.locationtech.rasterframes.encoders
+/*package org.locationtech.rasterframes.encoders
 
 import org.locationtech.rasterframes._
 import geotrellis.layer._
@@ -41,4 +41,4 @@ object TemporalProjectedExtentEncoder {
       "instant" -> Encoders.scalaLong.asInstanceOf[ExpressionEncoder[Long]]
     )
   }
-}
+}*/

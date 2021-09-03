@@ -54,9 +54,9 @@ object DataCells {
   val op = (tile: Tile) => {
     var count: Long = 0
     tile.dualForeach(
-      z ⇒ if(isData(z)) count = count + 1
+      z => if(isData(z)) count = count + 1
     ) (
-      z ⇒ if(isData(z)) count = count + 1
+      z => if(isData(z)) count = count + 1
     )
     count
   }

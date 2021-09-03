@@ -53,13 +53,13 @@ object TileMean {
     new Column(TileMean(tile.expr)).as[Double]
 
   /** Single tile mean. */
-  val op = (t: Tile) ⇒ {
+  val op = (t: Tile) => {
     var sum: Double = 0.0
     var count: Long = 0
     t.dualForeach(
-      z ⇒ if(isData(z)) { count = count + 1; sum = sum + z }
+      z => if(isData(z)) { count = count + 1; sum = sum + z }
     ) (
-      z ⇒ if(isData(z)) { count = count + 1; sum = sum + z }
+      z => if(isData(z)) { count = count + 1; sum = sum + z }
     )
     sum/count
   }

@@ -84,7 +84,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       val df = Seq(Option(TestData.injectND(numND)(two))).toDF("two")
       df.select(rf_data_cells($"two")).first() shouldBe (cols * rows - numND).toLong
 
-      val df2 = randNDTilesWithNull.toDF("tile")
+      val df2 = randNDTilesWithNullOptional.toDF("tile")
       df2
         .select(rf_data_cells($"tile") as "cells")
         .agg(sum("cells"))
@@ -97,7 +97,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       val df = Seq(Option(TestData.injectND(numND)(two))).toDF("two")
       df.select(rf_no_data_cells($"two")).first() should be(numND)
 
-      val df2 = randNDTilesWithNull.toDF("tile")
+      val df2 = randNDTilesWithNullOptional.toDF("tile")
       df2
         .select(rf_no_data_cells($"tile") as "cells")
         .agg(sum("cells"))
@@ -222,7 +222,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
         .as[Long]
         .first() should be <= (cols * rows - numND).toLong
 
-      val df2 = randNDTilesWithNull.toDF("tile")
+      val df2 = randNDTilesWithNullOptional.toDF("tile")
       df2
         .select(rf_tile_stats($"tile")("data_cells") as "cells")
         .agg(sum("cells"))
@@ -335,7 +335,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       import spark.implicits._
       withClue("mean") {
 
-        val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)).toDS()
+        val ds = Seq.fill[Tile](3)(randomTile(5, 5, FloatConstantNoDataCellType)).map(Option(_)).toDS()
         val means1 = ds.select(rf_tile_stats($"value")).map(_.mean).collect
         val means2 = ds.select(rf_tile_mean($"value")).collect
         // Compute the mean manually, knowing we're not dealing with no-data values.
@@ -584,7 +584,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
   describe("proj_raster handling") {
     it("should handle proj_raster structures") {
-      val df = Seq(Option(lazyPRT), Option(lazyPRT)).toDF("tile")
+      val df = Seq(lazyPRT, lazyPRT).map(Option(_)).toDF("tile")
 
       val targets = Seq[Column => Column](
         rf_is_no_data_tile,

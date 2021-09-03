@@ -21,12 +21,12 @@
 
 package org.locationtech.rasterframes
 import geotrellis.layer.{KeyBounds, LayoutDefinition, SpatialKey, TileLayerMetadata}
-import geotrellis.proj4.LatLng
+import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster._
 import geotrellis.vector._
-import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.{Encoder, Encoders}
 import org.apache.spark.sql.types.StringType
-import org.locationtech.rasterframes.model.{TileDataContext}
+import org.locationtech.rasterframes.model.TileDataContext
 import org.locationtech.rasterframes.tiles.{PrettyRaster, ProjectedRasterTile}
 import org.scalatest.Inspectors
 /**
@@ -36,10 +36,21 @@ import org.scalatest.Inspectors
  */
 class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors {
 
-  spark.version
-  import spark.implicits._
+  it("Dimensions encoder") {
+    spark.version
+    import spark.implicits._
+    val data = Dimensions[Int](256, 256)
+    val df = List(data).toDF()
+    df.show()
+    df.printSchema()
+    val fs = df.as[Dimensions[Int]]
+    val out = fs.first()
+    out shouldBe data
+  }
 
   it("TileDataContext encoder") {
+    spark.version
+    import spark.implicits._
     val data = TileDataContext(IntCellType, Dimensions[Int](256, 256))
     val df = List(data).toDF()
     df.show()
@@ -50,6 +61,8 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
   }
 
   it("ProjectedExtent encoder") {
+    spark.version
+    import spark.implicits._
     val data = ProjectedExtent(Extent(0, 0, 1, 1), LatLng)
     val df = List(data).toDF()
     df.show()
@@ -61,13 +74,15 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
   }
 
   it("TileLayerMetadata encoder"){
+    spark.version
+    import spark.implicits._
     val data = TileLayerMetadata(
       IntCellType,
       LayoutDefinition(Extent(0,0,9,9), TileLayout(10, 10, 4, 4)),
       Extent(0,0,9,9),
       LatLng,
-      KeyBounds(SpatialKey(0,0), SpatialKey(9,9)))
-
+      KeyBounds(SpatialKey(0,0), SpatialKey(9,9))
+    )
     val df = List(data).toDF()
     df.show()
     df.printSchema()
@@ -77,6 +92,8 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
   }
 
   it("ProjectedRasterTile encoder"){
+    spark.version
+    import spark.implicits._
     val enc = Encoders.product[PrettyRaster]
     print(enc.schema.treeString)
     print(ProjectedRasterTile.prtEncoder.schema.treeString)

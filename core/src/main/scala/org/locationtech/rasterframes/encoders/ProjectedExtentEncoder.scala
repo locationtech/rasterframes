@@ -19,6 +19,7 @@
  *
  */
 
+/*
 package org.locationtech.rasterframes.encoders
 
 import org.locationtech.rasterframes._
@@ -35,3 +36,4 @@ object ProjectedExtentEncoder {
     DelegatingSubfieldEncoder("extent" -> extentEncoder, "crs" -> crsSparkEncoder)
   }
 }
+*/

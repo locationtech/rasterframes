@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.extensions
 
-import geotrellis.proj4.CRS
 import geotrellis.layer._
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod => GTResampleMethod}
 import geotrellis.util.MethodExtensions
@@ -106,7 +105,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Get the columns that look like `Extent`s. */
   def extentColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsTo[Extent])
+      .filter(_.dataType.conformsToSchema(extentEncoder.schema))
       .map(f => self.col(f.name))
 
   /** Get the columns that look like `CRS`s. */
@@ -119,7 +118,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def notTileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => !DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ self.col(f.name))
+      .map(f => self.col(f.name))
 
   /** Get the spatial column. */
   def spatialKeyColumn: Option[TypedColumn[Any, SpatialKey]] = {
@@ -138,7 +137,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Find the field tagged with the requested `role` */
   private[rasterframes] def findRoleField(role: String): Option[StructField] =
     self.schema.fields.find(
-      f ⇒
+      f =>
         f.metadata.contains(SPATIAL_ROLE_KEY) &&
           f.metadata.getString(SPATIAL_ROLE_KEY) == role
     )

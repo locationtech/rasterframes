@@ -33,6 +33,7 @@ import org.locationtech.rasterframes.util.KryoSupport
  *
  * @since 9/5/18
  */
+// TODO: remove it
 @SQLUserDefinedType(udt = classOf[RasterSourceUDT])
 class RasterSourceUDT extends UserDefinedType[RFRasterSource] {
   override def typeName = "rastersource"

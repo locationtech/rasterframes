@@ -182,6 +182,9 @@ trait TestData {
   lazy val randNDTilesWithNull = Seq.fill[Tile](tileCount)(TestData.injectND(numND)(
     TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
   )).map(ProjectedRasterTile(_, extent, crs)) :+ null
+  lazy val randNDTilesWithNullOptional = Seq.fill[Tile](tileCount)(TestData.injectND(numND)(
+    TestData.randomTile(cols, rows, UByteConstantNoDataCellType)
+  )).map(ProjectedRasterTile(_, extent, crs)).map(Option(_)) :+ null
 
   def rasterRef = RasterRef(RFRasterSource(TestData.l8samplePath), 0, None, None)
   def lazyPRT = rasterRef.tile

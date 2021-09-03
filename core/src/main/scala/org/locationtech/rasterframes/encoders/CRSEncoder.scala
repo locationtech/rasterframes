@@ -19,7 +19,8 @@
  *
  */
 
-package org.locationtech.rasterframes.encoders
+/*package org.locationtech.rasterframes.encoders
+
 import geotrellis.proj4.CRS
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.rasterframes.model.LazyCRS
@@ -36,3 +37,4 @@ object CRSEncoder {
   // Not sure why this delegate is necessary, but doGenCode fails without it.
   def fromString(str: String): CRS = LazyCRS(str)
 }
+*/

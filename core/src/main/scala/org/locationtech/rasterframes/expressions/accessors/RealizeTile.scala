@@ -46,11 +46,11 @@ case class RealizeTile(child: Expression) extends UnaryExpression with CodegenFa
 
   private lazy val tileSer = TileType.serialize _
 
-  override def checkInputDataTypes(): TypeCheckResult = {
+  override def checkInputDataTypes(): TypeCheckResult =
     if (!tileableExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a tiled raster type.")
     } else TypeCheckSuccess
-  }
+
   override protected def nullSafeEval(input: Any): Any = {
     val in = row(input)
     val tile = tileableExtractor(child.dataType)(in)

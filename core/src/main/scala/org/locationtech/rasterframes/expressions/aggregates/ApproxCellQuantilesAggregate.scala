@@ -22,53 +22,100 @@
 package org.locationtech.rasterframes.expressions.aggregates
 
 import geotrellis.raster.{Tile, isNoData}
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.{Column, Encoder, Row, TypedColumn, types}
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import org.locationtech.rasterframes.TileType
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 
 
 case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeError: Double) extends UserDefinedAggregateFunction {
-  import org.locationtech.rasterframes.encoders.StandardSerializers.quantileSerializer
+  val quantileSummariesEncoder = StandardEncoders.quantileSummariesEncoder
 
   override def inputSchema: StructType = StructType(Seq(
     StructField("value", TileType, true)
   ))
 
   override def bufferSchema: StructType = StructType(Seq(
-    StructField("buffer", schemaOf[QuantileSummaries], false)
+    StructField("buffer", quantileSummariesEncoder.schema, false)
   ))
 
   override def dataType: types.DataType = DataTypes.createArrayType(DataTypes.DoubleType)
 
   override def deterministic: Boolean = true
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit =
-    buffer.update(0, new QuantileSummaries(QuantileSummaries.defaultCompressThreshold, relativeError).toRow)
+  override def initialize(buffer: MutableAggregationBuffer): Unit = {
+    val qs = new QuantileSummaries(QuantileSummaries.defaultCompressThreshold, relativeError)
+    val qsRow =
+      RowEncoder(quantileSummariesEncoder.schema)
+        .resolveAndBind()
+        .createDeserializer()(quantileSummariesEncoder.createSerializer()(qs))
+    buffer.update(0, qsRow)
+  }
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val qs = buffer.getStruct(0).to[QuantileSummaries]
+    val qs = quantileSummariesEncoder
+      .resolveAndBind()
+      .createDeserializer()(
+        RowEncoder(quantileSummariesEncoder.schema)
+          .createSerializer()(buffer.getStruct(0))
+      )
     if (!input.isNullAt(0)) {
       val tile = input.getAs[Tile](0)
       var result = qs
       tile.foreachDouble(d => if (!isNoData(d)) result = result.insert(d))
-      buffer.update(0, result.toRow)
+
+      val resultRow =
+        RowEncoder(StandardEncoders.quantileSummariesEncoder.schema)
+          .resolveAndBind()
+          .createDeserializer()(
+            StandardEncoders
+              .quantileSummariesEncoder
+              .createSerializer()(result)
+          )
+
+      buffer.update(0, resultRow)
     }
   }
 
   override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val left = buffer1.getStruct(0).to[QuantileSummaries]
-    val right = buffer2.getStruct(0).to[QuantileSummaries]
+    val left = quantileSummariesEncoder
+      .resolveAndBind()
+      .createDeserializer()(
+        RowEncoder(quantileSummariesEncoder.schema)
+          .createSerializer()(buffer1.getStruct(0))
+      )
+    val right = quantileSummariesEncoder
+      .resolveAndBind()
+      .createDeserializer()(
+        RowEncoder(quantileSummariesEncoder.schema)
+          .createSerializer()(buffer2.getStruct(0))
+      )
     val merged = left.compress().merge(right.compress())
-    buffer1.update(0, merged.toRow)
+
+    val mergedRow =
+      RowEncoder(StandardEncoders.quantileSummariesEncoder.schema)
+        .resolveAndBind()
+        .createDeserializer()(
+          StandardEncoders
+            .quantileSummariesEncoder
+            .createSerializer()(merged)
+        )
+
+    buffer1.update(0, mergedRow)
   }
 
   override def evaluate(buffer: Row): Seq[Double] = {
-    val summaries = buffer.getStruct(0).to[QuantileSummaries]
+    val summaries = quantileSummariesEncoder
+      .resolveAndBind()
+      .createDeserializer()(
+        RowEncoder(quantileSummariesEncoder.schema)
+          .createSerializer()(buffer.getStruct(0))
+      )
     probabilities.flatMap(summaries.query)
   }
 }

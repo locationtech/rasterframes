@@ -39,22 +39,20 @@ class CrsUDT extends UserDefinedType[CRS] {
 
   override def serialize(obj: CRS): UTF8String =
     Option(obj)
-      .map { crs => UTF8String.fromString(obj.toProj4String) }
+      .map { crs => UTF8String.fromString(crs.toProj4String) }
       .orNull
 
   override def deserialize(datum: Any): CRS =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒
-          LazyCRS(ir.getString(0))
-        case s: UTF8String ⇒
-          LazyCRS(s.toString)
+        case ir: InternalRow => LazyCRS(ir.getString(0))
+        case s: UTF8String => LazyCRS(s.toString)
       }
       .orNull
 
   override def acceptsType(dataType: DataType): Boolean = dataType match {
-    case _: CrsUDT ⇒ true
-    case _ ⇒ super.acceptsType(dataType)
+    case _: CrsUDT => true
+    case _ => super.acceptsType(dataType)
   }
 }
 

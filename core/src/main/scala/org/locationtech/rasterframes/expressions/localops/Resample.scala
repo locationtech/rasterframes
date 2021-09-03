@@ -88,9 +88,9 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
 
     val result: Tile = tileOrNumberExtractor(right.dataType)(input2) match {
       // in this case we expect the left and right contexts to vary. no warnings raised.
-      case TileArg(rightTile, _) ⇒ op(leftTile, rightTile, resamplingMethod)
-      case DoubleArg(d) ⇒ op(leftTile, d, resamplingMethod)
-      case IntegerArg(i) ⇒ op(leftTile, i.toDouble, resamplingMethod)
+      case TileArg(rightTile, _) => op(leftTile, rightTile, resamplingMethod)
+      case DoubleArg(d) => op(leftTile, d, resamplingMethod)
+      case IntegerArg(i) => op(leftTile, i.toDouble, resamplingMethod)
     }
 
     // reassemble the leftTile with its context. Note that this operation does not change Extent and CRS

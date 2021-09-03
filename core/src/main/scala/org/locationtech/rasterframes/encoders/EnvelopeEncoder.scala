@@ -1,4 +1,5 @@
 /*
+/*
  * This software is licensed under the Apache 2 license, quoted below.
  *
  * Copyright 2019 Astraea, Inc.
@@ -60,3 +61,4 @@ object EnvelopeEncoder {
     new ExpressionEncoder[Envelope](serializer, deserializer, classTag[Envelope])
   }
 }
+*/

@@ -1,4 +1,5 @@
 /*
+/*
  * This software is licensed under the Apache 2 license, quoted below.
  *
  * Copyright 2017 Astraea, Inc.
@@ -65,3 +66,4 @@ object CellTypeEncoder {
     ExpressionEncoder[CellType](serializer, deserializer, classTag[CellType])
   }
 }
+*/

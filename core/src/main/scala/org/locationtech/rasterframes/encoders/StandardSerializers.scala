@@ -31,14 +31,14 @@ import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.types._
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.rasterframes.{CrsType}
-import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
+import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.util.KryoSupport
 
 /** Collection of CatalystSerializers for third-party types. */
 trait StandardSerializers {
 
-  implicit val envelopeSerializer: CatalystSerializer[Envelope] = new CatalystSerializer[Envelope] {
+  /*implicit val envelopeSerializer: CatalystSerializer[Envelope] = new CatalystSerializer[Envelope] {
     override val schema: StructType = StructType(Seq(
       StructField("minX", DoubleType, false),
       StructField("maxX", DoubleType, false),
@@ -73,9 +73,9 @@ trait StandardSerializers {
       io.getDouble(row, 2),
       io.getDouble(row, 3)
     )
-  }
+  }*/
 
-  implicit val gridBoundsSerializer: CatalystSerializer[GridBounds[Int]] = new CatalystSerializer[GridBounds[Int]] {
+  /*implicit val gridBoundsSerializer: CatalystSerializer[GridBounds[Int]] = new CatalystSerializer[GridBounds[Int]] {
     override val schema: StructType = StructType(Seq(
       StructField("colMin", IntegerType, false),
       StructField("rowMin", IntegerType, false),
@@ -93,7 +93,7 @@ trait StandardSerializers {
       io.getInt(t, 2),
       io.getInt(t, 3)
     )
-  }
+  }*/
 
   // implicit val crsSerializer: CatalystSerializer[CRS] = new CatalystSerializer[CRS] {
   //   override val schema: StructType = StructType(Seq(
@@ -112,7 +112,7 @@ trait StandardSerializers {
   //     LazyCRS(io.getString(row, 0))
   // }
 
-  implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
+  /*implicit val cellTypeSerializer: CatalystSerializer[CellType] = new CatalystSerializer[CellType] {
 
     import StandardSerializers._
 
@@ -126,7 +126,7 @@ trait StandardSerializers {
 
     override def from[R](row: R, io: CatalystIO[R]): CellType =
       s2ctCache.get(io.getString(row, 0))
-  }
+  }*/
 
   // implicit val projectedExtentSerializer: CatalystSerializer[ProjectedExtent] = new CatalystSerializer[ProjectedExtent] {
   //   override val schema: StructType = StructType(Seq(
@@ -145,7 +145,7 @@ trait StandardSerializers {
   //   )
   // }
 
-  implicit val spatialKeySerializer: CatalystSerializer[SpatialKey] = new CatalystSerializer[SpatialKey] {
+  /*implicit val spatialKeySerializer: CatalystSerializer[SpatialKey] = new CatalystSerializer[SpatialKey] {
     override val schema: StructType = StructType(Seq(
       StructField("col", IntegerType, false),
       StructField("row", IntegerType, false)
@@ -180,9 +180,9 @@ trait StandardSerializers {
       io.getInt(t, 1),
       io.getLong(t, 2)
     )
-  }
+  }*/
 
-  implicit val cellSizeSerializer: CatalystSerializer[CellSize] = new CatalystSerializer[CellSize] {
+  /*implicit val cellSizeSerializer: CatalystSerializer[CellSize] = new CatalystSerializer[CellSize] {
     override val schema: StructType = StructType(Seq(
       StructField("width", DoubleType, false),
       StructField("height", DoubleType, false)
@@ -197,9 +197,9 @@ trait StandardSerializers {
       io.getDouble(t, 0),
       io.getDouble(t, 1)
     )
-  }
+  }*/
 
-  implicit val tileLayoutSerializer: CatalystSerializer[TileLayout] = new CatalystSerializer[TileLayout] {
+  /*implicit val tileLayoutSerializer: CatalystSerializer[TileLayout] = new CatalystSerializer[TileLayout] {
     override val schema: StructType = StructType(Seq(
       StructField("layoutCols", IntegerType, false),
       StructField("layoutRows", IntegerType, false),
@@ -220,9 +220,9 @@ trait StandardSerializers {
       io.getInt(t, 2),
       io.getInt(t, 3)
     )
-  }
+  }*/
 
-  implicit val layoutDefinitionSerializer = new CatalystSerializer[LayoutDefinition] {
+  /*implicit val layoutDefinitionSerializer = new CatalystSerializer[LayoutDefinition] {
     override val schema: StructType = StructType(Seq(
       StructField("extent", schemaOf[Extent], true),
       StructField("tileLayout", schemaOf[TileLayout], true)
@@ -237,9 +237,9 @@ trait StandardSerializers {
       io.get[Extent](t, 0),
       io.get[TileLayout](t, 1)
     )
-  }
+  }*/
 
-  implicit def boundsSerializer[T >: Null : CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
+  /*implicit def boundsSerializer[T >: Null : CatalystSerializer]: CatalystSerializer[KeyBounds[T]] = new CatalystSerializer[KeyBounds[T]] {
     override val schema: StructType = StructType(Seq(
       StructField("minKey", schemaOf[T], true),
       StructField("maxKey", schemaOf[T], true)
@@ -254,9 +254,9 @@ trait StandardSerializers {
       io.get[T](t, 0),
       io.get[T](t, 1)
     )
-  }
+  }*/
 
-  def tileLayerMetadataSerializer[T >: Null : CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
+  /*def tileLayerMetadataSerializer[T >: Null : CatalystSerializer]: CatalystSerializer[TileLayerMetadata[T]] = new CatalystSerializer[TileLayerMetadata[T]] {
     override val schema: StructType = StructType(Seq(
       StructField("cellType", schemaOf[CellType], false),
       StructField("layout", schemaOf[LayoutDefinition], false),
@@ -283,9 +283,9 @@ trait StandardSerializers {
   }
 
   implicit val spatialKeyTLMSerializer = tileLayerMetadataSerializer[SpatialKey]
-  implicit val spaceTimeKeyTLMSerializer = tileLayerMetadataSerializer[SpaceTimeKey]
+  implicit val spaceTimeKeyTLMSerializer = tileLayerMetadataSerializer[SpaceTimeKey]*/
 
-  implicit val tileDimensionsSerializer: CatalystSerializer[Dimensions[Int]] = new CatalystSerializer[Dimensions[Int]] {
+  /*implicit val tileDimensionsSerializer: CatalystSerializer[Dimensions[Int]] = new CatalystSerializer[Dimensions[Int]] {
     override val schema: StructType = StructType(Seq(
       StructField("cols", IntegerType, false),
       StructField("rows", IntegerType, false)
@@ -300,9 +300,9 @@ trait StandardSerializers {
       io.getInt(t, 0),
       io.getInt(t, 1)
     )
-  }
+  }*/
 
-  implicit val quantileSerializer: CatalystSerializer[QuantileSummaries] = new CatalystSerializer[QuantileSummaries] {
+  /*implicit val quantileSerializer: CatalystSerializer[QuantileSummaries] = new CatalystSerializer[QuantileSummaries] {
     override val schema: StructType = StructType(Seq(
       StructField("quantile_serializer_kryo", BinaryType, false)
     ))
@@ -315,7 +315,7 @@ trait StandardSerializers {
     override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): QuantileSummaries = {
       KryoSupport.deserialize[QuantileSummaries](ByteBuffer.wrap(io.getByteArray(t, 0)))
     }
-  }
+  }*/
 }
 
 object StandardSerializers extends StandardSerializers {

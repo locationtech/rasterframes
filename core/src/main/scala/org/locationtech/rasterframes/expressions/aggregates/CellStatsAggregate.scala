@@ -142,9 +142,9 @@ object CellStatsAggregate {
     |960       |40           |1.0|255.0|127.175|5441.704791666667|
     +----------+-------------+---+-----+-------+-----------------+"""
   )
-  class CellStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
-    extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new CellStatsAggregate()), Complete, false, NamedExpression.newExprId)
+  class CellStatsAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, filter: Option[Expression], resultId: ExprId)
+    extends AggregateExpression(aggregateFunction, mode, isDistinct, filter, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new CellStatsAggregate()), Complete, false, None, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_stats"
   }
   object CellStatsAggregateUDAF {

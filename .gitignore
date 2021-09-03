@@ -1,3 +1,8 @@
+# Operating System Files
+
+*.DS_Store
+Thumbs.db
+
 *.class
 *.log
 

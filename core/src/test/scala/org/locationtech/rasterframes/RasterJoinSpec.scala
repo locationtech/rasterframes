@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes
 
+import geotrellis.proj4.CRS
 import geotrellis.raster.resample._
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{Dimensions, IntConstantNoDataCellType, Raster, Tile}
@@ -140,7 +141,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val df = df17.union(df18)
       df.count() should be (6 * 6 + 5 * 5)
       val expectCrs = Array("+proj=utm +zone=17 +datum=NAD83 +units=m +no_defs ", "+proj=utm +zone=18 +datum=NAD83 +units=m +no_defs ")
-      df.select($"crs".getField("crsProj4")).distinct().as[String].collect() should contain theSameElementsAs expectCrs
+      df.select($"crs").distinct().as[CRS].collect().map(_.toProj4String) should contain theSameElementsAs expectCrs
 
       // read a third source to join. burned in box that intersects both above subsets; but more so on the df17
       val box = readSingleband("m_3607_box.tif").toDF(Dimensions(4,4)).withColumnRenamed("tile", "burned")
@@ -164,8 +165,8 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should handle proj_raster types") {
-      val df1 = Seq(one).toDF("one")
-      val df2 = Seq(two).toDF("two")
+      val df1 = Seq(Option(one)).toDF("one")
+      val df2 = Seq(Option(two)).toDF("two")
       noException shouldBe thrownBy {
         val joined1 = df1.rasterJoin(df2)
         val joined2 = df2.rasterJoin(df1)
@@ -173,7 +174,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should raster join multiple times on projected raster"){
-      val df0 = Seq(one).toDF("proj_raster")
+      val df0 = Seq(Option(one)).toDF("proj_raster")
       val result = df0.select($"proj_raster" as "t1")
         .rasterJoin(df0.select($"proj_raster" as "t2"))
         .rasterJoin(df0.select($"proj_raster" as "t3"))

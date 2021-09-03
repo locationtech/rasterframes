@@ -26,7 +26,7 @@ import geotrellis.raster.render.Png
 import geotrellis.raster.resample.Bilinear
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.vector.Extent
-import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.{Encoders, FramelessInternals}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestData._
@@ -41,21 +41,21 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
 
   describe("aggregate statistics") {
     it("should count data cells") {
-      val df = randNDTilesWithNull.filter(_ != null).toDF("tile")
+      val df = randNDTilesWithNullOptional.filter(_ != null).toDF("tile")
       df.select(rf_agg_data_cells($"tile")).first() should be(expectedRandData)
       df.selectExpr("rf_agg_data_cells(tile)").as[Long].first() should be(expectedRandData)
 
       checkDocs("rf_agg_data_cells")
     }
     it("should count no-data cells") {
-      val df = TestData.randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNullOptional.toDF("tile")
       df.select(rf_agg_no_data_cells($"tile")).first() should be(expectedRandNoData)
       df.selectExpr("rf_agg_no_data_cells(tile)").as[Long].first() should be(expectedRandNoData)
       checkDocs("rf_agg_no_data_cells")
     }
 
     it("should compute aggregate statistics") {
-      val df = TestData.randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNullOptional.toDF("tile")
 
       df.select(rf_agg_stats($"tile") as "stats")
         .select("stats.data_cells", "stats.no_data_cells")
@@ -70,7 +70,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should compute a aggregate histogram") {
-      val df = TestData.randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNullOptional.toDF("tile")
       val hist1 = df.select(rf_agg_approx_histogram($"tile")).first()
       val hist2 = df
         .selectExpr("rf_agg_approx_histogram(tile) as hist")
@@ -81,7 +81,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should compute local statistics") {
-      val df = TestData.randNDTilesWithNull.toDF("tile")
+      val df = TestData.randNDTilesWithNullOptional.toDF("tile")
       val stats1 = df
         .select(rf_agg_local_stats($"tile"))
         .first()
@@ -95,14 +95,14 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should compute local min") {
-      val df = Seq(two, three, one, six).toDF("tile")
+      val df = Seq(two, three, one, six).map(Option(_)).toDF("tile")
       df.select(rf_agg_local_min($"tile")).first() should be(one.toArrayTile())
       df.selectExpr("rf_agg_local_min(tile)").as[Tile].first() should be(one.toArrayTile())
       checkDocs("rf_agg_local_min")
     }
 
     it("should compute local max") {
-      val df = Seq(two, three, one, six).toDF("tile")
+      val df = Seq(two, three, one, six).map(Option(_)).toDF("tile")
       df.select(rf_agg_local_max($"tile")).first() should be(six.toArrayTile())
       df.selectExpr("rf_agg_local_max(tile)").as[Tile].first() should be(six.toArrayTile())
       checkDocs("rf_agg_local_max")
@@ -111,12 +111,12 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should compute local mean") {
       checkDocs("rf_agg_local_mean")
       val df = Seq(two, three, one, six)
+        .map(Option(_))
         .toDF("tile")
         .withColumn("id", monotonically_increasing_id())
 
       val expected = three.toArrayTile().convert(DoubleConstantNoDataCellType)
       df.select(rf_agg_local_mean($"tile")).first() should be(expected)
-
       df.selectExpr("rf_agg_local_mean(tile)").as[Tile].first() should be(expected)
 
       noException should be thrownBy {
@@ -127,7 +127,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should compute local data cell counts") {
-      val df = Seq(two, randNDPRT, nd).toDF("tile")
+      val df = Seq(two, randNDPRT, nd).map(Option(_)).toDF("tile")
       val t1 = df.select(rf_agg_local_data_cells($"tile")).first()
       val t2 = df.selectExpr("rf_agg_local_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
       t1 should be(t2)
@@ -135,7 +135,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should compute local no-data cell counts") {
-      val df = Seq(two, randNDPRT, nd).toDF("tile")
+      val df = Seq(two, randNDPRT, nd).map(Option(_)).toDF("tile")
       val t1 = df.select(rf_agg_local_no_data_cells($"tile")).first()
       val t2 = df.selectExpr("rf_agg_local_no_data_cells(tile) as cnt").select($"cnt".as[Tile]).first()
       t1 should be(t2)
@@ -160,7 +160,8 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
       val df = src
         .toDF(Dimensions(32, 49))
         .as[(Extent, CRS, Tile, Tile, Tile)]
-        .map(p => ProjectedRasterTile(p._3, p._1, p._2))
+        .map(p => Option(ProjectedRasterTile(p._3, p._1, p._2)))
+
       val aoi = extent.reproject(src.crs, WebMercator).buffer(-(extent.width * 0.2))
       val overview = df.select(rf_agg_overview_raster($"value", 500, 400, aoi))
       val (min, max) = overview.first().findMinMaxDouble

@@ -25,7 +25,6 @@ import java.nio.ByteBuffer
 
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.locationtech.rasterframes.encoders.CatalystSerializer.CatalystIO
 import org.locationtech.rasterframes.model.{TileDataContext}
 
 /**
@@ -44,8 +43,8 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
 
   protected override def delegate: Tile = realizedTile
 
-  private def cellContext: TileDataContext =
-    CatalystIO[InternalRow].get[TileDataContext](mem, 0)
+  private def cellContext: TileDataContext = ???
+    // CatalystIO[InternalRow].get[TileDataContext](mem, 0)
 
   /** Retrieve the cell type from the internal encoding. */
   override def cellType: CellType = cellContext.cellType

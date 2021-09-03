@@ -23,10 +23,12 @@ package org.locationtech.rasterframes
 
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
 import org.apache.spark.sql.rf.VersionShims._
-import org.apache.spark.sql.{SQLContext, rf}
+import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.{SQLContext, UDFRegistration, rf}
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggregates._
@@ -36,6 +38,7 @@ import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
 
 import scala.reflect.runtime.universe._
+import scala.util.Try
 
 /**
  * Module of Catalyst expressions for efficiently working with tiles.
@@ -53,7 +56,19 @@ package object expressions {
   private[expressions]
   def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
     val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF(f, dataType, Seq(child), udfName = Some(name))
+    ScalaUDF(f, dataType, Seq(child), Option(ExpressionEncoder[RT]()) :: Nil, udfName = Some(name))
+  }
+
+  private[expressions]
+  def udfexprNew[RT: TypeTag, A1: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (exp: Expression) => {
+    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
+    ScalaUDF((row: A1) => f(exp.dataType)(row), dataType, exp :: Nil, Option(ExpressionEncoder[RT]().resolveAndBind()) :: Nil)
+  }
+
+  private[expressions]
+  def udfexprNewUntyped[RT: TypeTag, A1: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (exp: Expression) => {
+    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
+    ScalaUDF((row: A1) => f(exp.dataType)(row), dataType, exp :: Nil)
   }
 
   def register(sqlContext: SQLContext): Unit = {

@@ -101,9 +101,8 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should throw if no nodata"){
       val noNoDataCellType = UByteCellType
 
-      val df = Seq(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs,
-        noNoDataCellType))
-        .toDF("tile")
+      val df =
+        Seq(Option(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs, noNoDataCellType))).toDF("tile")
 
       an [IllegalArgumentException] should be thrownBy {
         df.select(rf_mask($"tile", $"tile")).collect()
@@ -278,11 +277,13 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       def checker(colName: String, valFilter: Int, assertValue: Int): Unit = {
         // print this so we can see what's happening if something  wrong
-        logger.debug(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+        // logger.debug(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+        println(s"${colName} should be ${assertValue} for qa val ${valFilter}")
         result.filter($"val" === lit(valFilter))
           .select(col(colName))
-          .as[ProjectedRasterTile]
+          .as[Option[ProjectedRasterTile]]
           .first()
+          .get
           .get(0, 0) should be (assertValue)
       }
 
@@ -379,7 +380,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
           .select(rf_is_no_data_tile(col(columnName)))
           .first()
 
-        val dataTile = resultDf.select(col(columnName)).as[ProjectedRasterTile].first()
+        val dataTile = resultDf.select(col(columnName)).as[Option[ProjectedRasterTile]].first().get
         logger.debug(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
 
         resultToCheck should be (resultIsNoData)

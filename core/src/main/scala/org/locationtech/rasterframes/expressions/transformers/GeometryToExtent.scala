@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -30,6 +29,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.apache.spark.sql.jts.{AbstractGeometryUDT, JTSTypes}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.encoders.StandardEncoders
 
 /**
  * Catalyst Expression for getting the extent of a geometry.
@@ -39,11 +39,12 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class GeometryToExtent(child: Expression) extends UnaryExpression with CodegenFallback {
   override def nodeName: String = "st_extent"
 
-  override def dataType: DataType = schemaOf[Extent]
+  lazy val extentEncoder = StandardEncoders.extentEncoder
+  override def dataType: DataType = extentEncoder.schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {
-      case _: AbstractGeometryUDT[_] ⇒ TypeCheckSuccess
+      case _: AbstractGeometryUDT[_] => TypeCheckSuccess
       case o ⇒ TypeCheckFailure(
         s"Expected geometry but received '${o.simpleString}'."
       )
@@ -53,7 +54,7 @@ case class GeometryToExtent(child: Expression) extends UnaryExpression with Code
   override protected def nullSafeEval(input: Any): Any = {
     val geom = JTSTypes.GeometryTypeInstance.deserialize(input)
     val extent = Extent(geom.getEnvelopeInternal)
-    extent.toInternalRow
+    extentEncoder.createSerializer()(extent)
   }
 }
 

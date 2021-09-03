@@ -21,8 +21,6 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import geotrellis.proj4.CRS
-import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -55,7 +53,7 @@ case class CreateProjectedRaster(tile: Expression, extent: Expression, crs: Expr
     if (!tileExtractor.isDefinedAt(tile.dataType)) {
       TypeCheckFailure(s"Column of type '${tile.dataType}' is not or does not have a Tile")
     }
-    else if (!extent.dataType.conformsTo[Extent]) {
+    else if (!extent.dataType.conformsToSchema(StandardEncoders.extentEncoder.schema)) {
       TypeCheckFailure(s"Column of type '${extent.dataType}' is not an Extent")
     }
     else if (!crs.dataType.isInstanceOf[CrsUDT]) {

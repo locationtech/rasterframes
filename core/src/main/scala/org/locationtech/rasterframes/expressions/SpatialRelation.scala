@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions
 
+import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.SpatialRelation.RelationPredicate
 import geotrellis.vector.Extent
@@ -32,6 +33,7 @@ import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
 import org.apache.spark.sql.jts.AbstractGeometryUDT
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
+import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedDeserializer}
 
 /**
  * Determine if two spatial constructs intersect each other.
@@ -46,9 +48,10 @@ abstract class SpatialRelation extends BinaryExpression
       case g: Geometry ⇒ g
       case r: InternalRow ⇒
         expr.dataType match {
-          case udt: AbstractGeometryUDT[_] ⇒ udt.deserialize(r)
-          case dt if dt.conformsTo[Extent] =>
-            val extent = r.to[Extent]
+          case udt: AbstractGeometryUDT[_] => udt.deserialize(r)
+          case dt if dt.conformsToSchema(StandardEncoders.extentEncoder.schema) =>
+            val fromRow = cachedDeserializer[Extent]
+            val extent = fromRow(r)
             extent.toPolygon()
         }
     }
@@ -72,7 +75,7 @@ abstract class SpatialRelation extends BinaryExpression
 }
 
 object SpatialRelation {
-  type RelationPredicate = (Geometry, Geometry) ⇒ java.lang.Boolean
+  type RelationPredicate = (Geometry, Geometry) => java.lang.Boolean
 
   case class Intersects(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "intersects"
@@ -120,9 +123,9 @@ object SpatialRelation {
 
   def fromUDF(udf: ScalaUDF) = {
     udf.function match {
-      case rp: RelationPredicate @unchecked ⇒
+      case rp: RelationPredicate @unchecked =>
         predicateMap.get(rp).map(_.apply(udf.children.head, udf.children.last))
-      case _ ⇒ None
+      case _ => None
     }
   }
 }

@@ -21,10 +21,8 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.{DynamicExtractors, row}
-import org.locationtech.jts.geom.{Envelope, Geometry}
-import geotrellis.vector.Extent
+import org.locationtech.jts.geom.Geometry
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -33,6 +31,7 @@ import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
+import org.locationtech.rasterframes.encoders.StandardEncoders
 
 /**
  * Catalyst Expression for converting a bounding box structure into a JTS Geometry type.
@@ -47,7 +46,7 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!DynamicExtractors.extentExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(
-        s"Expected bounding box of form '${schemaOf[Envelope]}' or '${schemaOf[Extent]}' " +
+        s"Expected bounding box of form '${StandardEncoders.envelopeEncoder.schema}' or '${StandardEncoders.extentEncoder.schema}' " +
           s"but received '${child.dataType.simpleString}'."
       )
     }

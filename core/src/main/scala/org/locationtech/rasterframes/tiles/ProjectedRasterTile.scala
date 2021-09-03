@@ -58,5 +58,5 @@ object ProjectedRasterTile {
   def unapply(prt: ProjectedRasterTile): Option[(Tile, Extent, CRS)] =
     Some((prt.tile, prt.extent, prt.crs))
 
-  implicit val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder[ProjectedRasterTile]()
+  implicit lazy val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder[ProjectedRasterTile]()
 }

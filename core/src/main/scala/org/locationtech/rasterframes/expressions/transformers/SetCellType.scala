@@ -34,6 +34,8 @@ import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
+import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedDeserializer}
+import StandardEncoders._
 
 /**
  * Change the CellType of a Tile
@@ -59,25 +61,25 @@ case class SetCellType(tile: Expression, cellType: Expression)
   override def nodeName: String = "rf_convert_cell_type"
   override def dataType: DataType = left.dataType
 
-  override def checkInputDataTypes(): TypeCheckResult = {
+  override def checkInputDataTypes(): TypeCheckResult =
     if (!tileExtractor.isDefinedAt(left.dataType))
       TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     else
       right.dataType match {
         case StringType => TypeCheckSuccess
-        case t if t.conformsTo[CellType] => TypeCheckSuccess
+        case t if t.conformsToSchema(StandardEncoders.cellTypeEncoder.schema) => TypeCheckSuccess
         case _ =>
           TypeCheckFailure(s"Expected CellType but received '${right.dataType.simpleString}'")
       }
-  }
 
   private def toCellType(datum: Any): CellType = {
     right.dataType match {
       case StringType =>
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st if st.conformsTo[CellType] =>
-        row(datum).to[CellType]
+      case st if st.conformsToSchema(StandardEncoders.cellTypeEncoder.schema) =>
+        val fromRow = cachedDeserializer[CellType]
+        fromRow(row(datum))
     }
   }
 

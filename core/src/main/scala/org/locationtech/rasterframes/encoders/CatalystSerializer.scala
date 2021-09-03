@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.encoders
 
-import CatalystSerializer.CatalystIO
 import org.apache.spark.sql.{Row}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.util.ArrayData
@@ -38,7 +37,7 @@ import scala.collection.mutable
  *
  * @since 10/19/18
  */
-trait CatalystSerializer[T] extends Serializable {
+/*trait CatalystSerializer[T] extends Serializable {
   def schema: StructType
   protected def to[R](t: T, io: CatalystIO[R]): R
   protected def from[R](t: R, io: CatalystIO[R]): T
@@ -48,10 +47,10 @@ trait CatalystSerializer[T] extends Serializable {
 
   final def toInternalRow(t: T): InternalRow = to(t, CatalystIO[InternalRow])
   final def fromInternalRow(row: InternalRow): T = from(row, CatalystIO[InternalRow])
-}
+}*/
 
 object CatalystSerializer extends StandardSerializers {
-  def apply[T: CatalystSerializer]: CatalystSerializer[T] = implicitly
+  /*def apply[T: CatalystSerializer]: CatalystSerializer[T] = implicitly
 
   def schemaOf[T: CatalystSerializer]: StructType = apply[T].schema
 
@@ -183,7 +182,7 @@ object CatalystSerializer extends StandardSerializers {
   implicit class WithTypeConformity(val left: DataType) extends AnyVal {
     def conformsTo[T >: Null: CatalystSerializer]: Boolean =
       org.apache.spark.sql.rf.WithTypeConformity(left).conformsTo(schemaOf[T])
-  }
+  }*/
 
   implicit class WithTypeConformityToEncoder(val left: DataType) extends AnyVal {
     def conformsToSchema[A](schema: StructType): Boolean = {

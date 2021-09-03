@@ -39,6 +39,7 @@ import org.apache.spark.sql.rf.RasterSourceUDT
 import org.locationtech.rasterframes.ref.RasterRef
 import org.apache.spark.unsafe.types.UTF8String
 import org.apache.spark.sql.types.StringType
+import org.locationtech.rasterframes.model.LazyCRS
 
 /**
  * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
@@ -56,32 +57,37 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
   override def dataType: DataType = new CrsUDT
   override def nodeName: String = "rf_crs"
 
+  lazy val crsUdt = new CrsUDT
+
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!crsExtractor.isDefinedAt(child.dataType) )
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a CRS or something with one.")
     else TypeCheckSuccess
   }
 
-  private lazy val crsUdt = new CrsUDT
-
   override protected def nullSafeEval(input: Any): Any = {
     // TODO: move construction of this function to checkInputDataType as dataType is constant per instance of this exp.
     child.dataType match {
       case _: CrsUDT =>
-        input
+        val str = input.asInstanceOf[UTF8String]
+        val crs = CrsType.deserialize(str)
+        // crsSparkEncoder.createSerializer()(crs)
+        crsUdt.serialize(crs)
 
       case _: StringType =>
         val str = input.asInstanceOf[UTF8String]
         val crs = CrsType.deserialize(str)
+        // crsSparkEncoder.createSerializer()(crs)
         crsUdt.serialize(crs)
 
       case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
         val idx = ProjectedRasterTile.prtEncoder.schema.fieldIndex("crs")
-        input.asInstanceOf[InternalRow].get(idx, CrsType)
+        input.asInstanceOf[InternalRow].get(idx, CrsType).asInstanceOf[UTF8String]
 
       case _: RasterSourceUDT =>
         val rs = RasterSourceType.deserialize(input)
         val crs = rs.crs
+        // crsSparkEncoder.createSerializer()(crs)
         crsUdt.serialize(crs)
 
       case t if t.conformsToSchema(RasterRef.rrEncoder.schema) =>
@@ -90,6 +96,7 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
         val rsc = row.get(idx, RasterSourceType)
         val rs = RasterSourceType.deserialize(rsc)
         val crs = rs.crs
+        // crsSparkEncoder.createSerializer()(crs)
         crsUdt.serialize(crs)
     }
   }

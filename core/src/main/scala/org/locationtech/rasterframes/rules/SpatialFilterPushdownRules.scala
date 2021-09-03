@@ -38,9 +38,9 @@ object SpatialFilterPushdownRules extends Rule[LogicalPlan] {
         val preds = FilterTranslator.translateFilter(condition)
 
         def foldIt[T <: SpatialRelationReceiver[T]](rel: T): T =
-          preds.foldLeft(rel)((r, f) ⇒ r.withFilter(f))
+          preds.foldLeft(rel)((r, f) => r.withFilter(f))
 
-        preds.filterNot(sr.hasFilter).map(p ⇒ {
+        preds.filterNot(sr.hasFilter).map(p => {
           val newRec = foldIt(sr)
           Filter(condition, VersionShims.updateRelation(lr, newRec.asBaseRelation))
         }).getOrElse(f)

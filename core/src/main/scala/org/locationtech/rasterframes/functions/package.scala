@@ -37,8 +37,8 @@ import org.locationtech.rasterframes.util.ResampleMethod
 package object functions {
 
   @inline
-  private[rasterframes] def safeBinaryOp[T <: AnyRef, R >: T](op: (T, T) ⇒ R): ((T, T) ⇒ R) =
-    (o1: T, o2: T) ⇒ {
+  private[rasterframes] def safeBinaryOp[T <: AnyRef, R >: T](op: (T, T) => R): (T, T) => R =
+    (o1: T, o2: T) => {
       if (o1 == null) o2
       else if (o2 == null) o1
       else op(o1, o2)
@@ -98,19 +98,37 @@ package object functions {
   private[rasterframes] val tileOnes: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
     makeConstantTile(1, cols, rows, cellTypeName)
 
-  val reproject_and_merge_f: (Row, Row, Seq[Tile], Seq[Row], Seq[Row], Row, String) => Tile = (leftExtentEnc: Row, leftCRSEnc: Row, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[Row], leftDimsEnc: Row, resampleMethod: String) => {
+  val reproject_and_merge_f: (Row, CRS, Seq[Tile], Seq[Row], Seq[CRS], Row, String) => Tile = (leftExtentEnc: Row, leftCRSEnc: CRS, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[CRS], leftDimsEnc: Row, resampleMethod: String) => {
     if (tiles.isEmpty) null
     else {
       require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
 
-      val leftExtent = leftExtentEnc.to[Extent]
-      val leftDims = leftDimsEnc.to[Dimensions[Int]]
-      val leftCRS = ??? //leftCRSEnc.to[CRS]
-      lazy val rightExtents = rightExtentEnc.map(_.to[Extent])
-      lazy val rightCRSs = ??? //rightCRSEnc.map(_.to[CRS])
+      // https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-RowEncoder.html
+      import org.apache.spark.sql.catalyst.encoders.RowEncoder
+      // WOW TODO: Row Encoder all over the places
+      // println(
+        extentEncoder
+          .resolveAndBind() // bind it to schema before deserializing, that's how spark Dataset.as works
+                            // see https://github.com/apache/spark/blob/93cec49212fe82816fcadf69f429cebaec60e058/sql/core/src/main/scala/org/apache/spark/sql/Dataset.scala#L75-L86
+          .createDeserializer()(
+            RowEncoder(extentEncoder.schema)
+              .createSerializer()(leftExtentEnc)
+          )
+      // )
+      val leftExtent: Extent = leftExtentEnc match {
+        case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)
+      }
+      val leftDims: Dimensions[Int] = leftDimsEnc match {
+        case Row(cols: Int, rows: Int) => Dimensions(cols, rows)
+      }
+      val leftCRS: CRS = leftCRSEnc
+      lazy val rightExtents: Seq[Extent] = rightExtentEnc.map {
+        case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)
+      }
+      lazy val rightCRSs: Seq[CRS] = rightCRSEnc
       lazy val resample = resampleMethod match {
-        case ResampleMethod(mm) ⇒ mm
-        case _ ⇒ throw new IllegalArgumentException(s"Unable to parse ResampleMethod for ${resampleMethod}.")
+        case ResampleMethod(mm) => mm
+        case _ => throw new IllegalArgumentException(s"Unable to parse ResampleMethod for ${resampleMethod}.")
       }
 
       if (leftExtent == null || leftDims == null || leftCRS == null) null
@@ -159,8 +177,8 @@ package object functions {
   /**
    * Rasterize geometry into tiles.
    */
-  private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
-    (geom, bounds, value, cols, rows) ⇒ {
+  private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) => Tile = {
+    (geom, bounds, value, cols, rows) => {
       // We have to do this because (as of spark 2.2.x) Encoder-only types
       // can't be used as UDF inputs. Only Spark-native types and UDTs.
       val extent = Extent(bounds.getEnvelopeInternal)

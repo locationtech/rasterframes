@@ -342,7 +342,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     val newLayout = LayoutDefinition(md.extent, TileLayout(1, 1, rasterCols, rasterRows))
 
     val rdd = clipped.toMultibandTileLayerRDD(tileCols: _*)
-      .fold(identity, _.map{ case(stk, t) ⇒ (stk.spatialKey, t)}) // <-- Drops the temporal key outright
+      .fold(identity, _.map{ case(stk, t) => (stk.spatialKey, t)}) // <-- Drops the temporal key outright
 
     val cellType = rdd.first()._2.cellType
 

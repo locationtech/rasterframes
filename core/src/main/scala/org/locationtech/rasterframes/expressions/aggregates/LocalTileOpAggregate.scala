@@ -77,8 +77,8 @@ object LocalTileOpAggregate {
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise minimum value from a tile column."
   )
-  class LocalMinUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMin)), Complete, false, NamedExpression.newExprId)
+  class LocalMinUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, filter: Option[Expression], resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, filter, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMin)), Complete, false, None, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_local_min"
   }
   object LocalMinUDAF {
@@ -92,8 +92,8 @@ object LocalTileOpAggregate {
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise maximum value from a tile column."
   )
-  class LocalMaxUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMax)), Complete, false, NamedExpression.newExprId)
+  class LocalMaxUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, filter: Option[Expression], resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, filter, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalTileOpAggregate(BiasedMax)), Complete, false, None, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_local_max"
   }
   object LocalMaxUDAF {

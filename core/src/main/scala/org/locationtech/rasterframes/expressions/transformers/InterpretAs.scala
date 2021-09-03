@@ -34,6 +34,8 @@ import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
+import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedDeserializer}
+import StandardEncoders._
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, value) - Change the interpretation of the Tile's cell values according to specified CellType",
@@ -59,7 +61,7 @@ case class InterpretAs(tile: Expression, cellType: Expression)
     else
       right.dataType match {
         case StringType => TypeCheckSuccess
-        case t if t.conformsTo[CellType] => TypeCheckSuccess
+        case t if t.conformsToSchema(cellTypeEncoder.schema) => TypeCheckSuccess
         case _ =>
           TypeCheckFailure(s"Expected CellType but received '${right.dataType.simpleString}'")
       }
@@ -70,8 +72,9 @@ case class InterpretAs(tile: Expression, cellType: Expression)
       case StringType =>
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st if st.conformsTo[CellType] =>
-        row(datum).to[CellType]
+      case st if st.conformsToSchema(cellTypeEncoder.schema) =>
+        val fromRow = cachedDeserializer[CellType]
+        fromRow(row(datum))
     }
   }
 

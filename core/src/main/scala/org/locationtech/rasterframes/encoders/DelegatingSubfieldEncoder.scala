@@ -19,6 +19,7 @@
  *
  */
 
+/*
 package org.locationtech.rasterframes.encoders
 
 import org.apache.spark.sql.catalyst.ScalaReflection
@@ -72,3 +73,4 @@ object DelegatingSubfieldEncoder {
     ExpressionEncoder(serializer, deserializer, typeToClassTag[T])
   }
 }
+*/

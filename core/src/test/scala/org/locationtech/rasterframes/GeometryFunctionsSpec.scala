@@ -137,7 +137,7 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
 
   it("should rasterize geometry") {
     val rf = l8Sample(1).projectedRaster.toLayer.withGeometry()
-    val df = GeomData.features.map(f ⇒ (
+    val df = GeomData.features.map(f => (
       f.geom.reproject(LatLng, rf.crs),
       f.data("id").flatMap(_.asNumber).flatMap(_.toInt).getOrElse(0)
     )).toDF("geom", "__fid__")
@@ -155,11 +155,10 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
     val pixelCount = rasterized.select(rf_agg_data_cells($"rasterized")).first()
     assert(pixelCount < cols * rows)
 
-
     toRasterize.createOrReplaceTempView("stuff")
     val viaSQL = sql(s"select rf_rasterize(geom, geometry, __fid__, $cols, $rows) as rasterized from stuff")
     assert(viaSQL.select(rf_agg_data_cells($"rasterized")).first === pixelCount)
 
-    //rasterized.select($"rasterized".as[Tile]).foreach(t ⇒ t.renderPng(ColorMaps.IGBP).write("target/" + t.hashCode() + ".png"))
+    //rasterized.select($"rasterized".as[Tile]).foreach(t => t.renderPng(ColorMaps.IGBP).write("target/" + t.hashCode() + ".png"))
   }
 }

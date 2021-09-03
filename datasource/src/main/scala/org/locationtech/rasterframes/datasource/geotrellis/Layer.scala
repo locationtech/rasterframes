@@ -21,12 +21,12 @@
 
 package org.locationtech.rasterframes.datasource.geotrellis
 
-import java.net.URI
+import frameless.TypedEncoder
 
-import org.locationtech.rasterframes.encoders.DelegatingSubfieldEncoder
+import java.net.URI
+import org.locationtech.rasterframes.encoders.typedExpressionEncoder
 import geotrellis.store.LayerId
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.locationtech.rasterframes
 
 /**
  *   /** Connector between a GT `LayerId` and the path in which it lives. */
@@ -36,10 +36,11 @@ import org.locationtech.rasterframes
 case class Layer(base: URI, id: LayerId)
 
 object Layer {
+  import org.locationtech.rasterframes.encoders.StandardEncoders._
+
   def apply(base: URI, name: String, zoom: Int) = new Layer(base, LayerId(name, zoom))
 
-  implicit def layerEncoder: ExpressionEncoder[Layer] = DelegatingSubfieldEncoder[Layer](
-    "base" -> rasterframes.uriEncoder,
-    "id" -> ExpressionEncoder[LayerId]()
-  )
+  implicit def typedLayerEncoder: TypedEncoder[Layer] = TypedEncoder.usingDerivation
+
+  implicit def layerEncoder: ExpressionEncoder[Layer] = typedExpressionEncoder[Layer]
 }

@@ -22,11 +22,15 @@
 package org.locationtech.rasterframes.extensions
 
 import geotrellis.layer._
+import geotrellis.proj4.CRS
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod => GTResampleMethod}
+import geotrellis.vector.Extent
 import org.apache.spark.sql._
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions.broadcast
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.StandardEncoders.crsSparkEncoder
+import org.locationtech.rasterframes.encoders.typedExpressionEncoder
 import org.locationtech.rasterframes.util._
 
 /** Algorithm for projecting an arbitrary RasterFrame into a layer with consistent CRS and gridding. */

@@ -42,8 +42,8 @@ import org.locationtech.rasterframes.TileType
 class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction {
 
   private val incCount =
-    if (isData) safeBinaryOp((t1: Tile, t2: Tile) ⇒ Add(t1, Defined(t2)))
-    else safeBinaryOp((t1: Tile, t2: Tile) ⇒ Add(t1, Undefined(t2)))
+    if (isData) safeBinaryOp((t1: Tile, t2: Tile) => Add(t1, Defined(t2)))
+    else safeBinaryOp((t1: Tile, t2: Tile) => Add(t1, Undefined(t2)))
 
   private val add = safeBinaryOp(Add.apply(_: Tile, _: Tile))
 
@@ -64,9 +64,7 @@ class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction 
     val right = input.getAs[Tile](0)
     if (right != null) {
       if (buffer(0) == null) {
-        buffer(0) = (
-          if (isData) Defined(right) else Undefined(right)
-          ).convert(IntConstantNoDataCellType)
+        buffer(0) = (if (isData) Defined(right) else Undefined(right)).convert(IntConstantNoDataCellType)
       } else {
         val left = buffer.getAs[Tile](0)
         buffer(0) = incCount(left, right)
@@ -85,8 +83,8 @@ object LocalCountAggregate {
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise count of non-no-data values."
   )
-  class LocalDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(true)), Complete, false, NamedExpression.newExprId)
+  class LocalDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, filter: Option[Expression], resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, filter, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(true)), Complete, false, None, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_local_data_cells"
   }
   object LocalDataCellsUDAF {
@@ -100,8 +98,8 @@ object LocalCountAggregate {
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise count of no-data values."
   )
-  class LocalNoDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(false)), Complete, false, NamedExpression.newExprId)
+  class LocalNoDataCellsUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, filter: Option[Expression], resultId: ExprId) extends AggregateExpression(aggregateFunction, mode, isDistinct, filter, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new LocalCountAggregate(false)), Complete, false, None, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_local_no_data_cells"
   }
   object LocalNoDataCellsUDAF {

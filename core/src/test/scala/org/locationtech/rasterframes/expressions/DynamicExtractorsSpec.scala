@@ -26,7 +26,7 @@ import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.rasterframes.TestEnvironment
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.DynamicExtractorsSpec.{SnowflakeExtent1, SnowflakeExtent2}
 import org.locationtech.rasterframes.model.LongExtent
@@ -36,25 +36,25 @@ class DynamicExtractorsSpec  extends TestEnvironment with Inspectors {
   describe("Extent extraction") {
     val expected = Extent(1, 2, 3, 4)
     it("should handle normal Extent") {
-      extentExtractor.isDefinedAt(schemaOf[Extent]) should be(true)
+      extentExtractor.isDefinedAt(StandardEncoders.extentEncoder.schema) should be(true)
 
-      val row = expected.toInternalRow
-      extentExtractor(schemaOf[Extent])(row) should be (expected)
+      val row = StandardEncoders.extentEncoder.createSerializer()(expected)
+      extentExtractor(StandardEncoders.extentEncoder.schema)(row) should be (expected)
     }
     it("should handle Envelope") {
-      extentExtractor.isDefinedAt(schemaOf[Envelope]) should be(true)
+      extentExtractor.isDefinedAt(StandardEncoders.envelopeEncoder.schema) should be(true)
 
       val e = expected.jtsEnvelope
 
-      val row = e.toInternalRow
-      extentExtractor(schemaOf[Envelope])(row) should be (expected)
+      val row = StandardEncoders.envelopeEncoder.createSerializer()(e)
+      extentExtractor(StandardEncoders.envelopeEncoder.schema)(row) should be (expected)
     }
 
     it("should handle LongExtent") {
-      extentExtractor.isDefinedAt(schemaOf[LongExtent]) should be(true)
+      extentExtractor.isDefinedAt(StandardEncoders.longExtentEncoder.schema) should be(true)
       val expected2 = LongExtent(1L, 2L, 3L, 4L)
-      val row = expected2.toInternalRow
-      extentExtractor(schemaOf[LongExtent])(row) should be (expected)
+      val row = StandardEncoders.longExtentEncoder.createSerializer()(expected2)
+      extentExtractor(StandardEncoders.longExtentEncoder.schema)(row) should be (expected)
     }
 
     it("should handle artisanally constructed Extents") {

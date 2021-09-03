@@ -75,7 +75,12 @@ class EncodingSpec extends TestEnvironment with TestData {
       val tile = TestData.projectedRasterTile(20, 30, -1.2, extent)
       val ds = Seq(tile).toDS()
       write(ds)
-      assert(ds.toDF.as[ProjectedRasterTile].collect().head === tile)
+      val actual = ds.toDF.as[ProjectedRasterTile].collect().head
+      val expected = tile
+      assert(actual.extent === expected.extent)
+      assert(actual.crs === expected.crs)
+      assertEqual(actual.tile, expected.tile)
+      // assert(ds.toDF.as[ProjectedRasterTile].collect().head === tile)
     }
 
     it("should code RDD[Extent]") {

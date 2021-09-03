@@ -32,6 +32,7 @@ import scala.reflect.runtime.universe._
  *
  * @since 7/21/17
  */
+/*
 object TileLayerMetadataEncoder {
   import org.locationtech.rasterframes._
 
@@ -48,3 +49,4 @@ object TileLayerMetadataEncoder {
     DelegatingSubfieldEncoder(fEncoders: _*)
   }
 }
+*/

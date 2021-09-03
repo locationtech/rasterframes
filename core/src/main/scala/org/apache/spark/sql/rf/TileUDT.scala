@@ -22,10 +22,11 @@
 package org.apache.spark.sql.rf
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.execution.datasources.parquet.ParquetReadSupport
 import org.apache.spark.sql.types.{DataType, _}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.ref.RasterRef
-import org.locationtech.rasterframes.tiles.{ShowableTile, ProjectedRasterTile}
+import org.locationtech.rasterframes.tiles.{ProjectedRasterTile, ShowableTile}
 
 
 /**
@@ -46,7 +47,8 @@ class TileUDT extends UserDefinedType[Tile] {
     StructField("cols", IntegerType, false),
     StructField("rows", IntegerType, false),
     StructField("cells", BinaryType, true),
-    StructField("ref", RasterRef.rrEncoder.schema, true)
+    // make it parquet compliant, only expanded UDTs can be in a UDT schema
+    StructField("ref", ParquetReadSupport.expandUDT(RasterRef.rrEncoder.schema), true)
   ))
 
   private lazy val serRef = RasterRef.rrEncoder.createSerializer()

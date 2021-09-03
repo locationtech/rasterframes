@@ -116,9 +116,9 @@ object HistogramAggregate {
     > SELECT _FUNC_(tile);
       ..."""
   )
-  class HistogramAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
-    extends AggregateExpression(aggregateFunction, mode, isDistinct, None, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new HistogramAggregate()), Complete, false, NamedExpression.newExprId)
+  class HistogramAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, filter: Option[Expression], resultId: ExprId)
+    extends AggregateExpression(aggregateFunction, mode, isDistinct, filter, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new HistogramAggregate()), Complete, false, None, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_approx_histogram"
   }
   object HistogramAggregateUDAF {

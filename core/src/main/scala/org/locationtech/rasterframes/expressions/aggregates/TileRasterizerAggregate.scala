@@ -30,9 +30,11 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
+import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
+import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 
@@ -49,7 +51,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
 
   override def inputSchema: StructType = StructType(Seq(
     StructField("crs", CrsType, false),
-    StructField("extent", schemaOf[Extent], false),
+    StructField("extent", extentEncoder.schema, false),
     StructField("tile", TileType)
   ))
 
@@ -64,8 +66,10 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
   }
 
   override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val crs = ??? // input.getAs[Row](0).to[CRS]
-    val extent = input.getAs[Row](1).to[Extent]
+    val crs: CRS = input.getAs[CRS](0)
+    val extent: Extent = input.getAs[Row](1) match {
+      case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)
+    }
 
     val localExtent = extent.reproject(crs, prd.destinationCRS)
 

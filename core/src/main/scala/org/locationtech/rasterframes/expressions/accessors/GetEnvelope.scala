@@ -29,7 +29,7 @@ import org.apache.spark.sql.jts.AbstractGeometryUDT
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.EnvelopeEncoder
+import org.locationtech.rasterframes.encoders.StandardEncoders
 
 /**
  * Extracts the bounding box (envelope) of arbitrary JTS Geometry.
@@ -56,7 +56,7 @@ case class GetEnvelope(child: Expression) extends UnaryExpression with CodegenFa
     InternalRow(env.getMinX, env.getMaxX, env.getMinY, env.getMaxY)
   }
 
-  def dataType: DataType = EnvelopeEncoder.schema
+  def dataType: DataType = StandardEncoders.envelopeEncoder.schema
 }
 
 object GetEnvelope {

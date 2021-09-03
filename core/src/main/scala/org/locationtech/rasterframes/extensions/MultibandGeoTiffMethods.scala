@@ -21,15 +21,14 @@
 
 package org.locationtech.rasterframes.extensions
 
-import geotrellis.proj4.CRS
 import geotrellis.raster.Dimensions
 import geotrellis.raster.io.geotiff.MultibandGeoTiff
 import geotrellis.util.MethodExtensions
-import geotrellis.vector.Extent
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, TileType, CrsType}
+import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes.{CrsType, NOMINAL_TILE_DIMS, TileType}
 
 trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
   def toDF(dims: Dimensions[Int] = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
@@ -45,12 +44,17 @@ trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
       (gridbounds, tile) ← subtiles.toSeq
     } yield {
       val extent = re.extentFor(gridbounds, false)
-      Row(extent.toRow +: ??? +: tile.bands: _*)
+      val extentRow =
+        RowEncoder(StandardEncoders.extentEncoder.schema)
+          .resolveAndBind()
+          .createDeserializer()(StandardEncoders.extentEncoder.createSerializer()(extent))
+
+      Row(extentRow +: crs +: tile.bands: _*)
     }
 
     val schema =
       StructType(Seq(
-        StructField("extent", schemaOf[Extent], false),
+        StructField("extent", StandardEncoders.extentEncoder.schema, false),
         StructField("crs", CrsType, false)
       ) ++ (1 to bands).map { i =>
         StructField("b_" + i, TileType, false)

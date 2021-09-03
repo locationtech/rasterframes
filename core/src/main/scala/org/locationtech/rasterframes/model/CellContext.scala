@@ -23,30 +23,5 @@ package org.locationtech.rasterframes.model
 
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.{ShortType, StructField, StructType}
-import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
-import CatalystSerializer._
 
 case class CellContext(tileContext: TileContext, tileDataContext: TileDataContext, colIndex: Short, rowIndex: Short)
-object CellContext {
-  implicit val serializer: CatalystSerializer[CellContext] = new CatalystSerializer[CellContext] {
-    override val schema: StructType = StructType(Seq(
-      StructField("tileContext", schemaOf[TileContext], false),
-      StructField("tileDataContext", schemaOf[TileDataContext], false),
-      StructField("colIndex", ShortType, false),
-      StructField("rowIndex", ShortType, false)
-    ))
-    override protected def to[R](t: CellContext, io: CatalystSerializer.CatalystIO[R]): R = io.create(
-      io.to(t.tileContext),
-      io.to(t.tileDataContext),
-      t.colIndex,
-      t.rowIndex
-    )
-    override protected def from[R](t: R, io: CatalystSerializer.CatalystIO[R]): CellContext = CellContext(
-      io.get[TileContext](t, 0),
-      io.get[TileDataContext](t, 1),
-      io.getShort(t, 2),
-      io.getShort(t, 3)
-    )
-  }
-  implicit def encoder: ExpressionEncoder[CellContext] = CatalystSerializerEncoder[CellContext]()
-}
