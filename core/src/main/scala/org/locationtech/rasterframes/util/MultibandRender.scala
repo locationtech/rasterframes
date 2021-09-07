@@ -102,7 +102,7 @@ object MultibandRender {
       normalizeCellType(tile).mapIfSet(pipeline)
     }
 
-    val applyAdjustment: Tile ⇒ Tile =
+    val applyAdjustment: Tile => Tile =
       compressRange _ andThen colorAdjust
 
     def render(tile: MultibandTile) = {

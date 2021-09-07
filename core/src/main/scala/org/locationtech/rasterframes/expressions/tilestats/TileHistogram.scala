@@ -57,5 +57,5 @@ object TileHistogram {
   private lazy val converter = CatalystTypeConverters.createToCatalystConverter(CellHistogram.schema)
 
   /** Single tile histogram. */
-  val op = (t: Tile) ⇒ CellHistogram(t)
+  val op = (t: Tile) => CellHistogram(t)
 }

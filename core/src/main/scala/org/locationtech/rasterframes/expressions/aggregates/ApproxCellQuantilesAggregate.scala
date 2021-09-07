@@ -28,7 +28,6 @@ import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAg
 import org.apache.spark.sql.{Column, Encoder, Row, TypedColumn, types}
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import org.locationtech.rasterframes.TileType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 

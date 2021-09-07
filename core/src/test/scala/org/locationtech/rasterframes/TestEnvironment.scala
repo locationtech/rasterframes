@@ -70,13 +70,13 @@ trait TestEnvironment extends AnyFunSpec
 
   implicit def sc: SparkContext = spark.sparkContext
 
-  lazy val sql: String ⇒ DataFrame = spark.sql
+  lazy val sql: String => DataFrame = spark.sql
 
   def isCI: Boolean = sys.env.get("CI").contains("true")
 
   /** This is here so we can test writing UDF generated/modified GeoTrellis types to ensure they are Parquet compliant. */
   def write(df: Dataset[_]): Boolean = {
-    val sanitized = df.select(df.columns.map(c ⇒ col(c).as(toParquetFriendlyColumnName(c))): _*)
+    val sanitized = df.select(df.columns.map(c => col(c).as(toParquetFriendlyColumnName(c))): _*)
     val inRows = sanitized.count()
     val dest = Files.createTempFile("rf", ".parquet")
     logger.trace(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
@@ -123,7 +123,7 @@ trait TestEnvironment extends AnyFunSpec
       (expected.xmax, computed.xmax),
       (expected.ymax, computed.ymax)
     )
-    forEvery(components)(c ⇒
+    forEvery(components)(c =>
       assert(c._1 === c._2 +- 0.000001)
     )
   }

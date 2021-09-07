@@ -54,9 +54,9 @@ object NoDataCells {
   val op = (tile: Tile) => {
     var count: Long = 0
     tile.dualForeach(
-      z ⇒ if(isNoData(z)) count = count + 1
+      z => if(isNoData(z)) count = count + 1
     ) (
-      z ⇒ if(isNoData(z)) count = count + 1
+      z => if(isNoData(z)) count = count + 1
     )
     count
   }

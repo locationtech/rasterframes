@@ -32,7 +32,7 @@ import org.locationtech.rasterframes.util._
  *
  * @since 8/24/18
  */
-trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation ⇒
+trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation =>
   protected def defaultNumPartitions: Int =
     sqlContext.sparkSession.sessionState.conf.numShufflePartitions
   protected def cacheFile: HadoopPath
@@ -42,8 +42,8 @@ trait CachedDatasetRelation extends ResourceCacheSupport { self: BaseRelation �
     val conf = sqlContext.sparkContext.hadoopConfiguration
     implicit val fs: FileSystem = FileSystem.get(conf)
     val catalog = cacheFile.when(p => fs.exists(p) && !expired(p))
-      .map(p ⇒ {logger.debug("Reading " + p); p})
-      .map(p ⇒ sqlContext.read.parquet(p.toString))
+      .map(p => {logger.debug("Reading " + p); p})
+      .map(p => sqlContext.read.parquet(p.toString))
       .getOrElse {
         val scenes = constructDataset
         scenes.write.mode(SaveMode.Overwrite).parquet(cacheFile.toString)

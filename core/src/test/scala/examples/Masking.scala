@@ -18,12 +18,12 @@ object Masking extends App {
 
   val filenamePattern = "L8-B%d-Elkton-VA.tiff"
   val bandNumbers = 1 to 4
-  val bandColNames = bandNumbers.map(b ⇒ s"band_$b").toArray
+  val bandColNames = bandNumbers.map(b => s"band_$b").toArray
 
   val joinedRF = bandNumbers.
-    map { b ⇒ (b, filenamePattern.format(b)) }.
-    map { case (b, f) ⇒ (b, readTiff(f)) }.
-    map { case (b, t) ⇒ t.projectedRaster.toLayer(s"band_$b") }.
+    map { b => (b, filenamePattern.format(b)) }.
+    map { case (b, f) => (b, readTiff(f)) }.
+    map { case (b, t) => t.projectedRaster.toLayer(s"band_$b") }.
     reduce(_ spatialJoin _)
 
   val threshold = udf((t: Tile) => {

@@ -21,7 +21,7 @@
 
 package org.apache.spark.sql.rf
 import geotrellis.proj4.CRS
-import org.apache.spark.sql.types.{DataType, _}
+import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.model.LazyCRS
 import org.apache.spark.sql.catalyst.InternalRow

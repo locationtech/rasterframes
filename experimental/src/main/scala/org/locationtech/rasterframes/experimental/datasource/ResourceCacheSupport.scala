@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   def maxCacheFileAgeHours: Int = sys.props.get("rasterframes.resource.age.max")
-    .flatMap(v ⇒ Try(v.toInt).toOption)
+    .flatMap(v => Try(v.toInt).toOption)
     .getOrElse(24)
 
   protected def expired(p: HadoopPath)(implicit fs: FileSystem): Boolean = {
@@ -69,9 +69,9 @@ import org.slf4j.LoggerFactory
 
   protected def cacheName(path: Either[URI, HadoopPath])(implicit fs: FileSystem): HadoopPath = {
     val (name, hash) = path match {
-      case Left(uri) ⇒
+      case Left(uri) =>
         (uri.getPath, MD5Hash.digest(uri.toASCIIString))
-      case Right(p) ⇒
+      case Right(p) =>
         (p.toString, MD5Hash.digest(p.toString))
     }
     val basename = FilenameUtils.getBaseName(name)
@@ -82,7 +82,7 @@ import org.slf4j.LoggerFactory
 
   protected def cachedURI(uri: URI)(implicit fs: FileSystem): Option[HadoopPath] = {
     val dest = cacheName(Left(uri))
-    dest.when(f ⇒ !expired(f)).orElse {
+    dest.when(f => !expired(f)).orElse {
       try {
         // val bytes = getBytes(uri)
         // withResource(fs.create(dest))(_.write(bytes))
@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory
         ???
       }
       catch {
-        case NonFatal(_) ⇒
+        case NonFatal(_) =>
           // Try(fs.delete(dest, false))
           // logger.debug(s"'$uri' not found")
           None
@@ -100,6 +100,6 @@ import org.slf4j.LoggerFactory
 
   protected def cachedFile(fileName: HadoopPath)(implicit fs: FileSystem): Option[HadoopPath] = {
      val dest = cacheName(Right(fileName))
-     dest.when(f ⇒ !expired(f))
+     dest.when(f => !expired(f))
    }
 }

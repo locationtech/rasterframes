@@ -112,8 +112,8 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     */
   def rasterJoin(df: DataFrame, other: DataFrame, resamplingMethod: String): DataFrame = {
     val m = resamplingMethod match {
-      case ResampleMethod(mm) ⇒ mm
-      case _ ⇒ throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
+      case ResampleMethod(mm) => mm
+      case _ => throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
     }
     RasterJoin(df, other, m, None)
   }
@@ -123,8 +123,8 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
     */
   def rasterJoin(df: DataFrame, other: DataFrame, leftExtent: Column, leftCRS: Column, rightExtent: Column, rightCRS: Column, resamplingMethod: String): DataFrame = {
     val m = resamplingMethod match {
-      case ResampleMethod(mm) ⇒ mm
-      case _ ⇒ throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
+      case ResampleMethod(mm) => mm
+      case _ => throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
     }
 
     RasterJoin(df, other, leftExtent, leftCRS, rightExtent, rightCRS, m, None)
@@ -137,8 +137,8 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
 
     val m = resamplingMethod match {
-      case ResampleMethod(mm) ⇒ mm
-      case _ ⇒ throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
+      case ResampleMethod(mm) => mm
+      case _ => throw new IllegalArgumentException(s"Incorrect resampling method passed: ${resamplingMethod}")
     }
     RasterJoin(df, other, joinExprs, leftExtent, leftCRS, rightExtent, rightCRS, m, None)
   }

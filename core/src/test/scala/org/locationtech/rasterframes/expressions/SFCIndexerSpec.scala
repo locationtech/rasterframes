@@ -238,14 +238,14 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
         .toDF("src")
 
       withClue("XZ2") {
-        val expected = extents.map(e ⇒ xzsfc.index(e.xmin, e.ymin, e.xmax, e.ymax, lenient = true))
+        val expected = extents.map(e => xzsfc.index(e.xmin, e.ymin, e.xmax, e.ymax, lenient = true))
         val indexes = srcs.select(rf_xz2_index($"src")).collect()
         forEvery(indexes.zip(expected)) { case (i, e) =>
           i should be(e)
         }
       }
       withClue("Z2") {
-        val expected = extents.map({ e ⇒
+        val expected = extents.map({ e =>
           val p = e.center
           zsfc.index(p.x, p.y, lenient = true)
         })

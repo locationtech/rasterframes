@@ -46,7 +46,7 @@ abstract class SpatialContextRDDMethods[T <: CellGrid[Int]](implicit spark: Spar
   def toLayer(tileColumnName: String)(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrameLayer = {
     val df = self.toDataFrame.setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
     val defName = TILE_COLUMN.columnName
-    df.applyWhen(_ ⇒ tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
+    df.applyWhen(_ => tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
       .certify
   }
 }
@@ -66,7 +66,7 @@ abstract class SpatioTemporalContextRDDMethods[T <: CellGrid[Int]](
       .setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
       .setTemporalColumnRole(TEMPORAL_KEY_COLUMN)
     val defName = TILE_COLUMN.columnName
-    df.applyWhen(_ ⇒ tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
+    df.applyWhen(_ => tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
       .certify
   }
 }

@@ -56,5 +56,5 @@ object TileStats {
   private lazy val converter = CatalystTypeConverters.createToCatalystConverter(CellStatistics.schema)
 
   /** Single tile statistics. */
-  val op = (t: Tile) ⇒ CellStatistics(t)
+  val op = (t: Tile) => CellStatistics(t)
 }

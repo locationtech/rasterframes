@@ -69,15 +69,15 @@ case class Where(left: Expression, middle: Expression, right: Expression)
 
     def getSet(c: Int, r: Int): Unit = {
       (returnTile.cellType.isFloatingPoint, y.cellType.isFloatingPoint) match {
-        case (true, true) ⇒ returnTile.setDouble(c, r, y.getDouble(c, r))
-        case (true, false) ⇒ returnTile.setDouble(c, r, y.get(c, r))
-        case (false, true) ⇒ returnTile.set(c, r, y.getDouble(c, r).toInt)
-        case (false, false) ⇒ returnTile.set(c, r, y.get(c, r))
+        case (true, true) => returnTile.setDouble(c, r, y.getDouble(c, r))
+        case (true, false) => returnTile.setDouble(c, r, y.get(c, r))
+        case (false, true) => returnTile.set(c, r, y.getDouble(c, r).toInt)
+        case (false, false) => returnTile.set(c, r, y.get(c, r))
       }
     }
 
-    cfor(0)(_ < x.rows, _ + 1) { r ⇒
-      cfor(0)(_ < x.cols, _ + 1) { c ⇒
+    cfor(0)(_ < x.rows, _ + 1) { r =>
+      cfor(0)(_ < x.cols, _ + 1) { c =>
         if(!isCellTrue(condition, c, r)) getSet(c, r)
       }
     }

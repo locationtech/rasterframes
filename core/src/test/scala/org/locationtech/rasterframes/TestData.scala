@@ -84,7 +84,7 @@ trait TestData {
 
   val multibandTile = MultibandTile(byteArrayTile, byteConstantTile)
 
-  def rangeArray[T: ClassTag](size: Int, conv: (Int ⇒ T)): Array[T] =
+  def rangeArray[T: ClassTag](size: Int, conv: (Int => T)): Array[T] =
     (1 to size).map(conv).toArray
 
   val allTileTypes: Seq[Tile] = {
@@ -221,13 +221,13 @@ object TestData extends TestData {
   def randomTile(cols: Int, rows: Int, cellType: CellType): Tile = {
     // Initialize tile with some initial random values
     val base: Tile = cellType match {
-      case _: FloatCells ⇒
+      case _: FloatCells =>
         val data = Array.fill(cols * rows)(rnd.nextGaussian().toFloat)
         ArrayTile(data, cols, rows).interpretAs(cellType)
-      case _: DoubleCells ⇒
+      case _: DoubleCells =>
         val data = Array.fill(cols * rows)(rnd.nextGaussian())
         ArrayTile(data, cols, rows).interpretAs(cellType)
-      case _ ⇒
+      case _ =>
         val words = cellType.bits / 8
         val bytes = Array.ofDim[Byte](cols * rows * words)
         rnd.nextBytes(bytes)
@@ -235,8 +235,8 @@ object TestData extends TestData {
     }
 
     cellType match {
-      case _: NoNoData ⇒ base
-      case _ ⇒
+      case _: NoNoData => base
+      case _ =>
         // Due to cell width narrowing and custom NoData values, we can end up randomly creating
         // NoData values. While perhaps inefficient, the safest way to ensure a tile with no-NoData values
         // with the current CellType API (GT 1.1), while still generating random data is to
@@ -244,9 +244,9 @@ object TestData extends TestData {
         var result = base
         do {
           result = result.dualMap(
-            z ⇒ if (isNoData(z)) rnd.nextInt(1 << cellType.bits) else z
+            z => if (isNoData(z)) rnd.nextInt(1 << cellType.bits) else z
           ) (
-            z ⇒ if (isNoData(z)) rnd.nextGaussian() else z
+            z => if (isNoData(z)) rnd.nextGaussian() else z
           )
         } while (NoDataCells.op(result) != 0L)
 
@@ -269,8 +269,8 @@ object TestData extends TestData {
   }
 
   /** Create a series of random tiles. */
-  val makeTiles: Int ⇒ Array[Tile] =
-    count ⇒ Array.fill(count)(randomTile(4, 4, UByteCellType))
+  val makeTiles: Int => Array[Tile] =
+    count => Array.fill(count)(randomTile(4, 4, UByteCellType))
 
   def projectedRasterTile[N: Numeric](
     cols: Int, rows: Int,
@@ -307,10 +307,10 @@ object TestData extends TestData {
     def filter(c: Int, r: Int) = targeted.contains(r * t.cols + c)
 
     val injected = if(t.cellType.isFloatingPoint) {
-      t.mapDouble((c, r, v) ⇒ (if(filter(c,r)) raster.doubleNODATA else v): Double)
+      t.mapDouble((c, r, v) => (if(filter(c,r)) raster.doubleNODATA else v): Double)
     }
     else {
-      t.map((c, r, v) ⇒ if(filter(c, r)) raster.NODATA else v)
+      t.map((c, r, v) => if(filter(c, r)) raster.NODATA else v)
     }
 
     injected

@@ -65,7 +65,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     val tileCols = (if (info.bandCount == 1) Seq(baseName)
     else {
       for (i <- 0 until info.bandCount) yield s"${baseName}_${i + 1}"
-    }).map(name ⇒
+    }).map(name =>
       StructField(name, new TileUDT, nullable = false)
     )
 
@@ -103,7 +103,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
       // TODO: Figure out how to do tile filtering via the range reader.
       // Something with geotrellis.spark.io.GeoTiffInfoReader#windowsByPartition?
       HadoopGeoTiffRDD.spatialMultiband(new Path(uri), HadoopGeoTiffRDD.Options.DEFAULT)
-        .map { case (pe, tiles) ⇒
+        .map { case (pe, tiles) =>
           // NB: I think it's safe to take the min coord of the
           // transform result because the layout is directly from the TIFF
           val gb = trans.extentToBounds(pe.extent)
@@ -144,7 +144,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
       val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, toArrayTile(geotiff.tile))))
 
       rdd.tileToLayout(tlm)
-        .map { case (sk, tiles) ⇒
+        .map { case (sk, tiles) =>
           val entries = columnIndexes.map {
             case 0 => sk
             case 1 =>

@@ -189,7 +189,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       val withMasked = df.withColumn("masked",
         rf_mask_by_values($"tile", $"mask", mask_values:_*))
 
-      val expected = squareIncrementingPRT.toArray().count(v ⇒ mask_values.contains(v))
+      val expected = squareIncrementingPRT.toArray().count(v => mask_values.contains(v))
 
       val result = withMasked.agg(rf_agg_no_data_cells($"masked") as "masked_nd")
         .first()
@@ -214,7 +214,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       val med_cloud = 2756 // with 1-2 bands saturated
       val hi_cirrus = 6900 // yes cloud, hi conf cloud and hi conf cirrus and 1-2band sat
       val dataColumnCellType = UShortConstantNoDataCellType
-      val tiles = Seq(fill, clear, cirrus, med_cloud, hi_cirrus).map{v ⇒
+      val tiles = Seq(fill, clear, cirrus, med_cloud, hi_cirrus).map{v =>
         (
           TestData.projectedRasterTile(3, 3, 6, TestData.extent, TestData.crs, dataColumnCellType),
           TestData.projectedRasterTile(3, 3, v, TestData.extent, TestData.crs, UShortCellType) // because masking returns the union of cell types

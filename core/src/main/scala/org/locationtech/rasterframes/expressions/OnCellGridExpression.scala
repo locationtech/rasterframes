@@ -50,8 +50,8 @@ trait OnCellGridExpression extends UnaryExpression {
 
   final override protected def nullSafeEval(input: Any): Any = {
     input match {
-      case row: InternalRow ⇒ eval(fromRow(row))
-      case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
+      case row: InternalRow => eval(fromRow(row))
+      case o => throw new IllegalArgumentException(s"Unsupported input type: $o")
     }
   }
 

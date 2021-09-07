@@ -149,11 +149,11 @@ object MODISCatalogDataSource extends ResourceCacheSupport {
         fs.concat(retval, inputs)
       }
       catch {
-        case _ :UnsupportedOperationException ⇒
+        case _ :UnsupportedOperationException =>
           // concat not supporty by RawLocalFileSystem
-          withResource(fs.create(retval)) { out ⇒
-            inputs.foreach { p ⇒
-              withResource(fs.open(p)) { in ⇒
+          withResource(fs.create(retval)) { out =>
+            inputs.foreach { p =>
+              withResource(fs.open(p)) { in =>
                 IOUtils.copyBytes(in, out, 1 << 15)
               }
             }

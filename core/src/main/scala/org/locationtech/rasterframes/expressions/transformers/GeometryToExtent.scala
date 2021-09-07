@@ -45,7 +45,7 @@ case class GeometryToExtent(child: Expression) extends UnaryExpression with Code
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {
       case _: AbstractGeometryUDT[_] => TypeCheckSuccess
-      case o ⇒ TypeCheckFailure(
+      case o => TypeCheckFailure(
         s"Expected geometry but received '${o.simpleString}'."
       )
     }

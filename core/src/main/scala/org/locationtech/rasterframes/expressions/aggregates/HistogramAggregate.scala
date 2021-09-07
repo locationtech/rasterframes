@@ -66,7 +66,7 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
   override def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = marshall(StreamingHistogram(numBuckets))
 
-  private val safeMerge = (h1: Histogram[Double], h2: Histogram[Double]) ⇒ (h1, h2) match {
+  private val safeMerge = (h1: Histogram[Double], h2: Histogram[Double]) => (h1, h2) match {
     case (null, null) => null
     case (l, null) => l
     case (null, r) => r

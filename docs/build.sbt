@@ -40,7 +40,7 @@ makePDF := {
   val work = target.value / "makePDF"
   work.mkdirs()
 
-  val prepro = files.zipWithIndex.map { case (f, i) ⇒
+  val prepro = files.zipWithIndex.map { case (f, i) =>
     val dest = work / f"$i%02d-${f.getName}%s"
     // Filter cross links and add a newline
     (Seq("sed", "-e", """s/@ref://g;s/@@.*//g""", f.toString) #> dest).!

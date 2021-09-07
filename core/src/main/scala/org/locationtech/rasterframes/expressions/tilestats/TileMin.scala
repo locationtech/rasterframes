@@ -53,9 +53,9 @@ object TileMin {
     new Column(TileMin(tile.expr)).as[Double]
 
   /** Find the minimum cell value. */
-  val op = (tile: Tile) ⇒ {
+  val op = (tile: Tile) => {
     var min: Double = Double.MaxValue
-    tile.foreachDouble(z ⇒ if(isData(z)) min = math.min(min, z))
+    tile.foreachDouble(z => if(isData(z)) min = math.min(min, z))
     if (min == Double.MaxValue) Double.NaN
     else min
   }

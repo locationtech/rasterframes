@@ -34,9 +34,9 @@ import geotrellis.vector._
  */
 object MakeTargetRaster extends App {
   object Flattener extends TileReducer(
-    (l: Int, r: Int) ⇒ if (isNoData(r)) l else r
+    (l: Int, r: Int) => if (isNoData(r)) l else r
   )(
-    (l: Double, r: Double) ⇒ if (isNoData(r)) l else r
+    (l: Double, r: Double) => if (isNoData(r)) l else r
   )
 
   val tiff = SinglebandGeoTiff(getClass.getResource("/L8-B2-Elkton-VA.tiff").getPath)

@@ -71,30 +71,30 @@ class LocalStatsAggregate() extends UserDefinedAggregateFunction {
     )
 
   private val initFunctions = Seq(
-    (t: Tile) ⇒ Defined(t).convert(IntConstantNoDataCellType),
-    (t: Tile) ⇒ t,
-    (t: Tile) ⇒ t,
-    (t: Tile) ⇒ t.convert(DoubleConstantNoDataCellType),
-    (t: Tile) ⇒ { val d = t.convert(DoubleConstantNoDataCellType); Multiply(d, d) }
+    (t: Tile) => Defined(t).convert(IntConstantNoDataCellType),
+    (t: Tile) => t,
+    (t: Tile) => t,
+    (t: Tile) => t.convert(DoubleConstantNoDataCellType),
+    (t: Tile) => { val d = t.convert(DoubleConstantNoDataCellType); Multiply(d, d) }
   )
 
   private val updateFunctions = Seq(
-    safeBinaryOp((agg: Tile, t: Tile) ⇒ BiasedAdd(agg, Defined(t))),
-    safeBinaryOp((agg: Tile, t: Tile) ⇒ BiasedMin(agg, t)),
-    safeBinaryOp((agg: Tile, t: Tile) ⇒ BiasedMax(agg, t)),
-    safeBinaryOp((agg: Tile, t: Tile) ⇒ BiasedAdd(agg, t)),
-    safeBinaryOp((agg: Tile, t: Tile) ⇒ {
+    safeBinaryOp((agg: Tile, t: Tile) => BiasedAdd(agg, Defined(t))),
+    safeBinaryOp((agg: Tile, t: Tile) => BiasedMin(agg, t)),
+    safeBinaryOp((agg: Tile, t: Tile) => BiasedMax(agg, t)),
+    safeBinaryOp((agg: Tile, t: Tile) => BiasedAdd(agg, t)),
+    safeBinaryOp((agg: Tile, t: Tile) => {
       val d = t.convert(DoubleConstantNoDataCellType)
       BiasedAdd(agg, Multiply(d, d))
     })
   )
 
   private val mergeFunctions = Seq(
-    safeBinaryOp((t1: Tile, t2: Tile) ⇒ BiasedAdd(t1, t2)),
+    safeBinaryOp((t1: Tile, t2: Tile) => BiasedAdd(t1, t2)),
     updateFunctions(C.MIN),
     updateFunctions(C.MAX),
     updateFunctions(C.SUM),
-    safeBinaryOp((t1: Tile, t2: Tile) ⇒ BiasedAdd(t1, t2))
+    safeBinaryOp((t1: Tile, t2: Tile) => BiasedAdd(t1, t2))
   )
 
   override def deterministic: Boolean = true

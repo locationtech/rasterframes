@@ -48,8 +48,8 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
 
   def targetFloatIfNeeded(t: Tile, method: GTResampleMethod): Tile =
      method match {
-      case NearestNeighbor | Mode | RMax | RMin | Sum  ⇒ t
-      case _ ⇒ fpTile(t)
+      case NearestNeighbor | Mode | RMax | RMin | Sum  => t
+      case _ => fpTile(t)
      }
 
    // These methods define the core algorithms to be used.
@@ -70,8 +70,8 @@ abstract class ResampleBase(left: Expression, right: Expression, method: Express
     else if (!tileOrNumberExtractor.isDefinedAt(right.dataType)) {
       TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a compatible type.")
     } else method.dataType match {
-      case StringType ⇒ TypeCheckSuccess
-      case _ ⇒ TypeCheckFailure(s"Cannot interpret value of type `${method.dataType.simpleString}` for resampling method; please provide a String method name.")
+      case StringType => TypeCheckSuccess
+      case _ => TypeCheckFailure(s"Cannot interpret value of type `${method.dataType.simpleString}` for resampling method; please provide a String method name.")
     }
   }
 

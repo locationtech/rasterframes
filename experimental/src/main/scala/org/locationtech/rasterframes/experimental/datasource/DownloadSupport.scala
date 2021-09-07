@@ -47,14 +47,14 @@
 //     method
 //   }
 
-//   private def doGet[T](uri: java.net.URI, handler: HttpMethodBase ⇒ T): T = {
+//   private def doGet[T](uri: java.net.URI, handler: HttpMethodBase => T): T = {
 //     val client = new HttpClient()
 //     val method = applyMethodParams(new GetMethod(uri.toASCIIString))
 //     logger.debug("Requesting " + uri)
 //     val status = client.executeMethod(method)
 //     status match {
-//       case HttpStatus.SC_OK ⇒ handler(method)
-//       case _ ⇒ throw new FileNotFoundException(s"Unable to download '$uri': ${method.getStatusLine}")
+//       case HttpStatus.SC_OK => handler(method)
+//       case _ => throw new FileNotFoundException(s"Unable to download '$uri': ${method.getStatusLine}")
 //     }
 //   }
 

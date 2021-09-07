@@ -82,7 +82,7 @@ object ExtractBits{
     // this is the last `numBits` positions of "111111111111111"
     val widthMask = Int.MaxValue >> (63 - numBits)
     // map preserving the nodata structure
-    tile.mapIfSet(x ⇒ x >> startBit & widthMask)
+    tile.mapIfSet(x => x >> startBit & widthMask)
   }
 
 }

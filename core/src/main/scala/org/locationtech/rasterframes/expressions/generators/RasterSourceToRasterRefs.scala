@@ -65,7 +65,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
-      val refs = children.map { child ⇒
+      val refs = children.map { child =>
         // TODO: we're using the UDT here ... which is what we should do ?
         // what would have serialized it, UDT?
         val src = RasterSourceType.deserialize(child.eval(input))
@@ -79,7 +79,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
           .getOrElse(Seq(bandIndexes.map(band2ref(src, None, None))))
       }
 
-      val out = refs.transpose.map(ts ⇒
+      val out = refs.transpose.map(ts =>
         InternalRow(ts.flatMap(_.map{ r =>
           prtSerializer(r: ProjectedRasterTile).copy()
         }): _*))
@@ -87,7 +87,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
       out
     }
     catch {
-      case NonFatal(ex) ⇒
+      case NonFatal(ex) =>
         val description = "Error fetching data for one of: " +
           Try(children.map(c => RasterSourceType.deserialize(c.eval(input))))
             .toOption.toSeq.flatten.mkString(", ")

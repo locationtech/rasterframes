@@ -49,27 +49,27 @@ import org.apache.spark.sql.rf.CrsUDT
 trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with MetadataKeys {
   import Implicits.{WithDataFrameMethods, WithMetadataBuilderMethods, WithMetadataMethods, WithRasterFrameLayerMethods}
 
-  private def selector(column: Column) = (attr: Attribute) ⇒
+  private def selector(column: Column) = (attr: Attribute) =>
     attr.name == column.columnName || attr.semanticEquals(column.expr)
 
   /** Map over the Attribute representation of Columns, modifying the one matching `column` with `op`. */
-  private[rasterframes] def mapColumnAttribute(column: Column, op: Attribute ⇒  Attribute): DF = {
+  private[rasterframes] def mapColumnAttribute(column: Column, op: Attribute =>  Attribute): DF = {
     val analyzed = self.queryExecution.analyzed.output
     val selects = selector(column)
-    val attrs = analyzed.map { attr ⇒
+    val attrs = analyzed.map { attr =>
       if(selects(attr)) op(attr) else attr
     }
-    self.select(attrs.map(a ⇒ new Column(a)): _*).asInstanceOf[DF]
+    self.select(attrs.map(a => new Column(a)): _*).asInstanceOf[DF]
   }
 
-  private[rasterframes] def addColumnMetadata(column: Column, op: MetadataBuilder ⇒ MetadataBuilder): DF = {
-    mapColumnAttribute(column, attr ⇒ {
+  private[rasterframes] def addColumnMetadata(column: Column, op: MetadataBuilder => MetadataBuilder): DF = {
+    mapColumnAttribute(column, attr => {
       val md = new MetadataBuilder().withMetadata(attr.metadata)
       attr.withMetadata(op(md).build)
     })
   }
 
-  private[rasterframes] def fetchMetadataValue[D](column: Column, reader: (Attribute) ⇒ D): Option[D] = {
+  private[rasterframes] def fetchMetadataValue[D](column: Column, reader: (Attribute) => D): Option[D] = {
     val analyzed = self.queryExecution.analyzed.output
     analyzed.find(selector(column)).map(reader)
   }
@@ -94,7 +94,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def tileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ self.col(f.name))
+      .map(f => self.col(f.name))
 
   /** Get the columns that look like `ProjectedRasterTile`s. */
   def projRasterColumns: Seq[Column] =
@@ -154,7 +154,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    * Useful for preparing dataframes for joins where duplicate names may arise.
    */
   def withPrefixedColumnNames(prefix: String): DF =
-    self.columns.foldLeft(self)((df, c) ⇒ df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
+    self.columns.foldLeft(self)((df, c) => df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.

@@ -56,8 +56,8 @@ case class IsIn(left: Expression, right: Expression) extends BinaryExpression wi
     if(!tileExtractor.isDefinedAt(left.dataType)) {
       TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     } else right.dataType match {
-      case _: ArrayType ⇒ TypeCheckSuccess
-      case _ ⇒ TypeCheckFailure(s"Input type '${right.dataType}' does not conform to ArrayType.")
+      case _: ArrayType => TypeCheckSuccess
+      case _ => TypeCheckFailure(s"Input type '${right.dataType}' does not conform to ArrayType.")
     }
 
   override protected def nullSafeEval(input1: Any, input2: Any): Any = {

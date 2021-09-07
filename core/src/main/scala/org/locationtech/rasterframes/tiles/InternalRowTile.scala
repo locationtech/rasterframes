@@ -81,28 +81,28 @@ class InternalRowTile(val mem: InternalRow) extends DelegatingTile {
 
   private lazy val cellReader: CellReader = {
     cellType match {
-      case ct: ByteUserDefinedNoDataCellType ⇒
+      case ct: ByteUserDefinedNoDataCellType =>
         ByteUDNDCellReader(this, ct.noDataValue)
-      case ct: UByteUserDefinedNoDataCellType ⇒
+      case ct: UByteUserDefinedNoDataCellType =>
         UByteUDNDCellReader(this, ct.noDataValue)
-      case ct: ShortUserDefinedNoDataCellType ⇒
+      case ct: ShortUserDefinedNoDataCellType =>
         ShortUDNDCellReader(this, ct.noDataValue)
-      case ct: UShortUserDefinedNoDataCellType ⇒
+      case ct: UShortUserDefinedNoDataCellType =>
         UShortUDNDCellReader(this, ct.noDataValue)
-      case ct: IntUserDefinedNoDataCellType ⇒
+      case ct: IntUserDefinedNoDataCellType =>
         IntUDNDCellReader(this, ct.noDataValue)
-      case ct: FloatUserDefinedNoDataCellType ⇒
+      case ct: FloatUserDefinedNoDataCellType =>
         FloatUDNDCellReader(this, ct.noDataValue)
-      case ct: DoubleUserDefinedNoDataCellType ⇒
+      case ct: DoubleUserDefinedNoDataCellType =>
         DoubleUDNDCellReader(this, ct.noDataValue)
-      case _: BitCells ⇒ BitCellReader(this)
-      case _: ByteCells ⇒ ByteCellReader(this)
-      case _: UByteCells ⇒ UByteCellReader(this)
-      case _: ShortCells ⇒ ShortCellReader(this)
-      case _: UShortCells ⇒ UShortCellReader(this)
-      case _: IntCells ⇒ IntCellReader(this)
-      case _: FloatCells ⇒ FloatCellReader(this)
-      case _: DoubleCells ⇒ DoubleCellReader(this)
+      case _: BitCells => BitCellReader(this)
+      case _: ByteCells => ByteCellReader(this)
+      case _: UByteCells => UByteCellReader(this)
+      case _: ShortCells => ShortCellReader(this)
+      case _: UShortCells => UShortCellReader(this)
+      case _: IntCells => IntCellReader(this)
+      case _: FloatCells => FloatCellReader(this)
+      case _: DoubleCells => DoubleCellReader(this)
     }
   }
 

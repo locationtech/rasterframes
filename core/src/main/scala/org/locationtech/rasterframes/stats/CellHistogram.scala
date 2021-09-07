@@ -40,7 +40,7 @@ case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
     val counts = bins.map(_.count)
     val maxCount = counts.max.toFloat
     val maxLabelLen = labels.map(_.toString.length).max
-    val maxCountLen = counts.map(c ⇒ f"$c%,d".length).max
+    val maxCountLen = counts.map(c => f"$c%,d".length).max
     val fmt = s"%${maxLabelLen}s: %,${maxCountLen}d | %s"
     val barlen = width - fmt.format(0, 0, "").length
 
@@ -158,20 +158,20 @@ object CellHistogram {
   def apply(tile: Tile): CellHistogram = {
     val bins = if (tile.cellType.isFloatingPoint) {
       val h = tile.histogramDouble
-      h.binCounts().map(p ⇒ Bin(p._1, p._2))
+      h.binCounts().map(p => Bin(p._1, p._2))
     }
     else {
       val h = tile.histogram
-      h.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2))
+      h.binCounts().map(p => Bin(p._1.toDouble, p._2))
     }
     CellHistogram(bins)
   }
 
   def apply(hist: GTHistogram[Int]): CellHistogram = {
-    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1.toDouble, p._2)))
+    CellHistogram(hist.binCounts().map(p => Bin(p._1.toDouble, p._2)))
   }
   def apply(hist: GTHistogram[Double])(implicit ev: DummyImplicit): CellHistogram = {
-    CellHistogram(hist.binCounts().map(p ⇒ Bin(p._1, p._2)))
+    CellHistogram(hist.binCounts().map(p => Bin(p._1, p._2)))
   }
 
   lazy val schema: StructType = StandardEncoders.cellHistEncoder.schema

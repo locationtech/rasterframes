@@ -61,7 +61,7 @@ object GeoTrellisCatalog {
     private lazy val layers = {
       // The attribute groups are processed separately and joined at the end to
       // maintain a semblance of separation in the resulting schema.
-      val mergeId = (id: Int, json: io.circe.JsonObject) ⇒ {
+      val mergeId = (id: Int, json: io.circe.JsonObject) => {
         import io.circe.syntax._
         val jid = id.asJson
         json.add("index", jid).asJson
@@ -74,20 +74,20 @@ object GeoTrellisCatalog {
       val layerIds = attributes.layerIds
 
       val layerSpecs = layerIds.zipWithIndex.map {
-        case (id, index) ⇒ (index: Int, Layer(uri, id))
+        case (id, index) => (index: Int, Layer(uri, id))
       }
 
       val indexedLayers = layerSpecs
         .toDF("index", "layer")
 
       val headerRows = layerSpecs
-        .map{case (index, layer) ⇒(index, attributes.readHeader[io.circe.JsonObject](layer.id))}
+        .map{case (index, layer) =>(index, attributes.readHeader[io.circe.JsonObject](layer.id))}
         .map(mergeId.tupled)
         .map(io.circe.Printer.noSpaces.print)
         .toDS
 
       val metadataRows = layerSpecs
-        .map{case (index, layer) ⇒ (index, attributes.readMetadata[io.circe.JsonObject](layer.id))}
+        .map{case (index, layer) => (index, attributes.readMetadata[io.circe.JsonObject](layer.id))}
         .map(mergeId.tupled)
         .map(io.circe.Printer.noSpaces.print)
         .toDS

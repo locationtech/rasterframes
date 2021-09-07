@@ -61,7 +61,7 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
 
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
-      val tiles = children.map { child ⇒
+      val tiles = children.map { child =>
         val src = RasterSourceType.deserialize(child.eval(input))
         val maxBands = src.bandCount
         val allowedBands = bandIndexes.filter(_ < maxBands)
@@ -71,10 +71,10 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
             case _ => null
           })
       }
-      tiles.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(prt => toInternalRow(prt))): _*))
+      tiles.transpose.map(ts => InternalRow(ts.flatMap(_.map(prt => toInternalRow(prt))): _*))
     }
     catch {
-      case NonFatal(ex) ⇒
+      case NonFatal(ex) =>
         val payload = Try(children.map(c => RasterSourceType.deserialize(c.eval(input)))).toOption.toSeq.flatten
         logger.error("Error fetching data for one of: " + payload.mkString(", "), ex)
         Traversable.empty

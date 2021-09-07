@@ -42,9 +42,9 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     val tileSizes = Seq(2, 7, 64, 128, 511)
     val ct = functions.cellTypes().filter(_ != "bool")
 
-    def forEveryConfig(test: Tile ⇒ Unit): Unit = {
-      forEvery(tileSizes.combinations(2).toSeq) { case Seq(tc, tr) ⇒
-        forEvery(ct) { c ⇒
+    def forEveryConfig(test: Tile => Unit): Unit = {
+      forEvery(tileSizes.combinations(2).toSeq) { case Seq(tc, tr) =>
+        forEvery(ct) { c =>
           val tile = randomTile(tc, tr, CellType.fromName(c))
           test(tile)
         }
@@ -52,7 +52,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     }
 
     it("should (de)serialize tile") {
-      forEveryConfig { tile ⇒
+      forEveryConfig { tile =>
         val row = TileType.serialize(tile)
         val tileAgain = TileType.deserialize(row)
         assert(tileAgain === tile)
@@ -60,7 +60,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     }
 
     it("should (en/de)code tile") {
-      forEveryConfig { tile ⇒
+      forEveryConfig { tile =>
         val row = tileEncoder.createSerializer().apply(tile)
         assert(!row.isNullAt(0))
         val tileAgain = TileType.deserialize(row.getStruct(0, TileType.sqlType.size))
@@ -69,7 +69,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     }
 
     it("should extract properties") {
-      forEveryConfig { tile ⇒
+      forEveryConfig { tile =>
         val row = TileType.serialize(tile)
         val wrapper = TileType.deserialize(row)
         assert(wrapper.cols === tile.cols)
@@ -79,12 +79,12 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
     }
 
     it("should directly extract cells") {
-      forEveryConfig { tile ⇒
+      forEveryConfig { tile =>
         val row = TileType.serialize(tile)
         val wrapper = TileType.deserialize(row)
         val Dimensions(cols,rows) = wrapper.dimensions
         val indexes = Seq((0, 0), (cols - 1, rows - 1), (cols/2, rows/2), (1, 1))
-        forAll(indexes) { case (c, r) ⇒
+        forAll(indexes) { case (c, r) =>
           assert(wrapper.get(c, r) === tile.get(c, r))
           assert(wrapper.getDouble(c, r) === tile.getDouble(c, r))
         }

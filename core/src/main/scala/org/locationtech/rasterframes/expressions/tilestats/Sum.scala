@@ -52,7 +52,7 @@ object Sum {
 
   def op = (tile: Tile) => {
     var sum: Double = 0.0
-    tile.foreachDouble(z ⇒ if(isData(z)) sum = sum + z)
+    tile.foreachDouble(z => if(isData(z)) sum = sum + z)
     sum
   }
 }

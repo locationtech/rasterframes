@@ -20,7 +20,6 @@ package org.apache.spark.sql.rf
 import java.sql.{Date, Timestamp}
 
 import org.locationtech.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
-import org.locationtech.rasterframes.rules._
 import org.apache.spark.sql.catalyst.CatalystTypeConverters.{convertToScala, createToScalaConverter}
 import org.apache.spark.sql.catalyst.expressions
 import org.apache.spark.sql.catalyst.expressions.{Attribute, EmptyRow, Expression, Literal}
@@ -30,7 +29,7 @@ import org.apache.spark.sql.sources.Filter
 import org.apache.spark.sql.types.{DateType, StringType, TimestampType}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.geomesa.spark.jts.rules.GeometryLiteral
-import org.locationtech.rasterframes.rules.{SpatialFilters, TemporalFilters}
+import org.locationtech.rasterframes.rules.TemporalFilters
 
 /**
  * This is a copy of [[org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter]], modified to add our spatial predicates.
@@ -46,26 +45,26 @@ object FilterTranslator {
    */
   def translateFilter(predicate: Expression): Option[Filter] = {
     predicate match {
-      case Intersects(a: Attribute, Literal(geom, udt: AbstractGeometryUDT[_])) ⇒
+      case Intersects(a: Attribute, Literal(geom, udt: AbstractGeometryUDT[_])) =>
         // Some(SpatialFilters.Intersects(a.name, udt.deserialize(geom)))
         ???
 
-      case Contains(a: Attribute, Literal(geom, udt: AbstractGeometryUDT[_])) ⇒
+      case Contains(a: Attribute, Literal(geom, udt: AbstractGeometryUDT[_])) =>
         // Some(SpatialFilters.Contains(a.name, udt.deserialize(geom)))
         ???
 
-      case Intersects(a: Attribute, GeometryLiteral(_, geom)) ⇒
+      case Intersects(a: Attribute, GeometryLiteral(_, geom)) =>
         // Some(SpatialFilters.Intersects(a.name, geom))
         ???
 
-      case Contains(a: Attribute, GeometryLiteral(_, geom)) ⇒
+      case Contains(a: Attribute, GeometryLiteral(_, geom)) =>
         // Some(SpatialFilters.Contains(a.name, geom))
         ???
 
       case expressions.And(
         expressions.GreaterThanOrEqual(a: Attribute, Literal(start, TimestampType)),
         expressions.LessThanOrEqual(b: Attribute, Literal(end, TimestampType))
-      ) if a.name == b.name ⇒
+      ) if a.name == b.name =>
         val toScala = createToScalaConverter(TimestampType)(_: Any).asInstanceOf[Timestamp]
         // Some(TemporalFilters.BetweenTimes(a.name, toScala(start), toScala(end)))
         ???
@@ -73,7 +72,7 @@ object FilterTranslator {
       case expressions.And(
         expressions.GreaterThanOrEqual(a: Attribute, Literal(start, DateType)),
         expressions.LessThanOrEqual(b: Attribute, Literal(end, DateType))
-      ) if a.name == b.name ⇒
+      ) if a.name == b.name =>
         val toScala = createToScalaConverter(DateType)(_: Any).asInstanceOf[Date]
         // Some(TemporalFilters.BetweenDates(a.name, toScala(start), toScala(end)))
         ???
@@ -82,7 +81,7 @@ object FilterTranslator {
       case expressions.And(expressions.And(left,
         expressions.GreaterThanOrEqual(a: Attribute, Literal(start, TimestampType))),
         expressions.LessThanOrEqual(b: Attribute, Literal(end, TimestampType))
-      ) if a.name == b.name ⇒
+      ) if a.name == b.name =>
         val toScala = createToScalaConverter(TimestampType)(_: Any).asInstanceOf[Timestamp]
 
         for {
@@ -95,7 +94,7 @@ object FilterTranslator {
       case expressions.And(expressions.And(left,
         expressions.GreaterThanOrEqual(a: Attribute, Literal(start, DateType))),
         expressions.LessThanOrEqual(b: Attribute, Literal(end, DateType))
-      ) if a.name == b.name ⇒
+      ) if a.name == b.name =>
         val toScala = createToScalaConverter(DateType)(_: Any).asInstanceOf[Date]
         for {
           leftFilter ← translateFilter(left)

@@ -56,8 +56,8 @@ class TileExploder(override val uid: String) extends Transformer
 
   def transform(dataset: Dataset[_]) = {
     val (tiles, nonTiles) = selectTileAndNonTileFields(dataset.schema)
-    val tileCols = tiles.map(f ⇒ col(f.name))
-    val nonTileCols = nonTiles.map(f ⇒ col(f.name))
+    val tileCols = tiles.map(f => col(f.name))
+    val nonTileCols = nonTiles.map(f => col(f.name))
     val exploder = rf_explode_tiles(tileCols: _*)
     dataset.select(nonTileCols :+ exploder: _*)
   }

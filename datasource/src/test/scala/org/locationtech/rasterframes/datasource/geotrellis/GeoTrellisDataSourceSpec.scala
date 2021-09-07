@@ -94,7 +94,7 @@ class GeoTrellisDataSourceSpec
     // Test layer writing via RF
     testRdd.toLayer.write.geotrellis.asLayer(layer).save()
 
-    val tfRdd = testRdd.map { case (k, tile) ⇒
+    val tfRdd = testRdd.map { case (k, tile) =>
         val md = Map("col" -> k.col,"row" -> k.row)
         (k, TileFeature(tile, md))
     }
@@ -267,14 +267,14 @@ class GeoTrellisDataSourceSpec
     def extractRelation(df: DataFrame): Option[GeoTrellisRelation] = {
       val plan = df.queryExecution.optimizedPlan
       plan.collectFirst {
-        case SpatialRelationReceiver(gt: GeoTrellisRelation) ⇒ gt
+        case SpatialRelationReceiver(gt: GeoTrellisRelation) => gt
       }
     }
     def numFilters(df: DataFrame) = {
       extractRelation(df).map(_.filters.length).getOrElse(0)
     }
     def numSplitFilters(df: DataFrame) = {
-      extractRelation(df).map(r ⇒ splitFilters(r.filters).length).getOrElse(0)
+      extractRelation(df).map(r => splitFilters(r.filters).length).getOrElse(0)
     }
 
     val pt1 = Point(-88, 60)
@@ -299,7 +299,7 @@ class GeoTrellisDataSourceSpec
 
     it("should support query with multiple geometry types") {
       // Mostly just testing that these evaluate without catalyst type errors.
-      forEvery(GeomData.all) { g ⇒
+      forEvery(GeomData.all) { g =>
         val query = layerReader.loadLayer(layer).where(GEOMETRY_COLUMN.intersects(g))
           .persist(StorageLevel.OFF_HEAP)
         assert(query.count() === 0)
@@ -309,7 +309,7 @@ class GeoTrellisDataSourceSpec
     it("should *not* support extent filter against a UDF") {
       val targetKey = testRdd.metadata.mapTransform(pt1)
 
-      val mkPtFcn = sparkUdf((_: Row) ⇒ { Point(-88, 60) })
+      val mkPtFcn = sparkUdf((_: Row) => { Point(-88, 60) })
 
       val df = layerReader
         .loadLayer(layer)

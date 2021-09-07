@@ -53,9 +53,9 @@ object TileMax {
     new Column(TileMax(tile.expr)).as[Double]
 
   /** Find the maximum cell value. */
-  val op = (tile: Tile) ⇒ {
+  val op = (tile: Tile) => {
     var max: Double = Double.MinValue
-    tile.foreachDouble(z ⇒ if(isData(z)) max = math.max(max, z))
+    tile.foreachDouble(z => if(isData(z)) max = math.max(max, z))
     if (max == Double.MinValue) Double.NaN
     else max
   }

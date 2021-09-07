@@ -98,8 +98,8 @@ class TileUDT extends UserDefinedType[Tile] {
   }
 
   override def acceptsType(dataType: DataType): Boolean = dataType match {
-    case _: TileUDT ⇒ true
-    case _ ⇒ super.acceptsType(dataType)
+    case _: TileUDT => true
+    case _ => super.acceptsType(dataType)
   }
 }
 

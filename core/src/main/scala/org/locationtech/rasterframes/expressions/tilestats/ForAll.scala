@@ -36,8 +36,8 @@ object ForAll {
   def apply(tile: Column): TypedColumn[Any, Boolean] = new Column(ForAll(tile.expr)).as[Boolean]
 
   def op(tile: Tile): Boolean = {
-    cfor(0)(_ < tile.rows, _ + 1) { r ⇒
-      cfor(0)(_ < tile.cols, _ + 1) { c ⇒
+    cfor(0)(_ < tile.rows, _ + 1) { r =>
+      cfor(0)(_ < tile.cols, _ + 1) { c =>
         if (tile.cellType.isFloatingPoint) {
           if (!isCellTrue(tile.getDouble(c, r))) return false
         }

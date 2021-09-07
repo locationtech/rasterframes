@@ -158,7 +158,7 @@ object RFRasterSource extends LazyLogging {
   object IsDefaultGeoTiff {
     def unapply(source: URI): Boolean = source.getScheme match {
       case "file" | "http" | "https" | "s3" => true
-      case null | ""                        ⇒ true
+      case null | ""                        => true
       case _                                => false
     }
   }

@@ -113,7 +113,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
         assert(rf.temporalKeyColumn.map(_.columnName) === Some("temporal_key"))
       }
       catch {
-        case NonFatal(ex) ⇒
+        case NonFatal(ex) =>
           println(rf.schema.prettyJson)
           throw ex
       }
@@ -132,7 +132,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
 
       val (_, metadata) = inputRdd.collectMetadata[SpatialKey](LatLng, layoutScheme)
 
-      val tileRDD = inputRdd.map {case (k, v) ⇒ (metadata.mapTransform(k.extent.center), v)}
+      val tileRDD = inputRdd.map {case (k, v) => (metadata.mapTransform(k.extent.center), v)}
 
       val tileLayerRDD = TileFeatureLayerRDD(tileRDD, metadata)
 
@@ -151,7 +151,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
 
       val (_, metadata) = inputRdd.collectMetadata[SpaceTimeKey](LatLng, layoutScheme)
 
-      val tileRDD = inputRdd.map {case (k, v) ⇒ (SpaceTimeKey(metadata.mapTransform(k.extent.center), k.time), v)}
+      val tileRDD = inputRdd.map {case (k, v) => (SpaceTimeKey(metadata.mapTransform(k.extent.center), k.time), v)}
 
       val tileLayerRDD = TileFeatureLayerRDD(tileRDD, metadata)
 
@@ -293,7 +293,7 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
       val rf2 = TestData.randomSpatioTemporalTileLayerRDD(20, 20, 2, 2).toLayer
 
       val joinTypes = Seq("inner", "outer", "fullouter", "left_outer", "right_outer", "leftsemi")
-      forEvery(joinTypes) { jt ⇒
+      forEvery(joinTypes) { jt =>
         val joined = rf1.spatialJoin(rf2, jt)
         assert(joined.tileLayerMetadata.isRight)
       }

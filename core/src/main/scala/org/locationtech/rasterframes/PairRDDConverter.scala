@@ -80,7 +80,7 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpaceTimeKey, Tile)])(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
-      rdd.map{ case (k, v) ⇒ (k.spatialKey, k.temporalKey, v)}.toDF(schema.fields.map(_.name): _*)
+      rdd.map{ case (k, v) => (k.spatialKey, k.temporalKey, v)}.toDF(schema.fields.map(_.name): _*)
     }
   }
 
@@ -96,7 +96,7 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpatialKey, TileFeature[Tile, D])])(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
-      rdd.map{ case (k, v) ⇒ (k, v.tile, v.data)}.toDF(schema.fields.map(_.name): _*)
+      rdd.map{ case (k, v) => (k, v.tile, v.data)}.toDF(schema.fields.map(_.name): _*)
     }
   }
 
@@ -112,7 +112,7 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpaceTimeKey, TileFeature[Tile, D])])(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
-      val tupRDD = rdd.map { case (k, v) ⇒ (k.spatialKey, k.temporalKey, v.tile, v.data) }
+      val tupRDD = rdd.map { case (k, v) => (k.spatialKey, k.temporalKey, v.tile, v.data) }
 
       rddToDatasetHolder(tupRDD)
       tupRDD.toDF(schema.fields.map(_.name): _*)
@@ -136,7 +136,7 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpatialKey, MultibandTile)])(implicit spark: SparkSession): DataFrame = {
       spark.createDataFrame(
-        rdd.map { case (k, v) ⇒ Row(Row(k.col, k.row) +: v.bands: _*) },
+        rdd.map { case (k, v) => Row(Row(k.col, k.row) +: v.bands: _*) },
         schema
       )
     }
@@ -158,7 +158,7 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpaceTimeKey, MultibandTile)])(implicit spark: SparkSession): DataFrame = {
       spark.createDataFrame(
-        rdd.map { case (k, v) ⇒ Row(Seq(Row(k.spatialKey.col, k.spatialKey.row), Row(k.temporalKey)) ++ v.bands: _*) },
+        rdd.map { case (k, v) => Row(Seq(Row(k.spatialKey.col, k.spatialKey.row), Row(k.temporalKey)) ++ v.bands: _*) },
         schema
       )
     }

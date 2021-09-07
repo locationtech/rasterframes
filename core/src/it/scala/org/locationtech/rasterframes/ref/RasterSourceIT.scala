@@ -117,7 +117,7 @@ class RasterSourceIT extends TestEnvironment with TestData {
 
   private def expectedTileCountAndBands(x:Int, y:Int, bandCount:Int = 1) = {
     val imageDimensions = Seq(x.toDouble, y.toDouble)
-    val tilesPerBand = imageDimensions.map(x ⇒ ceil(x / NOMINAL_TILE_SIZE)).product
+    val tilesPerBand = imageDimensions.map(x => ceil(x / NOMINAL_TILE_SIZE)).product
     val bands = Range(0, bandCount)
     val expectedTileCount = tilesPerBand * bands.length
     (expectedTileCount, bands)

@@ -33,7 +33,7 @@ import org.apache.spark.sql.rf.{FilterTranslator, VersionShims}
 object SpatialFilterPushdownRules extends Rule[LogicalPlan] {
   def apply(plan: LogicalPlan): LogicalPlan = {
     plan.transformUp {
-      case f @ Filter(condition, lr @ SpatialRelationReceiver(sr: SpatialRelationReceiver[_] @unchecked)) ⇒
+      case f @ Filter(condition, lr @ SpatialRelationReceiver(sr: SpatialRelationReceiver[_] @unchecked)) =>
 
         val preds = FilterTranslator.translateFilter(condition)
 

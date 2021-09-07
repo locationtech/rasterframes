@@ -140,7 +140,7 @@ object PythonBuildPlugin extends AutoPlugin {
       standard.overall match {
         case TestResult.Passed =>
           (Python / executeTests).value
-        case _ ⇒
+        case _ =>
           val pySummary = Summary("pyrasterframes", "tests skipped due to scalatest failures")
           standard.copy(summaries = standard.summaries ++ Iterable(pySummary))
       }
@@ -174,13 +174,13 @@ object PythonBuildPlugin extends AutoPlugin {
       executeTests := Def.task {
         val resultCode = pySetup.toTask(" test").value
         val msg = resultCode match {
-          case 1 ⇒ "There are Python test failures."
-          case 2 ⇒ "Python test execution was interrupted."
-          case 3 ⇒ "Internal error during Python test execution."
-          case 4 ⇒ "PyTest usage error."
-          case 5 ⇒ "No Python tests found."
-          case x if x != 0 ⇒ "Unknown error while running Python tests."
-          case _ ⇒ "PyRasterFrames tests successfully completed."
+          case 1 => "There are Python test failures."
+          case 2 => "Python test execution was interrupted."
+          case 3 => "Internal error during Python test execution."
+          case 4 => "PyTest usage error."
+          case 5 => "No Python tests found."
+          case x if x != 0 => "Unknown error while running Python tests."
+          case _ => "PyRasterFrames tests successfully completed."
         }
         val pySummary = Summary("pyrasterframes", msg)
         // Would be cool to derive this from the python output...

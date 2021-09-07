@@ -45,8 +45,8 @@ abstract class SpatialRelation extends BinaryExpression
 
   def extractGeometry(expr: Expression, input: Any): Geometry = {
     input match {
-      case g: Geometry ⇒ g
-      case r: InternalRow ⇒
+      case g: Geometry => g
+      case r: InternalRow =>
         expr.dataType match {
           case udt: AbstractGeometryUDT[_] => udt.deserialize(r)
           case dt if dt.conformsToSchema(StandardEncoders.extentEncoder.schema) =>

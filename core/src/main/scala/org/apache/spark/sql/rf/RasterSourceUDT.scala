@@ -21,12 +21,12 @@
 
 package org.apache.spark.sql.rf
 
-import java.nio.ByteBuffer
-
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _}
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.util.KryoSupport
+
+import java.nio.ByteBuffer
 
 /**
  * Catalyst representation of a RasterSource.
@@ -54,18 +54,18 @@ class RasterSourceUDT extends UserDefinedType[RFRasterSource] {
   override def deserialize(datum: Any): RFRasterSource =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒
+        case ir: InternalRow =>
           val bytes = ir.getBinary(0)
           KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(bytes))
-        case bytes: Array[Byte] ⇒
+        case bytes: Array[Byte] =>
           KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(bytes))
 
       }
       .orNull
 
-  private[sql] override def acceptsType(dataType: DataType) = dataType match {
-    case _: RasterSourceUDT ⇒ true
-    case _ ⇒ super.acceptsType(dataType)
+  private[sql] override def acceptsType(dataType: DataType): Boolean = dataType match {
+    case _: RasterSourceUDT => true
+    case _ => super.acceptsType(dataType)
   }
 }
 

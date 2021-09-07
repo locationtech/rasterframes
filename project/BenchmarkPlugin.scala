@@ -106,7 +106,7 @@ object BenchmarkPlugin extends AutoPlugin {
     )
 
     def benchFileParser(dir: File) = fileParser(dir)
-      .filter(f ⇒ pat.accept(f.name), s ⇒ "Not a benchmark file: " + s)
+      .filter(f => pat.accept(f.name), s => "Not a benchmark file: " + s)
 
     val parsers = dirs.map(benchFileParser)
 

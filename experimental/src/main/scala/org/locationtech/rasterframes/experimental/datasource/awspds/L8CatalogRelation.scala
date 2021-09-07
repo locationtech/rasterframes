@@ -65,7 +65,7 @@ case class L8CatalogRelation(sqlContext: SQLContext, sceneListPath: HadoopPath)
       ).as[Extent])
       .withColumnRenamed("__url", DOWNLOAD_URL.name)
       .select(col("*") +: bandCols: _*)
-      .select(schema.map(f ⇒ col(f.name)): _*)
+      .select(schema.map(f => col(f.name)): _*)
       .orderBy(ACQUISITION_DATE.name, PATH.name, ROW.name)
       .distinct() // The scene file contains duplicates.
       .repartition(defaultNumPartitions, col(PATH.name), col(ROW.name))

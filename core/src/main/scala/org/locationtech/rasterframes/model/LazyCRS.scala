@@ -54,7 +54,7 @@ object LazyCRS {
 
   private object WKTCRS {
     def unapply(src: String): Option[CRS] =
-      if (wktKeywords.exists { prefix ⇒ src.toUpperCase().startsWith(prefix)})
+      if (wktKeywords.exists { prefix => src.toUpperCase().startsWith(prefix)})
         CRS.fromWKT(src)
       else None
   }

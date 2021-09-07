@@ -56,7 +56,7 @@ object DynamicExtractors {
   }
 
   lazy val rasterRefExtractor: PartialFunction[DataType, InternalRow => RasterRef] = {
-    case t if t.conformsToSchema(RasterRef.rrEncoder.schema) ⇒
+    case t if t.conformsToSchema(RasterRef.rrEncoder.schema) =>
       val des = cachedDeserializer[RasterRef]
       (row: InternalRow) => des(row)
   }
@@ -155,7 +155,7 @@ object DynamicExtractors {
       (input: Any) =>
         val row = input.asInstanceOf[InternalRow]
         fromRow(row)
-    case t if t.conformsToSchema(RasterRef.rrEncoder.schema) ⇒
+    case t if t.conformsToSchema(RasterRef.rrEncoder.schema) =>
       val fromRow = cachedDeserializer[RasterRef]
       (row: Any) => fromRow(row.asInstanceOf[InternalRow])
   }

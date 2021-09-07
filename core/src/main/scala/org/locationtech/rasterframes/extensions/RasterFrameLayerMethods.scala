@@ -105,7 +105,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     // I wish there was a better way than this....
     // can't do `lit(value)` because you get
     // "Unsupported literal type class geotrellis.spark.TemporalKey" error
-    val litKey = udf(() ⇒ value)
+    val litKey = udf(() => value)
 
     val df = self.withColumn(TEMPORAL_KEY_COLUMN.columnName, litKey())
 
@@ -155,7 +155,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
                     prefix: String,
                     sk: TypedColumn[Any, SpatialKey],
                     tk: Option[TypedColumn[Any, TemporalKey]]) = {
-      tk.combine(rf: DataFrame)((t, rf) ⇒ rf.withColumnRenamed(t.columnName, prefix + t.columnName))
+      tk.combine(rf: DataFrame)((t, rf) => rf.withColumnRenamed(t.columnName, prefix + t.columnName))
         .withColumnRenamed(sk.columnName, prefix + sk.columnName)
         .certify
     }
@@ -169,9 +169,9 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     val rightTemporalKey = preppedRight.temporalKeyColumn
 
     val spatialPred = leftSpatialKey === rightSpatialKey
-    val temporalPred = leftTemporalKey.flatMap(l ⇒ rightTemporalKey.map(r ⇒ l === r))
+    val temporalPred = leftTemporalKey.flatMap(l => rightTemporalKey.map(r => l === r))
 
-    val joinPred = temporalPred.map(t ⇒ spatialPred && t).getOrElse(spatialPred)
+    val joinPred = temporalPred.map(t => spatialPred && t).getOrElse(spatialPred)
 
     val joined = preppedLeft.join(preppedRight, joinPred, joinType)
 
@@ -182,7 +182,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
         .drop(rightSpatialKey.columnName)
 
       left.temporalKeyColumn.tupleWith(leftTemporalKey).combine(spatialFix) {
-        case ((orig, updated), rf) ⇒ rf
+        case ((orig, updated), rf) => rf
           .withColumnRenamed(updated.columnName, orig.columnName)
           .drop(rightTemporalKey.get.columnName)
       }
@@ -203,7 +203,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
                                                                           keys: Dataset[T]): DataFrame = {
       implicit val enc = Encoders.product[KeyBounds[T]]
       val keyBounds = keys
-        .map(k ⇒ KeyBounds(k, k))
+        .map(k => KeyBounds(k, k))
         .reduce{(_: KeyBounds[T]) combine (_: KeyBounds[T])}
 
       val gridExtent = trans(keyBounds.toGridBounds())
@@ -212,13 +212,13 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     }
 
     val df = metadata.fold(
-      tlm ⇒ updateBounds(tlm, self.select(self.spatialKeyColumn)),
-      tlm ⇒ {
+      tlm => updateBounds(tlm, self.select(self.spatialKeyColumn)),
+      tlm => {
         updateBounds(
           tlm,
           self
             .select(self.spatialKeyColumn, self.temporalKeyColumn.get)
-            .map { case (s, t) ⇒ SpaceTimeKey(s, t) }
+            .map { case (s, t) => SpaceTimeKey(s, t) }
         )
       }
     )
@@ -232,7 +232,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
    */
   def toTileLayerRDD(tileCol: Column): Either[TileLayerRDD[SpatialKey], TileLayerRDD[SpaceTimeKey]] =
     tileLayerMetadata.fold(
-      tlm ⇒ {
+      tlm => {
         val rdd = self.select(self.spatialKeyColumn, tileCol.as[Tile])
           .rdd
           .map {
@@ -243,12 +243,12 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
 
         Left(ContextRDD(rdd, tlm))
       },
-      tlm ⇒ {
+      tlm => {
         val rdd = self
           .select(self.spatialKeyColumn, self.temporalKeyColumn.get, tileCol.as[Tile])
           .rdd
           .map {
-            case (sk, tk, v) ⇒
+            case (sk, tk, v) =>
               val tile = v match {
                 // Wrapped tiles can break GeoTrellis Avro code.
                 case wrapped: ShowableTile => wrapped.delegate
@@ -268,22 +268,22 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
   /** Convert the specified tile columns in a Rasterrame to a GeoTrellis [[MultibandTileLayerRDD]] */
   def toMultibandTileLayerRDD(tileCols: Column*): Either[MultibandTileLayerRDD[SpatialKey], MultibandTileLayerRDD[SpaceTimeKey]] =
     tileLayerMetadata.fold(
-      tlm ⇒ {
+      tlm => {
         implicit val genEnc = expressionEncoder[(SpatialKey, Array[Tile])]
         val rdd = self
           .select(self.spatialKeyColumn, array(tileCols: _*)).as[(SpatialKey, Array[Tile])]
           .rdd
-          .map { case (sk, tiles) ⇒
+          .map { case (sk, tiles) =>
             (sk, MultibandTile(tiles))
           }
         Left(ContextRDD(rdd, tlm))
       },
-      tlm ⇒ {
+      tlm => {
         implicit val genEnc = expressionEncoder[(SpatialKey, TemporalKey, Array[Tile])]
         val rdd = self
           .select(self.spatialKeyColumn, self.temporalKeyColumn.get, array(tileCols: _*)).as[(SpatialKey, TemporalKey, Array[Tile])]
           .rdd
-          .map { case (sk, tk, tiles) ⇒ (SpaceTimeKey(sk, tk), MultibandTile(tiles)) }
+          .map { case (sk, tk, tiles) => (SpaceTimeKey(sk, tk), MultibandTile(tiles)) }
         Right(ContextRDD(rdd, tlm))
       }
     )
@@ -306,7 +306,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     val newLayout = LayoutDefinition(md.extent, TileLayout(1, 1, rasterCols, rasterRows))
 
     val rdd = clipped.toTileLayerRDD(tileCol)
-      .fold(identity, _.map{ case(stk, t) ⇒ (stk.spatialKey, t) }) // <-- Drops the temporal key outright
+      .fold(identity, _.map{ case(stk, t) => (stk.spatialKey, t) }) // <-- Drops the temporal key outright
 
     val cellType = rdd.first()._2.cellType
 
@@ -315,7 +315,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
 
     val newLayer = rdd
       .map {
-        case (key, tile) ⇒
+        case (key, tile) =>
           (ProjectedExtent(trans(key), md.crs), tile)
       }
       .tileToLayout(newLayerMetadata, Tiler.Options(resampler))
@@ -351,7 +351,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
 
     val newLayer = rdd
       .map {
-        case (key, tile) ⇒
+        case (key, tile) =>
           (ProjectedExtent(trans(key), md.crs), tile)
       }
       .tileToLayout(newLayerMetadata, Tiler.Options(resampler))

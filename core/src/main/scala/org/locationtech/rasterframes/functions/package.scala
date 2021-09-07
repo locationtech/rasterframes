@@ -44,58 +44,58 @@ package object functions {
       else op(o1, o2)
     }
   @inline
-  private[rasterframes] def safeEval[P, R <: AnyRef](f: P ⇒ R): P ⇒ R =
-    (p) ⇒ if (p == null) null.asInstanceOf[R] else f(p)
+  private[rasterframes] def safeEval[P, R <: AnyRef](f: P => R): P => R =
+    (p) => if (p == null) null.asInstanceOf[R] else f(p)
   @inline
-  private[rasterframes] def safeEval[P](f: P ⇒ Double)(implicit d: DummyImplicit): P ⇒ Double =
-    (p) ⇒ if (p == null) Double.NaN else f(p)
+  private[rasterframes] def safeEval[P](f: P => Double)(implicit d: DummyImplicit): P => Double =
+    (p) => if (p == null) Double.NaN else f(p)
   @inline
-  private[rasterframes] def safeEval[P](f: P ⇒ Long)(implicit d1: DummyImplicit, d2: DummyImplicit): P ⇒ Long =
-    (p) ⇒ if (p == null) 0l else f(p)
+  private[rasterframes] def safeEval[P](f: P => Long)(implicit d1: DummyImplicit, d2: DummyImplicit): P => Long =
+    (p) => if (p == null) 0l else f(p)
   @inline
-  private[rasterframes] def safeEval[P1, P2, R](f: (P1, P2) ⇒ R): (P1, P2) ⇒ R =
-    (p1, p2) ⇒ if (p1 == null || p2 == null) null.asInstanceOf[R] else f(p1, p2)
+  private[rasterframes] def safeEval[P1, P2, R](f: (P1, P2) => R): (P1, P2) => R =
+    (p1, p2) => if (p1 == null || p2 == null) null.asInstanceOf[R] else f(p1, p2)
 
   /** Converts an array into a tile. */
   private[rasterframes] def arrayToTile(cols: Int, rows: Int) = {
     safeEval[AnyRef, Tile]{
-      case s: Seq[_] ⇒ s.headOption match {
-        case Some(_: Int) ⇒ RawArrayTile(s.asInstanceOf[Seq[Int]].toArray[Int], cols, rows)
-        case Some(_: Double) ⇒ RawArrayTile(s.asInstanceOf[Seq[Double]].toArray[Double], cols, rows)
-        case Some(_: Byte) ⇒ RawArrayTile(s.asInstanceOf[Seq[Byte]].toArray[Byte], cols, rows)
-        case Some(_: Short) ⇒ RawArrayTile(s.asInstanceOf[Seq[Short]].toArray[Short], cols, rows)
-        case Some(_: Float) ⇒ RawArrayTile(s.asInstanceOf[Seq[Float]].toArray[Float], cols, rows)
-        case Some(o @ _) ⇒ throw new MatchError(o)
-        case None ⇒ null
+      case s: Seq[_] => s.headOption match {
+        case Some(_: Int) => RawArrayTile(s.asInstanceOf[Seq[Int]].toArray[Int], cols, rows)
+        case Some(_: Double) => RawArrayTile(s.asInstanceOf[Seq[Double]].toArray[Double], cols, rows)
+        case Some(_: Byte) => RawArrayTile(s.asInstanceOf[Seq[Byte]].toArray[Byte], cols, rows)
+        case Some(_: Short) => RawArrayTile(s.asInstanceOf[Seq[Short]].toArray[Short], cols, rows)
+        case Some(_: Float) => RawArrayTile(s.asInstanceOf[Seq[Float]].toArray[Float], cols, rows)
+        case Some(o @ _) => throw new MatchError(o)
+        case None => null
       }
     }
   }
 
-  private[rasterframes] val arrayToTileFunc3: (Array[Double], Int, Int) ⇒ Tile = (a, cols, rows) ⇒ {
+  private[rasterframes] val arrayToTileFunc3: (Array[Double], Int, Int) => Tile = (a, cols, rows) => {
     arrayToTile(cols, rows).apply(a)
   }
 
   /** Constructor for constant tiles */
-  private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {
+  private[rasterframes] val makeConstantTile: (Number, Int, Int, String) => Tile = (value, cols, rows, cellTypeName) => {
     val cellType = CellType.fromName(cellTypeName)
     cellType match {
-      case BitCellType ⇒ BitConstantTile(if (value.intValue() == 0) false else true, cols, rows)
-      case ct: ByteCells ⇒ ByteConstantTile(value.byteValue(), cols, rows, ct)
-      case ct: UByteCells ⇒ UByteConstantTile(value.byteValue(), cols, rows, ct)
-      case ct: ShortCells ⇒ ShortConstantTile(value.shortValue(), cols, rows, ct)
-      case ct: UShortCells ⇒ UShortConstantTile(value.shortValue(), cols, rows, ct)
-      case ct: IntCells ⇒ IntConstantTile(value.intValue(), cols, rows, ct)
-      case ct: FloatCells ⇒ FloatConstantTile(value.floatValue(), cols, rows, ct)
-      case ct: DoubleCells ⇒ DoubleConstantTile(value.doubleValue(), cols, rows, ct)
+      case BitCellType => BitConstantTile(if (value.intValue() == 0) false else true, cols, rows)
+      case ct: ByteCells => ByteConstantTile(value.byteValue(), cols, rows, ct)
+      case ct: UByteCells => UByteConstantTile(value.byteValue(), cols, rows, ct)
+      case ct: ShortCells => ShortConstantTile(value.shortValue(), cols, rows, ct)
+      case ct: UShortCells => UShortConstantTile(value.shortValue(), cols, rows, ct)
+      case ct: IntCells => IntConstantTile(value.intValue(), cols, rows, ct)
+      case ct: FloatCells => FloatConstantTile(value.floatValue(), cols, rows, ct)
+      case ct: DoubleCells => DoubleConstantTile(value.doubleValue(), cols, rows, ct)
     }
   }
 
   /** Alias for constant tiles of zero */
-  private[rasterframes] val tileZeros: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+  private[rasterframes] val tileZeros: (Int, Int, String) => Tile = (cols, rows, cellTypeName) =>
     makeConstantTile(0, cols, rows, cellTypeName)
 
   /** Alias for constant tiles of one */
-  private[rasterframes] val tileOnes: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+  private[rasterframes] val tileOnes: (Int, Int, String) => Tile = (cols, rows, cellTypeName) =>
     makeConstantTile(1, cols, rows, cellTypeName)
 
   val reproject_and_merge_f: (Row, CRS, Seq[Tile], Seq[Row], Seq[CRS], Row, String) => Tile = (leftExtentEnc: Row, leftCRSEnc: CRS, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[CRS], leftDimsEnc: Row, resampleMethod: String) => {
@@ -155,7 +155,7 @@ package object functions {
     .withName("reproject_and_merge")
 
 
-  private[rasterframes] val cellTypes: () ⇒ Seq[String] = () ⇒
+  private[rasterframes] val cellTypes: () => Seq[String] = () =>
     Seq(
       BitCellType,
       ByteCellType,

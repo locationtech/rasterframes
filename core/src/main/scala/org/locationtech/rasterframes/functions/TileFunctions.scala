@@ -35,7 +35,7 @@ import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.{ColorRampNames, withTypedAlias, _}
-import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions ⇒ F}
+import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions => F}
 import org.apache.spark.sql.catalyst.expressions.Literal
 
 /** Functions associated with creating and transforming tiles, including tile-wise statistics and rendering. */

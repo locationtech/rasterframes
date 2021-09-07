@@ -51,14 +51,14 @@ object Classification extends App {
   // a single RasterFrame from them.
   val filenamePattern = "L8-%s-Elkton-VA.tiff"
   val bandNumbers = 2 to 7
-  val bandColNames = bandNumbers.map(b ⇒ s"band_$b").toArray
+  val bandColNames = bandNumbers.map(b => s"band_$b").toArray
   val tileSize = 128
 
   // For each identified band, load the associated image file
   val joinedRF = bandNumbers
-    .map { b ⇒ (b, filenamePattern.format("B" + b)) }
-    .map { case (b, f) ⇒ (b, readTiff(f)) }
-    .map { case (b, t) ⇒ t.projectedRaster.toLayer(tileSize, tileSize, s"band_$b") }
+    .map { b => (b, filenamePattern.format("B" + b)) }
+    .map { case (b, f) => (b, readTiff(f)) }
+    .map { case (b, t) => t.projectedRaster.toLayer(tileSize, tileSize, s"band_$b") }
     .reduce(_ spatialJoin _)
     .withCRS()
     .withExtent()
@@ -126,7 +126,7 @@ object Classification extends App {
 
   // Format the `paramGrid` settings resultant model
   val metrics = model.getEstimatorParamMaps
-    .map(_.toSeq.map(p ⇒ s"${p.param.name} = ${p.value}"))
+    .map(_.toSeq.map(p => s"${p.param.name} = ${p.value}"))
     .map(_.mkString(", "))
     .zip(model.avgMetrics)
 

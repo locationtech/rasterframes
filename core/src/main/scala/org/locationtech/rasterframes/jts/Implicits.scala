@@ -27,7 +27,7 @@ import java.time.{LocalDate, ZonedDateTime}
 import org.locationtech.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
 import org.locationtech.jts.geom._
 import geotrellis.util.MethodExtensions
-import geotrellis.vector.{Point ⇒ gtPoint}
+import geotrellis.vector.{Point => gtPoint}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.functions._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions.SpatialConstructors

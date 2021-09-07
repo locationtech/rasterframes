@@ -47,18 +47,19 @@ case class ExplodeTiles(
   override def elementSchema: StructType = {
     val names =
       if (children.size == 1) Seq("cell")
-      else children.indices.map(i ⇒ s"cell_$i")
+      else children.indices.map(i => s"cell_$i")
 
     StructType(
       Seq(
         StructField(COLUMN_INDEX_COLUMN.columnName, IntegerType, false),
         StructField(ROW_INDEX_COLUMN.columnName, IntegerType, false)) ++ names
-        .map(n ⇒ StructField(n, DoubleType, false)))
+        .map(n => StructField(n, DoubleType, false))
+    )
   }
 
   private def sample[T](things: Seq[T]) = {
     // Apply random seed if provided
-    seed.foreach(s ⇒ scala.util.Random.setSeed(s))
+    seed.foreach(s => scala.util.Random.setSeed(s))
     scala.util.Random.shuffle(things)
       .take(math.ceil(things.length * sampleFraction).toInt)
   }

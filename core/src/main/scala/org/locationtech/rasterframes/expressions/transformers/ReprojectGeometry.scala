@@ -69,7 +69,7 @@ case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: E
 
   /** Reprojects a geometry column from one CRS to another. */
   val reproject: (Geometry, CRS, CRS) => Geometry =
-    (sourceGeom, src, dst) ⇒ {
+    (sourceGeom, src, dst) => {
       val trans = new ReprojectionTransformer(src, dst)
       trans.transform(sourceGeom)
     }
