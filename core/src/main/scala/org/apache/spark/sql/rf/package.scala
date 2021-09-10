@@ -43,9 +43,7 @@ package object rf {
     // which is where the registration actually happens. The ordering matters!
     RasterSourceUDT
     TileUDT
-    //DimensionsUDT
     CrsUDT
-    // BoundsUDT
   }
 
   def registry(sqlContext: SQLContext): FunctionRegistry = {

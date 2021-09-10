@@ -20,14 +20,13 @@
  */
 
 package org.locationtech
+
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.{Dimensions, Tile, TileFeature, isData}
-import geotrellis.raster.resample._
 import geotrellis.layer._
 import geotrellis.spark.ContextRDD
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.{DataFrame, SQLContext, rf}
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions
 import org.locationtech.rasterframes.encoders.StandardEncoders
@@ -82,13 +81,6 @@ package object rasterframes extends StandardColumns
     rasterframes.expressions.register(sqlContext)
     rasterframes.rules.register(sqlContext)
   }
-
-  /** TileUDT type reference. */
-  def TileType = new TileUDT()
-
-  /** CrsUDT type reference. */
-  def CrsType = new rf.CrsUDT()
-  // def DimensionType = new DimensionsUDT()
 
   /**
    * A RasterFrameLayer is just a DataFrame with certain invariants, enforced via the methods that create and transform them:
@@ -146,9 +138,4 @@ package object rasterframes extends StandardColumns
   def isCellTrue(t: Tile, col: Int, row: Int): Boolean =
     if (t.cellType.isFloatingPoint) isCellTrue(t.getDouble(col, row))
     else isCellTrue(t.get(col, row))
-
-
-
-
-
 }

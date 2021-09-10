@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -47,17 +48,12 @@ case class DataCells(child: Expression) extends UnaryRasterOp
   override def na: Any = 0L
 }
 object DataCells {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
   def apply(tile: Column): TypedColumn[Any, Long] =
     new Column(DataCells(tile.expr)).as[Long]
 
   val op = (tile: Tile) => {
     var count: Long = 0
-    tile.dualForeach(
-      z => if(isData(z)) count = count + 1
-    ) (
-      z => if(isData(z)) count = count + 1
-    )
+    tile.dualForeach(z => if(isData(z)) count = count + 1)(z => if(isData(z)) count = count + 1)
     count
   }
 }

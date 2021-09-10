@@ -28,16 +28,16 @@ import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef}
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterSourceType
+import org.locationtech.rasterframes.ref.Subgrid
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 import scala.util.Try
 import scala.util.control.NonFatal
-import org.locationtech.rasterframes.ref.Subgrid
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import geotrellis.vector.Projected
 
 /**
  * Accepts RasterSource and generates one or more RasterRef instances representing
@@ -47,11 +47,11 @@ import geotrellis.vector.Projected
 case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes {
 
-  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
+  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
   override def nodeName: String = "rf_raster_source_to_raster_ref"
 
   private lazy val enc = ProjectedRasterTile.prtEncoder
-  private lazy val prtSerializer = enc.createSerializer()
+  private lazy val prtSerializer = cachedSerializer[ProjectedRasterTile]
 
   override def elementSchema: StructType = StructType(for {
     child <- children
@@ -68,7 +68,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
       val refs = children.map { child =>
         // TODO: we're using the UDT here ... which is what we should do ?
         // what would have serialized it, UDT?
-        val src = RasterSourceType.deserialize(child.eval(input))
+        val src = rasterSourceUDT.deserialize(child.eval(input))
         val srcRE = src.rasterExtent
         subtileDims.map(dims => {
           val subGB = src.layoutBounds(dims)
@@ -89,7 +89,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     catch {
       case NonFatal(ex) =>
         val description = "Error fetching data for one of: " +
-          Try(children.map(c => RasterSourceType.deserialize(c.eval(input))))
+          Try(children.map(c => rasterSourceUDT.deserialize(c.eval(input))))
             .toOption.toSeq.flatten.mkString(", ")
         throw new java.lang.IllegalArgumentException(description, ex)
     }

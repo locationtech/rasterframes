@@ -21,27 +21,24 @@
 
 package org.locationtech.rasterframes.expressions
 
-import org.locationtech.rasterframes.encoders.StandardEncoders._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.expressions.SpatialRelation.RelationPredicate
 import geotrellis.vector.Extent
 import org.locationtech.jts.geom._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
+import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.jts.AbstractGeometryUDT
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
-import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedDeserializer}
 
 /**
  * Determine if two spatial constructs intersect each other.
  *
  * @since 12/28/17
  */
-abstract class SpatialRelation extends BinaryExpression
-  with CodegenFallback {
+abstract class SpatialRelation extends BinaryExpression with CodegenFallback {
 
   def extractGeometry(expr: Expression, input: Any): Geometry = {
     input match {
@@ -49,15 +46,13 @@ abstract class SpatialRelation extends BinaryExpression
       case r: InternalRow =>
         expr.dataType match {
           case udt: AbstractGeometryUDT[_] => udt.deserialize(r)
-          case dt if dt.conformsToSchema(StandardEncoders.extentEncoder.schema) =>
+          case dt if dt.conformsToSchema(extentEncoder.schema) =>
             val fromRow = cachedDeserializer[Extent]
             val extent = fromRow(r)
             extent.toPolygon()
         }
     }
   }
-  // TODO: replace with serializer.
-  lazy val jtsPointEncoder = ExpressionEncoder[Point]()
 
   override def toString: String = s"$nodeName($left, $right)"
 
@@ -121,11 +116,9 @@ object SpatialRelation {
     ST_Within -> Within
   )
 
-  def fromUDF(udf: ScalaUDF) = {
+  def fromUDF(udf: ScalaUDF): Option[SpatialRelation] =
     udf.function match {
-      case rp: RelationPredicate @unchecked =>
-        predicateMap.get(rp).map(_.apply(udf.children.head, udf.children.last))
+      case rp: RelationPredicate @unchecked => predicateMap.get(rp).map(_.apply(udf.children.head, udf.children.last))
       case _ => None
     }
-  }
 }

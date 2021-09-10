@@ -33,6 +33,7 @@ import scala.reflect.runtime.universe._
  */
 private[rasterframes] trait SparkBasicEncoders {
   implicit def arrayEnc[T: TypeTag]: Encoder[Array[T]] = ExpressionEncoder()
+  implicit def seqEnc[T: TypeTag]: Encoder[Seq[T]] = ExpressionEncoder()
   implicit val intEnc: Encoder[Int] = Encoders.scalaInt
   implicit val longEnc: Encoder[Long] = Encoders.scalaLong
   implicit val stringEnc: Encoder[String] = Encoders.STRING

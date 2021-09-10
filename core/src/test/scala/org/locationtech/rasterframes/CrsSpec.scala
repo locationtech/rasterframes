@@ -20,13 +20,8 @@
  */
 
 package org.locationtech.rasterframes
-import geotrellis.raster
-import geotrellis.raster.{CellType, Dimensions, NoNoData, Tile}
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.types.StringType
-import org.locationtech.rasterframes.tiles.ShowableTile
+
 import org.scalatest.Inspectors
-import geotrellis.proj4.WebMercator
 import geotrellis.proj4.LatLng
 import geotrellis.proj4.CRS
 import org.locationtech.rasterframes.ref.RFRasterSource

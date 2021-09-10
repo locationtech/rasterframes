@@ -28,6 +28,7 @@ import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.{ProjectedRasterTile, ShowableTile}
 
+import scala.util.Try
 
 /**
  * UDT for singleband tiles.
@@ -57,6 +58,8 @@ class TileUDT extends UserDefinedType[Tile] {
   override def serialize(obj: Tile): InternalRow = {
     if (obj == null) return null
     obj match {
+      // TODO: review matches there
+      // I don't thins RasterRef and ProjectedRasterTile cases are possible now
       case ref: RasterRef =>
         val ct = UTF8String.fromString(ref.cellType.toString())
         InternalRow(ct, ref.cols, ref.rows, null, serRef(ref))
@@ -82,17 +85,29 @@ class TileUDT extends UserDefinedType[Tile] {
     if (datum == null) return null
     val row = datum.asInstanceOf[InternalRow]
 
-    val tile: Tile = if (! row.isNullAt(4)) {
-      val ir = row.getStruct(4, 4)
-      val ref = desRef(ir)
-      ref
-    } else {
-      val ct = CellType.fromName(row.getString(0))
-      val cols = row.getInt(1)
-      val rows = row.getInt(2)
-      val bytes = row.getBinary(3)
-      ArrayTile.fromBytes(bytes, ct, cols, rows)
-    }
+    /** TODO: a compatible encoder for the ProjectedRasterTile */
+    val tile: Tile =
+      if (! row.isNullAt(4)) {
+        Try {
+          val ir = row.getStruct(4, 4)
+          val ref = desRef(ir)
+          ref
+        }/*.orElse {
+          Try(
+            ProjectedRasterTile
+              .prtEncoder
+              .resolveAndBind()
+              .createDeserializer()(row)
+              .tile
+          )
+        }*/.get
+      } else {
+        val ct = CellType.fromName(row.getString(0))
+        val cols = row.getInt(1)
+        val rows = row.getInt(2)
+        val bytes = row.getBinary(3)
+        ArrayTile.fromBytes(bytes, ct, cols, rows)
+      }
 
     if (TileUDT.showableTiles) new ShowableTile(tile) else tile
   }

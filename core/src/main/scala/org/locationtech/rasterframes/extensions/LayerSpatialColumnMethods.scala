@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.extensions
 
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.{RasterFrameLayer, StandardColumns, crsSparkEncoder}
+import org.locationtech.rasterframes._
 import org.locationtech.jts.geom.Point
 import geotrellis.proj4.LatLng
 import geotrellis.layer.{MapKeyTransform, SpatialKey}

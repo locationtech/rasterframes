@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.encoders.StandardEncoders.extentEncoder
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.OnTileContextExpression
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
@@ -29,7 +29,7 @@ import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes.encoders.cachedSerializer
 import org.locationtech.rasterframes.model.TileContext
 
 /**
@@ -45,13 +45,14 @@ import org.locationtech.rasterframes.model.TileContext
          ....
   """)
 case class GetExtent(child: Expression) extends OnTileContextExpression with CodegenFallback {
-  lazy val extentEncoder = StandardEncoders.extentEncoder
-  override def dataType: DataType = extentEncoder.schema
+  def dataType: DataType = extentEncoder.schema
   override def nodeName: String = "rf_extent"
-  override def eval(ctx: TileContext): InternalRow = extentEncoder.createSerializer()(ctx.extent)
+  def eval(ctx: TileContext): InternalRow = {
+    val toRow = cachedSerializer[Extent]
+    toRow(ctx.extent)
+  }
 }
 
 object GetExtent {
-  def apply(col: Column): TypedColumn[Any, Extent] =
-    new Column(new GetExtent(col.expr)).as[Extent]
+  def apply(col: Column): TypedColumn[Any, Extent] = new Column(new GetExtent(col.expr)).as[Extent]
 }

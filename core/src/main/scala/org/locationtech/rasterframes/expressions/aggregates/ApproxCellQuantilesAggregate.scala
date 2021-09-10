@@ -27,27 +27,24 @@ import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.{Column, Encoder, Row, TypedColumn, types}
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
-import org.locationtech.rasterframes.TileType
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 
-
 case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeError: Double) extends UserDefinedAggregateFunction {
-  val quantileSummariesEncoder = StandardEncoders.quantileSummariesEncoder
-
-  override def inputSchema: StructType = StructType(Seq(
-    StructField("value", TileType, true)
+  def inputSchema: StructType = StructType(Seq(
+    StructField("value", tileUDT, true)
   ))
 
-  override def bufferSchema: StructType = StructType(Seq(
+  def bufferSchema: StructType = StructType(Seq(
     StructField("buffer", quantileSummariesEncoder.schema, false)
   ))
 
-  override def dataType: types.DataType = DataTypes.createArrayType(DataTypes.DoubleType)
+  def dataType: types.DataType = DataTypes.createArrayType(DataTypes.DoubleType)
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit = {
+  def initialize(buffer: MutableAggregationBuffer): Unit = {
     val qs = new QuantileSummaries(QuantileSummaries.defaultCompressThreshold, relativeError)
     val qsRow =
       RowEncoder(quantileSummariesEncoder.schema)
@@ -56,7 +53,7 @@ case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeErro
     buffer.update(0, qsRow)
   }
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val qs = quantileSummariesEncoder
       .resolveAndBind()
       .createDeserializer()(
@@ -81,7 +78,7 @@ case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeErro
     }
   }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     val left = quantileSummariesEncoder
       .resolveAndBind()
       .createDeserializer()(
@@ -108,7 +105,7 @@ case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeErro
     buffer1.update(0, mergedRow)
   }
 
-  override def evaluate(buffer: Row): Seq[Double] = {
+  def evaluate(buffer: Row): Seq[Double] = {
     val summaries = quantileSummariesEncoder
       .resolveAndBind()
       .createDeserializer()(

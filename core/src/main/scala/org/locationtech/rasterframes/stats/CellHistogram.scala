@@ -45,7 +45,7 @@ case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
     val barlen = width - fmt.format(0, 0, "").length
 
     val lines = for {
-      (l, c) ← labels.zip(counts)
+      (l, c) <- labels.zip(counts)
     } yield {
       val width = (barlen * (c/maxCount)).round
       val bar = "*" * width

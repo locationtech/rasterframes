@@ -28,7 +28,6 @@ import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import geotrellis.raster.Tile
 
@@ -42,13 +41,12 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
     val subtiles = self.crop(windows)
 
     val rows = for {
-      (gridbounds, tile) ← subtiles.toSeq
+      (gridbounds, tile) <- subtiles.toSeq
     } yield {
       val extent = re.extentFor(gridbounds, false)
       (extent, crs, tile)
     }
 
-    // spark.createDataFrame(spark.sparkContext.makeRDD(rows), schema)
     spark.createDataset(rows)(typedExpressionEncoder[(Extent, CRS, Tile)]).toDF("extent", "crs", "tile")
   }
 

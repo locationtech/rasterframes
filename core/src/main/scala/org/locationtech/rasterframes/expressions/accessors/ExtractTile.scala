@@ -33,13 +33,13 @@ import org.locationtech.rasterframes._
 
 /** Expression to extract at tile from several types that contain tiles.*/
 case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
-  override def dataType: DataType = TileType
+  def dataType: DataType = tileUDT
 
   override def nodeName: String = "rf_extract_tile"
 
-  private lazy val tileSer = TileType.serialize _
+  private lazy val tileSer = tileUDT.serialize _
 
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
     case irt: InternalRowTile => irt.mem
     case prt: ProjectedRasterTile => tileSer(prt.tile)
     case tile: Tile => tileSer(tile)
@@ -47,7 +47,6 @@ case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFall
 }
 
 object ExtractTile {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
   def apply(input: Column): TypedColumn[Any, Tile] =
     new Column(new ExtractTile(input.expr)).as[Tile]
 }

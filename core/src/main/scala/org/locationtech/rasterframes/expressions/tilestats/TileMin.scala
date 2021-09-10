@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -47,13 +48,11 @@ case class TileMin(child: Expression) extends UnaryRasterOp
   override def na: Any = Double.MaxValue
 }
 object TileMin {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
-
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(TileMin(tile.expr)).as[Double]
 
   /** Find the minimum cell value. */
-  val op = (tile: Tile) => {
+  val op: Tile => Double = (tile: Tile) => {
     var min: Double = Double.MaxValue
     tile.foreachDouble(z => if(isData(z)) min = math.min(min, z))
     if (min == Double.MaxValue) Double.NaN

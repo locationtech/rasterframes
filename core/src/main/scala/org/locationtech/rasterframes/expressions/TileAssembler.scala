@@ -21,8 +21,7 @@
 
 package org.locationtech.rasterframes.expressions
 
-import java.nio.ByteBuffer
-
+import org.locationtech.rasterframes.encoders.StandardEncoders._
 import org.locationtech.rasterframes.expressions.TileAssembler.TileBuffer
 import org.locationtech.rasterframes.util._
 import geotrellis.raster.{DataType => _, _}
@@ -32,7 +31,8 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 import spire.syntax.cfor._
-import org.locationtech.rasterframes.TileType
+
+import java.nio.ByteBuffer
 
 /**
  * Aggregator for reassembling tiles from from exploded form
@@ -64,37 +64,32 @@ case class TileAssembler(
   tileCols: Expression,
   tileRows: Expression,
   mutableAggBufferOffset: Int = 0,
-  inputAggBufferOffset: Int = 0)
-    extends TypedImperativeAggregate[TileBuffer] with ImplicitCastInputTypes {
+  inputAggBufferOffset: Int = 0) extends TypedImperativeAggregate[TileBuffer] with ImplicitCastInputTypes {
 
-  def this(colIndex: Expression,
-           rowIndex: Expression,
-           cellValue: Expression,
-           tileCols: Expression,
-           tileRows: Expression) = this(colIndex, rowIndex, cellValue, tileCols, tileRows, 0, 0)
+  def this(colIndex: Expression, rowIndex: Expression, cellValue: Expression, tileCols: Expression, tileRows: Expression) = this(colIndex, rowIndex, cellValue, tileCols, tileRows, 0, 0)
 
-  override def children: Seq[Expression] = Seq(colIndex, rowIndex, cellValue, tileCols, tileRows)
+  def children: Seq[Expression] = Seq(colIndex, rowIndex, cellValue, tileCols, tileRows)
 
-  override def inputTypes = Seq(ShortType, ShortType, DoubleType, ShortType, ShortType)
+  def inputTypes = Seq(ShortType, ShortType, DoubleType, ShortType, ShortType)
 
   override def prettyName: String = "rf_assemble_tiles"
 
-  override def withNewMutableAggBufferOffset(newMutableAggBufferOffset: Int): ImperativeAggregate =
+  def withNewMutableAggBufferOffset(newMutableAggBufferOffset: Int): ImperativeAggregate =
     copy(mutableAggBufferOffset = newMutableAggBufferOffset)
 
-  override def withNewInputAggBufferOffset(newInputAggBufferOffset: Int): ImperativeAggregate =
+  def withNewInputAggBufferOffset(newInputAggBufferOffset: Int): ImperativeAggregate =
     copy(inputAggBufferOffset = newInputAggBufferOffset)
 
-  override def nullable: Boolean = true
+  def nullable: Boolean = true
 
-  override def dataType: DataType = TileType
+  def dataType: DataType = tileUDT
 
-  override def createAggregationBuffer(): TileBuffer = new TileBuffer(Array.empty)
+  def createAggregationBuffer(): TileBuffer = new TileBuffer(Array.empty)
 
   @inline
   private def toIndex(col: Int, row: Int, tileCols: Short): Int = row * tileCols + col
 
-  override def update(inBuf: TileBuffer, input: InternalRow): TileBuffer = {
+  def update(inBuf: TileBuffer, input: InternalRow): TileBuffer = {
     val tc = tileCols.eval(input).asInstanceOf[Short]
     val tr = tileRows.eval(input).asInstanceOf[Short]
 
@@ -112,7 +107,7 @@ case class TileAssembler(
     buffer
   }
 
-  override def merge(inBuf: TileBuffer, input: TileBuffer): TileBuffer = {
+  def merge(inBuf: TileBuffer, input: TileBuffer): TileBuffer = {
 
     val buffer = if (inBuf.isEmpty) {
       val (cols, rows) = input.tileSize
@@ -133,7 +128,7 @@ case class TileAssembler(
     buffer
   }
 
-  override def eval(buffer: TileBuffer): InternalRow = {
+  def eval(buffer: TileBuffer): InternalRow = {
     // TODO: figure out how to eliminate copies here.
     val result = buffer.cellBuffer
     val length = result.capacity()
@@ -141,25 +136,22 @@ case class TileAssembler(
     result.get(cells)
     val (tileCols, tileRows) = buffer.tileSize
     val tile = ArrayTile(cells, tileCols.toInt, tileRows.toInt)
-    TileType.serialize(tile)
+    tileUDT.serialize(tile)
   }
 
-  override def serialize(buffer: TileBuffer): Array[Byte] = buffer.serialize()
-  override def deserialize(storageFormat: Array[Byte]): TileBuffer = new TileBuffer(storageFormat)
+  def serialize(buffer: TileBuffer): Array[Byte] = buffer.serialize()
+  def deserialize(storageFormat: Array[Byte]): TileBuffer = new TileBuffer(storageFormat)
 }
 
 object TileAssembler {
-  import org.locationtech.rasterframes.encoders.StandardEncoders._
-
   def apply(
     columnIndex: Column,
     rowIndex: Column,
     cellData: Column,
     tileCols: Column,
     tileRows: Column): TypedColumn[Any, Tile] =
-    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, tileCols.expr,
-        tileRows.expr)
-        .toAggregateExpression())
+    new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, tileCols.expr, tileRows.expr)
+      .toAggregateExpression())
       .as(cellData.columnName)
       .as[Tile]
 

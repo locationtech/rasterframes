@@ -5,6 +5,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.isCellTrue
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
@@ -30,9 +31,7 @@ case class Exists(child: Expression) extends UnaryRasterOp with CodegenFallback 
 
 }
 
-object Exists{
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.boolEnc
-
+object Exists {
   def apply(tile: Column): TypedColumn[Any, Boolean] = new Column(Exists(tile.expr)).as[Boolean]
 
   def op(tile: Tile): Boolean = {

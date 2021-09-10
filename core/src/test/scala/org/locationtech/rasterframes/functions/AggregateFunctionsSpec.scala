@@ -20,13 +20,14 @@
  */
 
 package org.locationtech.rasterframes.functions
+
 import geotrellis.proj4.{CRS, WebMercator}
 import geotrellis.raster._
 import geotrellis.raster.render.Png
 import geotrellis.raster.resample.Bilinear
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.vector.Extent
-import org.apache.spark.sql.{Encoders, FramelessInternals}
+import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.TestData._
@@ -34,7 +35,6 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile.prtEncoder
 
 class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
   import spark.implicits._
@@ -150,7 +150,7 @@ class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should create a global aggregate raster from proj_raster column") {
       implicit val enc = Encoders.tuple(
         StandardEncoders.extentEncoder,
-        StandardEncoders.crsSparkEncoder,
+        StandardEncoders.crsExpressionEncoder,
         ExpressionEncoder[Tile](),
         ExpressionEncoder[Tile](),
         ExpressionEncoder[Tile]()

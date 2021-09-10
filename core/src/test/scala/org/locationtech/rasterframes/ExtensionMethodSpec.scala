@@ -66,7 +66,7 @@ class ExtensionMethodSpec extends TestEnvironment with TestData with SubdivideSu
 
     it("should find multiple crs columns") {
       // Not sure why implicit resolution isn't handling this properly.
-      implicit val enc = Encoders.tuple(crsSparkEncoder, Encoders.STRING, crsSparkEncoder, Encoders.scalaDouble)
+      implicit val enc = Encoders.tuple(crsExpressionEncoder, Encoders.STRING, crsExpressionEncoder, Encoders.scalaDouble)
       val df = Seq((pe.crs, "fred", pe.crs, 34.0)).toDF("c1", "s", "c2", "n")
       df.crsColumns.size should be(2)
     }

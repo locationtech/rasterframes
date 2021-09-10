@@ -28,6 +28,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
 import spire.syntax.cfor.cfor
@@ -47,8 +48,6 @@ abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterOp
 }
 
 object DebugRender {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.stringEnc
-
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Coverts the contents of the given tile an ASCII art string rendering",
     arguments = """

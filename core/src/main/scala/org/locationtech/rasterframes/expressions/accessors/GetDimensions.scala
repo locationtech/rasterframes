@@ -21,14 +21,12 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.OnCellGridExpression
 import geotrellis.raster.{CellGrid, Dimensions}
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-// import org.apache.spark.sql.rf.DimensionsUDT
-import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes._
 
 /**
  * Extract a raster's dimensions
@@ -44,16 +42,12 @@ import org.locationtech.rasterframes.encoders.StandardEncoders
 case class GetDimensions(child: Expression) extends OnCellGridExpression with CodegenFallback {
   override def nodeName: String = "rf_dimensions"
 
-  lazy val encoder = StandardEncoders.dimensionsEncoder
+  def dataType = dimensionsEncoder.schema
 
-  def dataType = encoder.schema
-
-  override def eval(grid: CellGrid[Int]): Any = encoder.createSerializer()(Dimensions[Int](grid.cols, grid.rows))
+  def eval(grid: CellGrid[Int]): Any = dimensionsEncoder.createSerializer()(Dimensions[Int](grid.cols, grid.rows))
 }
 
 object GetDimensions {
-  import StandardEncoders._
-
   def apply(col: Column): TypedColumn[Any, Dimensions[Int]] = {
     new Column(new GetDimensions(col.expr)).as[Dimensions[Int]]
   }

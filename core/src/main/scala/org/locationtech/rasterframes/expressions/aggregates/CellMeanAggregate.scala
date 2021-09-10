@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterAggregate
 import org.locationtech.rasterframes.expressions.tilestats.{DataCells, Sum}
 import org.apache.spark.sql.catalyst.dsl.expressions._
@@ -79,7 +80,6 @@ case class CellMeanAggregate(child: Expression) extends UnaryRasterAggregate {
 }
 
 object CellMeanAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
   /** Computes the column aggregate mean. */
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(new CellMeanAggregate(tile.expr).toAggregateExpression()).as[Double]

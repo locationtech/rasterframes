@@ -126,7 +126,7 @@ object PairRDDConverter {
 
       val basename = TILE_COLUMN.columnName
 
-      val tiles = for(i ← 1 to bands) yield {
+      val tiles = for(i <- 1 to bands) yield {
         val name = if(bands <= 1) basename else s"${basename}_$i"
         StructField(name , serializableTileUDT, nullable = false)
       }
@@ -149,7 +149,7 @@ object PairRDDConverter {
 
       val basename = TILE_COLUMN.columnName
 
-      val tiles = for(i ← 1 to bands) yield {
+      val tiles = for(i <- 1 to bands) yield {
         StructField(s"${basename}_$i" , serializableTileUDT, nullable = false)
       }
 

@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.model
 import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import org.locationtech.proj4j.CoordinateReferenceSystem
-import org.locationtech.rasterframes.encoders.CatalystSerializer
 import org.locationtech.rasterframes.model.LazyCRS.EncodedCRS
 
 class LazyCRS(val encoded: EncodedCRS) extends CRS {

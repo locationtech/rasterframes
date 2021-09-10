@@ -80,8 +80,8 @@ trait SubdivideSupport {
       val shifted = SpatialKey(base.col * divs, base.row * divs)
 
       for{
-        i ← 0 until divs
-        j ← 0 until divs
+        i <- 0 until divs
+        j <- 0 until divs
       } yield {
         val newKey = SpatialKey(shifted.col + j, shifted.row + i)
         self.setComponent(newKey)
@@ -103,8 +103,8 @@ trait SubdivideSupport {
       val Dimensions(cols, rows) = self.dimensions
       val (newCols, newRows) = (cols/divs, rows/divs)
       for {
-        i ← 0 until divs
-        j ← 0 until divs
+        i <- 0 until divs
+        j <- 0 until divs
       } yield {
         val startCol = j * newCols
         val startRow = i * newRows

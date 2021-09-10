@@ -20,15 +20,15 @@
  */
 
 package org.locationtech.rasterframes
+
 import geotrellis.layer.{KeyBounds, LayoutDefinition, SpatialKey, TileLayerMetadata}
-import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.proj4.LatLng
 import geotrellis.raster._
 import geotrellis.vector._
-import org.apache.spark.sql.{Encoder, Encoders}
 import org.apache.spark.sql.types.StringType
 import org.locationtech.rasterframes.model.TileDataContext
-import org.locationtech.rasterframes.tiles.{PrettyRaster, ProjectedRasterTile}
 import org.scalatest.Inspectors
+
 /**
  * RasterFrameLayer test rig.
  *
@@ -90,13 +90,4 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
     val out = fs.first()
     out shouldBe data
   }
-
-  it("ProjectedRasterTile encoder"){
-    spark.version
-    import spark.implicits._
-    val enc = Encoders.product[PrettyRaster]
-    print(enc.schema.treeString)
-    print(ProjectedRasterTile.prtEncoder.schema.treeString)
-  }
-
 }

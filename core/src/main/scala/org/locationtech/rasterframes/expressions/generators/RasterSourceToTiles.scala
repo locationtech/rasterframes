@@ -29,7 +29,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes
-import org.locationtech.rasterframes.RasterSourceType
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.RasterResult
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
@@ -50,7 +50,7 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
+  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
   override def nodeName: String = "rf_raster_source_to_tiles"
 
   override def elementSchema: StructType = StructType(for {
@@ -62,7 +62,7 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
   override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
       val tiles = children.map { child =>
-        val src = RasterSourceType.deserialize(child.eval(input))
+        val src = rasterSourceUDT.deserialize(child.eval(input))
         val maxBands = src.bandCount
         val allowedBands = bandIndexes.filter(_ < maxBands)
         src.readAll(subtileDims.getOrElse(rasterframes.NOMINAL_TILE_DIMS), allowedBands)
@@ -75,7 +75,7 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
     }
     catch {
       case NonFatal(ex) =>
-        val payload = Try(children.map(c => RasterSourceType.deserialize(c.eval(input)))).toOption.toSeq.flatten
+        val payload = Try(children.map(c => rasterSourceUDT.deserialize(c.eval(input)))).toOption.toSeq.flatten
         logger.error("Error fetching data for one of: " + payload.mkString(", "), ex)
         Traversable.empty
     }

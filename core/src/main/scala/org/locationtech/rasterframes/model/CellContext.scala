@@ -21,7 +21,4 @@
 
 package org.locationtech.rasterframes.model
 
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.types.{ShortType, StructField, StructType}
-
 case class CellContext(tileContext: TileContext, tileDataContext: TileDataContext, colIndex: Short, rowIndex: Short)

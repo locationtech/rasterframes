@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.stats.CellHistogram
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.CatalystTypeConverters

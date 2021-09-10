@@ -20,9 +20,9 @@
  */
 
 package org.locationtech.rasterframes
-import geotrellis.raster._
+
 import org.apache.spark.sql.rf._
-import org.locationtech.rasterframes.model.{LazyCRS}
+import org.locationtech.rasterframes.model.LazyCRS
 import org.scalatest.Inspectors
 
 class BaseUdtSpec extends TestEnvironment with TestData with Inspectors {

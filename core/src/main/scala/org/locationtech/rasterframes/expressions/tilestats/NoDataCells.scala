@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -47,7 +48,6 @@ case class NoDataCells(child: Expression) extends UnaryRasterOp
   override def na: Any = 0L
 }
 object NoDataCells {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
   def apply(tile: Column): TypedColumn[Any, Long] =
     new Column(NoDataCells(tile.expr)).as[Long]
 

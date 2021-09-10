@@ -28,7 +28,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.locationtech.rasterframes.encoders.StandardEncoders
-import org.locationtech.rasterframes.{CrsType, NOMINAL_TILE_DIMS, TileType}
+import org.locationtech.rasterframes._
 
 trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
   def toDF(dims: Dimensions[Int] = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
@@ -41,7 +41,7 @@ trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
     val subtiles = self.crop(windows)
 
     val rows = for {
-      (gridbounds, tile) ← subtiles.toSeq
+      (gridbounds, tile) <- subtiles.toSeq
     } yield {
       val extent = re.extentFor(gridbounds, false)
       val extentRow =
@@ -53,12 +53,12 @@ trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
     }
 
     val schema =
-      StructType(Seq(
-        StructField("extent", StandardEncoders.extentEncoder.schema, false),
-        StructField("crs", CrsType, false)
-      ) ++ (1 to bands).map { i =>
-        StructField("b_" + i, TileType, false)
-      })
+      StructType(
+        Seq(
+          StructField("extent", StandardEncoders.extentEncoder.schema, false),
+          StructField("crs", crsUDT, false)
+        ) ++ (1 to bands).map { i => StructField("b_" + i, tileUDT, false)}
+      )
 
     spark.createDataFrame(spark.sparkContext.makeRDD(rows), schema)
   }

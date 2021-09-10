@@ -49,11 +49,11 @@ class EncodingSpec extends TestEnvironment with TestData {
   describe("Spark encoding on standard types") {
 
     it("should serialize Tile") {
-      val TileType = new TileUDT()
+      val tileUDT = new TileUDT()
 
       forAll(allTileTypes) { t =>
         noException shouldBe thrownBy {
-          TileType.deserialize(TileType.serialize(t))
+          tileUDT.deserialize(tileUDT.serialize(t))
         }
       }
     }

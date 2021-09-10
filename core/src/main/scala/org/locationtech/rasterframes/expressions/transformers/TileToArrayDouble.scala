@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
@@ -44,7 +45,6 @@ case class TileToArrayDouble(child: Expression) extends UnaryRasterOp with Codeg
   }
 }
 object TileToArrayDouble {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.arrayEnc
   def apply(tile: Column): TypedColumn[Any, Array[Double]] =
     new Column(TileToArrayDouble(tile.expr)).as[Array[Double]]
 }

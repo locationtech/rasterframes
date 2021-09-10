@@ -31,11 +31,9 @@ import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, 
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.expressions.{RasterResult, row}
-import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedDeserializer}
-import StandardEncoders._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.expressions.{DynamicExtractors, RasterResult, row}
+import org.locationtech.rasterframes.encoders._
 
 /**
  * Change the CellType of a Tile
@@ -56,20 +54,19 @@ import StandardEncoders._
 )
 case class SetCellType(tile: Expression, cellType: Expression)
   extends BinaryExpression with RasterResult with CodegenFallback {
-  def left = tile
-  def right = cellType
+  def left: Expression = tile
+  def right: Expression = cellType
   override def nodeName: String = "rf_convert_cell_type"
   override def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if (!tileExtractor.isDefinedAt(left.dataType))
+    if (!DynamicExtractors.tileExtractor.isDefinedAt(left.dataType))
       TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     else
       right.dataType match {
         case StringType => TypeCheckSuccess
-        case t if t.conformsToSchema(StandardEncoders.cellTypeEncoder.schema) => TypeCheckSuccess
-        case _ =>
-          TypeCheckFailure(s"Expected CellType but received '${right.dataType.simpleString}'")
+        case t if t.conformsToSchema(cellTypeEncoder.schema) => TypeCheckSuccess
+        case _ => TypeCheckFailure(s"Expected CellType but received '${right.dataType.simpleString}'")
       }
 
   private def toCellType(datum: Any): CellType = {
@@ -77,14 +74,14 @@ case class SetCellType(tile: Expression, cellType: Expression)
       case StringType =>
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st if st.conformsToSchema(StandardEncoders.cellTypeEncoder.schema) =>
+      case st if st.conformsToSchema(cellTypeEncoder.schema) =>
         val fromRow = cachedDeserializer[CellType]
         fromRow(row(datum))
     }
   }
 
   override protected def nullSafeEval(tileInput: Any, ctInput: Any): InternalRow = {
-    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
+    val (tile, ctx) = DynamicExtractors.tileExtractor(left.dataType)(row(tileInput))
     val ct = toCellType(ctInput)
     val result = tile.convert(ct)
     toInternalRow(result, ctx)

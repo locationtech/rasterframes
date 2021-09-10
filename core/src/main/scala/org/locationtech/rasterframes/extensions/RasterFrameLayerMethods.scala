@@ -38,8 +38,8 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{Metadata, TimestampType}
 import org.locationtech.rasterframes.{MetadataKeys, RasterFrameLayer}
-import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
-import org.locationtech.rasterframes.encoders.StandardEncoders._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.tiles.ShowableTile
 import org.locationtech.rasterframes.util._
 import org.locationtech.rasterframes.util.JsonCodecs._

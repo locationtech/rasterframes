@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterAggregate
 import org.locationtech.rasterframes.expressions.tilestats.{DataCells, NoDataCells}
 import org.apache.spark.sql.catalyst.dsl.expressions._
@@ -62,8 +63,6 @@ abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate 
 }
 
 object CellCountAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
-
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Count the total data (non-no-data) cells in a tile column.",
     arguments = """

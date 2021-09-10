@@ -27,7 +27,6 @@ import geotrellis.proj4.CRS
 import geotrellis.raster.{CellType, GridBounds, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.locationtech.rasterframes.RasterSourceType
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**

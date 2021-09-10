@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
@@ -46,11 +47,10 @@ case class Sum(child: Expression) extends UnaryRasterOp with CodegenFallback {
 }
 
 object Sum {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(Sum(tile.expr)).as[Double]
 
-  def op = (tile: Tile) => {
+  def op: Tile => Double = (tile: Tile) => {
     var sum: Double = 0.0
     tile.foreachDouble(z => if(isData(z)) sum = sum + z)
     sum

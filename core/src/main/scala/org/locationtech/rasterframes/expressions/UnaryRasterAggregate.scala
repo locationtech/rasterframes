@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.expressions
 
-import geotrellis.layer.SpatialKey
 import geotrellis.raster.Tile
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
@@ -30,8 +29,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.encoders.StandardEncoders
-import org.locationtech.rasterframes.expressions.DynamicExtractors.{internalRowTileExtractor, rowTileExtractor}
-import org.locationtech.rasterframes.tileLayerMetadataEncoder
+import org.locationtech.rasterframes.expressions.DynamicExtractors.internalRowTileExtractor
 
 import scala.reflect.runtime.universe._
 
@@ -43,25 +41,12 @@ trait UnaryRasterAggregate extends DeclarativeAggregate {
 
   def children = Seq(child)
 
-  protected def tileOpAsExpression[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
-    udfexpr[R, Any](name, (a: Any) => if(a == null) null.asInstanceOf[R] else op(extractTileFromAny(a)))
-
   protected def tileOpAsExpressionNew[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
-    udfexprNew[R, Any](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny2(dataType, a)))
-
-  protected def tileOpAsExpressionNewUntyped[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
-    udfexprNewUntyped[R, Any](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny2(dataType, a)))
-
-  protected val extractTileFromAny = (a: Any) => a match {
-    case t: Tile => println("HERE1"); t
-    case r: Row => println("HERE"); rowTileExtractor(child.dataType)(r)._1
-    case null => println("HERENULL"); null
-    case _ => println("WTF"); null
-  }
+    udfexprNew[R, Any](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny(dataType, a)))
 }
 
 object UnaryRasterAggregate {
-  val extractTileFromAny2: (DataType, Any) => Tile = (dt: DataType, row: Any) => row match {
+  val extractTileFromAny: (DataType, Any) => Tile = (dt: DataType, row: Any) => row match {
     case t: Tile => t
     case r: Row =>
       StandardEncoders

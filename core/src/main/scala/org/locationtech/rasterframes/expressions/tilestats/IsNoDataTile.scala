@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
@@ -47,7 +48,6 @@ case class IsNoDataTile(child: Expression) extends UnaryRasterOp
   override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile.isNoDataTile
 }
 object IsNoDataTile {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.boolEnc
   def apply(tile: Column): TypedColumn[Any, Boolean] =
     new Column(IsNoDataTile(tile.expr)).as[Boolean]
 }

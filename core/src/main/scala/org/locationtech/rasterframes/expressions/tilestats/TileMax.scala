@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -47,8 +48,6 @@ case class TileMax(child: Expression) extends UnaryRasterOp
   override def na: Any = Double.MinValue
 }
 object TileMax {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
-
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(TileMax(tile.expr)).as[Double]
 

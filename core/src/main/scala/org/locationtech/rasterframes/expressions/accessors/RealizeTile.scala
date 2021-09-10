@@ -40,11 +40,11 @@ import org.locationtech.rasterframes.expressions._
          ....
   """)
 case class RealizeTile(child: Expression) extends UnaryExpression with CodegenFallback {
-  override def dataType: DataType = TileType
+  def dataType: DataType = tileUDT
 
   override def nodeName: String = "rf_tile"
 
-  private lazy val tileSer = TileType.serialize _
+  private lazy val tileSer = tileUDT.serialize _
 
   override def checkInputDataTypes(): TypeCheckResult =
     if (!tileableExtractor.isDefinedAt(child.dataType)) {
@@ -59,6 +59,5 @@ case class RealizeTile(child: Expression) extends UnaryExpression with CodegenFa
 }
 
 object RealizeTile {
-  def apply(col: Column): TypedColumn[Any, Tile] =
-    new Column(new RealizeTile(col.expr)).as[Tile]
+  def apply(col: Column): TypedColumn[Any, Tile] = new Column(new RealizeTile(col.expr)).as[Tile]
 }

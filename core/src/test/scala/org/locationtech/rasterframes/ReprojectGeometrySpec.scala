@@ -72,7 +72,7 @@ class ReprojectGeometrySpec extends TestEnvironment {
     }
 
     it("should handle one literal crs") {
-      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsSparkEncoder)
+      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsExpressionEncoder)
       val df = Seq((llLineString, wmLineString, LatLng: CRS)).toDF("ll", "wm", "llCRS")
 
       val rp = df.select(
@@ -98,7 +98,7 @@ class ReprojectGeometrySpec extends TestEnvironment {
     }
 
     it("should work in SQL") {
-      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsSparkEncoder)
+      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsExpressionEncoder)
       val df = Seq((llLineString, wmLineString, LatLng: CRS)).toDF("ll", "wm", "llCRS")
       df.createOrReplaceTempView("geom")
 

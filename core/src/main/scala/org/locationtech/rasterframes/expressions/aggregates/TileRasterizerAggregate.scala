@@ -30,11 +30,8 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
-import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
-import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 
@@ -47,25 +44,24 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
 
   val projOpts = Reproject.Options.DEFAULT.copy(method = prd.sampler)
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def inputSchema: StructType = StructType(Seq(
-    StructField("crs", CrsType, false),
+  def inputSchema: StructType = StructType(Seq(
+    StructField("crs", crsUDT, false),
     StructField("extent", extentEncoder.schema, false),
-    StructField("tile", TileType)
+    StructField("tile", tileUDT)
   ))
 
-  override def bufferSchema: StructType = StructType(Seq(
-    StructField("tile_buffer", TileType)
+  def bufferSchema: StructType = StructType(Seq(
+    StructField("tile_buffer", tileUDT)
   ))
 
-  override def dataType: DataType = TileType
+  def dataType: DataType = tileUDT
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit = {
+  def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = ArrayTile.empty(prd.destinationCellType, prd.totalCols, prd.totalRows)
-  }
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val crs: CRS = input.getAs[CRS](0)
     val extent: Extent = input.getAs[Row](1) match {
       case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)
@@ -81,13 +77,13 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
     }
   }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     val leftTile = buffer1.getAs[Tile](0)
     val rightTile = buffer2.getAs[Tile](0)
     buffer1(0) = leftTile.merge(rightTile)
   }
 
-  override def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
+  def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
 }
 
 object TileRasterizerAggregate {

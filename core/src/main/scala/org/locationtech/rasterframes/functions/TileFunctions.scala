@@ -20,6 +20,7 @@
  */
 
 package org.locationtech.rasterframes.functions
+
 import geotrellis.raster.render.ColorRamp
 import geotrellis.raster.{CellType, Tile}
 import org.apache.spark.sql.functions.{lit, typedLit, udf}
@@ -35,8 +36,7 @@ import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.{ColorRampNames, withTypedAlias, _}
-import org.locationtech.rasterframes.{encoders, singlebandTileEncoder, functions => F}
-import org.apache.spark.sql.catalyst.expressions.Literal
+import org.locationtech.rasterframes.{singlebandTileEncoder, functions => F}
 
 /** Functions associated with creating and transforming tiles, including tile-wise statistics and rendering. */
 trait TileFunctions {

@@ -26,7 +26,6 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
 import org.locationtech.jts.geom.Geometry
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.util.ResampleMethod
 
 /**
@@ -45,13 +44,13 @@ package object functions {
     }
   @inline
   private[rasterframes] def safeEval[P, R <: AnyRef](f: P => R): P => R =
-    (p) => if (p == null) null.asInstanceOf[R] else f(p)
+    p => if (p == null) null.asInstanceOf[R] else f(p)
   @inline
   private[rasterframes] def safeEval[P](f: P => Double)(implicit d: DummyImplicit): P => Double =
-    (p) => if (p == null) Double.NaN else f(p)
+    p => if (p == null) Double.NaN else f(p)
   @inline
   private[rasterframes] def safeEval[P](f: P => Long)(implicit d1: DummyImplicit, d2: DummyImplicit): P => Long =
-    (p) => if (p == null) 0l else f(p)
+    p => if (p == null) 0l else f(p)
   @inline
   private[rasterframes] def safeEval[P1, P2, R](f: (P1, P2) => R): (P1, P2) => R =
     (p1, p2) => if (p1 == null || p2 == null) null.asInstanceOf[R] else f(p1, p2)
@@ -104,16 +103,16 @@ package object functions {
       require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
 
       // https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-RowEncoder.html
-      import org.apache.spark.sql.catalyst.encoders.RowEncoder
+      // import org.apache.spark.sql.catalyst.encoders.RowEncoder
       // WOW TODO: Row Encoder all over the places
       // println(
-        extentEncoder
+        /*extentEncoder
           .resolveAndBind() // bind it to schema before deserializing, that's how spark Dataset.as works
                             // see https://github.com/apache/spark/blob/93cec49212fe82816fcadf69f429cebaec60e058/sql/core/src/main/scala/org/apache/spark/sql/Dataset.scala#L75-L86
           .createDeserializer()(
             RowEncoder(extentEncoder.schema)
               .createSerializer()(leftExtentEnc)
-          )
+          )*/
       // )
       val leftExtent: Extent = leftExtentEnc match {
         case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)

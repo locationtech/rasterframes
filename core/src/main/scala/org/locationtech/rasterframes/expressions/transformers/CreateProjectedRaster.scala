@@ -27,12 +27,11 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, TernaryExpression}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.apache.spark.sql.rf.{CrsUDT, TileUDT}
-import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes.encoders._
 
 @ExpressionDescription(
   usage = "_FUNC_(extent, crs, tile) - Construct a `proj_raster` structure from individual CRS, Extent, and Tile columns",

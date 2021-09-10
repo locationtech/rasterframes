@@ -24,13 +24,12 @@ package org.locationtech.rasterframes.extensions
 import geotrellis.layer._
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod => GTResampleMethod}
 import geotrellis.util.MethodExtensions
-import geotrellis.vector.Extent
+
 import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
-import org.locationtech.rasterframes.StandardColumns._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
@@ -49,7 +48,7 @@ import org.apache.spark.sql.rf.CrsUDT
 trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with MetadataKeys {
   import Implicits.{WithDataFrameMethods, WithMetadataBuilderMethods, WithMetadataMethods, WithRasterFrameLayerMethods}
 
-  private def selector(column: Column) = (attr: Attribute) =>
+  private def selector(column: Column): Attribute => Boolean = (attr: Attribute) =>
     attr.name == column.columnName || attr.semanticEquals(column.expr)
 
   /** Map over the Attribute representation of Columns, modifying the one matching `column` with `op`. */

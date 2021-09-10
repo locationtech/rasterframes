@@ -20,15 +20,15 @@
  */
 
 package org.locationtech.rasterframes.expressions
+
 import geotrellis.proj4.{CRS, LatLng, WebMercator}
 import geotrellis.raster.CellType
 import geotrellis.vector._
 import org.apache.spark.sql.Encoders
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder.Serializer
 import org.apache.spark.sql.jts.JTSTypes
 import org.locationtech.geomesa.curve.{XZ2SFC, Z2SFC}
-import org.locationtech.rasterframes.{TestEnvironment, _}
-import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedSerializer, serialized_literal}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.ref.{InMemoryRasterSource, RFRasterSource}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.scalatest.Inspectors
@@ -95,12 +95,12 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
     it("should extract from RasterSource") {
       val crs: CRS = WebMercator
       val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
-      val dt = RasterSourceType
+      val dt = rasterSourceUDT
       val extractor = DynamicExtractors.centroidExtractor(dt)
       val inputs =
         testExtents
           .map(InMemoryRasterSource(tile, _, crs): RFRasterSource)
-          .map(RasterSourceType.serialize(_).copy())
+          .map(rasterSourceUDT.serialize(_).copy())
           .map(extractor)
 
       forEvery(inputs.zip(expected)) { case (i, e) =>

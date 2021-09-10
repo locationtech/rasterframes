@@ -28,7 +28,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
 import org.apache.spark.sql.rf.VersionShims._
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.sql.{SQLContext, UDFRegistration, rf}
+import org.apache.spark.sql.{SQLContext, rf}
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggregates._
@@ -38,7 +38,6 @@ import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
 
 import scala.reflect.runtime.universe._
-import scala.util.Try
 
 /**
  * Module of Catalyst expressions for efficiently working with tiles.

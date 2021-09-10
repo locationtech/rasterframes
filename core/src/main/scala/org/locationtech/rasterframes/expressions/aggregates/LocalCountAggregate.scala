@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.functions.safeBinaryOp
 import geotrellis.raster.mapalgebra.local.{Add, Defined, Undefined}
@@ -31,7 +32,6 @@ import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, Row, TypedColumn}
-import org.locationtech.rasterframes.TileType
 
 /**
  * Catalyst aggregate function that counts `NoData` values in a cell-wise fashion.
@@ -47,20 +47,20 @@ class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction 
 
   private val add = safeBinaryOp(Add.apply(_: Tile, _: Tile))
 
-  override def dataType: DataType = TileType
+  def dataType: DataType = tileUDT
 
-  override def inputSchema: StructType = StructType(Seq(
-    StructField("value", TileType, true)
+  def inputSchema: StructType = StructType(Seq(
+    StructField("value", tileUDT, true)
   ))
 
-  override def bufferSchema: StructType = inputSchema
+  def bufferSchema: StructType = inputSchema
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit =
+  def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = null
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val right = input.getAs[Tile](0)
     if (right != null) {
       if (buffer(0) == null) {
@@ -72,14 +72,13 @@ class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction 
     }
   }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     buffer1(0) = add(buffer1.getAs[Tile](0), buffer2.getAs[Tile](0))
   }
 
-  override def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
+  def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
 }
 object LocalCountAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Compute cell-wise count of non-no-data values."
   )

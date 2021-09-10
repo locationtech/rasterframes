@@ -32,6 +32,7 @@ import org.locationtech.geomesa.spark.jts.rules.GeometryLiteral
 import org.locationtech.rasterframes.rules.TemporalFilters
 
 /**
+ * TODO: fix it
  * This is a copy of [[org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter]], modified to add our spatial predicates.
  *
  * @since 1/11/18
@@ -85,7 +86,7 @@ object FilterTranslator {
         val toScala = createToScalaConverter(TimestampType)(_: Any).asInstanceOf[Timestamp]
 
         for {
-          leftFilter ← translateFilter(left)
+          leftFilter <- translateFilter(left)
           rightFilter = TemporalFilters.BetweenTimes(a.name, toScala(start), toScala(end))
         } yield sources.And(leftFilter, ???)
 
@@ -97,7 +98,7 @@ object FilterTranslator {
       ) if a.name == b.name =>
         val toScala = createToScalaConverter(DateType)(_: Any).asInstanceOf[Date]
         for {
-          leftFilter ← translateFilter(left)
+          leftFilter <- translateFilter(left)
           rightFilter = TemporalFilters.BetweenDates(a.name, toScala(start), toScala(end))
         } yield sources.And(leftFilter, ???)
 

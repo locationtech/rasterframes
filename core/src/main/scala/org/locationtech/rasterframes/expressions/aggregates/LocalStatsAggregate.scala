@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.functions.safeBinaryOp
 import org.locationtech.rasterframes.stats.LocalCellStatistics
@@ -33,7 +34,6 @@ import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, TypedColumn}
-import org.locationtech.rasterframes.TileType
 
 
 /**
@@ -44,29 +44,29 @@ import org.locationtech.rasterframes.TileType
 class LocalStatsAggregate() extends UserDefinedAggregateFunction {
   import LocalStatsAggregate.C
 
-  override def inputSchema: StructType = StructType(Seq(
-    StructField("value", TileType, true)
+  def inputSchema: StructType = StructType(Seq(
+    StructField("value", tileUDT, true)
   ))
 
-  override def dataType: DataType =
+  def dataType: DataType =
     StructType(
       Seq(
-        StructField("count", TileType),
-        StructField("min", TileType),
-        StructField("max", TileType),
-        StructField("mean", TileType),
-        StructField("variance", TileType)
+        StructField("count", tileUDT),
+        StructField("min", tileUDT),
+        StructField("max", tileUDT),
+        StructField("mean", tileUDT),
+        StructField("variance", tileUDT)
       )
     )
 
-  override def bufferSchema: StructType =
+  def bufferSchema: StructType =
     StructType(
       Seq(
-        StructField("count", TileType),
-        StructField("min", TileType),
-        StructField("max", TileType),
-        StructField("sum", TileType),
-        StructField("sumSqr", TileType)
+        StructField("count", tileUDT),
+        StructField("min", tileUDT),
+        StructField("max", tileUDT),
+        StructField("sum", tileUDT),
+        StructField("sumSqr", tileUDT)
       )
     )
 
@@ -97,18 +97,15 @@ class LocalStatsAggregate() extends UserDefinedAggregateFunction {
     safeBinaryOp((t1: Tile, t2: Tile) => BiasedAdd(t1, t2))
   )
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit = {
-    for(i ← initFunctions.indices) {
-      buffer(i) = null
-    }
-  }
+  def initialize(buffer: MutableAggregationBuffer): Unit =
+    for(i <- initFunctions.indices) { buffer(i) = null }
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val right = input.getAs[Tile](0)
     if (right != null) {
-      for (i ← initFunctions.indices) {
+      for (i <- initFunctions.indices) {
         if (buffer.isNullAt(i)) {
           buffer(i) = initFunctions(i)(right)
         }
@@ -120,8 +117,8 @@ class LocalStatsAggregate() extends UserDefinedAggregateFunction {
     }
   }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    for (i ← mergeFunctions.indices) {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+    for (i <- mergeFunctions.indices) {
       val left = buffer1.getAs[Tile](i)
       val right = buffer2.getAs[Tile](i)
       val merged = mergeFunctions(i)(left, right)

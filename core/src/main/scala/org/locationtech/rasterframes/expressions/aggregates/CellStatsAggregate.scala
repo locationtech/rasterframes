@@ -21,10 +21,10 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.stats.CellStatistics
-import org.locationtech.rasterframes.TileType
-import geotrellis.raster.{Tile, _}
+import geotrellis.raster._
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, AggregateFunction, AggregateMode, Complete}
 import org.apache.spark.sql.catalyst.expressions.{ExprId, Expression, ExpressionDescription, NamedExpression}
 import org.apache.spark.sql.execution.aggregate.ScalaUDAF
@@ -40,9 +40,9 @@ import org.apache.spark.sql.{Column, Row, TypedColumn}
 case class CellStatsAggregate() extends UserDefinedAggregateFunction {
   import CellStatsAggregate.C
   // TODO: rewrite as a DeclarativeAggregate
-  override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
+  def inputSchema: StructType = StructType(StructField("value", tileUDT) :: Nil)
 
-  override def dataType: DataType = StructType(Seq(
+  def dataType: DataType = StructType(Seq(
     StructField("data_cells", LongType),
     StructField("no_data_cells", LongType),
     StructField("min", DoubleType),
@@ -51,7 +51,7 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
     StructField("variance", DoubleType)
   ))
 
-  override def bufferSchema: StructType = StructType(Seq(
+  def bufferSchema: StructType = StructType(Seq(
     StructField("data_cells", LongType),
     StructField("no_data_cells", LongType),
     StructField("min", DoubleType),
@@ -60,9 +60,9 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
     StructField("sumSqr", DoubleType)
   ))
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit = {
+  def initialize(buffer: MutableAggregationBuffer): Unit = {
     buffer(C.COUNT) = 0L
     buffer(C.NODATA) = 0L
     buffer(C.MIN) = Double.MaxValue
@@ -71,7 +71,7 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
     buffer(C.SUM_SQRS) = 0.0
   }
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit =
     if (!input.isNullAt(0)) {
       val tile = input.getAs[Tile](0)
       var count = buffer.getLong(C.COUNT)
@@ -98,9 +98,8 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
       buffer(C.SUM) = sum
       buffer(C.SUM_SQRS) = sumSqr
     }
-  }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     buffer1(C.COUNT) = buffer1.getLong(C.COUNT) + buffer2.getLong(C.COUNT)
     buffer1(C.NODATA) = buffer1.getLong(C.NODATA) + buffer2.getLong(C.NODATA)
     buffer1(C.MIN) = math.min(buffer1.getDouble(C.MIN), buffer2.getDouble(C.MIN))
@@ -109,7 +108,7 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
     buffer1(C.SUM_SQRS) = buffer1.getDouble(C.SUM_SQRS) + buffer2.getDouble(C.SUM_SQRS)
   }
 
-  override def evaluate(buffer: Row): Any = {
+  def evaluate(buffer: Row): Any = {
     val count = buffer.getLong(C.COUNT)
     val sum = buffer.getDouble(C.SUM)
     val sumSqr = buffer.getDouble(C.SUM_SQRS)
@@ -120,8 +119,6 @@ case class CellStatsAggregate() extends UserDefinedAggregateFunction {
 }
 
 object CellStatsAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.cellStatsEncoder
-
   def apply(col: Column): TypedColumn[Any, CellStatistics] =
     new CellStatsAggregate()(ExtractTile(col))
       .as(s"rf_agg_stats($col)")

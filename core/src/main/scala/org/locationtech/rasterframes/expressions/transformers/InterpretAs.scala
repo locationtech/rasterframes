@@ -31,11 +31,10 @@ import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, 
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
-import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedDeserializer}
-import StandardEncoders._
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, value) - Change the interpretation of the Tile's cell values according to specified CellType",
@@ -50,13 +49,13 @@ import StandardEncoders._
 )
 case class InterpretAs(tile: Expression, cellType: Expression)
   extends BinaryExpression with RasterResult with CodegenFallback {
-  def left = tile
-  def right = cellType
+  def left: Expression = tile
+  def right: Expression = cellType
   override def nodeName: String = "rf_interpret_cell_type_as"
   override def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!tileExtractor.isDefinedAt(left.dataType))
+    if (!DynamicExtractors.tileExtractor.isDefinedAt(left.dataType))
       TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     else
       right.dataType match {
@@ -79,7 +78,7 @@ case class InterpretAs(tile: Expression, cellType: Expression)
   }
 
   override protected def nullSafeEval(tileInput: Any, ctInput: Any): InternalRow = {
-    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
+    val (tile, ctx) = DynamicExtractors.tileExtractor(left.dataType)(row(tileInput))
     val ct = toCellType(ctInput)
     val result = tile.interpretAs(ct)
     toInternalRow(result, ctx)

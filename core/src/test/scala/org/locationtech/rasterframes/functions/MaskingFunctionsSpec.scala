@@ -28,7 +28,6 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
-  import ProjectedRasterTile.prtEncoder
   import TestData._
   import spark.implicits._
 

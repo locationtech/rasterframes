@@ -26,22 +26,20 @@ import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
 
 case class GetTileContext(child: Expression) extends UnaryRasterOp with CodegenFallback {
-  lazy val tileContextEncoder = StandardEncoders.tileContextEncoder
-  override def dataType: DataType = tileContextEncoder.schema
+  def dataType: DataType = tileContextEncoder.schema
 
   override def nodeName: String = "get_tile_context"
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
-    ctx.map(tileContextEncoder.createSerializer()).orNull
+
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
+    ctx.map(cachedSerializer[TileContext]).orNull
 }
 
 object GetTileContext {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.tileContextEncoder
-
-  def apply(input: Column): TypedColumn[Any, TileContext] =
-    new Column(new GetTileContext(input.expr)).as[TileContext]
+  def apply(input: Column): TypedColumn[Any, TileContext] = new Column(new GetTileContext(input.expr)).as[TileContext]
 }

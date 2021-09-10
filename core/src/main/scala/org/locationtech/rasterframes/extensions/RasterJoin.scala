@@ -27,9 +27,9 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.serialized_literal
-import org.locationtech.rasterframes.expressions.{DynamicExtractors, SpatialRelation}
+import org.locationtech.rasterframes.expressions.SpatialRelation
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
-import org.locationtech.rasterframes.functions.{reproject_and_merge}
+import org.locationtech.rasterframes.functions.reproject_and_merge
 import org.locationtech.rasterframes.util._
 
 import scala.util.Random

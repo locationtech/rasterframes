@@ -57,7 +57,7 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
       tileExtractor.isDefinedAt(green.dataType) ||
       tileExtractor.isDefinedAt(blue.dataType)
   ) red.dataType
-  else TileType
+  else tileUDT
 
   override def children: Seq[Expression] = Seq(red, green, blue)
 

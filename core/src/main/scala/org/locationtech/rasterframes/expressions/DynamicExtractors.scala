@@ -22,20 +22,17 @@
 package org.locationtech.rasterframes.expressions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, Tile}
+import geotrellis.raster.{CellGrid, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.jts.geom.{Envelope, Point}
-import org.locationtech.rasterframes.{RasterSourceType, TileType, extentEncoder}
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.{StandardEncoders, cachedDeserializer}
-import org.locationtech.rasterframes.encoders.StandardEncoders._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.model.{LazyCRS, LongExtent, TileContext}
 import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
@@ -46,7 +43,7 @@ object DynamicExtractors {
   /** Partial function for pulling a tile and its context from an input row. */
   lazy val tileExtractor: PartialFunction[DataType, InternalRow => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
-      (row: InternalRow) => (TileType.deserialize(row), None)
+      (row: InternalRow) => (tileUDT.deserialize(row), None)
     case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
       val fromRow = cachedDeserializer[ProjectedRasterTile]
       (row: InternalRow) => {
@@ -64,50 +61,17 @@ object DynamicExtractors {
   lazy val tileableExtractor: PartialFunction[DataType, InternalRow => Tile] =
     tileExtractor.andThen(_.andThen(_._1)).orElse(rasterRefExtractor.andThen(_.andThen(_.tile)))
 
-  /*lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
-    case _: TileUDT =>
-      (row: Row) =>
-        (singlebandTileEncoder
-          .resolveAndBind()
-          .createDeserializer()(
-            RowEncoder(singlebandTileEncoder.schema)
-              .createSerializer()(row)
-          ), None)
-    case t if t.conformsToSchema(rasterEncoder.schema) =>
-      (row: Row) => {
-        (rasterEncoder
-          .resolveAndBind()
-          .createDeserializer()(
-            RowEncoder(rasterEncoder.schema)
-              .createSerializer()(row)
-          ).tile, None)
-      }
-    case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
-      (row: Row) => {
-        val prt =
-          ProjectedRasterTile
-            .prtEncoder
-            .resolveAndBind()
-            .createDeserializer()(
-              RowEncoder(ProjectedRasterTile.prtEncoder.schema)
-                .createSerializer()(row)
-            )
-        (prt, Some(TileContext(prt)))
-      }
-  }*/
-
   lazy val internalRowTileExtractor: PartialFunction[DataType, InternalRow => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: Any) => (new TileUDT().deserialize(row), None)
     case t if t.conformsToSchema(rasterEncoder.schema) =>
-      (row: InternalRow) => (rasterEncoder.resolveAndBind().createDeserializer()(row).tile, None)
+      (row: InternalRow) =>
+        val fromRow = cachedDeserializer[Raster[Tile]]
+        (fromRow(row).tile, None)
     case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
       (row: InternalRow) => {
-        val prt =
-          ProjectedRasterTile
-            .prtEncoder
-            .resolveAndBind()
-            .createDeserializer()(row)
+        val fromRow = cachedDeserializer[ProjectedRasterTile]
+        val prt = fromRow(row)
         (prt, Some(TileContext(prt)))
       }
   }
@@ -115,31 +79,17 @@ object DynamicExtractors {
   lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
     case _: TileUDT =>
       (row: Row) =>
-        (singlebandTileEncoder
-          .resolveAndBind()
-          .createDeserializer()(
-            RowEncoder(singlebandTileEncoder.schema)
-              .createSerializer()(row)
-          ), None)
+        val fromRow = cachedRowDeserialize[Tile]
+        (fromRow(row), None)
     case t if t.conformsToSchema(rasterEncoder.schema) =>
       (row: Row) => {
-        (rasterEncoder
-          .resolveAndBind()
-          .createDeserializer()(
-            RowEncoder(rasterEncoder.schema)
-              .createSerializer()(row)
-          ).tile, None)
+        val fromRow = cachedRowDeserialize[Raster[Tile]]
+        (fromRow(row).tile, None)
       }
     case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
       (row: Row) => {
-        val prt =
-          ProjectedRasterTile
-            .prtEncoder
-            .resolveAndBind()
-            .createDeserializer()(
-              RowEncoder(ProjectedRasterTile.prtEncoder.schema)
-                .createSerializer()(row)
-            )
+        val fromRow = cachedRowDeserialize[ProjectedRasterTile]
+        val prt = fromRow(row)
         (prt, Some(TileContext(prt)))
       }
   }
@@ -149,7 +99,7 @@ object DynamicExtractors {
     case _: RasterSourceUDT =>
       (input: Any) =>
         val row = input.asInstanceOf[InternalRow]
-        RasterSourceType.deserialize(row)
+        rasterSourceUDT.deserialize(row)
     case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
       val fromRow = cachedDeserializer[ProjectedRasterTile]
       (input: Any) =>
@@ -164,7 +114,7 @@ object DynamicExtractors {
   lazy val gridExtractor: PartialFunction[DataType, InternalRow => CellGrid[Int]] = {
     case _: TileUDT =>
       // TODO EAC: is there way to extract grid from TileUDT without reading the cells with an expression?
-      (row: InternalRow) => TileType.deserialize(row)
+      (row: InternalRow) => tileUDT.deserialize(row)
     case _: RasterSourceUDT =>
       val udt = new RasterSourceUDT()
       (row: InternalRow) => udt.deserialize(row)
@@ -178,10 +128,14 @@ object DynamicExtractors {
 
   lazy val crsExtractor: PartialFunction[DataType, Any => CRS] = {
     val base: PartialFunction[DataType, Any => CRS] = {
-      case _: StringType => (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
-      case _: CrsUDT => (v: Any) => LazyCRS(v.asInstanceOf[UTF8String].toString)
-      case t if t.conformsToSchema(crsSparkEncoder.schema) =>
-        (v: Any) => crsSparkEncoder.resolveAndBind().createDeserializer()(v.asInstanceOf[InternalRow])
+      case _: StringType => (v: Any) =>
+        LazyCRS(v.asInstanceOf[UTF8String].toString)
+      case _: CrsUDT => (v: Any) =>
+        LazyCRS(v.asInstanceOf[UTF8String].toString)
+      case t if t.conformsToSchema(crsExpressionEncoder.schema) =>
+        (v: Any) =>
+          val fromRow = cachedDeserializer[CRS]
+          fromRow(v.asInstanceOf[InternalRow])
     }
 
     val fromPRL = projectedRasterLikeExtractor.andThen(_.andThen(_.crs))
@@ -191,7 +145,7 @@ object DynamicExtractors {
   /** This is necessary because extents created from Python Rows will reorder field names. */
   object ExtentLike {
 
-    def rightShape(struct: StructType) =
+    def rightShape(struct: StructType): Boolean =
       struct.size == 4 && {
         val n = struct.fieldNames.map(_.toLowerCase).toSet
         n == Set("xmin", "ymin", "xmax", "ymax")|| n == Set("minx", "miny", "maxx", "maxy")
@@ -229,12 +183,10 @@ object DynamicExtractors {
       case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
         (input: Any) => Extent(JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal)
       case t if t.conformsToSchema(StandardEncoders.extentEncoder.schema) =>
-        (input: Any) =>
+        (input: Any) => DynamicExtractors.synchronized {
           val fromRow = cachedDeserializer[Extent]
-          val res = fromRow(input.asInstanceOf[InternalRow])
-          // println(s"input: ${input}")
-          // println(s"res: ${res}")
-          res
+          fromRow(input.asInstanceOf[InternalRow])
+        }
       case t if t.conformsToSchema(StandardEncoders.envelopeEncoder.schema) =>
         (input: Any) =>
           val fromRow = cachedDeserializer[Envelope]
@@ -252,7 +204,7 @@ object DynamicExtractors {
 
   lazy val envelopeExtractor: PartialFunction[DataType, Any => Envelope] = {
     val base: PartialFunction[DataType, Any => Envelope] = {
-      case t if org.apache.spark.sql.rf.WithTypeConformity(t).conformsTo(JTSTypes.GeometryTypeInstance) =>
+      case t if t.conformsToDataType(JTSTypes.GeometryTypeInstance) =>
         (input: Any) => JTSTypes.GeometryTypeInstance.deserialize(input).getEnvelopeInternal
       case t if t.conformsToSchema(StandardEncoders.extentEncoder.schema) =>
         (input: Any) =>

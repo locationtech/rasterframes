@@ -21,29 +21,22 @@
 
 package org.locationtech.rasterframes.encoders
 
-import frameless.{Injection, RecordEncoderField, TypedEncoder}
-
-import java.net.URI
-import java.sql.Timestamp
 import org.locationtech.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, CellType, Dimensions, GridBounds, Raster, Tile, TileLayout}
+import geotrellis.raster.{CellSize, CellType, Dimensions, Raster, Tile, TileLayout}
 import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.catalyst.expressions.{CreateNamedStruct, Expression, GetStructField, If, IsNull, Literal}
-import org.apache.spark.sql.catalyst.expressions.objects.{Invoke, NewInstance, StaticInvoke}
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
-import org.apache.spark.sql.FramelessInternals
-import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
-import org.apache.spark.sql.types.{DataType, Metadata, StructField, StructType}
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import org.locationtech.rasterframes.model.{CellContext, LongExtent, TileContext, TileDataContext}
-import org.locationtech.rasterframes.util.KryoSupport
+import frameless.TypedEncoder
 
-import java.nio.ByteBuffer
-import scala.reflect.{ClassTag, classTag}
+import java.net.URI
+import java.sql.Timestamp
+
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 /**
@@ -60,298 +53,41 @@ object EnvelopeLocal {
 /**
  * Implicit encoder definitions for RasterFrameLayer types.
  */
-trait StandardEncoders extends SpatialEncoders {
-  object PrimitiveEncoders extends SparkBasicEncoders
+trait StandardEncoders extends SpatialEncoders with TypedEncoders {
   def expressionEncoder[T: TypeTag]: ExpressionEncoder[T] = ExpressionEncoder()
-  implicit def crsSparkEncoder: ExpressionEncoder[CRS] = ExpressionEncoder()
-  implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ExpressionEncoder()
-  implicit def temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = ExpressionEncoder()
-  implicit def timestampEncoder: ExpressionEncoder[Timestamp] = ExpressionEncoder()
-  implicit def strMapEncoder: ExpressionEncoder[Map[String, String]] = ExpressionEncoder()
-  implicit def cellStatsEncoder: ExpressionEncoder[CellStatistics] = ExpressionEncoder()
-  implicit def cellHistEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
-  implicit def localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
 
-  implicit def quantileSummariesInjection: Injection[QuantileSummaries, Array[Byte]] =
-    Injection(KryoSupport.serialize(_).array(), array => KryoSupport.deserialize[QuantileSummaries](ByteBuffer.wrap(array)))
+  implicit lazy val crsExpressionEncoder: ExpressionEncoder[CRS] = ExpressionEncoder()
+  implicit lazy val projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ExpressionEncoder()
+  implicit lazy val temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = ExpressionEncoder()
+  implicit lazy val timestampEncoder: ExpressionEncoder[Timestamp] = ExpressionEncoder()
+  implicit lazy val strMapEncoder: ExpressionEncoder[Map[String, String]] = ExpressionEncoder()
+  implicit lazy val cellStatsEncoder: ExpressionEncoder[CellStatistics] = ExpressionEncoder()
+  implicit lazy val cellHistEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
+  implicit lazy val localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
+  implicit lazy val uriEncoder: ExpressionEncoder[URI]   = typedExpressionEncoder[URI]
+  implicit lazy val quantileSummariesEncoder: ExpressionEncoder[QuantileSummaries] = typedExpressionEncoder[QuantileSummaries]
 
-  implicit def uriInjection: Injection[URI, String] = Injection(_.toString, new URI(_))
-
-  implicit def uriTypedEncoder: TypedEncoder[URI]   = TypedEncoder.usingInjection
-
-  implicit def uriEncoder: ExpressionEncoder[URI]   = typedExpressionEncoder[URI]
-
-  implicit def quantileSummariesTypedEncoder: TypedEncoder[QuantileSummaries] = TypedEncoder.usingInjection
-
-  implicit def quantileSummariesEncoder: ExpressionEncoder[QuantileSummaries] = typedExpressionEncoder[QuantileSummaries]
-
-  implicit def envelopeTypedEncoder: TypedEncoder[Envelope] = new TypedEncoder[Envelope] {
-    val fields: List[RecordEncoderField] = List(
-      RecordEncoderField(0, "minX", TypedEncoder[Double]),
-      RecordEncoderField(1, "maxX", TypedEncoder[Double]),
-      RecordEncoderField(2, "minY", TypedEncoder[Double]),
-      RecordEncoderField(3, "maxY", TypedEncoder[Double])
-    )
-
-    def nullable: Boolean = true
-
-    def jvmRepr: DataType = FramelessInternals.objectTypeFor[Envelope]
-
-    def catalystRepr: DataType = {
-      val structFields = fields.map { field =>
-        StructField(
-          name = field.name,
-          dataType = field.encoder.catalystRepr,
-          nullable = field.encoder.nullable,
-          metadata = Metadata.empty
-        )
-      }
-
-      StructType(structFields)
-    }
-
-    def fromCatalyst(path: Expression): Expression = {
-      val newArgs = fields.map { field =>
-        field.encoder.fromCatalyst( GetStructField(path, field.ordinal, Some(field.name)) )
-      }
-      // TODO: sounds like we should abstract this
-      val newExpr = NewInstance(classTag.runtimeClass, newArgs, jvmRepr, propagateNull = true)
-      // val newExpr = StaticInvoke(EnvelopeLocal.getClass, jvmRepr, "apply", newArgs, propagateNull = true, returnNullable = false)
-
-      val nullExpr = Literal.create(null, jvmRepr)
-      If(IsNull(path), nullExpr, newExpr)
-    }
-
-    def toCatalyst(path: Expression): Expression = {
-      val nameExprs = fields.map { field =>
-        Literal(field.name)
-      }
-
-      val valueExprs = fields.map { field =>
-        val fieldPath = Invoke(path, s"get${field.name.capitalize}", field.encoder.jvmRepr, Nil)
-        field.encoder.toCatalyst(fieldPath)
-      }
-
-      // the way exprs are encoded in CreateNamedStruct
-      val exprs = nameExprs.zip(valueExprs).flatMap {
-        case (nameExpr, valueExpr) => nameExpr :: valueExpr :: Nil
-      }
-
-      val createExpr = CreateNamedStruct(exprs)
-      val nullExpr = Literal.create(null, createExpr.dataType)
-      If(IsNull(path), nullExpr, createExpr)
-    }
-  }
-
-  implicit def dimensionsTypedEncoder: TypedEncoder[Dimensions[Int]] = new TypedEncoder[Dimensions[Int]] {
-    val fields: List[RecordEncoderField] = List(
-      RecordEncoderField(0, "cols", TypedEncoder[Int]),
-      RecordEncoderField(1, "rows", TypedEncoder[Int]))
-
-    def nullable: Boolean = true
-
-    def jvmRepr: DataType = FramelessInternals.objectTypeFor[Dimensions[Int]]
-
-    def catalystRepr: DataType = {
-      val structFields = fields.map { field =>
-        StructField(
-          name = field.name,
-          dataType = field.encoder.catalystRepr,
-          nullable = field.encoder.nullable,
-          metadata = Metadata.empty
-        )
-      }
-
-      StructType(structFields)
-    }
-
-    def fromCatalyst(path: Expression): Expression = {
-      val newArgs = fields.map { field =>
-        field.encoder.fromCatalyst( GetStructField(path, field.ordinal, Some(field.name)) )
-      }
-      // TODO: sounds like we should abstract this
-      //val newExpr = NewInstance(classTag.runtimeClass, newArgs, jvmRepr, propagateNull = true)
-      val newExpr = StaticInvoke(DimensionsInt.getClass, jvmRepr, "apply", newArgs, propagateNull = true, returnNullable = false)
-
-      val nullExpr = Literal.create(null, jvmRepr)
-      If(IsNull(path), nullExpr, newExpr)
-    }
-
-    def toCatalyst(path: Expression): Expression = {
-      val nameExprs = fields.map { field =>
-        Literal(field.name)
-      }
-
-      val valueExprs = fields.map { field =>
-        val fieldPath = Invoke(path, field.name, field.encoder.jvmRepr, Nil)
-        field.encoder.toCatalyst(fieldPath)
-      }
-
-      // the way exprs are encoded in CreateNamedStruct
-      val exprs = nameExprs.zip(valueExprs).flatMap {
-        case (nameExpr, valueExpr) => nameExpr :: valueExpr :: Nil
-      }
-
-      val createExpr = CreateNamedStruct(exprs)
-      val nullExpr = Literal.create(null, createExpr.dataType)
-      If(IsNull(path), nullExpr, createExpr)
-    }
-  }
-
-  /**
-   * @note
-   * Frameless cannot derive encoder for GridBounds because it lacks constructor from (int, int, int int)
-   * Defining Injection is not suitable because Injection is used in derivation of encoder fields but is not an encoder.
-   * Additionally Injection to Tuple4[Int, Int, Int, Int] would not have correct fields.
-   */
-  implicit def gridBoundsEncoder: TypedEncoder[GridBounds[Int]] = new TypedEncoder[GridBounds[Int]]() {
-    val fields: List[RecordEncoderField] = List(
-      RecordEncoderField(0, "colMin", TypedEncoder[Int]),
-      RecordEncoderField(1, "rowMin", TypedEncoder[Int]),
-      RecordEncoderField(2, "colMax", TypedEncoder[Int]),
-      RecordEncoderField(3, "rowMax", TypedEncoder[Int]))
-
-    def nullable: Boolean = true
-
-    def jvmRepr: DataType = FramelessInternals.objectTypeFor[GridBounds[Int]]
-
-    def catalystRepr: DataType = {
-      val structFields = fields.map { field =>
-        StructField(
-          name = field.name,
-          dataType = field.encoder.catalystRepr,
-          nullable = field.encoder.nullable,
-          metadata = Metadata.empty
-        )
-      }
-
-      StructType(structFields)
-    }
-
-    def fromCatalyst(path: Expression): Expression = {
-      val newArgs = fields.map { field =>
-        field.encoder.fromCatalyst( GetStructField(path, field.ordinal, Some(field.name)) )
-      }
-      // TODO: sounds like we should abstract this
-      //val newExpr = NewInstance(classTag.runtimeClass, newArgs, jvmRepr, propagateNull = true)
-      val newExpr = StaticInvoke(classTag.runtimeClass, jvmRepr, "apply", newArgs, propagateNull = true, returnNullable = false)
-
-      val nullExpr = Literal.create(null, jvmRepr)
-      If(IsNull(path), nullExpr, newExpr)
-    }
-
-    def toCatalyst(path: Expression): Expression = {
-      val nameExprs = fields.map { field =>
-        Literal(field.name)
-      }
-
-      val valueExprs = fields.map { field =>
-        val fieldPath = Invoke(path, field.name, field.encoder.jvmRepr, Nil)
-        field.encoder.toCatalyst(fieldPath)
-      }
-
-      // the way exprs are encoded in CreateNamedStruct
-      val exprs = nameExprs.zip(valueExprs).flatMap {
-        case (nameExpr, valueExpr) => nameExpr :: valueExpr :: Nil
-      }
-
-      val createExpr = CreateNamedStruct(exprs)
-      val nullExpr = Literal.create(null, createExpr.dataType)
-      If(IsNull(path), nullExpr, createExpr)
-    }
-  }
-
-  // import org.locationtech.rasterframes.{CrsType}
-
-  //implicit val crsUDT = new rf.CrsUDT()
-
-  implicit def tileLayerMetadataTypedEncoder[K: TypedEncoder: ClassTag]: TypedEncoder[TileLayerMetadata[K]] = new TypedEncoder[TileLayerMetadata[K]] {
-    val fields: List[RecordEncoderField] = List(
-      RecordEncoderField(0, "cellType", cellTypeTypedEncoder),
-      RecordEncoderField(1, "layout", TypedEncoder[LayoutDefinition]),
-      RecordEncoderField(2, "extent", TypedEncoder[Extent]),
-      RecordEncoderField(3, "crs", TypedEncoder[CRS]),
-      RecordEncoderField(4, "bounds", TypedEncoder[KeyBounds[K]])
-    )
-
-    def nullable: Boolean = true
-
-    def jvmRepr: DataType = FramelessInternals.objectTypeFor[TileLayerMetadata[K]]
-
-    def catalystRepr: DataType = {
-      val structFields = fields.map { field =>
-        StructField(
-          name = field.name,
-          dataType = field.encoder.catalystRepr,
-          nullable = field.encoder.nullable,
-          metadata = Metadata.empty
-        )
-      }
-
-      StructType(structFields)
-    }
-
-    def fromCatalyst(path: Expression): Expression = {
-      val newArgs = fields.map { field =>
-        field.encoder.fromCatalyst( GetStructField(path, field.ordinal, Some(field.name)) )
-      }
-      // TODO: sounds like we should abstract this
-      // val newExpr = NewInstance(classTag.runtimeClass, newArgs, jvmRepr, propagateNull = true)
-      val newExpr = StaticInvoke(classTag.runtimeClass, jvmRepr, "apply", newArgs, propagateNull = true, returnNullable = false)
-
-      val nullExpr = Literal.create(null, jvmRepr)
-      If(IsNull(path), nullExpr, newExpr)
-    }
-
-    def toCatalyst(path: Expression): Expression = {
-      val nameExprs = fields.map { field =>
-        Literal(field.name)
-      }
-
-      val valueExprs = fields.map { field =>
-        val fieldPath = Invoke(path, field.name, field.encoder.jvmRepr, Nil)
-        field.encoder.toCatalyst(fieldPath)
-      }
-
-      // the way exprs are encoded in CreateNamedStruct
-      val exprs = nameExprs.zip(valueExprs).flatMap {
-        case (nameExpr, valueExpr) => nameExpr :: valueExpr :: Nil
-      }
-
-      val createExpr = CreateNamedStruct(exprs)
-      val nullExpr = Literal.create(null, createExpr.dataType)
-      If(IsNull(path), nullExpr, createExpr)
-    }
-  }
-
-
-  implicit val RasterSourceType = new RasterSourceUDT
-  implicit val implTileType: FramelessInternals.UserDefinedType[Tile] = new TileUDT
-
-  implicit def envelopeEncoder: ExpressionEncoder[Envelope] = typedExpressionEncoder
-  implicit def longExtentEncoder: ExpressionEncoder[LongExtent] = typedExpressionEncoder
-  implicit def extentEncoder: ExpressionEncoder[Extent] = typedExpressionEncoder
-  implicit def cellSizeEncoder: ExpressionEncoder[CellSize] = typedExpressionEncoder
-  implicit def tileLayoutEncoder: ExpressionEncoder[TileLayout] = typedExpressionEncoder
-  implicit def spatialKeyEncoder: ExpressionEncoder[SpatialKey] = typedExpressionEncoder
-  implicit def temporalKeyEncoder: ExpressionEncoder[TemporalKey] = typedExpressionEncoder
-  implicit def spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = typedExpressionEncoder
+  implicit lazy val envelopeEncoder: ExpressionEncoder[Envelope] = typedExpressionEncoder
+  implicit lazy val longExtentEncoder: ExpressionEncoder[LongExtent] = typedExpressionEncoder
+  implicit lazy val extentEncoder: ExpressionEncoder[Extent] = typedExpressionEncoder
+  implicit lazy val cellSizeEncoder: ExpressionEncoder[CellSize] = typedExpressionEncoder
+  implicit lazy val tileLayoutEncoder: ExpressionEncoder[TileLayout] = typedExpressionEncoder
+  implicit lazy val spatialKeyEncoder: ExpressionEncoder[SpatialKey] = typedExpressionEncoder
+  implicit lazy val temporalKeyEncoder: ExpressionEncoder[TemporalKey] = typedExpressionEncoder
+  implicit lazy val spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = typedExpressionEncoder
   implicit def keyBoundsEncoder[K: TypedEncoder]: ExpressionEncoder[KeyBounds[K]] = typedExpressionEncoder[KeyBounds[K]]
   implicit def boundsEncoder[K: TypedEncoder]: ExpressionEncoder[Bounds[K]] = keyBoundsEncoder[KeyBounds[K]].asInstanceOf[ExpressionEncoder[Bounds[K]]]
-  implicit def cellTypeEncoder: ExpressionEncoder[CellType] = typedExpressionEncoder(cellTypeTypedEncoder)
-  implicit def dimensionsEncoder: ExpressionEncoder[Dimensions[Int]] = typedExpressionEncoder
-  implicit def layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = typedExpressionEncoder
+  implicit lazy val cellTypeEncoder: ExpressionEncoder[CellType] = typedExpressionEncoder[CellType]
+  implicit lazy val dimensionsEncoder: ExpressionEncoder[Dimensions[Int]] = typedExpressionEncoder
+  implicit lazy val layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = typedExpressionEncoder
   implicit def tileLayerMetadataEncoder[K: TypedEncoder: ClassTag]: ExpressionEncoder[TileLayerMetadata[K]] = typedExpressionEncoder[TileLayerMetadata[K]]
-  implicit def tileContextEncoder: ExpressionEncoder[TileContext] = typedExpressionEncoder
-  implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = typedExpressionEncoder
-  implicit def cellContextEncoder: ExpressionEncoder[CellContext] = typedExpressionEncoder
+  implicit lazy val tileContextEncoder: ExpressionEncoder[TileContext] = typedExpressionEncoder
+  implicit lazy val tileDataContextEncoder: ExpressionEncoder[TileDataContext] = typedExpressionEncoder
+  implicit lazy val cellContextEncoder: ExpressionEncoder[CellContext] = typedExpressionEncoder
 
-  implicit def singlebandTileTypedEncoder: TypedEncoder[Tile] = TypedEncoder.usingUserDefinedType[Tile](implTileType, classTag[Tile])
-  implicit def rasterTypedEncoder: TypedEncoder[Raster[Tile]] = TypedEncoder.usingDerivation
-
-  implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = typedExpressionEncoder
-  implicit def optionalTileEncoder: ExpressionEncoder[Option[Tile]] = typedExpressionEncoder
-  implicit def rasterEncoder: ExpressionEncoder[Raster[Tile]] = typedExpressionEncoder
+  implicit lazy val singlebandTileEncoder: ExpressionEncoder[Tile] = typedExpressionEncoder
+  implicit lazy val optionalTileEncoder: ExpressionEncoder[Option[Tile]] = typedExpressionEncoder
+  implicit lazy val rasterEncoder: ExpressionEncoder[Raster[Tile]] = typedExpressionEncoder
 }
 
 object StandardEncoders extends StandardEncoders

@@ -46,7 +46,7 @@ object MakeTargetRaster extends App {
   val features = json.extractFeatures[Feature[Polygon, Map[String, Int]]]()
 
   val layers = for {
-    f ← features
+    f <- features
     pf = f.reproject(wgs84, tiff.crs)
     raster = pf.geom.rasterizeWithValue(tiff.rasterExtent, f.data("id"), UByteUserDefinedNoDataCellType(255.toByte))
   } yield raster
