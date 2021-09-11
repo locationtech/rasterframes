@@ -10,7 +10,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 trait RasterResult { self: Expression =>
   private lazy val tileSer: Tile => InternalRow = tileUDT.serialize
-  private lazy val prtSer: ProjectedRasterTile => InternalRow = SerializersCache.serializer[ProjectedRasterTile]
+  private lazy val prtSer: ProjectedRasterTile => InternalRow = SerializersCache.serializer[ProjectedRasterTile].apply
 
   def toInternalRow(result: Tile, tileContext: Option[TileContext] = None): InternalRow =
     tileContext.fold(tileSer(result))(ctx => prtSer(ProjectedRasterTile(result, ctx.extent, ctx.crs)))

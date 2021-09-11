@@ -17,6 +17,10 @@ object SerializersCache { self =>
     def apply(i: InternalRow): T = self.synchronized(underlying.apply(i))
   }
 
+  case class SerializerSynchronized[T](underlying: ExpressionEncoder.Serializer[T]) {
+    def apply(t: T): InternalRow = self.synchronized(underlying.apply(t))
+  }
+
   case class DeserializerRowSynchronized[T](underlying: Row => T) extends AnyVal {
     def apply(i: Row): T = self.synchronized(underlying(i))
   }
@@ -25,21 +29,21 @@ object SerializersCache { self =>
     def apply(i: T): Row = self.synchronized(underlying(i))
   }
 
-  private val cacheSerializer: TrieMap[TypeTag[_], ExpressionEncoder.Serializer[_]] = TrieMap.empty
-  private val cacheSerializerRow: TrieMap[TypeTag[_], ExpressionEncoder.Serializer[Row]] = TrieMap.empty
+  private val cacheSerializer: TrieMap[TypeTag[_], SerializerSynchronized[_]] = TrieMap.empty
+  private val cacheSerializerRow: TrieMap[TypeTag[_], SerializerSynchronized[Row]] = TrieMap.empty
   private val cacheDeserializer: TrieMap[TypeTag[_], DeserializerSynchronized[_]] = TrieMap.empty
   private val cacheDeserializerRow: TrieMap[TypeTag[_], DeserializerSynchronized[Row]] = TrieMap.empty
 
   /** Serializer is threadsafe.*/
-  def serializer[T](implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): ExpressionEncoder.Serializer[T] =
+  def serializer[T](implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): SerializerSynchronized[T] =
     cacheSerializer
-      .getOrElseUpdate(tag, encoder.createSerializer())
-      .asInstanceOf[ExpressionEncoder.Serializer[T]]
+      .getOrElseUpdate(tag, SerializerSynchronized(encoder.createSerializer()))
+      .asInstanceOf[SerializerSynchronized[T]]
 
-  def rowSerializer[T](implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): ExpressionEncoder.Serializer[Row] =
-    cacheSerializerRow.getOrElseUpdate(tag, RowEncoder(encoder.schema).createSerializer())
+  def rowSerializer[T](implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): SerializerSynchronized[Row] =
+    cacheSerializerRow.getOrElseUpdate(tag, SerializerSynchronized(RowEncoder(encoder.schema).createSerializer()))
 
-  /** Deserializer is not thread safe, and expensive to derive.
+  /** Both Serializer and Deserializer are not thread safe, and expensive to derive.
    * Per partition instance would give us no performance regressions,
    * however would require a significant DynamicExtractors refactor. */
   def deserializer[T](implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): DeserializerSynchronized[T] =
