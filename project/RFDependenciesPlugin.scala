@@ -54,8 +54,8 @@ object RFDependenciesPlugin extends AutoPlugin {
 
   override def projectSettings = Seq(
     resolvers ++= Seq(
-      "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
-      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
+      "eclipse-releases" at "https://repo.locationtech.org/content/groups/releases",
+      "eclipse-snapshots" at "https://repo.eclipse.org/content/groups/snapshots",
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
       "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/",
       "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
