@@ -82,7 +82,7 @@ case class RasterSourceRelation(
     sqlContext.sparkSession.sessionState.conf.numShufflePartitions
 
   override def schema: StructType = {
-    val tileSchema = ProjectedRasterTile.prtEncoder.schema
+    val tileSchema = ProjectedRasterTile.projectedRasterTileEncoder.schema
     val paths = for {
       pathCol <- pathColNames
     } yield StructField(pathCol, StringType, false)

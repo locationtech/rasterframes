@@ -24,12 +24,10 @@ package examples
 import geotrellis.raster._
 import geotrellis.vector.Extent
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.datasource.raster._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders
 
 object ExplodeWithLocation extends App {
 
@@ -44,20 +42,8 @@ object ExplodeWithLocation extends App {
   val rf = spark.read.raster.from(example).withTileDimensions(16, 16).load()
 
   val grid2map = udf((encExtent: Row, encDims: Row, colIdx: Int, rowIdx: Int) => {
-    val extent =
-      extentEncoder
-        .resolveAndBind()
-        .createDeserializer()(
-          RowEncoder(extentEncoder.schema)
-            .createSerializer()(encExtent)
-        )
-    val dims =
-      dimensionsEncoder
-        .resolveAndBind()
-        .createDeserializer()(
-          RowEncoder(dimensionsEncoder.schema)
-            .createSerializer()(encDims)
-        )
+    val extent = encExtent.as[Extent]
+    val dims = encDims.as[Dimensions[Int]]
     GridExtent(extent, dims.cols, dims.rows).gridToMap(colIdx, rowIdx)
   })
 

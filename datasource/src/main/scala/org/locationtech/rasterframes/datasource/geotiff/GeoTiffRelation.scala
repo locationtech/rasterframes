@@ -21,25 +21,26 @@
 
 package org.locationtech.rasterframes.datasource.geotiff
 
-import java.net.URI
-import com.typesafe.scalalogging.Logger
 import geotrellis.layer._
 import geotrellis.spark._
 import geotrellis.store.hadoop.util.HdfsRangeReader
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext}
-import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 import JsonCodecs._
 import geotrellis.raster.CellGrid
 import geotrellis.spark.store.hadoop.{HadoopGeoTiffRDD, HadoopGeoTiffReader}
-import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
+
+import java.net.URI
+import com.typesafe.scalalogging.Logger
 
 /**
  * Spark SQL data source over a single GeoTiff file. Works best with CoG compliant ones.
@@ -71,11 +72,9 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
 
     StructType(Seq(
       StructField(SPATIAL_KEY_COLUMN.columnName, skSchema, nullable = false, skMetadata),
-      StructField(EXTENT_COLUMN.columnName, StandardEncoders.extentEncoder.schema, nullable = true),
-      StructField(CRS_COLUMN.columnName, CrsType, nullable = true),
-      StructField(METADATA_COLUMN.columnName,
-        DataTypes.createMapType(StringType, StringType, false)
-      )
+      StructField(EXTENT_COLUMN.columnName, extentEncoder.schema, nullable = true),
+      StructField(CRS_COLUMN.columnName, crsUDT, nullable = true),
+      StructField(METADATA_COLUMN.columnName, DataTypes.createMapType(StringType, StringType, false))
     ) ++ tileCols)
   }
 
@@ -90,14 +89,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     val trans = tlm.mapTransform
     val metadata = info.tags.headTags
 
-    val encodedCRS =
-      RowEncoder(StandardEncoders.crsSparkEncoder.schema)
-        .resolveAndBind()
-        .createDeserializer()(
-          StandardEncoders
-            .crsSparkEncoder
-            .createSerializer()(tlm.crs)
-        )
+    val encodedCRS = tlm.crs.toRow
 
     if(info.segmentLayout.isTiled) {
       // TODO: Figure out how to do tile filtering via the range reader.
@@ -108,22 +100,8 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
           // transform result because the layout is directly from the TIFF
           val gb = trans.extentToBounds(pe.extent)
           val entries = columnIndexes.map {
-            case 0 =>
-              RowEncoder(StandardEncoders.spatialKeyEncoder.schema)
-                .resolveAndBind()
-                .createDeserializer()(
-                  StandardEncoders
-                    .spatialKeyEncoder
-                    .createSerializer()(SpatialKey(gb.colMin, gb.rowMin))
-                )
-            case 1 =>
-              RowEncoder(StandardEncoders.extentEncoder.schema)
-                .resolveAndBind()
-                .createDeserializer()(
-                  StandardEncoders
-                    .extentEncoder
-                    .createSerializer()(pe.extent)
-                )
+            case 0 => SpatialKey(gb.colMin, gb.rowMin).toRow
+            case 1 => pe.extent.toRow
             case 2 => encodedCRS
             case 3 => metadata
             case n => tiles.band(n - 4)
@@ -147,14 +125,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
         .map { case (sk, tiles) =>
           val entries = columnIndexes.map {
             case 0 => sk
-            case 1 =>
-              RowEncoder(StandardEncoders.extentEncoder.schema)
-                .resolveAndBind()
-                .createDeserializer()(
-                  StandardEncoders
-                    .extentEncoder
-                    .createSerializer()(trans.keyToExtent(sk))
-                )
+            case 1 => trans.keyToExtent(sk).toRow
             case 2 => encodedCRS
             case 3 => metadata
             case n => tiles.band(n - 4)

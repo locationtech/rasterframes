@@ -23,7 +23,6 @@ package org.locationtech.rasterframes
 
 import geotrellis.raster
 import geotrellis.raster.{CellType, Dimensions, NoNoData, Tile}
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.types.StringType
 import org.locationtech.rasterframes.tiles.ShowableTile
 import org.scalatest.Inspectors
@@ -37,7 +36,6 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
   import TestData.randomTile
 
   spark.version
-  val tileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
 
   describe("TileUDT") {
     val tileSizes = Seq(2, 7, 64, 128, 511)
@@ -97,7 +95,7 @@ class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
 
       if (rfConfig.getBoolean("showable-tiles"))
         forEveryConfig { tile =>
-          val stringified = Seq(Option(tile)).toDF("tile").select($"tile".cast(StringType)).as[String].first()
+          val stringified = Seq(tile).toDF("tile").select($"tile".cast(StringType)).as[String].first()
           stringified should be(ShowableTile.show(tile))
 
           if(!tile.cellType.isInstanceOf[NoNoData]) {
