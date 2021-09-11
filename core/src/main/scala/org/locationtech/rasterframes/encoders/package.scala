@@ -68,7 +68,7 @@ package object encoders {
       case s => s
     }
     // we need to convert to Literal right here because otherwise ScalaReflection takes over
-    val ir = t.toInternalRow.copy()
+    val ir = t.toInternalRow
     Literal.create(ir, schema)
   }
 

@@ -35,7 +35,7 @@ trait BinaryLocalRasterOp extends BinaryExpression with RasterResult {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  def dataType: DataType = left.dataType
+  override def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(left.dataType)) {
@@ -65,6 +65,7 @@ trait BinaryLocalRasterOp extends BinaryExpression with RasterResult {
     }
     toInternalRow(result, leftCtx)
   }
+
 
   protected def op(left: Tile, right: Tile): Tile
   protected def op(left: Tile, right: Double): Tile
