@@ -29,7 +29,7 @@ import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.cachedSerializer
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.model.TileContext
 
 /**
@@ -47,10 +47,7 @@ import org.locationtech.rasterframes.model.TileContext
 case class GetExtent(child: Expression) extends OnTileContextExpression with CodegenFallback {
   def dataType: DataType = extentEncoder.schema
   override def nodeName: String = "rf_extent"
-  def eval(ctx: TileContext): InternalRow = {
-    val toRow = cachedSerializer[Extent]
-    toRow(ctx.extent)
-  }
+  def eval(ctx: TileContext): InternalRow = ctx.extent.toInternalRow
 }
 
 object GetExtent {

@@ -49,11 +49,11 @@ class TileUDT extends UserDefinedType[Tile] {
     StructField("rows", IntegerType, false),
     StructField("cells", BinaryType, true),
     // make it parquet compliant, only expanded UDTs can be in a UDT schema
-    StructField("ref", ParquetReadSupport.expandUDT(RasterRef.rrEncoder.schema), true)
+    StructField("ref", ParquetReadSupport.expandUDT(RasterRef.rasterRefEncoder.schema), true)
   ))
 
-  private lazy val serRef = RasterRef.rrEncoder.createSerializer()
-  private lazy val desRef = RasterRef.rrEncoder.resolveAndBind().createDeserializer()
+  private lazy val serRef = RasterRef.rasterRefEncoder.createSerializer()
+  private lazy val desRef = RasterRef.rasterRefEncoder.resolveAndBind().createDeserializer()
 
   override def serialize(obj: Tile): InternalRow = {
     if (obj == null) return null
@@ -95,7 +95,7 @@ class TileUDT extends UserDefinedType[Tile] {
         }/*.orElse {
           Try(
             ProjectedRasterTile
-              .prtEncoder
+              .projectedRasterTileEncoder
               .resolveAndBind()
               .createDeserializer()(row)
               .tile

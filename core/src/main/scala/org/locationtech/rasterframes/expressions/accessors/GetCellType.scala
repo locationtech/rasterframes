@@ -43,7 +43,7 @@ case class GetCellType(child: Expression) extends OnCellGridExpression with Code
     else cellTypeEncoder.schema.fields(0).dataType
 
   private lazy val resultConverter: Any => Any = {
-    val ser = cachedSerializer[CellType]
+    val ser = SerializersCache.serializer[CellType]
     val toRow = ser.asInstanceOf[Any => Any]
     // TODO: wather encoder is top level or not should be constant, so this check is overly general
     if (cellTypeEncoder.isSerializedAsStructForTopLevel) {
@@ -58,6 +58,5 @@ case class GetCellType(child: Expression) extends OnCellGridExpression with Code
 }
 
 object GetCellType {
-  def apply(col: Column): TypedColumn[Any, CellType] =
-    new Column(new GetCellType(col.expr)).as[CellType]
+  def apply(col: Column): TypedColumn[Any, CellType] = new Column(new GetCellType(col.expr)).as[CellType]
 }

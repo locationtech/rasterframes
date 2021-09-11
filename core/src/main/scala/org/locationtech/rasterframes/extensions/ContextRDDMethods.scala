@@ -37,8 +37,7 @@ import org.locationtech.rasterframes.util._
  * Extension method on `ContextRDD`-shaped RDDs with appropriate context bounds to create a RasterFrameLayer.
  * @since 7/18/17
  */
-abstract class SpatialContextRDDMethods[T <: CellGrid[Int]](implicit spark: SparkSession)
-    extends MethodExtensions[RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]] {
+abstract class SpatialContextRDDMethods[T <: CellGrid[Int]](implicit spark: SparkSession) extends MethodExtensions[RDD[(SpatialKey, T)] with Metadata[TileLayerMetadata[SpatialKey]]] {
   import PairRDDConverter._
 
   def toLayer(implicit converter: PairRDDConverter[SpatialKey, T]): RasterFrameLayer = toLayer(TILE_COLUMN.columnName)
@@ -55,9 +54,7 @@ abstract class SpatialContextRDDMethods[T <: CellGrid[Int]](implicit spark: Spar
  * Extension method on `ContextRDD`-shaped `Tile` RDDs keyed with [[SpaceTimeKey]], with appropriate context bounds to create a RasterFrameLayer.
  * @since 9/11/17
  */
-abstract class SpatioTemporalContextRDDMethods[T <: CellGrid[Int]](
-  implicit spark: SparkSession)
-  extends MethodExtensions[RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]] {
+abstract class SpatioTemporalContextRDDMethods[T <: CellGrid[Int]](implicit spark: SparkSession) extends MethodExtensions[RDD[(SpaceTimeKey, T)] with Metadata[TileLayerMetadata[SpaceTimeKey]]] {
 
   def toLayer(implicit converter: PairRDDConverter[SpaceTimeKey, T]): RasterFrameLayer = toLayer(TILE_COLUMN.columnName)
 
@@ -66,7 +63,6 @@ abstract class SpatioTemporalContextRDDMethods[T <: CellGrid[Int]](
       .setSpatialColumnRole(SPATIAL_KEY_COLUMN, self.metadata)
       .setTemporalColumnRole(TEMPORAL_KEY_COLUMN)
     val defName = TILE_COLUMN.columnName
-    df.applyWhen(_ => tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName))
-      .certify
+    df.applyWhen(_ => tileColumnName != defName, _.withColumnRenamed(defName, tileColumnName)).certify
   }
 }

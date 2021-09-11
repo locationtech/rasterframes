@@ -80,17 +80,16 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
     it("should extract from ProjectedRasterTile") {
       val crs: CRS = WebMercator
       val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
-      val dt = ProjectedRasterTile.prtEncoder.schema
+      val dt = ProjectedRasterTile.projectedRasterTileEncoder.schema
       val extractor = DynamicExtractors.centroidExtractor(dt)
-      val ser = cachedSerializer[ProjectedRasterTile]
-      val inputs = testExtents
-        .map(ProjectedRasterTile(tile, _, crs))
-        .map(prt => ser(prt).copy())
-        .map(extractor)
+      val ser = SerializersCache.serializer[ProjectedRasterTile]
+      val inputs =
+        testExtents
+          .map(ProjectedRasterTile(tile, _, crs))
+          .map(prt => ser(prt).copy())
+          .map(extractor)
 
-      forEvery(inputs.zip(expected)) { case (i, e) =>
-        i should be(e)
-      }
+      forEvery(inputs.zip(expected)) { case (i, e) => i should be(e) }
     }
     it("should extract from RasterSource") {
       val crs: CRS = WebMercator
@@ -103,9 +102,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
           .map(rasterSourceUDT.serialize(_).copy())
           .map(extractor)
 
-      forEvery(inputs.zip(expected)) { case (i, e) =>
-        i should be(e)
-      }
+      forEvery(inputs.zip(expected)) { case (i, e) => i should be(e) }
     }
   }
 
@@ -154,7 +151,7 @@ class SFCIndexerSpec extends TestEnvironment with Inspectors {
       val tile = TestData.randomTile(2, 2, CellType.fromName("uint8"))
       val prts = testExtents.map(reproject(crs)).map(ProjectedRasterTile(tile, _, crs))
 
-      implicit val enc = Encoders.tuple(ProjectedRasterTile.prtEncoder, Encoders.scalaInt)
+      implicit val enc = Encoders.tuple(ProjectedRasterTile.projectedRasterTileEncoder, Encoders.scalaInt)
       // The `id` here is to deal with Spark auto projecting single columns dataframes and needing to provide an encoder
       val df = prts.zipWithIndex.toDF("proj_raster", "id")
       withClue("XZ2") {

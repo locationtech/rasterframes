@@ -48,15 +48,15 @@ object ProjectedRasterTile {
       val extentArg = extent
       val crsArg = crs
       new ProjectedRasterTile {
-        def tile = tileArg
-        def delegate = tileArg
-        def extent = extentArg
-        def crs = crsArg
+        def tile: Tile = tileArg
+        def delegate: Tile = tileArg
+        def extent: Extent = extentArg
+        def crs: CRS = crsArg
       }
   }
 
   def unapply(prt: ProjectedRasterTile): Option[(Tile, Extent, CRS)] =
     Some((prt.tile, prt.extent, prt.crs))
 
-  implicit lazy val prtEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder[ProjectedRasterTile]()
+  implicit lazy val projectedRasterTileEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder[ProjectedRasterTile]()
 }

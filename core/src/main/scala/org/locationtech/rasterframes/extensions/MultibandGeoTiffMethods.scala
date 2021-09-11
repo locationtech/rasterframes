@@ -24,11 +24,11 @@ package org.locationtech.rasterframes.extensions
 import geotrellis.raster.Dimensions
 import geotrellis.raster.io.geotiff.MultibandGeoTiff
 import geotrellis.util.MethodExtensions
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes.encoders.syntax._
 
 trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
   def toDF(dims: Dimensions[Int] = NOMINAL_TILE_DIMS)(implicit spark: SparkSession): DataFrame = {
@@ -40,14 +40,9 @@ trait MultibandGeoTiffMethods extends MethodExtensions[MultibandGeoTiff] {
     val windows = segmentLayout.listWindows(dims.cols, dims.rows)
     val subtiles = self.crop(windows)
 
-    val rows = for {
-      (gridbounds, tile) <- subtiles.toSeq
-    } yield {
+    val rows = for { (gridbounds, tile) <- subtiles.toSeq } yield {
       val extent = re.extentFor(gridbounds, false)
-      val extentRow =
-        RowEncoder(StandardEncoders.extentEncoder.schema)
-          .resolveAndBind()
-          .createDeserializer()(StandardEncoders.extentEncoder.createSerializer()(extent))
+      val extentRow = extent.toRow
 
       Row(extentRow +: crs +: tile.bands: _*)
     }

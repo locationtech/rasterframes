@@ -49,9 +49,9 @@ import org.locationtech.rasterframes.expressions.tilestats.TileStats
 case class Standardize(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
   override val nodeName: String = "rf_standardize"
 
-  override def children: Seq[Expression] = Seq(child1, child2, child3)
+  def children: Seq[Expression] = Seq(child1, child2, child3)
 
-  override def dataType: DataType = child1.dataType
+  def dataType: DataType = child1.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
     if(!tileExtractor.isDefinedAt(child1.dataType)) {
@@ -74,9 +74,10 @@ case class Standardize(child1: Expression, child2: Expression, child3: Expressio
   }
 
   protected def op(tile: Tile, mean: Double, stdDev: Double): Tile =
-    tile.convert(FloatConstantNoDataCellType)
-        .localSubtract(mean)
-        .localDivide(stdDev)
+    tile
+      .convert(FloatConstantNoDataCellType)
+      .localSubtract(mean)
+      .localDivide(stdDev)
 
 }
 object Standardize {

@@ -44,9 +44,9 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 case class Max(left: Expression, right:Expression) extends BinaryLocalRasterOp with CodegenFallback {
 
   override val nodeName = "rf_local_max"
-  override protected def op(left: Tile, right: Tile): Tile = left.localMax(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localMax(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localMax(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localMax(right)
+  protected def op(left: Tile, right: Double): Tile = left.localMax(right)
+  protected def op(left: Tile, right: Int): Tile = left.localMax(right)
 }
 object Max {
   def apply(left: Column, right: Column): Column = new Column(Max(left.expr, right.expr))

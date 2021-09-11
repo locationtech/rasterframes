@@ -43,14 +43,12 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 )
 case class Divide(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_local_divide"
-  override protected def op(left: Tile, right: Tile): Tile = left.localDivide(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localDivide(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localDivide(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localDivide(right)
+  protected def op(left: Tile, right: Double): Tile = left.localDivide(right)
+  protected def op(left: Tile, right: Int): Tile = left.localDivide(right)
 }
 object Divide {
-  def apply(left: Column, right: Column): Column =
-    new Column(Divide(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Divide(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Divide(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Divide(tile.expr, lit(value).expr))
 }

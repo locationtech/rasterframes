@@ -32,7 +32,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 import spire.syntax.cfor._
 
-import java.nio.ByteBuffer
+import java.nio.{ByteBuffer, DoubleBuffer}
 
 /**
  * Aggregator for reassembling tiles from from exploded form
@@ -64,7 +64,8 @@ case class TileAssembler(
   tileCols: Expression,
   tileRows: Expression,
   mutableAggBufferOffset: Int = 0,
-  inputAggBufferOffset: Int = 0) extends TypedImperativeAggregate[TileBuffer] with ImplicitCastInputTypes {
+  inputAggBufferOffset: Int = 0
+) extends TypedImperativeAggregate[TileBuffer] with ImplicitCastInputTypes {
 
   def this(colIndex: Expression, rowIndex: Expression, cellValue: Expression, tileCols: Expression, tileRows: Expression) = this(colIndex, rowIndex, cellValue, tileCols, tileRows, 0, 0)
 
@@ -93,9 +94,7 @@ case class TileAssembler(
     val tc = tileCols.eval(input).asInstanceOf[Short]
     val tr = tileRows.eval(input).asInstanceOf[Short]
 
-    val buffer = if (inBuf.isEmpty) {
-      TileBuffer(tc, tr)
-    } else inBuf
+    val buffer = if (inBuf.isEmpty) TileBuffer(tc, tr) else inBuf
 
     val col = colIndex.eval(input).asInstanceOf[Short]
     require(col < tc, s"`tileCols` is $tc, but received index value $col")
@@ -149,7 +148,8 @@ object TileAssembler {
     rowIndex: Column,
     cellData: Column,
     tileCols: Column,
-    tileRows: Column): TypedColumn[Any, Tile] =
+    tileRows: Column
+  ): TypedColumn[Any, Tile] =
     new Column(new TileAssembler(columnIndex.expr, rowIndex.expr, cellData.expr, tileCols.expr, tileRows.expr)
       .toAggregateExpression())
       .as(cellData.columnName)
@@ -159,11 +159,10 @@ object TileAssembler {
 
   class TileBuffer(val storage: Array[Byte]) {
 
-    def isEmpty = storage.isEmpty
+    def isEmpty: Boolean = storage.isEmpty
 
-    def cellBuffer = ByteBuffer.wrap(storage, 0, storage.length - indexPad).asDoubleBuffer()
-    private def indexBuffer =
-      ByteBuffer.wrap(storage, storage.length - indexPad, indexPad).asShortBuffer()
+    def cellBuffer: DoubleBuffer = ByteBuffer.wrap(storage, 0, storage.length - indexPad).asDoubleBuffer()
+    private def indexBuffer = ByteBuffer.wrap(storage, storage.length - indexPad, indexPad).asShortBuffer()
 
     def reset(): Unit = {
       val cells = cellBuffer
@@ -190,5 +189,4 @@ object TileAssembler {
       buf
     }
   }
-
 }

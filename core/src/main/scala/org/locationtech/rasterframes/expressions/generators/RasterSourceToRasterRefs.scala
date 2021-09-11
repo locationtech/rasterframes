@@ -47,13 +47,13 @@ import scala.util.control.NonFatal
 case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes {
 
-  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
+  def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
   override def nodeName: String = "rf_raster_source_to_raster_ref"
 
-  private lazy val enc = ProjectedRasterTile.prtEncoder
-  private lazy val prtSerializer = cachedSerializer[ProjectedRasterTile]
+  private lazy val enc = ProjectedRasterTile.projectedRasterTileEncoder
+  private lazy val prtSerializer = SerializersCache.serializer[ProjectedRasterTile]
 
-  override def elementSchema: StructType = StructType(for {
+  def elementSchema: StructType = StructType(for {
     child <- children
     basename = child.name + "_ref"
     name <- bandNames(basename, bandIndexes)
@@ -63,7 +63,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
     if (b < src.bandCount) RasterRef(src, b, extent, grid.map(Subgrid.apply)) else null
 
 
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+  def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
       val refs = children.map { child =>
         // TODO: we're using the UDT here ... which is what we should do ?
@@ -75,8 +75,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
           val subs = subGB.map(gb => (gb, srcRE.extentFor(gb, clamp = true)))
 
           subs.map{ case (grid, extent) => bandIndexes.map(band2ref(src, Some(grid), Some(extent))) }
-        })
-          .getOrElse(Seq(bandIndexes.map(band2ref(src, None, None))))
+        }).getOrElse(Seq(bandIndexes.map(band2ref(src, None, None))))
       }
 
       val out = refs.transpose.map(ts =>

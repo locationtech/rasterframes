@@ -21,14 +21,13 @@ import org.slf4j.LoggerFactory
         * x - tile with cell values to return if condition is true
         * y - tile with cell values to return if condition is false"""
 )
-case class Where(left: Expression, middle: Expression, right: Expression)
-  extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
+case class Where(left: Expression, middle: Expression, right: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def dataType: DataType = middle.dataType
+  def dataType: DataType = middle.dataType
 
-  override def children: Seq[Expression] = Seq(left, middle, right)
+  def children: Seq[Expression] = Seq(left, middle, right)
 
   override val nodeName = "rf_where"
 

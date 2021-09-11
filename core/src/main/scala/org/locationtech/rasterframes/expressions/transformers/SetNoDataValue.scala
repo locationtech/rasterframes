@@ -48,7 +48,7 @@ case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExp
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override val nodeName: String = "rf_with_no_data"
-  override def dataType: DataType = left.dataType
+  def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(left.dataType)) {

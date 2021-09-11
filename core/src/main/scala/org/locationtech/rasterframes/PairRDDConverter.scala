@@ -87,7 +87,7 @@ object PairRDDConverter {
   /** Enables conversion of `RDD[(SpatialKey, TileFeature[Tile, D])]` to DataFrame. */
   implicit def spatialTileFeatureConverter[D: Encoder] = new PairRDDConverter[SpatialKey, TileFeature[Tile, D]] {
     implicit val featureEncoder = implicitly[Encoder[D]]
-    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, singlebandTileEncoder, featureEncoder)
+    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, tileEncoder, featureEncoder)
 
     val schema: StructType = {
       val base = spatialTileConverter.schema
@@ -103,7 +103,7 @@ object PairRDDConverter {
   /** Enables conversion of `RDD[(SpaceTimeKey, TileFeature[Tile, D])]` to DataFrame. */
   implicit def spaceTimeTileFeatureConverter[D: Encoder] = new PairRDDConverter[SpaceTimeKey, TileFeature[Tile, D]] {
     implicit val featureEncoder = implicitly[Encoder[D]]
-    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, temporalKeyEncoder, singlebandTileEncoder, featureEncoder)
+    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, temporalKeyEncoder, tileEncoder, featureEncoder)
 
     val schema: StructType = {
       val base = spaceTimeTileConverter.schema
@@ -143,7 +143,7 @@ object PairRDDConverter {
   }
 
   /** Enables conversion of `RDD[(SpaceTimeKey, MultibandTile)]` to DataFrame. */
-  def forSpaceTimeMultiband(bands: Int) = new PairRDDConverter[SpaceTimeKey, MultibandTile] {
+  def forSpaceTimeMultiband(bands: Int): PairRDDConverter[SpaceTimeKey, MultibandTile] = new PairRDDConverter[SpaceTimeKey, MultibandTile] {
     val schema: StructType = {
       val base = spaceTimeTileConverter.schema
 

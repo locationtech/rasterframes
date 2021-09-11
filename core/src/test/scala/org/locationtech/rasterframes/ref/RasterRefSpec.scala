@@ -52,7 +52,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
   import spark.implicits._
 
-  implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rrEncoder)
+  implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rasterRefEncoder)
   describe("GetCRS Expression") {
     it("should read from RasterRef") {
       new Fixture {
@@ -231,7 +231,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
     it("should resolve a RasterRef") {
       new Fixture {
-        import RasterRef.rrEncoder // This shouldn't be required, but product encoder gets choosen.
+        import RasterRef.rasterRefEncoder // This shouldn't be required, but product encoder gets choosen.
         val r: RasterRef = subRaster
         val df = Seq(r).toDF()
         val result =  df.select(rf_tile(struct($"source", $"bandIndex", $"subextent", $"subgrid"))).first()

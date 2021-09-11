@@ -28,7 +28,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.model.TileContext
-import org.locationtech.rasterframes.tiles.{InternalRowTile, ProjectedRasterTile}
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
 
 /** Expression to extract at tile from several types that contain tiles.*/
@@ -40,7 +40,6 @@ case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFall
   private lazy val tileSer = tileUDT.serialize _
 
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
-    case irt: InternalRowTile => irt.mem
     case prt: ProjectedRasterTile => tileSer(prt.tile)
     case tile: Tile => tileSer(tile)
   }

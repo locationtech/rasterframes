@@ -41,20 +41,18 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class TileHistogram(child: Expression) extends UnaryRasterOp
-  with CodegenFallback {
+case class TileHistogram(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "rf_tile_histogram"
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     TileHistogram.converter(TileHistogram.op(tile))
-  override def dataType: DataType = CellHistogram.schema
+  def dataType: DataType = CellHistogram.schema
 }
 
 object TileHistogram {
-  def apply(tile: Column): TypedColumn[Any, CellHistogram] =
-    new Column(TileHistogram(tile.expr)).as[CellHistogram]
+  def apply(tile: Column): TypedColumn[Any, CellHistogram] = new Column(TileHistogram(tile.expr)).as[CellHistogram]
 
   private lazy val converter = CatalystTypeConverters.createToCatalystConverter(CellHistogram.schema)
 
   /** Single tile histogram. */
-  val op = (t: Tile) => CellHistogram(t)
+  val op: Tile => CellHistogram = (t: Tile) => CellHistogram(t)
 }

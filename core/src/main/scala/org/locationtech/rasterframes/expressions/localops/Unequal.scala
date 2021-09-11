@@ -39,17 +39,15 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Unequal(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
+case class Unequal(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_local_unequal"
-  override protected def op(left: Tile, right: Tile): Tile = left.localUnequal(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localUnequal(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localUnequal(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localUnequal(right)
+  protected def op(left: Tile, right: Double): Tile = left.localUnequal(right)
+  protected def op(left: Tile, right: Int): Tile = left.localUnequal(right)
 }
 
 object Unequal {
-  def apply(left: Column, right: Column): Column =
-    new Column(Unequal(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Unequal(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Unequal(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Unequal(tile.expr, lit(value).expr))
 }

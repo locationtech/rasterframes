@@ -47,9 +47,9 @@ import org.locationtech.rasterframes.expressions._
 case class ExtractBits(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
   override val nodeName: String = "rf_local_extract_bits"
 
-  override def children: Seq[Expression] = Seq(child1, child2, child3)
+  def children: Seq[Expression] = Seq(child1, child2, child3)
 
-  override def dataType: DataType = child1.dataType
+  def dataType: DataType = child1.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
     if(!tileExtractor.isDefinedAt(child1.dataType)) {
@@ -70,7 +70,6 @@ case class ExtractBits(child1: Expression, child2: Expression, child3: Expressio
   }
 
   protected def op(tile: Tile, startBit: Int, numBits: Int): Tile = ExtractBits(tile, startBit, numBits)
-
 }
 
 object ExtractBits{

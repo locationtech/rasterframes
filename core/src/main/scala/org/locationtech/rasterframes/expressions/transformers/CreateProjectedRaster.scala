@@ -44,11 +44,11 @@ import org.locationtech.rasterframes.encoders._
 case class CreateProjectedRaster(tile: Expression, extent: Expression, crs: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
   override def nodeName: String = "rf_proj_raster"
 
-  override def children: Seq[Expression] = Seq(tile, extent, crs)
+  def children: Seq[Expression] = Seq(tile, extent, crs)
 
-  override def dataType: DataType = ProjectedRasterTile.prtEncoder.schema
+  def dataType: DataType = ProjectedRasterTile.projectedRasterTileEncoder.schema
 
-  override def checkInputDataTypes(): TypeCheckResult = (
+  override def checkInputDataTypes(): TypeCheckResult =
     if (!tileExtractor.isDefinedAt(tile.dataType)) {
       TypeCheckFailure(s"Column of type '${tile.dataType}' is not or does not have a Tile")
     }
@@ -59,7 +59,6 @@ case class CreateProjectedRaster(tile: Expression, extent: Expression, crs: Expr
       TypeCheckFailure(s"Column of type '${crs.dataType}' is not a CRS")
     }
     else TypeCheckSuccess
-   )
 
   private lazy val extentDeser = StandardEncoders.extentEncoder.resolveAndBind().createDeserializer()
   private lazy val crsUdt = new CrsUDT

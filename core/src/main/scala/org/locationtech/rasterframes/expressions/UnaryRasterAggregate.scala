@@ -24,12 +24,11 @@ package org.locationtech.rasterframes.expressions
 import geotrellis.raster.Tile
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.encoders.StandardEncoders
-import org.locationtech.rasterframes.expressions.DynamicExtractors.internalRowTileExtractor
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 
 import scala.reflect.runtime.universe._
 
@@ -48,15 +47,8 @@ trait UnaryRasterAggregate extends DeclarativeAggregate {
 object UnaryRasterAggregate {
   val extractTileFromAny: (DataType, Any) => Tile = (dt: DataType, row: Any) => row match {
     case t: Tile => t
-    case r: Row =>
-      StandardEncoders
-        .singlebandTileEncoder
-        .resolveAndBind()
-        .createDeserializer()(
-          RowEncoder(StandardEncoders.singlebandTileEncoder.schema).createSerializer()(r)
-        )
-    case i: InternalRow =>
-      internalRowTileExtractor(dt)(i)._1
-    case s => throw new Exception(s"UnaryRasterAggregate.extractFromAny2: ${s}")
+    case r: Row => r.as[Tile]
+    case i: InternalRow => DynamicExtractors.internalRowTileExtractor(dt)(i)._1
+    case r => throw new Exception(s"UnaryRasterAggregate.extractFromAny unsupported row: $r")
   }
 }

@@ -44,9 +44,9 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 case class Min(left: Expression, right:Expression) extends BinaryLocalRasterOp with CodegenFallback {
 
   override val nodeName = "rf_local_min"
-  override protected def op(left: Tile, right: Tile): Tile = left.localMin(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localMin(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localMin(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localMin(right)
+  protected def op(left: Tile, right: Double): Tile = left.localMin(right)
+  protected def op(left: Tile, right: Int): Tile = left.localMin(right)
 }
 object Min {
   def apply(left: Column, right: Column): Column = new Column(Min(left.expr, right.expr))

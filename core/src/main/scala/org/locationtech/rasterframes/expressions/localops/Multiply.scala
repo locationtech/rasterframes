@@ -43,13 +43,11 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 )
 case class Multiply(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_local_multiply"
-  override protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
+  protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
+  protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
 }
 object Multiply {
-  def apply(left: Column, right: Column): Column =
-    new Column(Multiply(left.expr, right.expr))
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Multiply(tile.expr, lit(value).expr))
+  def apply(left: Column, right: Column): Column = new Column(Multiply(left.expr, right.expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Multiply(tile.expr, lit(value).expr))
 }

@@ -42,7 +42,7 @@ import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 )
 case class Sqrt(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_sqrt"
-  override protected def op(tile: Tile): Tile = fpTile(tile).localPow(0.5)
+  protected def op(tile: Tile): Tile = fpTile(tile).localPow(0.5)
   override def dataType: DataType = child.dataType
 }
 object Sqrt {

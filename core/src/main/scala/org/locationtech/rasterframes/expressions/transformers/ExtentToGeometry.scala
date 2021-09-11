@@ -39,9 +39,9 @@ import org.locationtech.rasterframes.encoders.StandardEncoders
  * @since 8/24/18
  */
 case class ExtentToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
-    override def nodeName: String = "st_geometry"
+  override def nodeName: String = "st_geometry"
 
-  override def dataType: DataType = JTSTypes.GeometryTypeInstance
+  def dataType: DataType = JTSTypes.GeometryTypeInstance
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!DynamicExtractors.extentExtractor.isDefinedAt(child.dataType)) {
@@ -62,6 +62,5 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
 }
 
 object ExtentToGeometry extends SpatialEncoders {
-  def apply(bounds: Column): TypedColumn[Any, Geometry] =
-    new Column(new ExtentToGeometry(bounds.expr)).as[Geometry]
+  def apply(bounds: Column): TypedColumn[Any, Geometry] = new Column(new ExtentToGeometry(bounds.expr)).as[Geometry]
 }

@@ -26,8 +26,8 @@ import spire.syntax.cfor.cfor
 )
 case class Exists(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "exists"
-  override def dataType: DataType = BooleanType
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = Exists.op(tile)
+  def dataType: DataType = BooleanType
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = Exists.op(tile)
 
 }
 

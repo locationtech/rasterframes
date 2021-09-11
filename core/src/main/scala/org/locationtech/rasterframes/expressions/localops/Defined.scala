@@ -40,8 +40,8 @@ import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterO
 case class Defined(child: Expression) extends UnaryLocalRasterOp
   with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_local_data"
-  override def na: Any = null
-  override protected def op(child: Tile): Tile = child.localDefined()
+  def na: Any = null
+  protected def op(child: Tile): Tile = child.localDefined()
 }
 object Defined{
   def apply(tile: Column): Column = new Column(Defined(tile.expr))

@@ -33,6 +33,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
 
@@ -47,12 +48,11 @@ import org.locationtech.rasterframes.expressions.{RasterResult, row}
     > SELECT _FUNC_(tile, 'int16ud0');
        ..."""
 )
-case class InterpretAs(tile: Expression, cellType: Expression)
-  extends BinaryExpression with RasterResult with CodegenFallback {
+case class InterpretAs(tile: Expression, cellType: Expression) extends BinaryExpression with RasterResult with CodegenFallback {
   def left: Expression = tile
   def right: Expression = cellType
   override def nodeName: String = "rf_interpret_cell_type_as"
-  override def dataType: DataType = left.dataType
+  def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!DynamicExtractors.tileExtractor.isDefinedAt(left.dataType))
@@ -71,9 +71,7 @@ case class InterpretAs(tile: Expression, cellType: Expression)
       case StringType =>
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
-      case st if st.conformsToSchema(cellTypeEncoder.schema) =>
-        val fromRow = cachedDeserializer[CellType]
-        fromRow(row(datum))
+      case st if st.conformsToSchema(cellTypeEncoder.schema) => row(datum).as[CellType]
     }
   }
 
@@ -86,10 +84,7 @@ case class InterpretAs(tile: Expression, cellType: Expression)
 }
 
 object InterpretAs{
-  def apply(tile: Column, cellType: CellType): Column =
-    new Column(new InterpretAs(tile.expr, lit(cellType.name).expr))
-  def apply(tile: Column, cellType: String): Column =
-    new Column(new InterpretAs(tile.expr, lit(cellType).expr))
-  def apply(tile: Column, cellType: Column): Column =
-    new Column(new InterpretAs(tile.expr, cellType.expr))
+  def apply(tile: Column, cellType: CellType): Column = new Column(new InterpretAs(tile.expr, lit(cellType.name).expr))
+  def apply(tile: Column, cellType: String): Column = new Column(new InterpretAs(tile.expr, lit(cellType).expr))
+  def apply(tile: Column, cellType: Column): Column = new Column(new InterpretAs(tile.expr, cellType.expr))
 }

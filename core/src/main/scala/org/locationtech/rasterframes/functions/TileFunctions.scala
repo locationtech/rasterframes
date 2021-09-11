@@ -36,7 +36,7 @@ import org.locationtech.rasterframes.expressions.transformers._
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.{ColorRampNames, withTypedAlias, _}
-import org.locationtech.rasterframes.{singlebandTileEncoder, functions => F}
+import org.locationtech.rasterframes.{tileEncoder, functions => F}
 
 /** Functions associated with creating and transforming tiles, including tile-wise statistics and rendering. */
 trait TileFunctions {
@@ -67,7 +67,7 @@ trait TileFunctions {
     ct: CellType): TypedColumn[Any, Tile] =
     rf_convert_cell_type(TileAssembler(columnIndex, rowIndex, cellData, lit(tileCols), lit(tileRows)), ct)
       .as(cellData.columnName)
-      .as[Tile](singlebandTileEncoder)
+      .as[Tile](tileEncoder)
 
   /** Create a Tile from a column of cell data with location indexes and perform cell conversion. */
   def rf_assemble_tile(columnIndex: Column, rowIndex: Column, cellData: Column, tileCols: Int, tileRows: Int): TypedColumn[Any, Tile] =

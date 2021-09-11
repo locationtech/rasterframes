@@ -137,8 +137,8 @@ trait TestEnvironment extends AnyFunSpec
     docs shouldNot include("N/A")
   }
 
-  implicit def prt2Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-  implicit def prt3Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-  implicit def rr2Enc: Encoder[(RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rrEncoder, RasterRef.rrEncoder)
-  implicit def rr3Enc: Encoder[(RasterRef, RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rrEncoder, RasterRef.rrEncoder, RasterRef.rrEncoder)
+  implicit def prt2Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.projectedRasterTileEncoder, ProjectedRasterTile.projectedRasterTileEncoder)
+  implicit def prt3Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.projectedRasterTileEncoder, ProjectedRasterTile.projectedRasterTileEncoder, ProjectedRasterTile.projectedRasterTileEncoder)
+  implicit def rr2Enc: Encoder[(RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rasterRefEncoder, RasterRef.rasterRefEncoder)
+  implicit def rr3Enc: Encoder[(RasterRef, RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rasterRefEncoder, RasterRef.rasterRefEncoder, RasterRef.rasterRefEncoder)
 }

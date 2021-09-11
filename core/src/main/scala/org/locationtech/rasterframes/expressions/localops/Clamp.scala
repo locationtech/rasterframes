@@ -19,11 +19,10 @@ import org.locationtech.rasterframes.expressions.{RasterResult, row}
         * min - scalar or tile setting the minimum value for each cell
         * max - scalar or tile setting the maximum value for each cell"""
 )
-case class Clamp(left: Expression, middle: Expression, right: Expression)
-  extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
-  override def dataType: DataType = left.dataType
+case class Clamp(left: Expression, middle: Expression, right: Expression) extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
+  def dataType: DataType = left.dataType
 
-  override def children: Seq[Expression] = Seq(left, middle, right)
+  def children: Seq[Expression] = Seq(left, middle, right)
 
   override val nodeName = "rf_local_clamp"
 
@@ -64,5 +63,4 @@ object Clamp {
   def apply[N: Numeric](tile: Column, min: N, max: Column): Column = new Column(Clamp(tile.expr, lit(min).expr, max.expr))
   def apply[N: Numeric](tile: Column, min: Column, max: N): Column = new Column(Clamp(tile.expr, min.expr, lit(max).expr))
   def apply[N: Numeric](tile: Column, min: N, max: N): Column = new Column(Clamp(tile.expr, lit(min).expr, lit(max).expr))
-
 }

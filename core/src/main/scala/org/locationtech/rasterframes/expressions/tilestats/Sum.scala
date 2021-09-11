@@ -42,13 +42,12 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class Sum(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "rf_tile_sum"
-  override def dataType: DataType = DoubleType
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = Sum.op(tile)
+  def dataType: DataType = DoubleType
+  protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = Sum.op(tile)
 }
 
 object Sum {
-  def apply(tile: Column): TypedColumn[Any, Double] =
-    new Column(Sum(tile.expr)).as[Double]
+  def apply(tile: Column): TypedColumn[Any, Double] = new Column(Sum(tile.expr)).as[Double]
 
   def op: Tile => Double = (tile: Tile) => {
     var sum: Double = 0.0

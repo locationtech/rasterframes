@@ -34,8 +34,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[Subgrid])
-  extends  ProjectedRasterTile {
+case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[Subgrid]) extends  ProjectedRasterTile {
   def tile: Tile = this
   def extent: Extent = subextent.getOrElse(source.extent)
   def crs: CRS = source.crs
@@ -65,9 +64,7 @@ object RasterRef extends LazyLogging {
   def apply(source: RFRasterSource, bandIndex: Int, subextent: Extent, subgrid: GridBounds[Int]): RasterRef =
     RasterRef(source, bandIndex, Some(subextent), Some(Subgrid(subgrid)))
 
-
-  implicit val rrEncoder: ExpressionEncoder[RasterRef] = {
-    import org.locationtech.rasterframes.encoders.StandardEncoders._
+  implicit val rasterRefEncoder: ExpressionEncoder[RasterRef] = {
     TypedExpressionEncoder[RasterRef].asInstanceOf[ExpressionEncoder[RasterRef]]
   }
 }

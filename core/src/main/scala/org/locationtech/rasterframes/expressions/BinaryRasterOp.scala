@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory
 trait BinaryRasterOp extends BinaryExpression with RasterResult {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def dataType: DataType = left.dataType
+  def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(left.dataType)) {

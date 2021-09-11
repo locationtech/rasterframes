@@ -37,7 +37,7 @@ case class GetTileContext(child: Expression) extends UnaryRasterOp with CodegenF
   override def nodeName: String = "get_tile_context"
 
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
-    ctx.map(cachedSerializer[TileContext]).orNull
+    ctx.map(SerializersCache.serializer[TileContext]).orNull
 }
 
 object GetTileContext {

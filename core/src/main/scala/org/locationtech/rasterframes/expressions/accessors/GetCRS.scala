@@ -74,8 +74,8 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
         val crs = crsUDT.deserialize(str)
         crsUDT.serialize(crs)
 
-      case t if t.conformsToSchema(ProjectedRasterTile.prtEncoder.schema) =>
-        val idx = ProjectedRasterTile.prtEncoder.schema.fieldIndex("crs")
+      case t if t.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema) =>
+        val idx = ProjectedRasterTile.projectedRasterTileEncoder.schema.fieldIndex("crs")
         input.asInstanceOf[InternalRow].get(idx, crsUDT).asInstanceOf[UTF8String]
 
       case _: RasterSourceUDT =>
@@ -83,9 +83,9 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
         val crs = rs.crs
         crsUDT.serialize(crs)
 
-      case t if t.conformsToSchema(RasterRef.rrEncoder.schema) =>
+      case t if t.conformsToSchema(RasterRef.rasterRefEncoder.schema) =>
         val row = input.asInstanceOf[InternalRow]
-        val idx = RasterRef.rrEncoder.schema.fieldIndex("source")
+        val idx = RasterRef.rasterRefEncoder.schema.fieldIndex("source")
         val rsc = row.get(idx, rasterSourceUDT)
         val rs = rasterSourceUDT.deserialize(rsc)
         val crs = rs.crs

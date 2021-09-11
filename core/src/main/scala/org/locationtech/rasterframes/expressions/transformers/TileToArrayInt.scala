@@ -39,10 +39,9 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class TileToArrayInt(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "rf_tile_to_array_int"
-  override def dataType: DataType = DataTypes.createArrayType(IntegerType, false)
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
+  def dataType: DataType = DataTypes.createArrayType(IntegerType, false)
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     ArrayData.toArrayData(tile.toArray())
-  }
 }
 object TileToArrayInt {
   def apply(tile: Column): TypedColumn[Any, Array[Int]] =

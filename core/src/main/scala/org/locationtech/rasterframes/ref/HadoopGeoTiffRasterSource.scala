@@ -28,8 +28,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.locationtech.rasterframes.ref.RFRasterSource.{URIRasterSource, URIRasterSourceDebugString}
 
-case class HadoopGeoTiffRasterSource(source: URI, config: () => Configuration)
-    extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>
+case class HadoopGeoTiffRasterSource(source: URI, config: () => Configuration) extends RangeReaderRasterSource with URIRasterSource with URIRasterSourceDebugString { self =>
   @transient
   protected lazy val rangeReader = HdfsRangeReader(new Path(source.getPath), config())
 }

@@ -40,26 +40,20 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        -1"""
 )
-case class TileMean(child: Expression) extends UnaryRasterOp
-  with NullToValue with CodegenFallback {
+case class TileMean(child: Expression) extends UnaryRasterOp with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_tile_mean"
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMean.op(tile)
-  override def dataType: DataType = DoubleType
-  override def na: Any = Double.NaN
+  protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMean.op(tile)
+  def dataType: DataType = DoubleType
+  def na: Any = Double.NaN
 }
 object TileMean {
-  def apply(tile: Column): TypedColumn[Any, Double] =
-    new Column(TileMean(tile.expr)).as[Double]
+  def apply(tile: Column): TypedColumn[Any, Double] = new Column(TileMean(tile.expr)).as[Double]
 
   /** Single tile mean. */
-  val op = (t: Tile) => {
+  val op: Tile => Double = (t: Tile) => {
     var sum: Double = 0.0
     var count: Long = 0
-    t.dualForeach(
-      z => if(isData(z)) { count = count + 1; sum = sum + z }
-    ) (
-      z => if(isData(z)) { count = count + 1; sum = sum + z }
-    )
+    t.dualForeach(z => if(isData(z)) { count = count + 1; sum = sum + z }) (z => if(isData(z)) { count = count + 1; sum = sum + z })
     sum/count
   }
 }

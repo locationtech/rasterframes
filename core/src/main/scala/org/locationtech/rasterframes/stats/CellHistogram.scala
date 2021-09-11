@@ -36,7 +36,7 @@ import scala.collection.mutable.{ListBuffer => MutableListBuffer}
 case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
   lazy val labels: Seq[Double] = bins.map(_.value)
   lazy val totalCount = bins.foldLeft(0L)(_ + _.count)
-  def asciiHistogram(width: Int = 80)= {
+  def asciiHistogram(width: Int = 80) = {
     val counts = bins.map(_.count)
     val maxCount = counts.max.toFloat
     val maxLabelLen = labels.map(_.toString.length).max
@@ -44,9 +44,7 @@ case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
     val fmt = s"%${maxLabelLen}s: %,${maxCountLen}d | %s"
     val barlen = width - fmt.format(0, 0, "").length
 
-    val lines = for {
-      (l, c) <- labels.zip(counts)
-    } yield {
+    val lines = for { (l, c) <- labels.zip(counts) } yield {
       val width = (barlen * (c/maxCount)).round
       val bar = "*" * width
       fmt.format(l, c, bar)
@@ -83,7 +81,7 @@ case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
       val cdf = pdf.scanLeft(0.0)(_ + _)
       val data = ds.zip(cdf).sliding(2)
 
-      data.map({ ab => (ab.head, ab.tail.head) })
+      data.map { ab => (ab.head, ab.tail.head) }
     }
   }
 
@@ -91,7 +89,7 @@ case class CellHistogram(bins: Seq[CellHistogram.Bin]) {
 
   private def percentileBreaks(qs: Seq[Double]): Seq[Double] = {
     if(bins.size == 1) {
-      qs.map(z => bins.head.value)
+      qs.map(_ => bins.head.value)
     } else {
       val data = cdfIntervals
       if(!data.hasNext) {

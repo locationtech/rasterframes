@@ -29,7 +29,8 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.apache.spark.sql.jts.{AbstractGeometryUDT, JTSTypes}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 
 /**
  * Catalyst Expression for getting the extent of a geometry.
@@ -39,8 +40,7 @@ import org.locationtech.rasterframes.encoders.StandardEncoders
 case class GeometryToExtent(child: Expression) extends UnaryExpression with CodegenFallback {
   override def nodeName: String = "st_extent"
 
-  lazy val extentEncoder = StandardEncoders.extentEncoder
-  override def dataType: DataType = extentEncoder.schema
+  def dataType: DataType = extentEncoder.schema
 
   override def checkInputDataTypes(): TypeCheckResult = {
     child.dataType match {
@@ -53,14 +53,10 @@ case class GeometryToExtent(child: Expression) extends UnaryExpression with Code
 
   override protected def nullSafeEval(input: Any): Any = {
     val geom = JTSTypes.GeometryTypeInstance.deserialize(input)
-    val extent = Extent(geom.getEnvelopeInternal)
-    extentEncoder.createSerializer()(extent)
+    Extent(geom.getEnvelopeInternal).toInternalRow
   }
 }
 
 object GeometryToExtent {
-  import org.locationtech.rasterframes.encoders.StandardEncoders._
-
-  def apply(bounds: Column): TypedColumn[Any, Extent] =
-    new Column(new GeometryToExtent(bounds.expr)).as[Extent]
+  def apply(bounds: Column): TypedColumn[Any, Extent] = new Column(new GeometryToExtent(bounds.expr)).as[Extent]
 }

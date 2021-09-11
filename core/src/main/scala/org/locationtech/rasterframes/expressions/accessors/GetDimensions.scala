@@ -27,6 +27,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 
 /**
  * Extract a raster's dimensions
@@ -44,11 +45,9 @@ case class GetDimensions(child: Expression) extends OnCellGridExpression with Co
 
   def dataType = dimensionsEncoder.schema
 
-  def eval(grid: CellGrid[Int]): Any = dimensionsEncoder.createSerializer()(Dimensions[Int](grid.cols, grid.rows))
+  def eval(grid: CellGrid[Int]): Any = Dimensions[Int](grid.cols, grid.rows).toInternalRow
 }
 
 object GetDimensions {
-  def apply(col: Column): TypedColumn[Any, Dimensions[Int]] = {
-    new Column(new GetDimensions(col.expr)).as[Dimensions[Int]]
-  }
+  def apply(col: Column): TypedColumn[Any, Dimensions[Int]] = new Column(new GetDimensions(col.expr)).as[Dimensions[Int]]
 }

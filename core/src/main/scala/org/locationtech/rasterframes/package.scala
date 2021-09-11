@@ -21,7 +21,7 @@
 
 package org.locationtech
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.{Dimensions, Tile, TileFeature, isData}
 import geotrellis.layer._
@@ -46,7 +46,7 @@ package object rasterframes extends StandardColumns
   // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
   protected def logger: Logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  def rfConfig = ConfigFactory.load().getConfig("rasterframes")
+  def rfConfig: Config = ConfigFactory.load().getConfig("rasterframes")
 
   /** The generally expected tile size, as defined by configuration property `rasterframes.nominal-tile-size`.*/
   @transient

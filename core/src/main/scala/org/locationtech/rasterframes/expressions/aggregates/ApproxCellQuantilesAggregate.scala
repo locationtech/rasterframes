@@ -22,13 +22,13 @@
 package org.locationtech.rasterframes.expressions.aggregates
 
 import geotrellis.raster.{Tile, isNoData}
-import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.{Column, Encoder, Row, TypedColumn, types}
+import org.apache.spark.sql.{Column, Row, TypedColumn, types}
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.StandardEncoders
+import org.locationtech.rasterframes.encoders.syntax._
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 
 case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeError: Double) extends UserDefinedAggregateFunction {
@@ -46,85 +46,42 @@ case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeErro
 
   def initialize(buffer: MutableAggregationBuffer): Unit = {
     val qs = new QuantileSummaries(QuantileSummaries.defaultCompressThreshold, relativeError)
-    val qsRow =
-      RowEncoder(quantileSummariesEncoder.schema)
-        .resolveAndBind()
-        .createDeserializer()(quantileSummariesEncoder.createSerializer()(qs))
-    buffer.update(0, qsRow)
+    buffer.update(0, qs.toRow)
   }
 
   def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val qs = quantileSummariesEncoder
-      .resolveAndBind()
-      .createDeserializer()(
-        RowEncoder(quantileSummariesEncoder.schema)
-          .createSerializer()(buffer.getStruct(0))
-      )
+    val qs = buffer.getStruct(0).as[QuantileSummaries]
     if (!input.isNullAt(0)) {
       val tile = input.getAs[Tile](0)
       var result = qs
       tile.foreachDouble(d => if (!isNoData(d)) result = result.insert(d))
 
-      val resultRow =
-        RowEncoder(StandardEncoders.quantileSummariesEncoder.schema)
-          .resolveAndBind()
-          .createDeserializer()(
-            StandardEncoders
-              .quantileSummariesEncoder
-              .createSerializer()(result)
-          )
-
-      buffer.update(0, resultRow)
+      buffer.update(0, result.toRow)
     }
   }
 
   def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val left = quantileSummariesEncoder
-      .resolveAndBind()
-      .createDeserializer()(
-        RowEncoder(quantileSummariesEncoder.schema)
-          .createSerializer()(buffer1.getStruct(0))
-      )
-    val right = quantileSummariesEncoder
-      .resolveAndBind()
-      .createDeserializer()(
-        RowEncoder(quantileSummariesEncoder.schema)
-          .createSerializer()(buffer2.getStruct(0))
-      )
+    val left = buffer1.getStruct(0).as[QuantileSummaries]
+    val right = buffer2.getStruct(0).as[QuantileSummaries]
     val merged = left.compress().merge(right.compress())
 
-    val mergedRow =
-      RowEncoder(StandardEncoders.quantileSummariesEncoder.schema)
-        .resolveAndBind()
-        .createDeserializer()(
-          StandardEncoders
-            .quantileSummariesEncoder
-            .createSerializer()(merged)
-        )
-
+    val mergedRow = merged.toRow
     buffer1.update(0, mergedRow)
   }
 
   def evaluate(buffer: Row): Seq[Double] = {
-    val summaries = quantileSummariesEncoder
-      .resolveAndBind()
-      .createDeserializer()(
-        RowEncoder(quantileSummariesEncoder.schema)
-          .createSerializer()(buffer.getStruct(0))
-      )
+    val summaries = buffer.getStruct(0).as[QuantileSummaries]
     probabilities.flatMap(summaries.query)
   }
 }
 
 object ApproxCellQuantilesAggregate {
-  private implicit def doubleSeqEncoder: Encoder[Seq[Double]] = ExpressionEncoder()
-
   def apply(
     tile: Column,
     probabilities: Seq[Double],
-    relativeError: Double = 0.00001): TypedColumn[Any, Seq[Double]] = {
+    relativeError: Double = 0.00001
+  ): TypedColumn[Any, Seq[Double]] =
     new ApproxCellQuantilesAggregate(probabilities, relativeError)(ExtractTile(tile))
       .as(s"rf_agg_approx_quantiles")
       .as[Seq[Double]]
-  }
 }

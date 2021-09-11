@@ -27,15 +27,15 @@ import org.apache.spark.sql.SparkSession
 import org.locationtech.rasterframes.util.RFKryoRegistrator
 
 object KryoMethods {
-  val kryoProperties = Map("spark.serializer" -> classOf[KryoSerializer].getName,
+  val kryoProperties = Map(
+    "spark.serializer" -> classOf[KryoSerializer].getName,
     "spark.kryo.registrator" -> classOf[RFKryoRegistrator].getName,
-    "spark.kryoserializer.buffer.max" -> "500m")
+    "spark.kryoserializer.buffer.max" -> "500m"
+  )
 
   trait BuilderKryoMethods extends MethodExtensions[SparkSession.Builder] {
     def withKryoSerialization: SparkSession.Builder =
-      kryoProperties.foldLeft(self) {
-        case (bld, (key, value)) => bld.config(key, value)
-      }
+      kryoProperties.foldLeft(self) { case (bld, (key, value)) => bld.config(key, value) }
   }
 
   trait SparkConfKryoMethods extends MethodExtensions[SparkConf] {

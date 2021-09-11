@@ -40,9 +40,7 @@ trait SinglebandGeoTiffMethods extends MethodExtensions[SinglebandGeoTiff] {
     val windows = segmentLayout.listWindows(dims.cols, dims.rows)
     val subtiles = self.crop(windows)
 
-    val rows = for {
-      (gridbounds, tile) <- subtiles.toSeq
-    } yield {
+    val rows = for { (gridbounds, tile) <- subtiles.toSeq } yield {
       val extent = re.extentFor(gridbounds, false)
       (extent, crs, tile)
     }

@@ -23,6 +23,7 @@ package org.locationtech.rasterframes.expressions
 
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.SpatialRelation.RelationPredicate
 import geotrellis.vector.Extent
 import org.locationtech.jts.geom._
@@ -47,16 +48,14 @@ abstract class SpatialRelation extends BinaryExpression with CodegenFallback {
         expr.dataType match {
           case udt: AbstractGeometryUDT[_] => udt.deserialize(r)
           case dt if dt.conformsToSchema(extentEncoder.schema) =>
-            val fromRow = cachedDeserializer[Extent]
-            val extent = fromRow(r)
-            extent.toPolygon()
+            r.as[Extent].toPolygon()
         }
     }
   }
 
   override def toString: String = s"$nodeName($left, $right)"
 
-  override def dataType: DataType = BooleanType
+  def dataType: DataType = BooleanType
 
   override def nullable: Boolean = left.nullable || right.nullable
 

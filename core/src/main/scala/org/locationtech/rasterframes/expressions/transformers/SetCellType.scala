@@ -34,6 +34,7 @@ import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.{DynamicExtractors, RasterResult, row}
 import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
 
 /**
  * Change the CellType of a Tile
@@ -52,12 +53,11 @@ import org.locationtech.rasterframes.encoders._
     > SELECT _FUNC_(tile, 'int16ud0');
        ..."""
 )
-case class SetCellType(tile: Expression, cellType: Expression)
-  extends BinaryExpression with RasterResult with CodegenFallback {
+case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExpression with RasterResult with CodegenFallback {
   def left: Expression = tile
   def right: Expression = cellType
   override def nodeName: String = "rf_convert_cell_type"
-  override def dataType: DataType = left.dataType
+  def dataType: DataType = left.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
     if (!DynamicExtractors.tileExtractor.isDefinedAt(left.dataType))
@@ -75,8 +75,7 @@ case class SetCellType(tile: Expression, cellType: Expression)
         val text = datum.asInstanceOf[UTF8String].toString
         CellType.fromName(text)
       case st if st.conformsToSchema(cellTypeEncoder.schema) =>
-        val fromRow = cachedDeserializer[CellType]
-        fromRow(row(datum))
+        row(datum).as[CellType]
     }
   }
 
@@ -89,10 +88,7 @@ case class SetCellType(tile: Expression, cellType: Expression)
 }
 
 object SetCellType {
-  def apply(tile: Column, cellType: CellType): Column =
-    new Column(new SetCellType(tile.expr, lit(cellType.name).expr))
-  def apply(tile: Column, cellType: String): Column =
-    new Column(new SetCellType(tile.expr, lit(cellType).expr))
-  def apply(tile: Column, cellType: Column): Column =
-    new Column(new SetCellType(tile.expr, cellType.expr))
+  def apply(tile: Column, cellType: CellType): Column = new Column(new SetCellType(tile.expr, lit(cellType.name).expr))
+  def apply(tile: Column, cellType: String): Column = new Column(new SetCellType(tile.expr, lit(cellType).expr))
+  def apply(tile: Column, cellType: Column): Column = new Column(new SetCellType(tile.expr, cellType.expr))
 }

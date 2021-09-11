@@ -72,9 +72,8 @@ class LocalCountAggregate(isData: Boolean) extends UserDefinedAggregateFunction 
     }
   }
 
-  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit =
     buffer1(0) = add(buffer1.getAs[Tile](0), buffer2.getAs[Tile](0))
-  }
 
   def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
 }

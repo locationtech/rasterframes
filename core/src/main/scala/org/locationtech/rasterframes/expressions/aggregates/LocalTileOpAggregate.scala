@@ -43,19 +43,19 @@ class LocalTileOpAggregate(op: LocalTileBinaryOp) extends UserDefinedAggregateFu
 
   private val safeOp = safeBinaryOp(op.apply(_: Tile, _: Tile))
 
-  override def inputSchema: StructType = StructType(Seq(
+  def inputSchema: StructType = StructType(Seq(
     StructField("value", dataType, true)
   ))
 
-  override def bufferSchema: StructType = inputSchema
+  def bufferSchema: StructType = inputSchema
 
-  override def dataType: DataType = tileUDT
+  def dataType: DataType = tileUDT
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit = buffer(0) = null
+  def initialize(buffer: MutableAggregationBuffer): Unit = buffer(0) = null
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit =
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit =
     if (buffer(0) == null) {
       buffer(0) = input(0)
     } else {
@@ -64,9 +64,9 @@ class LocalTileOpAggregate(op: LocalTileBinaryOp) extends UserDefinedAggregateFu
       buffer(0) = safeOp(t1, t2)
     }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = update(buffer1, buffer2)
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = update(buffer1, buffer2)
 
-  override def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
+  def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
 }
 
 object LocalTileOpAggregate {

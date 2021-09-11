@@ -27,6 +27,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.slf4j.LoggerFactory
@@ -43,19 +44,16 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
 
   override def nodeName: String = "raster_ref_to_tile"
 
-  override def inputTypes = Seq(RasterRef.rrEncoder.schema)
+  def inputTypes = Seq(RasterRef.rasterRefEncoder.schema)
 
-  override def dataType: DataType = ProjectedRasterTile.prtEncoder.schema
-
-  private lazy val toRow = ProjectedRasterTile.prtEncoder.createSerializer()
-  private lazy val fromRow = RasterRef.rrEncoder.resolveAndBind().createDeserializer()
+  def dataType: DataType = ProjectedRasterTile.projectedRasterTileEncoder.schema
 
   override protected def nullSafeEval(input: Any): Any = {
     // TODO: how is this different from RealizeTile expression, what work does it do for us? should it make tiles literal?
-    val ref = fromRow(input.asInstanceOf[InternalRow])
+    val ref = input.asInstanceOf[InternalRow].as[RasterRef]
     val tile = ref.realizedTile
     val prt = ProjectedRasterTile(tile, ref.extent, ref.crs)
-    toRow(prt)
+    prt.toInternalRow
   }
 }
 

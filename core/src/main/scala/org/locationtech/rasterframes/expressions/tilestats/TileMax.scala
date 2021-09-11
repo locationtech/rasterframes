@@ -40,19 +40,18 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        1"""
 )
-case class TileMax(child: Expression) extends UnaryRasterOp
-  with NullToValue with CodegenFallback {
+case class TileMax(child: Expression) extends UnaryRasterOp with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_tile_max"
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMax.op(tile)
-  override def dataType: DataType = DoubleType
-  override def na: Any = Double.MinValue
+  protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMax.op(tile)
+  def dataType: DataType = DoubleType
+  def na: Any = Double.MinValue
 }
+
 object TileMax {
-  def apply(tile: Column): TypedColumn[Any, Double] =
-    new Column(TileMax(tile.expr)).as[Double]
+  def apply(tile: Column): TypedColumn[Any, Double] = new Column(TileMax(tile.expr)).as[Double]
 
   /** Find the maximum cell value. */
-  val op = (tile: Tile) => {
+  val op: Tile => Double = (tile: Tile) => {
     var max: Double = Double.MinValue
     tile.foreachDouble(z => if(isData(z)) max = math.max(max, z))
     if (max == Double.MinValue) Double.NaN

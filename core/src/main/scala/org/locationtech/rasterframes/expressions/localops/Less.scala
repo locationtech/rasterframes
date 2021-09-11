@@ -40,14 +40,12 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 )
 case class Less(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
   override val nodeName: String = "rf_local_less"
-  override protected def op(left: Tile, right: Tile): Tile = left.localLess(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localLess(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localLess(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localLess(right)
+  protected def op(left: Tile, right: Double): Tile = left.localLess(right)
+  protected def op(left: Tile, right: Int): Tile = left.localLess(right)
 }
 object Less {
-  def apply(left: Column, right: Column): Column =
-    new Column(Less(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Less(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Less(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Less(tile.expr, lit(value).expr))
 }

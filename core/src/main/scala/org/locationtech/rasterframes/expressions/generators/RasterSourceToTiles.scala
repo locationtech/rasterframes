@@ -45,21 +45,21 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
-  with RasterResult with Generator with CodegenFallback with ExpectsInputTypes  {
+case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None)
+  extends Expression with RasterResult with Generator with CodegenFallback with ExpectsInputTypes  {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
+  def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
   override def nodeName: String = "rf_raster_source_to_tiles"
 
-  override def elementSchema: StructType = StructType(for {
+  def elementSchema: StructType = StructType(for {
     child <- children
     basename = child.name
     name <- bandNames(basename, bandIndexes)
-  } yield StructField(name, ProjectedRasterTile.prtEncoder.schema, true))
+  } yield StructField(name, ProjectedRasterTile.projectedRasterTileEncoder.schema, true))
 
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+  def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
       val tiles = children.map { child =>
         val src = rasterSourceUDT.deserialize(child.eval(input))

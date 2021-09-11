@@ -38,19 +38,17 @@ import org.locationtech.rasterframes.expressions.{RasterResult, fpTile, row}
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 
 
-abstract class ResampleBase(left: Expression, right: Expression, method: Expression)
-  extends TernaryExpression with RasterResult
-  with CodegenFallback with Serializable {
+abstract class ResampleBase(left: Expression, right: Expression, method: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
 
   override val nodeName: String = "rf_resample"
-  override def dataType: DataType = left.dataType
-  override def children: Seq[Expression] = Seq(left, right, method)
+  def dataType: DataType = left.dataType
+  def children: Seq[Expression] = Seq(left, right, method)
 
   def targetFloatIfNeeded(t: Tile, method: GTResampleMethod): Tile =
-     method match {
+    method match {
       case NearestNeighbor | Mode | RMax | RMin | Sum  => t
       case _ => fpTile(t)
-     }
+    }
 
    // These methods define the core algorithms to be used.
   def op(left: Tile, right: Tile, method: GTResampleMethod): Tile =
@@ -129,8 +127,7 @@ Examples:
   > SELECT _FUNC_(tile1, tile2, lit("cubic_spline"));
      ..."""
 )
-case class Resample(left: Expression, factor: Expression, method: Expression)
-  extends ResampleBase(left, factor, method)
+case class Resample(left: Expression, factor: Expression, method: Expression) extends ResampleBase(left, factor, method)
 
 object Resample {
   def apply(left: Column, right: Column, methodName: String): Column =
@@ -157,16 +154,13 @@ object Resample {
        ...
     > SELECT _FUNC_(tile1, tile2);
        ...""")
-case class ResampleNearest(tile: Expression, target: Expression)
-  extends ResampleBase(tile, target, Literal("nearest")) {
+case class ResampleNearest(tile: Expression, target: Expression) extends ResampleBase(tile, target, Literal("nearest")) {
   override val nodeName: String = "rf_resample_nearest"
 }
 object ResampleNearest {
-  def apply(tile: Column, target: Column): Column =
-    new Column(ResampleNearest(tile.expr, target.expr))
+  def apply(tile: Column, target: Column): Column = new Column(ResampleNearest(tile.expr, target.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(ResampleNearest(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(ResampleNearest(tile.expr, lit(value).expr))
 }
 
 

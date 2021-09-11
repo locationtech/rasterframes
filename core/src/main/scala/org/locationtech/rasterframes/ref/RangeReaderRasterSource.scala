@@ -45,23 +45,22 @@ trait RangeReaderRasterSource extends RFRasterSource with GeoTiffInfoSupport {
 
   def extent: Extent = tiffInfo.extent
 
-  override def cols: Int = tiffInfo.rasterExtent.cols
+  def cols: Int = tiffInfo.rasterExtent.cols
 
-  override def rows: Int = tiffInfo.rasterExtent.rows
+  def rows: Int = tiffInfo.rasterExtent.rows
 
   def cellType: CellType = tiffInfo.cellType
 
   def bandCount: Int = tiffInfo.bandCount
 
-  override def tags: Tags = tiffInfo.tags
+  def tags: Tags = tiffInfo.tags
 
-  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+  def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
     val info = realInfo
     val geoTiffTile = GeoTiffReader.geoTiffMultibandTile(info)
     val intersectingBounds = bounds.flatMap(_.intersection(this.gridBounds)).toSeq
     geoTiffTile.crop(intersectingBounds, bands.toArray).map {
-      case (gb, tile) =>
-        Raster(tile, rasterExtent.extentFor(gb, clamp = true))
+      case (gb, tile) => Raster(tile, rasterExtent.extentFor(gb, clamp = true))
     }
   }
 }

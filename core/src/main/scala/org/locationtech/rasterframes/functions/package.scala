@@ -19,13 +19,16 @@
  *
  */
 package org.locationtech.rasterframes
+
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
-import geotrellis.raster.{Tile, _}
+import geotrellis.raster._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
 import org.locationtech.jts.geom.Geometry
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.util.ResampleMethod
 
 /**
@@ -102,28 +105,10 @@ package object functions {
     else {
       require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
 
-      // https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-RowEncoder.html
-      // import org.apache.spark.sql.catalyst.encoders.RowEncoder
-      // WOW TODO: Row Encoder all over the places
-      // println(
-        /*extentEncoder
-          .resolveAndBind() // bind it to schema before deserializing, that's how spark Dataset.as works
-                            // see https://github.com/apache/spark/blob/93cec49212fe82816fcadf69f429cebaec60e058/sql/core/src/main/scala/org/apache/spark/sql/Dataset.scala#L75-L86
-          .createDeserializer()(
-            RowEncoder(extentEncoder.schema)
-              .createSerializer()(leftExtentEnc)
-          )*/
-      // )
-      val leftExtent: Extent = leftExtentEnc match {
-        case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)
-      }
-      val leftDims: Dimensions[Int] = leftDimsEnc match {
-        case Row(cols: Int, rows: Int) => Dimensions(cols, rows)
-      }
+      val leftExtent: Extent = leftExtentEnc.as[Extent]
+      val leftDims: Dimensions[Int] = leftDimsEnc.as[Dimensions[Int]]
       val leftCRS: CRS = leftCRSEnc
-      lazy val rightExtents: Seq[Extent] = rightExtentEnc.map {
-        case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)
-      }
+      lazy val rightExtents: Seq[Extent] = rightExtentEnc.map(_.as[Extent])
       lazy val rightCRSs: Seq[CRS] = rightCRSEnc
       lazy val resample = resampleMethod match {
         case ResampleMethod(mm) => mm
@@ -150,8 +135,7 @@ package object functions {
   }
 
   // NB: Don't be tempted to make this a `val`. Spark will barf if `withRasterFrames` hasn't been called first.
-  def reproject_and_merge = udf(reproject_and_merge_f)
-    .withName("reproject_and_merge")
+  def reproject_and_merge = udf(reproject_and_merge_f).withName("reproject_and_merge")
 
 
   private[rasterframes] val cellTypes: () => Seq[String] = () =>
@@ -191,6 +175,6 @@ package object functions {
     sqlContext.udf.register("rf_make_ones_tile", tileOnes)
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)
-    // sqlContext.udf.register("rf_array_to_tile", arrayToTileFunc3)
+    sqlContext.udf.register("rf_array_to_tile", arrayToTileFunc3)
   }
 }

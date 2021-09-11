@@ -34,11 +34,11 @@ import geotrellis.util._
 trait SubdivideSupport {
   implicit class TileLayoutHasSubdivide(self: TileLayout) {
     def subdivide(divs: Int): TileLayout = {
-      def shrink(num: Int) = {
+      def shrink(num: Int): Int = {
         require(num % divs == 0, s"Subdivision of '$divs' does not evenly divide into dimension '$num'")
         num / divs
       }
-      def grow(num: Int) = num * divs
+      def grow(num: Int): Int = num * divs
 
       divs match {
         case 0 => self

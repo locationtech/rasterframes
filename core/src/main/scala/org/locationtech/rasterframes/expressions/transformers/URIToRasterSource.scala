@@ -39,16 +39,13 @@ import java.net.URI
  *
  * @since 5/4/18
  */
-case class URIToRasterSource(override val child: Expression)
-  extends UnaryExpression with ExpectsInputTypes with CodegenFallback {
+case class URIToRasterSource(override val child: Expression) extends UnaryExpression with ExpectsInputTypes with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
-
 
   override def nodeName: String = "rf_uri_to_raster_source"
 
-  override def dataType: DataType = rasterSourceUDT
-
-  override def inputTypes = Seq(StringType)
+  def dataType: DataType = rasterSourceUDT
+  def inputTypes = Seq(StringType)
 
   override protected def nullSafeEval(input: Any): Any =  {
     val uriString = input.asInstanceOf[UTF8String].toString

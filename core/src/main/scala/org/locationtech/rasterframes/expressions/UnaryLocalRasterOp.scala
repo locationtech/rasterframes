@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory
 trait UnaryLocalRasterOp extends UnaryExpression with RasterResult {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def dataType: DataType = child.dataType
+  def dataType: DataType = child.dataType
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(child.dataType)) {

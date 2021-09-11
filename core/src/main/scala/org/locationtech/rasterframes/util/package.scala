@@ -49,8 +49,7 @@ import spire.math.Integral
  */
 package object util extends DataFrameRenderers {
   // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
-  protected def logger: Logger =
-    Logger(LoggerFactory.getLogger("org.locationtech.rasterframes"))
+  protected def logger: Logger = Logger(LoggerFactory.getLogger("org.locationtech.rasterframes"))
 
   import reflect.ClassTag
   import reflect.runtime.universe._

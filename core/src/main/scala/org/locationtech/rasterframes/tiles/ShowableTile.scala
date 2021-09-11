@@ -20,6 +20,7 @@
  */
 
 package org.locationtech.rasterframes.tiles
+
 import geotrellis.raster.{DelegatingTile, Tile, isNoData}
 import org.locationtech.rasterframes._
 
@@ -38,24 +39,24 @@ object ShowableTile {
     val ct = tile.cellType
     val dims = tile.dimensions
 
-    val data = if (tile.cellType.isFloatingPoint)
-      tile.toArrayDouble().map {
-        case c if isNoData(c) => "--"
-        case c => c.toString
-      }
-    else tile.toArray().map {
-      case c if isNoData(c) => "--"
-      case c => c.toString
-    }
+    val data =
+      if (tile.cellType.isFloatingPoint)
+        tile.toArrayDouble().map {
+          case c if isNoData(c) => "--"
+          case c => c.toString
+        } else tile.toArray().map {
+          case c if isNoData(c) => "--"
+          case c => c.toString
+        }
 
-    val cells = if(tile.size <= maxCells) {
-      data.mkString("[", ",", "]")
+    val cells =
+      if(tile.size <= maxCells) {
+        data.mkString("[", ",", "]")
+      } else {
+        val front = data.take(maxCells / 2).mkString("[", ",", "")
+        val back = data.takeRight(maxCells / 2).mkString("", ",", "]")
+        front + ",...," + back
+      }
+      s"[${ct.name}, $dims, $cells]"
     }
-    else {
-      val front = data.take(maxCells/2).mkString("[", ",", "")
-      val back = data.takeRight(maxCells/2).mkString("", ",", "]")
-      front + ",...," + back
-    }
-    s"[${ct.name}, $dims, $cells]"
-  }
 }

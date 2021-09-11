@@ -40,16 +40,14 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        -1"""
 )
-case class TileMin(child: Expression) extends UnaryRasterOp
-  with NullToValue with CodegenFallback {
+case class TileMin(child: Expression) extends UnaryRasterOp with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_tile_min"
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMin.op(tile)
-  override def dataType: DataType = DoubleType
-  override def na: Any = Double.MaxValue
+  protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMin.op(tile)
+  def dataType: DataType = DoubleType
+  def na: Any = Double.MaxValue
 }
 object TileMin {
-  def apply(tile: Column): TypedColumn[Any, Double] =
-    new Column(TileMin(tile.expr)).as[Double]
+  def apply(tile: Column): TypedColumn[Any, Double] = new Column(TileMin(tile.expr)).as[Double]
 
   /** Find the minimum cell value. */
   val op: Tile => Double = (tile: Tile) => {

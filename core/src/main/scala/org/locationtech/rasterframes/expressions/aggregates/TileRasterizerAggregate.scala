@@ -31,6 +31,7 @@ import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAg
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
@@ -63,9 +64,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
 
   def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val crs: CRS = input.getAs[CRS](0)
-    val extent: Extent = input.getAs[Row](1) match {
-      case Row(xmin: Double, ymin: Double, xmax: Double, ymax: Double) => Extent(xmin, ymin, xmax, ymax)
-    }
+    val extent: Extent = input.getAs[Row](1).as[Extent]
 
     val localExtent = extent.reproject(crs, prd.destinationCRS)
 
@@ -154,12 +153,9 @@ object TileRasterizerAggregate {
       }
       .getOrElse(c)
 
-    destExtent.map { ext =>
-      c.copy(destinationExtent = ext)
-    }
+    destExtent.map { ext => c.copy(destinationExtent = ext) }
 
-    val aggs = tileCols
-      .map(t => TileRasterizerAggregate(config, crsCol, extCol, rf_tile(t)).as(t.columnName))
+    val aggs = tileCols.map(t => TileRasterizerAggregate(config, crsCol, extCol, rf_tile(t)).as(t.columnName))
 
     val agg = df.select(aggs: _*)
 

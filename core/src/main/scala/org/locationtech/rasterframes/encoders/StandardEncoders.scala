@@ -85,7 +85,7 @@ trait StandardEncoders extends SpatialEncoders with TypedEncoders {
   implicit lazy val tileDataContextEncoder: ExpressionEncoder[TileDataContext] = typedExpressionEncoder
   implicit lazy val cellContextEncoder: ExpressionEncoder[CellContext] = typedExpressionEncoder
 
-  implicit lazy val singlebandTileEncoder: ExpressionEncoder[Tile] = typedExpressionEncoder
+  implicit lazy val tileEncoder: ExpressionEncoder[Tile] = typedExpressionEncoder
   implicit lazy val optionalTileEncoder: ExpressionEncoder[Option[Tile]] = typedExpressionEncoder
   implicit lazy val rasterEncoder: ExpressionEncoder[Raster[Tile]] = typedExpressionEncoder
 }

@@ -28,7 +28,6 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 
-
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Performs cell-wise exponential.",
   arguments = """
@@ -42,7 +41,7 @@ import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 case class Exp(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_exp"
 
-  override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E)
+  protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E)
 
   override def dataType: DataType = child.dataType
 }
@@ -84,11 +83,11 @@ object Exp10 {
 case class Exp2(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_exp2"
 
-  override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(2.0)
+  protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(2.0)
 
   override def dataType: DataType = child.dataType
 }
-object Exp2{
+object Exp2 {
   def apply(tile: Column): Column = new Column(Exp2(tile.expr))
 }
 
@@ -105,11 +104,11 @@ object Exp2{
 case class ExpM1(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_expm1"
 
-  override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E).localSubtract(1.0)
+  protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E).localSubtract(1.0)
 
   override def dataType: DataType = child.dataType
 }
-object ExpM1{
+object ExpM1 {
   def apply(tile: Column): Column = new Column(ExpM1(tile.expr))
 }
 

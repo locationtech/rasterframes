@@ -60,6 +60,5 @@ case class GetEnvelope(child: Expression) extends UnaryExpression with CodegenFa
 }
 
 object GetEnvelope {
-  def apply(col: Column): TypedColumn[Any, Envelope] =
-    new GetEnvelope(col.expr).asColumn.as[Envelope]
+  def apply(col: Column): TypedColumn[Any, Envelope] = new GetEnvelope(col.expr).asColumn.as[Envelope]
 }

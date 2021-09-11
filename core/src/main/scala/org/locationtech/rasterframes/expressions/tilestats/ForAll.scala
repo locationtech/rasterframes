@@ -26,9 +26,8 @@ import spire.syntax.cfor.cfor
 )
 case class ForAll(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "for_all"
-  override def dataType: DataType = BooleanType
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ForAll.op(tile)
-
+  def dataType: DataType = BooleanType
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ForAll.op(tile)
 }
 
 object ForAll {

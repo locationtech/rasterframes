@@ -49,13 +49,12 @@ import org.locationtech.rasterframes.model.LazyCRS
     > SELECT _FUNC_(geom, srcCRS, dstCRS);
        ..."""
 )
-case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: Expression) extends Expression
-  with CodegenFallback {
+case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: Expression) extends Expression with CodegenFallback {
 
   override def nodeName: String = "st_reproject"
-  override def dataType: DataType = JTSTypes.GeometryTypeInstance
-  override def nullable: Boolean = geometry.nullable || srcCRS.nullable || dstCRS.nullable
-  override def children: Seq[Expression] = Seq(geometry, srcCRS, dstCRS)
+  def dataType: DataType = JTSTypes.GeometryTypeInstance
+  def nullable: Boolean = geometry.nullable || srcCRS.nullable || dstCRS.nullable
+  def children: Seq[Expression] = Seq(geometry, srcCRS, dstCRS)
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!geometry.dataType.isInstanceOf[AbstractGeometryUDT[_]])
@@ -74,7 +73,7 @@ case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: E
       trans.transform(sourceGeom)
     }
 
-  override def eval(input: InternalRow): Any = {
+  def eval(input: InternalRow): Any = {
     val src = DynamicExtractors.crsExtractor(srcCRS.dataType)(srcCRS.eval(input))
     val dst = DynamicExtractors.crsExtractor(dstCRS.dataType)(dstCRS.eval(input))
     (src, dst) match {

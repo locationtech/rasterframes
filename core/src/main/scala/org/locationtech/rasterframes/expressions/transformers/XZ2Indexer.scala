@@ -29,6 +29,7 @@ import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, 
 import org.apache.spark.sql.types.{DataType, LongType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.geomesa.curve.XZ2SFC
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.accessors.GetCRS
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
@@ -52,12 +53,11 @@ import org.locationtech.rasterframes.jts.ReprojectionTransformer
     * crs - the native CRS of the `geom` column
 """
 )
-case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Short)
-  extends BinaryExpression with CodegenFallback {
+case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Short) extends BinaryExpression with CodegenFallback {
 
   override def nodeName: String = "rf_xz2_index"
 
-  override def dataType: DataType = LongType
+  def dataType: DataType = LongType
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!envelopeExtractor.isDefinedAt(left.dataType))
@@ -90,7 +90,6 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
 }
 
 object XZ2Indexer {
-  import org.locationtech.rasterframes.encoders.SparkBasicEncoders.longEnc
   def apply(targetExtent: Column, targetCRS: Column, indexResolution: Short): TypedColumn[Any, Long] =
     new Column(new XZ2Indexer(targetExtent.expr, targetCRS.expr, indexResolution)).as[Long]
   def apply(targetExtent: Column, targetCRS: Column): TypedColumn[Any, Long] =

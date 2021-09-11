@@ -43,7 +43,7 @@ trait StacSerializers {
   implicit val itemDatetimeCatalystType: Injection[ItemDatetimeCatalystType, String] = Injection(_.repr, ItemDatetimeCatalystType.fromString)
   implicit val itemDatetimeInjection: Injection[ItemDatetime, ItemDatetimeCatalyst] = Injection(ItemDatetimeCatalyst.fromItemDatetime, ItemDatetimeCatalyst.toDatetime)
 
-  /** Refined types support */
+  /** Refined types support, https://github.com/typelevel/frameless/issues/257#issuecomment-914392485 */
   implicit def refinedInjection[F[_, _], T, P](implicit refType: RefType[F], validate: Validate[T, P]): Injection[F[T, P], T] =
     Injection(refType.unwrap, value => refType.refine[P](value).valueOr(errMsg => throw new IllegalArgumentException(s"Value $value does not satisfy refinement predicate: $errMsg")))
 

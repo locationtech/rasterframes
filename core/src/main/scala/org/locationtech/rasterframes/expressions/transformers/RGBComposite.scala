@@ -47,19 +47,17 @@ import org.locationtech.rasterframes.expressions.{RasterResult, row}
     * green - tile column representing the green channel
     * blue - tile column representing the blue channel"""
 )
-case class RGBComposite(red: Expression, green: Expression, blue: Expression) extends TernaryExpression
-  with RasterResult with CodegenFallback {
+case class RGBComposite(red: Expression, green: Expression, blue: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
 
   override def nodeName: String = "rf_rgb_composite"
 
-  override def dataType: DataType = if(
+  def dataType: DataType = if(
     tileExtractor.isDefinedAt(red.dataType) ||
       tileExtractor.isDefinedAt(green.dataType) ||
       tileExtractor.isDefinedAt(blue.dataType)
-  ) red.dataType
-  else tileUDT
+  ) red.dataType else tileUDT
 
-  override def children: Seq[Expression] = Seq(red, green, blue)
+  def children: Seq[Expression] = Seq(red, green, blue)
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(red.dataType)) {

@@ -389,7 +389,7 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
       g should be(extent.toPolygon())
       checkDocs("rf_geometry")
     }
-    implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rrEncoder)
+    implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rasterRefEncoder)
 
     it("should get the CRS of a RasterRef") {
       val e = Seq((1, TestData.rasterRef)).toDF("index", "ref").select(rf_crs($"ref")).first()

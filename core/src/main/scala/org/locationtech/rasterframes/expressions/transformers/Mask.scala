@@ -31,6 +31,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, Literal, TernaryExpression}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.localops.IsIn
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
@@ -47,15 +48,15 @@ import org.slf4j.LoggerFactory
 abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, undefined: Boolean, inverse: Boolean)
   extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
   // aliases.
-  def targetExp = left
-  def maskExp = middle
-  def maskValueExp = right
+  def targetExp: Expression = left
+  def maskExp: Expression = middle
+  def maskValueExp: Expression = right
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def children: Seq[Expression] = Seq(left, middle, right)
+  def children: Seq[Expression] = Seq(left, middle, right)
 
-  override def checkInputDataTypes(): TypeCheckResult = {
+  override def checkInputDataTypes(): TypeCheckResult =
     if (!tileExtractor.isDefinedAt(targetExp.dataType)) {
       TypeCheckFailure(s"Input type '${targetExp.dataType}' does not conform to a raster type.")
     } else if (!tileExtractor.isDefinedAt(maskExp.dataType)) {
@@ -63,8 +64,8 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
     } else if (!intArgExtractor.isDefinedAt(maskValueExp.dataType)) {
       TypeCheckFailure(s"Input type '${maskValueExp.dataType}' isn't an integral type.")
     } else TypeCheckSuccess
-  }
-  override def dataType: DataType = left.dataType
+
+  def dataType: DataType = left.dataType
 
   override def makeCopy(newArgs: Array[AnyRef]): Expression = super.makeCopy(newArgs)
 
@@ -92,17 +93,12 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
     else maskTile.localEqual(maskValue.value) // Otherwise if `maskTile` locations equal `maskValue`, set location to ND
 
     // apply the `masking` where values are 1 set to ND (possibly inverted!)
-    val result = if (inverse)
-      gtInverseMask(targetTile, masking, 1, raster.NODATA)
-    else
-      gtMask(targetTile, masking, 1, raster.NODATA)
+    val result = if (inverse) gtInverseMask(targetTile, masking, 1, raster.NODATA) else gtMask(targetTile, masking, 1, raster.NODATA)
 
     toInternalRow(result, targetCtx)
   }
 }
 object Mask {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
-
   @ExpressionDescription(
     usage = "_FUNC_(target, mask) - Generate a tile with the values from the data tile, but where cells in the masking tile contain NODATA, replace the data value with NODATA.",
     arguments = """
@@ -114,8 +110,7 @@ object Mask {
     > SELECT _FUNC_(target, mask);
        ..."""
   )
-  case class MaskByDefined(target: Expression, mask: Expression)
-    extends Mask(target, mask, Literal(0), true, false) {
+  case class MaskByDefined(target: Expression, mask: Expression) extends Mask(target, mask, Literal(0), true, false) {
     override def nodeName: String = "rf_mask"
   }
   object MaskByDefined {
@@ -134,8 +129,7 @@ object Mask {
     > SELECT _FUNC_(target, mask);
        ..."""
   )
-  case class InverseMaskByDefined(leftTile: Expression, rightTile: Expression)
-    extends Mask(leftTile, rightTile, Literal(0), true, true) {
+  case class InverseMaskByDefined(leftTile: Expression, rightTile: Expression) extends Mask(leftTile, rightTile, Literal(0), true, true) {
     override def nodeName: String = "rf_inverse_mask"
   }
   object InverseMaskByDefined {
@@ -154,8 +148,7 @@ object Mask {
     > SELECT _FUNC_(target, mask, maskValue);
        ..."""
   )
-  case class MaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression)
-    extends Mask(leftTile, rightTile, maskValue, false, false) {
+  case class MaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression) extends Mask(leftTile, rightTile, maskValue, false, false) {
     override def nodeName: String = "rf_mask_by_value"
   }
   object MaskByValue {
@@ -176,8 +169,7 @@ object Mask {
     > SELECT _FUNC_(target, mask, maskValue);
        ..."""
   )
-  case class InverseMaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression)
-    extends Mask(leftTile, rightTile, maskValue, false, true) {
+  case class InverseMaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression) extends Mask(leftTile, rightTile, maskValue, false, true) {
     override def nodeName: String = "rf_inverse_mask_by_value"
   }
   object InverseMaskByValue {
@@ -198,8 +190,7 @@ object Mask {
     > SELECT _FUNC_(data, mask, array(1, 2, 3))
       ..."""
   )
-  case class MaskByValues(dataTile: Expression, maskTile: Expression)
-    extends Mask(dataTile, maskTile, Literal(1), false, false) {
+  case class MaskByValues(dataTile: Expression, maskTile: Expression) extends Mask(dataTile, maskTile, Literal(1), false, false) {
     def this(dataTile: Expression, maskTile: Expression, maskValues: Expression) =
       this(dataTile, IsIn(maskTile, maskValues))
     override def nodeName: String = "rf_mask_by_values"

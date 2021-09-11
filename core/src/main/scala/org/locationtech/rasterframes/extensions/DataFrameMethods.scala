@@ -98,7 +98,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Get the columns that look like `ProjectedRasterTile`s. */
   def projRasterColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsToSchema(ProjectedRasterTile.prtEncoder.schema))
+      .filter(_.dataType.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema))
       .map(f => self.col(f.name))
 
   /** Get the columns that look like `Extent`s. */
@@ -304,5 +304,5 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
 
   /** Internal method for slapping the RasterFreameLayer seal of approval on a DataFrame.
    * Only call if if you are sure it has a spatial key and tile columns and TileLayerMetadata. */
-  private[rasterframes] def certify = certifyLayer(self)
+  private[rasterframes] def certify: RasterFrameLayer = certifyLayer(self)
 }
