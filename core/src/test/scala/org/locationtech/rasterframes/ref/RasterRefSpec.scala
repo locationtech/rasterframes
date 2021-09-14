@@ -184,8 +184,8 @@ class RasterRefSpec extends TestEnvironment with TestData {
     it("should convert and expand RasterSource") {
       val src = RFRasterSource(remoteMODIS)
       import spark.implicits._
-      val df = Seq(Option(src)).toDF("src")
-      val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), $"src"))
+      val df = Seq(src).toDF("src")
+      val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), $"src") as "proj_raster")
       refs.count() should be (1)
     }
 

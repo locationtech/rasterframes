@@ -29,7 +29,6 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef}
