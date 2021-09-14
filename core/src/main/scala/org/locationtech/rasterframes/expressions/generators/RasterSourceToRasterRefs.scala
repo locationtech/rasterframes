@@ -30,6 +30,7 @@ import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef}
 import org.locationtech.rasterframes.util._
@@ -50,40 +51,30 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
   def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
   override def nodeName: String = "rf_raster_source_to_raster_ref"
 
-  private lazy val enc = ProjectedRasterTile.projectedRasterTileEncoder
-  private lazy val prtSerializer = SerializersCache.serializer[ProjectedRasterTile]
-
   def elementSchema: StructType = StructType(for {
     child <- children
     basename = child.name + "_ref"
     name <- bandNames(basename, bandIndexes)
-  } yield StructField(name, enc.schema, true))
+  } yield StructField(name, RasterRef.rasterRefEncoder.schema, true))
 
   private def band2ref(src: RFRasterSource, grid: Option[GridBounds[Int]], extent: Option[Extent])(b: Int): RasterRef =
     if (b < src.bandCount) RasterRef(src, b, extent, grid.map(Subgrid.apply)) else null
 
-
-  def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+  def eval(input: InternalRow): TraversableOnce[InternalRow] =
     try {
       val refs = children.map { child =>
         // TODO: we're using the UDT here ... which is what we should do ?
         // what would have serialized it, UDT?
         val src = rasterSourceUDT.deserialize(child.eval(input))
         val srcRE = src.rasterExtent
-        subtileDims.map(dims => {
+        subtileDims.map({ dims =>
           val subGB = src.layoutBounds(dims)
           val subs = subGB.map(gb => (gb, srcRE.extentFor(gb, clamp = true)))
-
           subs.map{ case (grid, extent) => bandIndexes.map(band2ref(src, Some(grid), Some(extent))) }
         }).getOrElse(Seq(bandIndexes.map(band2ref(src, None, None))))
       }
 
-      val out = refs.transpose.map(ts =>
-        InternalRow(ts.flatMap(_.map{ r =>
-          prtSerializer(r: ProjectedRasterTile).copy()
-        }): _*))
-
-      out
+      refs.transpose.map(ts => InternalRow(ts.flatMap(_.map((_: RasterRef).toInternalRow)): _*))
     }
     catch {
       case NonFatal(ex) =>
@@ -92,7 +83,6 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
             .toOption.toSeq.flatten.mkString(", ")
         throw new java.lang.IllegalArgumentException(description, ex)
     }
-  }
 }
 
 object RasterSourceToRasterRefs {

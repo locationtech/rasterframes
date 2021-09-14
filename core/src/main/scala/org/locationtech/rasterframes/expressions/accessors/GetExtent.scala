@@ -46,6 +46,7 @@ import org.locationtech.rasterframes.model.TileContext
   """)
 case class GetExtent(child: Expression) extends OnTileContextExpression with CodegenFallback {
   def dataType: DataType = extentEncoder.schema
+
   override def nodeName: String = "rf_extent"
   def eval(ctx: TileContext): InternalRow = ctx.extent.toInternalRow
 }

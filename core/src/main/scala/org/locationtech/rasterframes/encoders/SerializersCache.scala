@@ -18,7 +18,8 @@ object SerializersCache { self =>
   }
 
   case class SerializerSynchronized[T](underlying: ExpressionEncoder.Serializer[T]) {
-    def apply(t: T): InternalRow = self.synchronized(underlying.apply(t))
+    // copy should happen within the same lock, otherwise we're risking to loose the InternalRow
+    def apply(t: T): InternalRow = self.synchronized(underlying.apply(t).copy())
   }
 
   case class DeserializerRowSynchronized[T](underlying: Row => T) extends AnyVal {

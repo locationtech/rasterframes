@@ -28,6 +28,7 @@ import scala.reflect.runtime.universe._
 
 /**
  * Container for primitive Spark encoders, pulled into implicit scope.
+ * Be careful with these imports, it may conflict with spark.implicits._ when is in the same scope.
  *
  * @since 12/28/17
  */

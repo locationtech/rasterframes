@@ -71,7 +71,11 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
             case _ => null
           })
       }
-      tiles.transpose.map(ts => InternalRow(ts.flatMap(_.map(prt => toInternalRow(prt))): _*))
+      tiles
+        .transpose
+        .map { ts =>
+          InternalRow(ts.flatMap(_.map { prt => if (prt != null) toInternalRow(prt) else null }): _*)
+        }
     }
     catch {
       case NonFatal(ex) =>

@@ -51,9 +51,7 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
   override protected def nullSafeEval(input: Any): Any = {
     // TODO: how is this different from RealizeTile expression, what work does it do for us? should it make tiles literal?
     val ref = input.asInstanceOf[InternalRow].as[RasterRef]
-    val tile = ref.realizedTile
-    val prt = ProjectedRasterTile(tile, ref.extent, ref.crs)
-    prt.toInternalRow
+    ProjectedRasterTile(ref.tile, ref.extent, ref.crs).toInternalRow
   }
 }
 

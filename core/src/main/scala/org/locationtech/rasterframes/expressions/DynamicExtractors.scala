@@ -88,7 +88,7 @@ object DynamicExtractors {
         val row = input.asInstanceOf[InternalRow]
         rasterSourceUDT.deserialize(row)
     case t if t.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema) =>
-      (input: Any) =>input.asInstanceOf[InternalRow].as[ProjectedRasterTile]
+      (input: Any) => input.asInstanceOf[InternalRow].as[ProjectedRasterTile]
     case t if t.conformsToSchema(RasterRef.rasterRefEncoder.schema) =>
       (row: Any) => row.asInstanceOf[InternalRow].as[RasterRef]
   }

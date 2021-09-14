@@ -23,6 +23,7 @@ package org.apache.spark.sql.rf
 
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _}
+import org.locationtech.rasterframes.expressions.transformers.RasterRefToTile
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.util.KryoSupport
 
@@ -42,16 +43,16 @@ class RasterSourceUDT extends UserDefinedType[RFRasterSource] {
 
   def userClass: Class[RFRasterSource] = classOf[RFRasterSource]
 
-  override def sqlType: DataType = StructType(Seq(
+  def sqlType: DataType = StructType(Seq(
     StructField("raster_source_kryo", BinaryType, false)
   ))
 
-  override def serialize(obj: RFRasterSource): InternalRow =
+  def serialize(obj: RFRasterSource): InternalRow =
     Option(obj)
       .map { rs => InternalRow(KryoSupport.serialize(rs).array()) }
       .orNull
 
-  override def deserialize(datum: Any): RFRasterSource =
+  def deserialize(datum: Any): RFRasterSource =
     Option(datum)
       .collect {
         case ir: InternalRow =>

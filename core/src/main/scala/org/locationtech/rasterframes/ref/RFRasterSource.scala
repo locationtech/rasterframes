@@ -96,13 +96,6 @@ object RFRasterSource extends LazyLogging {
 
   val cacheTimeout: FiniteDuration = Duration.fromNanos(rfConfig.getDuration("raster-source-cache-timeout").toNanos)
 
-  implicit def injectionToBytes: Injection[RFRasterSource, Array[Byte]] =
-    Injection[RFRasterSource, Array[Byte]](
-      { rs =>  KryoSupport.serialize(rs).array() },
-      { bytes => KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(bytes)) }
-    )
-
-
   private[ref] val rsCache = Scaffeine()
     .recordStats()
     .expireAfterAccess(RFRasterSource.cacheTimeout)

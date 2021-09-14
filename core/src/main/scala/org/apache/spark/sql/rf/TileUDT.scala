@@ -25,6 +25,7 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.execution.datasources.parquet.ParquetReadSupport
 import org.apache.spark.sql.types.{DataType, _}
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.{ProjectedRasterTile, ShowableTile}
 
@@ -52,20 +53,16 @@ class TileUDT extends UserDefinedType[Tile] {
     StructField("ref", ParquetReadSupport.expandUDT(RasterRef.rasterRefEncoder.schema), true)
   ))
 
-  private lazy val serRef = RasterRef.rasterRefEncoder.createSerializer()
-  private lazy val desRef = RasterRef.rasterRefEncoder.resolveAndBind().createDeserializer()
-
-  override def serialize(obj: Tile): InternalRow = {
+  def serialize(obj: Tile): InternalRow = {
     if (obj == null) return null
     obj match {
       // TODO: review matches there
-      // I don't thins RasterRef and ProjectedRasterTile cases are possible now
       case ref: RasterRef =>
         val ct = UTF8String.fromString(ref.cellType.toString())
-        InternalRow(ct, ref.cols, ref.rows, null, serRef(ref))
-      case ProjectedRasterTile(ref: RasterRef, extent, crs) =>
+        InternalRow(ct, ref.cols, ref.rows, null, ref.toInternalRow)
+      case ProjectedRasterTile(ref: RasterRef, _, _) =>
         val ct = UTF8String.fromString(ref.cellType.toString())
-        InternalRow(ct, ref.cols, ref.rows, null, serRef(ref))
+        InternalRow(ct, ref.cols, ref.rows, null, ref.toInternalRow)
       case prt: ProjectedRasterTile =>
         val tile = prt.tile
         val ct = UTF8String.fromString(tile.cellType.toString())
@@ -81,7 +78,7 @@ class TileUDT extends UserDefinedType[Tile] {
     }
   }
 
-  override def deserialize(datum: Any): Tile = {
+  def deserialize(datum: Any): Tile = {
     if (datum == null) return null
     val row = datum.asInstanceOf[InternalRow]
 
@@ -90,7 +87,7 @@ class TileUDT extends UserDefinedType[Tile] {
       if (! row.isNullAt(4)) {
         Try {
           val ir = row.getStruct(4, 4)
-          val ref = desRef(ir)
+          val ref = ir.as[RasterRef]
           ref
         }/*.orElse {
           Try(

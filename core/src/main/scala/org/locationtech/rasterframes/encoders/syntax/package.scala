@@ -10,7 +10,7 @@ package object syntax {
   implicit class CachedExpressionOps[T](val self: T) extends AnyVal {
     def toInternalRow(implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): InternalRow = {
       val toRow = SerializersCache.serializer[T]
-      toRow(self).copy()
+      toRow(self)
     }
 
     def toRow(implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): Row = {

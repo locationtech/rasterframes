@@ -40,7 +40,7 @@ case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFall
   private lazy val tileSer = tileUDT.serialize _
 
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
-    case prt: ProjectedRasterTile => tileSer(prt.tile)
+    case prt: ProjectedRasterTile => tileUDT.serialize(prt.tile)
     case tile: Tile => tileSer(tile)
   }
 }

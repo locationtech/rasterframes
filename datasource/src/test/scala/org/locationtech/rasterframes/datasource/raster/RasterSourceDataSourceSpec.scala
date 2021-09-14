@@ -33,7 +33,6 @@ import org.locationtech.rasterframes.ref.RasterRef
 class RasterSourceDataSourceSpec extends TestEnvironment with TestData with BeforeAndAfter {
   import spark.implicits._
 
-
   describe("DataSource parameter processing") {
     def singleCol(paths: Iterable[String]) = {
       val rows = paths.mkString(DEFAULT_COLUMN_NAME + "\n", "\n", "")
@@ -153,6 +152,7 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
         .withBandIndexes(0, 1, 2, 3)
         .load()
         .cache()
+
       df.select($"${b}_path").distinct().count() should be(3)
       df.schema.size should be(5)
 
@@ -302,10 +302,10 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
         .withColumn("dims", rf_dimensions($"proj_raster"))
         .select($"dims".as[Dimensions[Int]]).distinct().collect()
 
-      //forEvery(res)(r => {
-      //  r.cols should be <= 256
-      //  r.rows should be <= 256
-      //})
+      forEvery(res)(r => {
+        r.cols should be <= 256
+        r.rows should be <= 256
+      })
     }
 
     it("should provide Landsat tiles with requested size") {
@@ -313,10 +313,10 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
         .withColumn("dims", rf_dimensions($"proj_raster"))
         .select($"dims".as[Dimensions[Int]]).distinct().collect()
 
-      //forEvery(dims) { d =>
-      //  d.cols should be <= 32
-      //  d.rows should be <= 33
-      //}
+      forEvery(dims) { d =>
+        d.cols should be <= 32
+        d.rows should be <= 33
+      }
     }
 
     it("should have consistent tile resolution reading MODIS") {
