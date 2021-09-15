@@ -26,7 +26,6 @@ import geotrellis.spark._
 import geotrellis.store.hadoop.util.HdfsRangeReader
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
@@ -47,35 +46,36 @@ import com.typesafe.scalalogging.Logger
  *
  * @since 1/14/18
  */
-case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation
-  with PrunedScan with GeoTiffInfoSupport {
+case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation with PrunedScan with GeoTiffInfoSupport {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  lazy val (info, tileLayerMetadata) = extractGeoTiffLayout(
-    HdfsRangeReader(new Path(uri), sqlContext.sparkContext.hadoopConfiguration)
-  )
+  lazy val (info, tileLayerMetadata) =
+    extractGeoTiffLayout(HdfsRangeReader(new Path(uri), sqlContext.sparkContext.hadoopConfiguration))
 
   def schema: StructType = {
-    val skSchema = ExpressionEncoder[SpatialKey]().schema
-    val skMetadata = Metadata.empty.append
-      .attachContext(tileLayerMetadata.asColumnMetadata)
-      .tagSpatialKey.build
+    val skMetadata =
+      Metadata
+        .empty
+        .append
+        .attachContext(tileLayerMetadata.asColumnMetadata)
+        .tagSpatialKey
+        .build
 
     val baseName = TILE_COLUMN.columnName
     val tileCols = (if (info.bandCount == 1) Seq(baseName)
     else {
       for (i <- 0 until info.bandCount) yield s"${baseName}_${i + 1}"
-    }).map(name =>
-      StructField(name, new TileUDT, nullable = false)
-    )
+    }).map(name => StructField(name, new TileUDT, nullable = false) )
 
-    StructType(Seq(
-      StructField(SPATIAL_KEY_COLUMN.columnName, skSchema, nullable = false, skMetadata),
-      StructField(EXTENT_COLUMN.columnName, extentEncoder.schema, nullable = true),
-      StructField(CRS_COLUMN.columnName, crsUDT, nullable = true),
-      StructField(METADATA_COLUMN.columnName, DataTypes.createMapType(StringType, StringType, false))
-    ) ++ tileCols)
+    StructType(
+      Seq(
+        StructField(SPATIAL_KEY_COLUMN.columnName, spatialKeyEncoder.schema, nullable = false, skMetadata),
+        StructField(EXTENT_COLUMN.columnName, extentEncoder.schema, nullable = true),
+        StructField(CRS_COLUMN.columnName, crsUDT, nullable = true),
+        StructField(METADATA_COLUMN.columnName, DataTypes.createMapType(StringType, StringType, false))
+      ) ++ tileCols
+    )
   }
 
   override def buildScan(requiredColumns: Array[String]): RDD[Row] = {
@@ -89,8 +89,6 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     val trans = tlm.mapTransform
     val metadata = info.tags.headTags
 
-    val encodedCRS = tlm.crs.toRow
-
     if(info.segmentLayout.isTiled) {
       // TODO: Figure out how to do tile filtering via the range reader.
       // Something with geotrellis.spark.io.GeoTiffInfoReader#windowsByPartition?
@@ -102,7 +100,7 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
           val entries = columnIndexes.map {
             case 0 => SpatialKey(gb.colMin, gb.rowMin).toRow
             case 1 => pe.extent.toRow
-            case 2 => encodedCRS
+            case 2 => tlm.crs
             case 3 => metadata
             case n => tiles.band(n - 4)
           }
@@ -112,7 +110,9 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     else {
       // TODO: get rid of this sloppy type leakage hack. Might not be necessary anyway.
       def toArrayTile[T <: CellGrid[Int]](tile: T): T =
-        tile.getClass.getMethods
+        tile
+          .getClass
+          .getMethods
           .find(_.getName == "toArrayTile")
           .map(_.invoke(tile).asInstanceOf[T])
           .getOrElse(tile)
@@ -124,9 +124,9 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
       rdd.tileToLayout(tlm)
         .map { case (sk, tiles) =>
           val entries = columnIndexes.map {
-            case 0 => sk
+            case 0 => sk.toRow
             case 1 => trans.keyToExtent(sk).toRow
-            case 2 => encodedCRS
+            case 2 => tlm.crs
             case 3 => metadata
             case n => tiles.band(n - 4)
           }

@@ -53,8 +53,7 @@ import scala.reflect.runtime.universe._
   *
   * @since 7/18/17
  */
-trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
-  with LayerSpatialColumnMethods with MetadataKeys {
+trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer] with LayerSpatialColumnMethods with MetadataKeys {
   import Implicits.{WithDataFrameMethods, WithRasterFrameLayerMethods}
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
@@ -80,12 +79,10 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
   def tileLayerMetadata: Either[TileLayerMetadata[SpatialKey], TileLayerMetadata[SpaceTimeKey]] = {
     val spatialMD = self.findSpatialKeyField
       .map(_.metadata)
-      .getOrElse(throw new IllegalArgumentException(s"RasterFrameLayer operation requsted on non-RasterFrameLayer: $self"))
+      .getOrElse(throw new IllegalArgumentException(s"RasterFrameLayer operation requested on non-RasterFrameLayer: $self"))
 
-    if (self.findTemporalKeyField.nonEmpty)
-      Right(extract[TileLayerMetadata[SpaceTimeKey]](CONTEXT_METADATA_KEY)(spatialMD))
-    else
-      Left(extract[TileLayerMetadata[SpatialKey]](CONTEXT_METADATA_KEY)(spatialMD))
+    if (self.findTemporalKeyField.nonEmpty) Right(extract[TileLayerMetadata[SpaceTimeKey]](CONTEXT_METADATA_KEY)(spatialMD))
+    else Left(extract[TileLayerMetadata[SpatialKey]](CONTEXT_METADATA_KEY)(spatialMD))
   }
 
   /** Get the CRS covering the RasterFrameLayer. */
@@ -199,8 +196,7 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     val layout = metadata.merge.layout
     val trans = layout.mapTransform
 
-    def updateBounds[T: SpatialComponent: Boundable: JsonFormat: TypeTag](tlm: TileLayerMetadata[T],
-                                                                          keys: Dataset[T]): DataFrame = {
+    def updateBounds[T: SpatialComponent: Boundable: JsonFormat: TypeTag](tlm: TileLayerMetadata[T], keys: Dataset[T]): DataFrame = {
       implicit val enc = Encoders.product[KeyBounds[T]]
       val keyBounds = keys
         .map(k => KeyBounds(k, k))
@@ -289,15 +285,17 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     )
 
   /** Extract metadata value. */
-  private[rasterframes] def extract[M: JsonFormat](metadataKey: String)(md: Metadata) =
+  private[rasterframes] def extract[M: JsonFormat](metadataKey: String)(md: Metadata): M =
     md.getMetadata(metadataKey).json.parseJson.convertTo[M]
 
   /** Convert the tiles in the RasterFrameLayer into a single raster. For RasterFrames keyed with temporal keys, they
     * will be merge undeterministically. */
-  def toRaster(tileCol: Column,
-               rasterCols: Int,
-               rasterRows: Int,
-               resampler: ResampleMethod = NearestNeighbor): ProjectedRaster[Tile] = {
+  def toRaster(
+    tileCol: Column,
+    rasterCols: Int,
+    rasterRows: Int,
+    resampler: ResampleMethod = NearestNeighbor
+  ): ProjectedRaster[Tile] = {
 
     val clipped = clipLayerExtent
 
@@ -313,12 +311,10 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     val newLayerMetadata =
       md.copy(layout = newLayout, bounds = Bounds(SpatialKey(0, 0), SpatialKey(0, 0)), cellType = cellType)
 
-    val newLayer = rdd
-      .map {
-        case (key, tile) =>
-          (ProjectedExtent(trans(key), md.crs), tile)
-      }
-      .tileToLayout(newLayerMetadata, Tiler.Options(resampler))
+    val newLayer =
+      rdd
+        .map { case (key, tile) => (ProjectedExtent(trans(key), md.crs), tile) }
+        .tileToLayout(newLayerMetadata, Tiler.Options(resampler))
 
     val stitchedTile = newLayer.stitch()
 
@@ -333,7 +329,8 @@ trait RasterFrameLayerMethods extends MethodExtensions[RasterFrameLayer]
     tileCols: Seq[Column],
     rasterCols: Int,
     rasterRows: Int,
-    resampler: ResampleMethod = NearestNeighbor): ProjectedRaster[MultibandTile] = {
+    resampler: ResampleMethod = NearestNeighbor
+  ): ProjectedRaster[MultibandTile] = {
 
     val clipped = clipLayerExtent
 

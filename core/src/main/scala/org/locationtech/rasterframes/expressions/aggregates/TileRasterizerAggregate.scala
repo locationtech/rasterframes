@@ -133,29 +133,31 @@ object TileRasterizerAggregate {
     }
 
     // Scan table and construct what the TileLayerMetadata would be in the specified destination CRS.
-    val tlm: TileLayerMetadata[SpatialKey] = df
-      .select(
-        ProjectedLayerMetadataAggregate(
-          destCRS,
-          extCol,
-          crsCol,
-          rf_cell_type(tileCol),
-          rf_dimensions(tileCol)
-        ))
-      .first()
+    val tlm: TileLayerMetadata[SpatialKey] =
+      df
+        .select(
+          ProjectedLayerMetadataAggregate(
+            destCRS,
+            extCol,
+            rf_crs(crsCol),
+            rf_cell_type(tileCol),
+            rf_dimensions(tileCol)
+          )
+        )
+        .first()
+
     logger.debug(s"Collected TileLayerMetadata: ${tlm.toString}")
 
     val c = ProjectedRasterDefinition(tlm, Bilinear)
 
-    val config = rasterDims
-      .map { dims =>
-        c.copy(totalCols = dims.cols, totalRows = dims.rows)
-      }
-      .getOrElse(c)
+    val config =
+      rasterDims
+        .map { dims => c.copy(totalCols = dims.cols, totalRows = dims.rows) }
+        .getOrElse(c)
 
     destExtent.map { ext => c.copy(destinationExtent = ext) }
 
-    val aggs = tileCols.map(t => TileRasterizerAggregate(config, crsCol, extCol, rf_tile(t)).as(t.columnName))
+    val aggs = tileCols.map(t => TileRasterizerAggregate(config, rf_crs(crsCol), extCol, rf_tile(t)).as(t.columnName))
 
     val agg = df.select(aggs: _*)
 

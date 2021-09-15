@@ -1,7 +1,5 @@
 package org.locationtech.rasterframes.datasource.stac.api.encoders
 
-import org.locationtech.rasterframes.datasource.stac.api.encoders.syntax._
-
 import io.circe.parser.parse
 import io.circe.{Json, JsonObject}
 import io.circe.syntax._
@@ -56,4 +54,6 @@ trait StacSerializers {
 
   /** High priority specific product encoder derivation. Without it, the default spark would be used. */
   implicit def productTypedToExpressionEncoder[T <: Product: TypedEncoder]: ExpressionEncoder[T] = typedToExpressionEncoder
+
+  implicit val stacItemEncoder: ExpressionEncoder[StacItem] = typedToExpressionEncoder[StacItem]
 }

@@ -85,7 +85,7 @@ class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: Dimensions[Int]) e
 
 object ProjectedLayerMetadataAggregate {
   /** Primary user facing constructor */
-  def apply(destCRS: CRS, extent: Column, crs: Column, cellType: Column,  tileSize: Column): TypedColumn[Any, TileLayerMetadata[SpatialKey]] =
+  def apply(destCRS: CRS, extent: Column, crs: Column, cellType: Column, tileSize: Column): TypedColumn[Any, TileLayerMetadata[SpatialKey]] =
     // Ordering must match InputRecord schema
     new ProjectedLayerMetadataAggregate(destCRS, Dimensions(NOMINAL_TILE_SIZE, NOMINAL_TILE_SIZE))(extent, crs, cellType, tileSize).as[TileLayerMetadata[SpatialKey]]
 
@@ -115,7 +115,7 @@ object ProjectedLayerMetadataAggregate {
 
   private[expressions]
   object InputRecord {
-    implicit def inputRecordEncoder: ExpressionEncoder[InputRecord] = typedExpressionEncoder[InputRecord]
+    implicit lazy val inputRecordEncoder: ExpressionEncoder[InputRecord] = typedExpressionEncoder[InputRecord]
   }
 
   private[expressions]
@@ -139,6 +139,6 @@ object ProjectedLayerMetadataAggregate {
 
   private[expressions]
   object BufferRecord {
-    implicit def bufferRecordEncoder: ExpressionEncoder[BufferRecord] = typedExpressionEncoder
+    implicit lazy val bufferRecordEncoder: ExpressionEncoder[BufferRecord] = typedExpressionEncoder
   }
 }

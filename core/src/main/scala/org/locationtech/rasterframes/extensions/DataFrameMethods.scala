@@ -38,7 +38,6 @@ import spray.json.JsonFormat
 import org.locationtech.rasterframes.util.JsonCodecs._
 
 import scala.util.Try
-import org.apache.spark.sql.rf.CrsUDT
 
 /**
  * Extension methods over [[DataFrame]].
@@ -68,7 +67,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
     })
   }
 
-  private[rasterframes] def fetchMetadataValue[D](column: Column, reader: (Attribute) => D): Option[D] = {
+  private[rasterframes] def fetchMetadataValue[D](column: Column, reader: Attribute => D): Option[D] = {
     val analyzed = self.queryExecution.analyzed.output
     analyzed.find(selector(column)).map(reader)
   }
@@ -110,7 +109,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Get the columns that look like `CRS`s. */
   def crsColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.isInstanceOf[CrsUDT])
+      .filter(_.dataType.conformsToDataType(crsExpressionEncoder.schema))
       .map(f => self.col(f.name))
 
   /** Get the columns that are not of type `Tile` */

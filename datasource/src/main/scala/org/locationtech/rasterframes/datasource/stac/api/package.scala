@@ -10,7 +10,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.explode
 
 package object api {
-  // TODO: replace TypeTags with newtypes
+  // TODO: replace TypeTags with newtypes,
   trait StacApiDataFrameTag
   type StacApiDataFrameReader = DataFrameReader @@ StacApiDataFrameTag
   type StacApiDataFrame = DataFrame @@ StacApiDataFrameTag
@@ -25,10 +25,12 @@ package object api {
       import spark.implicits._
       tag[StacApiDataFrameTag][DataFrame](
         df
-          .select(df.columns.map {
-            case "assets" => explode($"assets")
-            case s        => $"$s"
-          }: _*)
+          .select(
+            df.columns.map {
+              case "assets" => explode($"assets")
+              case s        => $"$s"
+            }: _*
+          )
           .withColumnRenamed("key", "assetName")
           .withColumnRenamed("value", "asset")
       )

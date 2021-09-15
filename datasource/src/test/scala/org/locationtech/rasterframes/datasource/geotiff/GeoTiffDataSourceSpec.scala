@@ -234,8 +234,11 @@ class GeoTiffDataSourceSpec
 
     it("should produce the correct subregion from layer") {
       import spark.implicits._
-      val rf = SinglebandGeoTiff(TestData.singlebandCogPath.getPath)
-        .projectedRaster.toLayer(128, 128).withExtent()
+      val rf =
+        SinglebandGeoTiff(TestData.singlebandCogPath.getPath)
+          .projectedRaster
+          .toLayer(128, 128)
+          .withExtent()
 
       val out = Paths.get("target", "example3-geotiff.tif")
       logger.info(s"Writing to $out")

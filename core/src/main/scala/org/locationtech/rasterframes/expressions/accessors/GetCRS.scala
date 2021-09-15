@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import geotrellis.proj4.CRS
+import geotrellis.proj4.{CRS, LatLng}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
@@ -32,6 +32,7 @@ import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.apache.spark.sql.rf.RasterSourceUDT
@@ -73,6 +74,9 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
         val str = input.asInstanceOf[UTF8String]
         val crs = crsUDT.deserialize(str)
         crsUDT.serialize(crs)
+
+      case t if t.conformsToSchema(crsExpressionEncoder.schema) =>
+        crsUDT.serialize(input.asInstanceOf[InternalRow].as[CRS])
 
       case t if t.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema) =>
         val idx = ProjectedRasterTile.projectedRasterTileEncoder.schema.fieldIndex("crs")

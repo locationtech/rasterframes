@@ -1,10 +1,8 @@
 package org.locationtech.rasterframes.datasource.stac.api
 
 import org.locationtech.rasterframes.datasource.stac.api.encoders._
-import com.azavea.stac4s.StacItem
 import com.azavea.stac4s.api.client.SearchFilters
 import eu.timepit.refined.types.numeric.NonNegInt
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.connector.catalog.{SupportsRead, Table, TableCapability}
 import org.apache.spark.sql.connector.read.ScanBuilder
 import org.apache.spark.sql.types.StructType
@@ -18,8 +16,6 @@ import java.util
 
 class StacApiTable extends Table with SupportsRead {
   import StacApiTable._
-
-  implicit lazy val stacItemEncoder: ExpressionEncoder[StacItem] = productTypedToExpressionEncoder
 
   def name(): String = this.getClass.toString
 

@@ -32,7 +32,8 @@ import org.locationtech.geomesa.spark.jts.rules.GeometryLiteral
 import org.locationtech.rasterframes.rules.TemporalFilters
 
 /**
- * TODO: fix it
+ * TODO: fix it, how to implement these filters as ScalaUDFs?
+ * Why do we need them?
  * This is a copy of [[org.apache.spark.sql.execution.datasources.DataSourceStrategy.translateFilter]], modified to add our spatial predicates.
  *
  * @since 1/11/18

@@ -39,8 +39,7 @@ import scala.util.Try
  * DataSource over a GeoTrellis layer store.
  */
 @Experimental
-class GeoTrellisLayerDataSource extends DataSourceRegister
-  with RelationProvider with CreatableRelationProvider with DataSourceOptions {
+class GeoTrellisLayerDataSource extends DataSourceRegister with RelationProvider with CreatableRelationProvider with DataSourceOptions {
   def shortName(): String = GeoTrellisLayerDataSource.SHORT_NAME
 
   /**

@@ -37,12 +37,12 @@ import geotrellis.util._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext, sources}
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisRelation.{C, TileFeatureData}
 import org.locationtech.rasterframes.datasource.geotrellis.TileFeatureSupport._
 import org.locationtech.rasterframes.rules.{SpatialRelationReceiver, splitFilters}
@@ -57,14 +57,16 @@ import scala.reflect.runtime.universe._
 /**
  * A Spark SQL `Relation` over a standard GeoTrellis layer.
  */
-case class GeoTrellisRelation(sqlContext: SQLContext,
+case class GeoTrellisRelation(
+  sqlContext: SQLContext,
   uri: URI,
   layerId: LayerId,
   numPartitions: Option[Int] = None,
   failOnUnrecognizedFilter: Boolean = false,
   tileSubdivisions: Option[Int] = None,
-  filters: Seq[Filter] = Seq.empty)
-  extends BaseRelation with PrunedScan with SpatialRelationReceiver[GeoTrellisRelation] {
+  // TODO: can this be a parsed GT Filter?
+  filters: Seq[Filter] = Seq.empty
+) extends BaseRelation with PrunedScan with SpatialRelationReceiver[GeoTrellisRelation] {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
@@ -136,24 +138,21 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
   }
 
   override def schema: StructType = {
-    val skSchema = ExpressionEncoder[SpatialKey]().schema
-
     val skMetadata = subdividedTileLayerMetadata.
       fold(_.asColumnMetadata, _.asColumnMetadata) |>
       (Metadata.empty.append.attachContext(_).tagSpatialKey.build)
 
     val keyFields = keyType match {
       case t if t =:= typeOf[SpaceTimeKey] =>
-        val tkSchema = ExpressionEncoder[TemporalKey]().schema
         val tkMetadata = Metadata.empty.append.tagTemporalKey.build
         List(
-          StructField(C.SK, skSchema, nullable = false, skMetadata),
-          StructField(C.TK, tkSchema, nullable = false, tkMetadata),
+          StructField(C.SK, spatialKeyEncoder.schema, nullable = false, skMetadata),
+          StructField(C.TK, temporalKeyEncoder.schema, nullable = false, tkMetadata),
           StructField(C.TS, TimestampType, nullable = false)
         )
       case t if t =:= typeOf[SpatialKey] =>
         List(
-          StructField(C.SK, skSchema, nullable = false, skMetadata)
+          StructField(C.SK, spatialKeyEncoder.schema, nullable = false, skMetadata)
         )
     }
 
@@ -271,7 +270,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
         rdd
           .map { case (sk: SpatialKey, tile: T) =>
             val entries = columnIndexes.map {
-              case 0 => sk
+              case 0 => sk.toRow
               case 1 => trans.keyToExtent(sk).toPolygon()
               case 2 => tile match {
                 case t: Tile => t
@@ -305,8 +304,8 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
           .map { case (stk: SpaceTimeKey, tile: T) =>
             val sk = stk.spatialKey
             val entries = columnIndexes.map {
-              case 0 => sk
-              case 1 => stk.temporalKey
+              case 0 => sk.toRow
+              case 1 => stk.temporalKey.toRow
               case 2 => new Timestamp(stk.temporalKey.instant)
               case 3 => trans.keyToExtent(stk).toPolygon()
               case 4 => tile match {
@@ -325,9 +324,7 @@ case class GeoTrellisRelation(sqlContext: SQLContext,
     )
   }
   // TODO: Is there size speculation we can do?
-  override def sizeInBytes = {
-    super.sizeInBytes
-  }
+  override def sizeInBytes = super.sizeInBytes
 
 }
 
