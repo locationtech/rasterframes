@@ -24,8 +24,8 @@ package org.locationtech.rasterframes.extensions
 import geotrellis.layer._
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod => GTResampleMethod}
 import geotrellis.util.MethodExtensions
-
 import org.apache.spark.sql.catalyst.expressions.Attribute
+import org.apache.spark.sql.rf.CrsUDT
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
 import org.locationtech.rasterframes._
@@ -109,7 +109,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Get the columns that look like `CRS`s. */
   def crsColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsToDataType(crsExpressionEncoder.schema))
+      .filter { f => f.dataType.conformsToDataType(crsExpressionEncoder.schema) || f.dataType.isInstanceOf[CrsUDT] }
       .map(f => self.col(f.name))
 
   /** Get the columns that are not of type `Tile` */
