@@ -95,5 +95,4 @@ object DynamicExtractorsSpec {
   object SnowflakeExtent2 {
     implicit val enc: ExpressionEncoder[SnowflakeExtent2] = Encoders.product[SnowflakeExtent2].asInstanceOf[ExpressionEncoder[SnowflakeExtent2]]
   }
-
 }
