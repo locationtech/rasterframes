@@ -51,11 +51,14 @@ package object expressions {
   private[expressions]
   def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-  /** As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function. */
+  /**
+   * As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function.
+   * This ScalaUDF Expression expects the argument of type A1 to match the return type RT at runtime.
+   */
   private[expressions]
-  def udfexpr[RT: TypeTag, A1: TypeTag, A1T: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (exp: Expression) => {
-    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF((row: A1) => f(exp.dataType)(row), dataType, exp :: Nil, Option(ExpressionEncoder[A1T]().resolveAndBind()) :: Nil)
+  def udfiexpr[RT: TypeTag, A1: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (child: Expression) => {
+    val ScalaReflection.Schema(dataType, _) = ScalaReflection.schemaFor[RT]
+    ScalaUDF((row: A1) => f(child.dataType)(row), dataType, Seq(child), Seq(Option(ExpressionEncoder[RT]().resolveAndBind())), udfName = Some(name))
   }
 
   def register(sqlContext: SQLContext): Unit = {
