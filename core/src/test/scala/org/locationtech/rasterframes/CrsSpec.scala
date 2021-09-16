@@ -32,19 +32,19 @@ class CrsSpec extends TestEnvironment with TestData with Inspectors {
   import spark.implicits._
 
   describe("CrsUDT") {
-    ignore("should extract from CRS") {
+    it("should extract from CRS") {
       val df = List(Option(LatLng: CRS)).toDF("crs")
       val crs_df = df.select(rf_crs($"crs"))
       crs_df.take(1).head shouldBe LatLng
     }
 
-    ignore("should extract from raster") {
+    it("should extract from raster") {
       val df = List(Option(one)).toDF("raster")
       val crs_df = df.select(rf_crs($"raster"))
       crs_df.take(1).head shouldBe one.crs
     }
 
-    ignore("should extract from rastersource") {
+    it("should extract from rastersource") {
       val src = RFRasterSource(remoteMODIS)
       val df = Seq(src).toDF("src")
       val crs_df = df.select(rf_crs($"src"))
