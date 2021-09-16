@@ -204,7 +204,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
     it("should throw exception on invalid URI") {
-      val src = RFRasterSource(URI.create("http://foo/bar"))
+      val src = RFRasterSource(URI.create("http://this/will/fail/and/it's/ok"))
       import spark.implicits._
       val df = Seq(src).toDF("src")
       val refs = df.select(RasterSourceToRasterRefs($"src") as "proj_raster")

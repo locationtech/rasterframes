@@ -30,7 +30,7 @@ lazy val IntegrationTest = config("it") extend Test
 lazy val root = project
   .in(file("."))
   .withId("RasterFrames")
-  .aggregate(core, datasource, pyrasterframes, experimental)
+  .aggregate(core, datasource, pyrasterframes)
   .enablePlugins(RFReleasePlugin)
   .settings(
     publish / skip := true,
@@ -94,7 +94,7 @@ lazy val core = project
   )
 
 lazy val pyrasterframes = project
-  .dependsOn(core, datasource, experimental)
+  .dependsOn(core, datasource)
   .enablePlugins(RFAssemblyPlugin, PythonBuildPlugin)
   .settings(
     libraryDependencies ++= Seq(

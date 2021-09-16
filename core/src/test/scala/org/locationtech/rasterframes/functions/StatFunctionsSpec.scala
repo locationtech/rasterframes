@@ -46,7 +46,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       val result = df
         .select(rf_explode_tiles($"tile"))
         .stat
-        .approxQuantile("tile", Array(0.10, 0.50, 0.90), 0.00001)
+        .approxQuantile("tile", Array(0.10, 0.50, 0.90), 0.0000001)
 
       result.length should be(3)
 
@@ -57,7 +57,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       val result2 = df
         .select(explode(rf_tile_to_array_double($"tile")) as "tile")
         .stat
-        .approxQuantile("tile", Array(0.10, 0.50, 0.90), 0.00001)
+        .approxQuantile("tile", Array(0.10, 0.50, 0.90), 0.0000001)
 
       result2.length should be(3)
 
@@ -69,7 +69,7 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
   describe("Tile quantiles through custom aggregate") {
     it("should compute approx percentiles for a single tile col") {
       val result = df
-        .select(rf_agg_approx_quantiles($"tile", Seq(0.1, 0.5, 0.9)))
+        .select(rf_agg_approx_quantiles($"tile", Seq(0.10, 0.50, 0.90), 0.0000001))
         .first()
 
       result.length should be(3)
