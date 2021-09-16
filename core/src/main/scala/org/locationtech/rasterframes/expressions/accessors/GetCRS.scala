@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.proj4.CRS
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}

@@ -22,8 +22,7 @@
 package org.apache.spark.sql.rf
 
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _}
-import org.locationtech.rasterframes.expressions.transformers.RasterRefToTile
+import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.util.KryoSupport
 

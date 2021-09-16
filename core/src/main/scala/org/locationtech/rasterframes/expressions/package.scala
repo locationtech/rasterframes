@@ -53,21 +53,9 @@ package object expressions {
 
   /** As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function. */
   private[expressions]
-  def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
+  def udfexpr[RT: TypeTag, A1: TypeTag, A1T: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (exp: Expression) => {
     val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF(f, dataType, Seq(child), Option(ExpressionEncoder[RT]()) :: Nil, udfName = Some(name))
-  }
-
-  private[expressions]
-  def udfexprNew[RT: TypeTag, A1: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (exp: Expression) => {
-    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF((row: A1) => f(exp.dataType)(row), dataType, exp :: Nil, Option(ExpressionEncoder[RT]().resolveAndBind()) :: Nil)
-  }
-
-  private[expressions]
-  def udfexprNewUntyped[RT: TypeTag, A1: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (exp: Expression) => {
-    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF((row: A1) => f(exp.dataType)(row), dataType, exp :: Nil)
+    ScalaUDF((row: A1) => f(exp.dataType)(row), dataType, exp :: Nil, Option(ExpressionEncoder[A1T]().resolveAndBind()) :: Nil)
   }
 
   def register(sqlContext: SQLContext): Unit = {

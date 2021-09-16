@@ -27,7 +27,6 @@ import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
 import org.locationtech.jts.geom.Geometry
-import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.util.ResampleMethod
 

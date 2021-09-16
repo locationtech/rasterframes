@@ -40,8 +40,8 @@ trait UnaryRasterAggregate extends DeclarativeAggregate {
 
   def children = Seq(child)
 
-  protected def tileOpAsExpressionNew[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
-    udfexprNew[R, Any](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny(dataType, a)))
+  protected def tileOpAsExpression[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
+    udfexpr[R, Any, Tile](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny(dataType, a)))
 }
 
 object UnaryRasterAggregate {

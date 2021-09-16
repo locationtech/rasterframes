@@ -43,8 +43,8 @@ abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate 
   val initialValues = Seq(Literal(0L))
 
   private def CellTest: Expression => ScalaUDF =
-    if (isData) tileOpAsExpressionNew("rf_data_cells", DataCells.op)
-    else tileOpAsExpressionNew("rf_no_data_cells", NoDataCells.op)
+    if (isData) tileOpAsExpression("rf_data_cells", DataCells.op)
+    else tileOpAsExpression("rf_no_data_cells", NoDataCells.op)
 
   val updateExpressions = Seq(If(IsNull(child), count, Add(count, CellTest(child))))
 

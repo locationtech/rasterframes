@@ -48,7 +48,7 @@ case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
 
   def aggBufferAttributes: Seq[AttributeReference] = Seq(count, sum)
 
-  private lazy val Defined: Expression => ScalaUDF = tileOpAsExpressionNew("defined_cells", local.Defined.apply)
+  private lazy val Defined: Expression => ScalaUDF = tileOpAsExpression("defined_cells", local.Defined.apply)
 
   lazy val initialValues: Seq[Expression] = Seq(
     Literal.create(null, dataType),

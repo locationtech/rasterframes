@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.ref
 import java.net.URI
 import com.github.blemale.scaffeine.Scaffeine
 import com.typesafe.scalalogging.LazyLogging
-import frameless.Injection
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.Tags
@@ -32,12 +31,10 @@ import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.rf.{RasterSourceUDT}
+import org.apache.spark.sql.rf.RasterSourceUDT
 import org.locationtech.rasterframes.model.TileContext
-import org.locationtech.rasterframes.util.KryoSupport
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, rfConfig}
 
-import java.nio.ByteBuffer
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 /**
