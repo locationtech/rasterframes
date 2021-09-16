@@ -277,7 +277,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       def checker(colName: String, valFilter: Int, assertValue: Int): Unit = {
         // print this so we can see what's happening if something  wrong
         // logger.debug(s"${colName} should be ${assertValue} for qa val ${valFilter}")
-        println(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+        // println(s"${colName} should be ${assertValue} for qa val ${valFilter}")
         result.filter($"val" === lit(valFilter))
           .select(col(colName))
           .as[Option[ProjectedRasterTile]]

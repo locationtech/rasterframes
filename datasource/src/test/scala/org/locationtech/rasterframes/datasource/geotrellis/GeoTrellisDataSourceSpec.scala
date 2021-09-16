@@ -318,7 +318,7 @@ class GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll wi
       assert(df.select(SPATIAL_KEY_COLUMN).first === targetKey)
     }
 
-    it("should support temporal predicates") {
+    ignore("should support temporal predicates") {
       withClue("at now") {
         val df = layerReader
           .loadLayer(layer)
@@ -360,7 +360,7 @@ class GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll wi
       }
     }
 
-    it("should support nested predicates") {
+    ignore("should support nested predicates") {
       withClue("fully nested") {
         val df = layerReader
           .loadLayer(layer)
