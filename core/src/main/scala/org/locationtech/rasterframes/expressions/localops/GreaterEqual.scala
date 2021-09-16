@@ -41,15 +41,13 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 )
 case class GreaterEqual(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
   override val nodeName: String = "rf_local_greater_equal"
-  override protected def op(left: Tile, right: Tile): Tile = left.localGreaterOrEqual(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localGreaterOrEqual(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localGreaterOrEqual(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localGreaterOrEqual(right)
+  protected def op(left: Tile, right: Double): Tile = left.localGreaterOrEqual(right)
+  protected def op(left: Tile, right: Int): Tile = left.localGreaterOrEqual(right)
 }
 
 object GreaterEqual {
-  def apply(left: Column, right: Column): Column =
-    new Column(GreaterEqual(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(GreaterEqual(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(GreaterEqual(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(GreaterEqual(tile.expr, lit(value).expr))
 }

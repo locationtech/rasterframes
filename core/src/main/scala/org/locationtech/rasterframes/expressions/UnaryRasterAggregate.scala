@@ -21,11 +21,15 @@
 
 package org.locationtech.rasterframes.expressions
 
-import org.locationtech.rasterframes.expressions.DynamicExtractors.rowTileExtractor
 import geotrellis.raster.Tile
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.expressions.aggregate.DeclarativeAggregate
+import org.apache.spark.sql.types.DataType
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
+
 import scala.reflect.runtime.universe._
 
 /** Mixin providing boilerplate for DeclarativeAggrates over tile-conforming columns. */
@@ -37,11 +41,14 @@ trait UnaryRasterAggregate extends DeclarativeAggregate {
   def children = Seq(child)
 
   protected def tileOpAsExpression[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
-    udfexpr[R, Any](name, (a: Any) => if(a == null) null.asInstanceOf[R] else op(extractTileFromAny(a)))
+    udfiexpr[R, Any](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny(dataType, a)))
+}
 
-  protected val extractTileFromAny = (a: Any) => a match {
+object UnaryRasterAggregate {
+  val extractTileFromAny: (DataType, Any) => Tile = (dt: DataType, row: Any) => row match {
     case t: Tile => t
-    case r: Row => rowTileExtractor(child.dataType)(r)._1
-    case null => null
+    case r: Row => r.as[Tile]
+    case i: InternalRow => DynamicExtractors.internalRowTileExtractor(dt)(i)._1
+    case r => throw new Exception(s"UnaryRasterAggregate.extractFromAny unsupported row: $r")
   }
 }

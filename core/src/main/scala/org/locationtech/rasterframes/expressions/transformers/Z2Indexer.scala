@@ -29,6 +29,7 @@ import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, 
 import org.apache.spark.sql.types.{DataType, LongType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.geomesa.curve.Z2SFC
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.expressions.accessors.GetCRS
 import org.locationtech.rasterframes.jts.ReprojectionTransformer
@@ -53,12 +54,11 @@ import org.locationtech.rasterframes.jts.ReprojectionTransformer
     * crs - the native CRS of the `geom` column
 """
 )
-case class Z2Indexer(left: Expression, right: Expression, indexResolution: Short)
-  extends BinaryExpression with CodegenFallback {
+case class Z2Indexer(left: Expression, right: Expression, indexResolution: Short) extends BinaryExpression with CodegenFallback {
 
   override def nodeName: String = "rf_z2_index"
 
-  override def dataType: DataType = LongType
+  def dataType: DataType = LongType
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!centroidExtractor.isDefinedAt(left.dataType))
@@ -80,12 +80,11 @@ case class Z2Indexer(left: Expression, right: Expression, indexResolution: Short
       trans(coord)
     }
 
-    indexer.index(pt.getX, pt.getY, lenient = true).z
+    indexer.index(pt.getX, pt.getY, lenient = true)
   }
 }
 
 object Z2Indexer {
-  import org.locationtech.rasterframes.encoders.SparkBasicEncoders.longEnc
   def apply(targetExtent: Column, targetCRS: Column, indexResolution: Short): TypedColumn[Any, Long] =
     new Column(new Z2Indexer(targetExtent.expr, targetCRS.expr, indexResolution)).as[Long]
   def apply(targetExtent: Column, targetCRS: Column): TypedColumn[Any, Long] =

@@ -19,14 +19,15 @@
  *
  */
 package org.locationtech.rasterframes
+
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
-import geotrellis.raster.{Tile, _}
+import geotrellis.raster._
 import geotrellis.vector.Extent
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.{Row, SQLContext}
 import org.locationtech.jts.geom.Geometry
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.util.ResampleMethod
 
 /**
@@ -37,80 +38,80 @@ import org.locationtech.rasterframes.util.ResampleMethod
 package object functions {
 
   @inline
-  private[rasterframes] def safeBinaryOp[T <: AnyRef, R >: T](op: (T, T) ⇒ R): ((T, T) ⇒ R) =
-    (o1: T, o2: T) ⇒ {
+  private[rasterframes] def safeBinaryOp[T <: AnyRef, R >: T](op: (T, T) => R): (T, T) => R =
+    (o1: T, o2: T) => {
       if (o1 == null) o2
       else if (o2 == null) o1
       else op(o1, o2)
     }
   @inline
-  private[rasterframes] def safeEval[P, R <: AnyRef](f: P ⇒ R): P ⇒ R =
-    (p) ⇒ if (p == null) null.asInstanceOf[R] else f(p)
+  private[rasterframes] def safeEval[P, R <: AnyRef](f: P => R): P => R =
+    p => if (p == null) null.asInstanceOf[R] else f(p)
   @inline
-  private[rasterframes] def safeEval[P](f: P ⇒ Double)(implicit d: DummyImplicit): P ⇒ Double =
-    (p) ⇒ if (p == null) Double.NaN else f(p)
+  private[rasterframes] def safeEval[P](f: P => Double)(implicit d: DummyImplicit): P => Double =
+    p => if (p == null) Double.NaN else f(p)
   @inline
-  private[rasterframes] def safeEval[P](f: P ⇒ Long)(implicit d1: DummyImplicit, d2: DummyImplicit): P ⇒ Long =
-    (p) ⇒ if (p == null) 0l else f(p)
+  private[rasterframes] def safeEval[P](f: P => Long)(implicit d1: DummyImplicit, d2: DummyImplicit): P => Long =
+    p => if (p == null) 0l else f(p)
   @inline
-  private[rasterframes] def safeEval[P1, P2, R](f: (P1, P2) ⇒ R): (P1, P2) ⇒ R =
-    (p1, p2) ⇒ if (p1 == null || p2 == null) null.asInstanceOf[R] else f(p1, p2)
+  private[rasterframes] def safeEval[P1, P2, R](f: (P1, P2) => R): (P1, P2) => R =
+    (p1, p2) => if (p1 == null || p2 == null) null.asInstanceOf[R] else f(p1, p2)
 
   /** Converts an array into a tile. */
   private[rasterframes] def arrayToTile(cols: Int, rows: Int) = {
     safeEval[AnyRef, Tile]{
-      case s: Seq[_] ⇒ s.headOption match {
-        case Some(_: Int) ⇒ RawArrayTile(s.asInstanceOf[Seq[Int]].toArray[Int], cols, rows)
-        case Some(_: Double) ⇒ RawArrayTile(s.asInstanceOf[Seq[Double]].toArray[Double], cols, rows)
-        case Some(_: Byte) ⇒ RawArrayTile(s.asInstanceOf[Seq[Byte]].toArray[Byte], cols, rows)
-        case Some(_: Short) ⇒ RawArrayTile(s.asInstanceOf[Seq[Short]].toArray[Short], cols, rows)
-        case Some(_: Float) ⇒ RawArrayTile(s.asInstanceOf[Seq[Float]].toArray[Float], cols, rows)
-        case Some(o @ _) ⇒ throw new MatchError(o)
-        case None ⇒ null
+      case s: Seq[_] => s.headOption match {
+        case Some(_: Int) => RawArrayTile(s.asInstanceOf[Seq[Int]].toArray[Int], cols, rows)
+        case Some(_: Double) => RawArrayTile(s.asInstanceOf[Seq[Double]].toArray[Double], cols, rows)
+        case Some(_: Byte) => RawArrayTile(s.asInstanceOf[Seq[Byte]].toArray[Byte], cols, rows)
+        case Some(_: Short) => RawArrayTile(s.asInstanceOf[Seq[Short]].toArray[Short], cols, rows)
+        case Some(_: Float) => RawArrayTile(s.asInstanceOf[Seq[Float]].toArray[Float], cols, rows)
+        case Some(o @ _) => throw new MatchError(o)
+        case None => null
       }
     }
   }
 
-  private[rasterframes] val arrayToTile: (Array[_], Int, Int) ⇒ Tile = (a, cols, rows) ⇒ {
+  private[rasterframes] val arrayToTileFunc3: (Array[Double], Int, Int) => Tile = (a, cols, rows) => {
     arrayToTile(cols, rows).apply(a)
   }
 
   /** Constructor for constant tiles */
-  private[rasterframes] val makeConstantTile: (Number, Int, Int, String) ⇒ Tile = (value, cols, rows, cellTypeName) ⇒ {
+  private[rasterframes] val makeConstantTile: (Number, Int, Int, String) => Tile = (value, cols, rows, cellTypeName) => {
     val cellType = CellType.fromName(cellTypeName)
     cellType match {
-      case BitCellType ⇒ BitConstantTile(if (value.intValue() == 0) false else true, cols, rows)
-      case ct: ByteCells ⇒ ByteConstantTile(value.byteValue(), cols, rows, ct)
-      case ct: UByteCells ⇒ UByteConstantTile(value.byteValue(), cols, rows, ct)
-      case ct: ShortCells ⇒ ShortConstantTile(value.shortValue(), cols, rows, ct)
-      case ct: UShortCells ⇒ UShortConstantTile(value.shortValue(), cols, rows, ct)
-      case ct: IntCells ⇒ IntConstantTile(value.intValue(), cols, rows, ct)
-      case ct: FloatCells ⇒ FloatConstantTile(value.floatValue(), cols, rows, ct)
-      case ct: DoubleCells ⇒ DoubleConstantTile(value.doubleValue(), cols, rows, ct)
+      case BitCellType => BitConstantTile(if (value.intValue() == 0) false else true, cols, rows)
+      case ct: ByteCells => ByteConstantTile(value.byteValue(), cols, rows, ct)
+      case ct: UByteCells => UByteConstantTile(value.byteValue(), cols, rows, ct)
+      case ct: ShortCells => ShortConstantTile(value.shortValue(), cols, rows, ct)
+      case ct: UShortCells => UShortConstantTile(value.shortValue(), cols, rows, ct)
+      case ct: IntCells => IntConstantTile(value.intValue(), cols, rows, ct)
+      case ct: FloatCells => FloatConstantTile(value.floatValue(), cols, rows, ct)
+      case ct: DoubleCells => DoubleConstantTile(value.doubleValue(), cols, rows, ct)
     }
   }
 
   /** Alias for constant tiles of zero */
-  private[rasterframes] val tileZeros: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+  private[rasterframes] val tileZeros: (Int, Int, String) => Tile = (cols, rows, cellTypeName) =>
     makeConstantTile(0, cols, rows, cellTypeName)
 
   /** Alias for constant tiles of one */
-  private[rasterframes] val tileOnes: (Int, Int, String) ⇒ Tile = (cols, rows, cellTypeName) ⇒
+  private[rasterframes] val tileOnes: (Int, Int, String) => Tile = (cols, rows, cellTypeName) =>
     makeConstantTile(1, cols, rows, cellTypeName)
 
-  val reproject_and_merge_f: (Row, Row, Seq[Tile], Seq[Row], Seq[Row], Row, String) => Tile = (leftExtentEnc: Row, leftCRSEnc: Row, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[Row], leftDimsEnc: Row, resampleMethod: String) => {
+  val reproject_and_merge_f: (Row, CRS, Seq[Tile], Seq[Row], Seq[CRS], Row, String) => Tile = (leftExtentEnc: Row, leftCRSEnc: CRS, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[CRS], leftDimsEnc: Row, resampleMethod: String) => {
     if (tiles.isEmpty) null
     else {
       require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
 
-      val leftExtent = leftExtentEnc.to[Extent]
-      val leftDims = leftDimsEnc.to[Dimensions[Int]]
-      val leftCRS = leftCRSEnc.to[CRS]
-      lazy val rightExtents = rightExtentEnc.map(_.to[Extent])
-      lazy val rightCRSs = rightCRSEnc.map(_.to[CRS])
+      val leftExtent: Extent = leftExtentEnc.as[Extent]
+      val leftDims: Dimensions[Int] = leftDimsEnc.as[Dimensions[Int]]
+      val leftCRS: CRS = leftCRSEnc
+      lazy val rightExtents: Seq[Extent] = rightExtentEnc.map(_.as[Extent])
+      lazy val rightCRSs: Seq[CRS] = rightCRSEnc
       lazy val resample = resampleMethod match {
-        case ResampleMethod(mm) ⇒ mm
-        case _ ⇒ throw new IllegalArgumentException(s"Unable to parse ResampleMethod for ${resampleMethod}.")
+        case ResampleMethod(mm) => mm
+        case _ => throw new IllegalArgumentException(s"Unable to parse ResampleMethod for ${resampleMethod}.")
       }
 
       if (leftExtent == null || leftDims == null || leftCRS == null) null
@@ -133,11 +134,10 @@ package object functions {
   }
 
   // NB: Don't be tempted to make this a `val`. Spark will barf if `withRasterFrames` hasn't been called first.
-  def reproject_and_merge = udf(reproject_and_merge_f)
-    .withName("reproject_and_merge")
+  def reproject_and_merge = udf(reproject_and_merge_f).withName("reproject_and_merge")
 
 
-  private[rasterframes] val cellTypes: () ⇒ Seq[String] = () ⇒
+  private[rasterframes] val cellTypes: () => Seq[String] = () =>
     Seq(
       BitCellType,
       ByteCellType,
@@ -159,8 +159,8 @@ package object functions {
   /**
    * Rasterize geometry into tiles.
    */
-  private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) ⇒ Tile = {
-    (geom, bounds, value, cols, rows) ⇒ {
+  private[rasterframes] val rasterize: (Geometry, Geometry, Int, Int, Int) => Tile = {
+    (geom, bounds, value, cols, rows) => {
       // We have to do this because (as of spark 2.2.x) Encoder-only types
       // can't be used as UDF inputs. Only Spark-native types and UDTs.
       val extent = Extent(bounds.getEnvelopeInternal)
@@ -174,6 +174,6 @@ package object functions {
     sqlContext.udf.register("rf_make_ones_tile", tileOnes)
     sqlContext.udf.register("rf_cell_types", cellTypes)
     sqlContext.udf.register("rf_rasterize", rasterize)
-    sqlContext.udf.register("rf_array_to_tile", arrayToTile)
+    sqlContext.udf.register("rf_array_to_tile", arrayToTileFunc3)
   }
 }

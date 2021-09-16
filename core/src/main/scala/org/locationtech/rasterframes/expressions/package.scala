@@ -23,9 +23,11 @@ package org.locationtech.rasterframes
 
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
 import org.apache.spark.sql.rf.VersionShims._
+import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{SQLContext, rf}
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.DataCells
@@ -49,11 +51,14 @@ package object expressions {
   private[expressions]
   def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-  /** As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function. */
+  /**
+   * As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function.
+   * This ScalaUDF Expression expects the argument of type A1 to match the return type RT at runtime.
+   */
   private[expressions]
-  def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
-    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF(f, dataType, Seq(child), Seq(true), nullable = nullable, udfName = Some(name))
+  def udfiexpr[RT: TypeTag, A1: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (child: Expression) => {
+    val ScalaReflection.Schema(dataType, _) = ScalaReflection.schemaFor[RT]
+    ScalaUDF((row: A1) => f(child.dataType)(row), dataType, Seq(child), Seq(Option(ExpressionEncoder[RT]().resolveAndBind())), udfName = Some(name))
   }
 
   def register(sqlContext: SQLContext): Unit = {

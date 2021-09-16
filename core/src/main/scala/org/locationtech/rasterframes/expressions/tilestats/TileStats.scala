@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.stats.CellStatistics
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.CatalystTypeConverters
@@ -42,19 +41,17 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class TileStats(child: Expression) extends UnaryRasterOp
-  with CodegenFallback {
+case class TileStats(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "rf_tile_stats"
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     TileStats.converter(TileStats.op(tile).orNull)
-  override def dataType: DataType = CellStatistics.schema
+  def dataType: DataType = CellStatistics.schema
 }
 object TileStats {
-  def apply(tile: Column): TypedColumn[Any, CellStatistics] =
-    new Column(TileStats(tile.expr)).as[CellStatistics]
+  def apply(tile: Column): TypedColumn[Any, CellStatistics] = new Column(TileStats(tile.expr)).as[CellStatistics]
 
   private lazy val converter = CatalystTypeConverters.createToCatalystConverter(CellStatistics.schema)
 
   /** Single tile statistics. */
-  val op = (t: Tile) ⇒ CellStatistics(t)
+  val op: Tile => Option[CellStatistics] = (t: Tile) => CellStatistics(t)
 }

@@ -21,11 +21,12 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterAggregate
 import org.locationtech.rasterframes.expressions.tilestats.{DataCells, NoDataCells}
 import org.apache.spark.sql.catalyst.dsl.expressions._
-import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
-import org.apache.spark.sql.types.{LongType, Metadata}
+import org.apache.spark.sql.catalyst.expressions._
+import org.apache.spark.sql.types.{DataType, LongType, Metadata}
 import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
@@ -35,37 +36,26 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @param isData true if count should be of non-NoData cells, false if count should be of NoData cells.
  */
 abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate {
-  private lazy val count =
-    AttributeReference("count", LongType, false, Metadata.empty)()
+  private lazy val count = AttributeReference("count", LongType, false, Metadata.empty)()
 
-  override lazy val aggBufferAttributes = Seq(
-    count
-  )
+  override lazy val aggBufferAttributes = Seq(count)
 
-  val initialValues = Seq(
-    Literal(0L)
-  )
+  val initialValues = Seq(Literal(0L))
 
-  private def CellTest =
+  private def CellTest: Expression => ScalaUDF =
     if (isData) tileOpAsExpression("rf_data_cells", DataCells.op)
     else tileOpAsExpression("rf_no_data_cells", NoDataCells.op)
 
-  val updateExpressions = Seq(
-    If(IsNull(child), count, Add(count, CellTest(child)))
-  )
+  val updateExpressions = Seq(If(IsNull(child), count, Add(count, CellTest(child))))
 
-  val mergeExpressions = Seq(
-    count.left + count.right
-  )
+  val mergeExpressions = Seq(count.left + count.right)
 
-  val evaluateExpression = count
+  val evaluateExpression: AttributeReference = count
 
-  def dataType = LongType
+  def dataType: DataType = LongType
 }
 
 object CellCountAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
-
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Count the total data (non-no-data) cells in a tile column.",
     arguments = """

@@ -29,7 +29,7 @@ import org.apache.spark.ml.param.{Params, StringArrayParam}
  * @since 9/21/17
  */
 object Parameters {
-  trait HasInputCols { self: Params ⇒
+  trait HasInputCols { self: Params =>
     final val inputCols = new StringArrayParam(this, "inputCols", "array of input column names")
     final def getInputCols: Array[String] = $(inputCols)
   }

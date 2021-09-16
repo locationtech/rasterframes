@@ -35,7 +35,7 @@ import scala.reflect.ClassTag
  */
 object KryoSupport {
   @transient
-  lazy val serializerPool = new ThreadLocal[SerializerInstance]() {
+  lazy val serializerPool: ThreadLocal[SerializerInstance] = new ThreadLocal[SerializerInstance]() {
     val ser: KryoSerializer = {
       val sparkConf =
         Option(SparkEnv.get)
@@ -49,7 +49,7 @@ object KryoSupport {
     override def initialValue(): SerializerInstance = ser.newInstance()
   }
 
-  def serialize[T: ClassTag](o: T) = {
+  def serialize[T: ClassTag](o: T): ByteBuffer = {
     val ser = serializerPool.get()
     ser.serialize(o)
   }

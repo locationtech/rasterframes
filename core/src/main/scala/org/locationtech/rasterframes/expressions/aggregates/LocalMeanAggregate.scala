@@ -21,45 +21,42 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.UnaryRasterAggregate
 import org.locationtech.rasterframes.expressions.localops.{BiasedAdd, Divide => DivideTiles}
 import org.locationtech.rasterframes.expressions.transformers.SetCellType
 import geotrellis.raster.Tile
 import geotrellis.raster.mapalgebra.local
-import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, ExpressionDescription, If, IsNull, Literal}
+import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, ExpressionDescription, If, IsNull, Literal, ScalaUDF}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.TileType
-import org.locationtech.rasterframes.expressions.accessors.RealizeTile
+import org.locationtech.rasterframes.expressions.accessors.{ExtractTile, RealizeTile}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Computes a new tile contining the mean cell values across all tiles in column.",
-  note = "All tiles in the column must be the same size."
+  note = """"
+    All tiles in the column must be the same size.
+  """
 )
 case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
 
-  override def dataType: DataType = TileType
+  def dataType: DataType = tileUDT
   override def nodeName: String = "rf_agg_local_mean"
 
-  private lazy val count =
-    AttributeReference("count", TileType, true)()
-  private lazy val sum =
-    AttributeReference("sum", TileType, true)()
+  private lazy val count = AttributeReference("count", dataType, true)()
+  private lazy val sum = AttributeReference("sum", dataType, true)()
 
-  override def aggBufferAttributes: Seq[AttributeReference] = Seq(
-    count,
-    sum
+  def aggBufferAttributes: Seq[AttributeReference] = Seq(count, sum)
+
+  private lazy val Defined: Expression => ScalaUDF = tileOpAsExpression("defined_cells", local.Defined.apply)
+
+  lazy val initialValues: Seq[Expression] = Seq(
+    Literal.create(null, dataType),
+    Literal.create(null, dataType)
   )
-
-  private lazy val Defined = tileOpAsExpression("defined_cells", local.Defined.apply)
-
-  override lazy val initialValues: Seq[Expression] = Seq(
-    Literal.create(null, TileType),
-    Literal.create(null, TileType)
-  )
-  override lazy val updateExpressions: Seq[Expression] = Seq(
+  lazy val updateExpressions: Seq[Expression] = Seq(
     If(IsNull(count),
-      SetCellType(RealizeTile(Defined(child)), Literal("int32")),
+      SetCellType(RealizeTile(Defined(ExtractTile(child))), Literal("int32")),
       If(IsNull(child), count, BiasedAdd(count, Defined(RealizeTile(child))))
     ),
     If(IsNull(sum),
@@ -67,15 +64,13 @@ case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
       If(IsNull(child), sum, BiasedAdd(sum, child))
     )
   )
-  override val mergeExpressions: Seq[Expression] = Seq(
+  val mergeExpressions: Seq[Expression] = Seq(
     BiasedAdd(count.left, count.right),
     BiasedAdd(sum.left, sum.right)
   )
-  override lazy val evaluateExpression: Expression = DivideTiles(sum, count)
+  lazy val evaluateExpression: Expression = DivideTiles(sum, count)
 }
 object LocalMeanAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
-
   def apply(tile: Column): TypedColumn[Any, Tile] =
     new Column(new LocalMeanAggregate(tile.expr).toAggregateExpression()).as[Tile]
 

@@ -28,16 +28,16 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
 import spire.syntax.cfor.cfor
 
-abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterOp
-  with CodegenFallback with Serializable {
+abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterOp with CodegenFallback with Serializable {
   import org.locationtech.rasterframes.expressions.transformers.DebugRender.TileAsMatrix
-  override def dataType: DataType = StringType
+  def dataType: DataType = StringType
 
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     UTF8String.fromString(if (asciiArt)
       s"\n${tile.renderAscii(AsciiArtEncoder.Palette.NARROW)}\n"
     else
@@ -47,8 +47,6 @@ abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterOp
 }
 
 object DebugRender {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.stringEnc
-
   @ExpressionDescription(
     usage = "_FUNC_(tile) - Coverts the contents of the given tile an ASCII art string rendering",
     arguments = """
@@ -59,8 +57,7 @@ object DebugRender {
     override def nodeName: String = "rf_render_ascii"
   }
   object RenderAscii {
-    def apply(tile: Column): TypedColumn[Any, String] =
-      new Column(RenderAscii(tile.expr)).as[String]
+    def apply(tile: Column): TypedColumn[Any, String] = new Column(RenderAscii(tile.expr)).as[String]
   }
 
   @ExpressionDescription(
@@ -73,8 +70,7 @@ object DebugRender {
     override def nodeName: String = "rf_render_matrix"
   }
   object RenderMatrix {
-    def apply(tile: Column): TypedColumn[Any, String] =
-      new Column(RenderMatrix(tile.expr)).as[String]
+    def apply(tile: Column): TypedColumn[Any, String] = new Column(RenderMatrix(tile.expr)).as[String]
   }
 
   implicit class TileAsMatrix(val tile: Tile) extends AnyVal {

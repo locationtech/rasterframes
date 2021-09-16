@@ -21,14 +21,15 @@
 
 package org.locationtech.rasterframes.expressions
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.SpatialRelation.RelationPredicate
 import geotrellis.vector.Extent
 import org.locationtech.jts.geom._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.catalyst.expressions.{ScalaUDF, _}
+import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.jts.AbstractGeometryUDT
 import org.apache.spark.sql.types._
 import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
@@ -38,27 +39,23 @@ import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
  *
  * @since 12/28/17
  */
-abstract class SpatialRelation extends BinaryExpression
-  with CodegenFallback {
+abstract class SpatialRelation extends BinaryExpression with CodegenFallback {
 
   def extractGeometry(expr: Expression, input: Any): Geometry = {
     input match {
-      case g: Geometry ⇒ g
-      case r: InternalRow ⇒
+      case g: Geometry => g
+      case r: InternalRow =>
         expr.dataType match {
-          case udt: AbstractGeometryUDT[_] ⇒ udt.deserialize(r)
-          case dt if dt.conformsTo[Extent] =>
-            val extent = r.to[Extent]
-            extent.toPolygon()
+          case udt: AbstractGeometryUDT[_] => udt.deserialize(r)
+          case dt if dt.conformsToSchema(extentEncoder.schema) =>
+            r.as[Extent].toPolygon()
         }
     }
   }
-  // TODO: replace with serializer.
-  lazy val jtsPointEncoder = ExpressionEncoder[Point]()
 
   override def toString: String = s"$nodeName($left, $right)"
 
-  override def dataType: DataType = BooleanType
+  def dataType: DataType = BooleanType
 
   override def nullable: Boolean = left.nullable || right.nullable
 
@@ -72,7 +69,7 @@ abstract class SpatialRelation extends BinaryExpression
 }
 
 object SpatialRelation {
-  type RelationPredicate = (Geometry, Geometry) ⇒ java.lang.Boolean
+  type RelationPredicate = (Geometry, Geometry) => java.lang.Boolean
 
   case class Intersects(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "intersects"
@@ -118,11 +115,9 @@ object SpatialRelation {
     ST_Within -> Within
   )
 
-  def fromUDF(udf: ScalaUDF) = {
+  def fromUDF(udf: ScalaUDF): Option[SpatialRelation] =
     udf.function match {
-      case rp: RelationPredicate @unchecked ⇒
-        predicateMap.get(rp).map(_.apply(udf.children.head, udf.children.last))
-      case _ ⇒ None
+      case rp: RelationPredicate @unchecked => predicateMap.get(rp).map(_.apply(udf.children.head, udf.children.last))
+      case _ => None
     }
-  }
 }

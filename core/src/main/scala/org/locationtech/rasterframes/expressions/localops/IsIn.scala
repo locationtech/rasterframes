@@ -30,9 +30,7 @@ import org.apache.spark.sql.types.{ArrayType, DataType}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.util.ArrayData
-import org.apache.spark.sql.rf.TileUDT
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.DynamicExtractors._
+import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.expressions._
 
 @ExpressionDescription(
@@ -47,37 +45,31 @@ import org.locationtech.rasterframes.expressions._
     > SELECT  _FUNC_(tile, array(lit(33), lit(66), lit(99)));
        ..."""
 )
-case class IsIn(left: Expression, right: Expression) extends BinaryExpression with CodegenFallback {
+case class IsIn(left: Expression, right: Expression) extends BinaryExpression with RasterResult with CodegenFallback {
   override val nodeName: String = "rf_local_is_in"
 
-  override def dataType: DataType = left.dataType
+  def dataType: DataType = left.dataType
 
   @transient private lazy val elementType: DataType = right.dataType.asInstanceOf[ArrayType].elementType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if(!tileExtractor.isDefinedAt(left.dataType)) {
+    if(!DynamicExtractors.tileExtractor.isDefinedAt(left.dataType)) {
       TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
     } else right.dataType match {
-      case _: ArrayType ⇒ TypeCheckSuccess
-      case _ ⇒ TypeCheckFailure(s"Input type '${right.dataType}' does not conform to ArrayType.")
+      case _: ArrayType => TypeCheckSuccess
+      case _ => TypeCheckFailure(s"Input type '${right.dataType}' does not conform to ArrayType.")
     }
 
   override protected def nullSafeEval(input1: Any, input2: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
-    val (childTile, childCtx) = tileExtractor(left.dataType)(row(input1))
-
+    val (childTile, childCtx) = DynamicExtractors.tileExtractor(left.dataType)(row(input1))
     val arr = input2.asInstanceOf[ArrayData].toArray[AnyRef](elementType)
-
-    childCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(op(childTile, arr)).toInternalRow
-      case None => op(childTile, arr).toInternalRow
-    }
-
+    val result = op(childTile, arr)
+    toInternalRow(result, childCtx)
   }
 
   protected def op(left: Tile, right: IndexedSeq[AnyRef]): Tile = {
     def fn(i: Int): Boolean = right.contains(i)
-    IfCell(left, fn(_), 1, 0)
+    IfCell(left, fn(_: Int), 1, 0)
   }
 
 }
@@ -92,5 +84,4 @@ object IsIn {
     val arrayExpr = array(right.map(lit):_*).expr
     new Column(IsIn(left.expr, arrayExpr))
   }
-
 }

@@ -34,10 +34,10 @@ object NaturalColorComposite extends App {
   val filenamePattern = "L8-B%d-Elkton-VA.tiff"
 
   val tiles = Seq(4, 3, 2)
-    .map(i ⇒ filenamePattern.format(i))
+    .map(i => filenamePattern.format(i))
     .map(readTiff)
     .map(_.tile)
-    .map { tile ⇒
+    .map { tile =>
       val (min, max) = tile.findMinMax
       val normalized = tile.normalize(min, max, 1, 1 << 9)
       normalized.convert(UByteConstantNoDataCellType)

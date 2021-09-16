@@ -22,9 +22,10 @@
 package org.locationtech.rasterframes.model
 
 import geotrellis.proj4.{CRS, LatLng, Sinusoidal, WebMercator}
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class LazyCRSSpec extends FunSpec with Matchers {
+class LazyCRSSpec extends AnyFunSpec with Matchers {
   val sinPrj = "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"
   val llPrj = "epsg:4326"
 

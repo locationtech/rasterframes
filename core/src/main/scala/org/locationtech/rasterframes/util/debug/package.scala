@@ -37,21 +37,25 @@ package object debug {
 
   implicit class DescribeablePartition(val p: Partition) extends AnyVal {
     def describe: String = Try {
-      def acc[A <: AccessibleObject](a: A): A = {
-        a.setAccessible(true); a
-      }
+      def acc[A <: AccessibleObject](a: A): A = { a.setAccessible(true); a }
 
-      val getters = p.getClass.getDeclaredMethods
-        .filter(_.getParameterCount == 0)
-        .filter(m ⇒ (m.getModifiers & Modifier.PUBLIC) > 0)
-        .filterNot(_.getName == "hashCode")
-        .map(acc)
-        .map(m ⇒ m.getName + "=" + String.valueOf(m.invoke(p)))
+      val getters =
+        p
+          .getClass
+          .getDeclaredMethods
+          .filter(_.getParameterCount == 0)
+          .filter(m => (m.getModifiers & Modifier.PUBLIC) > 0)
+          .filterNot(_.getName == "hashCode")
+          .map(acc)
+          .map(m => m.getName + "=" + String.valueOf(m.invoke(p)))
 
-      val fields = p.getClass.getDeclaredFields
-        .filter(f ⇒ (f.getModifiers & Modifier.PUBLIC) > 0)
-        .map(acc)
-        .map(m ⇒ m.getName + "=" + String.valueOf(m.get(p)))
+      val fields =
+        p
+          .getClass
+          .getDeclaredFields
+          .filter(f => (f.getModifiers & Modifier.PUBLIC) > 0)
+          .map(acc)
+          .map(m => m.getName + "=" + String.valueOf(m.get(p)))
 
       p.getClass.getSimpleName + "(" + (fields ++ getters).mkString(", ") + ")"
 
@@ -59,8 +63,6 @@ package object debug {
   }
 
   implicit class RDDWithPartitionDescribe(val r: RDD[_]) extends AnyVal {
-    def describePartitions: String = r.partitions.map(p ⇒ ("Partition " + p.index) -> p.describe).mkString("\n")
+    def describePartitions: String = r.partitions.map(p => ("Partition " + p.index) -> p.describe).mkString("\n")
   }
-
 }
-

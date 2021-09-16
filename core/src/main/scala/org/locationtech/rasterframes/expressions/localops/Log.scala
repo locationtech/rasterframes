@@ -28,7 +28,6 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 
-
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Performs cell-wise natural logarithm.",
   arguments = """
@@ -42,7 +41,7 @@ import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
 case class Log(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "log"
 
-  override protected def op(tile: Tile): Tile = fpTile(tile).localLog()
+  protected def op(tile: Tile): Tile = fpTile(tile).localLog()
 
   override def dataType: DataType = child.dataType
 }
@@ -63,7 +62,7 @@ object Log {
 case class Log10(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_log10"
 
-  override protected def op(tile: Tile): Tile = fpTile(tile).localLog10()
+  protected def op(tile: Tile): Tile = fpTile(tile).localLog10()
 
   override def dataType: DataType = child.dataType
 }
@@ -84,11 +83,11 @@ object Log10 {
 case class Log2(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_log2"
 
-  override protected def op(tile: Tile): Tile = fpTile(tile).localLog() / math.log(2.0)
+  protected def op(tile: Tile): Tile = fpTile(tile).localLog() / math.log(2.0)
 
   override def dataType: DataType = child.dataType
 }
-object Log2{
+object Log2 {
   def apply(tile: Column): Column = new Column(Log2(tile.expr))
 }
 
@@ -105,10 +104,10 @@ object Log2{
 case class Log1p(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_log1p"
 
-  override protected def op(tile: Tile): Tile = fpTile(tile).localAdd(1.0).localLog()
+  protected def op(tile: Tile): Tile = fpTile(tile).localAdd(1.0).localLog()
 
   override def dataType: DataType = child.dataType
 }
-object Log1p{
+object Log1p {
   def apply(tile: Column): Column = new Column(Log1p(tile.expr))
 }

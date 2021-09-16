@@ -21,11 +21,7 @@
 
 package org.locationtech.rasterframes.model
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.raster.{CellType, Dimensions, Tile}
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.types.{StructField, StructType}
-import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
 
 /** Encapsulates all information about a tile aside from actual cell values. */
 case class TileDataContext(cellType: CellType, dimensions: Dimensions[Int])
@@ -35,26 +31,6 @@ object TileDataContext {
   def apply(t: Tile): TileDataContext = {
     require(t.cols <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.cols}")
     require(t.rows <= Short.MaxValue, s"RasterFrames doesn't support tiles of size ${t.rows}")
-    TileDataContext(
-      t.cellType, t.dimensions
-    )
+    TileDataContext(t.cellType, t.dimensions)
   }
-
-  implicit val serializer: CatalystSerializer[TileDataContext] = new CatalystSerializer[TileDataContext] {
-    override val schema: StructType =  StructType(Seq(
-      StructField("cellType", schemaOf[CellType], false),
-      StructField("dimensions", schemaOf[Dimensions[Int]], false)
-    ))
-
-    override protected def to[R](t: TileDataContext, io: CatalystIO[R]): R = io.create(
-      io.to(t.cellType),
-      io.to(t.dimensions)
-    )
-    override protected def from[R](t: R, io: CatalystIO[R]): TileDataContext = TileDataContext(
-      io.get[CellType](t, 0),
-      io.get[Dimensions[Int]](t, 1)
-    )
-  }
-
-  implicit def encoder: ExpressionEncoder[TileDataContext] = CatalystSerializerEncoder[TileDataContext]()
 }

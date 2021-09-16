@@ -39,8 +39,8 @@ import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterO
 )
 case class Abs(child: Expression) extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_abs"
-  override def na: Any = null
-  override protected def op(t: Tile): Tile = t.localAbs()
+  def na: Any = null
+  protected def op(t: Tile): Tile = t.localAbs()
 }
 
 object Abs {

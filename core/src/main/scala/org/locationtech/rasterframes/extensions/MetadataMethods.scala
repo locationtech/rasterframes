@@ -23,7 +23,7 @@ package org.locationtech.rasterframes.extensions
 
 import geotrellis.util.MethodExtensions
 import spray.json.{JsObject, JsonFormat}
-import org.apache.spark.sql.types.{Metadata ⇒ SQLMetadata}
+import org.apache.spark.sql.types.{Metadata => SQLMetadata}
 
 /**
  * Extension methods used for transforming the metadata in a ContextRDD.
@@ -34,8 +34,8 @@ abstract class MetadataMethods[M: JsonFormat] extends MethodExtensions[M] {
   def asColumnMetadata: SQLMetadata = {
     val fmt = implicitly[JsonFormat[M]]
     fmt.write(self) match {
-      case s: JsObject ⇒ SQLMetadata.fromJson(s.compactPrint)
-      case _ ⇒ SQLMetadata.empty
+      case s: JsObject => SQLMetadata.fromJson(s.compactPrint)
+      case _ => SQLMetadata.empty
     }
   }
 }

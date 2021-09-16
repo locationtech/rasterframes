@@ -80,9 +80,10 @@ object SimpleRasterInfo {
     )
   }
 
-  private lazy val cache = Scaffeine()
-    .recordStats()
-    .build[String, SimpleRasterInfo]
+  private lazy val cache =
+    Scaffeine()
+      .recordStats()
+      .build[String, SimpleRasterInfo]
 
   def cacheStats = cache.stats()
 }

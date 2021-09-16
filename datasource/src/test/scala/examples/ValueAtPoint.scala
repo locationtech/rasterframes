@@ -24,8 +24,8 @@ package examples
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.datasource.raster._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import geotrellis.raster._
 import geotrellis.vector.Extent
 import org.locationtech.jts.geom.Point
@@ -44,7 +44,7 @@ object ValueAtPoint extends App {
   val point = st_makePoint(766770.000, 3883995.000)
 
   val rf_value_at_point = udf((extentEnc: Row, tile: Tile, point: Point) => {
-    val extent = extentEnc.to[Extent]
+    val extent = extentEnc.as[Extent]
     Raster(tile, extent).getDoubleValueAtPoint(point)
   })
 

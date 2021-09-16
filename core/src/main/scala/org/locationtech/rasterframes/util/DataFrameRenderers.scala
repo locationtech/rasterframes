@@ -22,10 +22,10 @@
 package org.locationtech.rasterframes.util
 
 import geotrellis.raster.render.ColorRamps
-import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.{Column, Dataset}
 import org.apache.spark.sql.functions.{base64, concat, concat_ws, length, lit, substring, when}
 import org.apache.spark.sql.jts.JTSTypes
-import org.apache.spark.sql.types.{StringType, StructField, BinaryType}
+import org.apache.spark.sql.types.{BinaryType, StringType, StructField}
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.{rfConfig, rf_render_png, rf_resample}
 import org.apache.spark.sql.rf.WithTypeConformity
@@ -37,8 +37,7 @@ trait DataFrameRenderers {
   private val truncateWidth = rfConfig.getInt("max-truncate-row-element-length")
 
   implicit class DFWithPrettyPrint(val df: Dataset[_]) {
-
-    private def stringifyRowElements(cols: Seq[StructField], truncate: Boolean, renderTiles: Boolean) = {
+    private def stringifyRowElements(cols: Seq[StructField], truncate: Boolean, renderTiles: Boolean): Seq[Column] = {
       cols
         .map(c => {
           val resolved = df.col(s"`${c.name}`")
@@ -73,16 +72,16 @@ trait DataFrameRenderers {
       val header = cols.map(_.name).mkString("| ", " | ", " |") + "\n" + ("|---" * cols.length) + "|\n"
       val stringifiers = stringifyRowElements(cols, truncate, renderTiles)
       val cat = concat_ws(" | ", stringifiers: _*)
-      val rows = df
-        .select(cat)
-        .limit(numRows)
-        .as[String]
-        .collect()
-        .map(_.replaceAll("\\[", "\\\\["))
-        .map(_.replace('\n', '↩'))
+      val rows =
+        df
+          .select(cat)
+          .limit(numRows)
+          .as[String]
+          .collect()
+          .map(_.replaceAll("\\[", "\\\\["))
+          .map(_.replace('\n', '↩'))
 
-      val body = rows
-        .mkString("| ", " |\n| ", " |")
+      val body = rows.mkString("| ", " |\n| ", " |")
 
       val caption = if (rows.length >= numRows) s"\n_Showing only top $numRows rows_.\n\n" else ""
       caption + header + body
@@ -94,13 +93,14 @@ trait DataFrameRenderers {
       val header = "<thead>\n" + cols.map(_.name).mkString("<tr><th>", "</th><th>", "</th></tr>\n") + "</thead>\n"
       val stringifiers = stringifyRowElements(cols, truncate, renderTiles)
       val cat = concat_ws("</td><td>", stringifiers: _*)
-      val rows = df
-        .select(cat).limit(numRows)
-        .as[String]
-        .collect()
+      val rows =
+        df
+          .select(cat)
+          .limit(numRows)
+          .as[String]
+          .collect()
 
-      val body = rows
-        .mkString("<tr><td>", "</td></tr>\n<tr><td>", "</td></tr>\n")
+      val body = rows.mkString("<tr><td>", "</td></tr>\n<tr><td>", "</td></tr>\n")
 
       val caption = if (rows.length >= numRows) s"<caption>Showing only top $numRows rows</caption>\n" else ""
 

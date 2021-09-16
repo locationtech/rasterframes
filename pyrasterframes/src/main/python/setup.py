@@ -141,7 +141,7 @@ class PweaveNotebooks(PweaveDocs):
 pytest = 'pytest>=4.0.0,<5.0.0'
 
 
-pyspark = 'pyspark==2.4.7'
+pyspark = 'pyspark==3.1.1'
 boto3 = 'boto3'
 deprecation = 'deprecation'
 descartes = 'descartes'

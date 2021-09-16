@@ -39,8 +39,7 @@ import scala.util.Try
  * DataSource over a GeoTrellis layer store.
  */
 @Experimental
-class GeoTrellisLayerDataSource extends DataSourceRegister
-  with RelationProvider with CreatableRelationProvider with DataSourceOptions {
+class GeoTrellisLayerDataSource extends DataSourceRegister with RelationProvider with CreatableRelationProvider with DataSourceOptions {
   def shortName(): String = GeoTrellisLayerDataSource.SHORT_NAME
 
   /**
@@ -65,7 +64,7 @@ class GeoTrellisLayerDataSource extends DataSourceRegister
     val layerId: LayerId = LayerId(parameters(LAYER_PARAM), parameters(ZOOM_PARAM).toInt)
     val numPartitions = parameters.get(NUM_PARTITIONS_PARAM).map(_.toInt)
     val tileSubdivisions = parameters.get(TILE_SUBDIVISIONS_PARAM).map(_.toInt)
-    tileSubdivisions.foreach(s ⇒ require(s >= 0, TILE_SUBDIVISIONS_PARAM + " must be a postive integer"))
+    tileSubdivisions.foreach(s => require(s >= 0, TILE_SUBDIVISIONS_PARAM + " must be a postive integer"))
     val failOnUnrecognizedFilter = parameters.get("failOnUnrecognizedFilter").exists(_.toBoolean)
 
     GeoTrellisRelation(sqlContext, uri, layerId, numPartitions, failOnUnrecognizedFilter, tileSubdivisions)
@@ -73,8 +72,8 @@ class GeoTrellisLayerDataSource extends DataSourceRegister
 
   /** Write relation. */
   def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = {
-    val zoom = parameters.get(ZOOM_PARAM).flatMap(p ⇒ Try(p.toInt).toOption)
-    val path = parameters.get(PATH_PARAM).flatMap(p ⇒ Try(new URI(p)).toOption)
+    val zoom = parameters.get(ZOOM_PARAM).flatMap(p => Try(p.toInt).toOption)
+    val path = parameters.get(PATH_PARAM).flatMap(p => Try(new URI(p)).toOption)
     val layerName = parameters.get(LAYER_PARAM)
 
     require(path.isDefined, s"Valid URI '$PATH_PARAM' parameter required.")
@@ -84,7 +83,7 @@ class GeoTrellisLayerDataSource extends DataSourceRegister
     val rf = data.asLayerSafely
       .getOrElse(throw new IllegalArgumentException("Only a valid RasterFrameLayer can be saved as a GeoTrellis layer"))
 
-    val tileColumn = parameters.get(TILE_COLUMN_PARAM).map(c ⇒ rf(c))
+    val tileColumn = parameters.get(TILE_COLUMN_PARAM).map(c => rf(c))
 
     val layerId = for {
       name ← layerName
@@ -97,14 +96,14 @@ class GeoTrellisLayerDataSource extends DataSourceRegister
       val tileCol: Column = tileColumn.getOrElse(rf.tileColumns.head)
       val eitherRDD = rf.toTileLayerRDD(tileCol)
       eitherRDD.fold(
-        skLayer ⇒ writer.write(layerId.get, skLayer, ZCurveKeyIndexMethod),
-        stkLayer ⇒ writer.write(layerId.get, stkLayer, ZCurveKeyIndexMethod.byDay())
+        skLayer => writer.write(layerId.get, skLayer, ZCurveKeyIndexMethod),
+        stkLayer => writer.write(layerId.get, stkLayer, ZCurveKeyIndexMethod.byDay())
       )
     }
     else {
       rf.toMultibandTileLayerRDD.fold(
-        skLayer ⇒ writer.write(layerId.get, skLayer, ZCurveKeyIndexMethod),
-        stkLayer ⇒ writer.write(layerId.get, stkLayer, ZCurveKeyIndexMethod.byDay())
+        skLayer => writer.write(layerId.get, skLayer, ZCurveKeyIndexMethod),
+        stkLayer => writer.write(layerId.get, stkLayer, ZCurveKeyIndexMethod.byDay())
       )
     }
 

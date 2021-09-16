@@ -43,14 +43,12 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 )
 case class Subtract(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
   override val nodeName: String = "rf_local_subtract"
-  override protected def op(left: Tile, right: Tile): Tile = left.localSubtract(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localSubtract(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localSubtract(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localSubtract(right)
+  protected def op(left: Tile, right: Double): Tile = left.localSubtract(right)
+  protected def op(left: Tile, right: Int): Tile = left.localSubtract(right)
 }
 object Subtract {
-  def apply(left: Column, right: Column): Column =
-    new Column(Subtract(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Subtract(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Subtract(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Subtract(tile.expr, lit(value).expr))
 }

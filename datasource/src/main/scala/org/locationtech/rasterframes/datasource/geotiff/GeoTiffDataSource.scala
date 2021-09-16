@@ -41,12 +41,10 @@ import org.slf4j.LoggerFactory
 /**
   * Spark SQL data source over GeoTIFF files.
  */
-class GeoTiffDataSource
-  extends DataSourceRegister with RelationProvider with CreatableRelationProvider with DataSourceOptions {
+class GeoTiffDataSource extends DataSourceRegister with RelationProvider with CreatableRelationProvider with DataSourceOptions {
   import GeoTiffDataSource._
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
-
 
   def shortName() = GeoTiffDataSource.SHORT_NAME
 
@@ -60,7 +58,7 @@ class GeoTiffDataSource
   }
 
   /** Write dataframe containing bands into a single geotiff. Note: performs a driver collect, and is not "big data" friendly.  */
-  override def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], df: DataFrame): BaseRelation = {
+  def createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], df: DataFrame): BaseRelation = {
     require(parameters.path.isDefined, "Valid URI 'path' parameter required.")
     val path = parameters.path.get
     require(path.getScheme == "file" || path.getScheme == null, "Currently only 'file://' destinations are supported")
@@ -74,13 +72,12 @@ class GeoTiffDataSource
       throw new IllegalArgumentException("A destination CRS must be provided")
     )
 
-    val input = df.asLayerSafely.map(layer =>
-      (layer.crsColumns.isEmpty, layer.extentColumns.isEmpty) match {
-        case (true, true) => layer.withExtent().withCRS()
-        case (true, false) => layer.withCRS()
-        case (false, true) => layer.withExtent()
-        case _ => layer
-      }).getOrElse(df)
+    val input = df.asLayerSafely.map(layer => (layer.crsColumns.isEmpty, layer.extentColumns.isEmpty) match {
+      case (true, true) => layer.withExtent().withCRS()
+      case (true, false) => layer.withCRS()
+      case (false, true) => layer.withExtent()
+      case _ => layer
+    }).getOrElse(df)
 
     val raster =  TileRasterizerAggregate.collect(input, destCRS, None, parameters.rasterDimensions)
 

@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.rules
 
 import java.sql.{Date, Timestamp}
 
-import org.apache.spark.sql.sources.Filter
 
 /**
  * New filter types captured and rewritten for use in spatiotemporal data sources that can handle them.
@@ -32,11 +31,11 @@ import org.apache.spark.sql.sources.Filter
  */
 object TemporalFilters {
 
-  case class BetweenTimes(attribute: String, start: Timestamp, end: Timestamp) extends Filter {
+  case class BetweenTimes(attribute: String, start: Timestamp, end: Timestamp) {
     def references: Array[String] = Array(attribute)
   }
 
-  case class BetweenDates(attribute: String, start: Date, end: Date) extends Filter {
+  case class BetweenDates(attribute: String, start: Date, end: Date) {
     def references: Array[String] = Array(attribute)
   }
 }

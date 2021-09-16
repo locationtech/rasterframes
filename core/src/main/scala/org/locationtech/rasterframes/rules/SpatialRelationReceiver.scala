@@ -29,7 +29,7 @@ import org.apache.spark.sql.sources.{BaseRelation, Filter}
  *
  * @since 7/16/18
  */
-trait SpatialRelationReceiver[+T <: SpatialRelationReceiver[T]] { self: BaseRelation ⇒
+trait SpatialRelationReceiver[+T <: SpatialRelationReceiver[T]] { self: BaseRelation =>
   /** Create new relation with the give filter added. */
   def withFilter(filter: Filter): T
   /** Check to see if relation already exists in this. */
@@ -40,7 +40,7 @@ trait SpatialRelationReceiver[+T <: SpatialRelationReceiver[T]] { self: BaseRela
 
 object SpatialRelationReceiver {
   def unapply[T <: SpatialRelationReceiver[T]](lr: LogicalRelation): Option[SpatialRelationReceiver[T]] = lr.relation match {
-    case t: SpatialRelationReceiver[T] @unchecked ⇒ Some(t)
-    case _ ⇒ None
+    case t: SpatialRelationReceiver[T] @unchecked => Some(t)
+    case _ => None
   }
 }

@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.datasource.geotrellis.GeoTrellisCatalog.Geo
 class GeoTrellisCatalog extends DataSourceRegister with RelationProvider {
   def shortName() = "geotrellis-catalog"
 
-  def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
+  def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): GeoTrellisCatalogRelation = {
     require(parameters.contains("path"), "'path' parameter required.")
     val uri: URI = URI.create(parameters("path"))
     GeoTrellisCatalogRelation(sqlContext, uri)
@@ -48,6 +48,7 @@ class GeoTrellisCatalog extends DataSourceRegister with RelationProvider {
 }
 
 object GeoTrellisCatalog {
+  implicit val layerStuffEncoder: Encoder[(Int, Layer)] = Encoders.tuple(Encoders.scalaInt, layerEncoder)
 
   case class GeoTrellisCatalogRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation with TableScan {
     import sqlContext.implicits._
@@ -61,35 +62,31 @@ object GeoTrellisCatalog {
     private lazy val layers = {
       // The attribute groups are processed separately and joined at the end to
       // maintain a semblance of separation in the resulting schema.
-      val mergeId = (id: Int, json: io.circe.JsonObject) ⇒ {
+      val mergeId = (id: Int, json: io.circe.JsonObject) => {
         import io.circe.syntax._
         val jid = id.asJson
         json.add("index", jid).asJson
       }
 
-      implicit val layerStuffEncoder: Encoder[(Int, Layer)] = Encoders.tuple(
-        Encoders.scalaInt, layerEncoder
-      )
-
       val layerIds = attributes.layerIds
 
       val layerSpecs = layerIds.zipWithIndex.map {
-        case (id, index) ⇒ (index: Int, Layer(uri, id))
+        case (id, index) => (index: Int, Layer(uri, id))
       }
 
       val indexedLayers = layerSpecs
         .toDF("index", "layer")
 
       val headerRows = layerSpecs
-        .map{case (index, layer) ⇒(index, attributes.readHeader[io.circe.JsonObject](layer.id))}
+        .map{ case (index, layer) => (index, attributes.readHeader[io.circe.JsonObject](layer.id)) }
         .map(mergeId.tupled)
-        .map(io.circe.Printer.noSpaces.pretty)
+        .map(io.circe.Printer.noSpaces.print)
         .toDS
 
       val metadataRows = layerSpecs
-        .map{case (index, layer) ⇒ (index, attributes.readMetadata[io.circe.JsonObject](layer.id))}
+        .map{ case (index, layer) => (index, attributes.readMetadata[io.circe.JsonObject](layer.id)) }
         .map(mergeId.tupled)
-        .map(io.circe.Printer.noSpaces.pretty)
+        .map(io.circe.Printer.noSpaces.print)
         .toDS
 
 

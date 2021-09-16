@@ -102,7 +102,7 @@ class ExplodeSpec extends TestEnvironment {
     }
 
     it("should handle user-defined NoData values in tile sampler") {
-      val tiles = allTileTypes.filter(t ⇒ !t.isInstanceOf[BitArrayTile]).map(_.withNoData(Some(3)))
+      val tiles = allTileTypes.filter(t => !t.isInstanceOf[BitArrayTile]).map(_.withNoData(Some(3)))
       val cells = tiles.toDF("tile")
         .select(rf_explode_tiles($"tile"))
         .select($"tile".as[Double])

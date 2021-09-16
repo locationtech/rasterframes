@@ -107,7 +107,7 @@ class TileAssemblerSpec extends TestEnvironment {
       exploded.unpersist()
 
       assembled.select($"spatial_index".as[Int], $"tile".as[Tile])
-        .foreach(p ⇒ p._2.renderPng(ColorRamps.BlueToOrange).write(s"target/${p._1}.png"))
+        .foreach(p => p._2.renderPng(ColorRamps.BlueToOrange).write(s"target/${p._1}.png"))
 
       assert(assembled.count() === df.count())
 
@@ -136,7 +136,7 @@ object TileAssemblerSpec extends  LazyLogging {
       import spark.implicits._
       rs.readAll()
         .zipWithIndex
-        .map { case (r, i) ⇒ (i, r.extent, r.tile.band(0)) }
+        .map { case (r, i) => (i, r.extent, r.tile.band(0)) }
         .toDF("spatial_index", "extent", "tile")
         .repartition($"spatial_index")
         .forceCache

@@ -21,13 +21,13 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types.{DataType, DataTypes, IntegerType}
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
 
@@ -39,13 +39,11 @@ import org.locationtech.rasterframes.model.TileContext
 )
 case class TileToArrayInt(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "rf_tile_to_array_int"
-  override def dataType: DataType = DataTypes.createArrayType(IntegerType, false)
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
+  def dataType: DataType = DataTypes.createArrayType(IntegerType, false)
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     ArrayData.toArrayData(tile.toArray())
-  }
 }
 object TileToArrayInt {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.arrayEnc
   def apply(tile: Column): TypedColumn[Any, Array[Int]] =
     new Column(TileToArrayInt(tile.expr)).as[Array[Int]]
 }

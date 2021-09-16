@@ -29,8 +29,8 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes
-import org.locationtech.rasterframes.RasterSourceType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.expressions.RasterResult
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
@@ -45,24 +45,24 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
-  with Generator with CodegenFallback with ExpectsInputTypes  {
+case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None)
+  extends Expression with RasterResult with Generator with CodegenFallback with ExpectsInputTypes  {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
+  def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
   override def nodeName: String = "rf_raster_source_to_tiles"
 
-  override def elementSchema: StructType = StructType(for {
+  def elementSchema: StructType = StructType(for {
     child <- children
     basename = child.name
     name <- bandNames(basename, bandIndexes)
-  } yield StructField(name, schemaOf[ProjectedRasterTile], true))
+  } yield StructField(name, ProjectedRasterTile.projectedRasterTileEncoder.schema, true))
 
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+  def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     try {
-      val tiles = children.map { child ⇒
-        val src = RasterSourceType.deserialize(child.eval(input))
+      val tiles = children.map { child =>
+        val src = rasterSourceUDT.deserialize(child.eval(input))
         val maxBands = src.bandCount
         val allowedBands = bandIndexes.filter(_ < maxBands)
         src.readAll(subtileDims.getOrElse(rasterframes.NOMINAL_TILE_DIMS), allowedBands)
@@ -71,11 +71,15 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
             case _ => null
           })
       }
-      tiles.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(_.toInternalRow)): _*))
+      tiles
+        .transpose
+        .map { ts =>
+          InternalRow(ts.flatMap(_.map { prt => if (prt != null) toInternalRow(prt) else null }): _*)
+        }
     }
     catch {
-      case NonFatal(ex) ⇒
-        val payload = Try(children.map(c => RasterSourceType.deserialize(c.eval(input)))).toOption.toSeq.flatten
+      case NonFatal(ex) =>
+        val payload = Try(children.map(c => rasterSourceUDT.deserialize(c.eval(input)))).toOption.toSeq.flatten
         logger.error("Error fetching data for one of: " + payload.mkString(", "), ex)
         Traversable.empty
     }

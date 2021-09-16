@@ -37,40 +37,34 @@ import spire.syntax.cfor.cfor
  *
  * @since 4/12/17
  */
-case class ExplodeTiles(
-  sampleFraction: Double , seed: Option[Long], override val children: Seq[Expression])
-  extends Expression with Generator with CodegenFallback {
+case class ExplodeTiles(sampleFraction: Double , seed: Option[Long], override val children: Seq[Expression]) extends Expression with Generator with CodegenFallback {
 
   def this(children: Seq[Expression]) = this(1.0, None, children)
+
   override def nodeName: String = "rf_explode_tiles"
 
-  override def elementSchema: StructType = {
-    val names =
-      if (children.size == 1) Seq("cell")
-      else children.indices.map(i ⇒ s"cell_$i")
+  def elementSchema: StructType = {
+    val names = if (children.size == 1) Seq("cell") else children.indices.map(i => s"cell_$i")
 
     StructType(
-      Seq(
-        StructField(COLUMN_INDEX_COLUMN.columnName, IntegerType, false),
-        StructField(ROW_INDEX_COLUMN.columnName, IntegerType, false)) ++ names
-        .map(n ⇒ StructField(n, DoubleType, false)))
+      Seq(StructField(COLUMN_INDEX_COLUMN.columnName, IntegerType, false), StructField(ROW_INDEX_COLUMN.columnName, IntegerType, false)) ++
+        names.map(n => StructField(n, DoubleType, false))
+    )
   }
 
-  private def sample[T](things: Seq[T]) = {
+  private def sample[T](things: Seq[T]): Seq[T] = {
     // Apply random seed if provided
-    seed.foreach(s ⇒ scala.util.Random.setSeed(s))
+    seed.foreach(s => scala.util.Random.setSeed(s))
     scala.util.Random.shuffle(things)
       .take(math.ceil(things.length * sampleFraction).toInt)
   }
 
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+  def eval(input: InternalRow): TraversableOnce[InternalRow] = {
     val tiles = Array.ofDim[Tile](children.length)
     cfor(0)(_ < tiles.length, _ + 1) { index =>
       val c = children(index)
       val row = c.eval(input).asInstanceOf[InternalRow]
-      tiles(index) = if(row != null)
-        DynamicExtractors.tileExtractor(c.dataType)(row)._1
-      else null
+      tiles(index) = if(row != null) DynamicExtractors.tileExtractor(c.dataType)(row)._1 else null
     }
     val dims = tiles.filter(_ != null).map(_.dimensions)
     if(dims.isEmpty) Seq.empty[InternalRow]

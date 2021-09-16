@@ -21,10 +21,9 @@
 
 package org.locationtech.rasterframes.bench
 import java.util.concurrent.TimeUnit
-
 import geotrellis.raster.{CellType, DoubleUserDefinedNoDataCellType, IntUserDefinedNoDataCellType}
 import org.apache.spark.sql.catalyst.InternalRow
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.openjdk.jmh.annotations._
 
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -37,16 +36,12 @@ class CellTypeBench {
   def setupData(): Unit = {
     ct = IntUserDefinedNoDataCellType(scala.util.Random.nextInt())
     val o: CellType = DoubleUserDefinedNoDataCellType(scala.util.Random.nextDouble())
-    row = o.toInternalRow
+    row = StandardEncoders.cellTypeEncoder.createSerializer()(o)
   }
 
   @Benchmark
-  def fromRow(): CellType = {
-    row.to[CellType]
-  }
+  def fromRow(): CellType = StandardEncoders.cellTypeEncoder.createDeserializer()(row)
 
   @Benchmark
-  def intoRow(): InternalRow = {
-    ct.toInternalRow
-  }
+  def intoRow(): InternalRow = StandardEncoders.cellTypeEncoder.createSerializer()(ct)
 }

@@ -31,19 +31,19 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 case class InMemoryRasterSource(tile: Tile, extent: Extent, crs: CRS) extends RFRasterSource {
   def this(prt: ProjectedRasterTile) = this(prt, prt.extent, prt.crs)
 
-  override def rows: Int = tile.rows
+  def rows: Int = tile.rows
 
-  override def cols: Int = tile.cols
+  def cols: Int = tile.cols
 
-  override def cellType: CellType = tile.cellType
+  def cellType: CellType = tile.cellType
 
-  override def bandCount: Int = 1
+  def bandCount: Int = 1
 
-  override def tags: Tags = EMPTY_TAGS
+  def tags: Tags = EMPTY_TAGS
 
-  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
+  def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] = {
     bounds
-      .map(b => {
+      .map({ b =>
         val subext = rasterExtent.extentFor(b)
         Raster(MultibandTile(tile.crop(b)), subext)
       })

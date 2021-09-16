@@ -28,11 +28,12 @@ import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
-  import ProjectedRasterTile.prtEncoder
   import TestData._
   import spark.implicits._
 
   describe("masking by defined") {
+    spark.version
+
     it("should mask one tile against another") {
       val df = Seq[Tile](randPRT).toDF("tile")
 
@@ -99,9 +100,8 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should throw if no nodata"){
       val noNoDataCellType = UByteCellType
 
-      val df = Seq(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs,
-        noNoDataCellType))
-        .toDF("tile")
+      val df =
+        Seq(Option(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs, noNoDataCellType))).toDF("tile")
 
       an [IllegalArgumentException] should be thrownBy {
         df.select(rf_mask($"tile", $"tile")).collect()
@@ -188,7 +188,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       val withMasked = df.withColumn("masked",
         rf_mask_by_values($"tile", $"mask", mask_values:_*))
 
-      val expected = squareIncrementingPRT.toArray().count(v ⇒ mask_values.contains(v))
+      val expected = squareIncrementingPRT.toArray().count(v => mask_values.contains(v))
 
       val result = withMasked.agg(rf_agg_no_data_cells($"masked") as "masked_nd")
         .first()
@@ -213,7 +213,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       val med_cloud = 2756 // with 1-2 bands saturated
       val hi_cirrus = 6900 // yes cloud, hi conf cloud and hi conf cirrus and 1-2band sat
       val dataColumnCellType = UShortConstantNoDataCellType
-      val tiles = Seq(fill, clear, cirrus, med_cloud, hi_cirrus).map{v ⇒
+      val tiles = Seq(fill, clear, cirrus, med_cloud, hi_cirrus).map{v =>
         (
           TestData.projectedRasterTile(3, 3, 6, TestData.extent, TestData.crs, dataColumnCellType),
           TestData.projectedRasterTile(3, 3, v, TestData.extent, TestData.crs, UShortCellType) // because masking returns the union of cell types
@@ -276,11 +276,13 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       def checker(colName: String, valFilter: Int, assertValue: Int): Unit = {
         // print this so we can see what's happening if something  wrong
-        logger.debug(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+        // logger.debug(s"${colName} should be ${assertValue} for qa val ${valFilter}")
+        // println(s"${colName} should be ${assertValue} for qa val ${valFilter}")
         result.filter($"val" === lit(valFilter))
           .select(col(colName))
-          .as[ProjectedRasterTile]
+          .as[Option[ProjectedRasterTile]]
           .first()
+          .get
           .get(0, 0) should be (assertValue)
       }
 
@@ -377,7 +379,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
           .select(rf_is_no_data_tile(col(columnName)))
           .first()
 
-        val dataTile = resultDf.select(col(columnName)).as[ProjectedRasterTile].first()
+        val dataTile = resultDf.select(col(columnName)).as[Option[ProjectedRasterTile]].first().get
         logger.debug(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
 
         resultToCheck should be (resultIsNoData)

@@ -37,10 +37,10 @@ package object bench {
     val cellType = CellType.fromName(cellTypeName)
     val tile = ArrayTile.alloc(cellType, cols, rows)
     if(cellType.isFloatingPoint) {
-      tile.mapDouble(_ ⇒ rnd.nextGaussian())
+      tile.mapDouble(_ => rnd.nextGaussian())
     }
     else {
-      tile.map(_ ⇒ {
+      tile.map(_ => {
         var c = NODATA
         do {
           c = rnd.nextInt(255)

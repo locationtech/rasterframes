@@ -39,7 +39,7 @@ object VersionShims {
       //   relation: BaseRelation,
       //   output: Seq[AttributeReference],
       //   catalogTable: Option[CatalogTable])
-      case 3 ⇒
+      case 3 =>
         val arg2: Seq[AttributeReference] = lr.output
         val arg3: Option[CatalogTable] = lr.catalogTable
         if(ctor.getParameterTypes()(1).isAssignableFrom(classOf[Option[_]])) {
@@ -57,13 +57,13 @@ object VersionShims {
       //   catalogTable: Option[CatalogTable],
       //   override val isStreaming: Boolean)
       //   extends LeafNode with MultiInstanceRelation {
-      case 4 ⇒
+      case 4 =>
         val arg2: Seq[AttributeReference] = lr.output
         val arg3: Option[CatalogTable] = lr.catalogTable
         val arg4 = lrClazz.getMethod("isStreaming").invoke(lr)
 
         ctor.newInstance(base, arg2, arg3, arg4)
-      case _ ⇒
+      case _ =>
         throw new NotImplementedError("LogicalRelation constructor has unexpected shape")
     }
   }
@@ -83,7 +83,7 @@ object VersionShims {
       //   dataType: DataType,
       //   arguments: Seq[Expression] = Nil,
       //   propagateNull: Boolean = true) extends InvokeLike
-      case 5 ⇒
+      case 5 =>
         ctor.newInstance(targetObject, functionName, dataType, Nil, TRUE).asInstanceOf[InvokeLike]
       // In spark 2.2.0 the signature looks like this:
       //
@@ -94,10 +94,10 @@ object VersionShims {
       //   arguments: Seq[Expression] = Nil,
       //   propagateNull: Boolean = true,
       //   returnNullable : Boolean = true) extends InvokeLike
-      case 6 ⇒
+      case 6 =>
         ctor.newInstance(targetObject, functionName, dataType, Nil, TRUE, TRUE).asInstanceOf[InvokeLike]
 
-      case _ ⇒
+      case _ =>
         throw new NotImplementedError("Invoke constructor has unexpected shape")
     }
   }
@@ -108,8 +108,8 @@ object VersionShims {
       // Spark 2.3 introduced a new way of specifying Functions
       val spark23FI = "org.apache.spark.sql.catalyst.FunctionIdentifier"
       registry.getClass.getDeclaredMethods
-        .filter(m ⇒ m.getName == "registerFunction" && m.getParameterCount == 2)
-        .foreach { m ⇒
+        .filter(m => m.getName == "registerFunction" && m.getParameterCount == 2)
+        .foreach { m =>
           val firstParam = m.getParameterTypes()(0)
           if(firstParam == classOf[String])
             m.invoke(registry, name, builder)
@@ -133,7 +133,7 @@ object VersionShims {
         val df = clazz.getAnnotation(classOf[ExpressionDescription])
         if (df != null) {
           if (df.extended().isEmpty) {
-            new ExpressionInfo(clazz.getCanonicalName, null, name, df.usage(), df.arguments(), df.examples(), df.note(), df.since())
+            new ExpressionInfo(clazz.getCanonicalName, null, name, df.usage(), df.arguments(), df.examples(), df.note(), df.group(), df.since(), df.deprecated())
           } else {
             // This exists for the backward compatibility with old `ExpressionDescription`s defining
             // the extended description in `extended()`.

@@ -40,15 +40,13 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
 )
 case class Greater(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
   override val nodeName: String = "rf_local_greater"
-  override protected def op(left: Tile, right: Tile): Tile = left.localGreater(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localGreater(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localGreater(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localGreater(right)
+  protected def op(left: Tile, right: Double): Tile = left.localGreater(right)
+  protected def op(left: Tile, right: Int): Tile = left.localGreater(right)
 }
 
 object Greater {
-  def apply(left: Column, right: Column): Column =
-    new Column(Greater(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Greater(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Greater(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Greater(tile.expr, lit(value).expr))
 }

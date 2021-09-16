@@ -21,56 +21,73 @@
 
 package org.locationtech.rasterframes.encoders
 
-import java.net.URI
-import java.sql.Timestamp
-
 import org.locationtech.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellSize, CellType, Dimensions, Raster, Tile, TileLayout}
 import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
-import org.apache.spark.sql.{Encoder, Encoders}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
-import org.locationtech.rasterframes.model.{CellContext, Cells, TileContext, TileDataContext}
+import org.locationtech.rasterframes.model.{CellContext, LongExtent, TileContext, TileDataContext}
+import frameless.TypedEncoder
 
+import java.net.URI
+import java.sql.Timestamp
+
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+
+/**
+ * TODO: move this overload to GeoTrellis, the reason is in the generic method invocation and Integral in implicits
+ */
+object DimensionsInt {
+  def apply(cols: Int, rows: Int): Dimensions[Int] = new Dimensions(cols, rows)
+}
+
+object EnvelopeLocal {
+  def apply(minx: Double, maxx: Double, miny: Double, maxy: Double): Envelope = new Envelope(minx, maxx, miny, miny)
+}
 
 /**
  * Implicit encoder definitions for RasterFrameLayer types.
  */
-trait StandardEncoders extends SpatialEncoders {
-  object PrimitiveEncoders extends SparkBasicEncoders
+trait StandardEncoders extends SpatialEncoders with TypedEncoders {
   def expressionEncoder[T: TypeTag]: ExpressionEncoder[T] = ExpressionEncoder()
-  implicit def spatialKeyEncoder: ExpressionEncoder[SpatialKey] = ExpressionEncoder()
-  implicit def temporalKeyEncoder: ExpressionEncoder[TemporalKey] = ExpressionEncoder()
-  implicit def spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = ExpressionEncoder()
-  implicit def layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = ExpressionEncoder()
-  implicit def stkBoundsEncoder: ExpressionEncoder[KeyBounds[SpaceTimeKey]] = ExpressionEncoder()
-  implicit def extentEncoder: ExpressionEncoder[Extent] = ExpressionEncoder[Extent]()
-  implicit def singlebandTileEncoder: ExpressionEncoder[Tile] = ExpressionEncoder()
-  implicit def rasterEncoder: ExpressionEncoder[Raster[Tile]] = ExpressionEncoder()
-  implicit def tileLayerMetadataEncoder[K: TypeTag]: ExpressionEncoder[TileLayerMetadata[K]] = TileLayerMetadataEncoder()
-  implicit def crsSparkEncoder: ExpressionEncoder[CRS] = CRSEncoder()
-  implicit def projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ProjectedExtentEncoder()
-  implicit def temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = TemporalProjectedExtentEncoder()
-  implicit def cellTypeEncoder: ExpressionEncoder[CellType] = CellTypeEncoder()
-  implicit def cellSizeEncoder: ExpressionEncoder[CellSize] = ExpressionEncoder()
-  implicit def uriEncoder: ExpressionEncoder[URI] = URIEncoder()
-  implicit def envelopeEncoder: ExpressionEncoder[Envelope] = EnvelopeEncoder()
-  implicit def timestampEncoder: ExpressionEncoder[Timestamp] = ExpressionEncoder()
-  implicit def strMapEncoder: ExpressionEncoder[Map[String, String]] = ExpressionEncoder()
-  implicit def cellStatsEncoder: ExpressionEncoder[CellStatistics] = ExpressionEncoder()
-  implicit def cellHistEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
-  implicit def localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
-  implicit def tilelayoutEncoder: ExpressionEncoder[TileLayout] = ExpressionEncoder()
-  implicit def cellContextEncoder: ExpressionEncoder[CellContext] = CellContext.encoder
-  implicit def cellsEncoder: ExpressionEncoder[Cells] = Cells.encoder
-  implicit def tileContextEncoder: ExpressionEncoder[TileContext] = TileContext.encoder
-  implicit def tileDataContextEncoder: ExpressionEncoder[TileDataContext] = TileDataContext.encoder
-  implicit def extentTilePairEncoder: Encoder[(ProjectedExtent, Tile)] = Encoders.tuple(projectedExtentEncoder, singlebandTileEncoder)
-  implicit def tileDimensionsEncoder: Encoder[Dimensions[Int]] = CatalystSerializerEncoder[Dimensions[Int]](true)
+
+  implicit lazy val crsExpressionEncoder: ExpressionEncoder[CRS] = ExpressionEncoder()
+  implicit lazy val projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ExpressionEncoder()
+  implicit lazy val temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = ExpressionEncoder()
+  implicit lazy val timestampEncoder: ExpressionEncoder[Timestamp] = ExpressionEncoder()
+  implicit lazy val strMapEncoder: ExpressionEncoder[Map[String, String]] = ExpressionEncoder()
+  implicit lazy val cellStatsEncoder: ExpressionEncoder[CellStatistics] = ExpressionEncoder()
+  implicit lazy val cellHistEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
+  implicit lazy val localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
+  implicit lazy val uriEncoder: ExpressionEncoder[URI]   = typedExpressionEncoder[URI]
+  implicit lazy val quantileSummariesEncoder: ExpressionEncoder[QuantileSummaries] = typedExpressionEncoder[QuantileSummaries]
+
+  implicit lazy val envelopeEncoder: ExpressionEncoder[Envelope] = typedExpressionEncoder
+  implicit lazy val longExtentEncoder: ExpressionEncoder[LongExtent] = typedExpressionEncoder
+  implicit lazy val extentEncoder: ExpressionEncoder[Extent] = typedExpressionEncoder
+  implicit lazy val cellSizeEncoder: ExpressionEncoder[CellSize] = typedExpressionEncoder
+  implicit lazy val tileLayoutEncoder: ExpressionEncoder[TileLayout] = typedExpressionEncoder
+  implicit lazy val spatialKeyEncoder: ExpressionEncoder[SpatialKey] = typedExpressionEncoder
+  implicit lazy val temporalKeyEncoder: ExpressionEncoder[TemporalKey] = typedExpressionEncoder
+  implicit lazy val spaceTimeKeyEncoder: ExpressionEncoder[SpaceTimeKey] = typedExpressionEncoder
+  implicit def keyBoundsEncoder[K: TypedEncoder]: ExpressionEncoder[KeyBounds[K]] = typedExpressionEncoder[KeyBounds[K]]
+  implicit def boundsEncoder[K: TypedEncoder]: ExpressionEncoder[Bounds[K]] = keyBoundsEncoder[KeyBounds[K]].asInstanceOf[ExpressionEncoder[Bounds[K]]]
+  implicit lazy val cellTypeEncoder: ExpressionEncoder[CellType] = typedExpressionEncoder[CellType]
+  implicit lazy val dimensionsEncoder: ExpressionEncoder[Dimensions[Int]] = typedExpressionEncoder
+  implicit lazy val layoutDefinitionEncoder: ExpressionEncoder[LayoutDefinition] = typedExpressionEncoder
+  implicit def tileLayerMetadataEncoder[K: TypedEncoder: ClassTag]: ExpressionEncoder[TileLayerMetadata[K]] = typedExpressionEncoder[TileLayerMetadata[K]]
+  implicit lazy val tileContextEncoder: ExpressionEncoder[TileContext] = typedExpressionEncoder
+  implicit lazy val tileDataContextEncoder: ExpressionEncoder[TileDataContext] = typedExpressionEncoder
+  implicit lazy val cellContextEncoder: ExpressionEncoder[CellContext] = typedExpressionEncoder
+
+  implicit lazy val tileEncoder: ExpressionEncoder[Tile] = typedExpressionEncoder
+  implicit lazy val optionalTileEncoder: ExpressionEncoder[Option[Tile]] = typedExpressionEncoder
+  implicit lazy val rasterEncoder: ExpressionEncoder[Raster[Tile]] = typedExpressionEncoder
 }
 
 object StandardEncoders extends StandardEncoders

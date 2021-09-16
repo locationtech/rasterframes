@@ -22,25 +22,20 @@
 package org.locationtech.rasterframes.ref
 
 import java.net.URI
-
 import geotrellis.raster.{ByteConstantNoDataCellType, Tile}
 import geotrellis.vector._
 import org.apache.spark.SparkException
 import org.apache.spark.sql.Encoders
+import org.apache.spark.sql.functions.struct
 import org.locationtech.rasterframes.{TestEnvironment, _}
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.generators._
-import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
- *
- *
  * @since 8/22/18
  */
 //noinspection TypeAnnotation
 class RasterRefSpec extends TestEnvironment with TestData {
-
   def sub(e: Extent) = {
     val c = e.center
     val w = e.width
@@ -52,12 +47,12 @@ class RasterRefSpec extends TestEnvironment with TestData {
     val src = RFRasterSource(remoteCOGSingleband1)
     val fullRaster = RasterRef(src, 0, None, None)
     val subExtent = sub(src.extent)
-    val subRaster = RasterRef(src, 0, Some(subExtent), Some(src.rasterExtent.gridBoundsFor(subExtent)))
+    val subRaster = RasterRef(src, 0, subExtent, src.rasterExtent.gridBoundsFor(subExtent))
   }
 
   import spark.implicits._
 
-  implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rrEncoder)
+  implicit val enc = Encoders.tuple(Encoders.scalaInt, RasterRef.rasterRefEncoder)
   describe("GetCRS Expression") {
     it("should read from RasterRef") {
       new Fixture {
@@ -95,9 +90,9 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
 
-    it("should read from RasterRefTile") {
+    it("should read from RasterRef as Tile") {
       new Fixture {
-        val ds = Seq((1, RasterRefTile(fullRaster): Tile)).toDF("index", "ref")
+        val ds = Seq((1, fullRaster: Tile)).toDF("index", "ref")
         val dims = ds.select(GetDimensions($"ref"))
         assert(dims.count() === 1)
         assert(dims.first() !== null)
@@ -105,7 +100,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
     }
     it("should read from sub-RasterRefTiles") {
       new Fixture {
-        val ds = Seq((1, RasterRefTile(subRaster): Tile)).toDF("index", "ref")
+        val ds = Seq((1, subRaster: Tile)).toDF("index", "ref")
         val dims = ds.select(GetDimensions($"ref"))
         assert(dims.count() === 1)
         assert(dims.first() !== null)
@@ -190,7 +185,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       val src = RFRasterSource(remoteMODIS)
       import spark.implicits._
       val df = Seq(src).toDF("src")
-      val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), $"src"))
+      val refs = df.select(RasterSourceToRasterRefs(None, Seq(0), $"src") as "proj_raster")
       refs.count() should be (1)
     }
 
@@ -209,7 +204,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
       }
     }
     it("should throw exception on invalid URI") {
-      val src = RFRasterSource(URI.create("http://foo/bar"))
+      val src = RFRasterSource(URI.create("http://this/will/fail/and/it's/ok"))
       import spark.implicits._
       val df = Seq(src).toDF("src")
       val refs = df.select(RasterSourceToRasterRefs($"src") as "proj_raster")
@@ -236,20 +231,20 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
     it("should resolve a RasterRef") {
       new Fixture {
-        import RasterRef.rrEncoder // This shouldn't be required, but product encoder gets choosen.
+        import RasterRef.rasterRefEncoder // This shouldn't be required, but product encoder gets choosen.
         val r: RasterRef = subRaster
-        val result = Seq(r).toDF("ref").select(rf_tile($"ref")).first()
-        result.isInstanceOf[RasterRefTile] should be(false)
+        val df = Seq(r).toDF()
+        val result =  df.select(rf_tile(struct($"source", $"bandIndex", $"subextent", $"subgrid"))).first()
+        result.isInstanceOf[RasterRef] should be(false)
         assertEqual(r.tile.toArrayTile(), result)
       }
     }
 
     it("should resolve a RasterRefTile") {
       new Fixture {
-        val t: ProjectedRasterTile = RasterRefTile(subRaster)
-        val result = Seq(t).toDF("tile").select(rf_tile($"tile")).first()
-        result.isInstanceOf[RasterRefTile] should be(false)
-        assertEqual(t.toArrayTile(), result)
+        val result = Seq(subRaster).toDF().select(rf_tile(struct($"source", $"bandIndex", $"subextent", $"subgrid"))).first()
+        result.isInstanceOf[RasterRef] should be(false)
+        assertEqual(subRaster.toArrayTile(), result)
       }
     }
 
@@ -257,14 +252,23 @@ class RasterRefSpec extends TestEnvironment with TestData {
       new Fixture {
         // SimpleRasterInfo is a proxy for header data requests.
         val startStats = SimpleRasterInfo.cacheStats
-        val t: ProjectedRasterTile = RasterRefTile(subRaster)
-        val df = Seq(t, subRaster.tile).toDF("tile")
+
+        val df = Seq(Option(subRaster), Option(subRaster)).toDF("raster")
         val result = df.first()
-        SimpleRasterInfo.cacheStats.hitCount() should be(startStats.hitCount())
-        SimpleRasterInfo.cacheStats.missCount() should be(startStats.missCount())
-        val info = df.select(rf_dimensions($"tile"), rf_extent($"tile")).first()
-        SimpleRasterInfo.cacheStats.hitCount() should be(startStats.hitCount() + 2)
-        SimpleRasterInfo.cacheStats.missCount() should be(startStats.missCount())
+
+        withClue ("RasterRef was read without user action"){
+          // expected reads are for .crs and .cellType access, these are read when we record these values in columns
+          SimpleRasterInfo.cacheStats.hitCount() should be(startStats.hitCount())
+          SimpleRasterInfo.cacheStats.missCount() should be(startStats.missCount())
+        }
+
+        val first = df.select(rf_dimensions($"raster"), rf_extent($"raster")).first()
+        info(first.toString())
+        withClue("RasterRef was read too many times") {
+          // no additional metadata access is expected once crs/cellType is encoded into column
+          SimpleRasterInfo.cacheStats.hitCount() should be(startStats.hitCount() + 2)
+          SimpleRasterInfo.cacheStats.missCount() should be(startStats.missCount())
+        }
       }
     }
   }

@@ -37,12 +37,11 @@ import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterO
     > SELECT  _FUNC_(tile);
        ..."""
 )
-case class Undefined(child: Expression) extends UnaryLocalRasterOp
-  with NullToValue with CodegenFallback {
+case class Undefined(child: Expression) extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_local_no_data"
-  override def na: Any = null
-  override protected def op(child: Tile): Tile = child.localUndefined()
+  def na: Any = null
+  protected def op(child: Tile): Tile = child.localUndefined()
 }
-object Undefined{
+object Undefined {
   def apply(tile: Column): Column = new Column(Undefined(tile.expr))
 }

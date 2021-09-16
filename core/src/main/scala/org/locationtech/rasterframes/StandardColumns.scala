@@ -29,8 +29,8 @@ import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions.col
 import org.locationtech.jts.geom.{Point => jtsPoint, Polygon => jtsPolygon}
-import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 
 /**
  * Constants identifying column in most RasterFrames.

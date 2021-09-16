@@ -34,9 +34,9 @@ import geotrellis.vector._
  */
 object MakeTargetRaster extends App {
   object Flattener extends TileReducer(
-    (l: Int, r: Int) ⇒ if (isNoData(r)) l else r
+    (l: Int, r: Int) => if (isNoData(r)) l else r
   )(
-    (l: Double, r: Double) ⇒ if (isNoData(r)) l else r
+    (l: Double, r: Double) => if (isNoData(r)) l else r
   )
 
   val tiff = SinglebandGeoTiff(getClass.getResource("/L8-B2-Elkton-VA.tiff").getPath)
@@ -46,7 +46,7 @@ object MakeTargetRaster extends App {
   val features = json.extractFeatures[Feature[Polygon, Map[String, Int]]]()
 
   val layers = for {
-    f ← features
+    f <- features
     pf = f.reproject(wgs84, tiff.crs)
     raster = pf.geom.rasterizeWithValue(tiff.rasterExtent, f.data("id"), UByteUserDefinedNoDataCellType(255.toByte))
   } yield raster

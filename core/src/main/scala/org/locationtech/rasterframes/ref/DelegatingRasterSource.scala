@@ -66,15 +66,15 @@ abstract class DelegatingRasterSource(source: URI, delegateBuilder: () => GTRast
     retryableRead(rs => SimpleRasterInfo(rs))
   )
 
-  override def cols: Int = info.cols.toInt
-  override def rows: Int = info.rows.toInt
-  override def crs: CRS = info.crs
-  override def extent: Extent = info.extent
-  override def cellType: CellType = info.cellType
-  override def bandCount: Int = info.bandCount
-  override def tags: Tags = info.tags
+  def cols: Int = info.cols.toInt
+  def rows: Int = info.rows.toInt
+  def crs: CRS = info.crs
+  def extent: Extent = info.extent
+  def cellType: CellType = info.cellType
+  def bandCount: Int = info.bandCount
+  def tags: Tags = info.tags
 
-  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
+  def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
     retryableRead(_.readBounds(bounds.map(_.toGridType[Long]), bands))
 
   override def read(bounds: GridBounds[Int], bands: Seq[Int]): Raster[MultibandTile] =

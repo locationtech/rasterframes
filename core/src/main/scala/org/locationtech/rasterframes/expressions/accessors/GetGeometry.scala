@@ -45,9 +45,9 @@ import org.locationtech.rasterframes.model.TileContext
          ....
   """)
 case class GetGeometry(child: Expression) extends OnTileContextExpression with CodegenFallback {
-  override def dataType: DataType = JTSTypes.GeometryTypeInstance
+  def dataType: DataType = JTSTypes.GeometryTypeInstance
   override def nodeName: String = "rf_geometry"
-  override def eval(ctx: TileContext): InternalRow =
+  def eval(ctx: TileContext): InternalRow =
     JTSTypes.GeometryTypeInstance.serialize(ctx.extent.toPolygon())
 }
 

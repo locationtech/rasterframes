@@ -5,7 +5,8 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.isCellTrue
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterOp
 import org.locationtech.rasterframes.model.TileContext
 import spire.syntax.cfor.cfor
@@ -25,19 +26,16 @@ import spire.syntax.cfor.cfor
 )
 case class ForAll(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override def nodeName: String = "for_all"
-  override def dataType: DataType = BooleanType
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ForAll.op(tile)
-
+  def dataType: DataType = BooleanType
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ForAll.op(tile)
 }
 
 object ForAll {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.boolEnc
-
   def apply(tile: Column): TypedColumn[Any, Boolean] = new Column(ForAll(tile.expr)).as[Boolean]
 
   def op(tile: Tile): Boolean = {
-    cfor(0)(_ < tile.rows, _ + 1) { r ⇒
-      cfor(0)(_ < tile.cols, _ + 1) { c ⇒
+    cfor(0)(_ < tile.rows, _ + 1) { r =>
+      cfor(0)(_ < tile.cols, _ + 1) { c =>
         if (tile.cellType.isFloatingPoint) {
           if (!isCellTrue(tile.getDouble(c, r))) return false
         }

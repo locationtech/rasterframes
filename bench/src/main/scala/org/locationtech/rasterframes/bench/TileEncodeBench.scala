@@ -24,8 +24,6 @@ package org.locationtech.rasterframes.bench
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
-import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
-import org.locationtech.rasterframes.ref.RasterRef
 import geotrellis.raster.Tile
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.InternalRow
@@ -53,24 +51,23 @@ class TileEncodeBench extends SparkEnv {
   @Setup(Level.Trial)
   def setupData(): Unit = {
     cellTypeName match {
-      case "rasterRef" ⇒
+      case "rasterRef" =>
         val baseCOG = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/149/039/LC08_L1TP_149039_20170411_20170415_01_T1/LC08_L1TP_149039_20170411_20170415_01_T1_B1.TIF"
         val extent = Extent(253785.0, 3235185.0, 485115.0, 3471015.0)
-        tile = RasterRefTile(RasterRef(RFRasterSource(URI.create(baseCOG)), 0, Some(extent), None))
-      case _ ⇒
+        tile = RasterRef(RFRasterSource(URI.create(baseCOG)), 0, Some(extent), None)
+      case _ =>
         tile = randomTile(tileSize, tileSize, cellTypeName)
     }
   }
 
   @Benchmark
   def encode(): InternalRow = {
-    tileEncoder.toRow(tile)
+    tileEncoder.createSerializer.apply(tile)
   }
 
   @Benchmark
   def roundTrip(): Tile = {
-    val row = tileEncoder.toRow(tile)
-    boundEncoder.fromRow(row)
+    val row = tileEncoder.createSerializer().apply(tile)
+    boundEncoder.createDeserializer().apply(row)
   }
 }
-

@@ -42,16 +42,16 @@ object MultibandRender {
 
     val clampByte: Int => Int = clamp(0, 255)
 
-    def brightnessCorrect(brightness: Int) = (v: Int) =>
+    def brightnessCorrect(brightness: Int): Int => Int = (v: Int) =>
       if(v > 0) { v + brightness }
       else { v }
 
-    def contrastCorrect(contrast: Int) = (v: Int) => {
+    def contrastCorrect(contrast: Int): Int => Int = (v: Int) => {
       val contrastFactor = (259 * (contrast + 255)) / (255 * (259 - contrast))
       (contrastFactor * (v - 128)) + 128
     }
 
-    def gammaCorrect(gamma: Double) = (v: Int) => {
+    def gammaCorrect(gamma: Double): Int => Int = (v: Int) => {
       val gammaCorrection = 1 / gamma
       (255 * math.pow(v / 255.0, gammaCorrection)).toInt
     }
@@ -102,7 +102,7 @@ object MultibandRender {
       normalizeCellType(tile).mapIfSet(pipeline)
     }
 
-    val applyAdjustment: Tile ⇒ Tile =
+    val applyAdjustment: Tile => Tile =
       compressRange _ andThen colorAdjust
 
     def render(tile: MultibandTile) = {

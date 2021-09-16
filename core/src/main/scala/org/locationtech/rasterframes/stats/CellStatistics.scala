@@ -32,7 +32,7 @@ import org.locationtech.rasterframes.encoders.StandardEncoders
  */
 case class CellStatistics(data_cells: Long, no_data_cells: Long, min: Double, max: Double, mean: Double, variance: Double) {
   def stddev: Double = math.sqrt(variance)
-  def asciiStats = Seq(
+  def asciiStats: String = Seq(
     "data_cells: " + data_cells,
     "no_data_cells: " + no_data_cells,
     "min: " + min,
@@ -46,7 +46,7 @@ case class CellStatistics(data_cells: Long, no_data_cells: Long, min: Double, ma
     val fields = Seq("data_cells", "no_data_cells", "min", "max", "mean", "variance")
     fields.iterator
       .zip(productIterator)
-      .map(p ⇒ p._1 + "=" + p._2)
+      .map(p => p._1 + "=" + p._2)
       .mkString(productPrefix + "(", ",", ")")
   }
 }

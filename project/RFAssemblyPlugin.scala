@@ -43,12 +43,12 @@ object RFAssemblyPlugin extends AutoPlugin {
   }
 
   override def projectSettings = Seq(
-    test in assembly := {},
+    assembly / test := {},
     autoImport.assemblyExcludedJarPatterns := Seq(
       "scalatest.*".r,
       "junit.*".r
     ),
-    assemblyShadeRules in assembly := {
+    assembly / assemblyShadeRules:= {
       val shadePrefixes = Seq(
         "shapeless",
         "com.amazonaws",
@@ -60,45 +60,48 @@ object RFAssemblyPlugin extends AutoPlugin {
         "com.fasterxml.jackson",
         "io.netty"
       )
-      shadePrefixes.map(p ⇒ ShadeRule.rename(s"$p.**" -> s"shaded.rasterframes.$p.@1").inAll)
+      shadePrefixes.map(p => ShadeRule.rename(s"$p.**" -> s"shaded.rasterframes.$p.@1").inAll)
     },
-    assemblyOption in assembly :=
-      (assemblyOption in assembly).value.copy(includeScala = false),
-    assemblyJarName in assembly := s"${normalizedName.value}-assembly-${version.value}.jar",
-    assemblyExcludedJars in assembly := {
-      val cp = (fullClasspath in assembly).value
+    assembly / assemblyOption :=
+      (assembly / assemblyOption).value.withIncludeScala(false),
+    assembly / assemblyJarName := s"${normalizedName.value}-assembly-${version.value}.jar",
+    assembly / assemblyExcludedJars := {
+      val cp = (assembly / fullClasspath).value
       val excludedJarPatterns = autoImport.assemblyExcludedJarPatterns.value
-      cp filter { jar ⇒
+      cp filter { jar =>
         excludedJarPatterns
           .exists(_ =~ jar.data.getName)
       }
     },
-    assemblyMergeStrategy in assembly := {
-      case "logback.xml" ⇒ MergeStrategy.singleOrError
-      case "git.properties" ⇒ MergeStrategy.discard
-      case x if Assembly.isConfigFile(x) ⇒ MergeStrategy.concat
-      case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) ⇒
+    assembly / assemblyMergeStrategy := {
+      case "logback.xml" => MergeStrategy.singleOrError
+      case "git.properties" => MergeStrategy.discard
+      // com.sun.activation % jakarta.activation % 1.2.2
+      // org.threeten % threeten-extra % 1.6.0
+      case "module-info.class" => MergeStrategy.discard
+      case x if Assembly.isConfigFile(x) => MergeStrategy.concat
+      case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) =>
         MergeStrategy.rename
-      case PathList("META-INF", xs @ _*) ⇒
+      case PathList("META-INF", xs @ _*) =>
         xs map { _.toLowerCase } match {
-          case "manifest.mf" :: Nil | "index.list" :: Nil | "dependencies" :: Nil ⇒
+          case "manifest.mf" :: Nil | "index.list" :: Nil | "dependencies" :: Nil =>
             MergeStrategy.discard
           case "io.netty.versions.properties" :: Nil =>
             MergeStrategy.concat
-          case ps @ x :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") ⇒
+          case ps @ x :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") =>
             MergeStrategy.discard
-          case "plexus" :: _ ⇒
+          case "plexus" :: _ =>
             MergeStrategy.discard
-          case "services" :: _ ⇒
+          case "services" :: _ =>
             MergeStrategy.filterDistinctLines
-          case "spring.schemas" :: Nil | "spring.handlers" :: Nil ⇒
+          case "spring.schemas" :: Nil | "spring.handlers" :: Nil =>
             MergeStrategy.filterDistinctLines
-          case "maven" :: rest if rest.lastOption.exists(_.startsWith("pom")) ⇒
+          case "maven" :: rest if rest.lastOption.exists(_.startsWith("pom")) =>
             MergeStrategy.discard
-          case _ ⇒ MergeStrategy.deduplicate
+          case _ => MergeStrategy.deduplicate
         }
 
-      case _ ⇒ MergeStrategy.deduplicate
+      case _ => MergeStrategy.deduplicate
     }
   )
 }

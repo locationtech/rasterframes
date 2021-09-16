@@ -27,13 +27,18 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.rf.CrsUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
+import org.locationtech.rasterframes.expressions.DynamicExtractors
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.apache.spark.sql.rf.RasterSourceUDT
+import org.locationtech.rasterframes.ref.RasterRef
 import org.apache.spark.unsafe.types.UTF8String
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders.crsSparkEncoder
-import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import org.locationtech.rasterframes.model.LazyCRS
+import org.apache.spark.sql.types.StringType
 
 /**
  * Expression to extract the CRS out of a RasterRef or ProjectedRasterTile column.
@@ -48,22 +53,47 @@ import org.locationtech.rasterframes.model.LazyCRS
          ....
   """)
 case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallback {
-  override def dataType: DataType = schemaOf[CRS]
+  override def dataType: DataType = crsUDT
   override def nodeName: String = "rf_crs"
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!crsExtractor.isDefinedAt(child.dataType) )
+    if (!DynamicExtractors.crsExtractor.isDefinedAt(child.dataType))
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a CRS or something with one.")
     else TypeCheckSuccess
   }
 
   override protected def nullSafeEval(input: Any): Any = {
-    input match {
-      case s: UTF8String => LazyCRS(s.toString).toInternalRow
-      case row: InternalRow ⇒
-        val crs = crsExtractor(child.dataType)(row)
-        crs.toInternalRow
-      case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
+    // TODO: move construction of this function to checkInputDataType as dataType is constant per instance of this exp.
+    child.dataType match {
+      case _: CrsUDT =>
+        val str = input.asInstanceOf[UTF8String]
+        val crs = crsUDT.deserialize(str)
+        crsUDT.serialize(crs)
+
+      case _: StringType =>
+        val str = input.asInstanceOf[UTF8String]
+        val crs = crsUDT.deserialize(str)
+        crsUDT.serialize(crs)
+
+      case t if t.conformsToSchema(crsExpressionEncoder.schema) =>
+        crsUDT.serialize(input.asInstanceOf[InternalRow].as[CRS])
+
+      case t if t.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema) =>
+        val idx = ProjectedRasterTile.projectedRasterTileEncoder.schema.fieldIndex("crs")
+        input.asInstanceOf[InternalRow].get(idx, crsUDT).asInstanceOf[UTF8String]
+
+      case _: RasterSourceUDT =>
+        val rs = rasterSourceUDT.deserialize(input)
+        val crs = rs.crs
+        crsUDT.serialize(crs)
+
+      case t if t.conformsToSchema(RasterRef.rasterRefEncoder.schema) =>
+        val row = input.asInstanceOf[InternalRow]
+        val idx = RasterRef.rasterRefEncoder.schema.fieldIndex("source")
+        val rsc = row.get(idx, rasterSourceUDT)
+        val rs = rasterSourceUDT.deserialize(rsc)
+        val crs = rs.crs
+        crsUDT.serialize(crs)
     }
   }
 

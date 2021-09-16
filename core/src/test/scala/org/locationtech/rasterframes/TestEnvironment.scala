@@ -37,12 +37,16 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.scalactic.Tolerance
 import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
+
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.slf4j.LoggerFactory
 
-trait TestEnvironment extends FunSpec
+trait TestEnvironment extends AnyFunSpec
   with Matchers with Inspectors with Tolerance with RasterMatchers {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
 
   lazy val scratchDir: Path = {
     val outputDir = Files.createTempDirectory("rf-scratch-")
@@ -55,7 +59,7 @@ trait TestEnvironment extends FunSpec
 
   def additionalConf = new SparkConf(false)
 
-  implicit lazy val spark: SparkSession = {
+  implicit val spark: SparkSession = {
     val session = SparkSession.builder
       .master(sparkMaster)
       .withKryoSerialization
@@ -66,13 +70,13 @@ trait TestEnvironment extends FunSpec
 
   implicit def sc: SparkContext = spark.sparkContext
 
-  lazy val sql: String ⇒ DataFrame = spark.sql
+  lazy val sql: String => DataFrame = spark.sql
 
   def isCI: Boolean = sys.env.get("CI").contains("true")
 
   /** This is here so we can test writing UDF generated/modified GeoTrellis types to ensure they are Parquet compliant. */
   def write(df: Dataset[_]): Boolean = {
-    val sanitized = df.select(df.columns.map(c ⇒ col(c).as(toParquetFriendlyColumnName(c))): _*)
+    val sanitized = df.select(df.columns.map(c => col(c).as(toParquetFriendlyColumnName(c))): _*)
     val inRows = sanitized.count()
     val dest = Files.createTempFile("rf", ".parquet")
     logger.trace(s"Writing '${sanitized.columns.mkString(", ")}' to '$dest'...")
@@ -119,7 +123,7 @@ trait TestEnvironment extends FunSpec
       (expected.xmax, computed.xmax),
       (expected.ymax, computed.ymax)
     )
-    forEvery(components)(c ⇒
+    forEvery(components)(c =>
       assert(c._1 === c._2 +- 0.000001)
     )
   }
@@ -133,8 +137,8 @@ trait TestEnvironment extends FunSpec
     docs shouldNot include("N/A")
   }
 
-  implicit def prt2Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-  implicit def prt3Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder, ProjectedRasterTile.prtEncoder)
-  implicit def rr2Enc: Encoder[(RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rrEncoder, RasterRef.rrEncoder)
-  implicit def rr3Enc: Encoder[(RasterRef, RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rrEncoder, RasterRef.rrEncoder, RasterRef.rrEncoder)
+  implicit def prt2Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.projectedRasterTileEncoder, ProjectedRasterTile.projectedRasterTileEncoder)
+  implicit def prt3Enc: Encoder[(ProjectedRasterTile, ProjectedRasterTile, ProjectedRasterTile)] = Encoders.tuple(ProjectedRasterTile.projectedRasterTileEncoder, ProjectedRasterTile.projectedRasterTileEncoder, ProjectedRasterTile.projectedRasterTileEncoder)
+  implicit def rr2Enc: Encoder[(RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rasterRefEncoder, RasterRef.rasterRefEncoder)
+  implicit def rr3Enc: Encoder[(RasterRef, RasterRef, RasterRef)] = Encoders.tuple(RasterRef.rasterRefEncoder, RasterRef.rasterRefEncoder, RasterRef.rasterRefEncoder)
 }

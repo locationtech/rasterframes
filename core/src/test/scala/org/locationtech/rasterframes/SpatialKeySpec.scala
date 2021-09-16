@@ -60,7 +60,7 @@ class SpatialKeySpec extends TestEnvironment with TestData {
 
     it("should add a z-index value") {
       val center = raster.extent.center.reproject(raster.crs, LatLng)
-      val expected = Z2SFC.index(center.x, center.y).z
+      val expected = Z2SFC.index(center.x, center.y)
       val result = rf.withSpatialIndex().select($"spatial_index".as[Long]).first
       assert(result === expected)
     }

@@ -21,11 +21,12 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.UnaryRasterAggregate
 import org.locationtech.rasterframes.expressions.tilestats.{DataCells, Sum}
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions.{AttributeReference, Expression, _}
-import org.apache.spark.sql.types.{DoubleType, LongType, Metadata}
+import org.apache.spark.sql.types.{DataType, DoubleType, LongType, Metadata}
 import org.apache.spark.sql.{Column, TypedColumn}
 
 /**
@@ -43,17 +44,12 @@ import org.apache.spark.sql.{Column, TypedColumn}
 case class CellMeanAggregate(child: Expression) extends UnaryRasterAggregate {
   override def nodeName: String = "rf_agg_mean"
 
-  private lazy val sum =
-    AttributeReference("sum", DoubleType, false, Metadata.empty)()
-  private lazy val count =
-    AttributeReference("count", LongType, false, Metadata.empty)()
+  private lazy val sum = AttributeReference("sum", DoubleType, false, Metadata.empty)()
+  private lazy val count = AttributeReference("count", LongType, false, Metadata.empty)()
 
-  override lazy val aggBufferAttributes = Seq(sum, count)
+  lazy val aggBufferAttributes = Seq(sum, count)
 
-  override val initialValues = Seq(
-    Literal(0.0),
-    Literal(0L)
-  )
+  val initialValues = Seq(Literal(0.0), Literal(0L))
 
   // Cant' figure out why we can't just use the Expression directly
   // this is necessary to properly handle null rows. For example,
@@ -61,25 +57,21 @@ case class CellMeanAggregate(child: Expression) extends UnaryRasterAggregate {
   private val DataCellCounts = tileOpAsExpression("rf_data_cells", DataCells.op)
   private val SumCells = tileOpAsExpression("sum_cells", Sum.op)
 
-  override val updateExpressions = Seq(
+  val updateExpressions = Seq(
     // TODO: Figure out why this doesn't work. See above.
-    //If(IsNull(child), sum , Add(sum, Sum(child))),
+    // If(IsNull(child), sum , Add(sum, Sum(child))),
     If(IsNull(child), sum , Add(sum, SumCells(child))),
     If(IsNull(child), count, Add(count, DataCellCounts(child)))
   )
 
-  override val mergeExpressions = Seq(
-    sum.left + sum.right,
-    count.left + count.right
-  )
+  val mergeExpressions = Seq(sum.left + sum.right, count.left + count.right)
 
-  override val evaluateExpression = sum / new Cast(count, DoubleType)
+  val evaluateExpression = sum / new Cast(count, DoubleType)
 
-  override def dataType = DoubleType
+  def dataType: DataType = DoubleType
 }
 
 object CellMeanAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
   /** Computes the column aggregate mean. */
   def apply(tile: Column): TypedColumn[Any, Double] =
     new Column(new CellMeanAggregate(tile.expr).toAggregateExpression()).as[Double]
