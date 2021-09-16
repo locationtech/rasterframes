@@ -10,7 +10,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.explode
 
 package object api {
-  // TODO: replace TypeTags with newtypes,
+  // TODO: replace TypeTags with newtypes?
   trait StacApiDataFrameTag
   type StacApiDataFrameReader = DataFrameReader @@ StacApiDataFrameTag
   type StacApiDataFrame = DataFrame @@ StacApiDataFrameTag

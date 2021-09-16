@@ -41,13 +41,14 @@ object RFDependenciesPlugin extends AutoPlugin {
     }
 
     val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
-    val shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
+    val shapeless = "com.chuusai" %% "shapeless" % "2.3.7"
     val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.17.0"
     val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.28"
     val scaffeine = "com.github.blemale" %% "scaffeine" % "4.0.2"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
     val stac4s = "com.azavea.stac4s" %% "client" % "0.6.2"
+    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.6"
     val frameless = "org.typelevel" %% "frameless-dataset" % "0.10.1"
   }
   import autoImport._

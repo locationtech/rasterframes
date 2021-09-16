@@ -158,7 +158,7 @@ object PythonBuildPlugin extends AutoPlugin {
       packageBin := Def.sequential(
         Compile / packageBin,
         pyWhl,
-        pyWhlAsZip,
+        pyWhlAsZip
       ).value,
       packageBin / artifact := {
         val java = (Compile / packageBin / artifact).value

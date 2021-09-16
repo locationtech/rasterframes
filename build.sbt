@@ -52,7 +52,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       `slf4j-api`,
       shapeless,
-      frameless,
+      frameless excludeAll ExclusionRule("com.github.mpilquist", "simulacrum"),
       `jts-core`,
       `spray-json`,
       geomesa("z3").value,
@@ -60,12 +60,15 @@ lazy val core = project
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,
-      geotrellis("spark").value,
-      geotrellis("raster").value,
-      geotrellis("s3").value,
+      // TODO: scala-uri brings an outdated simulacrum dep
+      // Fix it in GT
+      geotrellis("spark").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
+      geotrellis("raster").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
+      geotrellis("s3").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       geotrellis("spark-testkit").value % Test excludeAll (
         ExclusionRule(organization = "org.scalastic"),
-        ExclusionRule(organization = "org.scalatest")
+        ExclusionRule(organization = "org.scalatest"),
+        ExclusionRule(organization = "com.github.mpilquist")
       ),
       scaffeine,
       scalatest,
@@ -74,8 +77,8 @@ lazy val core = project
     libraryDependencies ++= {
       val gv = rfGeoTrellisVersion.value
       if (gv.startsWith("3")) Seq[ModuleID](
-        geotrellis("gdal").value,
-        geotrellis("s3-spark").value
+        geotrellis("gdal").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
+        geotrellis("s3-spark").value excludeAll ExclusionRule(organization = "com.github.mpilquist")
       )
       else Seq.empty[ModuleID]
     },
@@ -95,7 +98,7 @@ lazy val pyrasterframes = project
   .enablePlugins(RFAssemblyPlugin, PythonBuildPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      geotrellis("s3").value,
+      geotrellis("s3").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided
@@ -110,9 +113,9 @@ lazy val datasource = project
     moduleName := "rasterframes-datasource",
     libraryDependencies ++= Seq(
       compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.6",
+      sttpCatsCe2,
       stac4s,
-      geotrellis("s3").value,
+      geotrellis("s3").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided
@@ -136,7 +139,7 @@ lazy val experimental = project
   .settings(
     moduleName := "rasterframes-experimental",
     libraryDependencies ++= Seq(
-      geotrellis("s3").value,
+      geotrellis("s3").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided

@@ -76,6 +76,9 @@ object RFAssemblyPlugin extends AutoPlugin {
     assembly / assemblyMergeStrategy := {
       case "logback.xml" => MergeStrategy.singleOrError
       case "git.properties" => MergeStrategy.discard
+      // com.sun.activation % jakarta.activation % 1.2.2
+      // org.threeten % threeten-extra % 1.6.0
+      case "module-info.class" => MergeStrategy.discard
       case x if Assembly.isConfigFile(x) => MergeStrategy.concat
       case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) =>
         MergeStrategy.rename
