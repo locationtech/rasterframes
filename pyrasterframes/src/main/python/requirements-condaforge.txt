@@ -1,4 +1,4 @@
 # These packages should be installed from conda-forge, given their complex binary components.
-gdal==2.4.4
+gdal==3.1.2
 rasterio[s3]
 rtree
