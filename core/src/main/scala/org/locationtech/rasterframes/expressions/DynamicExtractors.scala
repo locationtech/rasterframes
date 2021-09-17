@@ -62,7 +62,7 @@ object DynamicExtractors {
 
   lazy val internalRowTileExtractor: PartialFunction[DataType, InternalRow => (Tile, Option[TileContext])] = {
     case _: TileUDT => (row: Any) => (new TileUDT().deserialize(row), None)
-    case t if t.conformsToSchema(rasterEncoder.schema) =>
+    case t if t.conformsToSchema(rasterEncoder[Tile].schema) =>
       (row: InternalRow) =>(row.as[Raster[Tile]].tile, None)
     case t if t.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema) =>
       (row: InternalRow) => {
@@ -73,7 +73,7 @@ object DynamicExtractors {
 
   lazy val rowTileExtractor: PartialFunction[DataType, Row => (Tile, Option[TileContext])] = {
     case _: TileUDT => (row: Row) => (row.as[Tile], None)
-    case t if t.conformsToSchema(rasterEncoder.schema) => (row: Row) => (row.as[Raster[Tile]].tile, None)
+    case t if t.conformsToSchema(rasterEncoder[Tile].schema) => (row: Row) => (row.as[Raster[Tile]].tile, None)
     case t if t.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema) =>
       (row: Row) => {
         val prt = row.as[ProjectedRasterTile]
