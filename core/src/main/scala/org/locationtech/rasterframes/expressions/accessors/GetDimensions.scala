@@ -43,7 +43,7 @@ import org.locationtech.rasterframes.encoders.syntax._
 case class GetDimensions(child: Expression) extends OnCellGridExpression with CodegenFallback {
   override def nodeName: String = "rf_dimensions"
 
-  def dataType = dimensionsEncoder.schema
+  def dataType = dimensionsEncoder[Int].schema
 
   def eval(grid: CellGrid[Int]): Any = Dimensions[Int](grid.cols, grid.rows).toInternalRow
 }
