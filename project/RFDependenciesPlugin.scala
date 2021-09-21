@@ -39,7 +39,12 @@ object RFDependenciesPlugin extends AutoPlugin {
     def geomesa(module: String) = Def.setting {
       "org.locationtech.geomesa" %% s"geomesa-$module" % rfGeoMesaVersion.value
     }
-
+    def circe(module: String) = Def.setting {
+      module match {
+        case "json-schema" => "io.circe" %% s"circe-$module" % "0.1.0"
+        case _             => "io.circe" %% s"circe-$module" % "0.14.1"
+      }
+    }
     val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.7"
     val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.17.0"

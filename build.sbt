@@ -52,6 +52,10 @@ lazy val core = project
     libraryDependencies ++= Seq(
       `slf4j-api`,
       shapeless,
+      circe("core").value,
+      circe("generic").value,
+      circe("parser").value,
+      circe("generic-extras").value,
       frameless excludeAll ExclusionRule("com.github.mpilquist", "simulacrum"),
       `jts-core`,
       `spray-json`,
@@ -152,14 +156,14 @@ lazy val docs = project
   .dependsOn(core, datasource, pyrasterframes)
   .enablePlugins(SiteScaladocPlugin, ParadoxPlugin, ParadoxMaterialThemePlugin, GhpagesPlugin, ScalaUnidocPlugin)
   .settings(
-    apiURL := Some(url("http://rasterframes.io/latest/api")),
+    apiURL := Some(url("https://rasterframes.io/latest/api")),
     autoAPIMappings := true,
     ghpagesNoJekyll := true,
     ScalaUnidoc / siteSubdirName := "latest/api",
     paradox / siteSubdirName := ".",
     paradoxProperties ++= Map(
       "version" -> version.value,
-      "scaladoc.org.apache.spark.sql.rf" -> "http://rasterframes.io/latest",
+      "scaladoc.org.apache.spark.sql.rf" -> "https://rasterframes.io/latest",
       "github.base_url" -> ""
     ),
     paradoxNavigationExpandDepth := Some(3),
