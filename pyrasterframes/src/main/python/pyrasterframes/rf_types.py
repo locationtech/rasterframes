@@ -26,6 +26,8 @@ class here provides the PyRasterFrames entry point.
 """
 from itertools import product
 import functools, math
+
+import pyproj
 from pyspark import SparkContext
 from pyspark.sql import DataFrame, Column
 from pyspark.sql.types import (UserDefinedType, StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
@@ -42,7 +44,8 @@ import numpy as np
 
 from typing import List, Tuple
 
-__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'Extent', 'CRS', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
+__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'Extent',
+           'CRS', 'CrsUDT', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
 
 
 class cached_property(object):
@@ -227,7 +230,12 @@ class Extent(object):
 class CRS(object):
     # NB: The name `crsProj4` has to match what's used in StandardSerializers.crsSerializers
     def __init__(self, crsProj4):
-        self.crsProj4 = crsProj4
+        if isinstance(crsProj4, pyproj.CRS):
+            self.crsProj4 = crsProj4.to_proj4()
+        elif isinstance(crsProj4, str):
+            self.crsProj4 = crsProj4
+        else:
+            raise ValueError('Unexpected CRS definition type: {}'.format(type(crsProj4)))
 
     @cached_property
     def __jvm__(self):
@@ -242,9 +250,13 @@ class CRS(object):
         """Alias for `crsProj4`"""
         return self.crsProj4
 
+    def __eq__(self, other):
+        return isinstance(other, CRS) and self.crsProj4 == other.crsProj4
+
 
 class CellType(object):
     def __init__(self, cell_type_name):
+        assert(isinstance(cell_type_name, str))
         self.cell_type_name = cell_type_name
 
     @classmethod
@@ -443,29 +455,34 @@ class TileUDT(UserDefinedType):
         """
         Mirrors `schema` in scala companion object org.apache.spark.sql.rf.TileUDT
         """
+        extent = StructType([
+            StructField("xmin",DoubleType(), True),
+            StructField("ymin",DoubleType(), True),
+            StructField("xmax",DoubleType(), True),
+            StructField("ymax",DoubleType(), True)
+        ])
+        subgrid = StructType([
+            StructField("colMin", IntegerType(), True),
+            StructField("rowMin", IntegerType(), True),
+            StructField("colMax", IntegerType(), True),
+            StructField("rowMax", IntegerType() ,True)
+        ])
+
+        ref = StructType([
+            StructField("source", StructType([
+                StructField("raster_source_kryo", BinaryType(), False)
+            ]),True),
+            StructField("bandIndex", IntegerType(), True),
+            StructField("subextent", extent ,True),
+            StructField("subgrid", subgrid, True),
+        ])
+
         return StructType([
-            StructField("cell_context", StructType([
-                StructField("cellType", StructType([
-                    StructField("cellTypeName", StringType(), False)
-                ]), False),
-                StructField("dimensions", StructType([
-                    StructField("cols", ShortType(), False),
-                    StructField("rows", ShortType(), False)
-                ]), False),
-            ]), False),
-            StructField("cell_data", StructType([
-                StructField("cells", BinaryType(), True),
-                StructField("ref", StructType([
-                    StructField("source", RasterSourceUDT(), False),
-                    StructField("bandIndex", IntegerType(), False),
-                    StructField("subextent", StructType([
-                        StructField("xmin", DoubleType(), False),
-                        StructField("ymin", DoubleType(), False),
-                        StructField("xmax", DoubleType(), False),
-                        StructField("ymax", DoubleType(), False)
-                    ]), True)
-                ]), True)
-            ]), False)
+             StructField("cellType", StringType(), False),
+             StructField("cols", IntegerType(), False),
+             StructField("rows", IntegerType(), False),
+             StructField("cells", BinaryType(), True),
+             StructField("ref", ref, True)
         ])
 
     @classmethod
@@ -478,20 +495,14 @@ class TileUDT(UserDefinedType):
 
     def serialize(self, tile):
         cells = bytearray(tile.cells.flatten().tobytes())
-        row = [
-            # cell_context
-            [
-                [tile.cell_type.cell_type_name],
-                tile.dimensions()
-            ],
-            # cell_data
-            [
-                # cells
-                cells,
-                None
-            ]
+        dims = tile.dimensions()
+        return [
+            tile.cell_type.cell_type_name,
+            dims[0],
+            dims[1],
+            cells,
+            None
         ]
-        return row
 
     def deserialize(self, datum):
         """
@@ -500,21 +511,21 @@ class TileUDT(UserDefinedType):
         :return: A Tile object from row data.
         """
 
-        cell_data_bytes = datum.cell_data.cells
+        cell_data_bytes = datum.cells
         if cell_data_bytes is None:
-            if datum.cell_data.ref is None:
+            if datum.ref is None:
                 raise Exception("Invalid Tile structure. Missing cells and reference")
             else:
-                payload = datum.cell_data.ref
+                payload = datum.ref
                 ref = RFContext.active()._resolve_raster_ref(payload)
                 cell_type = CellType(ref.cellType().name())
                 cols = ref.cols()
                 rows = ref.rows()
                 cell_data_bytes = ref.tile().toBytes()
         else:
-            cell_type = CellType(datum.cell_context.cellType.cellTypeName)
-            cols = datum.cell_context.dimensions.cols
-            rows = datum.cell_context.dimensions.rows
+            cell_type = CellType(datum.cellType)
+            cols = datum.cols
+            rows = datum.rows
 
         if cell_data_bytes is None:
             raise Exception("Unable to fetch cell data from: " + repr(datum))
@@ -538,6 +549,34 @@ class TileUDT(UserDefinedType):
 
 
 Tile.__UDT__ = TileUDT()
+
+
+class CrsUDT(UserDefinedType):
+    @classmethod
+    def sqlType(cls):
+        """
+        Mirrors `schema` in scala companion object org.apache.spark.sql.rf.CrsUDT
+        """
+        return StringType()
+
+    @classmethod
+    def module(cls):
+        return 'pyrasterframes.rf_types'
+
+    @classmethod
+    def scalaUDT(cls):
+        return 'org.apache.spark.sql.rf.CrsUDT'
+
+    def serialize(self, crs):
+        return crs.proj4_str
+
+    def deserialize(self, datum):
+        return CRS(datum)
+
+    deserialize.__safe_for_unpickling__ = True
+
+
+CRS.__UDT__ = CrsUDT()
 
 
 class TileExploder(JavaTransformer, DefaultParamsReadable, DefaultParamsWritable):

@@ -63,7 +63,8 @@ def spark_test_session():
     spark = create_rf_spark_session(**{
         'spark.master': 'local[*, 2]',
         'spark.ui.enabled': 'false',
-        'spark.app.name': app_name
+        'spark.app.name': app_name,
+        #'spark.driver.extraJavaOptions': '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
     })
     spark.sparkContext.setLogLevel('ERROR')
 
