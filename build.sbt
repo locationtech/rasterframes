@@ -19,6 +19,9 @@
  *
  */
 
+// Leave me an my custom keys alone!
+Global / lintUnusedKeysOnLoad := false
+
 addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("ghpagesPushSite", "docs/ghpagesPushSite")

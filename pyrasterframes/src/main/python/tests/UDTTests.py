@@ -4,7 +4,7 @@ import numpy as np
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 from pyspark.sql.functions import *
-from pyspark.sql import Row
+from pyspark.sql import Row, DataFrame
 from pyproj import CRS as pyCRS
 
 from . import TestEnvironment
@@ -185,3 +185,11 @@ class CrsUDTTests(TestEnvironment):
 
         roundtrip = udt.fromInternal(udt.toInternal(crs))
         assert(crs == roundtrip)
+
+    def test_extract_from_raster(self):
+        # should be able to write a projected raster tile column to path like '/data/foo/file.tif'
+        from pyrasterframes.rasterfunctions import rf_crs
+        rf = self.spark.read.raster(self.img_uri)
+        crs: DataFrame = rf.select(rf_crs('proj_raster').alias('crs')).distinct()
+        assert(crs.schema.fields[0].dataType == CrsUDT())
+        assert(crs.first()['crs'].proj4_str == '+proj=utm +zone=16 +datum=WGS84 +units=m +no_defs ')
