@@ -185,6 +185,55 @@ package object util extends DataFrameRenderers {
     def apply() = mapping.keys.toSeq
   }
 
+  object FocalNeighborhood {
+    import scala.util.Try
+    import geotrellis.raster.Neighborhood
+    import geotrellis.raster.mapalgebra.focal._
+
+    // pattern matching and string interpolation work only since Scala 2.13
+    def unapply(name: String): Option[Neighborhood] =
+      name.toLowerCase().trim() match {
+        case s if s.startsWith("square-") => Try(Square(Integer.parseInt(s.split("square-").last))).toOption
+        case s if s.startsWith("circle-") => Try(Circle(java.lang.Double.parseDouble(s.split("circle-").last))).toOption
+        case s if s.startsWith("nesw-") => Try(Nesw(Integer.parseInt(s.split("nesw-").last))).toOption
+        case s if s.startsWith("wedge-") => Try {
+          val List(radius: Double, startAngle: Double, endAngle: Double) =
+            s
+              .split("wedge-")
+              .last
+              .split("-")
+              .toList
+              .map(java.lang.Double.parseDouble)
+
+          Wedge(radius, startAngle, endAngle)
+        }.toOption
+
+        case s if s.startsWith("annulus-") => Try {
+          val List(innerRadius: Double, outerRadius: Double) =
+            s
+              .split("annulus-")
+              .last
+              .split("-")
+              .toList
+              .map(java.lang.Double.parseDouble)
+
+          Annulus(innerRadius, outerRadius)
+        }.toOption
+        case _ => None
+      }
+
+    def apply(neighborhood: Neighborhood): String = {
+      neighborhood match {
+        case Square(e)                           => s"square-$e"
+        case Circle(e)                           => s"circle-$e"
+        case Nesw(e)                             => s"nesw-$e"
+        case Wedge(radius, startAngle, endAngle) => s"nesw-$radius-$startAngle-$endAngle"
+        case Annulus(innerRadius, outerRadius)   => s"annulus-$innerRadius-$outerRadius"
+        case _                                   => throw new IllegalArgumentException(s"Unrecognized Neighborhood ${neighborhood.toString}")
+      }
+    }
+  }
+
   object ResampleMethod {
     import geotrellis.raster.resample.{ResampleMethod => GTResampleMethod, _}
     def unapply(name: String): Option[GTResampleMethod] = {
@@ -217,7 +266,7 @@ package object util extends DataFrameRenderers {
         case Max => "max"
         case Min => "min"
         case Sum => "sum"
-        case _ => throw new IllegalArgumentException(s"Unrecogized ResampleMethod ${gtr.toString()}")
+        case _ => throw new IllegalArgumentException(s"Unrecognized ResampleMethod ${gtr.toString()}")
       }
     }
   }

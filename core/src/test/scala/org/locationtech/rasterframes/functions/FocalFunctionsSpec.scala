@@ -24,6 +24,7 @@ package org.locationtech.rasterframes.functions
 import geotrellis.raster.mapalgebra.focal.{Circle, Kernel, Square}
 import geotrellis.raster.{BufferTile, CellSize}
 import geotrellis.raster.testkit.RasterMatchers
+import org.apache.spark.sql.functions.typedLit
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef, Subgrid}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
@@ -50,25 +51,35 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     lazy val bt = BufferTile(fullTile, subGridBounds)
     lazy val btCellSize = CellSize(src.extent, bt.cols, bt.rows)
 
+    lazy val df = Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs))).toDF("proj_raster")
+
     it("should provide focal mean") {
       checkDocs("rf_focal_mean")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_focal_mean($"proj_raster", Square(1)))
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
           .tile
 
+      /*val actualExpr =
+        df
+          .selectExpr("rf_focal_mean(proj_raster, \"square-1\")")
+          .first()*/
+          // .as[Option[ProjectedRasterTile]]
+          // .first()
+          // .get
+          // .tile
+
+      // assertEqual(actualExpr, actual)
       assertEqual(bt.focalMean(Square(1)), actual)
       assertEqual(fullTile.focalMean(Square(1)).crop(subGridBounds), actual)
     }
     it("should provide focal median") {
       checkDocs("rf_focal_median")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_focal_median($"proj_raster", Square(1)))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -81,8 +92,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide focal mode") {
       checkDocs("rf_focal_mode")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_focal_mode($"proj_raster", Square(1)))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -95,8 +105,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide focal max") {
       checkDocs("rf_focal_max")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_focal_max($"proj_raster", Square(1)))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -109,8 +118,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide focal min") {
       checkDocs("rf_focal_min")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_focal_min($"proj_raster", Square(1)))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -123,8 +131,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide focal stddev") {
       checkDocs("rf_focal_moransi")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_focal_stddev($"proj_raster", Square(1)))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -137,8 +144,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide focal Moran's I") {
       checkDocs("rf_focal_moransi")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_focal_moransi($"proj_raster", Square(1)))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -151,8 +157,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide convolve") {
       checkDocs("rf_convolve")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_convolve($"proj_raster", Kernel(Circle(2d))))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -165,8 +170,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide slope") {
       checkDocs("rf_slope")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_slope($"proj_raster", 2d))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -179,8 +183,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide aspect") {
       checkDocs("rf_aspect")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_aspect($"proj_raster"))
           .as[Option[ProjectedRasterTile]]
           .first()
@@ -193,8 +196,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should provide hillshade") {
       checkDocs("rf_hillshade")
       val actual =
-        Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs)))
-          .toDF("proj_raster")
+        df
           .select(rf_hillshade($"proj_raster", 315, 45, 1))
           .as[Option[ProjectedRasterTile]]
           .first()

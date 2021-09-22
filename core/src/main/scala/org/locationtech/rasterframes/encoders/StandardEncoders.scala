@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.encoders
 import org.locationtech.rasterframes.stats.{CellHistogram, CellStatistics, LocalCellStatistics}
 import org.locationtech.jts.geom.Envelope
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, CellType, Dimensions, Raster, Tile, TileLayout, GridBounds, CellGrid}
+import geotrellis.raster.{CellGrid, CellSize, CellType, Dimensions, GridBounds, Raster, Tile, TileLayout}
 import geotrellis.layer._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
@@ -32,10 +32,10 @@ import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import org.locationtech.rasterframes.model.{CellContext, LongExtent, TileContext, TileDataContext}
 import frameless.TypedEncoder
+import geotrellis.raster.mapalgebra.focal.{Square, Circle, Nesw, Wedge, Annulus}
 
 import java.net.URI
 import java.sql.Timestamp
-
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
@@ -54,6 +54,11 @@ trait StandardEncoders extends SpatialEncoders with TypedEncoders {
   implicit lazy val localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
 
   implicit lazy val uriEncoder: ExpressionEncoder[URI] = typedExpressionEncoder[URI]
+  implicit lazy val squareNeighborhoodEncoder: ExpressionEncoder[Square] = typedExpressionEncoder[Square]
+  implicit lazy val circleNeighborhoodEncoder: ExpressionEncoder[Circle] = typedExpressionEncoder[Circle]
+  implicit lazy val neswNeighborhoodEncoder: ExpressionEncoder[Nesw] = typedExpressionEncoder[Nesw]
+  implicit lazy val wedgeNeighborhoodEncoder: ExpressionEncoder[Wedge] = typedExpressionEncoder[Wedge]
+  implicit lazy val annulusNeighborhoodEncoder: ExpressionEncoder[Annulus] = typedExpressionEncoder[Annulus]
   implicit lazy val quantileSummariesEncoder: ExpressionEncoder[QuantileSummaries] = typedExpressionEncoder[QuantileSummaries]
   implicit lazy val envelopeEncoder: ExpressionEncoder[Envelope] = typedExpressionEncoder
   implicit lazy val longExtentEncoder: ExpressionEncoder[LongExtent] = typedExpressionEncoder

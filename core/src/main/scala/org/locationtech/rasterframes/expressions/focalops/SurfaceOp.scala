@@ -62,7 +62,7 @@ trait SurfaceOp extends UnaryExpression with NullToValue with CodegenFallback  {
         // if it is RasterRef, we can get what's inside
         case rr: RasterRef => rr.realizedTile
         // otherwise it is some tile
-        case _             => prt
+        case _             => prt.tile
       }
     }
     eval(literral, ctx)

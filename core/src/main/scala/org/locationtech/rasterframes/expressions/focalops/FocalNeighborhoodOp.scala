@@ -42,9 +42,7 @@ trait FocalNeighborhoodOp extends UnaryLocalRasterOp with NullToValue with Codeg
         // if it is RasterRef, we can get what's inside
         case rr: RasterRef => rr.realizedTile
         // otherwise it is some tile
-        case _             =>
-          println(s"prt.getClass: ${prt.tile.getClass}")
-          prt.tile
+        case _             => prt.tile
       }
     }
     val result = op(literral)
