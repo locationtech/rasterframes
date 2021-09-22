@@ -19,12 +19,14 @@ RUN \
 ENV CONDA_DIR=/opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
 
-COPY requirements-conda.txt /tmp
+COPY requirements-conda.txt fix-permissions /tmp
 RUN \
     conda install --quiet --yes --channel=conda-forge --file=/tmp/requirements-conda.txt && \
     echo "$CONDA_DIR/lib" > /etc/ld.so.conf.d/conda.conf && \
     ldconfig && \
-    conda clean --all --force-pkgs-dirs --yes --quiet
+    conda clean --all --force-pkgs-dirs --yes --quiet && \
+    sh /tmp/fix-permissions $CONDA_DIR
+
 
 # Work-around for pyproj issue https://github.com/pyproj4/pyproj/issues/415
 ENV PROJ_LIB=/opt/conda/share/proj

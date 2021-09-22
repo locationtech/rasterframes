@@ -52,7 +52,6 @@ object RFAssemblyPlugin extends AutoPlugin {
       val shadePrefixes = Seq(
         "shapeless",
         "com.github.mpilquist",
-        "cats.kernel",
         "com.amazonaws",
         "org.apache.avro",
         "org.apache.http",
@@ -60,18 +59,12 @@ object RFAssemblyPlugin extends AutoPlugin {
         "com.google.common",
         "com.typesafe.config",
         "com.fasterxml.jackson",
-        "io.netty"
+        "io.netty",
+        "spire",
+        "cats.kernel"
       )
       shadePrefixes.map(p => ShadeRule.rename(s"$p.**" -> s"shaded.rasterframes.$p.@1").inAll)
     },
-    assembly / assemblyShadeRules ++= Seq(
-      ShadeRule.rename("cats.kernel.**" -> s"shaded.rasterframes.cats.kernel.@1")
-        .inLibrary(RFDependenciesPlugin.autoImport.geotrellis("raster").value)
-        .inAll,
-      ShadeRule.rename("cats.kernel.**" -> s"shaded.spire.cats.kernel.@1")
-        .inLibrary("org.typelevel" %% "spire" % "0.17.0")
-        .inAll,
-    ),
     assembly / assemblyOption :=
       (assembly / assemblyOption).value.withIncludeScala(false),
     assembly / assemblyJarName := s"${normalizedName.value}-assembly-${version.value}.jar",
