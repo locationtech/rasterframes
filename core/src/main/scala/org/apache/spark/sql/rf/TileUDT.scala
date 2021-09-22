@@ -21,11 +21,12 @@
 
 package org.apache.spark.sql.rf
 
-import geotrellis.raster.{ArrayTile, CellType, ConstantTile, Tile}
+import geotrellis.raster.{ArrayTile, BufferTile, CellType, ConstantTile, GridBounds, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.execution.datasources.parquet.ParquetReadSupport
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.{ProjectedRasterTile, ShowableTile}
@@ -50,6 +51,7 @@ class TileUDT extends UserDefinedType[Tile] {
     StructField("cols", IntegerType, false),
     StructField("rows", IntegerType, false),
     StructField("cells", BinaryType, true),
+    StructField("gridBounds", gridBoundsEncoder[Int].schema, true),
     // make it parquet compliant, only expanded UDTs can be in a UDT schema
     StructField("ref", ParquetReadSupport.expandUDT(RasterRef.rasterRefEncoder.schema), true)
   ))
@@ -60,22 +62,26 @@ class TileUDT extends UserDefinedType[Tile] {
       // TODO: review matches there
       case ref: RasterRef =>
         val ct = UTF8String.fromString(ref.cellType.toString())
-        InternalRow(ct, ref.cols, ref.rows, null, ref.toInternalRow)
+        InternalRow(ct, ref.cols, ref.rows, null, null, ref.toInternalRow)
       case ProjectedRasterTile(ref: RasterRef, _, _) =>
         val ct = UTF8String.fromString(ref.cellType.toString())
-        InternalRow(ct, ref.cols, ref.rows, null, ref.toInternalRow)
+        InternalRow(ct, ref.cols, ref.rows, null, null, ref.toInternalRow)
       case prt: ProjectedRasterTile =>
         val tile = prt.tile
         val ct = UTF8String.fromString(tile.cellType.toString())
-        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null)
+        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null, null)
+      case bt: BufferTile =>
+        val tile = bt.sourceTile.toArrayTile()
+        val ct = UTF8String.fromString(tile.cellType.toString())
+        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), bt.gridBounds.toInternalRow, null)
       case const: ConstantTile =>
         // Must expand constant tiles so they can be interpreted properly in catalyst and Python.
         val tile = const.toArrayTile()
         val ct = UTF8String.fromString(tile.cellType.toString())
-        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null)
+        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null, null)
       case tile =>
         val ct = UTF8String.fromString(tile.cellType.toString())
-        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null)
+        InternalRow(ct, tile.cols, tile.rows, tile.toBytes(), null, null)
     }
   }
 
@@ -83,11 +89,11 @@ class TileUDT extends UserDefinedType[Tile] {
     if (datum == null) return null
     val row = datum.asInstanceOf[InternalRow]
 
-    /** TODO: a compatible encoder for the ProjectedRasterTile */
+    /** TODO: a compatible encoder for the ProjectedRasterTile? */
     val tile: Tile =
-      if (!row.isNullAt(4)) {
+      if (!row.isNullAt(5)) {
         Try {
-          val ir = row.getStruct(4, 4)
+          val ir = row.getStruct(5, 5)
           val ref = ir.as[RasterRef]
           ref
         }/*.orElse {
@@ -99,6 +105,13 @@ class TileUDT extends UserDefinedType[Tile] {
               .tile
           )
         }*/.get
+      } else if(!row.isNullAt(4)) {
+        val ct = CellType.fromName(row.getString(0))
+        val cols = row.getInt(1)
+        val rows = row.getInt(2)
+        val bytes = row.getBinary(3)
+        val gridBounds = row.getStruct(4, 5).as[GridBounds[Int]]
+        BufferTile(ArrayTile.fromBytes(bytes, ct, cols, rows), gridBounds)
       } else {
         val ct = CellType.fromName(row.getString(0))
         val cols = row.getInt(1)
