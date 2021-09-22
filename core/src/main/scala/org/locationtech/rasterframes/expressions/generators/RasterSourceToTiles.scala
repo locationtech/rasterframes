@@ -45,7 +45,7 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None)
+case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None, bufferSize: Short = 0)
   extends Expression with RasterResult with Generator with CodegenFallback with ExpectsInputTypes  {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
@@ -89,7 +89,9 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
 object RasterSourceToTiles {
   def apply(rrs: Column*): TypedColumn[Any, ProjectedRasterTile] = apply(None, Seq(0), rrs: _*)
   def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
-    new Column(new RasterSourceToTiles(rrs.map(_.expr), bandIndexes, subtileDims)).as[ProjectedRasterTile]
+    new Column(new RasterSourceToTiles(rrs.map(_.expr), bandIndexes, subtileDims, 0.toShort)).as[ProjectedRasterTile]
+  def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], bufferSize: Short, rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
+    new Column(new RasterSourceToTiles(rrs.map(_.expr), bandIndexes, subtileDims, bufferSize)).as[ProjectedRasterTile]
 }
 
 

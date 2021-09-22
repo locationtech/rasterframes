@@ -24,7 +24,7 @@ package org.locationtech.rasterframes.ref
 import com.typesafe.scalalogging.LazyLogging
 import frameless.TypedExpressionEncoder
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, GridBounds, Tile}
+import geotrellis.raster.{BufferTile, CellType, GridBounds, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
@@ -34,35 +34,49 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[Subgrid]) extends ProjectedRasterTile {
+case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[Subgrid], bufferSize: Short) extends ProjectedRasterTile {
   def tile: Tile = this
   def extent: Extent = subextent.getOrElse(source.extent)
   def crs: CRS = source.crs
-  def delegate = realizedTile
+  def delegate: BufferTile = realizedTile
 
   override def cols: Int = grid.width
   override def rows: Int = grid.height
   override def cellType: CellType = source.cellType
 
-  protected lazy val grid: GridBounds[Int] =
-    subgrid.map(_.toGridBounds).getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
+  protected lazy val grid: GridBounds[Int] = subgrid.map(_.toGridBounds).getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
 
-  lazy val realizedTile: Tile = {
-    RasterRef.log.trace(s"Fetching $extent ($grid) from band $bandIndex of $source")
-    source.read(grid, Seq(bandIndex)).tile.band(0)
+  lazy val realizedTile: BufferTile = {
+    RasterRef.log.trace(s"Fetching $extent ($grid) from band $bandIndex of $source with bufferSize: $bufferSize")
+    // Pixel bounds we would like to read, including buffer
+    val bufferedGrid = grid.buffer(bufferSize)
+
+    // Pixel bounds we can read, including buffer
+    val possibleGrid = bufferedGrid.intersection(source.gridBounds).get
+    // Pixel bounds of center/non-buffer pixels in read tile
+    val tileCenterBounds = grid.offset(
+      colOffset = - possibleGrid.colMin,
+      rowOffset = - possibleGrid.rowMin
+    )
+
+    val raster = source.read(possibleGrid, Seq(bandIndex)).mapTile(_.band(0))
+    BufferTile(raster.tile, tileCenterBounds)
   }
 
-  override def toString: String = s"RasterRef($source,$bandIndex,$cellType)"
+  override def toString: String = s"RasterRef($source, $bandIndex, $cellType, $subextent, $subgrid, $bufferSize)"
 }
 
 object RasterRef extends LazyLogging {
   private val log = logger
 
   def apply(source: RFRasterSource, bandIndex: Int): RasterRef =
-    RasterRef(source, bandIndex, None, None)
+    RasterRef(source, bandIndex, None, None, 0)
 
   def apply(source: RFRasterSource, bandIndex: Int, subextent: Extent, subgrid: GridBounds[Int]): RasterRef =
-    RasterRef(source, bandIndex, Some(subextent), Some(Subgrid(subgrid)))
+    RasterRef(source, bandIndex, Some(subextent), Some(Subgrid(subgrid)), 0)
+
+  def apply(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[Subgrid]): RasterRef =
+    new RasterRef(source, bandIndex, subextent, subgrid, 0)
 
   implicit val rasterRefEncoder: ExpressionEncoder[RasterRef] =
     TypedExpressionEncoder[RasterRef].asInstanceOf[ExpressionEncoder[RasterRef]]

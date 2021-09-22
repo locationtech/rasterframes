@@ -20,10 +20,11 @@
  */
 
 package org.apache.spark.sql.rf
-import geotrellis.raster._
+
+import geotrellis.raster.{ArrayTile, CellType, ConstantTile, Tile}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.execution.datasources.parquet.ParquetReadSupport
-import org.apache.spark.sql.types.{DataType, _}
+import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.ref.RasterRef
@@ -84,7 +85,7 @@ class TileUDT extends UserDefinedType[Tile] {
 
     /** TODO: a compatible encoder for the ProjectedRasterTile */
     val tile: Tile =
-      if (! row.isNullAt(4)) {
+      if (!row.isNullAt(4)) {
         Try {
           val ir = row.getStruct(4, 4)
           val ref = ir.as[RasterRef]

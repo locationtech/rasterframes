@@ -21,7 +21,6 @@
 
 package org.locationtech.rasterframes.functions
 
-import geotrellis.raster.testkit.RasterMatchers
 import org.locationtech.rasterframes.TestEnvironment
 import geotrellis.raster._
 import geotrellis.raster.testkit.RasterMatchers
