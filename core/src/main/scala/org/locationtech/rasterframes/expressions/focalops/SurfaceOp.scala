@@ -21,61 +21,31 @@
 
 package org.locationtech.rasterframes.expressions.focalops
 
-import org.slf4j.LoggerFactory
-import com.typesafe.scalalogging.Logger
-import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.row
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.locationtech.rasterframes.ref.RasterRef
-
+import org.locationtech.rasterframes.expressions.{NullToValue, RasterResult, UnaryRasterFunction, row}
 import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import geotrellis.raster.Tile
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 import org.locationtech.rasterframes.model.TileContext
-import org.locationtech.rasterframes.expressions.NullToValue
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import geotrellis.raster.Tile
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.types.DataType
+import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.Logger
 
 /** Operation on a tile returning a tile. */
-trait SurfaceOp extends UnaryExpression with NullToValue with CodegenFallback  {
+trait SurfaceOp extends UnaryRasterFunction with RasterResult with NullToValue with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  def dataType: DataType = child.dataType
   def na: Any = null
-
-  override def checkInputDataTypes(): TypeCheckResult = {
-    if (!tileExtractor.isDefinedAt(child.dataType)) {
-      TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")
-    } else TypeCheckSuccess
-  }
+  def dataType: DataType = child.dataType
 
   override protected def nullSafeEval(input: Any): Any = {
     val (tile, ctx) = tileExtractor(child.dataType)(row(input))
-
-    val literral = tile match {
-      // if it is RasterRef, we want the BufferTile
-      case ref: RasterRef => ref.realizedTile
-      // if it is a ProjectedRasterTile, can we flatten it?
-      case prt: ProjectedRasterTile => prt.tile match {
-        // if it is RasterRef, we can get what's inside
-        case rr: RasterRef => rr.realizedTile
-        // otherwise it is some tile
-        case _             => prt.tile
-      }
-    }
-    eval(literral, ctx)
+    eval(extractBufferTile(tile), ctx)
   }
 
-  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
-    ctx match {
-      case Some(ctx) =>
-        val ret = op(tile, ctx)
-        ctx.toProjectRasterTile(ret).toInternalRow
-
-      case None => new NotImplementedError("Surface operation requires ProjectedRasterTile")
-    }
+  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ctx match {
+    case Some(ctx) => ctx.toProjectRasterTile(op(tile, ctx)).toInternalRow
+    case None      => new NotImplementedError("Surface operation requires ProjectedRasterTile")
   }
 
   protected def op(t: Tile, ctx: TileContext): Tile

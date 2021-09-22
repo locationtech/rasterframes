@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
+import org.locationtech.rasterframes.expressions.{UnaryRasterOp, fpTile}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Performs cell-wise natural logarithm.",
@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Log(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Log(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "log"
 
   protected def op(tile: Tile): Tile = fpTile(tile).localLog()
@@ -59,7 +59,7 @@ object Log {
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Log10(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Log10(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_log10"
 
   protected def op(tile: Tile): Tile = fpTile(tile).localLog10()
@@ -80,7 +80,7 @@ object Log10 {
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Log2(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Log2(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_log2"
 
   protected def op(tile: Tile): Tile = fpTile(tile).localLog() / math.log(2.0)
@@ -101,7 +101,7 @@ object Log2 {
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Log1p(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Log1p(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_log1p"
 
   protected def op(tile: Tile): Tile = fpTile(tile).localAdd(1.0).localLog()

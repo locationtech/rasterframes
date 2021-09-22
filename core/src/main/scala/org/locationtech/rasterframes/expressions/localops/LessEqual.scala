@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 
 @ExpressionDescription(
   usage = "_FUNC_(lhs, rhs) - Performs cell-wise less-than-or-equal (<=) test between two tiles.",
@@ -39,7 +39,7 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class LessEqual(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
+case class LessEqual(left: Expression, right: Expression) extends BinaryRasterFunction with CodegenFallback  {
   override val nodeName: String = "rf_local_less_equal"
   protected def op(left: Tile, right: Tile): Tile = left.localLessOrEqual(right)
   protected def op(left: Tile, right: Double): Tile = left.localLessOrEqual(right)

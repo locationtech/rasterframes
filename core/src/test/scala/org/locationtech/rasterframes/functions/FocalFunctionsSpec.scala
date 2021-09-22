@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.functions
 import geotrellis.raster.mapalgebra.focal.{Circle, Kernel, Square}
 import geotrellis.raster.{BufferTile, CellSize}
 import geotrellis.raster.testkit.RasterMatchers
-import org.apache.spark.sql.functions.typedLit
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef, Subgrid}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
@@ -51,7 +50,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
     lazy val bt = BufferTile(fullTile, subGridBounds)
     lazy val btCellSize = CellSize(src.extent, bt.cols, bt.rows)
 
-    lazy val df = Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs))).toDF("proj_raster")
+    lazy val df = Seq(Option(ProjectedRasterTile(bufferedRaster, src.extent, src.crs))).toDF("proj_raster").cache()
 
     it("should provide focal mean") {
       checkDocs("rf_focal_mean")
@@ -63,16 +62,6 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
           .get
           .tile
 
-      /*val actualExpr =
-        df
-          .selectExpr("rf_focal_mean(proj_raster, \"square-1\")")
-          .first()*/
-          // .as[Option[ProjectedRasterTile]]
-          // .first()
-          // .get
-          // .tile
-
-      // assertEqual(actualExpr, actual)
       assertEqual(bt.focalMean(Square(1)), actual)
       assertEqual(fullTile.focalMean(Square(1)).crop(subGridBounds), actual)
     }
@@ -171,14 +160,14 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_slope")
       val actual =
         df
-          .select(rf_slope($"proj_raster", 2d))
+          .select(rf_slope($"proj_raster", 1d))
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
           .tile
 
-      assertEqual(bt.slope(btCellSize, 2d), actual)
-      assertEqual(fullTile.slope(btCellSize, 2d).crop(subGridBounds), actual)
+      assertEqual(bt.slope(btCellSize, 1d), actual)
+      assertEqual(fullTile.slope(btCellSize, 1d).crop(subGridBounds), actual)
     }
     it("should provide aspect") {
       checkDocs("rf_aspect")

@@ -31,7 +31,7 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.slf4j.LoggerFactory
 
 /** Operation combining two tiles or a tile and a scalar into a new tile. */
-trait BinaryLocalRasterOp extends BinaryExpression with RasterResult {
+trait BinaryRasterFunction extends BinaryExpression with RasterResult {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 

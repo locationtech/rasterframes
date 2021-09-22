@@ -22,30 +22,7 @@
 package org.locationtech.rasterframes.expressions.focalops
 
 import geotrellis.raster.mapalgebra.focal.Neighborhood
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp, row}
-import org.locationtech.rasterframes.ref.RasterRef
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-trait FocalNeighborhoodOp extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
-  def na: Any = null
+trait FocalNeighborhoodOp extends FocalOp {
   def neighborhood: Neighborhood
-
-  override protected def nullSafeEval(input: Any): Any = {
-    val (childTile, childCtx) = tileExtractor(child.dataType)(row(input))
-    val literral = childTile match {
-      // if it is RasterRef, we want the BufferTile
-      case ref: RasterRef => ref.realizedTile
-      // if it is a ProjectedRasterTile, can we flatten it?
-      case prt: ProjectedRasterTile => prt.tile match {
-        // if it is RasterRef, we can get what's inside
-        case rr: RasterRef => rr.realizedTile
-        // otherwise it is some tile
-        case _             => prt.tile
-      }
-    }
-    val result = op(literral)
-    toInternalRow(result, childCtx)
-  }
 }

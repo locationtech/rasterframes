@@ -35,7 +35,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
   examples = """
   Examples:
     > SELECT _FUNC_(tile, Square(1));
-       .."""
+       ..."""
 )
 case class FocalMode(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOp {
   override def nodeName: String = FocalMode.name

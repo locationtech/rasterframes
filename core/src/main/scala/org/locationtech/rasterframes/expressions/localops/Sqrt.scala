@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
+import org.locationtech.rasterframes.expressions.{UnaryRasterOp, fpTile}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Perform cell-wise square root",
@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
       > SELECT _FUNC_(tile)
       ... """
 )
-case class Sqrt(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Sqrt(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_sqrt"
   protected def op(tile: Tile): Tile = fpTile(tile).localPow(0.5)
   override def dataType: DataType = child.dataType

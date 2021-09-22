@@ -21,34 +21,27 @@
 
 package org.locationtech.rasterframes.expressions
 
-import com.typesafe.scalalogging.Logger
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
-import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import org.slf4j.LoggerFactory
+import org.locationtech.rasterframes.model.TileContext
 
-/** Operation on a tile returning a tile. */
-trait UnaryLocalRasterOp extends UnaryExpression with RasterResult {
-  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
-
-  def dataType: DataType = child.dataType
-
+/** Boilerplate for expressions operating on a single Tile-like . */
+trait UnaryRasterFunction extends UnaryExpression {
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")
-    }
-    else TypeCheckSuccess
+    } else TypeCheckSuccess
   }
 
   override protected def nullSafeEval(input: Any): Any = {
-    val (childTile, childCtx) = tileExtractor(child.dataType)(row(input))
-    val result = op(childTile)
-    toInternalRow(result, childCtx)
+    // TODO: Ensure InternalRowTile is preserved
+    val (tile, ctx) = tileExtractor(child.dataType)(row(input))
+    eval(tile, ctx)
   }
 
-  protected def op(child: Tile): Tile
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any
 }
 

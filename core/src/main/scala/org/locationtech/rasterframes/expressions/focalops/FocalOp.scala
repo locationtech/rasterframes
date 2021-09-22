@@ -21,29 +21,16 @@
 
 package org.locationtech.rasterframes.expressions.focalops
 
-import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp, row}
-import org.locationtech.rasterframes.ref.RasterRef
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp, row}
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 
-trait FocalOp extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
+trait FocalOp extends UnaryRasterOp with NullToValue with CodegenFallback {
   def na: Any = null
 
   override protected def nullSafeEval(input: Any): Any = {
     val (childTile, childCtx) = tileExtractor(child.dataType)(row(input))
-    val literral = childTile match {
-      // if it is RasterRef, we want the BufferTile
-      case ref: RasterRef => ref.realizedTile
-      // if it is a ProjectedRasterTile, can we flatten it?
-      case prt: ProjectedRasterTile => prt.tile match {
-        // if it is RasterRef, we can get what's inside
-        case rr: RasterRef => rr.realizedTile
-        // otherwise it is some tile
-        case _             => prt.tile
-      }
-    }
-    val result = op(literral)
+    val result = op(extractBufferTile(childTile))
     toInternalRow(result, childCtx)
   }
 }

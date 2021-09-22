@@ -35,7 +35,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
   examples = """
   Examples:
     > SELECT _FUNC_(tile, kernel);
-       .."""
+       ..."""
 )
 case class Convolve(child: Expression, kernel: Kernel) extends FocalOp {
   override def nodeName: String = Convolve.name

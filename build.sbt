@@ -59,7 +59,7 @@ lazy val core = project
       circe("generic").value,
       circe("parser").value,
       circe("generic-extras").value,
-      frameless excludeAll ExclusionRule("com.github.mpilquist", "simulacrum"),
+      frameless excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       `jts-core`,
       `spray-json`,
       geomesa("z3").value,

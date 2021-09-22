@@ -37,7 +37,7 @@ import org.locationtech.rasterframes.model.TileContext
   examples = """
   Examples:
     > SELECT _FUNC_(tile, azimuth, altitude, zFactor);
-       .."""
+       ..."""
 )
 case class Hillshade(child: Expression, azimuth: Double, altitude: Double, zFactor: Double) extends SurfaceOp {
   override def nodeName: String = Hillshade.name

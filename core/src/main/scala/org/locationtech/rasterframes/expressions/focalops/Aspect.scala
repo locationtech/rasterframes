@@ -34,7 +34,7 @@ import org.locationtech.rasterframes.model.TileContext
   examples = """
   Examples:
     > SELECT _FUNC_(tile);
-       .."""
+       ..."""
 )
 case class Aspect(child: Expression) extends SurfaceOp {
   override def nodeName: String = Aspect.name

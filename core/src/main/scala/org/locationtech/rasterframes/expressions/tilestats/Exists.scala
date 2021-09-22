@@ -7,7 +7,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.isCellTrue
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 import spire.syntax.cfor.cfor
 
@@ -24,7 +24,7 @@ import spire.syntax.cfor.cfor
        true
     """
 )
-case class Exists(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class Exists(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   override def nodeName: String = "exists"
   def dataType: DataType = BooleanType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = Exists.op(tile)

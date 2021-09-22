@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
+import org.locationtech.rasterframes.expressions.{UnaryRasterOp, fpTile}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Performs cell-wise exponential.",
@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.expressions.{UnaryLocalRasterOp, fpTile}
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Exp(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Exp(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_exp"
 
   protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E)
@@ -59,7 +59,7 @@ object Exp {
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Exp10(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Exp10(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_log10"
 
   override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(10.0)
@@ -80,7 +80,7 @@ object Exp10 {
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Exp2(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class Exp2(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_exp2"
 
   protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(2.0)
@@ -101,7 +101,7 @@ object Exp2 {
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class ExpM1(child: Expression) extends UnaryLocalRasterOp with CodegenFallback {
+case class ExpM1(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_expm1"
 
   protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E).localSubtract(1.0)

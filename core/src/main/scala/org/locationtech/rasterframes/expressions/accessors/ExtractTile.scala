@@ -21,7 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -32,7 +32,7 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
 
 /** Expression to extract at tile from several types that contain tiles.*/
-case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class ExtractTile(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   def dataType: DataType = tileUDT
 
   override def nodeName: String = "rf_extract_tile"
