@@ -8,20 +8,20 @@ import com.azavea.stac4s._
 import eu.timepit.refined.api.{RefType, Validate}
 import frameless.{Injection, SQLTimestamp, TypedEncoder, TypedExpressionEncoder}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.stac._
+import org.apache.spark.sql.jts.JTSTypes
 
 import java.time.Instant
 
 /** STAC API Dataframe relies on the Frameless Expressions derivation. */
 trait StacSerializers {
   /** GeoMesa UDTs, should be defined as implicits so frameless would pick them up */
-  implicit val pointUDT: PointUDT = new PointUDT
-  implicit val multiPointUDT: MultiPointUDT = new MultiPointUDT
-  implicit val multiLineStringUDT: MultiLineStringUDT = new MultiLineStringUDT
-  implicit val polygonUDT: PolygonUDT = new PolygonUDT
-  implicit val multiPolygonUDT: MultiPolygonUDT = new MultiPolygonUDT
-  implicit val geometryUDT: GeometryUDT = new GeometryUDT
-  implicit val geometryCollectionUDT: GeometryCollectionUDT = new GeometryCollectionUDT
+  implicit val pointUDT = JTSTypes.PointTypeInstance
+  implicit val multiPointUDT = JTSTypes.MultiPointTypeInstance
+  implicit val multiLineStringUDT = JTSTypes.MultiLineStringTypeInstance
+  implicit val polygonUDT = JTSTypes.PolygonTypeInstance
+  implicit val multiPolygonUDT = JTSTypes.MultipolygonTypeInstance
+  implicit val geometryUDT = JTSTypes.GeometryTypeInstance
+  implicit val geometryCollectionUDT = JTSTypes.GeometryCollectionTypeInstance
 
   /** Injections to Encode stac4s objects */
   implicit val stacLinkTypeInjection: Injection[StacLinkType, String] = Injection(_.repr, _.asJson.asUnsafe[StacLinkType])
