@@ -82,6 +82,9 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys
   }
 
   describe("RasterFrameLayer") {
+    // Try to GC to avoid OOM on low memory instances.
+    // TODO: remove once we have a larger CI
+    System.gc()
     it("should implicitly convert from spatial layer type") {
 
       val tileLayerRDD = TestData.randomSpatialTileLayerRDD(20, 20, 2, 2)
