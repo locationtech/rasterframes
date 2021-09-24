@@ -5,6 +5,7 @@ import io.circe.{Json, JsonObject}
 import io.circe.syntax._
 import cats.syntax.either._
 import com.azavea.stac4s._
+import com.azavea.stac4s.types.ItemDatetime
 import eu.timepit.refined.api.{RefType, Validate}
 import frameless.{Injection, SQLTimestamp, TypedEncoder, TypedExpressionEncoder}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
