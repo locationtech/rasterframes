@@ -154,6 +154,7 @@ ipython = 'ipython'
 numpy = 'numpy'
 pandas = 'pandas'
 pypandoc = 'pypandoc'
+pyproj = 'pyproj'
 pytest_runner = 'pytest-runner'
 pytz = 'pytz'
 rasterio = 'rasterio'
@@ -199,6 +200,7 @@ setup(
         pytz,
         shapely,
         pyspark,
+        pyproj,
         numpy,
         matplotlib,
         pandas,

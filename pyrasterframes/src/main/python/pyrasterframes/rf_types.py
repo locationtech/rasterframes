@@ -598,3 +598,9 @@ class NoDataFilter(JavaTransformer, HasInputCols, DefaultParamsReadable, Default
         super(NoDataFilter, self).__init__()
         self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.NoDataFilter", self.uid)
 
+
+    def setInputCols(self, value):
+        """
+        Sets the value of :py:attr:`inputCol`.
+        """
+        return self._set(inputCols=value)
