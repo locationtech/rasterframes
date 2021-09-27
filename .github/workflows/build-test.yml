@@ -34,8 +34,6 @@ jobs:
           # $CONDA_DIR is an environment variable pointing to the root of the miniconda directory
           $CONDA_DIR/bin/conda install -c conda-forge --yes --file pyrasterframes/src/main/python/requirements-condaforge.txt
 
-      - run: ulimit -c unlimited -S
-
       # Do just the compilation stage to minimize sbt memory footprint
       - name: Compile
         run: sbt -v -batch compile test:compile it:compile
