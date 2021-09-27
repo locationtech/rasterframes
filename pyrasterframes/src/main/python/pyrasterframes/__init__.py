@@ -117,6 +117,7 @@ def _raster_reader(
         source=None,
         catalog_col_names: Optional[List[str]] = None,
         band_indexes: Optional[List[int]] = None,
+        buffer_size: int = 0,
         tile_dimensions: Tuple[int] = (256, 256),
         lazy_tiles: bool = True,
         spatial_index_partitions=None,
@@ -134,6 +135,7 @@ def _raster_reader(
     :param catalog_col_names: required if `source` is a DataFrame or CSV string. It is a list of strings giving the names of columns containing URIs to read.
     :param band_indexes: list of integers indicating which bands, zero-based, to read from the raster files specified; default is to read only the first band.
     :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows).
+    :param buffer_size: buffer each tile read by this many cells on all sides.
     :param lazy_tiles: If true (default) only generate minimal references to tile contents; if false, fetch tile cell values.
     :param spatial_index_partitions: If true, partitions read tiles by a Z2 spatial index using the default shuffle partitioning.
            If a values > 0, the given number of partitions are created instead of the default.
@@ -176,7 +178,8 @@ def _raster_reader(
     options.update({
         "band_indexes": to_csv(band_indexes),
         "tile_dimensions": to_csv(tile_dimensions),
-        "lazy_tiles": str(lazy_tiles)
+        "lazy_tiles": str(lazy_tiles),
+        "buffer_size": int(buffer_size)
     })
 
     # Parse the `source` argument

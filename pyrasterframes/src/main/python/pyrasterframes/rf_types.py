@@ -461,7 +461,7 @@ class TileUDT(UserDefinedType):
             StructField("xmax",DoubleType(), True),
             StructField("ymax",DoubleType(), True)
         ])
-        subgrid = StructType([
+        grid = StructType([
             StructField("colMin", IntegerType(), True),
             StructField("rowMin", IntegerType(), True),
             StructField("colMax", IntegerType(), True),
@@ -474,7 +474,7 @@ class TileUDT(UserDefinedType):
             ]),True),
             StructField("bandIndex", IntegerType(), True),
             StructField("subextent", extent ,True),
-            StructField("subgrid", subgrid, True),
+            StructField("subgrid", grid, True),
         ])
 
         return StructType([
@@ -482,6 +482,7 @@ class TileUDT(UserDefinedType):
              StructField("cols", IntegerType(), False),
              StructField("rows", IntegerType(), False),
              StructField("cells", BinaryType(), True),
+             StructField("gridBounds", grid, True),
              StructField("ref", ref, True)
         ])
 
@@ -501,6 +502,7 @@ class TileUDT(UserDefinedType):
             dims[0],
             dims[1],
             cells,
+            None,
             None
         ]
 

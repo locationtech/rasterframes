@@ -65,6 +65,15 @@ def _parse_cell_type(cell_type_arg: Union[str, CellType]) -> JavaObject:
     elif isinstance(cell_type_arg, CellType):
         return to_jvm(cell_type_arg.cell_type_name)
 
+def _parse_neighborhood(neighborhood_arg: str) -> JavaObject:
+    """ Convert the cell type representation to the expected JVM CellType object."""
+    def to_jvm(n):
+        return _context_call('_parse_neighborhood', n)
+
+    if isinstance(neighborhood_arg, str):
+        return to_jvm(neighborhood_arg)
+    else:
+        raise NotImplementedError
 
 def rf_cell_types() -> List[CellType]:
     """Return a list of standard cell types"""
@@ -781,6 +790,54 @@ def rf_identity(tile_col: Column_type) -> Column:
     """Pass tile through unchanged"""
     return _apply_column_function('rf_identity', tile_col)
 
+def rf_focal_max(tile_col: Column_type, neighborhood: str) -> Column:
+    """Compute the max value in its neighborhood of each cell"""
+    jfcn = RFContext.active().lookup('rf_focal_max')
+    return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
+
+def rf_focal_mean(tile_col: Column_type, neighborhood: str) -> Column:
+    """Compute the mean value in its neighborhood of each cell"""
+    jfcn = RFContext.active().lookup('rf_focal_mean')
+    return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
+
+def rf_focal_median(tile_col: Column_type, neighborhood: str) -> Column:
+    """Compute the max in its neighborhood value of each cell"""
+    jfcn = RFContext.active().lookup('rf_focal_median')
+    return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
+
+def rf_focal_min(tile_col: Column_type, neighborhood: str) -> Column:
+    """Compute the min value in its neighborhood of each cell"""
+    jfcn = RFContext.active().lookup('rf_focal_min')
+    return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
+
+def rf_focal_mode(tile_col: Column_type, neighborhood: str) -> Column:
+    """Compute the mode value in its neighborhood of each cell"""
+    jfcn = RFContext.active().lookup('rf_focal_mode')
+    return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
+
+def rf_focal_std_dev(tile_col: Column_type, neighborhood: str) -> Column:
+    """Compute the standard deviation value in its neighborhood of each cell"""
+    jfcn = RFContext.active().lookup('rf_focal_std_dev')
+    return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
+
+def rf_moransI(tile_col: Column_type, neighborhood: str) -> Column:
+    """Compute the max in its neighborhood value of each cell"""
+    jfcn = RFContext.active().lookup('rf_focal_max')
+    return Column(jfcn(_to_java_column(tile_col), _parse_neighborhood(neighborhood)))
+
+def rf_aspect(tile_col: Column_type) -> Column:
+    """Calculates the aspect of each cell in an elevation raster"""
+    return _apply_column_function('rf_aspect', tile_col)
+
+def rf_slope(tile_col: Column_type, z_factor: float) -> Column:
+    """Calculates the aspect of each cell in an elevation raster"""
+    jfcn = RFContext.active().lookup('rf_slope')
+    return Column(jfcn(_to_java_column(tile_col), float(z_factor)))
+
+def rf_hillshade(tile_col: Column_type, azimuth: float, altitude: float, z_factor: float) -> Column:
+    """Calculates the hillshade of each cell in an elevation raster"""
+    jfcn = RFContext.active().lookup('rf_hillshade')
+    return Column(jfcn(_to_java_column(tile_col), float(azimuth), float(altitude), float(z_factor)))
 
 def rf_resample(tile_col: Column_type, scale_factor: Union[int, float, Column_type]) -> Column:
     """Resample tile to different size based on scalar factor or tile whose dimension to match
