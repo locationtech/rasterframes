@@ -1,0 +1,68 @@
+name: Compile documentation
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches: ['**docs*']
+  push:
+    branches: ['master', 'release/*']
+  release:
+    types: [published]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    container:
+      image: s22s/debian-openjdk-conda-gdal:6790f8d
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: coursier/cache-action@v6
+      - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: adopt@1.11
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install Conda dependencies
+        run: |
+          # $CONDA_DIR is an environment variable pointing to the root of the miniconda directory
+          $CONDA_DIR/bin/conda install -c conda-forge --yes --file pyrasterframes/src/main/python/requirements-condaforge.txt
+
+      - name: Build documentation
+        run: sbt makeSite
+
+      - name: Collect artifacts
+        if: ${{ failure() }}
+        run: |
+          mkdir -p /tmp/core_dumps
+          cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+          mkdir -p /tmp/markdown
+          cp pyrasterframes/target/python/docs/*.md /tmp/markdown 2> /dev/null || true
+
+      - name: Upload core dumps
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: core-dumps
+          path: /tmp/core_dumps
+
+      - name: Upload markdown
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: markdown
+          path: /tmp/markdown
+
+      - name: Upload rf-site
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: rf-site
+          path: docs/target/site
