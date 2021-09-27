@@ -52,7 +52,7 @@ def find_pyrasterframes_jar_dir() -> str:
         # See if we're running outside of sbt build and adjust
         if os.path.basename(target_dir) != "target":
             target_dir = os.path.join(pdir(pdir(target_dir)), 'target')
-        jar_dir = os.path.join(target_dir, 'scala-2.11')
+        jar_dir = os.path.join(target_dir, 'scala-2.12')
 
     return os.path.realpath(jar_dir)
 

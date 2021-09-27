@@ -70,6 +70,12 @@ object RFProjectPlugin extends AutoPlugin {
         url = url("https://github.com/echeipesh")
       ),
       Developer(
+        id = "pomadchin",
+        name = "Grigory Pomadchin",
+        email = "gpomadchin@azavea.com",
+        url = url("https://github.com/pomadchin")
+      ),
+      Developer(
         id = "bguseman",
         name = "Ben Guseman",
         email = "bguseman@astraea.earth",

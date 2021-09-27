@@ -45,7 +45,7 @@ class TileUDT extends UserDefinedType[Tile] {
   def userClass: Class[Tile] = classOf[Tile]
 
   def sqlType: StructType = StructType(Seq(
-    StructField("cell_type", StringType, false),
+    StructField("cellType", StringType, false),
     StructField("cols", IntegerType, false),
     StructField("rows", IntegerType, false),
     StructField("cells", BinaryType, true),
