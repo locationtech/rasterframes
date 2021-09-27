@@ -1,16 +1,17 @@
-name: Build and Test
+name: Compile documentation
 
 on:
+  workflow_dispatch:
+
   pull_request:
-    branches: ['**']
+    branches: ['**docs*']
   push:
-    branches: ['master', 'develop', 'release/*']
-    tags: [v*]
+    branches: ['master', 'release/*']
   release:
     types: [published]
 
 jobs:
-  build:
+  docs:
     runs-on: ubuntu-latest
     container:
       image: s22s/debian-openjdk-conda-gdal:6790f8d
@@ -36,34 +37,16 @@ jobs:
 
       - run: ulimit -c unlimited -S
 
-      # Do just the compilation stage to minimize sbt memory footprint
-      - name: Compile
-        run: sbt -v -batch compile test:compile it:compile
-
-      - name: Core tests
-        run: sbt -batch core/test
-
-      - name: Datasource tests
-        run: sbt -batch datasource/test
-
-      - name: Experimental tests
-        run: sbt -batch experimental/test
-
-      - name: Create PyRasterFrames package
-        run: sbt -v -batch pyrasterframes/package
-
-      - name: Python tests
-        run: sbt -batch pyrasterframes/test
+      - name: Build documentation
+        run: sbt makeSite
 
       - name: Collect artifacts
         if: ${{ failure() }}
         run: |
           mkdir -p /tmp/core_dumps
-          ls -lh /tmp
-          cp core.* *.hs /tmp/core_dumps/ 2> /dev/null || true
-          cp ./core/*.log /tmp/core_dumps/ 2> /dev/null || true
-          cp -r /tmp/hsperfdata* /tmp/*.hprof /tmp/core_dumps/ 2> /dev/null || true
-          cp repo/core/core/* /tmp/core_dumps/ 2> /dev/null || true
+          cp core.* *.hs /tmp/core_dumps 2> /dev/null || true
+          mkdir -p /tmp/markdown
+          cp pyrasterframes/target/python/docs/*.md /tmp/markdown 2> /dev/null || true
 
       - name: Upload core dumps
         if: ${{ failure() }}
@@ -71,3 +54,17 @@ jobs:
         with:
           name: core-dumps
           path: /tmp/core_dumps
+
+      - name: Upload markdown
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: markdown
+          path: /tmp/markdown
+
+      - name: Upload rf-site
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: rf-site
+          path: docs/target/site
