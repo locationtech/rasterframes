@@ -41,8 +41,6 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
     import spark.implicits._
     val data = Dimensions[Int](256, 256)
     val df = List(data).toDF()
-    df.show()
-    df.printSchema()
     val fs = df.as[Dimensions[Int]]
     val out = fs.first()
     out shouldBe data
@@ -53,8 +51,6 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
     import spark.implicits._
     val data = TileDataContext(IntCellType, Dimensions[Int](256, 256))
     val df = List(data).toDF()
-    df.show()
-    df.printSchema()
     val fs = df.as[TileDataContext]
     val out = fs.first()
     out shouldBe data
@@ -65,8 +61,6 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
     import spark.implicits._
     val data = ProjectedExtent(Extent(0, 0, 1, 1), LatLng)
     val df = List(data).toDF()
-    df.show()
-    df.printSchema()
     df.select($"crs".cast(StringType)).show()
     val fs = df.as[ProjectedExtent]
     val out = fs.first()
@@ -84,8 +78,6 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
       KeyBounds(SpatialKey(0,0), SpatialKey(9,9))
     )
     val df = List(data).toDF()
-    df.show()
-    df.printSchema()
     val fs = df.as[TileLayerMetadata[SpatialKey]]
     val out = fs.first()
     out shouldBe data

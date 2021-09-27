@@ -30,7 +30,7 @@ import scala.util.matching.Regex
   * Standard support for creating assembly jars.
   */
 object RFAssemblyPlugin extends AutoPlugin {
-  override def requires = AssemblyPlugin
+  override def requires = AssemblyPlugin && RFDependenciesPlugin
 
   implicit class RichRegex(val self: Regex) extends AnyVal {
     def =~(s: String) = self.pattern.matcher(s).matches
@@ -51,6 +51,7 @@ object RFAssemblyPlugin extends AutoPlugin {
     assembly / assemblyShadeRules:= {
       val shadePrefixes = Seq(
         "shapeless",
+        "com.github.mpilquist",
         "com.amazonaws",
         "org.apache.avro",
         "org.apache.http",
@@ -58,7 +59,9 @@ object RFAssemblyPlugin extends AutoPlugin {
         "com.google.common",
         "com.typesafe.config",
         "com.fasterxml.jackson",
-        "io.netty"
+        "io.netty",
+        "spire",
+        "cats.kernel"
       )
       shadePrefixes.map(p => ShadeRule.rename(s"$p.**" -> s"shaded.rasterframes.$p.@1").inAll)
     },

@@ -1,19 +1,27 @@
-IMAGE_NAME=miniconda-gdal
-VERSION=latest
-HOST=docker.pkg.github.com
-REPO=${HOST}/locationtech/rasterframes
-FULL_NAME=${REPO}/${IMAGE_NAME}:${VERSION}
+IMAGE_NAME=circleci-openjdk-conda-gdal
+SHA=$(shell git log -n1 --format=format:"%H" | cut -c 1-7)
+VERSION?=$(SHA)
+HOST=docker.io
+REPO=$(HOST)/s22s
+FULL_NAME=$(REPO)/$(IMAGE_NAME):$(VERSION)
 
-all: build login push
+.DEFAULT_GOAL := help
+help:
+# http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
+	@echo "Usage: make [target]"
+	@echo "Targets: "
+	@grep -E '^[a-zA-Z0-9_%/-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\t\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-build:
+all: build push ## Build and then push image
+
+build: ## Build the docker image
 	docker build . -t ${FULL_NAME}
 
-login:
-	docker login ${HOST}
+login: ## Login to the docker registry
+	docker login
 
-push:
+push: login ## Push docker image to registry
 	docker push ${FULL_NAME}
 
-shell: build
+run: build ## Build image and launch shell
 	docker run --rm -it ${FULL_NAME} bash

@@ -642,5 +642,5 @@ class RasterFunctions(TestEnvironment):
         df = self.prdf.select(rf_proj_raster(rf_tile('proj_raster'),
                                              rf_extent('proj_raster'),
                                              rf_crs('proj_raster')).alias('roll_your_own'))
-        self.assertIn('tile_context', df.schema['roll_your_own'].dataType.fieldNames())
+        self.assertIn('extent', df.schema['roll_your_own'].dataType.fieldNames())
 

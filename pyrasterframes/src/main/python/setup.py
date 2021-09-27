@@ -140,7 +140,6 @@ class PweaveNotebooks(PweaveDocs):
 # to throw a `NotImplementedError: Can't perform this operation for unregistered loader type`
 pytest = 'pytest>=4.0.0,<5.0.0'
 
-
 pyspark = 'pyspark==3.1.1'
 boto3 = 'boto3'
 deprecation = 'deprecation'
@@ -148,13 +147,14 @@ descartes = 'descartes'
 matplotlib = 'matplotlib'
 fiona = 'fiona'
 folium = 'folium'
-gdal = 'gdal==2.4.4'
+gdal = 'gdal==3.1.2'
 geopandas = 'geopandas'
 ipykernel = 'ipykernel'
 ipython = 'ipython'
 numpy = 'numpy'
 pandas = 'pandas'
 pypandoc = 'pypandoc'
+pyproj = 'pyproj'
 pytest_runner = 'pytest-runner'
 pytz = 'pytz'
 rasterio = 'rasterio'
@@ -185,7 +185,7 @@ setup(
         'Bug Reports': 'https://github.com/locationtech/rasterframes/issues',
         'Source': 'https://github.com/locationtech/rasterframes',
     },
-    python_requires=">=3.5",
+    python_requires=">=3.7",
     install_requires=[
         gdal,
         pytz,
@@ -193,6 +193,7 @@ setup(
         pyspark,
         numpy,
         pandas,
+        pyproj,
         tabulate,
         deprecation,
     ],

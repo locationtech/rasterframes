@@ -26,7 +26,6 @@ package org.locationtech.rasterframes
 import java.net.URI
 import java.sql.Timestamp
 import java.time.ZonedDateTime
-
 import geotrellis.layer.{withMergableMethods => _, _}
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster._
@@ -37,6 +36,7 @@ import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
+import org.scalatest.BeforeAndAfterEach
 
 import scala.util.control.NonFatal
 
@@ -46,9 +46,15 @@ import scala.util.control.NonFatal
  * @since 7/10/17
  */
 class RasterLayerSpec extends TestEnvironment with MetadataKeys
-  with TestData  {
+  with BeforeAndAfterEach with TestData  {
   import TestData.randomTile
   import spark.implicits._
+
+  override def beforeEach(): Unit = {
+    // Try to GC to avoid OOM on low memory instances.
+    // TODO: remove once we have a larger CI
+    System.gc()
+  }
 
   describe("Runtime environment") {
     it("should provide build info") {

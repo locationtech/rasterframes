@@ -99,38 +99,38 @@ package object functions {
   private[rasterframes] val tileOnes: (Int, Int, String) => Tile = (cols, rows, cellTypeName) =>
     makeConstantTile(1, cols, rows, cellTypeName)
 
-  val reproject_and_merge_f: (Row, CRS, Seq[Tile], Seq[Row], Seq[CRS], Row, String) => Tile = (leftExtentEnc: Row, leftCRSEnc: CRS, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSEnc: Seq[CRS], leftDimsEnc: Row, resampleMethod: String) => {
-    if (tiles.isEmpty) null
+  val reproject_and_merge_f: (Row, CRS, Seq[Tile], Seq[Row], Seq[CRS], Row, String) => Option[Tile] = (leftExtentEnc: Row, leftCRS: CRS, tiles: Seq[Tile], rightExtentEnc: Seq[Row], rightCRSs: Seq[CRS], leftDimsEnc: Row, resampleMethod: String) => {
+    if (tiles.isEmpty) None
     else {
-      require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSEnc.length, "size mismatch")
+      require(tiles.length == rightExtentEnc.length && tiles.length == rightCRSs.length, "size mismatch")
 
-      val leftExtent: Extent = leftExtentEnc.as[Extent]
-      val leftDims: Dimensions[Int] = leftDimsEnc.as[Dimensions[Int]]
-      val leftCRS: CRS = leftCRSEnc
-      lazy val rightExtents: Seq[Extent] = rightExtentEnc.map(_.as[Extent])
-      lazy val rightCRSs: Seq[CRS] = rightCRSEnc
+      val leftExtent = Option(leftExtentEnc).map(_.as[Extent])
+      val leftDims = Option(leftDimsEnc).map(_.as[Dimensions[Int]])
+      lazy val rightExtents = rightExtentEnc.map(_.as[Extent])
       lazy val resample = resampleMethod match {
         case ResampleMethod(mm) => mm
         case _ => throw new IllegalArgumentException(s"Unable to parse ResampleMethod for ${resampleMethod}.")
       }
+      (leftExtent, leftDims, Option(leftCRS))
+        .zipped
+        .map((leftExtent, leftDims, leftCRS) => {
+          val cellType = tiles
+            .map(_.cellType)
+            .reduceOption(_ union _)
+            .getOrElse(tiles.head.cellType)
 
-      if (leftExtent == null || leftDims == null || leftCRS == null) null
-      else {
-
-        val cellType = tiles.map(_.cellType).reduceOption(_ union _).getOrElse(tiles.head.cellType)
-
-        // TODO: how to allow control over... expression?
-        val projOpts = Reproject.Options(resample)
-        val dest: Tile = ArrayTile.empty(cellType, leftDims.cols, leftDims.rows)
-        //is there a GT function to do all this?
-        tiles.zip(rightExtents).zip(rightCRSs).map {
-          case ((tile, extent), crs) =>
-            tile.reproject(extent, crs, leftCRS, projOpts)
-        }.foldLeft(dest)((d, t) =>
-          d.merge(leftExtent, t.extent, t.tile, projOpts.method)
-        )
-      }
-    }
+          // TODO: how to allow control over... expression?
+          val projOpts = Reproject.Options(resample)
+          val dest: Tile = ArrayTile.empty(cellType, leftDims.cols, leftDims.rows)
+          //is there a GT function to do all this?
+          tiles.zip(rightExtents).zip(rightCRSs).map {
+            case ((tile, extent), crs) =>
+              tile.reproject(extent, crs, leftCRS, projOpts)
+          }.foldLeft(dest)((d, t) =>
+            d.merge(leftExtent, t.extent, t.tile, projOpts.method)
+          )
+        })
+    }.headOption
   }
 
   // NB: Don't be tempted to make this a `val`. Spark will barf if `withRasterFrames` hasn't been called first.
