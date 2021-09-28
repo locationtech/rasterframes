@@ -59,6 +59,7 @@ trait BinaryRasterFunction extends BinaryExpression with RasterResult {
          if(leftCtx.isDefined && rightCtx.isDefined && leftCtx != rightCtx)
            logger.warn(s"Both '${left}' and '${right}' provided an extent and CRS, but they are different. Left-hand side will be used.")
 
+         // TODO: extract BufferTile here to preserve the buffer
          op(leftTile, rightTile)
        case DoubleArg(d) => op(fpTile(leftTile), d)
        case IntegerArg(i) => op(leftTile, i)
