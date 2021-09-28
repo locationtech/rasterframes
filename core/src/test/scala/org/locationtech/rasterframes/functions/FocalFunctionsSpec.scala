@@ -27,6 +27,8 @@ import geotrellis.raster.testkit.RasterMatchers
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef, Subgrid}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
+import geotrellis.raster.Tile
+import geotrellis.raster.mapalgebra.local.Implicits._
 
 import java.nio.file.Paths
 
@@ -194,6 +196,50 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       assertEqual(bt.mapTile(_.hillshade(btCellSize, 315, 45, 1)), actual)
       assertEqual(fullTile.hillshade(btCellSize, 315, 45, 1).crop(subGridBounds), actual)
+    }
+    // that is the original use case
+    // to read a buffered source, perform a focal operation
+    // the followup functions would work with the buffered tile as
+    // with a regular tile without a buffer (all ops will work within the window)
+    it("should perform a focal operation and a valid local operation after that") {
+      val actual =
+        df
+          .select(rf_aspect($"proj_raster").as("aspect"))
+          .select(rf_local_add($"aspect", $"aspect"))
+          .as[Option[ProjectedRasterTile]]
+          .first()
+          .get
+          .tile
+
+      val a: Tile = bt.aspect(btCellSize)
+      assertEqual(a.localAdd(a), actual)
+    }
+
+    // if we read a buffered tile the local buffer would preserve the buffer information
+    // however rf_local_* functions don't preserve that type information
+    // and the Buffer Tile is upcasted into the Tile and stored as a regular tile (within the buffer, with the buffer lost)
+    // the follow up focal operation would be non buffered
+    it("should perform a local operation and a valid focal operation after that with the buffer lost") {
+      val actual =
+        df
+          .select(rf_local_add($"proj_raster", $"proj_raster") as "added")
+          .select(rf_aspect($"added"))
+          .as[Option[ProjectedRasterTile]]
+          .first()
+          .get
+          .tile
+
+      // that's what we would like eventually
+      // val expected = bt.localAdd(bt) match {
+        // case b: BufferTile => b.aspect(btCellSize)
+        // case _             => throw new Exception("Not a Buffer Tile")
+      // }
+
+      // that's what we have actually
+      // even though local ops can preserve the output tile
+      // we don't handle that
+      val expected = bt.localAdd(bt).aspect(btCellSize)
+      assertEqual(expected, actual)
     }
   }
 }
