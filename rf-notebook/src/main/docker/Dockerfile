@@ -1,21 +1,15 @@
 # jupyter/scipy-notebook isn't semantically versioned.
 # We pick this arbitrary one from Sept 2019 because it's what latest was on Oct 17 2019.
-FROM jupyter/scipy-notebook:7a0c7325e470
+FROM jupyter/all-spark-notebook:python-3.8.8
 
 LABEL maintainer="Astraea, Inc. <info@astraea.earth>"
 
 USER root
 
-RUN \
-    apt-get -y update && \
-    apt-get install --no-install-recommends -y openjdk-8-jre-headless ca-certificates-java && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV APACHE_SPARK_VERSION 2.4.7
-ENV HADOOP_VERSION 2.7
+ENV APACHE_SPARK_VERSION 3.1.2
+ENV HADOOP_VERSION 3.2
 # On MacOS compute this with `shasum -a 512`
-ARG APACHE_SPARK_CHECKSUM="0f5455672045f6110b030ce343c049855b7ba86c0ecb5e39a075ff9d093c7f648da55ded12e72ffe65d84c32dcd5418a6d764f2d6295a3f894a4286cc80ef478"
+ARG APACHE_SPARK_CHECKSUM="2385cb772f21b014ce2abd6b8f5e815721580d6e8bc42a26d70bbcdda8d303d886a6f12b36d40f6971b5547b70fae62b5a96146f0421cb93d4e51491308ef5d5"
 ARG APACHE_SPARK_FILENAME="spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
 ARG APACHE_SPARK_REMOTE_PATH="spark-${APACHE_SPARK_VERSION}/${APACHE_SPARK_FILENAME}"
 
@@ -33,7 +27,7 @@ RUN cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERS
 
 # Spark config
 ENV SPARK_HOME /usr/local/spark
-ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip
+ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9-src.zip
 ENV SPARK_OPTS --driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info
 ENV RF_LIB_LOC=/usr/local/rasterframes
 
