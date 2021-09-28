@@ -1,10 +1,16 @@
 # jupyter/scipy-notebook isn't semantically versioned.
 # We pick this arbitrary one from Sept 2019 because it's what latest was on Oct 17 2019.
-FROM jupyter/all-spark-notebook:python-3.8.8
+FROM jupyter/scipy-notebook:python-3.8.8
 
 LABEL maintainer="Astraea, Inc. <info@astraea.earth>"
 
 USER root
+
+RUN \
+    apt-get -y update && \
+    apt-get install --no-install-recommends -y openjdk-11-jdk ca-certificates-java && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV APACHE_SPARK_VERSION 3.1.2
 ENV HADOOP_VERSION 3.2
