@@ -21,10 +21,18 @@
 
 package org.locationtech.rasterframes.expressions.focalops
 
-import geotrellis.raster.{BufferTile, CellSize, Tile}
+import geotrellis.raster.{BufferTile, CellSize}
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.locationtech.rasterframes.expressions.{NullToValue, RasterResult, UnaryRasterFunction, row}
+import org.locationtech.rasterframes.encoders.syntax._
+import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.model.TileContext
+import geotrellis.raster.Tile
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.types.DataType
+import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.Logger
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Performs aspect on tile.",
@@ -36,8 +44,25 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class Aspect(child: Expression) extends SurfaceOp {
+case class Aspect(child: Expression) extends UnaryRasterFunction with RasterResult with NullToValue with CodegenFallback {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
+  def na: Any = null
+
+  def dataType: DataType = child.dataType
+
+  override protected def nullSafeEval(input: Any): Any = {
+    val (tile, ctx) = tileExtractor(child.dataType)(row(input))
+    eval(extractBufferTile(tile), ctx)
+  }
+
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ctx match {
+    case Some(ctx) => ctx.toProjectRasterTile(op(tile, ctx)).toInternalRow
+    case None => new NotImplementedError("Surface operation requires ProjectedRasterTile")
+  }
+
   override def nodeName: String = Aspect.name
+
   def op(t: Tile, ctx: TileContext): Tile = t match {
     case bt: BufferTile => bt.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows))
     case _ => t.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows))

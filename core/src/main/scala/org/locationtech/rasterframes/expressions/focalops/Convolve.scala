@@ -21,13 +21,24 @@
 
 package org.locationtech.rasterframes.expressions.focalops
 
+import com.typesafe.scalalogging.Logger
 import geotrellis.raster.{BufferTile, Tile}
 import geotrellis.raster.mapalgebra.focal.Kernel
 import org.apache.spark.sql.Column
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
+import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
+import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
+import org.apache.spark.sql.types.DataType
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
+import org.locationtech.rasterframes.encoders.syntax._
+import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
+import org.locationtech.rasterframes.expressions.{RasterResult, row}
+import org.slf4j.LoggerFactory
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, neighborhood) - Performs convolve on tile in the neighborhood.",
+  usage = "_FUNC_(tile, kernel) - Performs convolve on tile in the neighborhood.",
   arguments = """
   Arguments:
     * tile - a tile to apply operation
@@ -37,10 +48,27 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
     > SELECT _FUNC_(tile, kernel);
        ..."""
 )
-case class Convolve(child: Expression, kernel: Kernel) extends FocalOp {
+case class Convolve(left: Expression, right: Expression) extends BinaryExpression with RasterResult with CodegenFallback {
+  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
+
   override def nodeName: String = Convolve.name
 
-  protected def op(t: Tile): Tile = t match {
+  def dataType: DataType = left.dataType
+
+  override def checkInputDataTypes(): TypeCheckResult =
+    if (!tileExtractor.isDefinedAt(left.dataType)) TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
+    else if (!right.dataType.conformsToSchema(kernelEncoder.schema)) {
+      TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a kernel type.")
+    } else TypeCheckSuccess
+
+  override protected def nullSafeEval(tileInput: Any, kernelInput: Any): Any = {
+    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
+    val kernel = row(kernelInput).as[Kernel]
+    val result = op(extractBufferTile(tile), kernel)
+    toInternalRow(result, ctx)
+  }
+
+  protected def op(t: Tile, kernel: Kernel): Tile = t match {
     case bt: BufferTile => bt.convolve(kernel)
     case _ => t.convolve(kernel)
   }
@@ -48,5 +76,5 @@ case class Convolve(child: Expression, kernel: Kernel) extends FocalOp {
 
 object Convolve {
   def name: String = "rf_convolve"
-  def apply(tile: Column, kernel: Kernel): Column = new Column(Convolve(tile.expr, kernel))
+  def apply(tile: Column, kernel: Column): Column = new Column(Convolve(tile.expr, kernel.expr))
 }

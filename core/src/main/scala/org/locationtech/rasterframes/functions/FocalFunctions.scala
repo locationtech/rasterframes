@@ -24,39 +24,72 @@ package org.locationtech.rasterframes.functions
 import geotrellis.raster.Neighborhood
 import geotrellis.raster.mapalgebra.focal.Kernel
 import org.apache.spark.sql.Column
+import org.apache.spark.sql.functions.lit
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.focalops._
 
 trait FocalFunctions {
   def rf_focal_mean(tileCol: Column, neighborhood: Neighborhood): Column =
-    FocalMean(tileCol, neighborhood)
+    rf_focal_mean(tileCol, serialized_literal(neighborhood))
+
+  def rf_focal_mean(tileCol: Column, neighborhoodCol: Column): Column =
+    FocalMean(tileCol, neighborhoodCol)
 
   def rf_focal_median(tileCol: Column, neighborhood: Neighborhood): Column =
-    FocalMedian(tileCol, neighborhood)
+    rf_focal_median(tileCol, serialized_literal(neighborhood))
+
+  def rf_focal_median(tileCol: Column, neighborhoodCol: Column): Column =
+    FocalMedian(tileCol, neighborhoodCol)
 
   def rf_focal_mode(tileCol: Column, neighborhood: Neighborhood): Column =
-    FocalMode(tileCol, neighborhood)
+    rf_focal_mode(tileCol, serialized_literal(neighborhood))
+
+  def rf_focal_mode(tileCol: Column, neighborhoodCol: Column): Column =
+    FocalMode(tileCol, neighborhoodCol)
 
   def rf_focal_max(tileCol: Column, neighborhood: Neighborhood): Column =
-    FocalMax(tileCol, neighborhood)
+    rf_focal_max(tileCol, serialized_literal(neighborhood))
+
+  def rf_focal_max(tileCol: Column, neighborhoodCol: Column): Column =
+    FocalMax(tileCol, neighborhoodCol)
 
   def rf_focal_min(tileCol: Column, neighborhood: Neighborhood): Column =
-    FocalMin(tileCol, neighborhood)
+    rf_focal_min(tileCol, serialized_literal(neighborhood))
+
+  def rf_focal_min(tileCol: Column, neighborhoodCol: Column): Column =
+    FocalMin(tileCol, neighborhoodCol)
 
   def rf_focal_stddev(tileCol: Column, neighborhood: Neighborhood): Column =
-    FocalStdDev(tileCol, neighborhood)
+    rf_focal_stddev(tileCol, serialized_literal(neighborhood))
+
+  def rf_focal_stddev(tileCol: Column, neighborhoodCol: Column): Column =
+    FocalStdDev(tileCol, neighborhoodCol)
 
   def rf_focal_moransi(tileCol: Column, neighborhood: Neighborhood): Column =
-    FocalMoransI(tileCol, neighborhood)
+    rf_focal_moransi(tileCol, serialized_literal(neighborhood))
+
+  def rf_focal_moransi(tileCol: Column, neighborhoodCol: Column): Column =
+    FocalMoransI(tileCol, neighborhoodCol)
 
   def rf_convolve(tileCol: Column, kernel: Kernel): Column =
-    Convolve(tileCol, kernel)
+    rf_convolve(tileCol, serialized_literal(kernel))
 
-  def rf_slope(tileCol: Column, zFactor: Double): Column =
-    Slope(tileCol, zFactor)
+  def rf_convolve(tileCol: Column, kernelCol: Column): Column =
+    Convolve(tileCol, kernelCol)
+
+  def rf_slope[T: Numeric](tileCol: Column, zFactor: T): Column =
+    rf_slope(tileCol, lit(zFactor))
+
+  def rf_slope(tileCol: Column, zFactorCol: Column): Column =
+    Slope(tileCol, zFactorCol)
 
   def rf_aspect(tileCol: Column): Column =
     Aspect(tileCol)
 
-  def rf_hillshade(tileCol: Column, azimuth: Double, altitude: Double, zFactor: Double): Column =
+  def rf_hillshade[T: Numeric](tileCol: Column, azimuth: T, altitude: T, zFactor: T): Column =
+    rf_hillshade(tileCol, lit(azimuth), lit(altitude), lit(zFactor))
+
+  def rf_hillshade(tileCol: Column, azimuth: Column, altitude: Column, zFactor: Column): Column =
     Hillshade(tileCol, azimuth, altitude, zFactor)
 }

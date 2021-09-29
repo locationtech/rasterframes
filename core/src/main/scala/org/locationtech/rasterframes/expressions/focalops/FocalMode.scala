@@ -34,12 +34,12 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
     * neighborhood - a focal operation neighborhood""",
   examples = """
   Examples:
-    > SELECT _FUNC_(tile, Square(1));
+    > SELECT _FUNC_(tile, 'square-1');
        ..."""
 )
-case class FocalMode(child: Expression, neighborhood: Neighborhood) extends FocalNeighborhoodOp {
+case class FocalMode(left: Expression, right: Expression) extends FocalNeighborhoodOp {
   override def nodeName: String = FocalMode.name
-  protected def op(t: Tile): Tile = t match {
+  protected def op(t: Tile, neighborhood: Neighborhood): Tile = t match {
     case bt: BufferTile => bt.focalMode(neighborhood)
     case _ => t.focalMode(neighborhood)
   }
@@ -47,5 +47,5 @@ case class FocalMode(child: Expression, neighborhood: Neighborhood) extends Foca
 
 object FocalMode {
   def name: String = "rf_focal_mode"
-  def apply(tile: Column, neighborhood: Neighborhood): Column = new Column(FocalMode(tile.expr, neighborhood))
+  def apply(tile: Column, neighborhood: Column): Column = new Column(FocalMode(tile.expr, neighborhood.expr))
 }
