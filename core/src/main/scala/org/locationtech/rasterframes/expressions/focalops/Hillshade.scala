@@ -60,7 +60,7 @@ case class Hillshade(first: Expression, second: Expression, third: Expression, f
   override def checkInputDataTypes(): TypeCheckResult =
     if (!tileExtractor.isDefinedAt(first.dataType)) TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a raster type.")
     else if (!children.tail.forall(expr => numberArgExtractor.isDefinedAt(expr.dataType))) {
-      TypeCheckFailure(s"Input type '${second.dataType}' does not conform to a numeric type.")
+      TypeCheckFailure(s"Input type '${second.dataType}', '${third.dataType}' or '${fourth.dataType}' do not conform to a numeric type.")
     } else TypeCheckSuccess
 
   override protected def nullSafeEval(tileInput: Any, azimuthInput: Any, altitudeInput: Any, zFactorInput: Any): Any = {
