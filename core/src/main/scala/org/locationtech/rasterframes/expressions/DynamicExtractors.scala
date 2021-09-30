@@ -227,7 +227,7 @@ object DynamicExtractors {
   }
 
   lazy val neighborhoodExtractor: PartialFunction[DataType, Any => Neighborhood] = {
-    case _: StringType => (v: Any) => FocalNeighborhood.unapply(v.asInstanceOf[UTF8String].toString).get
+    case _: StringType => (v: Any) => FocalNeighborhood.fromString(v.asInstanceOf[UTF8String].toString).get
     case n if n.conformsToSchema(neighborhoodEncoder.schema) => { case ir: InternalRow => ir.as[Neighborhood] }
   }
 }

@@ -190,13 +190,13 @@ package object util extends DataFrameRenderers {
     import geotrellis.raster.Neighborhood
     import geotrellis.raster.mapalgebra.focal._
 
-    // pattern matching and string interpolation work only since Scala 2.13
-    def unapply(name: String): Option[Neighborhood] =
+    // pattern matching and string interpolation works only since Scala 2.13
+    def fromString(name: String): Try[Neighborhood] = Try {
       name.toLowerCase().trim() match {
-        case s if s.startsWith("square-") => Try(Square(Integer.parseInt(s.split("square-").last))).toOption
-        case s if s.startsWith("circle-") => Try(Circle(java.lang.Double.parseDouble(s.split("circle-").last))).toOption
-        case s if s.startsWith("nesw-") => Try(Nesw(Integer.parseInt(s.split("nesw-").last))).toOption
-        case s if s.startsWith("wedge-") => Try {
+        case s if s.startsWith("square-") => Square(Integer.parseInt(s.split("square-").last))
+        case s if s.startsWith("circle-") => Circle(java.lang.Double.parseDouble(s.split("circle-").last))
+        case s if s.startsWith("nesw-") => Nesw(Integer.parseInt(s.split("nesw-").last))
+        case s if s.startsWith("wedge-") => {
           val List(radius: Double, startAngle: Double, endAngle: Double) =
             s
               .split("wedge-")
@@ -206,9 +206,9 @@ package object util extends DataFrameRenderers {
               .map(java.lang.Double.parseDouble)
 
           Wedge(radius, startAngle, endAngle)
-        }.toOption
+        }
 
-        case s if s.startsWith("annulus-") => Try {
+        case s if s.startsWith("annulus-") => {
           val List(innerRadius: Double, outerRadius: Double) =
             s
               .split("annulus-")
@@ -218,9 +218,10 @@ package object util extends DataFrameRenderers {
               .map(java.lang.Double.parseDouble)
 
           Annulus(innerRadius, outerRadius)
-        }.toOption
-        case _ => None
+        }
+        case _ => throw new IllegalArgumentException(s"Unrecognized Neighborhood $name")
       }
+    }
 
     def apply(neighborhood: Neighborhood): String = {
       neighborhood match {

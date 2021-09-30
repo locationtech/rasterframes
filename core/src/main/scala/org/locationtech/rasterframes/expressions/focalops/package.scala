@@ -15,5 +15,6 @@ package object focalops extends Serializable {
       // otherwise it is some tile
       case _             => prt.tile
     }
+    case _ => tile
   }
 }

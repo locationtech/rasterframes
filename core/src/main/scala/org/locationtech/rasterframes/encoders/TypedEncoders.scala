@@ -34,7 +34,7 @@ trait TypedEncoders {
   implicit val uriInjection: Injection[URI, String] = Injection(_.toString, new URI(_))
   implicit val uriTypedEncoder: TypedEncoder[URI]   = TypedEncoder.usingInjection
 
-  implicit val neighborhoodInjection: Injection[Neighborhood, String] = Injection(FocalNeighborhood(_), FocalNeighborhood.unapply(_).get)
+  implicit val neighborhoodInjection: Injection[Neighborhood, String] = Injection(FocalNeighborhood(_), FocalNeighborhood.fromString(_).get)
   implicit val neighborhoodTypedEncoder: TypedEncoder[Neighborhood]   = TypedEncoder.usingInjection
 
   implicit val envelopeTypedEncoder: TypedEncoder[Envelope] =
