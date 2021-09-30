@@ -7,7 +7,7 @@ import org.apache.spark.sql.connector.catalog.{SupportsRead, Table, TableCapabil
 import org.apache.spark.sql.connector.read.ScanBuilder
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
-import org.locationtech.rasterframes.datasource.stac.api.StacApiDataSource.{ASSET_LIMIT_PARAM, SEARCH_FILTERS_PARAM, URI_PARAM}
+import org.locationtech.rasterframes.datasource.stac.api.StacApiDataSource.{SEARCH_LIMIT_PARAM, SEARCH_FILTERS_PARAM, URI_PARAM}
 import org.locationtech.rasterframes.datasource.{intParam, jsonParam, uriParam}
 import sttp.model.Uri
 
@@ -36,6 +36,6 @@ object StacApiTable {
         .flatMap(_.as[SearchFilters].toOption)
         .getOrElse(SearchFilters(limit = NonNegInt.from(30).toOption))
 
-    def searchLimit: Option[NonNegInt] = intParam(ASSET_LIMIT_PARAM, options).flatMap(NonNegInt.from(_).toOption)
+    def searchLimit: Option[NonNegInt] = intParam(SEARCH_LIMIT_PARAM, options).flatMap(NonNegInt.from(_).toOption)
   }
 }

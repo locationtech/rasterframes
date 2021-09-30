@@ -268,7 +268,7 @@ def _stac_api_reader(
         .format("stac-api") \
         .option("uri", uri) \
         .option("search-filters", json.dumps(filters)) \
-        .option("asset-limit", search_limit) \
+        .option("search-limit", search_limit) \
         .load()
 
 def _geotiff_writer(

@@ -23,5 +23,5 @@ object StacApiDataSource {
   final val SHORT_NAME = "stac-api"
   final val URI_PARAM = "uri"
   final val SEARCH_FILTERS_PARAM = "search-filters"
-  final val ASSET_LIMIT_PARAM = "asset-limit"
+  final val SEARCH_LIMIT_PARAM = "search-limit"
 }

@@ -53,7 +53,7 @@ package object api {
         stacApi()
           .option(StacApiDataSource.URI_PARAM, uri)
           .option(StacApiDataSource.SEARCH_FILTERS_PARAM, filters.asJson.noSpaces)
-          .option(StacApiDataSource.ASSET_LIMIT_PARAM, searchLimit)
+          .option(StacApiDataSource.SEARCH_LIMIT_PARAM, searchLimit)
       )
   }
 }
