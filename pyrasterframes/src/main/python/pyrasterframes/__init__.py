@@ -252,6 +252,24 @@ def _raster_reader(
         .format("raster") \
         .load(path, **options)
 
+def _stac_api_reader(
+        df_reader: DataFrameReader,
+        uri: str,
+        filters: dict = None,
+        search_limit: Optional[int] = None) -> DataFrame:
+    """
+    uri - STAC API uri
+    filters - a STAC API Search filters dict (bbox, datetime, intersects, collections, items, limit, query, next)
+    search_limit - search results convenient limit method
+    """
+    import json
+
+    return df_reader \
+        .format("stac-api") \
+        .option("uri", uri) \
+        .option("search-filters", json.dumps(filters)) \
+        .option("asset-limit", search_limit) \
+        .load()
 
 def _geotiff_writer(
         df_writer: DataFrameWriter,
@@ -305,3 +323,4 @@ DataFrameWriter.geotiff = _geotiff_writer
 DataFrameReader.geotrellis = lambda df_reader, path: _layer_reader(df_reader, "geotrellis", path)
 DataFrameReader.geotrellis_catalog = lambda df_reader, path: _aliased_reader(df_reader, "geotrellis-catalog", path)
 DataFrameWriter.geotrellis = lambda df_writer, path: _aliased_writer(df_writer, "geotrellis", path)
+DataFrameReader.stacapi = _stac_api_reader
