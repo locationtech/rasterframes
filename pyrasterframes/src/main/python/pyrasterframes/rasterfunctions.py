@@ -826,19 +826,19 @@ def rf_aspect(tile_col: Column_type) -> Column:
     """Calculates the aspect of each cell in an elevation raster"""
     return _apply_column_function('rf_aspect', tile_col)
 
-def rf_slope(tile_col: Column_type, z_factor: Union[float, Column_type]) -> Column:
+def rf_slope(tile_col: Column_type, z_factor: Union[int, float, Column_type]) -> Column:
     """Calculates slope of each cell in an elevation raster"""
-    if isinstance(z_factor, float):
+    if isinstance(z_factor, (int, float)):
         z_factor = lit(z_factor)
     return _apply_column_function('rf_slope', tile_col, z_factor)
 
-def rf_hillshade(tile_col: Column_type, azimuth: Union[float, Column_type], altitude: Union[float, Column_type], z_factor: Union[float, Column_type]) -> Column:
+def rf_hillshade(tile_col: Column_type, azimuth: Union[int, float, Column_type], altitude: Union[int, float, Column_type], z_factor: Union[int, float, Column_type]) -> Column:
     """Calculates the hillshade of each cell in an elevation raster"""
-    if isinstance(azimuth, float):
+    if isinstance(azimuth, (int, float)):
         azimuth = lit(azimuth)
-    if isinstance(altitude, float):
+    if isinstance(altitude, (int, float)):
         altitude = lit(altitude)
-    if isinstance(z_factor, float):
+    if isinstance(z_factor, (int, float)):
         z_factor = lit(z_factor)
     return _apply_column_function('rf_hillshade', tile_col, azimuth, altitude, z_factor)
 
