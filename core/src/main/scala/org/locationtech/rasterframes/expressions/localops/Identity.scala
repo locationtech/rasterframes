@@ -25,7 +25,7 @@ import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Return the given tile or projected raster unchanged. Useful in debugging round-trip serialization across various language and memory boundaries.",
@@ -37,7 +37,7 @@ import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterO
     > SELECT  _FUNC_(tile);
        ..."""
 )
-case class Identity(child: Expression) extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
+case class Identity(child: Expression) extends UnaryRasterOp with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_identity"
   def na: Any = null
   protected def op(t: Tile): Tile = t

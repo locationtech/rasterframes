@@ -52,7 +52,7 @@ package object datasource {
 
   private[rasterframes]
   def intParam(key: String, parameters: CaseInsensitiveStringMap): Option[Int] =
-    if(parameters.containsKey(key)) parameters.get(key).toInt.some
+    if(parameters.containsKey(key)) Option(parameters.get(key)).map(_.toInt)
     else None
 
   private[rasterframes]

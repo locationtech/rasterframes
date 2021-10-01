@@ -43,8 +43,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.slf4j.LoggerFactory
 
-trait TestEnvironment extends AnyFunSpec
-  with Matchers with Inspectors with Tolerance with RasterMatchers {
+trait TestEnvironment extends AnyFunSpec with Matchers with Inspectors with Tolerance with RasterMatchers {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
 
@@ -57,16 +56,20 @@ trait TestEnvironment extends AnyFunSpec
   // allow 2 retries, should stabilize CI builds. https://spark.apache.org/docs/2.4.7/submitting-applications.html#master-urls
   def sparkMaster: String = "local[*, 2]"
 
-  def additionalConf = new SparkConf(false)
+  def additionalConf: SparkConf =
+    new SparkConf(false)
+      .set("spark.driver.port", "0")
+      .set("spark.hostPort", "0")
+      .set("spark.ui.enabled", "false")
 
-  implicit val spark: SparkSession = {
-    val session = SparkSession.builder
-      .master(sparkMaster)
-      .withKryoSerialization
-      .config(additionalConf)
-      .getOrCreate()
-    session.withRasterFrames
-  }
+  implicit val spark: SparkSession =
+      SparkSession
+        .builder
+        .master(sparkMaster)
+        .withKryoSerialization
+        .config(additionalConf)
+        .getOrCreate()
+        .withRasterFrames
 
   implicit def sc: SparkContext = spark.sparkContext
 

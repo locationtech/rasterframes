@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions.tilestats
 
 import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterFunction}
 import geotrellis.raster.{Tile, isData}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        -1"""
 )
-case class TileMean(child: Expression) extends UnaryRasterOp with NullToValue with CodegenFallback {
+case class TileMean(child: Expression) extends UnaryRasterFunction with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_tile_mean"
   protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMean.op(tile)
   def dataType: DataType = DoubleType

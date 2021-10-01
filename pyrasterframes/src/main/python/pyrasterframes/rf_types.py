@@ -371,7 +371,7 @@ class CellType(object):
 
 
 class Tile(object):
-    def __init__(self, cells, cell_type=None):
+    def __init__(self, cells, cell_type=None, grid_bounds=None):
         if cell_type is None:
             # infer cell type from the cells dtype and whether or not it is masked
             ct = CellType.from_numpy_dtype(cells.dtype)
@@ -389,6 +389,11 @@ class Tile(object):
             else:
                 # if the value in the array is `nd_value`, it is masked as nodata
                 self.cells = np.ma.masked_equal(self.cells, nd_value)
+
+        # is it a buffer tile? crop it on extraction to preserve the tile behavior
+        if grid_bounds is not None:
+            colmin, rowmin, colmax, rowmax = grid_bounds
+            self.cells = self.cells[rowmin:(rowmax+1), colmin:(colmax+1)]
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -461,7 +466,7 @@ class TileUDT(UserDefinedType):
             StructField("xmax",DoubleType(), True),
             StructField("ymax",DoubleType(), True)
         ])
-        subgrid = StructType([
+        grid = StructType([
             StructField("colMin", IntegerType(), True),
             StructField("rowMin", IntegerType(), True),
             StructField("colMax", IntegerType(), True),
@@ -474,7 +479,7 @@ class TileUDT(UserDefinedType):
             ]),True),
             StructField("bandIndex", IntegerType(), True),
             StructField("subextent", extent ,True),
-            StructField("subgrid", subgrid, True),
+            StructField("subgrid", grid, True),
         ])
 
         return StructType([
@@ -482,6 +487,7 @@ class TileUDT(UserDefinedType):
              StructField("cols", IntegerType(), False),
              StructField("rows", IntegerType(), False),
              StructField("cells", BinaryType(), True),
+             StructField("gridBounds", grid, True),
              StructField("ref", ref, True)
         ])
 
@@ -501,6 +507,7 @@ class TileUDT(UserDefinedType):
             dims[0],
             dims[1],
             cells,
+            None,
             None
         ]
 
@@ -533,7 +540,7 @@ class TileUDT(UserDefinedType):
         try:
             as_numpy = np.frombuffer(cell_data_bytes, dtype=cell_type.to_numpy_dtype())
             reshaped = as_numpy.reshape((rows, cols))
-            t = Tile(reshaped, cell_type)
+            t = Tile(reshaped, cell_type, datum.gridBounds)
         except ValueError as e:
             raise ValueError({
                 "cell_type": cell_type,
@@ -541,7 +548,8 @@ class TileUDT(UserDefinedType):
                 "rows": rows,
                 "cell_data.length": len(cell_data_bytes),
                 "cell_data.type": type(cell_data_bytes),
-                "cell_data.values": repr(cell_data_bytes)
+                "cell_data.values": repr(cell_data_bytes),
+                "grid_bounds": datum.gridBounds
             }, e)
         return t
 

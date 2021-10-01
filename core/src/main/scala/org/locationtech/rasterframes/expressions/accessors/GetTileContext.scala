@@ -28,10 +28,10 @@ import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.encoders._
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 
-case class GetTileContext(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class GetTileContext(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   def dataType: DataType = tileContextEncoder.schema
 
   override def nodeName: String = "get_tile_context"

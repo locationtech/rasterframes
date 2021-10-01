@@ -234,7 +234,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
         import RasterRef.rasterRefEncoder // This shouldn't be required, but product encoder gets choosen.
         val r: RasterRef = subRaster
         val df = Seq(r).toDF()
-        val result =  df.select(rf_tile(struct($"source", $"bandIndex", $"subextent", $"subgrid"))).first()
+        val result =  df.select(rf_tile(struct($"source", $"bandIndex", $"subextent", $"subgrid", $"bufferSize"))).first()
         result.isInstanceOf[RasterRef] should be(false)
         assertEqual(r.tile.toArrayTile(), result)
       }
@@ -242,7 +242,7 @@ class RasterRefSpec extends TestEnvironment with TestData {
 
     it("should resolve a RasterRefTile") {
       new Fixture {
-        val result = Seq(subRaster).toDF().select(rf_tile(struct($"source", $"bandIndex", $"subextent", $"subgrid"))).first()
+        val result = Seq(subRaster).toDF().select(rf_tile(struct($"source", $"bandIndex", $"subextent", $"subgrid", $"bufferSize"))).first()
         result.isInstanceOf[RasterRef] should be(false)
         assertEqual(subRaster.toArrayTile(), result)
       }

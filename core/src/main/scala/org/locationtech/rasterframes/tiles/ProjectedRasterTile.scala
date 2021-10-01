@@ -37,9 +37,10 @@ trait ProjectedRasterTile extends DelegatingTile with ProjectedRasterLike with D
   def tile: Tile
   def extent: Extent
   def crs: CRS
+  def delegate: Tile
   def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
-  def projectedRaster: ProjectedRaster[Tile] = ProjectedRaster[Tile](this, extent, crs)
-  def mapTile(f: Tile => Tile): ProjectedRasterTile = ProjectedRasterTile(f(this), extent, crs)
+  def projectedRaster: ProjectedRaster[Tile] = ProjectedRaster[Tile](delegate, extent, crs)
+  def mapTile(f: Tile => Tile): ProjectedRasterTile = ProjectedRasterTile(f(delegate), extent, crs)
 }
 
 object ProjectedRasterTile {
@@ -55,8 +56,7 @@ object ProjectedRasterTile {
       }
   }
 
-  def unapply(prt: ProjectedRasterTile): Option[(Tile, Extent, CRS)] =
-    Some((prt.tile, prt.extent, prt.crs))
+  def unapply(prt: ProjectedRasterTile): Option[(Tile, Extent, CRS)] = Some((prt.tile, prt.extent, prt.crs))
 
   implicit lazy val projectedRasterTileEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder()
 }

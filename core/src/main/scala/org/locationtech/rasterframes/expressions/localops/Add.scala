@@ -27,7 +27,7 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 
 @ExpressionDescription(
@@ -43,7 +43,7 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
+case class Add(left: Expression, right: Expression) extends BinaryRasterFunction
   with CodegenFallback {
   override val nodeName: String = "rf_local_add"
   protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)

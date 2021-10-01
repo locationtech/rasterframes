@@ -28,7 +28,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 
 @ExpressionDescription(
@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        ..."""
 )
-case class TileHistogram(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class TileHistogram(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   override def nodeName: String = "rf_tile_histogram"
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     TileHistogram.converter(TileHistogram.op(tile))

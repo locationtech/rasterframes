@@ -51,6 +51,7 @@ case class RasterSourceRelation(
   catalogTable: RasterSourceCatalogRef,
   bandIndexes: Seq[Int],
   subtileDims: Option[Dimensions[Int]],
+  bufferSize: Short,
   lazyTiles: Boolean,
   spatialIndexPartitions: Option[Int]
 ) extends BaseRelation with TableScan {
@@ -127,7 +128,7 @@ case class RasterSourceRelation(
       // Expand RasterSource into multiple columns per band, and multiple rows per tile
       // There's some unintentional fragility here in that the structure of the expression
       // is expected to line up with our column structure here.
-      val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, srcs: _*) as refColNames
+      val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, bufferSize, srcs: _*) as refColNames
 
       // RasterSourceToRasterRef is a generator, which means you have to do the Tile conversion
       // in a separate select statement (Query planner doesn't know how many columns ahead of time).
@@ -139,7 +140,7 @@ case class RasterSourceRelation(
         .select(extras ++ paths :+ refs: _*)
         .select(paths ++ refsToTiles ++ extras: _*)
     } else {
-      val tiles = RasterSourceToTiles(subtileDims, bandIndexes, srcs: _*) as tileColNames
+      val tiles = RasterSourceToTiles(subtileDims, bandIndexes, bufferSize, srcs: _*) as tileColNames
       withPaths.select((paths :+ tiles) ++ extras: _*)
     }
 

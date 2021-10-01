@@ -44,7 +44,7 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
+case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None, bufferSize: Short = 0) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes {
 
   def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
@@ -57,7 +57,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
   } yield StructField(name, RasterRef.rasterRefEncoder.schema, true))
 
   private def band2ref(src: RFRasterSource, grid: Option[GridBounds[Int]], extent: Option[Extent])(b: Int): RasterRef =
-    if (b < src.bandCount) RasterRef(src, b, extent, grid.map(Subgrid.apply)) else null
+    if (b < src.bandCount) RasterRef(src, b, extent, grid.map(Subgrid.apply), bufferSize) else null
 
   def eval(input: InternalRow): TraversableOnce[InternalRow] =
     try {
@@ -88,6 +88,8 @@ object RasterSourceToRasterRefs {
   def apply(rrs: Column*): TypedColumn[Any, ProjectedRasterTile] = apply(None, Seq(0), rrs: _*)
   def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
     new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims)).as[ProjectedRasterTile]
+  def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], bufferSize: Short, rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
+    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims, bufferSize)).as[ProjectedRasterTile]
 
   private[rasterframes] def bandNames(basename: String, bandIndexes: Seq[Int]): Seq[String] = bandIndexes match {
     case Seq() => Seq.empty

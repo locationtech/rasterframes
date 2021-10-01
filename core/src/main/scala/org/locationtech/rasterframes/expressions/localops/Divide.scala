@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, rhs) - Performs cell-wise division between two tiles or a tile and a scalar.",
@@ -41,7 +41,7 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Divide(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
+case class Divide(left: Expression, right: Expression) extends BinaryRasterFunction with CodegenFallback {
   override val nodeName: String = "rf_local_divide"
   protected def op(left: Tile, right: Tile): Tile = left.localDivide(right)
   protected def op(left: Tile, right: Double): Tile = left.localDivide(right)

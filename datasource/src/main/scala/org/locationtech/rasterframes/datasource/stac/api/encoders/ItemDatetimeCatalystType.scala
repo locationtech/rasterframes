@@ -4,6 +4,7 @@ sealed trait ItemDatetimeCatalystType { lazy val repr: String = this.getClass.ge
 object ItemDatetimeCatalystType {
   case object PointInTime extends ItemDatetimeCatalystType
   case object TimeRange extends ItemDatetimeCatalystType
+  case object PointInTimeAndTimeRange extends ItemDatetimeCatalystType
 
   def fromString(str: String): ItemDatetimeCatalystType = str match {
     case PointInTime.repr => PointInTime

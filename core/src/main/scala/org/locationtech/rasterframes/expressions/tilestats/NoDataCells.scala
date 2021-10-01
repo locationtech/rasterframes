@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions.tilestats
 
 import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterFunction}
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
@@ -40,7 +40,7 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        12"""
 )
-case class NoDataCells(child: Expression) extends UnaryRasterOp with CodegenFallback with NullToValue {
+case class NoDataCells(child: Expression) extends UnaryRasterFunction with CodegenFallback with NullToValue {
   override def nodeName: String = "rf_no_data_cells"
   def dataType: DataType = LongType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = NoDataCells.op(tile)

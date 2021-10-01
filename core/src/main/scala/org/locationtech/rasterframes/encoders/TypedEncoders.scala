@@ -3,13 +3,14 @@ package org.locationtech.rasterframes.encoders
 import frameless._
 import geotrellis.layer.{KeyBounds, LayoutDefinition, TileLayerMetadata}
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellType, Dimensions, GridBounds, Raster, Tile, CellGrid}
+import geotrellis.raster.mapalgebra.focal.{Kernel, Neighborhood}
+import geotrellis.raster.{CellGrid, CellType, Dimensions, GridBounds, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.rf.{CrsUDT, RasterSourceUDT, TileUDT}
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.rasterframes.util.KryoSupport
+import org.locationtech.rasterframes.util.{FocalNeighborhood, KryoSupport}
 
 import java.net.URI
 import java.nio.ByteBuffer
@@ -32,6 +33,9 @@ trait TypedEncoders {
 
   implicit val uriInjection: Injection[URI, String] = Injection(_.toString, new URI(_))
   implicit val uriTypedEncoder: TypedEncoder[URI]   = TypedEncoder.usingInjection
+
+  implicit val neighborhoodInjection: Injection[Neighborhood, String] = Injection(FocalNeighborhood(_), FocalNeighborhood.fromString(_).get)
+  implicit val neighborhoodTypedEncoder: TypedEncoder[Neighborhood]   = TypedEncoder.usingInjection
 
   implicit val envelopeTypedEncoder: TypedEncoder[Envelope] =
     ManualTypedEncoder.newInstance[Envelope](
@@ -81,6 +85,8 @@ trait TypedEncoders {
 
   implicit val tileTypedEncoder: TypedEncoder[Tile] = TypedEncoder.usingUserDefinedType[Tile]
   implicit def rasterTileTypedEncoder[T <: CellGrid[Int]: TypedEncoder]: TypedEncoder[Raster[T]] = TypedEncoder.usingDerivation
+
+  implicit val kernelTypedEncoder: TypedEncoder[Kernel] = TypedEncoder.usingDerivation
 }
 
 object TypedEncoders extends TypedEncoders

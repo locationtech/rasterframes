@@ -27,7 +27,7 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
 import org.locationtech.rasterframes.util.DataBiasedOp
 
@@ -45,7 +45,7 @@ import org.locationtech.rasterframes.util.DataBiasedOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class BiasedAdd(left: Expression, right: Expression) extends BinaryLocalRasterOp
+case class BiasedAdd(left: Expression, right: Expression) extends BinaryRasterFunction
   with CodegenFallback {
   override val nodeName: String = "rf_local_biased_add"
   protected def op(left: Tile, right: Tile): Tile = DataBiasedOp.BiasedAdd(left, right)

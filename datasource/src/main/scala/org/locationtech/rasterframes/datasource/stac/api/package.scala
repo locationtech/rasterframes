@@ -1,9 +1,11 @@
 package org.locationtech.rasterframes.datasource.stac
 
+import cats.Monad
+import cats.syntax.functor._
 import com.azavea.stac4s.api.client.SearchFilters
 import org.apache.spark.sql.{DataFrame, DataFrameReader}
 import io.circe.syntax._
-import fs2.Stream
+import fs2.{Pull, Stream}
 import shapeless.tag
 import shapeless.tag.@@
 import org.apache.spark.sql.SparkSession
@@ -17,6 +19,7 @@ package object api {
 
   implicit class StacApiDataFrameReaderOps(val reader: StacApiDataFrameReader) extends AnyVal {
     def loadStac: StacApiDataFrame = tag[StacApiDataFrameTag][DataFrame](reader.load)
+    def loadStac(limit: Int): StacApiDataFrame = tag[StacApiDataFrameTag][DataFrame](reader.load.limit(limit))
   }
 
   implicit class StacApiDataFrameOps(val df: StacApiDataFrame) extends AnyVal {
@@ -38,7 +41,27 @@ package object api {
   }
 
   implicit class Fs2StreamOps[F[_], T](val self: Stream[F, T]) {
-    def take(n: Option[Int]): Stream[F, T] = n.fold(self)(self.take(_))
+    /** Unsafe API to interop with the Spark API. */
+    def toIterator(run: F[Option[(T, fs2.Stream[F, T])]] => Option[(T, fs2.Stream[F, T])])
+                  (implicit monad: Monad[F], compiler: Stream.Compiler[F, F]): Iterator[T] = new Iterator[T] {
+      private var head = self
+      private def nextF: F[Option[(T, fs2.Stream[F, T])]] =
+        head
+          .pull.uncons1
+          .flatMap(Pull.output1)
+          .stream
+          .compile
+          .last
+          .map(_.flatten)
+
+      def hasNext(): Boolean = run(nextF).nonEmpty
+
+      def next(): T = {
+        val (item, tail) = run(nextF).get
+        this.head = tail
+        item
+      }
+    }
   }
 
   implicit class DataFrameReaderOps(val self: DataFrameReader) extends AnyVal {
@@ -48,12 +71,11 @@ package object api {
 
   implicit class DataFrameReaderStacApiOps(val reader: DataFrameReader) extends AnyVal {
     def stacApi(): StacApiDataFrameReader = tag[StacApiDataFrameTag][DataFrameReader](reader.format(StacApiDataSource.SHORT_NAME))
-    def stacApi(uri: String, filters: SearchFilters = SearchFilters(), searchLimit: Option[Int] = None): StacApiDataFrameReader =
+    def stacApi(uri: String, filters: SearchFilters = SearchFilters()): StacApiDataFrameReader =
       tag[StacApiDataFrameTag][DataFrameReader](
         stacApi()
           .option(StacApiDataSource.URI_PARAM, uri)
           .option(StacApiDataSource.SEARCH_FILTERS_PARAM, filters.asJson.noSpaces)
-          .option(StacApiDataSource.ASSET_LIMIT_PARAM, searchLimit)
       )
   }
 }

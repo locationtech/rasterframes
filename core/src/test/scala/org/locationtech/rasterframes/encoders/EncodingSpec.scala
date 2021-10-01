@@ -23,10 +23,9 @@ package org.locationtech.rasterframes.encoders
 
 import java.io.File
 import java.net.URI
-
 import geotrellis.layer._
 import geotrellis.proj4._
-import geotrellis.raster.{ArrayTile, CellType, Raster, Tile}
+import geotrellis.raster.{ArrayTile, BufferTile, CellType, GridBounds, Raster, Tile}
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.Row
@@ -43,7 +42,6 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  */
 class EncodingSpec extends TestEnvironment with TestData {
 
-
   import spark.implicits._
 
   describe("Spark encoding on standard types") {
@@ -58,11 +56,38 @@ class EncodingSpec extends TestEnvironment with TestData {
       }
     }
 
+    it("should serialize BufferTile") {
+      val tileUDT = new TileUDT()
+      val tile = one.tile
+      val expected = BufferTile(tile, GridBounds(tile.dimensions))
+      val actual = tileUDT.deserialize(tileUDT.serialize(expected))
+
+      assert(actual.isInstanceOf[BufferTile] === true)
+      val actualBufferTile = actual.asInstanceOf[BufferTile]
+
+      actualBufferTile.gridBounds shouldBe expected.gridBounds
+      assertEqual(actualBufferTile.sourceTile, expected.sourceTile)
+    }
+
     it("should code RDD[Tile]") {
       val rdd = sc.makeRDD(Seq(byteArrayTile: Tile, null))
       val ds = rdd.toDF("tile")
       write(ds)
       assert(ds.toDF.as[Tile].collect().head === byteArrayTile)
+    }
+
+    it("should code RDD[BufferTile]") {
+      val tile = one.tile
+      val expected = BufferTile(tile, GridBounds(tile.dimensions))
+      val ds = Seq(expected: Tile).toDS()
+      write(ds)
+      val actual = ds.toDF.as[Tile].first()
+
+      assert(actual.isInstanceOf[BufferTile] === true)
+      val actualBufferTile = actual.asInstanceOf[BufferTile]
+
+      actualBufferTile.gridBounds shouldBe expected.gridBounds
+      assertEqual(actualBufferTile.sourceTile, expected.sourceTile)
     }
 
     it("should code RDD[(Int, Tile)]") {

@@ -25,9 +25,7 @@ import org.locationtech.rasterframes.datasource.raster._
 import org.locationtech.rasterframes.datasource.stac.api.encoders._
 import com.azavea.stac4s.StacItem
 import com.azavea.stac4s.api.client.{SearchFilters, SttpStacClient}
-import cats.syntax.option._
 import cats.effect.IO
-import eu.timepit.refined.auto._
 import geotrellis.store.util.BlockingThreadPool
 import org.apache.spark.sql.functions.explode
 import org.locationtech.rasterframes.TestEnvironment
@@ -45,9 +43,10 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
           .read
           .stacApi(
             "https://franklin.nasa-hsi.azavea.com/",
-            filters = SearchFilters(items = List("aviris-l1-cogs_f130329t01p00r06_sc01")),
-            searchLimit = Some(1)
-          ).load
+            filters = SearchFilters(items = List("aviris-l1-cogs_f130329t01p00r06_sc01"))
+          )
+          .load
+          .limit(1)
 
       results.rdd.partitions.length shouldBe 1
       results.count() shouldBe 1L
@@ -78,9 +77,10 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
           .read
           .stacApi(
             "https://franklin.nasa-hsi.azavea.com/",
-            filters = SearchFilters(items = List("aviris-l1-cogs_f130329t01p00r06_sc01")),
-            searchLimit = Some(1)
-          ).load
+            filters = SearchFilters(items = List("aviris-l1-cogs_f130329t01p00r06_sc01"))
+          )
+          .load
+          .limit(1)
 
       results.rdd.partitions.length shouldBe 1
 
@@ -118,10 +118,9 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
           .read
           .stacApi(
             "https://franklin.nasa-hsi.azavea.com/",
-            filters = SearchFilters(items = List("aviris-l1-cogs_f130329t01p00r06_sc01")),
-            searchLimit = Some(1)
+            filters = SearchFilters(items = List("aviris-l1-cogs_f130329t01p00r06_sc01"))
           )
-          .loadStac
+          .loadStac(limit = 1) // to preserve the STAC DataFrame type
 
       val assets =
         items
@@ -149,7 +148,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
     it("should read from Astraea Earth service") {
       import spark.implicits._
 
-      val results = spark.read.stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = Some(1)).load
+      val results = spark.read.stacApi("https://eod-catalog-svc-prod.astraea.earth/").load.limit(1)
 
       // results.printSchema()
 
@@ -178,8 +177,9 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
       val items =
         spark
           .read
-          .stacApi("https://eod-catalog-svc-prod.astraea.earth/", searchLimit = 1.some)
+          .stacApi("https://eod-catalog-svc-prod.astraea.earth/")
           .load
+          .limit(1)
 
       println(items.collect().toList.length)
 
@@ -199,7 +199,11 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
 
     ignore("should fetch rasters from the Datacube STAC API service") {
       import spark.implicits._
-      val items = spark.read.stacApi("https://datacube.services.geo.ca/api",  filters = SearchFilters(collections=List("markham")), searchLimit = Some(1)).load
+      val items = spark
+        .read
+        .stacApi("https://datacube.services.geo.ca/api",  filters = SearchFilters(collections=List("markham")))
+        .load
+        .limit(1)
 
       println(items.collect().toList.length)
 
