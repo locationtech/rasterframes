@@ -15,11 +15,9 @@ import org.apache.spark.sql.connector.read.{InputPartition, PartitionReader, Par
 case class StacApiPartition(uri: Uri, searchFilters: SearchFilters) extends InputPartition
 
 class StacApiPartitionReaderFactory extends PartitionReaderFactory {
-  override def createReader(partition: InputPartition): PartitionReader[InternalRow] = {
-    partition match {
-      case p: StacApiPartition => new StacApiPartitionReader(p)
-      case _                   => throw new UnsupportedOperationException("Partition processing is unsupported by the reader.")
-    }
+  override def createReader(partition: InputPartition): PartitionReader[InternalRow] = partition match {
+    case p: StacApiPartition => new StacApiPartitionReader(p)
+    case _ => throw new UnsupportedOperationException("Partition processing is unsupported by the reader.")
   }
 }
 
