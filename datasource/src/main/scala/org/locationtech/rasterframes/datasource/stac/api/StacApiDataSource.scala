@@ -16,12 +16,11 @@ class StacApiDataSource extends TableProvider with DataSourceRegister {
   def getTable(structType: StructType, transforms: Array[Transform], map: util.Map[String, String]): Table =
     new StacApiTable()
 
-  override def shortName(): String = "stac-api"
+  def shortName(): String = StacApiDataSource.SHORT_NAME
 }
 
 object StacApiDataSource {
   final val SHORT_NAME = "stac-api"
   final val URI_PARAM = "uri"
   final val SEARCH_FILTERS_PARAM = "search-filters"
-  final val SEARCH_LIMIT_PARAM = "search-limit"
 }

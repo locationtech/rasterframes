@@ -7,8 +7,8 @@ import org.apache.spark.sql.connector.catalog.{SupportsRead, Table, TableCapabil
 import org.apache.spark.sql.connector.read.ScanBuilder
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
-import org.locationtech.rasterframes.datasource.stac.api.StacApiDataSource.{SEARCH_LIMIT_PARAM, SEARCH_FILTERS_PARAM, URI_PARAM}
-import org.locationtech.rasterframes.datasource.{intParam, jsonParam, uriParam}
+import org.locationtech.rasterframes.datasource.stac.api.StacApiDataSource.{SEARCH_FILTERS_PARAM, URI_PARAM}
+import org.locationtech.rasterframes.datasource.{jsonParam, uriParam}
 import sttp.model.Uri
 
 import scala.collection.JavaConverters._
@@ -24,7 +24,7 @@ class StacApiTable extends Table with SupportsRead {
   def capabilities(): util.Set[TableCapability] = Set(TableCapability.BATCH_READ).asJava
 
   def newScanBuilder(options: CaseInsensitiveStringMap): ScanBuilder =
-    new StacApiScanBuilder(options.uri, options.searchFilters, options.searchLimit)
+    new StacApiScanBuilder(options.uri, options.searchFilters)
 }
 
 object StacApiTable {
@@ -35,7 +35,5 @@ object StacApiTable {
       jsonParam(SEARCH_FILTERS_PARAM, options)
         .flatMap(_.as[SearchFilters].toOption)
         .getOrElse(SearchFilters(limit = NonNegInt.from(30).toOption))
-
-    def searchLimit: Option[NonNegInt] = intParam(SEARCH_LIMIT_PARAM, options).flatMap(NonNegInt.from(_).toOption)
   }
 }

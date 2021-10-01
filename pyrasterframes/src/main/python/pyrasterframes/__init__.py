@@ -255,12 +255,10 @@ def _raster_reader(
 def _stac_api_reader(
         df_reader: DataFrameReader,
         uri: str,
-        filters: dict = None,
-        search_limit: Optional[int] = None) -> DataFrame:
+        filters: dict = None) -> DataFrame:
     """
     uri - STAC API uri
     filters - a STAC API Search filters dict (bbox, datetime, intersects, collections, items, limit, query, next)
-    search_limit - search results convenient limit method
     """
     import json
 
@@ -268,7 +266,6 @@ def _stac_api_reader(
         .format("stac-api") \
         .option("uri", uri) \
         .option("search-filters", json.dumps(filters)) \
-        .option("search-limit", search_limit) \
         .load()
 
 def _geotiff_writer(
