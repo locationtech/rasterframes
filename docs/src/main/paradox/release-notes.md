@@ -1,5 +1,13 @@
 # Release Notes
 
+## 0.10.x
+
+### 0.10.0
+
+* Upgraded to Spark 3.1.2, Scala 2.12 and GeoTrellis 3.6.0
+* Added FocalOperations support
+* Added STAC API DataFrames implementation
+
 ## 0.9.x
 
 ### 0.9.1

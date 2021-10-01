@@ -257,8 +257,8 @@ def _stac_api_reader(
         uri: str,
         filters: dict = None) -> DataFrame:
     """
-    uri - STAC API uri
-    filters - a STAC API Search filters dict (bbox, datetime, intersects, collections, items, limit, query, next)
+    :param uri: STAC API uri
+    :param filters: STAC API Search filters dict (bbox, datetime, intersects, collections, items, limit, query, next), see the STAC API Spec for more details https://github.com/radiantearth/stac-api-spec
     """
     import json
 

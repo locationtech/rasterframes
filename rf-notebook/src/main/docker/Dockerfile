@@ -1,5 +1,4 @@
-# jupyter/scipy-notebook isn't semantically versioned.
-# We pick this arbitrary one from Sept 2019 because it's what latest was on Oct 17 2019.
+# Python version compatible with Spark and GDAL 3.1.2
 FROM jupyter/scipy-notebook:python-3.8.8
 
 LABEL maintainer="Astraea, Inc. <info@astraea.earth>"
