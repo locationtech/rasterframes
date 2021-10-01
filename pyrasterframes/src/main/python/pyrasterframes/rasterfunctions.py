@@ -780,59 +780,77 @@ def rf_identity(tile_col: Column_type) -> Column:
     """Pass tile through unchanged"""
     return _apply_column_function('rf_identity', tile_col)
 
-def rf_focal_max(tile_col: Column_type, neighborhood: Union[str, Column_type]) -> Column:
+def rf_focal_max(tile_col: Column_type, neighborhood: Union[str, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Compute the max value in its neighborhood of each cell"""
     if isinstance(neighborhood, str):
         neighborhood = lit(neighborhood)
-    return _apply_column_function('rf_focal_max', tile_col, neighborhood)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_focal_max', tile_col, neighborhood, target)
 
-def rf_focal_mean(tile_col: Column_type, neighborhood: Union[str, Column_type]) -> Column:
+def rf_focal_mean(tile_col: Column_type, neighborhood: Union[str, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Compute the mean value in its neighborhood of each cell"""
     if isinstance(neighborhood, str):
         neighborhood = lit(neighborhood)
-    return _apply_column_function('rf_focal_mean', tile_col, neighborhood)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_focal_mean', tile_col, neighborhood, target)
 
-def rf_focal_median(tile_col: Column_type, neighborhood: Union[str, Column_type]) -> Column:
+def rf_focal_median(tile_col: Column_type, neighborhood: Union[str, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Compute the max in its neighborhood value of each cell"""
     if isinstance(neighborhood, str):
         neighborhood = lit(neighborhood)
-    return _apply_column_function('rf_focal_median', tile_col, neighborhood)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_focal_median', tile_col, neighborhood, target)
 
-def rf_focal_min(tile_col: Column_type, neighborhood: Union[str, Column_type]) -> Column:
+def rf_focal_min(tile_col: Column_type, neighborhood: Union[str, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Compute the min value in its neighborhood of each cell"""
     if isinstance(neighborhood, str):
         neighborhood = lit(neighborhood)
-    return _apply_column_function('rf_focal_min', tile_col, neighborhood)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_focal_min', tile_col, neighborhood, target)
 
-def rf_focal_mode(tile_col: Column_type, neighborhood: Union[str, Column_type]) -> Column:
+def rf_focal_mode(tile_col: Column_type, neighborhood: Union[str, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Compute the mode value in its neighborhood of each cell"""
     if isinstance(neighborhood, str):
         neighborhood = lit(neighborhood)
-    return _apply_column_function('rf_focal_mode', tile_col, neighborhood)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_focal_mode', tile_col, neighborhood, target)
 
-def rf_focal_std_dev(tile_col: Column_type, neighborhood: Union[str, Column_type]) -> Column:
+def rf_focal_std_dev(tile_col: Column_type, neighborhood: Union[str, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Compute the standard deviation value in its neighborhood of each cell"""
     if isinstance(neighborhood, str):
         neighborhood = lit(neighborhood)
-    return _apply_column_function('rf_focal_std_dev', tile_col, neighborhood)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_focal_std_dev', tile_col, neighborhood, target)
 
-def rf_moransI(tile_col: Column_type, neighborhood: Union[str, Column_type]) -> Column:
+def rf_moransI(tile_col: Column_type, neighborhood: Union[str, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Compute moransI in its neighborhood value of each cell"""
     if isinstance(neighborhood, str):
         neighborhood = lit(neighborhood)
-    return _apply_column_function('rf_focal_moransi', tile_col, neighborhood)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_focal_moransi', tile_col, neighborhood, target)
 
-def rf_aspect(tile_col: Column_type) -> Column:
+def rf_aspect(tile_col: Column_type, target: Union[str, Column_type] = 'all') -> Column:
     """Calculates the aspect of each cell in an elevation raster"""
-    return _apply_column_function('rf_aspect', tile_col)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_aspect', tile_col, target)
 
-def rf_slope(tile_col: Column_type, z_factor: Union[int, float, Column_type]) -> Column:
+def rf_slope(tile_col: Column_type, z_factor: Union[int, float, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Calculates slope of each cell in an elevation raster"""
     if isinstance(z_factor, (int, float)):
         z_factor = lit(z_factor)
-    return _apply_column_function('rf_slope', tile_col, z_factor)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_slope', tile_col, z_factor, target)
 
-def rf_hillshade(tile_col: Column_type, azimuth: Union[int, float, Column_type], altitude: Union[int, float, Column_type], z_factor: Union[int, float, Column_type]) -> Column:
+def rf_hillshade(tile_col: Column_type, azimuth: Union[int, float, Column_type], altitude: Union[int, float, Column_type], z_factor: Union[int, float, Column_type], target: Union[str, Column_type] = 'all') -> Column:
     """Calculates the hillshade of each cell in an elevation raster"""
     if isinstance(azimuth, (int, float)):
         azimuth = lit(azimuth)
@@ -840,7 +858,9 @@ def rf_hillshade(tile_col: Column_type, azimuth: Union[int, float, Column_type],
         altitude = lit(altitude)
     if isinstance(z_factor, (int, float)):
         z_factor = lit(z_factor)
-    return _apply_column_function('rf_hillshade', tile_col, azimuth, altitude, z_factor)
+    if isinstance(target, str):
+        target = lit(target)
+    return _apply_column_function('rf_hillshade', tile_col, azimuth, altitude, z_factor, target)
 
 def rf_resample(tile_col: Column_type, scale_factor: Union[int, float, Column_type]) -> Column:
     """Resample tile to different size based on scalar factor or tile whose dimension to match

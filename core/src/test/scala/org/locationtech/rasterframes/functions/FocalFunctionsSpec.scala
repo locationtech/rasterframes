@@ -67,7 +67,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_focal_mean(proj_raster, 'square-1')")
+          .selectExpr(s"rf_focal_mean(proj_raster, 'square-1', 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -89,7 +89,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_focal_median(proj_raster, 'square-1')")
+          .selectExpr(s"rf_focal_median(proj_raster, 'square-1', 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -111,7 +111,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_focal_mode(proj_raster, 'square-1')")
+          .selectExpr(s"rf_focal_mode(proj_raster, 'square-1', 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -133,7 +133,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_focal_max(proj_raster, 'square-1')")
+          .selectExpr(s"rf_focal_max(proj_raster, 'square-1', 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -155,7 +155,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_focal_min(proj_raster, 'square-1')")
+          .selectExpr(s"rf_focal_min(proj_raster, 'square-1', 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -177,7 +177,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_focal_stddev(proj_raster, 'square-1')")
+          .selectExpr(s"rf_focal_stddev(proj_raster, 'square-1', 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -199,7 +199,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_focal_moransi(proj_raster, 'square-1')")
+          .selectExpr(s"rf_focal_moransi(proj_raster, 'square-1', 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -222,7 +222,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
       val actualExpr =
         df
           .withColumn("kernel", serialized_literal(Kernel(Circle(2d))))
-          .selectExpr(s"rf_convolve(proj_raster, kernel)")
+          .selectExpr(s"rf_convolve(proj_raster, kernel, 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -244,7 +244,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_slope(proj_raster, 1)")
+          .selectExpr(s"rf_slope(proj_raster, 1, 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -266,7 +266,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_aspect(proj_raster)")
+          .selectExpr(s"rf_aspect(proj_raster, 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get
@@ -288,7 +288,7 @@ class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
 
       val actualExpr =
         df
-          .selectExpr(s"rf_hillshade(proj_raster, 315, 45, 1)")
+          .selectExpr(s"rf_hillshade(proj_raster, 315, 45, 1, 'all')")
           .as[Option[ProjectedRasterTile]]
           .first()
           .get

@@ -21,55 +21,61 @@
 
 package org.locationtech.rasterframes.expressions.focalops
 
-import geotrellis.raster.{BufferTile, CellSize}
+import geotrellis.raster.{BufferTile, CellSize, TargetCell, Tile}
 import org.apache.spark.sql.Column
-import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.locationtech.rasterframes.expressions.{NullToValue, RasterResult, UnaryRasterFunction, row}
+import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
+import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.locationtech.rasterframes.model.TileContext
-import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
 import org.slf4j.LoggerFactory
 import com.typesafe.scalalogging.Logger
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile) - Performs aspect on tile.",
+  usage = "_FUNC_(tile, target) - Performs aspect on tile.",
   arguments = """
   Arguments:
-    * tile - a tile to apply operation""",
+    * tile - a tile to apply operation
+    * target - the target cells to apply focal operation: data, nodata, all""",
   examples = """
   Examples:
-    > SELECT _FUNC_(tile);
+    > SELECT _FUNC_(tile, 'all');
        ..."""
 )
-case class Aspect(child: Expression) extends UnaryRasterFunction with RasterResult with NullToValue with CodegenFallback {
+case class Aspect(left: Expression, right: Expression) extends BinaryExpression with RasterResult with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  def na: Any = null
+  def dataType: DataType = left.dataType
 
-  def dataType: DataType = child.dataType
+  override def checkInputDataTypes(): TypeCheckResult =
+    if (!tileExtractor.isDefinedAt(left.dataType)) TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
+    else if(!targetCellExtractor.isDefinedAt(right.dataType)) TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a string TargetCell type.")
+    else TypeCheckSuccess
 
-  override protected def nullSafeEval(input: Any): Any = {
-    val (tile, ctx) = tileExtractor(child.dataType)(row(input))
-    eval(extractBufferTile(tile), ctx)
+  override protected def nullSafeEval(tileInput: Any, targetCellInput: Any): Any = {
+    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
+    val target = targetCellExtractor(right.dataType)(targetCellInput)
+    eval(extractBufferTile(tile), ctx, target)
   }
 
-  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ctx match {
-    case Some(ctx) => ctx.toProjectRasterTile(op(tile, ctx)).toInternalRow
+  protected def eval(tile: Tile, ctx: Option[TileContext], target: TargetCell): Any = ctx match {
+    case Some(ctx) => ctx.toProjectRasterTile(op(tile, ctx, target)).toInternalRow
     case None => new NotImplementedError("Surface operation requires ProjectedRasterTile")
   }
 
   override def nodeName: String = Aspect.name
 
-  def op(t: Tile, ctx: TileContext): Tile = t match {
-    case bt: BufferTile => bt.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows))
-    case _ => t.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows))
+  def op(t: Tile, ctx: TileContext, target: TargetCell): Tile = t match {
+    case bt: BufferTile => bt.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows), target = target)
+    case _ => t.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows), target = target)
   }
 }
 
 object Aspect {
   def name: String = "rf_aspect"
-  def apply(tile: Column): Column = new Column(Aspect(tile.expr))
+  def apply(tile: Column, target: Column): Column = new Column(Aspect(tile.expr, target.expr))
 }
