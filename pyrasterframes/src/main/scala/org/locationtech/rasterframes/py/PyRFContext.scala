@@ -33,6 +33,7 @@ import org.locationtech.rasterframes.extensions.RasterJoin
 import org.locationtech.rasterframes.model.LazyCRS
 import org.locationtech.rasterframes.ref.{GDALRasterSource, RFRasterSource, RasterRef}
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.datasource.stac.api.StacApiDataFrame
 import spray.json._
 import org.locationtech.rasterframes.util.JsonCodecs._
 
@@ -266,4 +267,9 @@ class PyRFContext(implicit sparkSession: SparkSession) extends RasterFunctions
 
   def _reprojectExtent(extent: Extent, srcCRS: String, destCRS: String): Extent =
     extent.reproject(LazyCRS(srcCRS), LazyCRS(destCRS))
+
+  import org.locationtech.rasterframes.datasource.stac.api.StacApiDataFrameOps
+  def _flattenAssets(df: DataFrame): DataFrame =
+    StacApiDataFrameOps(df.asInstanceOf[StacApiDataFrame]).flattenAssets(df.sparkSession)
+
 }

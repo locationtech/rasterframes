@@ -138,7 +138,7 @@ def get_nodata_ct(nd_val):
 masked_rf = rf.withColumn('tile_nd_1',
                            rf_convert_cell_type('tile', get_nodata_ct(1))) \
               .withColumn('tile_nd_2',
-                          rf_convert_cell_type('tile_nd_1', get_nodata_ct(2))) \
+                          rf_convert_cell_type('tile_nd_1', get_nodata_ct(2)))
 ```
 
 ```python, masked_collected

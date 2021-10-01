@@ -51,8 +51,6 @@ class GeoTiffDataSource extends DataSourceRegister with RelationProvider with Cr
   /** Read single geotiff as a relation. */
   def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {
     require(parameters.path.isDefined, "Valid URI 'path' parameter required.")
-    sqlContext.withRasterFrames
-
     val p = parameters.path.get
     GeoTiffRelation(sqlContext, p)
   }
@@ -62,7 +60,6 @@ class GeoTiffDataSource extends DataSourceRegister with RelationProvider with Cr
     require(parameters.path.isDefined, "Valid URI 'path' parameter required.")
     val path = parameters.path.get
     require(path.getScheme == "file" || path.getScheme == null, "Currently only 'file://' destinations are supported")
-    sqlContext.withRasterFrames
 
     val tileCols = df.tileColumns
 

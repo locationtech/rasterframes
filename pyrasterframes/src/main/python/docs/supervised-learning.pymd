@@ -66,7 +66,7 @@ We will create a very small Spark DataFrame of the label shapes and then join it
 After the raster and vector data are joined, we will convert the vector shapes into _tiles_ using the @ref:[`rf_rasterize`](reference.md#rf-rasterize) function. This procedure is sometimes called "burning in" a geometry into a raster. The values in the resulting _tile_ cells are the `id` property of the GeoJSON, which we will use as labels in our supervised learning task. In areas where the geometry does not intersect, the cells will contain NoData.
 
 ```python join_and_rasterize
-crses = df.select('crs.crsProj4').distinct().collect()
+crses = df.select('crs').distinct().collect()
 print('Found ', len(crses), 'distinct CRS.')
 crs = crses[0][0]
 
@@ -74,7 +74,7 @@ from pyspark import SparkFiles
 spark.sparkContext.addFile('https://rasterframes.s3.amazonaws.com/samples/luray_snp/luray-labels.geojson') 
 
 label_df = spark.read.geojson(SparkFiles.get('luray-labels.geojson')) \
-    .select('id', st_reproject('geometry', lit('EPSG:4326'), lit(crs)).alias('geometry')) \
+    .select('id', st_reproject('geometry', lit('EPSG:4326'), crs).alias('geometry')) \
     .hint('broadcast')
 
 df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry')) \

@@ -82,6 +82,7 @@ class PweaveDocs(distutils.cmd.Command):
                 self.format = 'pandoc2html'
         if isinstance(self.quick, str):
             self.quick = self.quick == 'True' or self.quick == 'true'
+        print("Quick is " + str(self.quick))
 
     def dest_file(self, src_file):
         return path.splitext(src_file)[0] + '.md'

@@ -23,7 +23,7 @@ This module contains access to the jvm SparkContext with RasterFrameLayer suppor
 """
 
 from pyspark import SparkContext
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
 
 from typing import Any, List
 from py4j.java_gateway import JavaMember
@@ -95,4 +95,13 @@ class RFContext(object):
         Get the active Scala PyRFContext and throw an error if it is not enabled for RasterFrames.
         """
         return RFContext.active()._jvm
+
+    @staticmethod
+    def jdf2pydf(jdf):
+        """
+        Wrap a Java DataFrame in a Python DataFrame
+
+        """
+        ctx = RFContext.active()
+        return DataFrame(jdf, ctx._spark_session._wrapped)
 

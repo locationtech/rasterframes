@@ -101,7 +101,7 @@ lazy val core = project
   )
 
 lazy val pyrasterframes = project
-  .dependsOn(core, datasource)
+  .dependsOn(core, datasource, experimental)
   .enablePlugins(RFAssemblyPlugin, PythonBuildPlugin)
   .settings(
     libraryDependencies ++= Seq(

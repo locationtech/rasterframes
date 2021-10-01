@@ -11,6 +11,8 @@ object RFProjectPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   override def requires = GitPlugin && RFDependenciesPlugin
 
+  lazy val isIntellij = sys.props.get("java.class.path").exists(_.contains("IntelliJ"))
+
   override def projectSettings = Seq(
     organization := "org.locationtech.rasterframes",
     organizationName := "LocationTech RasterFrames",
@@ -32,6 +34,7 @@ object RFProjectPlugin extends AutoPlugin {
     Compile / doc / scalacOptions ++= Seq("-no-link-warnings"),
     Compile / console / scalacOptions := Seq("-feature"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    // This is as a workaround to a bug in IntelliJ where multiple versions of this jar get loaded.
     initialize := {
       val _ = initialize.value // run the previous initialization
       val sparkVer = VersionNumber(RFDependenciesPlugin.autoImport.rfSparkVersion.value)
@@ -102,6 +105,11 @@ object RFProjectPlugin extends AutoPlugin {
         |spark.sparkContext.setLogLevel("ERROR")
         |import spark.implicits._
       """.stripMargin.trim,
-    console / cleanupCommands := "spark.stop()"
+    console / cleanupCommands := "spark.stop()",
+    dependencyOverrides ++= {
+      // Workaround for bug in IntelliJ where plugin and project dependencies get merged and can conflict.
+      if (isIntellij)  Seq("com.thoughtworks.paranamer" % "paranamer" % "2.8")
+      else Seq.empty
+    }
   )
 }

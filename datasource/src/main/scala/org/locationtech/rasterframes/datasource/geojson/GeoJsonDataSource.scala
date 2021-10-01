@@ -27,7 +27,6 @@ import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider, TableScan}
 import org.apache.spark.sql.types.{DataTypes, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.locationtech.geomesa.spark.jts._
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.rasterframes.datasource.geojson.DOM._
 import spray.json.DefaultJsonProtocol._
@@ -50,7 +49,6 @@ class GeoJsonDataSource extends DataSourceRegister with RelationProvider {
     val path = parameters.getOrElse(
       PATH_PARAM,
       throw new IllegalArgumentException("Valid URI 'path' parameter required."))
-    sqlContext.withJTS
     val infer = parameters.get(INFER_SCHEMA).forall(_.toBoolean)
     GeoJsonRelation(sqlContext, path, infer)
   }

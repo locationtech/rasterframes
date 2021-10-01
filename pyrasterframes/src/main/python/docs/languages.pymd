@@ -55,7 +55,7 @@ red_nir_tiles_monthly_2017 = spark.read.raster(
 ```python, step_4_python
 result = red_nir_tiles_monthly_2017 \
     .where(st_intersects(
-        st_reproject(rf_geometry(col('red')), rf_crs(col('red')).crsProj4, rf_mk_crs('EPSG:4326')),
+        st_reproject(rf_geometry(col('red')), rf_crs(col('red')), rf_mk_crs('EPSG:4326')),
         st_makePoint(lit(34.870605), lit(-4.729727)))
     ) \
     .groupBy('month') \

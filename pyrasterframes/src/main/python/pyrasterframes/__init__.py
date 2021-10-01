@@ -255,6 +255,7 @@ def _raster_reader(
 def _stac_api_reader(
         df_reader: DataFrameReader,
         uri: str,
+        flatten_assets: bool = True,
         filters: dict = None) -> DataFrame:
     """
     :param uri: STAC API uri
@@ -262,11 +263,17 @@ def _stac_api_reader(
     """
     import json
 
-    return df_reader \
+    df = df_reader \
         .format("stac-api") \
         .option("uri", uri) \
         .option("search-filters", json.dumps(filters)) \
         .load()
+
+    if flatten_assets:
+        jdf = RFContext.call('_flattenAssets', df._jdf)
+        return RFContext.jdf2pydf(jdf)
+
+    return df
 
 def _geotiff_writer(
         df_writer: DataFrameWriter,

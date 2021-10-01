@@ -52,7 +52,7 @@ In this particular example, the minimum value of all cells in all tiles in the c
 blue_min = unmasked.agg(rf_agg_stats('blue').min.alias('blue_min'))
 print('Nonzero minimum value in the blue band:', blue_min.first())
 
-blue_ct = unmasked.select(rf_cell_type('blue')).distinct().first()[0][0]
+blue_ct = unmasked.select(rf_cell_type('blue')).distinct().first()[0]
 masked_blue_ct = CellType(blue_ct).with_no_data_value(0)
 masked_blue_ct.cell_type_name
 ```

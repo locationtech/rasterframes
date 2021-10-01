@@ -34,8 +34,10 @@ tour/jars
 tour/*.tiff
 scoverage-report*
 
+# Junk
 zz-*
 rf-notebook/src/main/notebooks/.ipython
+*.parquet/
 
 # VSCode files
 

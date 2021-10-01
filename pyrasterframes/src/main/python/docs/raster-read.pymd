@@ -32,7 +32,7 @@ Let's unpack the `proj_raster` column and look at the contents in more detail. I
 
 ```python, select_crs
 crs = rf.select(rf_crs("proj_raster").alias("value")).first()
-print("CRS", crs.value.crsProj4)
+print("CRS", crs.value)
 ```
 
 ```python, raster_parts

@@ -58,8 +58,6 @@ class GeoTrellisLayerDataSource extends DataSourceRegister with RelationProvider
     require(parameters.contains(LAYER_PARAM), s"'$LAYER_PARAM' parameter for raster layer name required.")
     require(parameters.contains(ZOOM_PARAM), s"'$ZOOM_PARAM' parameter for raster layer zoom level required.")
 
-    sqlContext.withRasterFrames
-
     val uri: URI = URI.create(parameters(PATH_PARAM))
     val layerId: LayerId = LayerId(parameters(LAYER_PARAM), parameters(ZOOM_PARAM).toInt)
     val numPartitions = parameters.get(NUM_PARTITIONS_PARAM).map(_.toInt)

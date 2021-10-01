@@ -46,7 +46,7 @@ df.printSchema()
 In this small example, all the images in our `catalog_df` have the same @ref:[CRS](concepts.md#coordinate-reference-system-crs-), which we verify in the code snippet below. The `crs` object will be useful for visualization later. 
 
 ```python, crses
-crses = df.select('crs.crsProj4').distinct().collect()
+crses = df.select('crs').distinct().collect()
 print('Found ', len(crses), 'distinct CRS: ', crses)
 assert len(crses) == 1
 crs = crses[0]['crsProj4']
