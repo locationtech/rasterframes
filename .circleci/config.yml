@@ -9,7 +9,7 @@ orbs:
           - image: s22s/circleci-openjdk-conda-gdal:b8e30ee
         working_directory: ~/repo
         environment:
-          SBT_OPTS: "-Xms64m -Xmx1536m -Djava.awt.headless=true -Dsun.io.serialization.extendedDebugInfo=true"
+          SBT_OPTS: "-Xms32M -Xmx2G -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp"
     commands:
       setup:
         description: Setup for sbt build

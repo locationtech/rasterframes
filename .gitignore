@@ -7,6 +7,7 @@ Thumbs.db
 *.log
 
 # sbt specific
+
 .bsp
 .cache
 .history
@@ -19,6 +20,7 @@ project/boot/
 project/plugins/project/
 
 # Scala-IDE specific
+
 .scala_dependencies
 .worksheet
 .idea
@@ -34,3 +36,14 @@ scoverage-report*
 
 zz-*
 rf-notebook/src/main/notebooks/.ipython
+
+# VSCode files
+
+.vscode
+.history
+
+# Metals
+
+.metals
+.bloop
+metals.sbt
