@@ -32,7 +32,7 @@ import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import org.locationtech.rasterframes.model.{CellContext, LongExtent, TileContext, TileDataContext}
 import frameless.TypedEncoder
-import geotrellis.raster.mapalgebra.focal.{Kernel, Neighborhood}
+import geotrellis.raster.mapalgebra.focal.{Kernel, Neighborhood, TargetCell}
 
 import java.net.URI
 import java.sql.Timestamp
@@ -55,6 +55,7 @@ trait StandardEncoders extends SpatialEncoders with TypedEncoders {
 
   implicit lazy val uriEncoder: ExpressionEncoder[URI] = typedExpressionEncoder[URI]
   implicit lazy val neighborhoodEncoder: ExpressionEncoder[Neighborhood] = typedExpressionEncoder[Neighborhood]
+  implicit lazy val targetCellEncoder: ExpressionEncoder[TargetCell] = typedExpressionEncoder[TargetCell]
   implicit lazy val kernelEncoder: ExpressionEncoder[Kernel] = typedExpressionEncoder[Kernel]
   implicit lazy val quantileSummariesEncoder: ExpressionEncoder[QuantileSummaries] = typedExpressionEncoder[QuantileSummaries]
   implicit lazy val envelopeEncoder: ExpressionEncoder[Envelope] = typedExpressionEncoder

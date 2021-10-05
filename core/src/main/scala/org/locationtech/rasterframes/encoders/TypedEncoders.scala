@@ -3,14 +3,14 @@ package org.locationtech.rasterframes.encoders
 import frameless._
 import geotrellis.layer.{KeyBounds, LayoutDefinition, TileLayerMetadata}
 import geotrellis.proj4.CRS
-import geotrellis.raster.mapalgebra.focal.{Kernel, Neighborhood}
+import geotrellis.raster.mapalgebra.focal.{Kernel, Neighborhood, TargetCell}
 import geotrellis.raster.{CellGrid, CellType, Dimensions, GridBounds, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.rf.{CrsUDT, RasterSourceUDT, TileUDT}
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.rasterframes.util.{FocalNeighborhood, KryoSupport}
+import org.locationtech.rasterframes.util.{FocalNeighborhood, FocalTargetCell, KryoSupport}
 
 import java.net.URI
 import java.nio.ByteBuffer
@@ -36,6 +36,9 @@ trait TypedEncoders {
 
   implicit val neighborhoodInjection: Injection[Neighborhood, String] = Injection(FocalNeighborhood(_), FocalNeighborhood.fromString(_).get)
   implicit val neighborhoodTypedEncoder: TypedEncoder[Neighborhood]   = TypedEncoder.usingInjection
+
+  implicit val targetCellInjection: Injection[TargetCell, String] = Injection(FocalTargetCell(_), FocalTargetCell.fromString)
+  implicit val targetCellTypedEncoder: TypedEncoder[TargetCell]   = TypedEncoder.usingInjection
 
   implicit val envelopeTypedEncoder: TypedEncoder[Envelope] =
     ManualTypedEncoder.newInstance[Envelope](

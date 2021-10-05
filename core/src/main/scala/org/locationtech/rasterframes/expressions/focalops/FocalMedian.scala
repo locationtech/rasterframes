@@ -21,31 +21,32 @@
 
 package org.locationtech.rasterframes.expressions.focalops
 
-import geotrellis.raster.{BufferTile, Tile}
+import geotrellis.raster.{BufferTile, TargetCell, Tile}
 import geotrellis.raster.mapalgebra.focal.Neighborhood
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, neighborhood) - Performs focalMedian on tile in the neighborhood.",
+  usage = "_FUNC_(tile, neighborhood, target) - Performs focalMedian on tile in the neighborhood.",
   arguments = """
   Arguments:
     * tile - a tile to apply operation
-    * neighborhood - a focal operation neighborhood""",
+    * neighborhood - a focal operation neighborhood
+    * target - the target cells to apply focal operation: data, nodata, all""",
   examples = """
   Examples:
-    > SELECT _FUNC_(tile, 'square-1');
+    > SELECT _FUNC_(tile, 'square-1', 'all');
        ..."""
 )
-case class FocalMedian(left: Expression, right: Expression) extends FocalNeighborhoodOp {
+case class FocalMedian(left: Expression, middle: Expression, right: Expression) extends FocalNeighborhoodOp {
   override def nodeName: String = FocalMedian.name
-  protected def op(t: Tile, neighborhood: Neighborhood): Tile = t match {
-    case bt: BufferTile => bt.focalMedian(neighborhood)
-    case _ => t.focalMedian(neighborhood)
+  protected def op(t: Tile, neighborhood: Neighborhood, target: TargetCell): Tile = t match {
+    case bt: BufferTile => bt.focalMedian(neighborhood, target = target)
+    case _ => t.focalMedian(neighborhood, target = target)
   }
 }
 
 object FocalMedian {
   def name: String = "rf_focal_median"
-  def apply(tile: Column, neighborhood: Column): Column = new Column(FocalMedian(tile.expr, neighborhood.expr))
+  def apply(tile: Column, neighborhood: Column, target: Column): Column = new Column(FocalMedian(tile.expr, neighborhood.expr, target.expr))
 }

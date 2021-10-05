@@ -46,8 +46,12 @@ object RFProjectPlugin extends AutoPlugin {
     publishMavenStyle := true,
     Compile / packageDoc / publishArtifact := true,
     Test / publishArtifact := false,
-    Test / fork := true,
-    Test / javaOptions := Seq("-Xmx1500m", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=/tmp"),
+    // don't fork it in tests to reduce memory usage
+    Test / fork := false,
+    // Test / javaOptions ++= Seq(
+      // "-XX:+HeapDumpOnOutOfMemoryError",
+      // "-XX:HeapDumpPath=/tmp"
+    // ),
     Test / parallelExecution := false,
     Test / testOptions += Tests.Argument("-oDF"),
     developers := List(

@@ -33,10 +33,11 @@ import geotrellis.spark._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.locationtech.rasterframes.encoders.SerializersCache
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.BeforeAndAfterAll
 
 import scala.util.control.NonFatal
 
@@ -45,16 +46,9 @@ import scala.util.control.NonFatal
  *
  * @since 7/10/17
  */
-class RasterLayerSpec extends TestEnvironment with MetadataKeys
-  with BeforeAndAfterEach with TestData  {
+class RasterLayerSpec extends TestEnvironment with MetadataKeys with TestData {
   import TestData.randomTile
   import spark.implicits._
-
-  override def beforeEach(): Unit = {
-    // Try to GC to avoid OOM on low memory instances.
-    // TODO: remove once we have a larger CI
-    System.gc()
-  }
 
   describe("Runtime environment") {
     it("should provide build info") {

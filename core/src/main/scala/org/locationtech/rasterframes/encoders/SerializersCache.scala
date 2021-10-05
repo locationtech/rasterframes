@@ -58,4 +58,11 @@ object SerializersCache {
 
   def rowSerialize[T](implicit tag: TypeTag[T], encoder: ExpressionEncoder[T]): T => Row =
     { t => rowDeserializer[T](tag, encoder)(serializer[T](tag, encoder)(t)) }
+
+  def clean(): Unit = {
+    cacheSerializer.remove()
+    cacheSerializerRow.remove()
+    cacheDeserializer.remove()
+    cacheDeserializerRow.remove()
+  }
 }

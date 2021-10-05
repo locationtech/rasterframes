@@ -29,7 +29,7 @@ import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
 import geotrellis.raster.render.{ColorRamp, ColorRamps}
-import geotrellis.raster.{CellGrid, Grid, GridBounds}
+import geotrellis.raster.{CellGrid, Grid, GridBounds, TargetCell}
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.GetComponent
 import org.apache.spark.sql._
@@ -267,8 +267,23 @@ package object util extends DataFrameRenderers {
         case Max => "max"
         case Min => "min"
         case Sum => "sum"
-        case _ => throw new IllegalArgumentException(s"Unrecognized ResampleMethod ${gtr.toString()}")
+        case _ => throw new IllegalArgumentException(s"Unrecognized ResampleMethod ${gtr.toString}")
       }
+    }
+  }
+
+  object FocalTargetCell {
+    def fromString(str: String): TargetCell = str.toLowerCase match {
+      case "nodata" => TargetCell.NoData
+      case "data" => TargetCell.Data
+      case "all" => TargetCell.All
+      case _ => throw new IllegalArgumentException(s"Unrecognized TargetCell $str")
+    }
+
+    def apply(tc: TargetCell): String = tc match {
+      case TargetCell.NoData => "nodata"
+      case TargetCell.Data => "data"
+      case TargetCell.All => "all"
     }
   }
 

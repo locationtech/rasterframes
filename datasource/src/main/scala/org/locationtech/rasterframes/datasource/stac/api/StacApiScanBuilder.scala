@@ -3,7 +3,6 @@ package org.locationtech.rasterframes.datasource.stac.api
 import org.locationtech.rasterframes.datasource.stac.api.encoders._
 
 import com.azavea.stac4s.api.client.SearchFilters
-import eu.timepit.refined.types.numeric.NonNegInt
 import org.apache.spark.sql.connector.read.{Batch, InputPartition, PartitionReaderFactory, Scan, ScanBuilder}
 import org.apache.spark.sql.types.StructType
 import sttp.model.Uri

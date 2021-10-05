@@ -1,4 +1,4 @@
-# Python version compatible with Spark and GDAL 3.1.2
+# Python version compatible with Spark 3.1.x and GDAL 3.1.2
 FROM jupyter/scipy-notebook:python-3.8.8
 
 LABEL maintainer="Astraea, Inc. <info@astraea.earth>"

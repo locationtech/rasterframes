@@ -22,39 +22,43 @@
 package org.locationtech.rasterframes.expressions.focalops
 
 import com.typesafe.scalalogging.Logger
-import geotrellis.raster.{Neighborhood, Tile}
+import geotrellis.raster.{Neighborhood, TargetCell, Tile}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression}
+import org.apache.spark.sql.catalyst.expressions.{Expression, TernaryExpression}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.DynamicExtractors.{neighborhoodExtractor, tileExtractor}
+import org.locationtech.rasterframes.expressions.DynamicExtractors.{neighborhoodExtractor, targetCellExtractor, tileExtractor}
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.slf4j.LoggerFactory
 
-trait FocalNeighborhoodOp extends BinaryExpression with RasterResult with CodegenFallback {
+trait FocalNeighborhoodOp extends TernaryExpression with RasterResult with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  // tile
+  // Tile
   def left: Expression
-  // neighborhood
+  // Neighborhood
+  def middle: Expression
+  // TargetCell
   def right: Expression
 
   def dataType: DataType = left.dataType
+  def children: Seq[Expression] = Seq(left, middle, right)
 
   override def checkInputDataTypes(): TypeCheckResult =
     if (!tileExtractor.isDefinedAt(left.dataType)) TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
-    else if(!neighborhoodExtractor.isDefinedAt(right.dataType)) {
-      TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a string neighborhood type.")
-    } else TypeCheckSuccess
+    else if(!neighborhoodExtractor.isDefinedAt(middle.dataType)) TypeCheckFailure(s"Input type '${middle.dataType}' does not conform to a string Neighborhood type.")
+    else if(!targetCellExtractor.isDefinedAt(right.dataType)) TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a string TargetCell type.")
+    else TypeCheckSuccess
 
-  override protected def nullSafeEval(tileInput: Any, neighborhoodInput: Any): Any = {
+  override protected def nullSafeEval(tileInput: Any, neighborhoodInput: Any, targetCellInput: Any): Any = {
     val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
-    val neighborhood = neighborhoodExtractor(right.dataType)(neighborhoodInput)
-    val result = op(extractBufferTile(tile), neighborhood)
+    val neighborhood = neighborhoodExtractor(middle.dataType)(neighborhoodInput)
+    val target = targetCellExtractor(right.dataType)(targetCellInput)
+    val result = op(extractBufferTile(tile), neighborhood, target)
     toInternalRow(result, ctx)
   }
 
-  protected def op(child: Tile, neighborhood: Neighborhood): Tile
+  protected def op(child: Tile, neighborhood: Neighborhood, target: TargetCell): Tile
 }
 

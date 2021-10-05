@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, Neighborhood, Raster, Tile}
+import geotrellis.raster.{CellGrid, Neighborhood, Raster, TargetCell, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
@@ -38,7 +38,7 @@ import org.locationtech.rasterframes.model.{LazyCRS, LongExtent, TileContext}
 import org.locationtech.rasterframes.ref.{ProjectedRasterLike, RasterRef}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.apache.spark.sql.rf.CrsUDT
-import org.locationtech.rasterframes.util.FocalNeighborhood
+import org.locationtech.rasterframes.util.{FocalNeighborhood, FocalTargetCell}
 
 private[rasterframes]
 object DynamicExtractors {
@@ -229,5 +229,10 @@ object DynamicExtractors {
   lazy val neighborhoodExtractor: PartialFunction[DataType, Any => Neighborhood] = {
     case _: StringType => (v: Any) => FocalNeighborhood.fromString(v.asInstanceOf[UTF8String].toString).get
     case n if n.conformsToSchema(neighborhoodEncoder.schema) => { case ir: InternalRow => ir.as[Neighborhood] }
+  }
+
+  lazy val targetCellExtractor: PartialFunction[DataType, Any => TargetCell] = {
+    case _: StringType => (v: Any) => FocalTargetCell.fromString(v.asInstanceOf[UTF8String].toString)
+    case n if n.conformsToSchema(targetCellEncoder.schema) => { case ir: InternalRow => ir.as[TargetCell] }
   }
 }

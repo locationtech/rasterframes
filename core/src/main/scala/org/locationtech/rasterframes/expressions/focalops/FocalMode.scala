@@ -22,30 +22,31 @@
 package org.locationtech.rasterframes.expressions.focalops
 
 import geotrellis.raster.{BufferTile, Tile}
-import geotrellis.raster.mapalgebra.focal.Neighborhood
+import geotrellis.raster.mapalgebra.focal.{Neighborhood, TargetCell}
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 
 @ExpressionDescription(
-  usage = "_FUNC_(tile, neighborhood) - Performs focalMode on tile in the neighborhood.",
+  usage = "_FUNC_(tile, neighborhood, target) - Performs focalMode on tile in the neighborhood.",
   arguments = """
   Arguments:
     * tile - a tile to apply operation
-    * neighborhood - a focal operation neighborhood""",
+    * neighborhood - a focal operation neighborhood
+    * target - the target cells to apply focal operation: data, nodata, all""",
   examples = """
   Examples:
-    > SELECT _FUNC_(tile, 'square-1');
+    > SELECT _FUNC_(tile, 'square-1', 'all');
        ..."""
 )
-case class FocalMode(left: Expression, right: Expression) extends FocalNeighborhoodOp {
+case class FocalMode(left: Expression, middle: Expression, right: Expression) extends FocalNeighborhoodOp {
   override def nodeName: String = FocalMode.name
-  protected def op(t: Tile, neighborhood: Neighborhood): Tile = t match {
-    case bt: BufferTile => bt.focalMode(neighborhood)
-    case _ => t.focalMode(neighborhood)
+  protected def op(t: Tile, neighborhood: Neighborhood, target: TargetCell): Tile = t match {
+    case bt: BufferTile => bt.focalMode(neighborhood, target = target)
+    case _ => t.focalMode(neighborhood, target = target)
   }
 }
 
 object FocalMode {
   def name: String = "rf_focal_mode"
-  def apply(tile: Column, neighborhood: Column): Column = new Column(FocalMode(tile.expr, neighborhood.expr))
+  def apply(tile: Column, neighborhood: Column, target: Column): Column = new Column(FocalMode(tile.expr, neighborhood.expr, target.expr))
 }
