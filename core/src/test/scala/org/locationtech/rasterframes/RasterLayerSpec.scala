@@ -1,5 +1,3 @@
-
-
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
@@ -33,11 +31,9 @@ import geotrellis.spark._
 import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SQLContext, SparkSession}
-import org.locationtech.rasterframes.encoders.SerializersCache
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
-import org.scalatest.BeforeAndAfterAll
 
 import scala.util.control.NonFatal
 
