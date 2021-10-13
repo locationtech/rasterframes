@@ -53,7 +53,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
     val stac4s = "com.azavea.stac4s" %% "client" % "0.7.2"
-    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.6"
+    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.15"
     val frameless = "org.typelevel" %% "frameless-dataset" % "0.10.1"
   }
   import autoImport._
