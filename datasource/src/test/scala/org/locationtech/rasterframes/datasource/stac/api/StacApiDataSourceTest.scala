@@ -63,7 +63,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
         .as[(String, String)]
         .first() shouldBe (
           "aviris-l1-cogs_f130329t01p00r06_sc01",
-          "s3://aviris-data/aviris-scene-cogs-l2/2013/f130329t01p00r06/f130329t01p00r06rdn_e_sc01_ort_img_tiff.tiff"
+          "s3://aviris-data/aviris-scene-cogs-l1/2013/f130329t01p00r06/f130329t01p00r06rdn_e_sc01_ort_img_cog.tiff"
         )
     }
 
