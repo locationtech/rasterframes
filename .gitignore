@@ -47,3 +47,4 @@ rf-notebook/src/main/notebooks/.ipython
 .metals
 .bloop
 metals.sbt
+*.parquet/

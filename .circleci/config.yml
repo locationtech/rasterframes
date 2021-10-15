@@ -235,10 +235,10 @@ workflows:
                 - /fix\/.*docs.*/
                 - /docs\/.*/
 
-  nightly:
+  weekly:
     triggers:
       - schedule:
-          cron: "0 8 * * *"
+          cron: "0 8 4 * *"
           filters:
             branches:
               only:
@@ -247,4 +247,3 @@ workflows:
       - test
       - it
       - it-no-gdal
-      - docs
