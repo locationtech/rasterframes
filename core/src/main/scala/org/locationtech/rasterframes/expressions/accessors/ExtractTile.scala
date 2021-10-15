@@ -21,34 +21,31 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
-import org.locationtech.rasterframes.tiles.ProjectedRasterTile.ConcreteProjectedRasterTile
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.model.TileContext
-import org.locationtech.rasterframes.tiles.InternalRowTile
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
 
 /** Expression to extract at tile from several types that contain tiles.*/
-case class ExtractTile(child: Expression) extends UnaryRasterOp with CodegenFallback {
-  override def dataType: DataType = TileType
+case class ExtractTile(child: Expression) extends UnaryRasterFunction with CodegenFallback {
+  def dataType: DataType = tileUDT
 
   override def nodeName: String = "rf_extract_tile"
-  implicit val tileSer = TileUDT.tileSerializer
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
-    case irt: InternalRowTile => irt.mem
-    case tile: ConcreteProjectedRasterTile => tile.t.toInternalRow
-    case tile: Tile => tile.toInternalRow
+
+  private lazy val tileSer = tileUDT.serialize _
+
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile match {
+    case prt: ProjectedRasterTile => tileUDT.serialize(prt.tile)
+    case tile: Tile => tileSer(tile)
   }
 }
 
 object ExtractTile {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.singlebandTileEncoder
   def apply(input: Column): TypedColumn[Any, Tile] =
     new Column(new ExtractTile(input.expr)).as[Tile]
 }

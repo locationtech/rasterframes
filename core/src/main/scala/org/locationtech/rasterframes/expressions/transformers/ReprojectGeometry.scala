@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.expressions.transformers
 
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.jts.geom.Geometry
 import geotrellis.proj4.CRS
@@ -50,13 +49,12 @@ import org.locationtech.rasterframes.model.LazyCRS
     > SELECT _FUNC_(geom, srcCRS, dstCRS);
        ..."""
 )
-case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: Expression) extends Expression
-  with CodegenFallback {
+case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: Expression) extends Expression with CodegenFallback {
 
   override def nodeName: String = "st_reproject"
-  override def dataType: DataType = JTSTypes.GeometryTypeInstance
-  override def nullable: Boolean = geometry.nullable || srcCRS.nullable || dstCRS.nullable
-  override def children: Seq[Expression] = Seq(geometry, srcCRS, dstCRS)
+  def dataType: DataType = JTSTypes.GeometryTypeInstance
+  def nullable: Boolean = geometry.nullable || srcCRS.nullable || dstCRS.nullable
+  def children: Seq[Expression] = Seq(geometry, srcCRS, dstCRS)
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!geometry.dataType.isInstanceOf[AbstractGeometryUDT[_]])
@@ -69,21 +67,26 @@ case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: E
   }
 
   /** Reprojects a geometry column from one CRS to another. */
-  val reproject: (Geometry, CRS, CRS) ⇒ Geometry =
-    (sourceGeom, src, dst) ⇒ {
+  val reproject: (Geometry, CRS, CRS) => Geometry =
+    (sourceGeom, src, dst) => {
       val trans = new ReprojectionTransformer(src, dst)
       trans.transform(sourceGeom)
     }
 
-  override def eval(input: InternalRow): Any = {
+  def eval(input: InternalRow): Any = {
     val src = DynamicExtractors.crsExtractor(srcCRS.dataType)(srcCRS.eval(input))
     val dst = DynamicExtractors.crsExtractor(dstCRS.dataType)(dstCRS.eval(input))
     (src, dst) match {
       // Optimized pass-through case.
       case (s: LazyCRS, r: LazyCRS) if s.encoded == r.encoded => geometry.eval(input)
       case _ =>
-        val geom = JTSTypes.GeometryTypeInstance.deserialize(geometry.eval(input))
-        JTSTypes.GeometryTypeInstance.serialize(reproject(geom, src, dst))
+        if (geometry.eval(input) != null) {
+          val geom = JTSTypes.GeometryTypeInstance.deserialize(geometry.eval(input))
+          JTSTypes.GeometryTypeInstance.serialize(reproject(geom, src, dst))
+        }
+        else {
+          null
+        }
     }
   }
 }

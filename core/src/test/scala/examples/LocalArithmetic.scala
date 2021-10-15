@@ -38,13 +38,13 @@ object LocalArithmetic extends App {
 
     val filenamePattern = "L8-B%d-Elkton-VA.tiff"
     val bandNumbers = 1 to 4
-    val bandColNames = bandNumbers.map(b ⇒ s"band_$b").toArray
+    val bandColNames = bandNumbers.map(b => s"band_$b").toArray
     def readTiff(name: String): SinglebandGeoTiff = SinglebandGeoTiff(s"../samples/$name")
 
   val joinedRF = bandNumbers.
-    map { b ⇒ (b, filenamePattern.format(b)) }.
-    map { case (b, f) ⇒ (b, readTiff(f)) }.
-    map { case (b, t) ⇒ t.projectedRaster.toLayer(s"band_$b") }.
+    map { b => (b, filenamePattern.format(b)) }.
+    map { case (b, f) => (b, readTiff(f)) }.
+    map { case (b, t) => t.projectedRaster.toLayer(s"band_$b") }.
     reduce(_ spatialJoin _)
 
   val addRF = joinedRF.withColumn("1+2", rf_local_add(joinedRF("band_1"), joinedRF("band_2"))).asLayer

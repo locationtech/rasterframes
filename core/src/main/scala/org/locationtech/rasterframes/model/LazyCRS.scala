@@ -24,7 +24,6 @@ package org.locationtech.rasterframes.model
 import com.github.blemale.scaffeine.Scaffeine
 import geotrellis.proj4.CRS
 import org.locationtech.proj4j.CoordinateReferenceSystem
-import org.locationtech.rasterframes.encoders.CatalystSerializer
 import org.locationtech.rasterframes.model.LazyCRS.EncodedCRS
 
 class LazyCRS(val encoded: EncodedCRS) extends CRS {
@@ -54,7 +53,7 @@ object LazyCRS {
 
   private object WKTCRS {
     def unapply(src: String): Option[CRS] =
-      if (wktKeywords.exists { prefix ⇒ src.toUpperCase().startsWith(prefix)})
+      if (wktKeywords.exists { prefix => src.toUpperCase().startsWith(prefix)})
         CRS.fromWKT(src)
       else None
   }
@@ -78,6 +77,4 @@ object LazyCRS {
     else throw new IllegalArgumentException(
       s"CRS string must be either EPSG code, +proj string, or OGC WKT (WKT1). Argument value was ${if (value.length > 50) value.substring(0, 50) + "..." else value} ")
   }
-
-  implicit val crsSererializer: CatalystSerializer[LazyCRS] = CatalystSerializer.crsSerializer.asInstanceOf[CatalystSerializer[LazyCRS]]
 }

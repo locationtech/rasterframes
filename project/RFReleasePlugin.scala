@@ -35,8 +35,8 @@ object RFReleasePlugin extends AutoPlugin {
   override def trigger: PluginTrigger = noTrigger
   override def requires = RFProjectPlugin && SitePlugin && GhpagesPlugin
   override def projectSettings = {
-    val buildSite: State ⇒ State = releaseStepTask(makeSite in LocalProject("docs"))
-    val publishSite: State ⇒ State = releaseStepTask(ghpagesPushSite in LocalProject("docs"))
+    val buildSite: State => State = releaseStepTask(LocalProject("docs") / makeSite)
+    val publishSite: State => State = releaseStepTask(LocalProject("docs") / ghpagesPushSite)
     Seq(
       releaseIgnoreUntrackedFiles := true,
       releaseTagName := s"${version.value}",
@@ -59,7 +59,7 @@ object RFReleasePlugin extends AutoPlugin {
         commitNextVersion,
         remindMeToPush
       ),
-      commands += Command.command("bumpVersion"){ st ⇒
+      commands += Command.command("bumpVersion"){ st =>
         val extracted = Project.extract(st)
         val ver = extracted.get(version)
         val nextFun = extracted.runTask(releaseNextVersion, st)._2
@@ -78,19 +78,19 @@ object RFReleasePlugin extends AutoPlugin {
       sys.error("No versions are set! Was this release part executed before inquireVersions?")
     }
 
-  val gitFlowReleaseStart = ReleaseStep(state ⇒ {
+  val gitFlowReleaseStart = ReleaseStep(state => {
     val version = releaseVersion(state)
     SProcess(Seq("git", "flow", "release", "start", version)).!
     state
   })
 
-  val gitFlowReleaseFinish = ReleaseStep(state ⇒ {
+  val gitFlowReleaseFinish = ReleaseStep(state => {
     val version = releaseVersion(state)
     SProcess(Seq("git", "flow", "release", "finish", "-n", s"$version")).!
     state
   })
 
-  val remindMeToPush = ReleaseStep(state ⇒ {
+  val remindMeToPush = ReleaseStep(state => {
     state.log.warn("Don't forget to git push master AND develop!")
     state
   })

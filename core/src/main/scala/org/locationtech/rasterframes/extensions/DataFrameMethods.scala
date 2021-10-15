@@ -21,17 +21,15 @@
 
 package org.locationtech.rasterframes.extensions
 
-import geotrellis.proj4.CRS
 import geotrellis.layer._
 import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod => GTResampleMethod}
 import geotrellis.util.MethodExtensions
-import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.expressions.Attribute
+import org.apache.spark.sql.rf.CrsUDT
 import org.apache.spark.sql.types.{MetadataBuilder, StructField}
 import org.apache.spark.sql.{Column, DataFrame, TypedColumn}
-import org.locationtech.rasterframes.StandardColumns._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.encoders.StandardEncoders._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders._
 import org.locationtech.rasterframes.expressions.DynamicExtractors
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
@@ -49,27 +47,27 @@ import scala.util.Try
 trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with MetadataKeys {
   import Implicits.{WithDataFrameMethods, WithMetadataBuilderMethods, WithMetadataMethods, WithRasterFrameLayerMethods}
 
-  private def selector(column: Column) = (attr: Attribute) ⇒
+  private def selector(column: Column): Attribute => Boolean = (attr: Attribute) =>
     attr.name == column.columnName || attr.semanticEquals(column.expr)
 
   /** Map over the Attribute representation of Columns, modifying the one matching `column` with `op`. */
-  private[rasterframes] def mapColumnAttribute(column: Column, op: Attribute ⇒  Attribute): DF = {
+  private[rasterframes] def mapColumnAttribute(column: Column, op: Attribute =>  Attribute): DF = {
     val analyzed = self.queryExecution.analyzed.output
     val selects = selector(column)
-    val attrs = analyzed.map { attr ⇒
+    val attrs = analyzed.map { attr =>
       if(selects(attr)) op(attr) else attr
     }
-    self.select(attrs.map(a ⇒ new Column(a)): _*).asInstanceOf[DF]
+    self.select(attrs.map(a => new Column(a)): _*).asInstanceOf[DF]
   }
 
-  private[rasterframes] def addColumnMetadata(column: Column, op: MetadataBuilder ⇒ MetadataBuilder): DF = {
-    mapColumnAttribute(column, attr ⇒ {
+  private[rasterframes] def addColumnMetadata(column: Column, op: MetadataBuilder => MetadataBuilder): DF = {
+    mapColumnAttribute(column, attr => {
       val md = new MetadataBuilder().withMetadata(attr.metadata)
       attr.withMetadata(op(md).build)
     })
   }
 
-  private[rasterframes] def fetchMetadataValue[D](column: Column, reader: (Attribute) ⇒ D): Option[D] = {
+  private[rasterframes] def fetchMetadataValue[D](column: Column, reader: Attribute => D): Option[D] = {
     val analyzed = self.queryExecution.analyzed.output
     analyzed.find(selector(column)).map(reader)
   }
@@ -94,31 +92,31 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   def tileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ self.col(f.name))
+      .map(f => self.col(f.name))
 
   /** Get the columns that look like `ProjectedRasterTile`s. */
   def projRasterColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsTo[ProjectedRasterTile])
+      .filter(_.dataType.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema))
       .map(f => self.col(f.name))
 
   /** Get the columns that look like `Extent`s. */
   def extentColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsTo[Extent])
+      .filter(_.dataType.conformsToSchema(extentEncoder.schema))
       .map(f => self.col(f.name))
 
   /** Get the columns that look like `CRS`s. */
   def crsColumns: Seq[Column] =
     self.schema.fields
-      .filter(_.dataType.conformsTo[CRS])
+      .filter { f => f.dataType.conformsToDataType(crsExpressionEncoder.schema) || f.dataType.isInstanceOf[CrsUDT] }
       .map(f => self.col(f.name))
 
   /** Get the columns that are not of type `Tile` */
   def notTileColumns: Seq[Column] =
     self.schema.fields
       .filter(f => !DynamicExtractors.tileExtractor.isDefinedAt(f.dataType))
-      .map(f ⇒ self.col(f.name))
+      .map(f => self.col(f.name))
 
   /** Get the spatial column. */
   def spatialKeyColumn: Option[TypedColumn[Any, SpatialKey]] = {
@@ -137,7 +135,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
   /** Find the field tagged with the requested `role` */
   private[rasterframes] def findRoleField(role: String): Option[StructField] =
     self.schema.fields.find(
-      f ⇒
+      f =>
         f.metadata.contains(SPATIAL_ROLE_KEY) &&
           f.metadata.getString(SPATIAL_ROLE_KEY) == role
     )
@@ -154,7 +152,7 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
    * Useful for preparing dataframes for joins where duplicate names may arise.
    */
   def withPrefixedColumnNames(prefix: String): DF =
-    self.columns.foldLeft(self)((df, c) ⇒ df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
+    self.columns.foldLeft(self)((df, c) => df.withColumnRenamed(c, s"$prefix$c").asInstanceOf[DF])
 
   /**
     * Performs a jeft join on the dataframe `right` to this one, reprojecting and merging tiles as necessary.
@@ -305,5 +303,5 @@ trait DataFrameMethods[DF <: DataFrame] extends MethodExtensions[DF] with Metada
 
   /** Internal method for slapping the RasterFreameLayer seal of approval on a DataFrame.
    * Only call if if you are sure it has a spatial key and tile columns and TileLayerMetadata. */
-  private[rasterframes] def certify = certifyLayer(self)
+  private[rasterframes] def certify: RasterFrameLayer = certifyLayer(self)
 }

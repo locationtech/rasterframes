@@ -37,7 +37,7 @@ class MetadataSpec extends TestEnvironment with TestData  {
     it("should serialize and attach metadata") {
       //val rf = sampleGeoTiff.projectedRaster.toLayer(128, 128)
       val df = spark.createDataset(Seq((1, "one"), (2, "two"), (3, "three"))).toDF("num", "str")
-      val withmeta = df.mapColumnAttribute($"num", attr ⇒ {
+      val withmeta = df.mapColumnAttribute($"num", attr => {
         attr.withMetadata(sampleMetadata)
       })
 
@@ -50,7 +50,7 @@ class MetadataSpec extends TestEnvironment with TestData  {
       val df2 = spark.createDataset(Seq((1, "a"), (2, "b"), (3, "c"))).toDF("num", "str")
       val joined = df1.as("a").join(df2.as("b"), "num")
 
-      val withmeta = joined.mapColumnAttribute(df1("str"), attr ⇒ {
+      val withmeta = joined.mapColumnAttribute(df1("str"), attr => {
         attr.withMetadata(sampleMetadata)
       })
 

@@ -33,14 +33,14 @@ import org.apache.spark.sql.rf.{FilterTranslator, VersionShims}
 object SpatialFilterPushdownRules extends Rule[LogicalPlan] {
   def apply(plan: LogicalPlan): LogicalPlan = {
     plan.transformUp {
-      case f @ Filter(condition, lr @ SpatialRelationReceiver(sr: SpatialRelationReceiver[_] @unchecked)) ⇒
+      case f @ Filter(condition, lr @ SpatialRelationReceiver(sr: SpatialRelationReceiver[_] @unchecked)) =>
 
         val preds = FilterTranslator.translateFilter(condition)
 
         def foldIt[T <: SpatialRelationReceiver[T]](rel: T): T =
-          preds.foldLeft(rel)((r, f) ⇒ r.withFilter(f))
+          preds.foldLeft(rel)((r, f) => r.withFilter(f))
 
-        preds.filterNot(sr.hasFilter).map(p ⇒ {
+        preds.filterNot(sr.hasFilter).map(p => {
           val newRec = foldIt(sr)
           Filter(condition, VersionShims.updateRelation(lr, newRec.asBaseRelation))
         }).getOrElse(f)

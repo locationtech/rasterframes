@@ -34,16 +34,16 @@ import geotrellis.util._
 trait SubdivideSupport {
   implicit class TileLayoutHasSubdivide(self: TileLayout) {
     def subdivide(divs: Int): TileLayout = {
-      def shrink(num: Int) = {
+      def shrink(num: Int): Int = {
         require(num % divs == 0, s"Subdivision of '$divs' does not evenly divide into dimension '$num'")
         num / divs
       }
-      def grow(num: Int) = num * divs
+      def grow(num: Int): Int = num * divs
 
       divs match {
-        case 0 ⇒ self
-        case i if i < 0 ⇒ throw new IllegalArgumentException(s"divs=$divs must be positive")
-        case _ ⇒
+        case 0 => self
+        case i if i < 0 => throw new IllegalArgumentException(s"divs=$divs must be positive")
+        case _ =>
           TileLayout(
             layoutCols = grow(self.layoutCols),
             layoutRows = grow(self.layoutRows),
@@ -56,7 +56,7 @@ trait SubdivideSupport {
 
   implicit class BoundsHasSubdivide[K: SpatialComponent](self: Bounds[K]) {
     def subdivide(divs: Int): Bounds[K] = {
-      self.flatMap(kb ⇒ {
+      self.flatMap(kb => {
         val currGrid = kb.toGridBounds()
         // NB: As with GT regrid, we keep the spatial key origin (0, 0) at the same map coordinate
         val newGrid = currGrid.copy(
@@ -80,8 +80,8 @@ trait SubdivideSupport {
       val shifted = SpatialKey(base.col * divs, base.row * divs)
 
       for{
-        i ← 0 until divs
-        j ← 0 until divs
+        i <- 0 until divs
+        j <- 0 until divs
       } yield {
         val newKey = SpatialKey(shifted.col + j, shifted.row + i)
         self.setComponent(newKey)
@@ -103,8 +103,8 @@ trait SubdivideSupport {
       val Dimensions(cols, rows) = self.dimensions
       val (newCols, newRows) = (cols/divs, rows/divs)
       for {
-        i ← 0 until divs
-        j ← 0 until divs
+        i <- 0 until divs
+        j <- 0 until divs
       } yield {
         val startCol = j * newCols
         val startRow = i * newRows

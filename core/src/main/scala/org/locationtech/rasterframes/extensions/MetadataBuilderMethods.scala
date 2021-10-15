@@ -34,8 +34,8 @@ import org.locationtech.rasterframes.{MetadataKeys, StandardColumns}
  */
 private[rasterframes]
 abstract class MetadataBuilderMethods extends MethodExtensions[MetadataBuilder] with MetadataKeys with StandardColumns {
-  def attachContext(md: Metadata) = self.putMetadata(CONTEXT_METADATA_KEY, md)
-  def tagSpatialKey = self.putString(SPATIAL_ROLE_KEY, SPATIAL_KEY_COLUMN.columnName)
-  def tagTemporalKey = self.putString(SPATIAL_ROLE_KEY, TEMPORAL_KEY_COLUMN.columnName)
-  def tagSpatialIndex = self.putString(SPATIAL_ROLE_KEY, SPATIAL_INDEX_COLUMN.columnName)
+  def attachContext(md: Metadata): MetadataBuilder = self.putMetadata(CONTEXT_METADATA_KEY, md)
+  def tagSpatialKey: MetadataBuilder = self.putString(SPATIAL_ROLE_KEY, SPATIAL_KEY_COLUMN.columnName)
+  def tagTemporalKey: MetadataBuilder = self.putString(SPATIAL_ROLE_KEY, TEMPORAL_KEY_COLUMN.columnName)
+  def tagSpatialIndex: MetadataBuilder = self.putString(SPATIAL_ROLE_KEY, SPATIAL_INDEX_COLUMN.columnName)
 }

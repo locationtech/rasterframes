@@ -21,9 +21,11 @@
 
 package org.locationtech.rasterframes
 
+import geotrellis.proj4.CRS
 import geotrellis.raster.resample._
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{Dimensions, IntConstantNoDataCellType, Raster, Tile}
+import geotrellis.vector.Extent
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate
@@ -42,10 +44,9 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       .withColumnRenamed("tile", "tile2")
 
     it("should join the same scene correctly") {
-
       val b4nativeRfPrime = b4nativeTif.toDF(Dimensions(10, 10))
         .withColumnRenamed("tile", "tile2")
-      val joined = b4nativeRf.rasterJoin(b4nativeRfPrime)
+      val joined = b4nativeRf.rasterJoin(b4nativeRfPrime.hint("broadcast"))
 
       joined.count() should be (b4nativeRf.count())
 
@@ -140,7 +141,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       val df = df17.union(df18)
       df.count() should be (6 * 6 + 5 * 5)
       val expectCrs = Array("+proj=utm +zone=17 +datum=NAD83 +units=m +no_defs ", "+proj=utm +zone=18 +datum=NAD83 +units=m +no_defs ")
-      df.select($"crs".getField("crsProj4")).distinct().as[String].collect() should contain theSameElementsAs expectCrs
+      df.select($"crs").distinct().as[CRS].collect().map(_.toProj4String) should contain theSameElementsAs expectCrs
 
       // read a third source to join. burned in box that intersects both above subsets; but more so on the df17
       val box = readSingleband("m_3607_box.tif").toDF(Dimensions(4,4)).withColumnRenamed("tile", "burned")
@@ -164,8 +165,8 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should handle proj_raster types") {
-      val df1 = Seq(one).toDF("one")
-      val df2 = Seq(two).toDF("two")
+      val df1 = Seq(Option(one)).toDF("one")
+      val df2 = Seq(Option(two)).toDF("two")
       noException shouldBe thrownBy {
         val joined1 = df1.rasterJoin(df2)
         val joined2 = df2.rasterJoin(df1)
@@ -173,7 +174,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should raster join multiple times on projected raster"){
-      val df0 = Seq(one).toDF("proj_raster")
+      val df0 = Seq(Option(one)).toDF("proj_raster")
       val result = df0.select($"proj_raster" as "t1")
         .rasterJoin(df0.select($"proj_raster" as "t2"))
         .rasterJoin(df0.select($"proj_raster" as "t3"))
@@ -195,6 +196,72 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       // This just tests that the tiles are not identical
       result.getAs[Double]("min") should be > (0.0)
     }
+
+    // Failed to execute user defined function(package$$$Lambda$4417/0x00000008019e2840: (struct<xmax:double,xmin:double,ymax:double,ymin:double>, string, array<struct<cellType:string,cols:int,rows:int,cells:binary,ref:struct<source:struct<raster_source_kryo:binary>,bandIndex:int,subextent:struct<xmin:double,ymin:double,xmax:double,ymax:double>,subgrid:struct<colMin:int,rowMin:int,colMax:int,rowMax:int>>>>, array<struct<xmax:double,xmin:double,ymax:double,ymin:double>>, array<string>, struct<cols:int,rows:int>, string) => struct<cellType:string,cols:int,rows:int,cells:binary,ref:struct<source:struct<raster_source_kryo:binary>,bandIndex:int,subextent:struct<xmin:double,ymin:double,xmax:double,ymax:double>,subgrid:struct<colMin:int,rowMin:int,colMax:int,rowMax:int>>>)
+
+    it("should raster join with null left head") {
+      // https://github.com/locationtech/rasterframes/issues/462
+      val prt = TestData.projectedRasterTile(
+        10, 10, 1,
+        Extent(0.0, 0.0, 40.0, 40.0),
+        CRS.fromEpsgCode(32611),
+      )
+
+      val left = Seq(
+        (1, "a", prt.tile, prt.tile, prt.extent, prt.crs),
+        (1, "b", null, prt.tile, prt.extent, prt.crs)
+      ).toDF("i", "j", "t", "u", "e", "c")
+
+      val right = Seq(
+        (1, prt.tile, prt.extent, prt.crs)
+      ).toDF("i", "r", "e", "c")
+
+      val joined = left.rasterJoin(right,
+        left("i") === right("i"),
+        left("e"), left("c"),
+        right("e"), right("c"),
+        NearestNeighbor
+      )
+      joined.count() should be (2)
+
+      // In the case where the head column is null it will be passed thru
+      val t1 = joined
+        .select(isnull($"t"))
+        .filter($"j" === "b")
+        .first()
+
+      t1.getBoolean(0) should be(true)
+
+      // The right hand side tile should get dimensions from col `u` however
+      val collected = joined.select(rf_dimensions($"r")).collect()
+      collected.headOption should be (Some(Dimensions(10, 10)))
+
+      // If there is no non-null tile on the LHS then the RHS is ill defined
+      val joinedNoLeftTile = left
+        .drop($"u")
+        .rasterJoin(right,
+          left("i") === right("i"),
+          left("e"), left("c"),
+          right("e"), right("c"),
+          NearestNeighbor
+        )
+      joinedNoLeftTile.count() should be (2)
+
+      // If there is no non-null tile on the LHS then the RHS is ill defined
+      val t2 = joinedNoLeftTile
+        .select(isnull($"t"))
+        .filter($"j" === "b")
+        .first()
+      t2.getBoolean(0) should be(true)
+
+      // Because no non-null tile col on Left side, the right side is null too
+      val t3 = joinedNoLeftTile
+        .select(isnull($"r"))
+        .filter($"j" === "b")
+        .first()
+      t3.getBoolean(0) should be(true)
+    }
+
   }
 
   override def additionalConf: SparkConf = super.additionalConf.set("spark.sql.codegen.comments", "true")

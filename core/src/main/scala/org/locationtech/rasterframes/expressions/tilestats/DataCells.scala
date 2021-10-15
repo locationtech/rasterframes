@@ -21,7 +21,8 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterFunction}
 import geotrellis.raster._
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
@@ -39,25 +40,18 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile);
        357"""
 )
-case class DataCells(child: Expression) extends UnaryRasterOp
-  with CodegenFallback with NullToValue {
+case class DataCells(child: Expression) extends UnaryRasterFunction with CodegenFallback with NullToValue {
   override def nodeName: String = "rf_data_cells"
-  override def dataType: DataType = LongType
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = DataCells.op(tile)
-  override def na: Any = 0L
+  def dataType: DataType = LongType
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any = DataCells.op(tile)
+  def na: Any = 0L
 }
 object DataCells {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.longEnc
-  def apply(tile: Column): TypedColumn[Any, Long] =
-    new Column(DataCells(tile.expr)).as[Long]
+  def apply(tile: Column): TypedColumn[Any, Long] = new Column(DataCells(tile.expr)).as[Long]
 
-  val op = (tile: Tile) => {
+  val op: Tile => Long = (tile: Tile) => {
     var count: Long = 0
-    tile.dualForeach(
-      z ⇒ if(isData(z)) count = count + 1
-    ) (
-      z ⇒ if(isData(z)) count = count + 1
-    )
+    tile.dualForeach(z => if(isData(z)) count = count + 1)(z => if(isData(z)) count = count + 1)
     count
   }
 }

@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 
 @ExpressionDescription(
   usage = "_FUNC_(lhs, rhs) - Performs cell-wise equality test between two tiles.",
@@ -39,17 +39,15 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Equal(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
+case class Equal(left: Expression, right: Expression) extends BinaryRasterFunction with CodegenFallback  {
   override val nodeName: String = "rf_local_equal"
-  override protected def op(left: Tile, right: Tile): Tile = left.localEqual(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localEqual(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localEqual(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localEqual(right)
+  protected def op(left: Tile, right: Double): Tile = left.localEqual(right)
+  protected def op(left: Tile, right: Int): Tile = left.localEqual(right)
 }
 
 object Equal {
-  def apply(left: Column, right: Column): Column =
-    new Column(Equal(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Equal(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Equal(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Equal(tile.expr, lit(value).expr))
 }

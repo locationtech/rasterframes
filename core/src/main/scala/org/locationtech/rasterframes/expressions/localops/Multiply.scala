@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, rhs) - Performs cell-wise multiplication between two tiles or a tile and a scalar.",
@@ -41,15 +41,13 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Multiply(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback {
+case class Multiply(left: Expression, right: Expression) extends BinaryRasterFunction with CodegenFallback {
   override val nodeName: String = "rf_local_multiply"
-  override protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
+  protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
+  protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
 }
 object Multiply {
-  def apply(left: Column, right: Column): Column =
-    new Column(Multiply(left.expr, right.expr))
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Multiply(tile.expr, lit(value).expr))
+  def apply(left: Column, right: Column): Column = new Column(Multiply(left.expr, right.expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Multiply(tile.expr, lit(value).expr))
 }

@@ -40,13 +40,10 @@ import org.scalatest.BeforeAndAfter
 
 import scala.reflect.ClassTag
 
+class TileFeatureSupportSpec extends TestEnvironment with TestData with BeforeAndAfter {
 
-class TileFeatureSupportSpec extends TestEnvironment
-  with TestData
-  with BeforeAndAfter {
-
-  val strTF1 = TileFeature(squareIncrementingTile(3),"data1")
-  val strTF2 = TileFeature(squareIncrementingTile(3),"data2")
+  val strTF1 = TileFeature(squareIncrementingTile(3), List("data1"))
+  val strTF2 = TileFeature(squareIncrementingTile(3), List("data2"))
   val ext1 = Extent(10,10,20,20)
   val ext2 = Extent(15,15,25,25)
   val cropOpts: Crop.Options = Crop.Options.DEFAULT
@@ -54,17 +51,15 @@ class TileFeatureSupportSpec extends TestEnvironment
   val geoms = Seq(ext2.toPolygon())
   val maskOpts: Rasterizer.Options = Rasterizer.Options.DEFAULT
 
-
   describe("TileFeatureSupport") {
     it("should support merge, prototype operations") {
-
       val merged = strTF1.merge(strTF2)
       assert(merged.tile == strTF1.tile.merge(strTF2.tile))
-      assert(merged.data == "data1, data2")
+      assert(merged.data == List("data1", "data2"))
 
       val proto = strTF1.prototype(16,16)
       assert(proto.tile == byteArrayTile.prototype(16,16))
-      assert(proto.data == "")
+      assert(proto.data == Nil)
     }
 
     it("should enable tileToLayout over TileFeature RDDs") {

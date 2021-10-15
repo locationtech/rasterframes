@@ -7,12 +7,10 @@ import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, TernaryExpression}
-import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
-import org.locationtech.rasterframes.expressions.row
+import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.slf4j.LoggerFactory
 
 @ExpressionDescription(
@@ -23,14 +21,13 @@ import org.slf4j.LoggerFactory
         * x - tile with cell values to return if condition is true
         * y - tile with cell values to return if condition is false"""
 )
-case class Where(left: Expression, middle: Expression, right: Expression)
-  extends TernaryExpression with CodegenFallback with Serializable {
+case class Where(left: Expression, middle: Expression, right: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  override def dataType: DataType = middle.dataType
+  def dataType: DataType = middle.dataType
 
-  override def children: Seq[Expression] = Seq(left, middle, right)
+  def children: Seq[Expression] = Seq(left, middle, right)
 
   override val nodeName = "rf_where"
 
@@ -46,7 +43,6 @@ case class Where(left: Expression, middle: Expression, right: Expression)
   }
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    implicit val tileSer = TileUDT.tileSerializer
     val (conditionTile, conditionCtx) = tileExtractor(left.dataType)(row(input1))
     val (xTile, xCtx) = tileExtractor(middle.dataType)(row(input2))
     val (yTile, yCtx) = tileExtractor(right.dataType)(row(input3))
@@ -60,11 +56,7 @@ case class Where(left: Expression, middle: Expression, right: Expression)
       logger.warn(s"Both '${middle}' and '${right}' provided an extent and CRS, but they are different. The former will be used.")
 
     val result = op(conditionTile, xTile, yTile)
-
-    xCtx match {
-      case Some(ctx) => ctx.toProjectRasterTile(result).toInternalRow
-      case None => result.toInternalRow
-    }
+    toInternalRow(result, xCtx)
   }
 
   def op(condition: Tile, x: Tile, y: Tile): Tile = {
@@ -76,15 +68,15 @@ case class Where(left: Expression, middle: Expression, right: Expression)
 
     def getSet(c: Int, r: Int): Unit = {
       (returnTile.cellType.isFloatingPoint, y.cellType.isFloatingPoint) match {
-        case (true, true) ⇒ returnTile.setDouble(c, r, y.getDouble(c, r))
-        case (true, false) ⇒ returnTile.setDouble(c, r, y.get(c, r))
-        case (false, true) ⇒ returnTile.set(c, r, y.getDouble(c, r).toInt)
-        case (false, false) ⇒ returnTile.set(c, r, y.get(c, r))
+        case (true, true) => returnTile.setDouble(c, r, y.getDouble(c, r))
+        case (true, false) => returnTile.setDouble(c, r, y.get(c, r))
+        case (false, true) => returnTile.set(c, r, y.getDouble(c, r).toInt)
+        case (false, false) => returnTile.set(c, r, y.get(c, r))
       }
     }
 
-    cfor(0)(_ < x.rows, _ + 1) { r ⇒
-      cfor(0)(_ < x.cols, _ + 1) { c ⇒
+    cfor(0)(_ < x.rows, _ + 1) { r =>
+      cfor(0)(_ < x.cols, _ + 1) { c =>
         if(!isCellTrue(condition, c, r)) getSet(c, r)
       }
     }

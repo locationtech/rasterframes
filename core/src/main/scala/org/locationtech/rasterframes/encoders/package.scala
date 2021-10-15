@@ -21,12 +21,17 @@
 
 package org.locationtech.rasterframes
 
-import org.apache.spark.sql.rf._
+import org.locationtech.rasterframes.encoders.syntax._
+
 import org.apache.spark.sql.Column
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.Literal
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{Literal => _, _}
+import scala.reflect.runtime.universe._
+import frameless.TypedEncoder
+import org.apache.spark.sql.types.{DataType, StructType}
+import org.apache.spark.sql.rf.WithTypeConformity
 
 /**
  * Module utilities
@@ -34,6 +39,17 @@ import scala.reflect.runtime.universe.{Literal => _, _}
  * @since 9/25/17
  */
 package object encoders {
+  /** High priority specific product encoder derivation. Without it, the default spark would be used. */
+  implicit def productTypedToExpressionEncoder[T <: Product: TypedEncoder]: ExpressionEncoder[T] = TypedEncoders.typedExpressionEncoder
+
+  implicit class WithTypeConformityToEncoder(val left: DataType) extends AnyVal {
+    def conformsToSchema(schema: StructType): Boolean =
+      WithTypeConformity(left).conformsTo(schema)
+
+    def conformsToDataType(dataType: DataType): Boolean =
+      WithTypeConformity(left).conformsTo(dataType)
+  }
+
   private[rasterframes] def runtimeClass[T: TypeTag]: Class[T] =
     typeTag[T].mirror.runtimeClass(typeTag[T].tpe).asInstanceOf[Class[T]]
 
@@ -41,18 +57,26 @@ package object encoders {
     ClassTag[T](typeTag[T].mirror.runtimeClass(typeTag[T].tpe))
   }
 
-  /** Constructs a catalyst literal expression from anything with a serializer. */
-  def SerializedLiteral[T >: Null: CatalystSerializer](t: T): Literal = {
-    val ser = CatalystSerializer[T]
-    val schema = ser.schema match {
-      case s if s.conformsTo(TileType.sqlType) => TileType
-      case s if s.conformsTo(RasterSourceType.sqlType) => RasterSourceType
+  /** Constructs a catalyst literal expression from anything with a serializer.
+   * Using this serializer avoids using lit() function wich will defer to ScalaReflection to derive encoder.
+   * Therefore, this should be used when literal value can not be handled by Spark ScalaReflection.
+   */
+  def SerializedLiteral[T >: Null](t: T)(implicit tag: TypeTag[T], enc: ExpressionEncoder[T]): Literal = {
+    val schema = enc.schema match {
+      case s if s.conformsTo(tileUDT.sqlType) => tileUDT
+      case s if s.conformsTo(rasterSourceUDT.sqlType) => rasterSourceUDT
       case s => s
     }
-    Literal.create(ser.toInternalRow(t), schema)
+    // we need to convert to Literal right here because otherwise ScalaReflection takes over
+    val ir = t.toInternalRow
+    Literal.create(ir, schema)
   }
 
-  /** Constructs a Dataframe literal column from anything with a serializer. */
-  def serialized_literal[T >: Null: CatalystSerializer](t: T): Column =
+  /**
+   * Constructs a Dataframe literal column from anything with a serializer.
+   * TODO: review its usage.
+   */
+  def serialized_literal[T >: Null: ExpressionEncoder: TypeTag](t: T): Column =
     new Column(SerializedLiteral(t))
+
 }

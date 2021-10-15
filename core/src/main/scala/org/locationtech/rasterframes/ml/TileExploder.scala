@@ -25,7 +25,7 @@ import org.locationtech.rasterframes._
 import org.apache.spark.ml.Transformer
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.util.{DefaultParamsReadable, DefaultParamsWritable, Identifiable}
-import org.apache.spark.sql.Dataset
+import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.util._
@@ -44,7 +44,7 @@ class TileExploder(override val uid: String) extends Transformer
   override def copy(extra: ParamMap): TileExploder = defaultCopy(extra)
 
   /** Checks the incoming schema and determines what the output schema will be. */
-  def transformSchema(schema: StructType) = {
+  def transformSchema(schema: StructType): StructType = {
     val (tiles, nonTiles) = selectTileAndNonTileFields(schema)
     val cells = tiles.map(_.copy(dataType = DoubleType, nullable = false))
     val indexes = Seq(
@@ -54,10 +54,10 @@ class TileExploder(override val uid: String) extends Transformer
     StructType(nonTiles ++ indexes ++ cells)
   }
 
-  def transform(dataset: Dataset[_]) = {
+  def transform(dataset: Dataset[_]): DataFrame = {
     val (tiles, nonTiles) = selectTileAndNonTileFields(dataset.schema)
-    val tileCols = tiles.map(f ⇒ col(f.name))
-    val nonTileCols = nonTiles.map(f ⇒ col(f.name))
+    val tileCols = tiles.map(f => col(f.name))
+    val nonTileCols = nonTiles.map(f => col(f.name))
     val exploder = rf_explode_tiles(tileCols: _*)
     dataset.select(nonTileCols :+ exploder: _*)
   }

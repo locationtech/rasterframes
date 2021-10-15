@@ -31,7 +31,7 @@ import java.util.ArrayList
 
 import org.locationtech.rasterframes.ml.Parameters.HasInputCols
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Transformer filtering out rows containing NoData/NA values in
@@ -45,7 +45,7 @@ class NoDataFilter (override val uid: String) extends Transformer
   def this() = this(Identifiable.randomUID("nodata-filter"))
   final def setInputCols(value: Array[String]): NoDataFilter = set(inputCols, value)
   final def setInputCols(values: ArrayList[String]): this.type = {
-    val valueArr = Array[String](values:_*)
+    val valueArr = Array[String](values.asScala:_*)
     set(inputCols, valueArr)
   }
 

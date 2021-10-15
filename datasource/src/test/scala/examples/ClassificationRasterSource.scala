@@ -51,7 +51,7 @@ object ClassificationRasterSource extends App {
   // a single RasterFrame from them.
   val filenamePattern = "L8-%s-Elkton-VA.tiff"
   val bandNumbers = 2 to 7
-  val bandColNames = bandNumbers.map(b ⇒ s"band_$b").toArray
+  val bandColNames = bandNumbers.map(b => s"band_$b").toArray
   val bandSrcs = bandNumbers.map(n => filenamePattern.format("B" + n)).map(href)
   val labelSrc =  href(filenamePattern.format("Labels"))
   val tileSize = 128

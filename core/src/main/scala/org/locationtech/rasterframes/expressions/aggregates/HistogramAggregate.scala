@@ -21,8 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.aggregates
 
-import java.nio.ByteBuffer
-
+import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.functions.safeEval
 import org.locationtech.rasterframes.stats.CellHistogram
@@ -35,7 +34,8 @@ import org.apache.spark.sql.execution.aggregate.ScalaUDAF
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, Row, TypedColumn}
-import org.locationtech.rasterframes.TileType
+
+import java.nio.ByteBuffer
 
 /**
  * Histogram aggregation function for a full column of tiles.
@@ -46,13 +46,13 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
   def this() = this(StreamingHistogram.DEFAULT_NUM_BUCKETS)
   // TODO: rewrite as TypedAggregateExpression or similar.
 
-  override def inputSchema: StructType = StructType(StructField("value", TileType) :: Nil)
+  def inputSchema: StructType = StructType(StructField("value", tileUDT) :: Nil)
 
-  override def bufferSchema: StructType = StructType(StructField("buffer", BinaryType) :: Nil)
+  def bufferSchema: StructType = StructType(StructField("buffer", BinaryType) :: Nil)
 
-  override def dataType: DataType = CellHistogram.schema
+  def dataType: DataType = CellHistogram.schema
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
   @transient
   private lazy val ser = KryoSerializer.ser.newInstance()
@@ -63,17 +63,17 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
   @inline
   private def unmarshall(blob: Array[Byte]): Histogram[Double] = ser.deserialize(ByteBuffer.wrap(blob))
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit =
+  def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = marshall(StreamingHistogram(numBuckets))
 
-  private val safeMerge = (h1: Histogram[Double], h2: Histogram[Double]) ⇒ (h1, h2) match {
+  private val safeMerge = (h1: Histogram[Double], h2: Histogram[Double]) => (h1, h2) match {
     case (null, null) => null
     case (l, null) => l
     case (null, r) => r
     case (l, r) => l merge r
   }
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
     val tile = input.getAs[Tile](0)
     val hist1 = unmarshall(buffer.getAs[Array[Byte]](0))
     val hist2 = safeEval(StreamingHistogram.fromTile(_: Tile, numBuckets))(tile)
@@ -81,22 +81,20 @@ case class HistogramAggregate(numBuckets: Int) extends UserDefinedAggregateFunct
     buffer(0) = marshall(updatedHist)
   }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     val hist1 = unmarshall(buffer1.getAs[Array[Byte]](0))
     val hist2 = unmarshall(buffer2.getAs[Array[Byte]](0))
     val updatedHist = safeMerge(hist1, hist2)
     buffer1(0) = marshall(updatedHist)
   }
 
-  override def evaluate(buffer: Row): Any = {
+  def evaluate(buffer: Row): Any = {
     val hist = unmarshall(buffer.getAs[Array[Byte]](0))
     CellHistogram(hist)
   }
 }
 
 object HistogramAggregate {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.cellHistEncoder
-
   def apply(col: Column): TypedColumn[Any, CellHistogram] =
     apply(col, StreamingHistogram.DEFAULT_NUM_BUCKETS)
 
@@ -116,9 +114,9 @@ object HistogramAggregate {
     > SELECT _FUNC_(tile);
       ..."""
   )
-  class HistogramAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, resultId: ExprId)
-    extends AggregateExpression(aggregateFunction, mode, isDistinct, resultId) {
-    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new HistogramAggregate()), Complete, false, NamedExpression.newExprId)
+  class HistogramAggregateUDAF(aggregateFunction: AggregateFunction, mode: AggregateMode, isDistinct: Boolean, filter: Option[Expression], resultId: ExprId)
+    extends AggregateExpression(aggregateFunction, mode, isDistinct, filter, resultId) {
+    def this(child: Expression) = this(ScalaUDAF(Seq(ExtractTile(child)), new HistogramAggregate()), Complete, false, None, NamedExpression.newExprId)
     override def nodeName: String = "rf_agg_approx_histogram"
   }
   object HistogramAggregateUDAF {

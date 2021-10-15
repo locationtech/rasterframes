@@ -21,7 +21,8 @@
 
 package org.locationtech.rasterframes.expressions.tilestats
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import geotrellis.raster._
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -39,20 +40,18 @@ import org.locationtech.rasterframes.model.TileContext
     > SELECT _FUNC_(tile5);
        2135.34"""
 )
-case class Sum(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class Sum(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   override def nodeName: String = "rf_tile_sum"
-  override def dataType: DataType = DoubleType
-  override protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = Sum.op(tile)
+  def dataType: DataType = DoubleType
+  protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = Sum.op(tile)
 }
 
 object Sum {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.doubleEnc
-  def apply(tile: Column): TypedColumn[Any, Double] =
-    new Column(Sum(tile.expr)).as[Double]
+  def apply(tile: Column): TypedColumn[Any, Double] = new Column(Sum(tile.expr)).as[Double]
 
-  def op = (tile: Tile) => {
+  def op: Tile => Double = (tile: Tile) => {
     var sum: Double = 0.0
-    tile.foreachDouble(z ⇒ if(isData(z)) sum = sum + z)
+    tile.foreachDouble(z => if(isData(z)) sum = sum + z)
     sum
   }
 }

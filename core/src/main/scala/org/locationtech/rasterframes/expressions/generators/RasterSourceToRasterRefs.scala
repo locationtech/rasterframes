@@ -28,11 +28,13 @@ import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef}
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterSourceType
+import org.locationtech.rasterframes.ref.Subgrid
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -42,51 +44,52 @@ import scala.util.control.NonFatal
  *
  * @since 9/6/18
  */
-case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None) extends Expression
+case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[Int], subtileDims: Option[Dimensions[Int]] = None, bufferSize: Short = 0) extends Expression
   with Generator with CodegenFallback with ExpectsInputTypes {
 
-  override def inputTypes: Seq[DataType] = Seq.fill(children.size)(RasterSourceType)
+  def inputTypes: Seq[DataType] = Seq.fill(children.size)(rasterSourceUDT)
   override def nodeName: String = "rf_raster_source_to_raster_ref"
 
-  override def elementSchema: StructType = StructType(for {
+  def elementSchema: StructType = StructType(for {
     child <- children
     basename = child.name + "_ref"
     name <- bandNames(basename, bandIndexes)
-  } yield StructField(name, schemaOf[RasterRef], true))
+  } yield StructField(name, RasterRef.rasterRefEncoder.schema, true))
 
-  private def band2ref(src: RFRasterSource, e: Option[(GridBounds[Int], Extent)])(b: Int): RasterRef =
-    if (b < src.bandCount) RasterRef(src, b, e.map(_._2), e.map(_._1)) else null
+  private def band2ref(src: RFRasterSource, grid: Option[GridBounds[Int]], extent: Option[Extent])(b: Int): RasterRef =
+    if (b < src.bandCount) RasterRef(src, b, extent, grid.map(Subgrid.apply), bufferSize) else null
 
-
-  override def eval(input: InternalRow): TraversableOnce[InternalRow] = {
+  def eval(input: InternalRow): TraversableOnce[InternalRow] =
     try {
-      val refs = children.map { child ⇒
-        val src = RasterSourceType.deserialize(child.eval(input))
+      val refs = children.map { child =>
+        // TODO: we're using the UDT here ... which is what we should do ?
+        // what would have serialized it, UDT?
+        val src = rasterSourceUDT.deserialize(child.eval(input))
         val srcRE = src.rasterExtent
-        subtileDims.map(dims => {
+        subtileDims.map({ dims =>
           val subGB = src.layoutBounds(dims)
           val subs = subGB.map(gb => (gb, srcRE.extentFor(gb, clamp = true)))
-
-          subs.map(p => bandIndexes.map(band2ref(src, Some(p))))
-        })
-          .getOrElse(Seq(bandIndexes.map(band2ref(src, None))))
+          subs.map{ case (grid, extent) => bandIndexes.map(band2ref(src, Some(grid), Some(extent))) }
+        }).getOrElse(Seq(bandIndexes.map(band2ref(src, None, None))))
       }
-      refs.transpose.map(ts ⇒ InternalRow(ts.flatMap(_.map(_.toInternalRow)): _*))
+
+      refs.transpose.map(ts => InternalRow(ts.flatMap(_.map((_: RasterRef).toInternalRow)): _*))
     }
     catch {
-      case NonFatal(ex) ⇒
+      case NonFatal(ex) =>
         val description = "Error fetching data for one of: " +
-          Try(children.map(c => RasterSourceType.deserialize(c.eval(input))))
+          Try(children.map(c => rasterSourceUDT.deserialize(c.eval(input))))
             .toOption.toSeq.flatten.mkString(", ")
         throw new java.lang.IllegalArgumentException(description, ex)
     }
-  }
 }
 
 object RasterSourceToRasterRefs {
-  def apply(rrs: Column*): TypedColumn[Any, RasterRef] = apply(None, Seq(0), rrs: _*)
-  def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, RasterRef] =
-    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims)).as[RasterRef]
+  def apply(rrs: Column*): TypedColumn[Any, ProjectedRasterTile] = apply(None, Seq(0), rrs: _*)
+  def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
+    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims)).as[ProjectedRasterTile]
+  def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], bufferSize: Short, rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
+    new Column(new RasterSourceToRasterRefs(rrs.map(_.expr), bandIndexes, subtileDims, bufferSize)).as[ProjectedRasterTile]
 
   private[rasterframes] def bandNames(basename: String, bandIndexes: Seq[Int]): Seq[String] = bandIndexes match {
     case Seq() => Seq.empty

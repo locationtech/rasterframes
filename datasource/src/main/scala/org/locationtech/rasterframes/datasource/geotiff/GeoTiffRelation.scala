@@ -21,65 +21,61 @@
 
 package org.locationtech.rasterframes.datasource.geotiff
 
-import java.net.URI
-
-import com.typesafe.scalalogging.Logger
 import geotrellis.layer._
 import geotrellis.spark._
-import geotrellis.proj4.CRS
 import geotrellis.store.hadoop.util.HdfsRangeReader
-import geotrellis.vector.Extent
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.rf.TileUDT
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext}
-import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 import JsonCodecs._
 import geotrellis.raster.CellGrid
 import geotrellis.spark.store.hadoop.{HadoopGeoTiffRDD, HadoopGeoTiffReader}
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
+
+import java.net.URI
+import com.typesafe.scalalogging.Logger
 
 /**
  * Spark SQL data source over a single GeoTiff file. Works best with CoG compliant ones.
  *
  * @since 1/14/18
  */
-case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation
-  with PrunedScan with GeoTiffInfoSupport {
+case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelation with PrunedScan with GeoTiffInfoSupport {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  lazy val (info, tileLayerMetadata) = extractGeoTiffLayout(
-    HdfsRangeReader(new Path(uri), sqlContext.sparkContext.hadoopConfiguration)
-  )
+  lazy val (info, tileLayerMetadata) =
+    extractGeoTiffLayout(HdfsRangeReader(new Path(uri), sqlContext.sparkContext.hadoopConfiguration))
 
   def schema: StructType = {
-    val skSchema = ExpressionEncoder[SpatialKey]().schema
-    val skMetadata = Metadata.empty.append
-      .attachContext(tileLayerMetadata.asColumnMetadata)
-      .tagSpatialKey.build
+    val skMetadata =
+      Metadata
+        .empty
+        .append
+        .attachContext(tileLayerMetadata.asColumnMetadata)
+        .tagSpatialKey
+        .build
 
     val baseName = TILE_COLUMN.columnName
     val tileCols = (if (info.bandCount == 1) Seq(baseName)
     else {
       for (i <- 0 until info.bandCount) yield s"${baseName}_${i + 1}"
-    }).map(name ⇒
-      StructField(name, new TileUDT, nullable = false)
-    )
+    }).map(name => StructField(name, new TileUDT, nullable = false) )
 
-    StructType(Seq(
-      StructField(SPATIAL_KEY_COLUMN.columnName, skSchema, nullable = false, skMetadata),
-      StructField(EXTENT_COLUMN.columnName, schemaOf[Extent], nullable = true),
-      StructField(CRS_COLUMN.columnName, schemaOf[CRS], nullable = true),
-      StructField(METADATA_COLUMN.columnName,
-        DataTypes.createMapType(StringType, StringType, false)
-      )
-    ) ++ tileCols)
+    StructType(
+      Seq(
+        StructField(SPATIAL_KEY_COLUMN.columnName, spatialKeyEncoder.schema, nullable = false, skMetadata),
+        StructField(EXTENT_COLUMN.columnName, extentEncoder.schema, nullable = true),
+        StructField(CRS_COLUMN.columnName, crsUDT, nullable = true),
+        StructField(METADATA_COLUMN.columnName, DataTypes.createMapType(StringType, StringType, false))
+      ) ++ tileCols
+    )
   }
 
   override def buildScan(requiredColumns: Array[String]): RDD[Row] = {
@@ -93,20 +89,18 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     val trans = tlm.mapTransform
     val metadata = info.tags.headTags
 
-    val encodedCRS = tlm.crs.toRow
-
     if(info.segmentLayout.isTiled) {
       // TODO: Figure out how to do tile filtering via the range reader.
       // Something with geotrellis.spark.io.GeoTiffInfoReader#windowsByPartition?
       HadoopGeoTiffRDD.spatialMultiband(new Path(uri), HadoopGeoTiffRDD.Options.DEFAULT)
-        .map { case (pe, tiles) ⇒
+        .map { case (pe, tiles) =>
           // NB: I think it's safe to take the min coord of the
           // transform result because the layout is directly from the TIFF
           val gb = trans.extentToBounds(pe.extent)
           val entries = columnIndexes.map {
-            case 0 => SpatialKey(gb.colMin, gb.rowMin)
+            case 0 => SpatialKey(gb.colMin, gb.rowMin).toRow
             case 1 => pe.extent.toRow
-            case 2 => encodedCRS
+            case 2 => tlm.crs
             case 3 => metadata
             case n => tiles.band(n - 4)
           }
@@ -116,7 +110,9 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
     else {
       // TODO: get rid of this sloppy type leakage hack. Might not be necessary anyway.
       def toArrayTile[T <: CellGrid[Int]](tile: T): T =
-        tile.getClass.getMethods
+        tile
+          .getClass
+          .getMethods
           .find(_.getName == "toArrayTile")
           .map(_.invoke(tile).asInstanceOf[T])
           .getOrElse(tile)
@@ -126,11 +122,11 @@ case class GeoTiffRelation(sqlContext: SQLContext, uri: URI) extends BaseRelatio
       val rdd = sqlContext.sparkContext.makeRDD(Seq((geotiff.projectedExtent, toArrayTile(geotiff.tile))))
 
       rdd.tileToLayout(tlm)
-        .map { case (sk, tiles) ⇒
+        .map { case (sk, tiles) =>
           val entries = columnIndexes.map {
-            case 0 => sk
+            case 0 => sk.toRow
             case 1 => trans.keyToExtent(sk).toRow
-            case 2 => encodedCRS
+            case 2 => tlm.crs
             case 3 => metadata
             case n => tiles.band(n - 4)
           }

@@ -25,5 +25,4 @@ import java.net.URI
 
 import geotrellis.raster.geotiff.GeoTiffRasterSource
 
-
 case class JVMGeoTiffRasterSource(source: URI) extends DelegatingRasterSource(source, () => GeoTiffRasterSource(source.toASCIIString))

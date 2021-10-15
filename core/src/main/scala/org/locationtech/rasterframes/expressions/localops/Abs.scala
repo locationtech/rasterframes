@@ -25,7 +25,7 @@ import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Compute the absolute value of each cell.",
@@ -37,10 +37,10 @@ import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterO
     > SELECT  _FUNC_(tile);
        ..."""
 )
-case class Abs(child: Expression) extends UnaryLocalRasterOp with NullToValue with CodegenFallback {
+case class Abs(child: Expression) extends UnaryRasterOp with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_abs"
-  override def na: Any = null
-  override protected def op(t: Tile): Tile = t.localAbs()
+  def na: Any = null
+  protected def op(t: Tile): Tile = t.localAbs()
 }
 
 object Abs {

@@ -21,7 +21,8 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.expressions.UnaryRasterOp
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -36,15 +37,13 @@ import org.locationtech.rasterframes.model.TileContext
   Arguments:
     * tile - tile to convert"""
 )
-case class TileToArrayDouble(child: Expression) extends UnaryRasterOp with CodegenFallback {
+case class TileToArrayDouble(child: Expression) extends UnaryRasterFunction with CodegenFallback {
   override def nodeName: String = "rf_tile_to_array_double"
-  override def dataType: DataType = DataTypes.createArrayType(DoubleType, false)
-  override protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
+  def dataType: DataType = DataTypes.createArrayType(DoubleType, false)
+  protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     ArrayData.toArrayData(tile.toArrayDouble())
-  }
 }
 object TileToArrayDouble {
-  import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders.arrayEnc
   def apply(tile: Column): TypedColumn[Any, Array[Double]] =
     new Column(TileToArrayDouble(tile.expr)).as[Array[Double]]
 }

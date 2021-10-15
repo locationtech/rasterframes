@@ -22,6 +22,7 @@
 package org.locationtech.rasterframes
 
 import geotrellis.proj4.{CRS, LatLng, Sinusoidal, WebMercator}
+import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.Encoders
 import org.locationtech.jts.geom._
 
@@ -71,7 +72,7 @@ class ReprojectGeometrySpec extends TestEnvironment {
     }
 
     it("should handle one literal crs") {
-      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsSparkEncoder)
+      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsExpressionEncoder)
       val df = Seq((llLineString, wmLineString, LatLng: CRS)).toDF("ll", "wm", "llCRS")
 
       val rp = df.select(
@@ -97,7 +98,7 @@ class ReprojectGeometrySpec extends TestEnvironment {
     }
 
     it("should work in SQL") {
-      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsSparkEncoder)
+      implicit val enc = Encoders.tuple(jtsGeometryEncoder, jtsGeometryEncoder, crsExpressionEncoder)
       val df = Seq((llLineString, wmLineString, LatLng: CRS)).toDF("ll", "wm", "llCRS")
       df.createOrReplaceTempView("geom")
 
@@ -117,6 +118,16 @@ class ReprojectGeometrySpec extends TestEnvironment {
       wm3 should matchGeom(wmLineString, 0.00001)
 
       checkDocs("st_reproject")
+    }
+
+    it("should work on null columns") {
+      val df = Seq(1, 2, 3).toDF("id")
+
+      noException shouldBe thrownBy {
+        df.withColumn("nullId", lit(null))
+          .select(st_reproject(st_makePoint($"nullId", $"nullId"), WebMercator, Sinusoidal))
+          .count()
+      }
     }
   }
 }

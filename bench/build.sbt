@@ -11,7 +11,7 @@ libraryDependencies ++= Seq(
 jmhIterations := Some(5)
 jmhWarmupIterations := Some(8)
 jmhTimeUnit := None
-javaOptions in Jmh := Seq("-Xmx4g")
+Jmh / javaOptions := Seq("-Xmx4g")
 
 // To enable profiling:
 // jmhExtraOptions := Some("-prof jmh.extras.JFR")

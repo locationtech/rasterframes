@@ -22,66 +22,66 @@
 package org.locationtech.rasterframes.expressions.aggregates
 
 import geotrellis.raster.{Tile, isNoData}
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.{Column, Encoder, Row, TypedColumn, types}
+import org.apache.spark.sql.{Column, Row, TypedColumn, types}
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
-import org.locationtech.rasterframes.TileType
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.encoders.syntax._
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 
-
 case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeError: Double) extends UserDefinedAggregateFunction {
-  import org.locationtech.rasterframes.encoders.StandardSerializers.quantileSerializer
-
-  override def inputSchema: StructType = StructType(Seq(
-    StructField("value", TileType, true)
+  def inputSchema: StructType = StructType(Seq(
+    StructField("value", tileUDT, true)
   ))
 
-  override def bufferSchema: StructType = StructType(Seq(
-    StructField("buffer", schemaOf[QuantileSummaries], false)
+  def bufferSchema: StructType = StructType(Seq(
+    StructField("buffer", quantileSummariesEncoder.schema, false)
   ))
 
-  override def dataType: types.DataType = DataTypes.createArrayType(DataTypes.DoubleType)
+  def dataType: types.DataType = DataTypes.createArrayType(DataTypes.DoubleType)
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit =
-    buffer.update(0, new QuantileSummaries(QuantileSummaries.defaultCompressThreshold, relativeError).toRow)
+  def initialize(buffer: MutableAggregationBuffer): Unit = {
+    val qs = new QuantileSummaries(QuantileSummaries.defaultCompressThreshold, relativeError)
+    buffer.update(0, qs.toRow)
+  }
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val qs = buffer.getStruct(0).to[QuantileSummaries]
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+    val qs = buffer.getStruct(0).as[QuantileSummaries]
     if (!input.isNullAt(0)) {
       val tile = input.getAs[Tile](0)
       var result = qs
       tile.foreachDouble(d => if (!isNoData(d)) result = result.insert(d))
+
       buffer.update(0, result.toRow)
     }
   }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val left = buffer1.getStruct(0).to[QuantileSummaries]
-    val right = buffer2.getStruct(0).to[QuantileSummaries]
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+    val left = buffer1.getStruct(0).as[QuantileSummaries]
+    val right = buffer2.getStruct(0).as[QuantileSummaries]
     val merged = left.compress().merge(right.compress())
-    buffer1.update(0, merged.toRow)
+
+    val mergedRow = merged.toRow
+    buffer1.update(0, mergedRow)
   }
 
-  override def evaluate(buffer: Row): Seq[Double] = {
-    val summaries = buffer.getStruct(0).to[QuantileSummaries]
+  def evaluate(buffer: Row): Seq[Double] = {
+    val summaries = buffer.getStruct(0).as[QuantileSummaries]
     probabilities.flatMap(summaries.query)
   }
 }
 
 object ApproxCellQuantilesAggregate {
-  private implicit def doubleSeqEncoder: Encoder[Seq[Double]] = ExpressionEncoder()
-
   def apply(
     tile: Column,
     probabilities: Seq[Double],
-    relativeError: Double = 0.00001): TypedColumn[Any, Seq[Double]] = {
+    relativeError: Double = 0.00001
+  ): TypedColumn[Any, Seq[Double]] =
     new ApproxCellQuantilesAggregate(probabilities, relativeError)(ExtractTile(tile))
       .as(s"rf_agg_approx_quantiles")
       .as[Seq[Double]]
-  }
 }

@@ -22,7 +22,6 @@
 package org.locationtech.rasterframes.rules
 
 import org.locationtech.jts.geom.Geometry
-import org.apache.spark.sql.sources.Filter
 
 /**
  * New filter types captured and rewritten for use in spatiotemporal data sources that can handle them.
@@ -30,11 +29,11 @@ import org.apache.spark.sql.sources.Filter
  * @since 1/11/18
  */
 object SpatialFilters {
-  case class Intersects(attribute: String, value: Geometry) extends Filter {
+  case class Intersects(attribute: String, value: Geometry) {
     def references: Array[String] = Array(attribute)
   }
 
-  case class Contains(attribute: String, value: Geometry) extends Filter {
+  case class Contains(attribute: String, value: Geometry) {
     def references: Array[String] = Array(attribute)
   }
 }

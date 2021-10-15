@@ -28,7 +28,6 @@ import org.apache.spark.sql.sources.{BaseRelation, TableScan}
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.locationtech.rasterframes.datasource.raster.RasterSourceDataSource.RasterSourceCatalogRef
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.accessors.{GetCRS, GetExtent}
 import org.locationtech.rasterframes.expressions.generators.{RasterSourceToRasterRefs, RasterSourceToTiles}
 import org.locationtech.rasterframes.expressions.generators.RasterSourceToRasterRefs.bandNames
@@ -36,22 +35,23 @@ import org.locationtech.rasterframes.expressions.transformers.{RasterRefToTile, 
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
-  * Constructs a Spark Relation over one or more RasterSource paths.
-  * @param sqlContext Query context
-  * @param catalogTable Specification of raster path sources
-  * @param bandIndexes band indexes to fetch
-  * @param subtileDims how big to tile/subdivide rasters info
-  * @param lazyTiles if true, creates a lazy representation of tile instead of fetching contents.
-  * @param spatialIndexPartitions Number of spatial index-based partitions to create.
-  *                               If Option value > 0, that number of partitions are created after adding a spatial index.
-  *                               If Option value <= 0, uses the value of `numShufflePartitions` in SparkContext.
-  *                               If None, no spatial index is added and hash partitioning is used.
-  */
+ * Constructs a Spark Relation over one or more RasterSource paths.
+ * @param sqlContext Query context
+ * @param catalogTable Specification of raster path sources
+ * @param bandIndexes band indexes to fetch
+ * @param subtileDims how big to tile/subdivide rasters info
+ * @param lazyTiles if true, creates a lazy representation of tile instead of fetching contents.
+ * @param spatialIndexPartitions Number of spatial index-based partitions to create.
+ *                               If Option value > 0, that number of partitions are created after adding a spatial index.
+ *                               If Option value <= 0, uses the value of `numShufflePartitions` in SparkContext.
+ *                               If None, no spatial index is added and hash partitioning is used.
+ */
 case class RasterSourceRelation(
   sqlContext: SQLContext,
   catalogTable: RasterSourceCatalogRef,
   bandIndexes: Seq[Int],
   subtileDims: Option[Dimensions[Int]],
+  bufferSize: Short,
   lazyTiles: Boolean,
   spatialIndexPartitions: Option[Int]
 ) extends BaseRelation with TableScan {
@@ -83,7 +83,7 @@ case class RasterSourceRelation(
     sqlContext.sparkSession.sessionState.conf.numShufflePartitions
 
   override def schema: StructType = {
-    val tileSchema = schemaOf[ProjectedRasterTile]
+    val tileSchema = ProjectedRasterTile.projectedRasterTileEncoder.schema
     val paths = for {
       pathCol <- pathColNames
     } yield StructField(pathCol, StringType, false)
@@ -128,7 +128,7 @@ case class RasterSourceRelation(
       // Expand RasterSource into multiple columns per band, and multiple rows per tile
       // There's some unintentional fragility here in that the structure of the expression
       // is expected to line up with our column structure here.
-      val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, srcs: _*) as refColNames
+      val refs = RasterSourceToRasterRefs(subtileDims, bandIndexes, bufferSize, srcs: _*) as refColNames
 
       // RasterSourceToRasterRef is a generator, which means you have to do the Tile conversion
       // in a separate select statement (Query planner doesn't know how many columns ahead of time).
@@ -139,11 +139,9 @@ case class RasterSourceRelation(
       withPaths
         .select(extras ++ paths :+ refs: _*)
         .select(paths ++ refsToTiles ++ extras: _*)
-    }
-    else {
-      val tiles = RasterSourceToTiles(subtileDims, bandIndexes, srcs: _*) as tileColNames
-      withPaths
-        .select((paths :+ tiles) ++ extras: _*)
+    } else {
+      val tiles = RasterSourceToTiles(subtileDims, bandIndexes, bufferSize, srcs: _*) as tileColNames
+      withPaths.select((paths :+ tiles) ++ extras: _*)
     }
 
     if (spatialIndexPartitions.isDefined) {

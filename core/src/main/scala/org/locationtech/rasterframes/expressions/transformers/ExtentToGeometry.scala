@@ -21,10 +21,8 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.locationtech.rasterframes.expressions.{DynamicExtractors, row}
-import org.locationtech.jts.geom.{Envelope, Geometry}
-import geotrellis.vector.Extent
+import org.locationtech.jts.geom.Geometry
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -33,6 +31,7 @@ import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
+import org.locationtech.rasterframes.encoders.StandardEncoders
 
 /**
  * Catalyst Expression for converting a bounding box structure into a JTS Geometry type.
@@ -40,14 +39,14 @@ import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
  * @since 8/24/18
  */
 case class ExtentToGeometry(child: Expression) extends UnaryExpression with CodegenFallback {
-    override def nodeName: String = "st_geometry"
+  override def nodeName: String = "st_geometry"
 
-  override def dataType: DataType = JTSTypes.GeometryTypeInstance
+  def dataType: DataType = JTSTypes.GeometryTypeInstance
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!DynamicExtractors.extentExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(
-        s"Expected bounding box of form '${schemaOf[Envelope]}' or '${schemaOf[Extent]}' " +
+        s"Expected bounding box of form '${StandardEncoders.envelopeEncoder.schema}' or '${StandardEncoders.extentEncoder.schema}' " +
           s"but received '${child.dataType.simpleString}'."
       )
     }
@@ -63,6 +62,5 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
 }
 
 object ExtentToGeometry extends SpatialEncoders {
-  def apply(bounds: Column): TypedColumn[Any, Geometry] =
-    new Column(new ExtentToGeometry(bounds.expr)).as[Geometry]
+  def apply(bounds: Column): TypedColumn[Any, Geometry] = new Column(new ExtentToGeometry(bounds.expr)).as[Geometry]
 }

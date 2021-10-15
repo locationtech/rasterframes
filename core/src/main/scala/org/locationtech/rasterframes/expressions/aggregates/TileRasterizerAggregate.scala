@@ -31,7 +31,7 @@ import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAg
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
@@ -45,27 +45,26 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
 
   val projOpts = Reproject.Options.DEFAULT.copy(method = prd.sampler)
 
-  override def deterministic: Boolean = true
+  def deterministic: Boolean = true
 
-  override def inputSchema: StructType = StructType(Seq(
-    StructField("crs", schemaOf[CRS], false),
-    StructField("extent", schemaOf[Extent], false),
-    StructField("tile", TileType)
+  def inputSchema: StructType = StructType(Seq(
+    StructField("crs", crsUDT, false),
+    StructField("extent", extentEncoder.schema, false),
+    StructField("tile", tileUDT)
   ))
 
-  override def bufferSchema: StructType = StructType(Seq(
-    StructField("tile_buffer", TileType)
+  def bufferSchema: StructType = StructType(Seq(
+    StructField("tile_buffer", tileUDT)
   ))
 
-  override def dataType: DataType = TileType
+  def dataType: DataType = tileUDT
 
-  override def initialize(buffer: MutableAggregationBuffer): Unit = {
+  def initialize(buffer: MutableAggregationBuffer): Unit =
     buffer(0) = ArrayTile.empty(prd.destinationCellType, prd.totalCols, prd.totalRows)
-  }
 
-  override def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val crs = input.getAs[Row](0).to[CRS]
-    val extent = input.getAs[Row](1).to[Extent]
+  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
+    val crs: CRS = input.getAs[CRS](0)
+    val extent: Extent = input.getAs[Row](1).as[Extent]
 
     val localExtent = extent.reproject(crs, prd.destinationCRS)
 
@@ -77,13 +76,13 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefine
     }
   }
 
-  override def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
+  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
     val leftTile = buffer1.getAs[Tile](0)
     val rightTile = buffer2.getAs[Tile](0)
     buffer1(0) = leftTile.merge(rightTile)
   }
 
-  override def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
+  def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
 }
 
 object TileRasterizerAggregate {
@@ -134,32 +133,31 @@ object TileRasterizerAggregate {
     }
 
     // Scan table and construct what the TileLayerMetadata would be in the specified destination CRS.
-    val tlm: TileLayerMetadata[SpatialKey] = df
-      .select(
-        ProjectedLayerMetadataAggregate(
-          destCRS,
-          extCol,
-          crsCol,
-          rf_cell_type(tileCol),
-          rf_dimensions(tileCol)
-        ))
-      .first()
+    val tlm: TileLayerMetadata[SpatialKey] =
+      df
+        .select(
+          ProjectedLayerMetadataAggregate(
+            destCRS,
+            extCol,
+            rf_crs(crsCol),
+            rf_cell_type(tileCol),
+            rf_dimensions(tileCol)
+          )
+        )
+        .first()
+
     logger.debug(s"Collected TileLayerMetadata: ${tlm.toString}")
 
     val c = ProjectedRasterDefinition(tlm, Bilinear)
 
-    val config = rasterDims
-      .map { dims =>
-        c.copy(totalCols = dims.cols, totalRows = dims.rows)
-      }
-      .getOrElse(c)
+    val config =
+      rasterDims
+        .map { dims => c.copy(totalCols = dims.cols, totalRows = dims.rows) }
+        .getOrElse(c)
 
-    destExtent.map { ext =>
-      c.copy(destinationExtent = ext)
-    }
+    destExtent.map { ext => c.copy(destinationExtent = ext) }
 
-    val aggs = tileCols
-      .map(t => TileRasterizerAggregate(config, crsCol, extCol, rf_tile(t)).as(t.columnName))
+    val aggs = tileCols.map(t => TileRasterizerAggregate(config, rf_crs(crsCol), extCol, rf_tile(t)).as(t.columnName))
 
     val agg = df.select(aggs: _*)
 

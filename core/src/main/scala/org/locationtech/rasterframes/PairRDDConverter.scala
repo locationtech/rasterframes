@@ -80,14 +80,14 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpaceTimeKey, Tile)])(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
-      rdd.map{ case (k, v) ⇒ (k.spatialKey, k.temporalKey, v)}.toDF(schema.fields.map(_.name): _*)
+      rdd.map{ case (k, v) => (k.spatialKey, k.temporalKey, v)}.toDF(schema.fields.map(_.name): _*)
     }
   }
 
   /** Enables conversion of `RDD[(SpatialKey, TileFeature[Tile, D])]` to DataFrame. */
   implicit def spatialTileFeatureConverter[D: Encoder] = new PairRDDConverter[SpatialKey, TileFeature[Tile, D]] {
     implicit val featureEncoder = implicitly[Encoder[D]]
-    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, singlebandTileEncoder, featureEncoder)
+    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, tileEncoder, featureEncoder)
 
     val schema: StructType = {
       val base = spatialTileConverter.schema
@@ -96,14 +96,14 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpatialKey, TileFeature[Tile, D])])(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
-      rdd.map{ case (k, v) ⇒ (k, v.tile, v.data)}.toDF(schema.fields.map(_.name): _*)
+      rdd.map{ case (k, v) => (k, v.tile, v.data)}.toDF(schema.fields.map(_.name): _*)
     }
   }
 
   /** Enables conversion of `RDD[(SpaceTimeKey, TileFeature[Tile, D])]` to DataFrame. */
   implicit def spaceTimeTileFeatureConverter[D: Encoder] = new PairRDDConverter[SpaceTimeKey, TileFeature[Tile, D]] {
     implicit val featureEncoder = implicitly[Encoder[D]]
-    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, temporalKeyEncoder, singlebandTileEncoder, featureEncoder)
+    implicit val rowEncoder = Encoders.tuple(spatialKeyEncoder, temporalKeyEncoder, tileEncoder, featureEncoder)
 
     val schema: StructType = {
       val base = spaceTimeTileConverter.schema
@@ -112,7 +112,7 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpaceTimeKey, TileFeature[Tile, D])])(implicit spark: SparkSession): DataFrame = {
       import spark.implicits._
-      val tupRDD = rdd.map { case (k, v) ⇒ (k.spatialKey, k.temporalKey, v.tile, v.data) }
+      val tupRDD = rdd.map { case (k, v) => (k.spatialKey, k.temporalKey, v.tile, v.data) }
 
       rddToDatasetHolder(tupRDD)
       tupRDD.toDF(schema.fields.map(_.name): _*)
@@ -126,7 +126,7 @@ object PairRDDConverter {
 
       val basename = TILE_COLUMN.columnName
 
-      val tiles = for(i ← 1 to bands) yield {
+      val tiles = for(i <- 1 to bands) yield {
         val name = if(bands <= 1) basename else s"${basename}_$i"
         StructField(name , serializableTileUDT, nullable = false)
       }
@@ -136,20 +136,20 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpatialKey, MultibandTile)])(implicit spark: SparkSession): DataFrame = {
       spark.createDataFrame(
-        rdd.map { case (k, v) ⇒ Row(Row(k.col, k.row) +: v.bands: _*) },
+        rdd.map { case (k, v) => Row(Row(k.col, k.row) +: v.bands: _*) },
         schema
       )
     }
   }
 
   /** Enables conversion of `RDD[(SpaceTimeKey, MultibandTile)]` to DataFrame. */
-  def forSpaceTimeMultiband(bands: Int) = new PairRDDConverter[SpaceTimeKey, MultibandTile] {
+  def forSpaceTimeMultiband(bands: Int): PairRDDConverter[SpaceTimeKey, MultibandTile] = new PairRDDConverter[SpaceTimeKey, MultibandTile] {
     val schema: StructType = {
       val base = spaceTimeTileConverter.schema
 
       val basename = TILE_COLUMN.columnName
 
-      val tiles = for(i ← 1 to bands) yield {
+      val tiles = for(i <- 1 to bands) yield {
         StructField(s"${basename}_$i" , serializableTileUDT, nullable = false)
       }
 
@@ -158,7 +158,7 @@ object PairRDDConverter {
 
     def toDataFrame(rdd: RDD[(SpaceTimeKey, MultibandTile)])(implicit spark: SparkSession): DataFrame = {
       spark.createDataFrame(
-        rdd.map { case (k, v) ⇒ Row(Seq(Row(k.spatialKey.col, k.spatialKey.row), Row(k.temporalKey)) ++ v.bands: _*) },
+        rdd.map { case (k, v) => Row(Seq(Row(k.spatialKey.col, k.spatialKey.row), Row(k.temporalKey)) ++ v.bands: _*) },
         schema
       )
     }

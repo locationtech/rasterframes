@@ -66,7 +66,7 @@ class GeoTiffWriter(TestEnvironment):
         from pyrasterframes.rasterfunctions import rf_agg_stats, rf_crs
         rf = self.spark.read.raster(self.img_uri)
         max = rf.agg(rf_agg_stats('proj_raster').max.alias('max')).first()['max']
-        crs = rf.select(rf_crs('proj_raster').crsProj4.alias('c')).first()['c']
+        crs = rf.select(rf_crs('proj_raster').alias('crs')).first()['crs']
 
         dest_file = self._tmpfile()
         self.assertTrue(not dest_file.startswith('file://'))

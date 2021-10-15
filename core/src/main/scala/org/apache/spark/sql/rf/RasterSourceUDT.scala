@@ -21,46 +21,51 @@
 
 package org.apache.spark.sql.rf
 
-import java.nio.ByteBuffer
-
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.types.{DataType, UDTRegistration, UserDefinedType, _}
-import org.locationtech.rasterframes.encoders.CatalystSerializer
+import org.apache.spark.sql.types._
 import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.util.KryoSupport
+
+import java.nio.ByteBuffer
 
 /**
  * Catalyst representation of a RasterSource.
  *
  * @since 9/5/18
  */
+// TODO: remove it
 @SQLUserDefinedType(udt = classOf[RasterSourceUDT])
 class RasterSourceUDT extends UserDefinedType[RFRasterSource] {
-  import RasterSourceUDT._
   override def typeName = "rastersource"
 
   override def pyUDT: String = "pyrasterframes.rf_types.RasterSourceUDT"
 
   def userClass: Class[RFRasterSource] = classOf[RFRasterSource]
 
-  override def sqlType: DataType = schemaOf[RFRasterSource]
+  def sqlType: DataType = StructType(Seq(
+    StructField("raster_source_kryo", BinaryType, false)
+  ))
 
-  override def serialize(obj: RFRasterSource): InternalRow =
+  def serialize(obj: RFRasterSource): InternalRow =
     Option(obj)
-      .map(_.toInternalRow)
+      .map { rs => InternalRow(KryoSupport.serialize(rs).array()) }
       .orNull
 
-  override def deserialize(datum: Any): RFRasterSource =
+  def deserialize(datum: Any): RFRasterSource =
     Option(datum)
       .collect {
-        case ir: InternalRow ⇒ ir.to[RFRasterSource]
+        case ir: InternalRow =>
+          val bytes = ir.getBinary(0)
+          KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(bytes))
+        case bytes: Array[Byte] =>
+          KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(bytes))
+
       }
       .orNull
 
-  private[sql] override def acceptsType(dataType: DataType) = dataType match {
-    case _: RasterSourceUDT ⇒ true
-    case _ ⇒ super.acceptsType(dataType)
+  private[sql] override def acceptsType(dataType: DataType): Boolean = dataType match {
+    case _: RasterSourceUDT => true
+    case _ => super.acceptsType(dataType)
   }
 }
 
@@ -68,21 +73,6 @@ object RasterSourceUDT {
   UDTRegistration.register(classOf[RFRasterSource].getName, classOf[RasterSourceUDT].getName)
 
   /** Deserialize a byte array, also used inside the Python API */
-  def from(byteArray: Array[Byte]): RFRasterSource = CatalystSerializer.CatalystIO.rowIO.create(byteArray).to[RFRasterSource]
-
-  implicit val rasterSourceSerializer: CatalystSerializer[RFRasterSource] = new CatalystSerializer[RFRasterSource] {
-
-    override val schema: StructType = StructType(Seq(
-      StructField("raster_source_kryo", BinaryType, false)
-    ))
-
-    override def to[R](t: RFRasterSource, io: CatalystIO[R]): R = {
-      val buf = KryoSupport.serialize(t)
-      io.create(buf.array())
-    }
-
-    override def from[R](row: R, io: CatalystIO[R]): RFRasterSource = {
-      KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(io.getByteArray(row, 0)))
-    }
-  }
+  def from(byteArray: Array[Byte]): RFRasterSource =
+    KryoSupport.deserialize[RFRasterSource](ByteBuffer.wrap(byteArray))
 }

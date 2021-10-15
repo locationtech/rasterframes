@@ -21,8 +21,13 @@
 
 package org.locationtech.rasterframes
 
-import java.net.URI
+import cats.syntax.option._
+import io.circe.Json
+import io.circe.parser
+import org.apache.spark.sql.util.CaseInsensitiveStringMap
+import sttp.model.Uri
 
+import java.net.URI
 import scala.util.Try
 
 /**
@@ -37,7 +42,34 @@ package object datasource {
     parameters.get(key).map(_.toLong)
 
   private[rasterframes]
-  def uriParam(key: String, parameters: Map[String, String]) =
-    parameters.get(key).flatMap(p ⇒ Try(URI.create(p)).toOption)
+  def numParam(key: String, parameters: CaseInsensitiveStringMap): Option[Long] =
+    if(parameters.containsKey(key)) parameters.get(key).toLong.some
+    else None
 
+  private[rasterframes]
+  def intParam(key: String, parameters: Map[String, String]): Option[Int] =
+    parameters.get(key).map(_.toInt)
+
+  private[rasterframes]
+  def intParam(key: String, parameters: CaseInsensitiveStringMap): Option[Int] =
+    if(parameters.containsKey(key)) Option(parameters.get(key)).map(_.toInt)
+    else None
+
+  private[rasterframes]
+  def uriParam(key: String, parameters: Map[String, String]): Option[URI] =
+    parameters.get(key).flatMap(p => Try(URI.create(p)).toOption)
+
+  private[rasterframes]
+  def uriParam(key: String, parameters: CaseInsensitiveStringMap): Option[Uri] =
+    if(parameters.containsKey(key)) Uri.parse(parameters.get(key)).toOption
+    else None
+
+  private[rasterframes]
+  def jsonParam(key: String, parameters: Map[String, String]): Option[Json] =
+    parameters.get(key).flatMap(p => parser.parse(p).toOption)
+
+  private[rasterframes]
+  def jsonParam(key: String, parameters: CaseInsensitiveStringMap): Option[Json] =
+    if(parameters.containsKey(key)) parser.parse(parameters.get(key)).toOption
+    else None
 }

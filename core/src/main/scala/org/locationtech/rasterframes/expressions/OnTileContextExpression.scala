@@ -45,10 +45,10 @@ trait OnTileContextExpression extends UnaryExpression {
 
   final override protected def nullSafeEval(input: Any): Any = {
     input match {
-      case row: InternalRow ⇒
+      case row: InternalRow =>
         val prl = projectedRasterLikeExtractor(child.dataType)(row)
         eval(TileContext(prl.extent, prl.crs))
-      case o ⇒ throw new IllegalArgumentException(s"Unsupported input type: $o")
+      case o => throw new IllegalArgumentException(s"Unsupported input type: $o")
     }
   }
 

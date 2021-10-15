@@ -24,22 +24,21 @@ package org.locationtech.rasterframes.jts
 import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, ZonedDateTime}
 
+import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
 import org.locationtech.rasterframes.expressions.SpatialRelation.{Contains, Intersects}
 import org.locationtech.jts.geom._
 import geotrellis.util.MethodExtensions
-import geotrellis.vector.{Point ⇒ gtPoint}
+import geotrellis.vector.{Point => gtPoint}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.functions._
 import org.locationtech.geomesa.spark.jts.DataFrameFunctions.SpatialConstructors
-import org.locationtech.rasterframes.encoders.StandardEncoders.PrimitiveEncoders._
 
 /**
  * Extension methods on typed columns allowing for DSL-like queries over JTS types.
  * @since 1/10/18
  */
 trait Implicits extends SpatialConstructors {
-  implicit class ExtentColumnMethods[T <: Geometry](val self: TypedColumn[Any, T])
-    extends MethodExtensions[TypedColumn[Any, T]] {
+  implicit class ExtentColumnMethods[T <: Geometry](val self: TypedColumn[Any, T]) extends MethodExtensions[TypedColumn[Any, T]] {
 
     def intersects(geom: Geometry): TypedColumn[Any, Boolean] =
       new Column(Intersects(self.expr, geomLit(geom).expr)).as[Boolean]
@@ -59,8 +58,7 @@ trait Implicits extends SpatialConstructors {
       new Column(Intersects(self.expr, geomLit(geom).expr)).as[Boolean]
    }
 
-  implicit class TimestampColumnMethods(val self: TypedColumn[Any, Timestamp])
-    extends MethodExtensions[TypedColumn[Any, Timestamp]] {
+  implicit class TimestampColumnMethods(val self: TypedColumn[Any, Timestamp]) extends MethodExtensions[TypedColumn[Any, Timestamp]] {
 
     import scala.language.implicitConversions
     private implicit def zdt2ts(time: ZonedDateTime): Timestamp =
@@ -78,8 +76,7 @@ trait Implicits extends SpatialConstructors {
       betweenTimes(start: Timestamp, end: Timestamp)
   }
 
-  implicit class DateColumnMethods(val self: TypedColumn[Any, Date])
-    extends MethodExtensions[TypedColumn[Any, Date]] {
+  implicit class DateColumnMethods(val self: TypedColumn[Any, Date]) extends MethodExtensions[TypedColumn[Any, Date]] {
 
     import scala.language.implicitConversions
 

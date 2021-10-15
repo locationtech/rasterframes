@@ -32,7 +32,7 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
 
   describe("Misc raster functions") {
     it("should render ascii art") {
-      val df = Seq[Tile](ProjectedRasterTile(TestData.l8Labels)).toDF("tile")
+      val df = Seq[Tile](TestData.l8Labels.toProjectedRasterTile).toDF("tile")
       val r1 = df.select(rf_render_ascii($"tile"))
       val r2 = df.selectExpr("rf_render_ascii(tile)").as[String]
       r1.first() should be(r2.first())
@@ -69,25 +69,25 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       // a 4, 4 tile to upsample by shape
       def fourByFour = TestData.projectedRasterTile(4, 4, 0, extent, crs, ct)
 
-      def df = Seq(lowRes).toDF("tile")
+      def df = Seq(Option(lowRes)).toDF("tile")
 
-      val maybeUp = df.select(rf_resample($"tile", lit(2))).as[ProjectedRasterTile].first()
+      val maybeUp = df.select(rf_resample($"tile", lit(2)).as[ProjectedRasterTile]).first()
       assertEqual(maybeUp, upsampled)
 
-      val maybeUpDouble = df.select(rf_resample($"tile", 2.0)).as[ProjectedRasterTile].first()
+      val maybeUpDouble = df.select(rf_resample($"tile", 2.0).as[ProjectedRasterTile]).first()
       assertEqual(maybeUpDouble, upsampled)
 
       def df2 = Seq((lowRes, fourByFour)).toDF("tile1", "tile2")
 
-      val maybeUpShape = df2.select(rf_resample($"tile1", $"tile2")).as[ProjectedRasterTile].first()
+      val maybeUpShape = df2.select(rf_resample($"tile1", $"tile2").as[ProjectedRasterTile]).first()
       assertEqual(maybeUpShape, upsampled)
 
       // Downsample by double argument < 1
-      def df3 = Seq(upsampled).toDF("tile").withColumn("factor", lit(0.5))
+      def df3 = Seq(Option(upsampled)).toDF("tile").withColumn("factor", lit(0.5))
 
-      assertEqual(df3.selectExpr("rf_resample_nearest(tile, 0.5)").as[ProjectedRasterTile].first(), lowRes)
-      assertEqual(df3.selectExpr("rf_resample_nearest(tile, factor)").as[ProjectedRasterTile].first(), lowRes)
-      assertEqual(df3.selectExpr("rf_resample(tile, factor, \"nearest_neighbor\")").as[ProjectedRasterTile].first(), lowRes)
+      assertEqual(df3.selectExpr("rf_resample_nearest(tile, 0.5)").as[Option[ProjectedRasterTile]].first().get, lowRes)
+      assertEqual(df3.selectExpr("rf_resample_nearest(tile, factor)").as[Option[ProjectedRasterTile]].first().get, lowRes)
+      assertEqual(df3.selectExpr("rf_resample(tile, factor, \"nearest_neighbor\")").as[Option[ProjectedRasterTile]].first().get, lowRes)
 
       checkDocs("rf_resample_nearest")
     }
@@ -126,15 +126,15 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
           4.0, 17.0/4),
           2, 2).convert(FloatConstantNoDataCellType), extent, crs)
 
-      def df = Seq(original).toDF("tile")
+      def df = Seq(Option(original)).toDF("tile")
 
-      val maybeMax = df.select(rf_resample($"tile", 0.5, "Max")).as[ProjectedRasterTile].first()
+      val maybeMax = df.select(rf_resample($"tile", 0.5, "Max").as[ProjectedRasterTile]).first()
       assertEqual(maybeMax, expectedMax)
 
-      val maybeMode = df.select(rf_resample($"tile", 0.5, "mode")).as[ProjectedRasterTile].first()
+      val maybeMode = df.select(rf_resample($"tile", 0.5, "mode").as[ProjectedRasterTile]).first()
       assertEqual(maybeMode, expectedMode)
 
-      val maybeAverage = df.select(rf_resample($"tile", 0.5, "average")).as[ProjectedRasterTile].first()
+      val maybeAverage = df.select(rf_resample($"tile", 0.5, "average").as[ProjectedRasterTile]).first()
       assertEqual(maybeAverage, expectedAverage)
 
     }
@@ -158,10 +158,10 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
         ), 2, 2).convert(FloatConstantNoDataCellType), extent, crs
       )
 
-      def df = Seq(original).toDF("tile")
+      def df = Seq(Option(original)).toDF("tile")
       val result = df.select(
-        rf_resample($"tile", 0.5, "bilinear"))
-        .as[ProjectedRasterTile].first()
+        rf_resample($"tile", 0.5, "bilinear").as[ProjectedRasterTile]
+      ).first()
 
       assertEqual(result, expected2x2)
     }
@@ -171,10 +171,9 @@ class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
       // this surfaced a serialization issue with ResampleBase so we'll leave it here
       val df = sampleTileLayerRDD.toLayer
       noException shouldBe thrownBy {
-        df.select(rf_resample(df.col("`tile`"), 0.5)).as[Tile]
+        df.select(rf_resample(df.col("`tile`"), 0.5).as[Tile])
           .collect()
       }
     }
-
   }
 }

@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit
 import geotrellis.raster.Dimensions
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.rf.TileUDT
-import org.locationtech.rasterframes.tiles.InternalRowTile
 import org.openjdk.jmh.annotations._
 
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -62,15 +61,4 @@ class TileCellScanBench extends SparkEnv {
       tile.getDouble(cols/2, rows/2) +
       tile.getDouble(0, 0)
   }
-
-  @Benchmark
-  def internalRowRead(): Double  = {
-    val tile = new InternalRowTile(tileRow)
-    val cols = tile.cols
-    val rows = tile.rows
-    tile.getDouble(cols - 1, rows - 1) +
-      tile.getDouble(cols/2, rows/2) +
-      tile.getDouble(0, 0)
-  }
 }
-

@@ -79,8 +79,7 @@ trait Implicits {
   }
 
   private[rasterframes]
-  implicit class WithMetadataBuilderMethods(val self: MetadataBuilder)
-      extends MetadataBuilderMethods
+  implicit class WithMetadataBuilderMethods(val self: MetadataBuilder) extends MetadataBuilderMethods
 
   private[rasterframes]
   implicit class TLMHasTotalCells(tlm: TileLayerMetadata[_]) {

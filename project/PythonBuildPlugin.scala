@@ -140,7 +140,7 @@ object PythonBuildPlugin extends AutoPlugin {
       standard.overall match {
         case TestResult.Passed =>
           (Python / executeTests).value
-        case _ ⇒
+        case _ =>
           val pySummary = Summary("pyrasterframes", "tests skipped due to scalatest failures")
           standard.copy(summaries = standard.summaries ++ Iterable(pySummary))
       }
@@ -158,7 +158,7 @@ object PythonBuildPlugin extends AutoPlugin {
       packageBin := Def.sequential(
         Compile / packageBin,
         pyWhl,
-        pyWhlAsZip,
+        pyWhlAsZip
       ).value,
       packageBin / artifact := {
         val java = (Compile / packageBin / artifact).value
@@ -170,17 +170,17 @@ object PythonBuildPlugin extends AutoPlugin {
         val ver = version.value
         dest / s"${art.name}-$ver-py3-none-any.whl"
       },
-      testQuick := pySetup.toTask(" test").value,
+      testQuick := pySetup.toTask(" test"),
       executeTests := Def.task {
         val resultCode = pySetup.toTask(" test").value
         val msg = resultCode match {
-          case 1 ⇒ "There are Python test failures."
-          case 2 ⇒ "Python test execution was interrupted."
-          case 3 ⇒ "Internal error during Python test execution."
-          case 4 ⇒ "PyTest usage error."
-          case 5 ⇒ "No Python tests found."
-          case x if x != 0 ⇒ "Unknown error while running Python tests."
-          case _ ⇒ "PyRasterFrames tests successfully completed."
+          case 1 => "There are Python test failures."
+          case 2 => "Python test execution was interrupted."
+          case 3 => "Internal error during Python test execution."
+          case 4 => "PyTest usage error."
+          case 5 => "No Python tests found."
+          case x if x != 0 => "Unknown error while running Python tests."
+          case _ => "PyRasterFrames tests successfully completed."
         }
         val pySummary = Summary("pyrasterframes", msg)
         // Would be cool to derive this from the python output...
@@ -208,7 +208,7 @@ object PythonBuildPlugin extends AutoPlugin {
             pendingCount = 0
           )
         }
-        result
+
         Tests.Output(result.result, Map("Python Tests" -> result), Iterable(pySummary))
       }.dependsOn(assembly).value
     )) ++

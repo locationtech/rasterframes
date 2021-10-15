@@ -29,7 +29,7 @@ import geotrellis.raster.mask.TileMaskMethods
 import geotrellis.raster.merge.TileMergeMethods
 import geotrellis.raster.prototype.TilePrototypeMethods
 import geotrellis.raster.render.{ColorRamp, ColorRamps}
-import geotrellis.raster.{CellGrid, Grid, GridBounds}
+import geotrellis.raster.{CellGrid, Grid, GridBounds, TargetCell}
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util.GetComponent
 import org.apache.spark.sql._
@@ -49,8 +49,7 @@ import spire.math.Integral
  */
 package object util extends DataFrameRenderers {
   // Don't make this a `lazy val`... breaks Spark assemblies for some reason.
-  protected def logger: Logger =
-    Logger(LoggerFactory.getLogger("org.locationtech.rasterframes"))
+  protected def logger: Logger = Logger(LoggerFactory.getLogger("org.locationtech.rasterframes"))
 
   import reflect.ClassTag
   import reflect.runtime.universe._
@@ -74,12 +73,12 @@ package object util extends DataFrameRenderers {
   }
 
   // Type lambda aliases
-  type WithMergeMethods[V] = V ⇒ TileMergeMethods[V]
-  type WithPrototypeMethods[V <: CellGrid[Int]] = V ⇒ TilePrototypeMethods[V]
-  type WithCropMethods[V <: CellGrid[Int]] = V ⇒ TileCropMethods[V]
-  type WithMaskMethods[V] = V ⇒ TileMaskMethods[V]
+  type WithMergeMethods[V] = V => TileMergeMethods[V]
+  type WithPrototypeMethods[V <: CellGrid[Int]] = V => TilePrototypeMethods[V]
+  type WithCropMethods[V <: CellGrid[Int]] = V => TileCropMethods[V]
+  type WithMaskMethods[V] = V => TileMaskMethods[V]
 
-  type KeyMethodsProvider[K1, K2] = K1 ⇒ TilerKeyMethods[K1, K2]
+  type KeyMethodsProvider[K1, K2] = K1 => TilerKeyMethods[K1, K2]
 
   /** Internal method for slapping the RasterFrameLayer seal of approval on a DataFrame. */
   private[rasterframes] def certifyLayer(df: DataFrame): RasterFrameLayer =
@@ -104,18 +103,18 @@ package object util extends DataFrameRenderers {
     op.getClass.getSimpleName.replace("$", "").toLowerCase
 
   implicit class WithCombine[T](left: Option[T]) {
-    def combine[A, R >: A](a: A)(f: (T, A) ⇒ R): R = left.map(f(_, a)).getOrElse(a)
-    def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l ⇒ right.map((l, _)))
+    def combine[A, R >: A](a: A)(f: (T, A) => R): R = left.map(f(_, a)).getOrElse(a)
+    def tupleWith[R](right: Option[R]): Option[(T, R)] = left.flatMap(l => right.map((l, _)))
   }
 
   implicit class ExpressionWithName(val expr: Expression) extends AnyVal {
     import org.apache.spark.sql.catalyst.expressions.Literal
     def name: String = expr match {
-      case n: NamedExpression if n.resolved ⇒ n.name
+      case n: NamedExpression if n.resolved => n.name
       case UnresolvedAttribute(parts) => parts.mkString("_")
       case Alias(_, name) => name
-      case l: Literal if l.dataType == StringType ⇒ String.valueOf(l.value)
-      case o ⇒ o.toString
+      case l: Literal if l.dataType == StringType => String.valueOf(l.value)
+      case o => o.toString
     }
   }
 
@@ -125,17 +124,17 @@ package object util extends DataFrameRenderers {
 
   private[rasterframes]
   implicit class Pipeable[A](val a: A) extends AnyVal {
-    def |>[B](f: A ⇒ B): B = f(a)
+    def |>[B](f: A => B): B = f(a)
   }
 
   /** Applies the given thunk to the closable resource. */
-  def withResource[T <: CloseLike, R](t: T)(thunk: T ⇒ R): R = {
+  def withResource[T <: CloseLike, R](t: T)(thunk: T => R): R = {
     import scala.language.reflectiveCalls
     try { thunk(t) } finally { t.close() }
   }
 
   /** Report the time via slf4j it takes to execute a code block. Annotated with given tag. */
-  def time[R](tag: String)(block: ⇒ R): R = {
+  def time[R](tag: String)(block: => R): R = {
     val start = System.currentTimeMillis()
     val result = block
     val end = System.currentTimeMillis()
@@ -147,11 +146,11 @@ package object util extends DataFrameRenderers {
   type CloseLike = { def close(): Unit }
 
   implicit class Conditionalize[T](left: T) {
-    def when(pred: T ⇒ Boolean): Option[T] = Option(left).filter(pred)
+    def when(pred: T => Boolean): Option[T] = Option(left).filter(pred)
   }
 
   implicit class ConditionalApply[T](val left: T) extends AnyVal {
-    def applyWhen[R >: T](pred: T ⇒ Boolean, f: T ⇒ R): R = if(pred(left)) f(left) else left
+    def applyWhen[R >: T](pred: T => Boolean, f: T => R): R = if(pred(left)) f(left) else left
   }
 
   object ColorRampNames {
@@ -186,40 +185,105 @@ package object util extends DataFrameRenderers {
     def apply() = mapping.keys.toSeq
   }
 
+  object FocalNeighborhood {
+    import scala.util.Try
+    import geotrellis.raster.Neighborhood
+    import geotrellis.raster.mapalgebra.focal._
+
+    // pattern matching and string interpolation works only since Scala 2.13
+    def fromString(name: String): Try[Neighborhood] = Try {
+      name.toLowerCase().trim() match {
+        case s if s.startsWith("square-") => Square(Integer.parseInt(s.split("square-").last))
+        case s if s.startsWith("circle-") => Circle(java.lang.Double.parseDouble(s.split("circle-").last))
+        case s if s.startsWith("nesw-") => Nesw(Integer.parseInt(s.split("nesw-").last))
+        case s if s.startsWith("wedge-") => {
+          val List(radius: Double, startAngle: Double, endAngle: Double) =
+            s
+              .split("wedge-")
+              .last
+              .split("-")
+              .toList
+              .map(java.lang.Double.parseDouble)
+
+          Wedge(radius, startAngle, endAngle)
+        }
+
+        case s if s.startsWith("annulus-") => {
+          val List(innerRadius: Double, outerRadius: Double) =
+            s
+              .split("annulus-")
+              .last
+              .split("-")
+              .toList
+              .map(java.lang.Double.parseDouble)
+
+          Annulus(innerRadius, outerRadius)
+        }
+        case _ => throw new IllegalArgumentException(s"Unrecognized Neighborhood $name")
+      }
+    }
+
+    def apply(neighborhood: Neighborhood): String = {
+      neighborhood match {
+        case Square(e)                           => s"square-$e"
+        case Circle(e)                           => s"circle-$e"
+        case Nesw(e)                             => s"nesw-$e"
+        case Wedge(radius, startAngle, endAngle) => s"nesw-$radius-$startAngle-$endAngle"
+        case Annulus(innerRadius, outerRadius)   => s"annulus-$innerRadius-$outerRadius"
+        case _                                   => throw new IllegalArgumentException(s"Unrecognized Neighborhood ${neighborhood.toString}")
+      }
+    }
+  }
+
   object ResampleMethod {
-    import geotrellis.raster.resample.{ResampleMethod ⇒ GTResampleMethod, _}
+    import geotrellis.raster.resample.{ResampleMethod => GTResampleMethod, _}
     def unapply(name: String): Option[GTResampleMethod] = {
       name.toLowerCase().trim().replaceAll("_", "") match {
-        case "nearestneighbor" | "nearest" ⇒ Some(NearestNeighbor)
-        case "bilinear" ⇒ Some(Bilinear)
-        case "cubicconvolution" ⇒ Some(CubicConvolution)
-        case "cubicspline" ⇒ Some(CubicSpline)
-        case "lanczos" | "lanzos" ⇒ Some(Lanczos)
+        case "nearestneighbor" | "nearest" => Some(NearestNeighbor)
+        case "bilinear" => Some(Bilinear)
+        case "cubicconvolution" => Some(CubicConvolution)
+        case "cubicspline" => Some(CubicSpline)
+        case "lanczos" | "lanzos" => Some(Lanczos)
         // aggregates
-        case "average" ⇒ Some(Average)
-        case "mode" ⇒ Some(Mode)
-        case "median" ⇒ Some(Median)
-        case "max" ⇒ Some(Max)
-        case "min" ⇒ Some(Min)
-        case "sum" ⇒ Some(Sum)
+        case "average" => Some(Average)
+        case "mode" => Some(Mode)
+        case "median" => Some(Median)
+        case "max" => Some(Max)
+        case "min" => Some(Min)
+        case "sum" => Some(Sum)
         case _ => None
       }
     }
     def apply(gtr: GTResampleMethod): String = {
       gtr match {
-        case NearestNeighbor ⇒ "nearest"
-        case Bilinear ⇒ "bilinear"
-        case CubicConvolution ⇒ "cubicconvolution"
-        case CubicSpline ⇒ "cubicspline"
-        case Lanczos ⇒ "lanczos"
-        case Average ⇒ "average"
-        case Mode ⇒ "mode"
-        case Median ⇒ "median"
-        case Max ⇒ "max"
-        case Min ⇒ "min"
-        case Sum ⇒ "sum"
-        case _ ⇒ throw new IllegalArgumentException(s"Unrecogized ResampleMethod ${gtr.toString()}")
+        case NearestNeighbor => "nearest"
+        case Bilinear => "bilinear"
+        case CubicConvolution => "cubicconvolution"
+        case CubicSpline => "cubicspline"
+        case Lanczos => "lanczos"
+        case Average => "average"
+        case Mode => "mode"
+        case Median => "median"
+        case Max => "max"
+        case Min => "min"
+        case Sum => "sum"
+        case _ => throw new IllegalArgumentException(s"Unrecognized ResampleMethod ${gtr.toString}")
       }
+    }
+  }
+
+  object FocalTargetCell {
+    def fromString(str: String): TargetCell = str.toLowerCase match {
+      case "nodata" => TargetCell.NoData
+      case "data" => TargetCell.Data
+      case "all" => TargetCell.All
+      case _ => throw new IllegalArgumentException(s"Unrecognized TargetCell $str")
+    }
+
+    def apply(tc: TargetCell): String = tc match {
+      case TargetCell.NoData => "nodata"
+      case TargetCell.Data => "data"
+      case TargetCell.All => "all"
     }
   }
 

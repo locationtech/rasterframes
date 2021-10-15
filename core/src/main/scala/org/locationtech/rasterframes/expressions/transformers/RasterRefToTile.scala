@@ -22,13 +22,12 @@
 package org.locationtech.rasterframes.expressions.transformers
 
 import com.typesafe.scalalogging.Logger
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{ExpectsInputTypes, Expression, UnaryExpression}
-import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.CatalystSerializer._
-import org.locationtech.rasterframes.expressions.row
+import org.locationtech.rasterframes.encoders.syntax._
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.slf4j.LoggerFactory
@@ -45,14 +44,14 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
 
   override def nodeName: String = "raster_ref_to_tile"
 
-  override def inputTypes = Seq(schemaOf[RasterRef])
+  def inputTypes = Seq(RasterRef.rasterRefEncoder.schema)
 
-  override def dataType: DataType = schemaOf[ProjectedRasterTile]
+  def dataType: DataType = ProjectedRasterTile.projectedRasterTileEncoder.schema
 
   override protected def nullSafeEval(input: Any): Any = {
-    implicit val ser = TileUDT.tileSerializer
-    val ref = row(input).to[RasterRef]
-    ref.tile.toInternalRow
+    // TODO: how is this different from RealizeTile expression, what work does it do for us? should it make tiles literal?
+    val ref = input.asInstanceOf[InternalRow].as[RasterRef]
+    ProjectedRasterTile(ref.tile, ref.extent, ref.crs).toInternalRow
   }
 }
 

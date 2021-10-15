@@ -51,7 +51,7 @@ def resource_dir():
         return os.path.dirname(curr)
 
     here = os.path.dirname(os.path.realpath(__file__))
-    scala_target = os.path.realpath(os.path.join(pdir(pdir(here)), 'scala-2.11'))
+    scala_target = os.path.realpath(os.path.join(pdir(pdir(here)), 'scala-2.12'))
     rez_dir = os.path.realpath(os.path.join(scala_target, 'test-classes'))
     # If not running in build mode, try source dirs.
     if not os.path.exists(rez_dir):
@@ -63,7 +63,8 @@ def spark_test_session():
     spark = create_rf_spark_session(**{
         'spark.master': 'local[*, 2]',
         'spark.ui.enabled': 'false',
-        'spark.app.name': app_name
+        'spark.app.name': app_name,
+        #'spark.driver.extraJavaOptions': '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
     })
     spark.sparkContext.setLogLevel('ERROR')
 

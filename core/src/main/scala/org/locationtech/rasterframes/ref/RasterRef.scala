@@ -22,16 +22,11 @@
 package org.locationtech.rasterframes.ref
 
 import com.typesafe.scalalogging.LazyLogging
+import frameless.TypedExpressionEncoder
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellGrid, CellType, GridBounds, Tile}
-import geotrellis.vector.{Extent, ProjectedExtent}
+import geotrellis.raster.{BufferTile, CellType, GridBounds, Tile}
+import geotrellis.vector.Extent
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.rf.RasterSourceUDT
-import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
-import org.locationtech.rasterframes.RasterSourceType
-import org.locationtech.rasterframes.encoders.CatalystSerializer.{CatalystIO, _}
-import org.locationtech.rasterframes.encoders.{CatalystSerializer, CatalystSerializerEncoder}
-import org.locationtech.rasterframes.ref.RasterRef.RasterRefTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 /**
@@ -39,74 +34,50 @@ import org.locationtech.rasterframes.tiles.ProjectedRasterTile
  *
  * @since 8/21/18
  */
-case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[GridBounds[Int]])
-  extends CellGrid[Int] with ProjectedRasterLike {
-  def crs: CRS = source.crs
+case class RasterRef(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[Subgrid], bufferSize: Short) extends ProjectedRasterTile {
+  def tile: Tile = this
   def extent: Extent = subextent.getOrElse(source.extent)
-  def projectedExtent: ProjectedExtent = ProjectedExtent(extent, crs)
-  def cols: Int = grid.width
-  def rows: Int = grid.height
-  def cellType: CellType = source.cellType
-  def tile: ProjectedRasterTile = RasterRefTile(this)
+  def crs: CRS = source.crs
+  def delegate: BufferTile = realizedTile
 
-  protected lazy val grid: GridBounds[Int] =
-    subgrid.getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
+  override def cols: Int = grid.width
+  override def rows: Int = grid.height
+  override def cellType: CellType = source.cellType
 
-  protected lazy val realizedTile: Tile = {
-    RasterRef.log.trace(s"Fetching $extent ($grid) from band $bandIndex of $source")
-    source.read(grid, Seq(bandIndex)).tile.band(0)
+  protected lazy val grid: GridBounds[Int] = subgrid.map(_.toGridBounds).getOrElse(source.rasterExtent.gridBoundsFor(extent, true))
+
+  lazy val realizedTile: BufferTile = {
+    RasterRef.log.trace(s"Fetching $extent ($grid) from band $bandIndex of $source with bufferSize: $bufferSize")
+    // Pixel bounds we would like to read, including buffer
+    val bufferedGrid = grid.buffer(bufferSize)
+
+    // Pixel bounds we can read, including buffer
+    val possibleGrid = bufferedGrid.intersection(source.gridBounds).get
+    // Pixel bounds of center/non-buffer pixels in read tile
+    val tileCenterBounds = grid.offset(
+      colOffset = - possibleGrid.colMin,
+      rowOffset = - possibleGrid.rowMin
+    )
+
+    val raster = source.read(possibleGrid, Seq(bandIndex)).mapTile(_.band(0))
+    BufferTile(raster.tile, tileCenterBounds)
   }
+
+  override def toString: String = s"RasterRef($source, $bandIndex, $cellType, $subextent, $subgrid, $bufferSize)"
 }
 
 object RasterRef extends LazyLogging {
   private val log = logger
 
-  case class RasterRefTile(rr: RasterRef) extends ProjectedRasterTile {
-    def extent: Extent = rr.extent
-    def crs: CRS = rr.crs
-    override def cellType = rr.cellType
+  def apply(source: RFRasterSource, bandIndex: Int): RasterRef =
+    RasterRef(source, bandIndex, None, None, 0)
 
-    override def cols: Int = rr.cols
-    override def rows: Int = rr.rows
+  def apply(source: RFRasterSource, bandIndex: Int, subextent: Extent, subgrid: GridBounds[Int]): RasterRef =
+    RasterRef(source, bandIndex, Some(subextent), Some(Subgrid(subgrid)), 0)
 
-    protected def delegate: Tile = rr.realizedTile
-    // NB: This saves us from stack overflow exception
-    override def convert(ct: CellType): ProjectedRasterTile =
-      ProjectedRasterTile(rr.realizedTile.convert(ct), extent, crs)
-    override def toString: String = s"$productPrefix($rr)"
-  }
+  def apply(source: RFRasterSource, bandIndex: Int, subextent: Option[Extent], subgrid: Option[Subgrid]): RasterRef =
+    new RasterRef(source, bandIndex, subextent, subgrid, 0)
 
-  val embeddedSchema: StructType = StructType(Seq(
-    StructField("source", RasterSourceType.sqlType, true),
-    StructField("bandIndex", IntegerType, false),
-    StructField("subextent", schemaOf[Extent], true),
-    StructField("subgrid", schemaOf[GridBounds[Int]], true)
-  ))
-
-  implicit val rasterRefSerializer: CatalystSerializer[RasterRef] = new CatalystSerializer[RasterRef] {
-    override val schema: StructType = StructType(Seq(
-      StructField("source", RasterSourceType, true),
-      StructField("bandIndex", IntegerType, false),
-      StructField("subextent", schemaOf[Extent], true),
-      StructField("subgrid", schemaOf[GridBounds[Int]], true)
-    ))
-
-    override def to[R](t: RasterRef, io: CatalystIO[R]): R = io.create(
-      io.to(t.source)(RasterSourceUDT.rasterSourceSerializer),
-      t.bandIndex,
-      t.subextent.map(io.to[Extent]).orNull,
-      t.subgrid.map(io.to[GridBounds[Int]]).orNull
-    )
-
-    override def from[R](row: R, io: CatalystIO[R]): RasterRef = RasterRef(
-      io.get[RFRasterSource](row, 0)(RasterSourceUDT.rasterSourceSerializer),
-      io.getInt(row, 1),
-      if (io.isNullAt(row, 2)) None
-      else Option(io.get[Extent](row, 2)),
-      if (io.isNullAt(row, 3)) None
-      else Option(io.get[GridBounds[Int]](row, 3))
-    )
-  }
-
-  implicit def rrEncoder: ExpressionEncoder[RasterRef] = CatalystSerializerEncoder[RasterRef](true)
+  implicit val rasterRefEncoder: ExpressionEncoder[RasterRef] =
+    TypedExpressionEncoder[RasterRef].asInstanceOf[ExpressionEncoder[RasterRef]]
 }

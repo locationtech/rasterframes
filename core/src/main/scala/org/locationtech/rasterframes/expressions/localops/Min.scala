@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, rhs) - Performs cell-wise minimum two tiles or a tile and a scalar.",
@@ -41,12 +41,12 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Min(left: Expression, right:Expression) extends BinaryLocalRasterOp with CodegenFallback {
+case class Min(left: Expression, right:Expression) extends BinaryRasterFunction with CodegenFallback {
 
   override val nodeName = "rf_local_min"
-  override protected def op(left: Tile, right: Tile): Tile = left.localMin(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localMin(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localMin(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localMin(right)
+  protected def op(left: Tile, right: Double): Tile = left.localMin(right)
+  protected def op(left: Tile, right: Int): Tile = left.localMin(right)
 }
 object Min {
   def apply(left: Column, right: Column): Column = new Column(Min(left.expr, right.expr))

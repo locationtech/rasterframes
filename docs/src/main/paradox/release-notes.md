@@ -1,5 +1,16 @@
 # Release Notes
 
+## 0.10.x
+
+### 0.10.0
+
+* Upgraded to Scala 2.12 , Spark 3.1.2, and GeoTrellis 3.6.0 (a subtantial accomplishment!)
+* Added buffered tile support
+* Added focal operations: `rf_focal_mean`, `rf_focal_median`,`rf_focal_mode`, `rf_focal_max`, `rf_focal_min`, `rf_focal_stddev`, `rf_focal_moransi`, `rf_convolve`, `rf_slope`, `rf_aspect`, `rf_hillshade`
+* Added STAC API DataFrames implementation
+
+Special thanks to @pomadchin and @echeipesh for these substantial new contributions!
+
 ## 0.9.x
 
 ### 0.9.1

@@ -23,12 +23,12 @@ package org.locationtech.rasterframes.datasource.raster
 
 import java.net.URI
 import java.util.UUID
-
 import geotrellis.raster.Dimensions
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.util._
-import org.apache.spark.sql.{DataFrame, DataFrameReader, SQLContext}
+import org.apache.spark.sql.{DataFrame, DataFrameReader, SQLContext, SparkSession}
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
+import org.locationtech.rasterframes.datasource.stac.api.StacApiDataFrame
 import shapeless.tag
 import shapeless.tag.@@
 
@@ -36,15 +36,16 @@ import scala.util.Try
 
 class RasterSourceDataSource extends DataSourceRegister with RelationProvider {
   import RasterSourceDataSource._
-  override def shortName(): String = SHORT_NAME
-  override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
+  def shortName(): String = SHORT_NAME
+  def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
     val bands = parameters.bandIndexes
     val tiling = parameters.tileDims.orElse(Some(NOMINAL_TILE_DIMS))
+    val bufferSize = parameters.bufferSize
     val lazyTiles = parameters.lazyTiles
     val spatialIndex = parameters.spatialIndex
     val spec = parameters.pathSpec
     val catRef = spec.fold(_.registerAsTable(sqlContext), identity)
-    RasterSourceRelation(sqlContext, catRef, bands, tiling, lazyTiles, spatialIndex)
+    RasterSourceRelation(sqlContext, catRef, bands, tiling, bufferSize, lazyTiles, spatialIndex)
   }
 }
 
@@ -54,6 +55,7 @@ object RasterSourceDataSource {
   final val PATHS_PARAM = "paths"
   final val BAND_INDEXES_PARAM = "band_indexes"
   final val TILE_DIMS_PARAM = "tile_dimensions"
+  final val BUFFER_SIZE_PARAM = "buffer_size"
   final val CATALOG_TABLE_PARAM = "catalog_table"
   final val CATALOG_TABLE_COLS_PARAM = "catalog_col_names"
   final val CATALOG_CSV_PARAM = "catalog_csv"
@@ -110,20 +112,22 @@ object RasterSourceDataSource {
     def tokenize(csv: String): Seq[String] = csv.split(',').map(_.trim)
 
     def tileDims: Option[Dimensions[Int]] =
-      parameters.get(TILE_DIMS_PARAM)
+      parameters
+        .get(TILE_DIMS_PARAM)
         .map(tokenize(_).map(_.toInt))
         .map { case Seq(cols, rows) => Dimensions(cols, rows)}
 
-    def bandIndexes: Seq[Int] = parameters
-      .get(BAND_INDEXES_PARAM)
-      .map(tokenize(_).map(_.toInt))
-      .getOrElse(Seq(0))
+    def bandIndexes: Seq[Int] =
+      parameters
+        .get(BAND_INDEXES_PARAM)
+        .map(tokenize(_).map(_.toInt))
+        .getOrElse(Seq(0))
 
-    def lazyTiles: Boolean = parameters
-      .get(LAZY_TILES_PARAM).forall(_.toBoolean)
+    def lazyTiles: Boolean = parameters.get(LAZY_TILES_PARAM).forall(_.toBoolean)
 
-    def spatialIndex: Option[Int] = parameters
-      .get(SPATIAL_INDEX_PARTITIONS_PARAM).flatMap(p => Try(p.toInt).toOption)
+    def bufferSize: Short = parameters.get(BUFFER_SIZE_PARAM).map(_.toShort).getOrElse(0.toShort) // .getOrElse(-1.toShort)
+
+    def spatialIndex: Option[Int] = parameters.get(SPATIAL_INDEX_PARTITIONS_PARAM).flatMap(p => Try(p.toInt).toOption)
 
     def catalog: Option[RasterSourceCatalog] = {
       val paths = (
@@ -143,16 +147,18 @@ object RasterSourceDataSource {
         )
     }
 
-    def catalogTableCols: Seq[String] = parameters
-      .get(CATALOG_TABLE_COLS_PARAM)
-      .map(tokenize(_).filter(_.nonEmpty).toSeq)
-      .getOrElse(Seq.empty)
+    def catalogTableCols: Seq[String] =
+      parameters
+        .get(CATALOG_TABLE_COLS_PARAM)
+        .map(tokenize(_).filter(_.nonEmpty).toSeq)
+        .getOrElse(Seq.empty)
 
-    def catalogTable: Option[RasterSourceCatalogRef] = parameters
-      .get(CATALOG_TABLE_PARAM)
-      .map(p => RasterSourceCatalogRef(p, catalogTableCols: _*))
+    def catalogTable: Option[RasterSourceCatalogRef] =
+      parameters
+        .get(CATALOG_TABLE_PARAM)
+        .map(p => RasterSourceCatalogRef(p, catalogTableCols: _*))
 
-    def pathSpec: Either[RasterSourceCatalog, RasterSourceCatalogRef] = {
+    def pathSpec: Either[RasterSourceCatalog, RasterSourceCatalogRef] =
       (catalog, catalogTable) match {
         case (Some(f), None) => Left(f)
         case (None, Some(p)) => Right(p)
@@ -161,7 +167,6 @@ object RasterSourceDataSource {
         case _ => throw new IllegalArgumentException(
           "Only one of a set of file paths OR a paths table column may be provided.")
       }
-    }
   }
 
   /** Mixin for adding extension methods on DataFrameReader for RasterSourceDataSource-like readers. */
@@ -179,7 +184,7 @@ object RasterSourceDataSource {
     type TaggedReader = DataFrameReader @@ ReaderTag
     val reader: TaggedReader
 
-    protected def tmpTableName() = UUID.randomUUID().toString.replace("-", "")
+    protected def tmpTableName(): String = UUID.randomUUID().toString.replace("-", "")
 
     /** Set the zero-based band indexes to read. Defaults to Seq(0). */
     def withBandIndexes(bandIndexes: Int*): TaggedReader =
@@ -190,6 +195,11 @@ object RasterSourceDataSource {
     def withTileDimensions(cols: Int, rows: Int): TaggedReader =
       tag[ReaderTag][DataFrameReader](
         reader.option(RasterSourceDataSource.TILE_DIMS_PARAM, s"$cols,$rows")
+      )
+
+    def withBufferSize(bufferSize: Short): TaggedReader =
+      tag[ReaderTag][DataFrameReader](
+        reader.option(RasterSourceDataSource.BUFFER_SIZE_PARAM, bufferSize)
       )
 
     /** Indicate if tile reading should be delayed until cells are fetched. Defaults to `true`. */
@@ -211,6 +221,16 @@ object RasterSourceDataSource {
         reader.option(RasterSourceDataSource.CATALOG_TABLE_PARAM, tableName)
           .option(RasterSourceDataSource.CATALOG_TABLE_COLS_PARAM, bandColumnNames.mkString(","))
       )
+
+    def fromCatalog(catalog: StacApiDataFrame)(implicit spark: SparkSession): TaggedReader = {
+      import spark.implicits._
+      fromCatalog(catalog.select($"asset.href" as "band"), "band")
+    }
+
+    def fromCatalog(catalog: StacApiDataFrame, assets: String*)(implicit spark: SparkSession): TaggedReader = {
+      import spark.implicits._
+      fromCatalog(catalog.filter($"assetName" isInCollection assets).select($"asset.href" as "band"), "band")
+    }
 
     def fromCSV(catalogCSV: String, bandColumnNames: String*): TaggedReader =
       tag[ReaderTag][DataFrameReader](

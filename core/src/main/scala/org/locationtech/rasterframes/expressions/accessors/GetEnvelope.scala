@@ -21,6 +21,7 @@
 
 package org.locationtech.rasterframes.expressions.accessors
 
+import org.locationtech.rasterframes._
 import org.locationtech.jts.geom.{Envelope, Geometry}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
@@ -29,7 +30,6 @@ import org.apache.spark.sql.jts.AbstractGeometryUDT
 import org.apache.spark.sql.rf._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.encoders.EnvelopeEncoder
 
 /**
  * Extracts the bounding box (envelope) of arbitrary JTS Geometry.
@@ -56,11 +56,9 @@ case class GetEnvelope(child: Expression) extends UnaryExpression with CodegenFa
     InternalRow(env.getMinX, env.getMaxX, env.getMinY, env.getMaxY)
   }
 
-  def dataType: DataType = EnvelopeEncoder.schema
+  def dataType: DataType = envelopeEncoder.schema
 }
 
 object GetEnvelope {
-  import org.locationtech.rasterframes.encoders.StandardEncoders._
-  def apply(col: Column): TypedColumn[Any, Envelope] =
-    new GetEnvelope(col.expr).asColumn.as[Envelope]
+  def apply(col: Column): TypedColumn[Any, Envelope] = new GetEnvelope(col.expr).asColumn.as[Envelope]
 }

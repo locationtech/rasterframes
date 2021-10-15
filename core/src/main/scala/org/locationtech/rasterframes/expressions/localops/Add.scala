@@ -27,8 +27,8 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
-import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
+import org.locationtech.rasterframes.expressions.DynamicExtractors
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, rhs) - Performs cell-wise addition between two tiles or a tile and a scalar.",
@@ -43,12 +43,12 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors.tileExtractor
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
+case class Add(left: Expression, right: Expression) extends BinaryRasterFunction
   with CodegenFallback {
   override val nodeName: String = "rf_local_add"
-  override protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localAdd(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
+  protected def op(left: Tile, right: Double): Tile = left.localAdd(right)
+  protected def op(left: Tile, right: Int): Tile = left.localAdd(right)
 
   override def eval(input: InternalRow): Any = {
     if(input == null) null
@@ -57,16 +57,14 @@ case class Add(left: Expression, right: Expression) extends BinaryLocalRasterOp
       val r = right.eval(input)
       if (l == null && r == null) null
       else if (l == null) r
-      else if (r == null && tileExtractor.isDefinedAt(right.dataType)) l
+      else if (r == null && DynamicExtractors.tileExtractor.isDefinedAt(right.dataType)) l
       else if (r == null) null
       else nullSafeEval(l, r)
     }
   }
 }
 object Add {
-  def apply(left: Column, right: Column): Column =
-    new Column(Add(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Add(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Add(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Add(tile.expr, lit(value).expr))
 }

@@ -21,12 +21,12 @@
 
 package org.locationtech.rasterframes.expressions
 
-import geotrellis.layer._
+import geotrellis.layer.{withMergableMethods => _, _}
 import geotrellis.raster.Tile
 import geotrellis.spark._
 import geotrellis.vector.{Extent, ProjectedExtent}
+import org.apache.spark.sql.functions.typedLit
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.serialized_literal
 import org.locationtech.rasterframes.expressions.aggregates.ProjectedLayerMetadataAggregate
 
 class ProjectedLayerMetadataAggregateSpec extends TestEnvironment {
@@ -48,8 +48,7 @@ class ProjectedLayerMetadataAggregateSpec extends TestEnvironment {
         .map { case (ext, tile) => (ProjectedExtent(ext, crs), tile) }
         .rdd.collectMetadata[SpatialKey](FloatingLayoutScheme(tileDims._1, tileDims._2))
 
-      val md = df.select(ProjectedLayerMetadataAggregate(crs, tileDims, $"extent",
-        serialized_literal(crs), rf_cell_type($"tile"), rf_dimensions($"tile")))
+      val md = df.select(ProjectedLayerMetadataAggregate(crs, tileDims, $"extent", typedLit(crs), rf_cell_type($"tile"), rf_dimensions($"tile")))
       val tlm2 = md.first()
 
       tlm2 should be(tlm)

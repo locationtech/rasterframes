@@ -39,42 +39,38 @@ object RFDependenciesPlugin extends AutoPlugin {
     def geomesa(module: String) = Def.setting {
       "org.locationtech.geomesa" %% s"geomesa-$module" % rfGeoMesaVersion.value
     }
-
-    val scalatest = "org.scalatest" %% "scalatest" % "3.0.3" % Test
-    val shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
-    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.16.1"
-    val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.25"
-    val scaffeine = "com.github.blemale" %% "scaffeine" % "3.1.0"
+    def circe(module: String) = Def.setting {
+      module match {
+        case "json-schema" => "io.circe" %% s"circe-$module" % "0.1.0"
+        case _             => "io.circe" %% s"circe-$module" % "0.14.1"
+      }
+    }
+    val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
+    val shapeless = "com.chuusai" %% "shapeless" % "2.3.7"
+    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.17.0"
+    val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.28"
+    val scaffeine = "com.github.blemale" %% "scaffeine" % "4.0.2"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
+    val stac4s = "com.azavea.stac4s" %% "client" % "0.7.2"
+    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.15"
+    val frameless = "org.typelevel" %% "frameless-dataset" % "0.10.1"
   }
   import autoImport._
 
   override def projectSettings = Seq(
     resolvers ++= Seq(
-      "Azavea Public Builds" at "https://dl.bintray.com/azavea/geotrellis",
-      "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
+      "eclipse-releases" at "https://repo.locationtech.org/content/groups/releases",
+      "eclipse-snapshots" at "https://repo.eclipse.org/content/groups/snapshots",
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
-      "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/"
+      "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/",
+      "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+      "jitpack" at "https://jitpack.io"
     ),
-    /** https://github.com/lucidworks/spark-solr/issues/179
-      * Thanks @pomadchin for the tip! */
-    dependencyOverrides ++= {
-      val deps = Seq(
-        "com.fasterxml.jackson.core" % "jackson-core" % "2.6.7",
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7",
-        "com.fasterxml.jackson.core" % "jackson-annotations" % "2.6.7"
-      )
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        // if Scala 2.12+ is used
-        case Some((2, scalaMajor)) if scalaMajor >= 12 => deps
-        case _ => deps :+ "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.7"
-      }
-    },
     // dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.f746890",
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-    rfSparkVersion := "2.4.7",
-    rfGeoTrellisVersion := "3.3.0",
-    rfGeoMesaVersion := "2.2.1"
+    rfSparkVersion := "3.1.2",
+    rfGeoTrellisVersion := "3.6.1-SNAPSHOT",
+    rfGeoMesaVersion := "3.2.0"
   )
 }

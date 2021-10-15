@@ -25,7 +25,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 
 @ExpressionDescription(
   usage = "_FUNC_(lhs, rhs) - Performs cell-wise greater-than (>) test between two tiles.",
@@ -38,17 +38,15 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Greater(left: Expression, right: Expression) extends BinaryLocalRasterOp with CodegenFallback  {
+case class Greater(left: Expression, right: Expression) extends BinaryRasterFunction with CodegenFallback  {
   override val nodeName: String = "rf_local_greater"
-  override protected def op(left: Tile, right: Tile): Tile = left.localGreater(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localGreater(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localGreater(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localGreater(right)
+  protected def op(left: Tile, right: Double): Tile = left.localGreater(right)
+  protected def op(left: Tile, right: Int): Tile = left.localGreater(right)
 }
 
 object Greater {
-  def apply(left: Column, right: Column): Column =
-    new Column(Greater(left.expr, right.expr))
+  def apply(left: Column, right: Column): Column = new Column(Greater(left.expr, right.expr))
 
-  def apply[N: Numeric](tile: Column, value: N): Column =
-    new Column(Greater(tile.expr, lit(value).expr))
+  def apply[N: Numeric](tile: Column, value: N): Column = new Column(Greater(tile.expr, lit(value).expr))
 }

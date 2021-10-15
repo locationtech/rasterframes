@@ -26,7 +26,7 @@ import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
 import org.apache.spark.sql.functions.lit
-import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
+import org.locationtech.rasterframes.expressions.BinaryRasterFunction
 
 @ExpressionDescription(
   usage = "_FUNC_(tile, rhs) - Performs cell-wise maximum two tiles or a tile and a scalar.",
@@ -41,12 +41,12 @@ import org.locationtech.rasterframes.expressions.BinaryLocalRasterOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Max(left: Expression, right:Expression) extends BinaryLocalRasterOp with CodegenFallback {
+case class Max(left: Expression, right:Expression) extends BinaryRasterFunction with CodegenFallback {
 
   override val nodeName = "rf_local_max"
-  override protected def op(left: Tile, right: Tile): Tile = left.localMax(right)
-  override protected def op(left: Tile, right: Double): Tile = left.localMax(right)
-  override protected def op(left: Tile, right: Int): Tile = left.localMax(right)
+  protected def op(left: Tile, right: Tile): Tile = left.localMax(right)
+  protected def op(left: Tile, right: Double): Tile = left.localMax(right)
+  protected def op(left: Tile, right: Int): Tile = left.localMax(right)
 }
 object Max {
   def apply(left: Column, right: Column): Column = new Column(Max(left.expr, right.expr))

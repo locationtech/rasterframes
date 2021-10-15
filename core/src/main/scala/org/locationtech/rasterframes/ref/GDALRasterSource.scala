@@ -52,27 +52,26 @@ case class GDALRasterSource(source: URI) extends RFRasterSource with URIRasterSo
 
   protected def tiffInfo = SimpleRasterInfo(source.toASCIIString, _ => SimpleRasterInfo(gdal))
 
-  override def crs: CRS = tiffInfo.crs
+  def crs: CRS = tiffInfo.crs
 
-  override def extent: Extent = tiffInfo.extent
+  def extent: Extent = tiffInfo.extent
 
-  private def metadata = Map.empty[String, String]
+  def metadata = Map.empty[String, String]
 
-  override def cellType: CellType = tiffInfo.cellType
+  def cellType: CellType = tiffInfo.cellType
 
-  override def bandCount: Int = tiffInfo.bandCount
+  def bandCount: Int = tiffInfo.bandCount
 
-  override def cols: Int = tiffInfo.cols.toInt
+  def cols: Int = tiffInfo.cols.toInt
 
-  override def rows: Int = tiffInfo.rows.toInt
+  def rows: Int = tiffInfo.rows.toInt
 
-  override def tags: Tags = Tags(metadata, List.empty)
+  def tags: Tags = Tags(metadata, List.empty)
 
-  override def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
+  def readBounds(bounds: Traversable[GridBounds[Int]], bands: Seq[Int]): Iterator[Raster[MultibandTile]] =
     try {
       gdal.readBounds(bounds.map(_.toGridType[Long]), bands)
-    }
-    catch {
+    } catch {
       case e: Exception => throw new IOException(s"Error reading '$source'", e)
     }
 }

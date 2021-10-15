@@ -25,7 +25,7 @@ import geotrellis.raster.Tile
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription}
-import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterOp}
+import org.locationtech.rasterframes.expressions.{NullToValue, UnaryRasterOp}
 
 @ExpressionDescription(
   usage = "_FUNC_(tile) - Return a tile with zeros where the input is NoData, otherwise one.",
@@ -37,11 +37,11 @@ import org.locationtech.rasterframes.expressions.{NullToValue, UnaryLocalRasterO
     > SELECT  _FUNC_(tile);
        ..."""
 )
-case class Defined(child: Expression) extends UnaryLocalRasterOp
+case class Defined(child: Expression) extends UnaryRasterOp
   with NullToValue with CodegenFallback {
   override def nodeName: String = "rf_local_data"
-  override def na: Any = null
-  override protected def op(child: Tile): Tile = child.localDefined()
+  def na: Any = null
+  protected def op(child: Tile): Tile = child.localDefined()
 }
 object Defined{
   def apply(tile: Column): Column = new Column(Defined(tile.expr))

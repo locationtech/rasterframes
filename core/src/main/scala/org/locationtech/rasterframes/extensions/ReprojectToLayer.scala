@@ -26,7 +26,6 @@ import geotrellis.raster.resample.{NearestNeighbor, ResampleMethod => GTResample
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.broadcast
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.StandardEncoders.crsSparkEncoder
 import org.locationtech.rasterframes.util._
 
 /** Algorithm for projecting an arbitrary RasterFrame into a layer with consistent CRS and gridding. */
@@ -38,7 +37,7 @@ object ReprojectToLayer {
     val crs = tlm.crs
 
     import df.sparkSession.implicits._
-    implicit val enc = Encoders.tuple(spatialKeyEncoder, extentEncoder, crsSparkEncoder)
+    implicit val enc = Encoders.tuple(spatialKeyEncoder, extentEncoder, crsExpressionEncoder)
 
     val gridItems = for {
       (col, row) <- gb.coordsIter

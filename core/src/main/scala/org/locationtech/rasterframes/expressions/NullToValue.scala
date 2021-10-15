@@ -25,18 +25,12 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 
 trait NullToValue { self: UnaryExpression =>
-
   def na: Any
-
-  override def eval(input: InternalRow): Any = {
+  override def eval(input: InternalRow): Any =
     if (input == null) na
     else {
       val value = child.eval(input)
-      if (value == null) {
-        na
-      } else {
-        nullSafeEval(value)
-      }
+      if (value == null) na
+      else nullSafeEval(value)
     }
-  }
 }

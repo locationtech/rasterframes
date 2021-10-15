@@ -22,17 +22,16 @@
 package org.locationtech.rasterframes.extensions
 
 import org.locationtech.rasterframes.util._
-import org.locationtech.rasterframes.RasterFrameLayer
+import org.locationtech.rasterframes._
 import org.locationtech.jts.geom.Point
 import geotrellis.proj4.LatLng
-import geotrellis.layer._
+import geotrellis.layer.{MapKeyTransform, SpatialKey}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.{asc, udf => sparkUdf}
 import org.apache.spark.sql.types.{DoubleType, StructField, StructType}
 import org.locationtech.geomesa.curve.Z2SFC
-import org.locationtech.rasterframes.StandardColumns
 import org.locationtech.rasterframes.encoders.serialized_literal
 
 /**
@@ -47,15 +46,15 @@ trait LayerSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with 
   /** Returns the key-space to map-space coordinate transform. */
   def mapTransform: MapKeyTransform = self.tileLayerMetadata.merge.mapTransform
 
-  private def keyCol2Extent: Row ⇒ Extent = {
+  private def keyCol2Extent: Row => Extent = {
     val transform = self.sparkSession.sparkContext.broadcast(mapTransform)
-    r ⇒ transform.value.keyToExtent(SpatialKey(r.getInt(0), r.getInt(1)))
+    r => transform.value.keyToExtent(SpatialKey(r.getInt(0), r.getInt(1)))
   }
 
-  private def keyCol2LatLng: Row ⇒ (Double, Double) = {
+  private def keyCol2LatLng: Row => (Double, Double) = {
     val transform = self.sparkSession.sparkContext.broadcast(mapTransform)
     val crs = self.tileLayerMetadata.merge.crs
-    r ⇒ {
+    r => {
       val center = transform.value.keyToExtent(SpatialKey(r.getInt(0), r.getInt(1))).center.reproject(crs, LatLng)
       (center.x, center.y)
     }
@@ -121,10 +120,10 @@ trait LayerSpatialColumnMethods extends MethodExtensions[RasterFrameLayer] with 
    * @return RasterFrameLayer with index column.
    */
   def withSpatialIndex(colName: String = SPATIAL_INDEX_COLUMN.columnName, applyOrdering: Boolean = true): RasterFrameLayer = {
-    val zindex = sparkUdf(keyCol2LatLng andThen (p ⇒ Z2SFC.index(p._1, p._2).z))
+    val zindex = sparkUdf(keyCol2LatLng andThen (p => Z2SFC.index(p._1, p._2)))
     self.withColumn(colName, zindex(self.spatialKeyColumn)) match {
-      case rf if applyOrdering ⇒ rf.orderBy(asc(colName)).certify
-      case rf ⇒ rf.certify
+      case rf if applyOrdering => rf.orderBy(asc(colName)).certify
+      case rf => rf.certify
     }
   }
 }

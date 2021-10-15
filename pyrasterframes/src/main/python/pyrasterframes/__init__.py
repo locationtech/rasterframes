@@ -117,6 +117,7 @@ def _raster_reader(
         source=None,
         catalog_col_names: Optional[List[str]] = None,
         band_indexes: Optional[List[int]] = None,
+        buffer_size: int = 0,
         tile_dimensions: Tuple[int] = (256, 256),
         lazy_tiles: bool = True,
         spatial_index_partitions=None,
@@ -134,6 +135,7 @@ def _raster_reader(
     :param catalog_col_names: required if `source` is a DataFrame or CSV string. It is a list of strings giving the names of columns containing URIs to read.
     :param band_indexes: list of integers indicating which bands, zero-based, to read from the raster files specified; default is to read only the first band.
     :param tile_dimensions: tuple or list of two indicating the default tile dimension as (columns, rows).
+    :param buffer_size: buffer each tile read by this many cells on all sides.
     :param lazy_tiles: If true (default) only generate minimal references to tile contents; if false, fetch tile cell values.
     :param spatial_index_partitions: If true, partitions read tiles by a Z2 spatial index using the default shuffle partitioning.
            If a values > 0, the given number of partitions are created instead of the default.
@@ -176,7 +178,8 @@ def _raster_reader(
     options.update({
         "band_indexes": to_csv(band_indexes),
         "tile_dimensions": to_csv(tile_dimensions),
-        "lazy_tiles": str(lazy_tiles)
+        "lazy_tiles": str(lazy_tiles),
+        "buffer_size": int(buffer_size)
     })
 
     # Parse the `source` argument
@@ -249,6 +252,21 @@ def _raster_reader(
         .format("raster") \
         .load(path, **options)
 
+def _stac_api_reader(
+        df_reader: DataFrameReader,
+        uri: str,
+        filters: dict = None) -> DataFrame:
+    """
+    :param uri: STAC API uri
+    :param filters: STAC API Search filters dict (bbox, datetime, intersects, collections, items, limit, query, next), see the STAC API Spec for more details https://github.com/radiantearth/stac-api-spec
+    """
+    import json
+
+    return df_reader \
+        .format("stac-api") \
+        .option("uri", uri) \
+        .option("search-filters", json.dumps(filters)) \
+        .load()
 
 def _geotiff_writer(
         df_writer: DataFrameWriter,
@@ -302,3 +320,4 @@ DataFrameWriter.geotiff = _geotiff_writer
 DataFrameReader.geotrellis = lambda df_reader, path: _layer_reader(df_reader, "geotrellis", path)
 DataFrameReader.geotrellis_catalog = lambda df_reader, path: _aliased_reader(df_reader, "geotrellis-catalog", path)
 DataFrameWriter.geotrellis = lambda df_writer, path: _aliased_writer(df_writer, "geotrellis", path)
+DataFrameReader.stacapi = _stac_api_reader

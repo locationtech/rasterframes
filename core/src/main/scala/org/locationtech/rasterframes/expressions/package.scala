@@ -23,15 +23,18 @@ package org.locationtech.rasterframes
 
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
 import org.apache.spark.sql.catalyst.analysis.FunctionRegistry
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.{Expression, ScalaUDF}
 import org.apache.spark.sql.catalyst.{InternalRow, ScalaReflection}
 import org.apache.spark.sql.rf.VersionShims._
+import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{SQLContext, rf}
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
+import org.locationtech.rasterframes.expressions.focalops._
 import org.locationtech.rasterframes.expressions.tilestats._
 import org.locationtech.rasterframes.expressions.transformers._
 
@@ -49,11 +52,14 @@ package object expressions {
   private[expressions]
   def fpTile(t: Tile) = if (t.cellType.isFloatingPoint) t else t.convert(DoubleConstantNoDataCellType)
 
-  /** As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function. */
+  /**
+   * As opposed to `udf`, this constructs an unwrapped ScalaUDF Expression from a function.
+   * This ScalaUDF Expression expects the argument of type A1 to match the return type RT at runtime.
+   */
   private[expressions]
-  def udfexpr[RT: TypeTag, A1: TypeTag](name: String, f: A1 => RT): Expression => ScalaUDF = (child: Expression) => {
-    val ScalaReflection.Schema(dataType, nullable) = ScalaReflection.schemaFor[RT]
-    ScalaUDF(f, dataType, Seq(child), Seq(true), nullable = nullable, udfName = Some(name))
+  def udfiexpr[RT: TypeTag, A1: TypeTag](name: String, f: DataType => A1 => RT): Expression => ScalaUDF = (child: Expression) => {
+    val ScalaReflection.Schema(dataType, _) = ScalaReflection.schemaFor[RT]
+    ScalaUDF((row: A1) => f(child.dataType)(row), dataType, Seq(child), Seq(Option(ExpressionEncoder[RT]().resolveAndBind())), udfName = Some(name))
   }
 
   def register(sqlContext: SQLContext): Unit = {
@@ -77,7 +83,6 @@ package object expressions {
     registry.registerExpression[GetCRS]("rf_crs")
     registry.registerExpression[RealizeTile]("rf_tile")
     registry.registerExpression[CreateProjectedRaster]("rf_proj_raster")
-    registry.registerExpression[Subtract]("rf_local_subtract")
     registry.registerExpression[Multiply]("rf_local_multiply")
     registry.registerExpression[Divide]("rf_local_divide")
     registry.registerExpression[NormalizedDifference]("rf_normalized_difference")
@@ -132,6 +137,19 @@ package object expressions {
     registry.registerExpression[LocalCountAggregate.LocalDataCellsUDAF]("rf_agg_local_data_cells")
     registry.registerExpression[LocalCountAggregate.LocalNoDataCellsUDAF]("rf_agg_local_no_data_cells")
     registry.registerExpression[LocalMeanAggregate]("rf_agg_local_mean")
+
+    registry.registerExpression[FocalMax](FocalMax.name)
+    registry.registerExpression[FocalMin](FocalMin.name)
+    registry.registerExpression[FocalMean](FocalMean.name)
+    registry.registerExpression[FocalMode](FocalMode.name)
+    registry.registerExpression[FocalMedian](FocalMedian.name)
+    registry.registerExpression[FocalMoransI](FocalMoransI.name)
+    registry.registerExpression[FocalStdDev](FocalStdDev.name)
+    registry.registerExpression[Convolve](Convolve.name)
+
+    registry.registerExpression[Slope](Slope.name)
+    registry.registerExpression[Aspect](Aspect.name)
+    registry.registerExpression[Hillshade](Hillshade.name)
 
     registry.registerExpression[Mask.MaskByDefined]("rf_mask")
     registry.registerExpression[Mask.InverseMaskByDefined]("rf_inverse_mask")
