@@ -107,7 +107,7 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
     }
 
     it("should construct map on a file in the wild") {
-      val modisUrl = "s3://astraea-opendata/MCD43A4.006/27/05/2020161/MCD43A4.A2020161.h27v05.006.2020170060718_B01.TIF"
+      val modisUrl = "s3://modis-pds/MCD43A4.006/27/05/2020161/MCD43A4.A2020161.h27v05.006.2020170060718_B01.TIF"
       val modisRf = spark.read.raster.from(Seq(modisUrl))
         .withLazyTiles(false)
         .load()
