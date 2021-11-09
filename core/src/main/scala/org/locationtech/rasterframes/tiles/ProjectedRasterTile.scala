@@ -27,6 +27,7 @@ import geotrellis.vector.{Extent, ProjectedExtent}
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.locationtech.rasterframes.ref.ProjectedRasterLike
 import org.apache.spark.sql.catalyst.DefinedByConstructorParams
+import org.apache.spark.sql.rf.{CrsUDT, RasterSourceUDT, TileUDT}
 
 /**
  * A Tile that's also like a ProjectedRaster, with delayed evaluation support.
@@ -58,5 +59,11 @@ object ProjectedRasterTile {
 
   def unapply(prt: ProjectedRasterTile): Option[(Tile, Extent, CRS)] = Some((prt.tile, prt.extent, prt.crs))
 
-  implicit lazy val projectedRasterTileEncoder: ExpressionEncoder[ProjectedRasterTile] = ExpressionEncoder()
+  implicit lazy val projectedRasterTileEncoder: ExpressionEncoder[ProjectedRasterTile] = {
+    // Makes sure UDTs are registered first
+    RasterSourceUDT
+    TileUDT
+    CrsUDT
+    ExpressionEncoder()
+  }
 }
