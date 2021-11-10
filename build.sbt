@@ -120,8 +120,10 @@ lazy val datasource = project
     moduleName := "rasterframes-datasource",
     libraryDependencies ++= Seq(
       compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+      compilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
       sttpCatsCe2,
       stac4s,
+      framelessRefined excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       geotrellis("s3").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       spark("core").value % Provided,
       spark("mllib").value % Provided,
