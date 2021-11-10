@@ -47,7 +47,6 @@ trait StandardEncoders extends SpatialEncoders with TypedEncoders {
   implicit def optionalEncoder[T: TypedEncoder]: ExpressionEncoder[Option[T]] = typedExpressionEncoder[Option[T]]
 
   implicit lazy val strMapEncoder: ExpressionEncoder[Map[String, String]] = ExpressionEncoder()
-  implicit lazy val crsExpressionEncoder: ExpressionEncoder[CRS] = ExpressionEncoder()
   implicit lazy val projectedExtentEncoder: ExpressionEncoder[ProjectedExtent] = ExpressionEncoder()
   implicit lazy val temporalProjectedExtentEncoder: ExpressionEncoder[TemporalProjectedExtent] = ExpressionEncoder()
   implicit lazy val timestampEncoder: ExpressionEncoder[Timestamp] = ExpressionEncoder()
@@ -55,6 +54,7 @@ trait StandardEncoders extends SpatialEncoders with TypedEncoders {
   implicit lazy val cellHistEncoder: ExpressionEncoder[CellHistogram] = ExpressionEncoder()
   implicit lazy val localCellStatsEncoder: ExpressionEncoder[LocalCellStatistics] = ExpressionEncoder()
 
+  implicit lazy val crsExpressionEncoder: ExpressionEncoder[CRS] = typedExpressionEncoder
   implicit lazy val uriEncoder: ExpressionEncoder[URI] = typedExpressionEncoder[URI]
   implicit lazy val neighborhoodEncoder: ExpressionEncoder[Neighborhood] = typedExpressionEncoder[Neighborhood]
   implicit lazy val targetCellEncoder: ExpressionEncoder[TargetCell] = typedExpressionEncoder[TargetCell]
