@@ -33,6 +33,8 @@ import org.locationtech.geomesa.spark.jts.encoders.SpatialEncoders
 import org.locationtech.rasterframes.model.{CellContext, LongExtent, TileContext, TileDataContext}
 import frameless.TypedEncoder
 import geotrellis.raster.mapalgebra.focal.{Kernel, Neighborhood, TargetCell}
+import org.locationtech.rasterframes.ref.RFRasterSource
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
 import java.net.URI
 import java.sql.Timestamp
@@ -78,6 +80,11 @@ trait StandardEncoders extends SpatialEncoders with TypedEncoders {
 
   implicit lazy val tileEncoder: ExpressionEncoder[Tile] = typedExpressionEncoder
   implicit def rasterEncoder[T <: CellGrid[Int]: TypedEncoder]: ExpressionEncoder[Raster[T]] = typedExpressionEncoder[Raster[T]]
+
+  // Intentionally not implicit, defined as implicit in the ProjectedRasterTile companion object
+  lazy val projectedRasterTileEncoder: ExpressionEncoder[ProjectedRasterTile] = typedExpressionEncoder
+  // Intentionally not implicit, defined as implicit in the RFRasterSource companion object
+  lazy val rfRasterSourceEncoder: ExpressionEncoder[RFRasterSource] = typedExpressionEncoder
 }
 
 object StandardEncoders extends StandardEncoders

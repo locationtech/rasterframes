@@ -10,6 +10,8 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.util.QuantileSummaries
 import org.apache.spark.sql.rf.{CrsUDT, RasterSourceUDT, TileUDT}
 import org.locationtech.jts.geom.Envelope
+import org.locationtech.rasterframes.ref.RFRasterSource
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.{FocalNeighborhood, FocalTargetCell, KryoSupport}
 
 import java.net.URI
@@ -22,6 +24,8 @@ trait TypedEncoders {
   implicit val crsUDT = new CrsUDT
   implicit val tileUDT = new TileUDT
   implicit val rasterSourceUDT = new RasterSourceUDT
+
+  implicit val crsTypedEncoder: TypedEncoder[CRS] = TypedEncoder.usingUserDefinedType[CRS]
 
   implicit val cellTypeInjection: Injection[CellType, String] = Injection(_.toString, CellType.fromName)
   implicit val cellTypeTypedEncoder: TypedEncoder[CellType] = TypedEncoder.usingInjection[CellType, String]
@@ -89,7 +93,20 @@ trait TypedEncoders {
   implicit val tileTypedEncoder: TypedEncoder[Tile] = TypedEncoder.usingUserDefinedType[Tile]
   implicit def rasterTileTypedEncoder[T <: CellGrid[Int]: TypedEncoder]: TypedEncoder[Raster[T]] = TypedEncoder.usingDerivation
 
+  // Derivation is done through frameless to trigger RasterSourceUDT load
+  implicit val rfRasterSourceTypedEncoder: TypedEncoder[RFRasterSource] = TypedEncoder.usingUserDefinedType[RFRasterSource]
+
   implicit val kernelTypedEncoder: TypedEncoder[Kernel] = TypedEncoder.usingDerivation
+
+  // Derivation is done through frameless to trigger the TileUDT and CrsUDT load
+  implicit val projectedRasterTileTypedEncoder: TypedEncoder[ProjectedRasterTile] =
+    ManualTypedEncoder.newInstance[ProjectedRasterTile](
+      fields = List(
+        RecordEncoderField(0, "tile", TypedEncoder[Tile]),
+        RecordEncoderField(1, "extent", TypedEncoder[Extent]),
+        RecordEncoderField(2, "crs", TypedEncoder[CRS])
+      )
+    )
 }
 
 object TypedEncoders extends TypedEncoders

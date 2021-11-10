@@ -31,7 +31,7 @@ import geotrellis.vector.Extent
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.rf.{CrsUDT, RasterSourceUDT, TileUDT}
+import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.model.TileContext
 import org.locationtech.rasterframes.{NOMINAL_TILE_DIMS, rfConfig}
 
@@ -100,13 +100,7 @@ object RFRasterSource extends LazyLogging {
 
   def cacheStats = rsCache.stats()
 
-  implicit def rsEncoder: ExpressionEncoder[RFRasterSource] = {
-    // Makes sure UDTs are registered first
-    RasterSourceUDT
-    TileUDT
-    CrsUDT
-    ExpressionEncoder()
-  }
+  implicit lazy val rsEncoder: ExpressionEncoder[RFRasterSource] = StandardEncoders.rfRasterSourceEncoder
 
   def apply(source: URI): RFRasterSource =
     rsCache.get(
