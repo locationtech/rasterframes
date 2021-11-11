@@ -127,7 +127,8 @@ lazy val datasource = project
       geotrellis("s3").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       spark("core").value % Provided,
       spark("mllib").value % Provided,
-      spark("sql").value % Provided
+      spark("sql").value % Provided,
+      `better-files`
     ),
     Compile / console / scalacOptions ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
     Test / console / scalacOptions ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
