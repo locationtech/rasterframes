@@ -34,7 +34,6 @@ object RFProjectPlugin extends AutoPlugin {
     Compile / doc / scalacOptions ++= Seq("-no-link-warnings"),
     Compile / console / scalacOptions := Seq("-feature"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-    // This is as a workaround to a bug in IntelliJ where multiple versions of this jar get loaded.
     initialize := {
       val _ = initialize.value // run the previous initialization
       val sparkVer = VersionNumber(RFDependenciesPlugin.autoImport.rfSparkVersion.value)

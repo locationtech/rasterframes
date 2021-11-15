@@ -5,10 +5,12 @@
 ### 0.10.1
 
 * Fix UDTs registration ordering [#573](https://github.com/locationtech/rasterframes/pull/573)
+* Fix UDTs registration ordering #573
+* Ability to write RasterFrame tile columns directly as raster files. #571
 
 ### 0.10.0
 
-* Upgraded to Scala 2.12 , Spark 3.1.2, and GeoTrellis 3.6.0 (a subtantial accomplishment!)
+* Upgraded to Scala 2.12 , Spark 3.1.2, and GeoTrellis 3.6.0 (a substantial accomplishment!)
 * Added buffered tile support
 * Added focal operations: `rf_focal_mean`, `rf_focal_median`,`rf_focal_mode`, `rf_focal_max`, `rf_focal_min`, `rf_focal_stddev`, `rf_focal_moransi`, `rf_convolve`, `rf_slope`, `rf_aspect`, `rf_hillshade`
 * Added STAC API DataFrames implementation
