@@ -176,7 +176,7 @@ lazy val docs = project
     Compile / paradoxMaterialTheme ~= { _
       .withRepository(uri("https://github.com/locationtech/rasterframes"))
       .withCustomStylesheet("assets/custom.css")
-      .withCopyright("""&copy; 2017-2019 <a href="https://astraea.earth">Astraea</a>, Inc. All rights reserved.""")
+      .withCopyright("""&copy; 2017-2021 <a href="https://astraea.earth">Astraea</a>, Inc. All rights reserved.""")
       .withLogo("assets/images/RF-R.svg")
       .withFavicon("assets/images/RasterFrames_32x32.ico")
       .withColor("blue-grey", "light-blue")
