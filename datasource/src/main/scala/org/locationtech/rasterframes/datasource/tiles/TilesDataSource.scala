@@ -20,7 +20,6 @@
  */
 package org.locationtech.rasterframes.datasource.tiles
 
-import com.typesafe.scalalogging.Logger
 import geotrellis.proj4.CRS
 import geotrellis.raster.io.geotiff.compression.DeflateCompression
 import geotrellis.raster.io.geotiff.tags.codes.ColorSpace
@@ -35,11 +34,11 @@ import org.apache.hadoop.io.IOUtils
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
-import org.apache.spark.sql.{Column, DataFrame, Dataset, Encoders, Row, SQLContext, SaveMode, functions => F}
+import org.apache.spark.sql.{DataFrame, Dataset, Encoders, Row, SQLContext, SaveMode, functions => F}
 import org.locationtech.rasterframes._
+import org.locationtech.rasterframes.datasource._
 import org.locationtech.rasterframes.encoders.SparkBasicEncoders
 import org.locationtech.rasterframes.util._
-import org.slf4j.LoggerFactory
 
 import java.io.IOException
 import java.net.URI
@@ -47,7 +46,6 @@ import scala.util.Try
 
 class TilesDataSource extends DataSourceRegister with CreatableRelationProvider {
   import TilesDataSource._
-  @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
   override def shortName(): String = SHORT_NAME
 
   /**
@@ -211,27 +209,6 @@ object TilesDataSource {
   final val METADATA_PARAM = "metadata"
   final val AS_PNG_PARAM = "png"
 
-  case class SpatialComponents(crsColumn: Column,
-                               extentColumn: Column,
-                               dimensionColumn: Column,
-                               cellTypeColumn: Column)
-
-
-  object SpatialComponents {
-    def apply(tileColumn: Column, crsColumn: Column, extentColumn: Column): SpatialComponents = {
-      val dim = rf_dimensions(tileColumn) as "dims"
-      val ct = rf_cell_type(tileColumn) as "cellType"
-      SpatialComponents(crsColumn, extentColumn, dim, ct)
-    }
-    def apply(prColumn : Column): SpatialComponents = {
-      SpatialComponents(
-        rf_crs(prColumn) as "crs",
-        rf_extent(prColumn) as "extent",
-        rf_dimensions(prColumn) as "dims",
-        rf_cell_type(prColumn) as "cellType"
-      )
-    }
-  }
 
   protected[rasterframes]
   implicit class TilesDictAccessors(val parameters: Map[String, String]) extends AnyVal {
@@ -251,19 +228,4 @@ object TilesDataSource {
       parameters.get(AS_PNG_PARAM).exists(_.toBoolean)
   }
 
-  /**
-   * If the given DataFrame has extent and CRS columns return the DataFrame, the CRS column an extent column.
-   * Otherwise, see if there's a `ProjectedRaster` column add `crs` and `extent` columns extracted from the
-   * `ProjectedRaster` column to the returned DataFrame.
-   *
-   * @param d DataFrame to process.
-   * @return Tuple containing the updated DataFrame followed by the CRS column and the extent column
-   */
-  def projectSpatialComponents(d: DataFrame): Option[SpatialComponents] =
-    d.tileColumns.headOption.zip(d.crsColumns.headOption.zip(d.extentColumns.headOption)).headOption
-      .map { case (tile, (crs, extent)) => SpatialComponents(tile, crs, extent) }
-      .orElse(
-        d.projRasterColumns.headOption
-          .map(pr => SpatialComponents(pr))
-      )
 }
