@@ -147,7 +147,7 @@ descartes = 'descartes'
 matplotlib = 'matplotlib'
 fiona = 'fiona'
 folium = 'folium'
-gdal = 'gdal==3.1.2'
+gdal = 'gdal'
 geopandas = 'geopandas'
 ipykernel = 'ipykernel'
 ipython = 'ipython'
@@ -232,9 +232,6 @@ setup(
         'geomesa_pyspark',
         'pyrasterframes.jars',
     ],
-    package_dir={
-        'pyrasterframes.jars': 'deps/jars'
-    },
     package_data={
         'pyrasterframes.jars': ['*.jar']
     },

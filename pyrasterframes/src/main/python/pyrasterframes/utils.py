@@ -23,9 +23,9 @@ from pyspark.sql import SparkSession
 from pyspark import SparkConf
 import os
 from . import RFContext
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
-__all__ = ["create_rf_spark_session", "find_pyrasterframes_jar_dir", "find_pyrasterframes_assembly", "gdal_version", 'is_notebook', 'gdal_version', 'build_info', 'quiet_logs']
+__all__ = ["create_rf_spark_session", "find_pyrasterframes_jar_dir", "find_pyrasterframes_assembly", "gdal_version", 'gdal_version', 'build_info', 'quiet_logs']
 
 
 def find_pyrasterframes_jar_dir() -> str:
@@ -39,20 +39,10 @@ def find_pyrasterframes_jar_dir() -> str:
     try:
         module_home = find_spec("pyrasterframes").origin
         jar_dir = os.path.join(os.path.dirname(module_home), 'jars')
-    except ImportError:
-        pass
-
-    # Case for when we're running from source build
-    if jar_dir is None or not os.path.exists(jar_dir):
-        def pdir(curr):
-            return os.path.dirname(curr)
-
-        here = pdir(os.path.realpath(__file__))
-        target_dir = pdir(pdir(here))
-        # See if we're running outside of sbt build and adjust
-        if os.path.basename(target_dir) != "target":
-            target_dir = os.path.join(pdir(pdir(target_dir)), 'target')
-        jar_dir = os.path.join(target_dir, 'scala-2.12')
+    except ImportError as e:
+        import logging
+        logging.critical("Error finding runtime JAR directory", exc_info=e)
+        raise e
 
     return os.path.realpath(jar_dir)
 
@@ -62,9 +52,9 @@ def find_pyrasterframes_assembly() -> Union[bytes, str]:
     jarpath = glob.glob(os.path.join(jar_dir, 'pyrasterframes-assembly*.jar'))
 
     if not len(jarpath) == 1:
-        raise RuntimeError("""
-Expected to find exactly one assembly. Found '{}' instead. 
-Try running 'sbt pyrasterframes/clean pyrasterframes/package' first. """.format(jarpath))
+        raise RuntimeError(f""" 
+Expected to find exactly one assembly in '{jar_dir}'. 
+Found '{jarpath}' instead.""")
     return jarpath[0]
 
 
@@ -74,7 +64,7 @@ def quiet_logs(sc):
     logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
 
 
-def create_rf_spark_session(master="local[*]", **kwargs: str) -> SparkSession:
+def create_rf_spark_session(master="local[*]", **kwargs: str) -> Optional[SparkSession]:
     """ Create a SparkSession with pyrasterframes enabled and configured. """
     jar_path = find_pyrasterframes_assembly()
 
