@@ -8,10 +8,12 @@ import com.azavea.stac4s._
 import com.azavea.stac4s.types.ItemDatetime
 import eu.timepit.refined.api.{RefType, Validate}
 import frameless.{Injection, SQLTimestamp, TypedEncoder, TypedExpressionEncoder}
+import frameless.refined
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.jts.JTSTypes
 
 import java.time.Instant
+import scala.reflect.ClassTag
 
 /** STAC API Dataframe relies on the Frameless Expressions derivation. */
 trait StacSerializers {
@@ -42,9 +44,12 @@ trait StacSerializers {
   implicit val itemDatetimeCatalystType: Injection[ItemDatetimeCatalystType, String] = Injection(_.repr, ItemDatetimeCatalystType.fromString)
   implicit val itemDatetimeInjection: Injection[ItemDatetime, ItemDatetimeCatalyst] = Injection(ItemDatetimeCatalyst.fromItemDatetime, ItemDatetimeCatalyst.toDatetime)
 
-  /** Refined types support, https://github.com/typelevel/frameless/issues/257#issuecomment-914392485 */
-  implicit def refinedInjection[F[_, _], T, P](implicit refType: RefType[F], validate: Validate[T, P]): Injection[F[T, P], T] =
-    Injection(refType.unwrap, value => refType.refine[P](value).valueOr(errMsg => throw new IllegalArgumentException(s"Value $value does not satisfy refinement predicate: $errMsg")))
+  /** Refined types support, proxies to avoid frameless.refined import in the client code */
+  implicit def refinedInjection[F[_, _]: RefType, T, R: Validate[T, *]]: Injection[F[T, R], T] =
+    refined.refinedInjection
+
+  implicit def refinedEncoder[F[_, _]: RefType, T: TypedEncoder, R: Validate[T, *]](implicit ct: ClassTag[F[T, R]]): TypedEncoder[F[T, R]] =
+    refined.refinedEncoder
 
   /** Set would be stored as Array */
   implicit def setInjection[T]: Injection[Set[T], List[T]] = Injection(_.toList, _.toSet)

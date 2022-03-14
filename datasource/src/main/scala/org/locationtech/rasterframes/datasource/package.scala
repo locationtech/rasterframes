@@ -24,6 +24,7 @@ package org.locationtech.rasterframes
 import cats.syntax.option._
 import io.circe.Json
 import io.circe.parser
+import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
 import sttp.model.Uri
 
@@ -72,4 +73,48 @@ package object datasource {
   def jsonParam(key: String, parameters: CaseInsensitiveStringMap): Option[Json] =
     if(parameters.containsKey(key)) parser.parse(parameters.get(key)).toOption
     else None
+
+
+  /**
+   * Convenience grouping for transient columns defining spatial context.
+   */
+  private[rasterframes]
+  case class SpatialComponents(crsColumn: Column,
+                               extentColumn: Column,
+                               dimensionColumn: Column,
+                               cellTypeColumn: Column)
+
+  private[rasterframes]
+  object SpatialComponents {
+    def apply(tileColumn: Column, crsColumn: Column, extentColumn: Column): SpatialComponents = {
+      val dim = rf_dimensions(tileColumn) as "dims"
+      val ct = rf_cell_type(tileColumn) as "cellType"
+      SpatialComponents(crsColumn, extentColumn, dim, ct)
+    }
+    def apply(prColumn : Column): SpatialComponents = {
+      SpatialComponents(
+        rf_crs(prColumn) as "crs",
+        rf_extent(prColumn) as "extent",
+        rf_dimensions(prColumn) as "dims",
+        rf_cell_type(prColumn) as "cellType"
+      )
+    }
+  }
+
+  /**
+   * If the given DataFrame has extent and CRS columns return the DataFrame, the CRS column an extent column.
+   * Otherwise, see if there's a `ProjectedRaster` column add `crs` and `extent` columns extracted from the
+   * `ProjectedRaster` column to the returned DataFrame.
+   *
+   * @param d DataFrame to process.
+   * @return Tuple containing the updated DataFrame followed by the CRS column and the extent column
+   */
+  private[rasterframes]
+  def projectSpatialComponents(d: DataFrame): Option[SpatialComponents] =
+    d.tileColumns.headOption.zip(d.crsColumns.headOption.zip(d.extentColumns.headOption)).headOption
+      .map { case (tile, (crs, extent)) => SpatialComponents(tile, crs, extent) }
+      .orElse(
+        d.projRasterColumns.headOption
+          .map(pr => SpatialComponents(pr))
+      )
 }

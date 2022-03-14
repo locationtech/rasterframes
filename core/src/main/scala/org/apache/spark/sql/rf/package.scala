@@ -56,7 +56,7 @@ package object rf {
 
   /** Lookup the registered Catalyst UDT for the given Scala type. */
   def udtOf[T >: Null: TypeTag]: UserDefinedType[T] =
-    UDTRegistration.getUDTFor(typeTag[T].tpe.toString).map(_.newInstance().asInstanceOf[UserDefinedType[T]])
+    UDTRegistration.getUDTFor(typeTag[T].tpe.toString).map(_.getDeclaredConstructor().newInstance().asInstanceOf[UserDefinedType[T]])
       .getOrElse(throw new IllegalArgumentException(typeTag[T].tpe + " doesn't have a corresponding UDT"))
 
   /** Creates a Catalyst expression for flattening the fields in a struct into columns. */

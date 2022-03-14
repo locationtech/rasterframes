@@ -1,7 +1,7 @@
 /*
  * This software is licensed under the Apache 2 license, quoted below.
  *
- * Copyright 2019 Astraea, Inc.
+ * Copyright (c) 2021. Astraea, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,23 +16,20 @@
  * the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- *
  */
 
-package org.locationtech.rasterframes.experimental.datasource.awspds
+package org.locationtech.rasterframes.datasource.slippy
 
-import java.net.{HttpURLConnection, URL}
+object RenderingModes {
+  // used as Enumeration of options in SlippyDataSource interpretation of string options.
+  sealed trait RenderingMode
+  case object Fast extends RenderingMode
+  case object Uniform extends RenderingMode
 
-object TestSupport {
-  def urlResponse(urlStr: String): Int = {
-    val conn = new URL(urlStr).openConnection().asInstanceOf[HttpURLConnection]
-    try {
-      conn.setRequestMethod("GET")
-      conn.connect()
-      conn.getResponseCode
+  def renderingModeFromString(rendering_mode_name: String): RenderingMode =
+    rendering_mode_name.toLowerCase() match {
+      case "uniform" | "histogram" ⇒ Uniform
+      case _ ⇒ Fast
     }
-    finally {
-      conn.disconnect()
-    }
-  }
+
 }

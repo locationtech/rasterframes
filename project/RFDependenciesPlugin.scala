@@ -54,7 +54,9 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
     val stac4s = "com.azavea.stac4s" %% "client" % "0.7.2"
     val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.15"
-    val frameless = "org.typelevel" %% "frameless-dataset" % "0.10.1"
+    val frameless = "org.typelevel" %% "frameless-dataset-spark31" % "0.11.1"
+    val framelessRefined = "org.typelevel" %% "frameless-refined-spark31" % "0.11.1"
+    val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
   }
   import autoImport._
 
@@ -67,10 +69,10 @@ object RFDependenciesPlugin extends AutoPlugin {
       "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
       "jitpack" at "https://jitpack.io"
     ),
-    // dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.f746890",
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "3.1.2",
-    rfGeoTrellisVersion := "3.6.1-SNAPSHOT",
-    rfGeoMesaVersion := "3.2.0"
+    rfGeoTrellisVersion := "3.6.1",
+    rfGeoMesaVersion := "3.2.0",
+    excludeDependencies += "log4j" % "log4j"
   )
 }

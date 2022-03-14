@@ -2,6 +2,10 @@
 
 ## 0.10.x
 
+### 0.10.1
+
+* Fix UDTs registration ordering [#573](https://github.com/locationtech/rasterframes/pull/573)
+
 ### 0.10.0
 
 * Upgraded to Scala 2.12 , Spark 3.1.2, and GeoTrellis 3.6.0 (a subtantial accomplishment!)

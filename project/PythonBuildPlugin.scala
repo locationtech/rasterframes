@@ -83,7 +83,7 @@ object PythonBuildPlugin extends AutoPlugin {
     val log = streams.value.log
     val buildDir = (Python / target).value
     val asmbl = (Compile / assembly).value
-    val dest = buildDir / "deps" / "jars" / asmbl.getName
+    val dest = buildDir / "pyrasterframes" / "jars" / asmbl.getName
     IO.copyFile(asmbl, dest)
     log.info(s"PyRasterFrames assembly written to '$dest'")
     dest
@@ -93,7 +93,7 @@ object PythonBuildPlugin extends AutoPlugin {
     val log = streams.value.log
     val buildDir = (Python / target).value
 
-    val jars = (buildDir / "deps" / "jars" ** "*.jar").get()
+    val jars = (buildDir / "pyrasterframes" / "jars" ** "*.jar").get()
     if (jars.size > 1) {
       throw new MessageOnlyException("Two assemblies found in the package. Run 'clean'.\n" + jars.mkString(", "))
     }

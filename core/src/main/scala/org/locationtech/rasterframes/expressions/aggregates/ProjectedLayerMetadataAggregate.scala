@@ -34,6 +34,7 @@ import org.apache.spark.sql.types.{DataType, StructType}
 import org.apache.spark.sql.{Column, Row, TypedColumn}
 
 class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: Dimensions[Int]) extends UserDefinedAggregateFunction {
+
   import ProjectedLayerMetadataAggregate._
 
   def inputSchema: StructType = InputRecord.inputRecordEncoder.schema
@@ -47,10 +48,10 @@ class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: Dimensions[Int]) e
   def initialize(buffer: MutableAggregationBuffer): Unit = ()
 
   def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    if(!input.isNullAt(0)) {
+    if (!input.isNullAt(0)) {
       val in = input.as[InputRecord]
 
-      if(buffer.isNullAt(0)) {
+      if (buffer.isNullAt(0)) {
         in.toBufferRecord(destCRS).write(buffer)
       } else {
         val br = buffer.as[BufferRecord]
@@ -71,16 +72,15 @@ class ProjectedLayerMetadataAggregate(destCRS: CRS, destDims: Dimensions[Int]) e
       case _ => ()
     }
 
-  def evaluate(buffer: Row): Any = {
-    val buf = buffer.as[BufferRecord]
-    if (buf.isEmpty) throw new IllegalArgumentException("Can not collect metadata from empty data frame.")
+  def evaluate(buffer: Row): Any =
+    Option(buffer).map(_.as[BufferRecord]).filter(!_.isEmpty).map(buf => {
+      val re = RasterExtent(buf.extent, buf.cellSize)
+      val layout = LayoutDefinition(re, destDims.cols, destDims.rows)
 
-    val re = RasterExtent(buf.extent, buf.cellSize)
-    val layout = LayoutDefinition(re, destDims.cols, destDims.rows)
+      val kb = KeyBounds(layout.mapTransform(buf.extent))
+      TileLayerMetadata(buf.cellType, layout, buf.extent, destCRS, kb).toRow
 
-    val kb = KeyBounds(layout.mapTransform(buf.extent))
-    TileLayerMetadata(buf.cellType, layout, buf.extent, destCRS, kb).toRow
-  }
+    }).getOrElse(throw new IllegalArgumentException("Can not collect metadata from empty data frame."))
 }
 
 object ProjectedLayerMetadataAggregate {

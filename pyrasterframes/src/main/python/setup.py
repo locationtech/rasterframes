@@ -140,14 +140,14 @@ class PweaveNotebooks(PweaveDocs):
 # to throw a `NotImplementedError: Can't perform this operation for unregistered loader type`
 pytest = 'pytest>=4.0.0,<5.0.0'
 
-pyspark = 'pyspark==3.1.1'
+pyspark = 'pyspark==3.1.2'
 boto3 = 'boto3'
 deprecation = 'deprecation'
 descartes = 'descartes'
 matplotlib = 'matplotlib'
 fiona = 'fiona'
 folium = 'folium'
-gdal = 'gdal==3.1.2'
+gdal = 'gdal'
 geopandas = 'geopandas'
 ipykernel = 'ipykernel'
 ipython = 'ipython'
@@ -232,9 +232,6 @@ setup(
         'geomesa_pyspark',
         'pyrasterframes.jars',
     ],
-    package_dir={
-        'pyrasterframes.jars': 'deps/jars'
-    },
     package_data={
         'pyrasterframes.jars': ['*.jar']
     },
