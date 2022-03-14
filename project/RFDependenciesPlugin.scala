@@ -69,10 +69,10 @@ object RFDependenciesPlugin extends AutoPlugin {
       "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
       "jitpack" at "https://jitpack.io"
     ),
-    // dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.f746890",
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "3.1.2",
-    rfGeoTrellisVersion := "3.6.1-SNAPSHOT",
-    rfGeoMesaVersion := "3.2.0"
+    rfGeoTrellisVersion := "3.6.1",
+    rfGeoMesaVersion := "3.2.0",
+    excludeDependencies += "log4j" % "log4j"
   )
 }

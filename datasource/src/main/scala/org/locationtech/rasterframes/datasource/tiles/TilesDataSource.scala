@@ -87,7 +87,6 @@ class TilesDataSource extends DataSourceRegister with CreatableRelationProvider 
     val fName = "catalog.csv"
     val hPath = new Path(new Path(pathURI), "_" + fName)
     pipeline
-      .coalesce(1)
       .write
       .option("header", "true")
       .csv(hPath.toString)
