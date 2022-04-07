@@ -56,7 +56,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.15"
     val frameless = "org.typelevel" %% "frameless-dataset-spark31" % "0.11.1"
     val framelessRefined = "org.typelevel" %% "frameless-refined-spark31" % "0.11.1"
-    val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
+    val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" 
   }
   import autoImport._
 

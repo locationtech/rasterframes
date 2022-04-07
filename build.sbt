@@ -19,7 +19,7 @@
  *
  */
 
-// Leave me an my custom keys alone!
+// Leave me and my custom keys alone!
 Global / lintUnusedKeysOnLoad := false
 
 addCommandAlias("makeSite", "docs/makeSite")
