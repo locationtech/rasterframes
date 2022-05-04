@@ -70,7 +70,7 @@ object RFDependenciesPlugin extends AutoPlugin {
       "jitpack" at "https://jitpack.io"
     ),
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-    rfSparkVersion := "3.1.2",
+    rfSparkVersion := "3.1.3",
     rfGeoTrellisVersion := "3.6.1",
     rfGeoMesaVersion := "3.2.0",
     excludeDependencies += "log4j" % "log4j"
