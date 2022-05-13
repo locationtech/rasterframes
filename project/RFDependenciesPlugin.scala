@@ -57,6 +57,11 @@ object RFDependenciesPlugin extends AutoPlugin {
     val frameless = "org.typelevel" %% "frameless-dataset-spark31" % "0.11.1"
     val framelessRefined = "org.typelevel" %% "frameless-refined-spark31" % "0.11.1"
     val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
+
+    val geotoolsVersion    = "25.0"
+    val geotoolsMain      = "org.geotools" % "gt-main"      % geotoolsVersion
+    val geotoolsShapefile = "org.geotools" % "gt-shapefile" % geotoolsVersion
+    val geotoolsOpengis   = "org.geotools" % "gt-opengis"   % geotoolsVersion
   }
   import autoImport._
 
@@ -67,7 +72,8 @@ object RFDependenciesPlugin extends AutoPlugin {
       "boundless-releases" at "https://repo.boundlessgeo.com/main/",
       "Open Source Geospatial Foundation Repository" at "https://download.osgeo.org/webdav/geotools/",
       "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-      "jitpack" at "https://jitpack.io"
+      "jitpack" at "https://jitpack.io",
+      "osgeo-releases" at "https://repo.osgeo.org/repository/release/"
     ),
     // dependencyOverrides += "com.azavea.gdal" % "gdal-warp-bindings" % "33.f746890",
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py

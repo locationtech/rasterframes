@@ -128,7 +128,11 @@ lazy val datasource = project
       spark("core").value % Provided,
       spark("mllib").value % Provided,
       spark("sql").value % Provided,
-      `better-files`
+      `better-files`,
+      geotrellis("shapefile").value,
+      geotoolsMain,
+      geotoolsOpengis,
+      geotoolsShapefile
     ),
     Compile / console / scalacOptions ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
     Test / console / scalacOptions ~= { _.filterNot(Set("-Ywarn-unused-import", "-Ywarn-unused:imports")) },
