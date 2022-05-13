@@ -28,7 +28,8 @@ import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
 import sttp.model.Uri
 
-import java.net.URI
+import java.io.File
+import java.net.{URI, URL}
 import scala.util.Try
 
 /**
@@ -64,6 +65,25 @@ package object datasource {
   def uriParam(key: String, parameters: CaseInsensitiveStringMap): Option[Uri] =
     if(parameters.containsKey(key)) Uri.parse(parameters.get(key)).toOption
     else None
+
+  private[rasterframes]
+  def urlParam(key: String, parameters: Map[String, String]): Option[URL] =
+    parameters.get(key).flatMap { p =>
+      Try {
+        if (p.contains("://")) new URL(p)
+        else new URL(s"file://${new File(p).getAbsolutePath}")
+      }.toOption
+    }
+
+  private[rasterframes]
+  def urlParam(key: String, parameters: CaseInsensitiveStringMap): Option[URL] =
+    if(parameters.containsKey(key)) {
+      val p = parameters.get(key)
+      Try {
+        if (p.contains("://")) new URL(p)
+        else new URL(s"file://${new File(p).getAbsolutePath}")
+      }.toOption
+    } else None
 
   private[rasterframes]
   def jsonParam(key: String, parameters: Map[String, String]): Option[Json] =

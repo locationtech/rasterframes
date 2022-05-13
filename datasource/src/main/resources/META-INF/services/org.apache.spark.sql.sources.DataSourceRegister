@@ -6,3 +6,4 @@ org.locationtech.rasterframes.datasource.geojson.GeoJsonDataSource
 org.locationtech.rasterframes.datasource.stac.api.StacApiDataSource
 org.locationtech.rasterframes.datasource.tiles.TilesDataSource
 org.locationtech.rasterframes.datasource.slippy.SlippyDataSource
+org.locationtech.rasterframes.datasource.shapefile.ShapeFileDataSource
