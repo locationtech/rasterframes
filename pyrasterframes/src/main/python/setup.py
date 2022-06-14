@@ -140,7 +140,7 @@ class PweaveNotebooks(PweaveDocs):
 # to throw a `NotImplementedError: Can't perform this operation for unregistered loader type`
 pytest = 'pytest>=4.0.0,<5.0.0'
 
-pyspark = 'pyspark==3.1.2'
+pyspark = 'pyspark==3.1.3'
 boto3 = 'boto3'
 deprecation = 'deprecation'
 descartes = 'descartes'

@@ -46,17 +46,17 @@ object RFDependenciesPlugin extends AutoPlugin {
       }
     }
     val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
-    val shapeless = "com.chuusai" %% "shapeless" % "2.3.7"
-    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.17.0"
-    val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.28"
-    val scaffeine = "com.github.blemale" %% "scaffeine" % "4.0.2"
-    val `spray-json` = "io.spray" %%  "spray-json" % "1.3.4"
-    val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
+    val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
+    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.18.2"
+    val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.36"
+    val scaffeine = "com.github.blemale" %% "scaffeine" % "5.1.2"
+    val `spray-json` = "io.spray" %%  "spray-json" % "1.3.6"
+    val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
     val stac4s = "com.azavea.stac4s" %% "client" % "0.7.2"
-    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.15"
+    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.5.1"
     val frameless = "org.typelevel" %% "frameless-dataset-spark31" % "0.11.1"
     val framelessRefined = "org.typelevel" %% "frameless-refined-spark31" % "0.11.1"
-    val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
+    val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" 
   }
   import autoImport._
 
@@ -70,7 +70,7 @@ object RFDependenciesPlugin extends AutoPlugin {
       "jitpack" at "https://jitpack.io"
     ),
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-    rfSparkVersion := "3.1.2",
+    rfSparkVersion := "3.1.3",
     rfGeoTrellisVersion := "3.6.1",
     rfGeoMesaVersion := "3.2.0",
     excludeDependencies += "log4j" % "log4j"
