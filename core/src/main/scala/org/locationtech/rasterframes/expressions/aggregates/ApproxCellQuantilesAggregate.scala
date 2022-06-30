@@ -71,7 +71,7 @@ case class ApproxCellQuantilesAggregate(probabilities: Seq[Double], relativeErro
 
   def evaluate(buffer: Row): Seq[Double] = {
     val summaries = buffer.getStruct(0).as[QuantileSummaries]
-    probabilities.flatMap(summaries.query)
+    probabilities.flatMap(quantile => summaries.query(quantile))
   }
 }
 
