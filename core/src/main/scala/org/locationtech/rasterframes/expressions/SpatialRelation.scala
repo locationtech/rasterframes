@@ -39,7 +39,10 @@ import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
  *
  * @since 12/28/17
  */
-abstract class SpatialRelation extends BinaryExpression with CodegenFallback {
+abstract class SpatialRelation extends BinaryExpression with CodegenFallback { this: HasBinaryExpressionCopy =>
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression =
+    copy(left = newLeft, right = newRight)
 
   def extractGeometry(expr: Expression, input: Any): Geometry = {
     input match {
@@ -72,8 +75,11 @@ object SpatialRelation {
   type RelationPredicate = (Geometry, Geometry) => java.lang.Boolean
 
   case class Intersects(left: Expression, right: Expression) extends SpatialRelation {
-    override def nodeName = "intersects"
+    override def nodeName: String = "intersects"
     val relation = ST_Intersects
+
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression =
+      copy(left = newLeft, right = newRight)
   }
   case class Contains(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "contains"

@@ -25,7 +25,7 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.UnaryExpression
+import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
 import org.locationtech.rasterframes.model.TileContext
 
 /**
@@ -34,7 +34,8 @@ import org.locationtech.rasterframes.model.TileContext
  *
  * @since 11/3/18
  */
-trait OnTileContextExpression extends UnaryExpression {
+trait OnTileContextExpression extends UnaryExpression { self: HasUnaryExpressionCopy =>
+  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!projectedRasterLikeExtractor.isDefinedAt(child.dataType)) {

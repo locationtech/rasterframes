@@ -50,14 +50,15 @@ import org.locationtech.rasterframes.expressions.{RasterResult, row}
 case class RGBComposite(red: Expression, green: Expression, blue: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
 
   override def nodeName: String = "rf_rgb_composite"
+  def first: Expression = red
+  def second: Expression = green
+  def third: Expression = blue
 
   def dataType: DataType = if(
     tileExtractor.isDefinedAt(red.dataType) ||
       tileExtractor.isDefinedAt(green.dataType) ||
       tileExtractor.isDefinedAt(blue.dataType)
   ) red.dataType else tileUDT
-
-  def children: Seq[Expression] = Seq(red, green, blue)
 
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(red.dataType)) {
@@ -86,6 +87,8 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
     ).color()
     toInternalRow(composite, ctx)
   }
+
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object RGBComposite {

@@ -39,22 +39,20 @@ import org.slf4j.LoggerFactory
 
 /** Convert cells in the `left` to NoData based on another tile's contents
   *
-  * @param left a tile of data values, with valid nodata cell type
-  * @param middle a tile indicating locations to set to nodata
-  * @param right optional, cell values in the `middle` tile indicating locations to set NoData
+  * @param first a tile of data values, with valid nodata cell type
+  * @param second a tile indicating locations to set to nodata
+  * @param third optional, cell values in the `middle` tile indicating locations to set NoData
   * @param undefined if true, consider NoData in the `middle` as the locations to mask; else use `right` valued cells
   * @param inverse if true, and defined is true, set `left` to NoData where `middle` is NOT nodata
   */
-abstract class Mask(val left: Expression, val middle: Expression, val right: Expression, undefined: Boolean, inverse: Boolean)
+abstract class Mask(val first: Expression, val second: Expression, val third: Expression, undefined: Boolean, inverse: Boolean)
   extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
   // aliases.
-  def targetExp: Expression = left
-  def maskExp: Expression = middle
-  def maskValueExp: Expression = right
+  def targetExp: Expression = first
+  def maskExp: Expression = second
+  def maskValueExp: Expression = third
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
-
-  def children: Seq[Expression] = Seq(left, middle, right)
 
   override def checkInputDataTypes(): TypeCheckResult =
     if (!tileExtractor.isDefinedAt(targetExp.dataType)) {
@@ -65,7 +63,7 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
       TypeCheckFailure(s"Input type '${maskValueExp.dataType}' isn't an integral type.")
     } else TypeCheckSuccess
 
-  def dataType: DataType = left.dataType
+  def dataType: DataType = first.dataType
 
   override def makeCopy(newArgs: Array[AnyRef]): Expression = super.makeCopy(newArgs)
 
@@ -73,17 +71,17 @@ abstract class Mask(val left: Expression, val middle: Expression, val right: Exp
     val (targetTile, targetCtx) = tileExtractor(targetExp.dataType)(row(targetInput))
 
     require(! targetTile.cellType.isInstanceOf[NoNoData],
-      s"Input data expression ${left.prettyName} must have a CellType with NoData defined in order to perform a masking operation. Found CellType ${targetTile.cellType.toString()}.")
+      s"Input data expression ${first.prettyName} must have a CellType with NoData defined in order to perform a masking operation. Found CellType ${targetTile.cellType.toString()}.")
 
     val (maskTile, maskCtx) = tileExtractor(maskExp.dataType)(row(maskInput))
 
     if (targetCtx.isEmpty && maskCtx.isDefined)
       logger.warn(
-          s"Right-hand parameter '${middle}' provided an extent and CRS, but the left-hand parameter " +
-            s"'${left}' didn't have any. Because the left-hand side defines output type, the right-hand context will be lost.")
+          s"Right-hand parameter '${second}' provided an extent and CRS, but the left-hand parameter " +
+            s"'${first}' didn't have any. Because the left-hand side defines output type, the right-hand context will be lost.")
 
     if (targetCtx.isDefined && maskCtx.isDefined && targetCtx != maskCtx)
-      logger.warn(s"Both '${left}' and '${middle}' provided an extent and CRS, but they are different. Left-hand side will be used.")
+      logger.warn(s"Both '${first}' and '${second}' provided an extent and CRS, but they are different. Left-hand side will be used.")
 
     val maskValue = intArgExtractor(maskValueExp.dataType)(maskValueInput)
 
@@ -112,6 +110,8 @@ object Mask {
   )
   case class MaskByDefined(target: Expression, mask: Expression) extends Mask(target, mask, Literal(0), true, false) {
     override def nodeName: String = "rf_mask"
+
+    override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = ???
   }
   object MaskByDefined {
     def apply(targetTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
@@ -131,6 +131,9 @@ object Mask {
   )
   case class InverseMaskByDefined(leftTile: Expression, rightTile: Expression) extends Mask(leftTile, rightTile, Literal(0), true, true) {
     override def nodeName: String = "rf_inverse_mask"
+
+    override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+      copy(leftTile = newFirst, rightTile = newSecond)
   }
   object InverseMaskByDefined {
     def apply(srcTile: Column, maskingTile: Column): TypedColumn[Any, Tile] =
@@ -150,6 +153,9 @@ object Mask {
   )
   case class MaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression) extends Mask(leftTile, rightTile, maskValue, false, false) {
     override def nodeName: String = "rf_mask_by_value"
+
+    override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+      copy(leftTile = newFirst, rightTile = newSecond, maskValue = newThird)
   }
   object MaskByValue {
     def apply(srcTile: Column, maskingTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
@@ -171,6 +177,9 @@ object Mask {
   )
   case class InverseMaskByValue(leftTile: Expression, rightTile: Expression, maskValue: Expression) extends Mask(leftTile, rightTile, maskValue, false, true) {
     override def nodeName: String = "rf_inverse_mask_by_value"
+
+    override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+      copy(leftTile = newFirst, rightTile = newSecond)
   }
   object InverseMaskByValue {
     def apply(srcTile: Column, maskingTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
@@ -194,6 +203,8 @@ object Mask {
     def this(dataTile: Expression, maskTile: Expression, maskValues: Expression) =
       this(dataTile, IsIn(maskTile, maskValues))
     override def nodeName: String = "rf_mask_by_values"
+
+    override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = ???
   }
   object MaskByValues {
     def apply(dataTile: Column, maskTile: Column, maskValues: Column): TypedColumn[Any, Tile] =

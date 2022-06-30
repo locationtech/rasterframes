@@ -91,6 +91,9 @@ case class Hillshade(first: Expression, second: Expression, third: Expression, f
     case bt: BufferTile => bt.mapTile(_.hillshade(CellSize(ctx.extent, cols = t.cols, rows = t.rows), azimuth, altitude, zFactor, target = target))
     case _ => t.hillshade(CellSize(ctx.extent, cols = t.cols, rows = t.rows), azimuth, altitude, zFactor, target = target)
   }
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression =
+    copy(newChildren(0), newChildren(1), newChildren(2), newChildren(3), newChildren(4))
 }
 
 object Hillshade {

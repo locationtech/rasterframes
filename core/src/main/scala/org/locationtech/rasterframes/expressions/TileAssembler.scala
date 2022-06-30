@@ -140,6 +140,14 @@ case class TileAssembler(
 
   def serialize(buffer: TileBuffer): Array[Byte] = buffer.serialize()
   def deserialize(storageFormat: Array[Byte]): TileBuffer = new TileBuffer(storageFormat)
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(
+    colIndex = newChildren(0),
+    rowIndex = newChildren(1),
+    cellValue = newChildren(2),
+    tileCols = newChildren(3),
+    tileRows = newChildren(4)
+  )
 }
 
 object TileAssembler {

@@ -23,12 +23,13 @@ package org.locationtech.rasterframes.expressions
 
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.Tile
+import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.model.TileContext
 import org.slf4j.LoggerFactory
 
 /** Operation on a tile returning a tile. */
-trait UnaryRasterOp extends UnaryRasterFunction with RasterResult {
+trait UnaryRasterOp extends UnaryRasterFunction with RasterResult { this: HasUnaryExpressionCopy =>
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   def dataType: DataType = child.dataType
@@ -37,5 +38,7 @@ trait UnaryRasterOp extends UnaryRasterFunction with RasterResult {
     toInternalRow(op(tile), ctx)
 
   protected def op(child: Tile): Tile
+
+  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 

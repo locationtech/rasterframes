@@ -85,6 +85,8 @@ case class SetCellType(tile: Expression, cellType: Expression) extends BinaryExp
     val result = tile.convert(ct)
     toInternalRow(result, ctx)
   }
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object SetCellType {

@@ -78,6 +78,7 @@ case class ExplodeTiles(sampleFraction: Double , seed: Option[Long], override va
       val Dimensions(cols, rows) = dims.head
 
       val retval = Array.ofDim[InternalRow](cols * rows)
+
       cfor(0)(_ < rows, _ + 1) { row =>
         cfor(0)(_ < cols, _ + 1) { col =>
           val rowIndex = row * cols + col
@@ -95,6 +96,8 @@ case class ExplodeTiles(sampleFraction: Double , seed: Option[Long], override va
       else retval
     }
   }
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(children=newChildren)
 }
 
 object ExplodeTiles {

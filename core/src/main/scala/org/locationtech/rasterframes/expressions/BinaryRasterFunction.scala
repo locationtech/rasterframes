@@ -25,13 +25,14 @@ import com.typesafe.scalalogging.Logger
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.BinaryExpression
+import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression}
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import org.slf4j.LoggerFactory
 
 /** Operation combining two tiles or a tile and a scalar into a new tile. */
-trait BinaryRasterFunction extends BinaryExpression with RasterResult {
+trait BinaryRasterFunction extends BinaryExpression with RasterResult { self: HasBinaryExpressionCopy =>
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 

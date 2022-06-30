@@ -21,39 +21,37 @@ import org.slf4j.LoggerFactory
         * x - tile with cell values to return if condition is true
         * y - tile with cell values to return if condition is false"""
 )
-case class Where(left: Expression, middle: Expression, right: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
+case class Where(first: Expression, second: Expression, third: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
 
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
-  def dataType: DataType = middle.dataType
-
-  def children: Seq[Expression] = Seq(left, middle, right)
+  def dataType: DataType = second.dataType
 
   override val nodeName = "rf_where"
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!tileExtractor.isDefinedAt(left.dataType)) {
-      TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a Tile type")
-    } else if (!tileExtractor.isDefinedAt(middle.dataType)) {
-      TypeCheckFailure(s"Input type '${middle.dataType}' does not conform to a Tile type")
-    } else if (!tileExtractor.isDefinedAt(right.dataType)) {
-      TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a Tile type")
+    if (!tileExtractor.isDefinedAt(first.dataType)) {
+      TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a Tile type")
+    } else if (!tileExtractor.isDefinedAt(second.dataType)) {
+      TypeCheckFailure(s"Input type '${second.dataType}' does not conform to a Tile type")
+    } else if (!tileExtractor.isDefinedAt(third.dataType)) {
+      TypeCheckFailure(s"Input type '${third.dataType}' does not conform to a Tile type")
     }
     else TypeCheckSuccess
   }
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    val (conditionTile, conditionCtx) = tileExtractor(left.dataType)(row(input1))
-    val (xTile, xCtx) = tileExtractor(middle.dataType)(row(input2))
-    val (yTile, yCtx) = tileExtractor(right.dataType)(row(input3))
+    val (conditionTile, conditionCtx) = tileExtractor(first.dataType)(row(input1))
+    val (xTile, xCtx) = tileExtractor(second.dataType)(row(input2))
+    val (yTile, yCtx) = tileExtractor(third.dataType)(row(input3))
 
     if (xCtx.isEmpty && yCtx.isDefined)
     logger.warn(
-      s"Middle parameter '${middle}' provided an extent and CRS, but the right parameter " +
-        s"'${right}' didn't have any. Because the middle defines output type, the right-hand context will be lost.")
+      s"Middle parameter '${second}' provided an extent and CRS, but the right parameter " +
+        s"'${third}' didn't have any. Because the middle defines output type, the right-hand context will be lost.")
 
     if(xCtx.isDefined && yCtx.isDefined && xCtx != yCtx)
-      logger.warn(s"Both '${middle}' and '${right}' provided an extent and CRS, but they are different. The former will be used.")
+      logger.warn(s"Both '${second}' and '${third}' provided an extent and CRS, but they are different. The former will be used.")
 
     val result = op(conditionTile, xTile, yTile)
     toInternalRow(result, xCtx)
@@ -84,6 +82,7 @@ case class Where(left: Expression, middle: Expression, right: Expression) extend
     returnTile
   }
 
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 object Where {
   def apply(condition: Column, x: Column, y: Column): Column = new Column(Where(condition.expr, x.expr, y.expr))

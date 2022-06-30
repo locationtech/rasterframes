@@ -81,6 +81,8 @@ case class InterpretAs(tile: Expression, cellType: Expression) extends BinaryExp
     val result = tile.interpretAs(ct)
     toInternalRow(result, ctx)
   }
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object InterpretAs{

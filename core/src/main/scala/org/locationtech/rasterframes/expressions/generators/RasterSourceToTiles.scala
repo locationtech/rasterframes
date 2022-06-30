@@ -84,6 +84,8 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
         Traversable.empty
     }
   }
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(children=newChildren)
 }
 
 object RasterSourceToTiles {

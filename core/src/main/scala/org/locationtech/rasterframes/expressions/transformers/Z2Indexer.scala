@@ -82,6 +82,9 @@ case class Z2Indexer(left: Expression, right: Expression, indexResolution: Short
 
     indexer.index(pt.getX, pt.getY, lenient = true)
   }
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression =
+    copy(newLeft, newRight)
 }
 
 object Z2Indexer {

@@ -38,7 +38,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
     > SELECT _FUNC_(tile, 'square-1', 'all');
        ..."""
 )
-case class FocalMin(left: Expression, middle: Expression, right: Expression) extends FocalNeighborhoodOp {
+case class FocalMin(first: Expression, second: Expression, third: Expression) extends FocalNeighborhoodOp {
   override def nodeName: String = FocalMin.name
   protected def op(t: Tile, neighborhood: Neighborhood, target: TargetCell): Tile = t match {
     case bt: BufferTile => bt.focalMin(neighborhood, target = target)

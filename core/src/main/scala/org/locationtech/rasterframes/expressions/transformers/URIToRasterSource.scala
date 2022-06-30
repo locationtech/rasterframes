@@ -53,6 +53,8 @@ case class URIToRasterSource(override val child: Expression) extends UnaryExpres
     val ref = RFRasterSource(uri)
     rasterSourceUDT.serialize(ref)
   }
+
+  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object URIToRasterSource {

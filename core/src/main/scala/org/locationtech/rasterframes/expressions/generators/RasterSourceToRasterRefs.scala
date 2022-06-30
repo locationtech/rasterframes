@@ -82,6 +82,8 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
             .toOption.toSeq.flatten.mkString(", ")
         throw new java.lang.IllegalArgumentException(description, ex)
     }
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(children=newChildren)
 }
 
 object RasterSourceToRasterRefs {

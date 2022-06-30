@@ -41,8 +41,10 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors._
 abstract class ResampleBase(left: Expression, right: Expression, method: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
 
   override val nodeName: String = "rf_resample"
+  def first: Expression = left
+  def second: Expression = right
+  def third: Expression = method
   def dataType: DataType = left.dataType
-  def children: Seq[Expression] = Seq(left, right, method)
 
   def targetFloatIfNeeded(t: Tile, method: GTResampleMethod): Tile =
     method match {
@@ -127,7 +129,9 @@ Examples:
   > SELECT _FUNC_(tile1, tile2, lit("cubic_spline"));
      ..."""
 )
-case class Resample(left: Expression, factor: Expression, method: Expression) extends ResampleBase(left, factor, method)
+case class Resample(left: Expression, factor: Expression, method: Expression) extends ResampleBase(left, factor, method) {
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
+}
 
 object Resample {
   def apply(left: Column, right: Column, methodName: String): Column =
@@ -156,6 +160,9 @@ object Resample {
        ...""")
 case class ResampleNearest(tile: Expression, target: Expression) extends ResampleBase(tile, target, Literal("nearest")) {
   override val nodeName: String = "rf_resample_nearest"
+
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+    ResampleNearest(tile, target)
 }
 object ResampleNearest {
   def apply(tile: Column, target: Column): Column = new Column(ResampleNearest(tile.expr, target.expr))

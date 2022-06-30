@@ -46,27 +46,25 @@ import org.locationtech.rasterframes.expressions.tilestats.TileStats
     > SELECT  _FUNC_(tile, lit(-2.2), lit(2.2))
        ..."""
 )
-case class Rescale(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
+case class Rescale(first: Expression, second: Expression, third: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
   override val nodeName: String = "rf_rescale"
 
-  def children: Seq[Expression] = Seq(child1, child2, child3)
-
-  def dataType: DataType = child1.dataType
+  def dataType: DataType = first.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if(!tileExtractor.isDefinedAt(child1.dataType)) {
-      TypeCheckFailure(s"Input type '${child1.dataType}' does not conform to a raster type.")
-    } else if (!doubleArgExtractor.isDefinedAt(child2.dataType)) {
-      TypeCheckFailure(s"Input type '${child2.dataType}' isn't floating point type.")
-    } else if (!doubleArgExtractor.isDefinedAt(child3.dataType)) {
-      TypeCheckFailure(s"Input type '${child3.dataType}' isn't floating point type." )
+    if(!tileExtractor.isDefinedAt(first.dataType)) {
+      TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a raster type.")
+    } else if (!doubleArgExtractor.isDefinedAt(second.dataType)) {
+      TypeCheckFailure(s"Input type '${second.dataType}' isn't floating point type.")
+    } else if (!doubleArgExtractor.isDefinedAt(third.dataType)) {
+      TypeCheckFailure(s"Input type '${third.dataType}' isn't floating point type." )
     } else TypeCheckSuccess
 
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    val (childTile, childCtx) = tileExtractor(child1.dataType)(row(input1))
-    val min =  doubleArgExtractor(child2.dataType)(input2).value
-    val max = doubleArgExtractor(child3.dataType)(input3).value
+    val (childTile, childCtx) = tileExtractor(first.dataType)(row(input1))
+    val min =  doubleArgExtractor(second.dataType)(input2).value
+    val max = doubleArgExtractor(third.dataType)(input3).value
     val result = op(childTile, min, max)
     toInternalRow(result, childCtx)
   }
@@ -81,6 +79,8 @@ case class Rescale(child1: Expression, child2: Expression, child3: Expression) e
         .normalize(min, max, 0.0, 1.0)
   }
 
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+    copy(newFirst, newSecond, newThird)
 }
 
 object Rescale {

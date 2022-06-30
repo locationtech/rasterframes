@@ -53,6 +53,8 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
     val ref = input.asInstanceOf[InternalRow].as[RasterRef]
     ProjectedRasterTile(ref.tile, ref.extent, ref.crs).toInternalRow
   }
+
+  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object RasterRefToTile {

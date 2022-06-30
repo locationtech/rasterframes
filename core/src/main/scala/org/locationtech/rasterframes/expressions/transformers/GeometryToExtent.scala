@@ -55,6 +55,8 @@ case class GeometryToExtent(child: Expression) extends UnaryExpression with Code
     val geom = JTSTypes.GeometryTypeInstance.deserialize(input)
     Extent(geom.getEnvelopeInternal).toInternalRow
   }
+
+  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GeometryToExtent {
