@@ -33,15 +33,17 @@ import org.locationtech.rasterframes.encoders.syntax._
 import scala.reflect.runtime.universe._
 
 /** Mixin providing boilerplate for DeclarativeAggrates over tile-conforming columns. */
-trait UnaryRasterAggregate extends DeclarativeAggregate {
+trait UnaryRasterAggregate extends DeclarativeAggregate { self: HasUnaryExpressionCopy =>
   def child: Expression
 
   def nullable: Boolean = child.nullable
 
-  def children = Seq(child)
+  def children: Seq[Expression] = Seq(child)
 
   protected def tileOpAsExpression[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
     udfiexpr[R, Any](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny(dataType, a)))
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(newChildren(0))
 }
 
 object UnaryRasterAggregate {

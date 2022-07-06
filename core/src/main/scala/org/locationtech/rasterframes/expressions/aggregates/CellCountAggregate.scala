@@ -22,7 +22,7 @@
 package org.locationtech.rasterframes.expressions.aggregates
 
 import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
-import org.locationtech.rasterframes.expressions.UnaryRasterAggregate
+import org.locationtech.rasterframes.expressions.{HasUnaryExpressionCopy, UnaryRasterAggregate}
 import org.locationtech.rasterframes.expressions.tilestats.{DataCells, NoDataCells}
 import org.apache.spark.sql.catalyst.dsl.expressions._
 import org.apache.spark.sql.catalyst.expressions._
@@ -35,7 +35,7 @@ import org.apache.spark.sql.{Column, TypedColumn}
  * @since 10/5/17
  * @param isData true if count should be of non-NoData cells, false if count should be of NoData cells.
  */
-abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate {
+abstract class CellCountAggregate(isData: Boolean) extends UnaryRasterAggregate { self: HasUnaryExpressionCopy =>
   private lazy val count = AttributeReference("count", LongType, false, Metadata.empty)()
 
   override lazy val aggBufferAttributes = Seq(count)
@@ -69,6 +69,7 @@ object CellCountAggregate {
   case class DataCells(child: Expression) extends CellCountAggregate(true) {
     override def nodeName: String = "rf_agg_data_cells"
   }
+
   object DataCells {
     def apply(tile: Column): TypedColumn[Any, Long] =
       new Column(DataCells(tile.expr).toAggregateExpression()).as[Long]
