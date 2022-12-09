@@ -37,9 +37,9 @@ class RaterSourceDataSourceIT extends TestEnvironment with TestData {
         rf.select(rf_extent($"proj_raster").alias("extent"), rf_crs($"proj_raster").alias("crs"), rf_tile($"proj_raster").alias("target"))
 
       val cat =
-        """
+      s"""
       B3,B5
-      https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/021/028/LC08_L1TP_021028_20180515_20180604_01_T1/LC08_L1TP_021028_20180515_20180604_01_T1_B3.TIF,https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/021/028/LC08_L1TP_021028_20180515_20180604_01_T1/LC08_L1TP_021028_20180515_20180604_01_T1_B5.TIF
+      ${remoteCOGSingleband1},${remoteCOGSingleband2}
       """
 
       val features_rf = spark.read.raster
