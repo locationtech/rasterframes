@@ -20,7 +20,6 @@
  */
 
 package org.locationtech.rasterframes.expressions.aggregates
-
 import geotrellis.layer._
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
@@ -48,6 +47,7 @@ class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends Aggregator
   override def zero: MutableArrayTile = ArrayTile.empty(prd.destinationCellType, prd.totalCols, prd.totalRows)
 
   override def reduce(b: Tile, a: ProjectedRasterTile): Tile = {
+    // TODO: this is not right, got to use dynamic reprojection for this extent
     val localExtent = a.extent.reproject(a.crs, prd.destinationCRS)
     if (prd.destinationExtent.intersects(localExtent)) {
       val localTile = a.tile.reproject(a.extent, a.crs, prd.destinationCRS, projOpts)
@@ -81,13 +81,13 @@ object TileRasterizerAggregate {
     }
   }
 
-  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Tile] = {
+  def apply(prd: ProjectedRasterDefinition, tileCol: Column, extentCol: Column, crsCol: Column): TypedColumn[Any, Tile] = {
     if (prd.totalCols.toDouble * prd.totalRows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
       logger.warn(
         s"You've asked for the construction of a very large image (${prd.totalCols} x ${prd.totalRows}). Out of memory error likely.")
 
     udaf(new TileRasterizerAggregate(prd))
-      .apply(crsCol, extentCol, tileCol)
+      .apply(tileCol, extentCol, crsCol)
       .as("rf_agg_overview_raster")
       .as[Tile]
   }

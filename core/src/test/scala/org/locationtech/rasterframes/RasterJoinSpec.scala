@@ -81,7 +81,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
       // create a Raster from tile2 which should be almost equal to b4nativeTif
       val agg = joined.agg(TileRasterizerAggregate(
         ProjectedRasterDefinition(b4nativeTif.cols, b4nativeTif.rows, b4nativeTif.cellType, b4nativeTif.crs, b4nativeTif.extent, Bilinear),
-        $"crs", $"extent", $"tile2") as "raster"
+        $"tile2", $"extent", $"crs") as "raster"
       ).select(col("raster").as[Tile])
 
       val raster = Raster(agg.first(), srcExtent)
