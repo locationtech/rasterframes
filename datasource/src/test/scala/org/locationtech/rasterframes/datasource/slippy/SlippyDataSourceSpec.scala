@@ -5,16 +5,18 @@
 package org.locationtech.rasterframes.datasource.slippy
 
 import better.files._
+import org.apache.spark.sql.functions.col
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.datasource.raster._
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
+import org.scalatest.BeforeAndAfterAll
 
 class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndAfterAll {
-  import spark.implicits._
-
   val baseDir = File("target") / "slippy"
 
-  override def beforeAll() = baseDir.delete(swallowIOExceptions = true)
+  override def beforeAll() = {
+    super.beforeAll()
+    baseDir.delete(swallowIOExceptions = true)
+  }
 
   def countFiles(dir: File, extension: String): Int = {
     dir.list(f => f.isRegularFile && f.name.endsWith(extension)).length
@@ -44,7 +46,7 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
   val l8RGBPath = Resource.getUrl("LC08_RGB_Norfolk_COG.tiff").toURI
 
   describe("Slippy writing") {
-    val rf = spark.read.raster
+    lazy val rf = spark.read.raster
       .from(Seq(l8RGBPath))
       .withLazyTiles(false)
       .withTileDimensions(128, 128)
@@ -57,7 +59,7 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
 
     it("should write a singleband") {
       val dir = mkOutdir("single-")
-      rf.select($"red")
+      rf.select(col("red"))
         .write.slippy.withHTML.save(dir.toString)
       tileFilesCount(dir) should be (155L)
       view(dir)
@@ -65,7 +67,7 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
 
     it("should write with non-uniform coloring") {
       val dir = mkOutdir("quick-")
-      rf.select($"green")
+      rf.select(col("green"))
         .write.slippy.withColorRamp("BlueToOrange")
         .withHTML.save(dir.toString)
 
@@ -75,7 +77,7 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
 
     it("should write with uniform coloring") {
       val dir = mkOutdir("uniform-")
-      rf.select($"green")
+      rf.select(col("green"))
         .write.slippy
         .withColorRamp("Viridis")
         .withUniformColor
@@ -86,7 +88,7 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
     }
     it("should write greyscale") {
       val dir = mkOutdir("relation-hist-noramp-")
-      rf.select($"green")
+      rf.select(col("green"))
         .write.slippy
         .withUniformColor
         .withHTML
@@ -123,7 +125,7 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
     ignore("should write non-homogenous cell types") {
       val dir = mkOutdir(s"mixed-celltypes-")
       noException should be thrownBy {
-        rf.select(rf_log($"red"), $"green", $"blue")
+        rf.select(rf_log(col("red")), col("green"), col("blue"))
           .write.slippy.withHTML.save(dir.toString)
       }
 

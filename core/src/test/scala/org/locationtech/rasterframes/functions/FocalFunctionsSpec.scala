@@ -23,7 +23,6 @@ package org.locationtech.rasterframes.functions
 
 import geotrellis.raster.mapalgebra.focal.{Circle, Kernel, Square}
 import geotrellis.raster.{BufferTile, CellSize}
-import geotrellis.raster.testkit.RasterMatchers
 import org.locationtech.rasterframes.ref.{RFRasterSource, RasterRef, Subgrid}
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
@@ -33,7 +32,7 @@ import org.locationtech.rasterframes.encoders.serialized_literal
 
 import java.nio.file.Paths
 
-class FocalFunctionsSpec extends TestEnvironment with RasterMatchers {
+class FocalFunctionsSpec extends TestEnvironment {
 
   import spark.implicits._
 

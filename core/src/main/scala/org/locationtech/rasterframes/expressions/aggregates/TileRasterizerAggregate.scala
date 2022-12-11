@@ -137,7 +137,7 @@ object TileRasterizerAggregate {
 
     destExtent.map { ext => c.copy(destinationExtent = ext) }
 
-    val aggs = tileCols.map(t => TileRasterizerAggregate(config, rf_crs(crsCol), extCol, rf_tile(t)).as(t.columnName))
+    val aggs = tileCols.map(t => TileRasterizerAggregate(config, rf_tile(t), extCol, rf_crs(crsCol)).as(t.columnName))
 
     val agg = df.select(aggs: _*)
 

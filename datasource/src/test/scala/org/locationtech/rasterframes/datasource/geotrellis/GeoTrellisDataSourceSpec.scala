@@ -31,7 +31,6 @@ import org.locationtech.rasterframes.util._
 import geotrellis.proj4.LatLng
 import geotrellis.raster._
 import geotrellis.raster.resample.NearestNeighbor
-import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.spark._
 import geotrellis.spark.store.LayerWriter
 import geotrellis.store._
@@ -49,7 +48,7 @@ import org.scalatest.{BeforeAndAfterAll, Inspectors}
 
 import scala.math.{max, min}
 
-class GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll with Inspectors with RasterMatchers with DataSourceOptions {
+class GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll with Inspectors with DataSourceOptions {
   import TestData._
 
   val tileSize = 12
@@ -84,6 +83,7 @@ class GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll wi
   }
 
   override def beforeAll =  {
+    super.beforeAll()
     val outputDir = new File(layer.base)
     FileUtil.fullyDelete(outputDir)
     outputDir.deleteOnExit()
@@ -279,7 +279,7 @@ class GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll wi
       min(pt1.y, pt2.y), max(pt1.y, pt2.y)
     )
 
-    val targetKey = testRdd.metadata.mapTransform(pt1)
+    lazy val targetKey = testRdd.metadata.mapTransform(pt1)
 
     it("should support extent against a geometry literal") {
       val df: DataFrame = layerReader

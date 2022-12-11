@@ -31,7 +31,6 @@ import org.scalatest.BeforeAndAfter
 import org.locationtech.rasterframes.ref.RasterRef
 
 class RasterSourceDataSourceSpec extends TestEnvironment with TestData with BeforeAndAfter {
-  import spark.implicits._
 
   describe("DataSource parameter processing") {
     def singleCol(paths: Iterable[String]) = {
@@ -109,6 +108,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should read a multiband file") {
+      import spark.implicits._
+
       val df = spark.read
         .raster
         .withBandIndexes(0, 1, 2)
@@ -122,7 +123,10 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
       stats.select($"s0.mean" =!= $"s1.mean").as[Boolean].first() should be(true)
       stats.select($"s0.mean" =!= $"s2.mean").as[Boolean].first() should be(true)
     }
+
     it("should read a single file") {
+      import spark.implicits._
+
       // Image is 1028 x 989 -> 9 x 8 tiles
       val df = spark.read.raster
         .withTileDimensions(128, 128)
@@ -136,7 +140,10 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
 
       df.select($"${b}_path").distinct().count() should be(1)
     }
+
     it("should read a multiple files with one band") {
+      import spark.implicits._
+
       val df = spark.read.raster
         .from(Seq(cogPath, l8B1SamplePath, nonCogPath))
         .withTileDimensions(128, 128)
@@ -144,7 +151,10 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
       df.select($"${b}_path").distinct().count() should be(3)
       df.schema.size should be(2)
     }
+
     it("should read a multiple files with heterogeneous bands") {
+      import spark.implicits._
+
       val df = spark.read.raster
         .from(Seq(cogPath, l8B1SamplePath, nonCogPath))
         .withLazyTiles(false)
@@ -163,6 +173,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should read a set of coherent bands from multiple files from a CSV") {
+      import spark.implicits._
+
       val bands = Seq("B1", "B2", "B3")
       val paths = Seq(
         l8SamplePath(1).toASCIIString,
@@ -187,6 +199,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should read a set of coherent bands from multiple files in a dataframe") {
+      import spark.implicits._
+
       val bandPaths = Seq((
         l8SamplePath(1).toASCIIString,
         l8SamplePath(2).toASCIIString,
@@ -214,6 +228,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should read a set of coherent bands from multiple files in a csv") {
+      import spark.implicits._
+
       def b(i: Int) = l8SamplePath(i).toASCIIString
 
       val csv =
@@ -240,6 +256,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should support lazy and strict reading of tiles") {
+      import spark.implicits._
+
       val is_lazy = udf((t: Tile) => {
         t.isInstanceOf[RasterRef]
       })
@@ -260,29 +278,35 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
   }
 
   describe("RasterSource breaks up scenes into tiles") {
-    val modis_df = spark.read.raster
+    lazy val modis_df = spark.read.raster
       .withTileDimensions(256, 256)
       .withLazyTiles(true)
       .load(remoteMODIS.toASCIIString)
 
-    val l8_df = spark.read.raster
+    lazy val l8_df = spark.read.raster
       .withTileDimensions(32, 33)
       .withLazyTiles(true)
       .load(remoteL8.toASCIIString)
 
     it("should have at most four tile dimensions reading MODIS") {
+      import spark.implicits._
+
       val dims = modis_df.select(rf_dimensions($"proj_raster")).distinct().collect()
       dims.length should be > 0
       dims.length should be <= 4
     }
 
     it("should have at most four tile dimensions reading landsat") {
+      import spark.implicits._
+
       val dims = l8_df.select(rf_dimensions($"proj_raster")).distinct().collect()
       dims.length should be > 0
       dims.length should be <= 4
     }
 
     it("should read the correct size") {
+      import spark.implicits._
+
       val cat = Seq((
         l8SamplePath(4).toASCIIString,
         l8SamplePath(3).toASCIIString,
@@ -298,6 +322,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should provide MODIS tiles with requested size") {
+      import spark.implicits._
+
       val res = modis_df
         .withColumn("dims", rf_dimensions($"proj_raster"))
         .select($"dims".as[Dimensions[Int]]).distinct().collect()
@@ -309,6 +335,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should provide Landsat tiles with requested size") {
+      import spark.implicits._
+
       val dims = l8_df
         .withColumn("dims", rf_dimensions($"proj_raster"))
         .select($"dims".as[Dimensions[Int]]).distinct().collect()
@@ -320,6 +348,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should have consistent tile resolution reading MODIS") {
+      import spark.implicits._
+
       val res = modis_df
         .withColumn("ext", rf_extent($"proj_raster"))
         .withColumn("dims", rf_dimensions($"proj_raster"))
@@ -331,6 +361,8 @@ class RasterSourceDataSourceSpec extends TestEnvironment with TestData with Befo
     }
 
     it("should have consistent tile resolution reading Landsat") {
+      import spark.implicits._
+
       val res = l8_df
         .withColumn("ext", rf_extent($"proj_raster"))
         .withColumn("dims", rf_dimensions($"proj_raster"))

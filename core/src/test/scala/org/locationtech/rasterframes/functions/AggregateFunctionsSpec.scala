@@ -25,7 +25,6 @@ import geotrellis.proj4.{CRS, WebMercator}
 import geotrellis.raster._
 import geotrellis.raster.render.Png
 import geotrellis.raster.resample.Bilinear
-import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
@@ -36,7 +35,7 @@ import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-class AggregateFunctionsSpec extends TestEnvironment with RasterMatchers {
+class AggregateFunctionsSpec extends TestEnvironment {
   import spark.implicits._
 
   describe("aggregate statistics") {

@@ -22,19 +22,17 @@
 package org.locationtech.rasterframes.functions
 
 import geotrellis.raster._
-import geotrellis.raster.testkit.RasterMatchers
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
+class MaskingFunctionsSpec extends TestEnvironment {
   import TestData._
-  import spark.implicits._
 
   describe("masking by defined") {
-    spark.version
 
     it("should mask one tile against another") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
 
       val withMask = df.withColumn("mask",
@@ -54,6 +52,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask with expected results") {
+      import spark.implicits._
       val df = Seq((byteArrayTile, maskingTile)).toDF("tile", "mask")
 
       val withMasked = df.withColumn("masked",
@@ -65,6 +64,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask without mutating cell type") {
+      import spark.implicits._
       val result = Seq((byteArrayTile, maskingTile))
         .toDF("tile", "mask")
         .select(rf_mask($"tile", $"mask").as("masked_tile"))
@@ -75,6 +75,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should inverse mask one tile against another") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
 
       val baseND = df.select(rf_agg_no_data_cells($"tile")).first()
@@ -98,6 +99,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask over no nodata"){
+      import spark.implicits._
       val noNoDataCellType = UByteCellType
 
       val df =
@@ -111,6 +113,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
   describe("mask by value") {
 
     it("should mask tile by another identified by specified value") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
       val mask_value = 4
 
@@ -132,6 +135,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask by value for value 0.") {
+      import spark.implicits._
       // maskingTile has -4, ND, and -15 values. Expect mask by value with 0 to not change the
       val df = Seq((byteArrayTile, maskingTile)).toDF("data", "mask")
 
@@ -151,6 +155,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should inverse mask tile by another identified by specified value") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
       val mask_value = 4
 
@@ -177,6 +182,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask tile by another identified by sequence of specified values") {
+      import spark.implicits._
       val squareIncrementingPRT = ProjectedRasterTile(squareIncrementingTile(six.rows), six.extent, six.crs)
       val df = Seq((six, squareIncrementingPRT))
         .toDF("tile", "mask")
@@ -218,10 +224,13 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
         )
       }
 
-      val df = tiles.toDF("data", "mask")
-        .withColumn("val", rf_tile_min($"mask"))
+    lazy val df = {
+      import spark.implicits._
+      tiles.toDF("data", "mask").withColumn("val", rf_tile_min(col("mask")))
+    }
 
     it("should give LHS cell type"){
+      import spark.implicits._
         val resultMask = df.select(
           rf_cell_type(
             rf_mask($"data", $"mask")
@@ -262,6 +271,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
 
 
     it("should unpack QA bits"){
+      import spark.implicits._
       checkDocs("rf_local_extract_bits")
 
       val result = df
@@ -345,6 +355,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask by QA bits"){
+      import spark.implicits._
       val result = df
         .withColumn("fill_no", rf_mask_by_bit($"data", $"mask", 0, true))
         .withColumn("sat_0", rf_mask_by_bits($"data", $"mask", 2, 2, 1, 2, 3)) // strict no bands

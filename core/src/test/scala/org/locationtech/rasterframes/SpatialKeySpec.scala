@@ -31,14 +31,10 @@ import org.locationtech.geomesa.curve.Z2SFC
  * @since 12/15/17
  */
 class SpatialKeySpec extends TestEnvironment with TestData {
-  assert(!spark.sparkContext.isStopped)
-
-  import spark.implicits._
-
   describe("Spatial key conversions") {
     val raster = sampleGeoTiff.projectedRaster
     // Create a raster frame with a single row
-    val rf = raster.toLayer(raster.tile.cols, raster.tile.rows)
+    lazy val rf = raster.toLayer(raster.tile.cols, raster.tile.rows)
 
     it("should add an extent column") {
       val expected = raster.extent.toPolygon()
@@ -53,12 +49,14 @@ class SpatialKeySpec extends TestEnvironment with TestData {
     }
 
     it("should add a center lat/lng value") {
+      import spark.implicits._
       val expected = raster.extent.center.reproject(raster.crs, LatLng)
       val result = rf.withCenterLatLng().select($"center".as[(Double, Double)]).first
       assert( Point(result._1, result._2) === expected)
     }
 
     it("should add a z-index value") {
+      import spark.implicits._
       val center = raster.extent.center.reproject(raster.crs, LatLng)
       val expected = Z2SFC.index(center.x, center.y)
       val result = rf.withSpatialIndex().select($"spatial_index".as[Long]).first

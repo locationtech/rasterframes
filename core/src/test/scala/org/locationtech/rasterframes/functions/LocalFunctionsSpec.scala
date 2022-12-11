@@ -23,13 +23,12 @@ package org.locationtech.rasterframes.functions
 
 import org.locationtech.rasterframes.TestEnvironment
 import geotrellis.raster._
-import geotrellis.raster.testkit.RasterMatchers
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.expressions.accessors.ExtractTile
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes._
 
-class LocalFunctionsSpec extends TestEnvironment with RasterMatchers {
+class LocalFunctionsSpec extends TestEnvironment {
 
   import TestData._
   import spark.implicits._

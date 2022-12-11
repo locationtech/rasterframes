@@ -196,7 +196,7 @@ class EncodingSpec extends TestEnvironment with TestData {
     }
   }
 
-  override def additionalConf: SparkConf = {
-    super.additionalConf.set("spark.sql.codegen.logging.maxLines", Int.MaxValue.toString)
+  override def additionalConf(conf: SparkConf) = {
+    conf.set("spark.sql.codegen.logging.maxLines", Int.MaxValue.toString)
   }
 }

@@ -20,8 +20,9 @@
  */
 package org.locationtech.rasterframes
 
-import java.nio.file.{Files, Path}
+import com.holdenkarau.spark.testing.DataFrameSuiteBase
 
+import java.nio.file.{Files, Path}
 import com.typesafe.scalalogging.Logger
 import geotrellis.raster.Tile
 import geotrellis.raster.render.{ColorMap, ColorRamps}
@@ -39,11 +40,10 @@ import org.scalactic.Tolerance
 import org.scalatest._
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
-
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.slf4j.LoggerFactory
 
-trait TestEnvironment extends AnyFunSpec with Matchers with Inspectors with Tolerance with RasterMatchers {
+trait TestEnvironment extends AnyFunSpec with DataFrameSuiteBase with Matchers with RasterMatchers with Inspectors with Tolerance {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
 
@@ -56,22 +56,29 @@ trait TestEnvironment extends AnyFunSpec with Matchers with Inspectors with Tole
   // allow 2 retries, should stabilize CI builds. https://spark.apache.org/docs/2.4.7/submitting-applications.html#master-urls
   def sparkMaster: String = "local[*, 2]"
 
-  def additionalConf: SparkConf =
-    new SparkConf(false)
-      .set("spark.driver.port", "0")
-      .set("spark.hostPort", "0")
-      .set("spark.ui.enabled", "false")
+  protected def additionalConf(conf: SparkConf): SparkConf = conf
 
-  implicit val spark: SparkSession =
-      SparkSession
-        .builder
-        .master(sparkMaster)
-        .withKryoSerialization
-        .config(additionalConf)
-        .getOrCreate()
-        .withRasterFrames
+  override def conf: SparkConf = {
+    val base = new SparkConf().
+      setAppName("RasterFrames Test").
+      setMaster(sparkMaster).
+      set("spark.serializer", "org.apache.spark.serializer.KryoSerializer").
+      set("spark.kryo.registrator", "org.locationtech.rasterframes.util.RFKryoRegistrator").
+      set("spark.ui.enabled", "false").
+      set("spark.driver.port", "0").
+      set("spark.hostPort", "0").
+      set("spark.ui.enabled", "true")
+    additionalConf(base)
+  }
 
-  implicit def sc: SparkContext = spark.sparkContext
+  override def setup(sc: SparkContext): Unit = {
+    sc.setCheckpointDir(com.holdenkarau.spark.testing.Utils.createTempDir().toPath().toString)
+    sc.setLogLevel("ERROR")
+    org.locationtech.rasterframes.initRF(sqlContext)
+  }
+
+  implicit def sparkSession: SparkSession = spark
+  implicit def sparkContext: SparkContext = spark.sparkContext
 
   lazy val sql: String => DataFrame = spark.sql
 
