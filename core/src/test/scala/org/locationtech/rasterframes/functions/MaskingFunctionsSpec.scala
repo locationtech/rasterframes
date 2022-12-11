@@ -349,8 +349,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
         .withColumn("fill_no", rf_mask_by_bit($"data", $"mask", 0, true))
         .withColumn("sat_0", rf_mask_by_bits($"data", $"mask", 2, 2, 1, 2, 3)) // strict no bands
         .withColumn("sat_2", rf_mask_by_bits($"data", $"mask", 2, 2, 2, 3)) // up to 2 bands contain sat
-        .withColumn("sat_4",
-          rf_mask_by_bits($"data", $"mask", lit(2), lit(2), array(lit(3)))) // up to 4 bands contain sat
+        .withColumn("sat_4", rf_mask_by_bits($"data", $"mask", lit(2), lit(2), array(lit(3)))) // up to 4 bands contain sat
         .withColumn("cloud_no", rf_mask_by_bit($"data", $"mask", lit(4), lit(true)))
         .withColumn("cloud_only", rf_mask_by_bit($"data", $"mask", 4, false)) // mask if *not* cloud
         .withColumn("cloud_conf_low", rf_mask_by_bits($"data", $"mask", lit(5), lit(2), array(lit(0), lit(1))))
@@ -360,14 +359,14 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       result.select(rf_cell_type($"fill_no")).first() should be (dataColumnCellType)
 
       def checker(columnName: String, maskValueFilter: Int, resultIsNoData: Boolean = true): Unit = {
-        /**  in this unit test setup, the `val` column is an integer that the entire row's mask is full of
-          * filter for the maskValueFilter
-          * then check the columnName and look at the masked data tile given by `columnName`
-          * assert that the `columnName` tile is / is not all nodata based on `resultIsNoData`
+        /** in this unit test setup, the `val` column is an integer that the entire row's mask is full of
+          * - filter for the maskValueFilter
+          * - then check the columnName
+          * - look at the masked data tile given by `columnName`
+          * - assert that the `columnName` tile is / is not all nodata based on `resultIsNoData`
           * */
 
-        val printOutcome = if (resultIsNoData) "all NoData cells"
-        else "all data cells"
+        val printOutcome = if (resultIsNoData) "all NoData cells" else "all data cells"
 
         logger.debug(s"${columnName} should contain ${printOutcome} for qa val ${maskValueFilter}")
         val resultDf = result
@@ -380,13 +379,12 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
         val dataTile = resultDf.select(col(columnName)).as[Option[ProjectedRasterTile]].first().get
         logger.debug(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
 
-        resultToCheck should be (resultIsNoData)
+        resultToCheck should be(resultIsNoData)
       }
-
       checker("fill_no", fill, true)
       checker("cloud_only", clear, true)
       checker("cloud_only", hi_cirrus, false)
-      checker("cloud_no", hi_cirrus, false)
+      checker("cloud_no", hi_cirrus, true)
       checker("sat_0", clear, false)
       checker("cloud_no", clear, false)
       checker("cloud_no", med_cloud, false)

@@ -175,13 +175,19 @@ trait LocalFunctions {
   def rf_mask_by_bit(dataTile: Column, maskTile: Column, bitPosition: Int, valueToMask: Boolean): TypedColumn[Any, Tile] =
     rf_mask_by_bit(dataTile, maskTile, lit(bitPosition), lit(if (valueToMask) 1 else 0))
 
-  /** Applies a mask using bit values in the `mask_tile`. Working from the right, extract the bit at `bitPosition` from the `maskTile`. In all locations where these are equal to the `valueToMask`, the returned tile is set to NoData, else the original `dataTile` cell value. */
+  /** Applies a mask using bit values in the `mask_tile`. Working from the right, extract the bit at `bitPosition` from the `maskTile`.
+   * In all locations where these are equal to the `valueToMask`, the returned tile is set to NoData, else the original `dataTile` cell value.
+   **/
   def rf_mask_by_bit(dataTile: Column, maskTile: Column, bitPosition: Column, valueToMask: Column): TypedColumn[Any, Tile] = {
     import org.apache.spark.sql.functions.array
     rf_mask_by_bits(dataTile, maskTile, bitPosition, lit(1), array(valueToMask))
   }
 
-  /** Applies a mask from blacklisted bit values in the `mask_tile`. Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`. In all locations where these are in the `mask_values`, the returned tile is set to NoData; otherwise the original `tile` cell value is returned. */
+  /** Applies a mask from blacklisted bit values in the `mask_tile`.
+   * Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`.
+   * In all locations where these are in the `mask_values`, the returned tile is set to NoData;
+   * otherwise the original `tile` cell value is returned.
+   **/
   def rf_mask_by_bits(
     dataTile: Column,
     maskTile: Column,
