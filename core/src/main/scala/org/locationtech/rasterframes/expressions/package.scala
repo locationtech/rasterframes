@@ -22,12 +22,12 @@
 package org.locationtech.rasterframes
 
 import geotrellis.raster.{DoubleConstantNoDataCellType, Tile}
-import org.apache.spark.sql.catalyst.analysis.{FunctionRegistryBase}
+import org.apache.spark.sql.catalyst.analysis.FunctionRegistryBase
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, ExpressionInfo, ScalaUDF}
 import org.apache.spark.sql.catalyst.{FunctionIdentifier, InternalRow, ScalaReflection}
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.sql.{SQLContext}
+import org.apache.spark.sql.SQLContext
 import org.locationtech.rasterframes.expressions.accessors._
 import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggregates._
@@ -106,23 +106,23 @@ package object expressions {
     def register1[T <: Expression : ClassTag](
       name: String,
       builder: Expression => T
-    ): Unit = registerFunction[T](name, None){ case Seq(a) => builder(a)
+    ): Unit = registerFunction[T](name, None){ args => builder(args(0))
     }
 
     def register2[T <: Expression : ClassTag](
       name: String,
       builder: (Expression, Expression) => T
-    ): Unit = registerFunction[T](name, None){ case Seq(a, b) => builder(a, b) }
+    ): Unit = registerFunction[T](name, None){ args => builder(args(0), args(1)) }
 
     def register3[T <: Expression : ClassTag](
       name: String,
       builder: (Expression, Expression, Expression) => T
-    ): Unit = registerFunction[T](name, None){ case Seq(a, b, c) => builder(a, b, c) }
+    ): Unit = registerFunction[T](name, None){ args => builder(args(0), args(1), args(2)) }
 
     def register5[T <: Expression : ClassTag](
       name: String,
       builder: (Expression, Expression, Expression, Expression, Expression) => T
-    ): Unit = registerFunction[T](name, None){ case Seq(a, b, c, d, e) => builder(a, b, c, d, e) }
+    ): Unit = registerFunction[T](name, None){ args => builder(args(0), args(1), args(2), args(3), args(4)) }
 
     register2("rf_local_add", Add(_, _))
     register2("rf_local_subtract", Subtract(_, _))
@@ -207,11 +207,11 @@ package object expressions {
     register2(Aspect.name, Aspect(_, _))
     register5(Hillshade.name, Hillshade(_, _, _, _, _))
 
-    register2("rf_mask", Mask.MaskByDefined(_, _))
-    register2("rf_inverse_mask", Mask.InverseMaskByDefined(_, _))
-    register3("rf_mask_by_value", Mask.MaskByValue(_, _, _))
-    register3("rf_inverse_mask_by_value", Mask.InverseMaskByValue(_, _, _))
-    register2("rf_mask_by_values", Mask.MaskByValues(_, _))
+    register2("rf_mask", MaskByDefined(_, _))
+    register2("rf_inverse_mask", InverseMaskByDefined(_, _))
+    register3("rf_mask_by_value", MaskByValue(_, _, _))
+    register3("rf_inverse_mask_by_value", InverseMaskByValue(_, _, _))
+    register3("rf_mask_by_values", MaskByValues(_, _, _))
 
     register1("rf_render_ascii", DebugRender.RenderAscii(_))
     register1("rf_render_matrix", DebugRender.RenderMatrix(_))

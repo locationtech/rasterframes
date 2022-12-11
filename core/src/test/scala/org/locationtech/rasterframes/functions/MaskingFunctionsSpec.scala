@@ -97,15 +97,13 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_inverse_mask")
     }
 
-    it("should throw if no nodata"){
+    it("should mask over no nodata"){
       val noNoDataCellType = UByteCellType
 
       val df =
         Seq(Option(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs, noNoDataCellType))).toDF("tile")
 
-      an [IllegalArgumentException] should be thrownBy {
-        df.select(rf_mask($"tile", $"tile")).collect()
-      }
+      df.select(rf_mask($"tile", $"tile"))
     }
 
   }
