@@ -51,6 +51,8 @@ object RFAssemblyPlugin extends AutoPlugin {
     assembly / assemblyShadeRules:= {
       val shadePrefixes = Seq(
         "shapeless",
+        "com.github.ben-manes.caffeine",
+        "com.github.benmanes.caffeine",
         "com.github.mpilquist",
         "com.amazonaws",
         "org.apache.avro",
