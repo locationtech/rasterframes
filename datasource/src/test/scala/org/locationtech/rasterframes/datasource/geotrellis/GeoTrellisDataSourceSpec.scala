@@ -48,7 +48,8 @@ import org.scalatest.{BeforeAndAfterAll, Inspectors}
 
 import scala.math.{max, min}
 
-class GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll with Inspectors with DataSourceOptions {
+trait GeoTrellisDataSourceSpec extends TestEnvironment with BeforeAndAfterAll with Inspectors with DataSourceOptions {
+  // because this is a trait and not a class, the test does not run, here for posterity
   import TestData._
 
   val tileSize = 12
