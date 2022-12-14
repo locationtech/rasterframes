@@ -58,6 +58,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.12.0"
     val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
     val sparktestingbase = "com.holdenkarau" %% "spark-testing-base" % "3.2.1_1.3.0" % Test
+
   }
   import autoImport._
 
@@ -74,6 +75,6 @@ object RFDependenciesPlugin extends AutoPlugin {
     rfSparkVersion := "3.2.1",
     rfGeoTrellisVersion := "3.6.3",
     rfGeoMesaVersion := "3.4.1"
-    //excludeDependencies += "log4j" % "log4j"
+    excludeDependencies += "log4j" % "log4j"
   )
 }
