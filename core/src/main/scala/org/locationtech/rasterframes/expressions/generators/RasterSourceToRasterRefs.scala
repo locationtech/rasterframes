@@ -83,7 +83,7 @@ case class RasterSourceToRasterRefs(children: Seq[Expression], bandIndexes: Seq[
         throw new java.lang.IllegalArgumentException(description, ex)
     }
 
-  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(children=newChildren)
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(children = newChildren)
 }
 
 object RasterSourceToRasterRefs {
