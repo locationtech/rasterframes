@@ -39,6 +39,8 @@ import org.locationtech.rasterframes.expressions.transformers._
 import shapeless.HList
 import shapeless.ops.function.FnToProduct
 import shapeless.ops.traversable.FromTraversable
+import shapeless.syntax.std.function._
+import shapeless.syntax.std.traversable._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -81,17 +83,17 @@ package object expressions {
     }
 
     /** Converts (expr1: Expression, ..., exprn: Expression) => R into a Seq[Expression] => R function */
-    implicit def expressionArgumentsSequencer[F, I <: HList, R](f: F)(implicit ftp: FnToProduct.Aux[F, I => R], ft: FromTraversable[I]): Seq[Expression] => R = { list: Seq[Expression] =>
-      ft(list) match {
-        case Some(l) => ftp(f)(l)
-        case None => throw new IllegalArgumentException(s"registerFunction application failed: arity mismatch: $list.")
+    implicit def expressionArgumentsSequencer[F, L <: HList, R](f: F)(implicit ftp: FnToProduct.Aux[F, L => R], ft: FromTraversable[L]): Seq[Expression] => R = { list: Seq[Expression] =>
+      list.toHList match {
+        case Some(l) => f.toProduct(l)
+        case None => throw new IllegalArgumentException(s"registerFunction application failed; arity mismatch: $list.")
       }
     }
 
     registerFunction[Add](name = "rf_local_add")(Add.apply)
     registerFunction[Subtract](name = "rf_local_subtract")(Subtract.apply)
     registerFunction[ExplodeTiles](name = "rf_explode_tiles")(ExplodeTiles(1.0, None, _))
-    registerFunction[TileAssembler](name = "rf_assemble_tile")(TileAssembler.apply)
+    registerFunction[TileAssembler](name = "rf_assemble_tile")(TileAssembler(_: Expression, _: Expression, _: Expression, _: Expression, _: Expression))
     registerFunction[GetCellType](name = "rf_cell_type")(GetCellType.apply)
     registerFunction[SetCellType](name = "rf_convert_cell_type")(SetCellType.apply)
     registerFunction[InterpretAs](name = "rf_interpret_cell_type_as")(InterpretAs.apply)
