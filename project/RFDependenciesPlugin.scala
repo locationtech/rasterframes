@@ -49,7 +49,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
     val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.18.2"
     val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.36"
-    val scaffeine = "com.github.blemale" %% "scaffeine" % "5.1.2"
+    val scaffeine = "com.github.blemale" %% "scaffeine" % "4.1.0"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.6"
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
     val stac4s = "com.azavea.stac4s" %% "client" % "0.7.2"
