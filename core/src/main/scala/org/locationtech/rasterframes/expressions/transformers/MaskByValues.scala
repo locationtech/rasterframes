@@ -21,15 +21,14 @@
 
 package org.locationtech.rasterframes.expressions.transformers
 
-import geotrellis.raster.{NODATA, Tile, d2i}
+import geotrellis.raster.{NODATA, Tile}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.TypeCheckFailure
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescription, TernaryExpression}
 import org.apache.spark.sql.catalyst.util.ArrayData
-import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, TypedColumn}
-import org.locationtech.rasterframes.expressions.DynamicExtractors.{intArrayExtractor, tileExtractor}
+import org.locationtech.rasterframes.expressions.DynamicExtractors.intArrayExtractor
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.locationtech.rasterframes.tileEncoder
 
@@ -48,12 +47,11 @@ import org.locationtech.rasterframes.tileEncoder
       ..."""
 )
 case class MaskByValues(targetTile: Expression, maskTile: Expression, maskValues: Expression)
-    extends TernaryExpression
+    extends TernaryExpression with MaskExpression
     with CodegenFallback
     with RasterResult {
   override def nodeName: String = "rf_mask_by_values"
 
-  def dataType: DataType = targetTile.dataType
   def first: Expression = targetTile
   def second: Expression = maskTile
   def third: Expression = maskValues
@@ -62,16 +60,10 @@ case class MaskByValues(targetTile: Expression, maskTile: Expression, maskValues
     MaskByValues(newFirst, newSecond, newThird)
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if (!tileExtractor.isDefinedAt(targetTile.dataType)) {
-      TypeCheckFailure(s"Input type '${targetTile.dataType}' does not conform to a raster type.")
-    } else if (!tileExtractor.isDefinedAt(maskTile.dataType)) {
-      TypeCheckFailure(s"Input type '${maskTile.dataType}' does not conform to a raster type.")
-    } else if (!intArrayExtractor.isDefinedAt(maskValues.dataType)) {
+    if (!intArrayExtractor.isDefinedAt(maskValues.dataType)) {
       TypeCheckFailure(s"Input type '${maskValues.dataType}' does not translate to an array<int>.")
-    } else TypeCheckSuccess
+    } else checkTileDataTypes()
 
-  private lazy val targetTileExtractor = tileExtractor(targetTile.dataType)
-  private lazy val maskTileExtractor = tileExtractor(maskTile.dataType)
   private lazy val maskValuesExtractor = intArrayExtractor(maskValues.dataType)
 
   override protected def nullSafeEval(targetInput: Any, maskInput: Any, maskValuesInput: Any): Any = {
@@ -79,9 +71,10 @@ case class MaskByValues(targetTile: Expression, maskTile: Expression, maskValues
     val (mask, maskCtx) = maskTileExtractor(row(maskInput))
     val maskValues: Array[Int] = maskValuesExtractor(maskValuesInput.asInstanceOf[ArrayData])
 
-    val result = targetTile.dualCombine(mask)
+    val result = maskEval(targetTile, mask,
+      { (v, m) => if (maskValues.contains(m)) NODATA else v },
       { (v, m) => if (maskValues.contains(m)) NODATA else v }
-      { (v, m) => if (maskValues.contains(d2i(m))) NODATA else v }
+    )
 
     toInternalRow(result, targetCtx)
   }

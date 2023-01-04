@@ -22,12 +22,9 @@
 package org.locationtech.rasterframes.expressions.transformers
 import geotrellis.raster.{NODATA, Tile, isNoData}
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription}
-import org.apache.spark.sql.types.DataType
-import org.locationtech.rasterframes.expressions.DynamicExtractors.{tileExtractor}
 import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.locationtech.rasterframes.tileEncoder
 
@@ -44,36 +41,26 @@ import org.locationtech.rasterframes.tileEncoder
        ..."""
 )
 case class MaskByDefined(targetTile: Expression, maskTile: Expression)
-  extends BinaryExpression
+  extends BinaryExpression with MaskExpression
     with CodegenFallback
     with RasterResult {
   override def nodeName: String = "rf_mask"
 
-  def dataType: DataType = targetTile.dataType
   def left: Expression = targetTile
   def right: Expression = maskTile
 
   protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression =
     MaskByDefined(newLeft, newRight)
 
-  override def checkInputDataTypes(): TypeCheckResult = {
-    if (!tileExtractor.isDefinedAt(targetTile.dataType)) {
-      TypeCheckFailure(s"Input type '${targetTile.dataType}' does not conform to a raster type.")
-    } else if (!tileExtractor.isDefinedAt(maskTile.dataType)) {
-      TypeCheckFailure(s"Input type '${maskTile.dataType}' does not conform to a raster type.")
-    } else TypeCheckSuccess
-  }
-
-  private lazy val targetTileExtractor = tileExtractor(targetTile.dataType)
-  private lazy val maskTileExtractor = tileExtractor(maskTile.dataType)
+  override def checkInputDataTypes(): TypeCheckResult = checkTileDataTypes()
 
   override protected def nullSafeEval(targetInput: Any, maskInput: Any): Any = {
     val (targetTile, targetCtx) = targetTileExtractor(row(targetInput))
     val (mask, maskCtx) = maskTileExtractor(row(maskInput))
-
-    val result = targetTile.dualCombine(mask)
+    val result = maskEval(targetTile, mask,
+      { (v, m) => if (isNoData(m)) NODATA else v },
       { (v, m) => if (isNoData(m)) NODATA else v }
-      { (v, m) => if (isNoData(m)) NODATA else v }
+    )
     toInternalRow(result, targetCtx)
   }
 }
