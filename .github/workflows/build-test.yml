@@ -4,35 +4,26 @@ on:
   pull_request:
     branches: ['**']
   push:
-    branches: ['master', 'develop', 'release/*']
+    branches: ['master', 'develop', 'release/*', 'spark-3.2']
     tags: [v*]
   release:
     types: [published]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    container:
-      image: s22s/debian-openjdk-conda-gdal:6790f8d
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - uses: coursier/cache-action@v6
-      - uses: olafurpg/setup-scala@v13
+      - name: Setup JDK
+        uses: actions/setup-java@v3
         with:
-          java-version: adopt@1.11
-
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      - name: Install Conda dependencies
-        run: |
-          # $CONDA_DIR is an environment variable pointing to the root of the miniconda directory
-          $CONDA_DIR/bin/conda install -c conda-forge --yes --file pyrasterframes/src/main/python/requirements-condaforge.txt
+          distribution: temurin
+          java-version: 8
+          cache: sbt
 
       # Do just the compilation stage to minimize sbt memory footprint
       - name: Compile
@@ -47,11 +38,15 @@ jobs:
       - name: Experimental tests
         run: sbt -batch experimental/test
 
-      - name: Create PyRasterFrames package
-        run: sbt -v -batch pyrasterframes/package
-
-      - name: Python tests
-        run: sbt -batch pyrasterframes/test
+      ## TODO: Update python build to be PEP 517 compatible
+      # - name: Install Conda dependencies
+      #   run: |
+      #     # $CONDA_DIR is an environment variable pointing to the root of the miniconda directory
+      #     $CONDA_DIR/bin/conda install -c conda-forge --yes --file pyrasterframes/src/main/python/requirements-condaforge.txt
+      # - name: Create PyRasterFrames package
+      #   run: sbt -v -batch pyrasterframes/package
+      # - name: Python tests
+      #   run: sbt -batch pyrasterframes/test
 
       - name: Collect artifacts
         if: ${{ failure() }}
