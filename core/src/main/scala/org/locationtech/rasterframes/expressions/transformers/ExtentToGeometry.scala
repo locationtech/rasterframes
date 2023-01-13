@@ -60,7 +60,7 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
     JTSTypes.GeometryTypeInstance.serialize(geom)
   }
 
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object ExtentToGeometry extends SpatialEncoders {

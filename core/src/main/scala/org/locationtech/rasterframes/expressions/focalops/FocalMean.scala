@@ -45,6 +45,7 @@ case class FocalMean(first: Expression, second: Expression, third: Expression) e
     case _ => t.focalMean(neighborhood, target = target)
   }
 
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalMean {

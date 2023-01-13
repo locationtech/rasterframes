@@ -44,6 +44,8 @@ case class FocalMin(first: Expression, second: Expression, third: Expression) ex
     case bt: BufferTile => bt.focalMin(neighborhood, target = target)
     case _ => t.focalMin(neighborhood, target = target)
   }
+  
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalMin {

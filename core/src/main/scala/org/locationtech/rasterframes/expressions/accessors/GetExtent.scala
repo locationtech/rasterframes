@@ -49,6 +49,8 @@ case class GetExtent(child: Expression) extends OnTileContextExpression with Cod
 
   override def nodeName: String = "rf_extent"
   def eval(ctx: TileContext): InternalRow = ctx.extent.toInternalRow
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GetExtent {

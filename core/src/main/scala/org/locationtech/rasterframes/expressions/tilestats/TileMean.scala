@@ -45,6 +45,7 @@ case class TileMean(child: Expression) extends UnaryRasterFunction with NullToVa
   protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMean.op(tile)
   def dataType: DataType = DoubleType
   def na: Any = Double.NaN
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object TileMean {
   def apply(tile: Column): TypedColumn[Any, Double] = new Column(TileMean(tile.expr)).as[Double]

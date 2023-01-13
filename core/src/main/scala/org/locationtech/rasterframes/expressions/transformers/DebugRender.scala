@@ -29,11 +29,11 @@ import org.apache.spark.sql.types.{DataType, StringType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.apache.spark.unsafe.types.UTF8String
 import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
-import org.locationtech.rasterframes.expressions.{HasUnaryExpressionCopy, UnaryRasterFunction}
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 import spire.syntax.cfor.cfor
 
-abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterFunction with CodegenFallback with Serializable { self: HasUnaryExpressionCopy =>
+abstract class DebugRender(asciiArt: Boolean) extends UnaryRasterFunction with CodegenFallback with Serializable {
   import org.locationtech.rasterframes.expressions.transformers.DebugRender.TileAsMatrix
   def dataType: DataType = StringType
 
@@ -55,6 +55,8 @@ object DebugRender {
   )
   case class RenderAscii(child: Expression) extends DebugRender(true) {
     override def nodeName: String = "rf_render_ascii"
+
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
   object RenderAscii {
     def apply(tile: Column): TypedColumn[Any, String] = new Column(RenderAscii(tile.expr)).as[String]
@@ -68,6 +70,8 @@ object DebugRender {
   )
   case class RenderMatrix(child: Expression) extends DebugRender(false) {
     override def nodeName: String = "rf_render_matrix"
+
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
   object RenderMatrix {
     def apply(tile: Column): TypedColumn[Any, String] = new Column(RenderMatrix(tile.expr)).as[String]

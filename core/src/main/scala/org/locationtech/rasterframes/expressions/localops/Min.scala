@@ -47,6 +47,8 @@ case class Min(left: Expression, right:Expression) extends BinaryRasterFunction 
   protected def op(left: Tile, right: Tile): Tile = left.localMin(right)
   protected def op(left: Tile, right: Double): Tile = left.localMin(right)
   protected def op(left: Tile, right: Int): Tile = left.localMin(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object Min {
   def apply(left: Column, right: Column): Column = new Column(Min(left.expr, right.expr))

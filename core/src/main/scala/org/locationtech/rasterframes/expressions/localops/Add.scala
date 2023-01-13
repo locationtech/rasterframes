@@ -43,8 +43,7 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class Add(left: Expression, right: Expression) extends BinaryRasterFunction
-  with CodegenFallback {
+case class Add(left: Expression, right: Expression) extends BinaryRasterFunction with CodegenFallback {
   override val nodeName: String = "rf_local_add"
   protected def op(left: Tile, right: Tile): Tile = left.localAdd(right)
   protected def op(left: Tile, right: Double): Tile = left.localAdd(right)
@@ -62,6 +61,8 @@ case class Add(left: Expression, right: Expression) extends BinaryRasterFunction
       else nullSafeEval(l, r)
     }
   }
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object Add {
   def apply(left: Column, right: Column): Column = new Column(Add(left.expr, right.expr))

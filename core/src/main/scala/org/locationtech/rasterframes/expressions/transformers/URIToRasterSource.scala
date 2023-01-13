@@ -54,7 +54,7 @@ case class URIToRasterSource(override val child: Expression) extends UnaryExpres
     rasterSourceUDT.serialize(ref)
   }
 
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object URIToRasterSource {

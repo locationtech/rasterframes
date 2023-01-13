@@ -39,10 +39,7 @@ import org.locationtech.geomesa.spark.jts.udf.SpatialRelationFunctions._
  *
  * @since 12/28/17
  */
-abstract class SpatialRelation extends BinaryExpression with CodegenFallback { this: HasBinaryExpressionCopy =>
-
-  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression =
-    copy(left = newLeft, right = newRight)
+abstract class SpatialRelation extends BinaryExpression with CodegenFallback {
 
   def extractGeometry(expr: Expression, input: Any): Geometry = {
     input match {
@@ -78,36 +75,42 @@ object SpatialRelation {
     override def nodeName: String = "intersects"
     val relation = ST_Intersects
 
-    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression =
-      copy(left = newLeft, right = newRight)
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
   case class Contains(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "contains"
     val relation = ST_Contains
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
   case class Covers(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "covers"
     val relation = ST_Covers
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
   case class Crosses(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "crosses"
     val relation = ST_Crosses
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
   case class Disjoint(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "disjoint"
     val relation = ST_Disjoint
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
   case class Overlaps(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "overlaps"
     val relation = ST_Overlaps
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
   case class Touches(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "touches"
     val relation = ST_Touches
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
   case class Within(left: Expression, right: Expression) extends SpatialRelation {
     override def nodeName = "within"
     val relation = ST_Within
+    override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
   }
 
   private val predicateMap = Map(

@@ -46,6 +46,7 @@ case class TileStats(child: Expression) extends UnaryRasterFunction with Codegen
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     TileStats.converter(TileStats.op(tile).orNull)
   def dataType: DataType = CellStatistics.schema
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object TileStats {
   def apply(tile: Column): TypedColumn[Any, CellStatistics] = new Column(TileStats(tile.expr)).as[CellStatistics]

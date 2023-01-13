@@ -44,6 +44,8 @@ case class FocalMax(first: Expression, second: Expression, third: Expression) ex
     case bt: BufferTile => bt.focalMax(neighborhood, target = target)
     case _ => t.focalMax(neighborhood, target = target)
   }
+  
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalMax {

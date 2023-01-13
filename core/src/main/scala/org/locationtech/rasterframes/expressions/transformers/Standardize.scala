@@ -77,7 +77,7 @@ case class Standardize(first: Expression, second: Expression, third: Expression)
       .localSubtract(mean)
       .localDivide(stdDev)
 
-  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
     copy(newFirst, newSecond, newThird)
 }
 object Standardize {

@@ -46,6 +46,7 @@ case class TileHistogram(child: Expression) extends UnaryRasterFunction with Cod
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     TileHistogram.converter(TileHistogram.op(tile))
   def dataType: DataType = CellHistogram.schema
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object TileHistogram {

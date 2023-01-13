@@ -44,6 +44,7 @@ case class FocalMedian(first: Expression, second: Expression, third: Expression)
     case bt: BufferTile => bt.focalMedian(neighborhood, target = target)
     case _ => t.focalMedian(neighborhood, target = target)
   }
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalMedian {

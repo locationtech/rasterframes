@@ -44,6 +44,7 @@ case class FocalMoransI(first: Expression, second: Expression, third: Expression
     case bt: BufferTile => bt.tileMoransI(neighborhood, target = target)
     case _ => t.tileMoransI(neighborhood, target = target)
   }
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalMoransI {

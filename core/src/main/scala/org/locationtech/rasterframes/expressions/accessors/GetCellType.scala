@@ -56,7 +56,7 @@ case class GetCellType(child: Expression) extends OnCellGridExpression with Code
   /** Implemented by subtypes to process incoming ProjectedRasterLike entity. */
   def eval(cg: CellGrid[Int]): Any = resultConverter(cg.cellType)
 
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GetCellType {

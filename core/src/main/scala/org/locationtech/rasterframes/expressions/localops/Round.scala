@@ -41,6 +41,7 @@ case class Round(child: Expression) extends UnaryRasterOp with NullToValue with 
   override def nodeName: String = "rf_round"
   def na: Any = null
   protected def op(child: Tile): Tile = child.localRound()
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object Round{
   def apply(tile: Column): Column = new Column(Round(tile.expr))

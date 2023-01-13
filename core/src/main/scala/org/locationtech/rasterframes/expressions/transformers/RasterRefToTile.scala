@@ -54,7 +54,7 @@ case class RasterRefToTile(child: Expression) extends UnaryExpression
     ProjectedRasterTile(ref.tile, ref.extent, ref.crs).toInternalRow
   }
 
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object RasterRefToTile {

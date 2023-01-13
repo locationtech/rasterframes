@@ -45,8 +45,7 @@ import org.locationtech.rasterframes.util.DataBiasedOp
     > SELECT _FUNC_(tile1, tile2);
        ..."""
 )
-case class BiasedAdd(left: Expression, right: Expression) extends BinaryRasterFunction
-  with CodegenFallback {
+case class BiasedAdd(left: Expression, right: Expression) extends BinaryRasterFunction with CodegenFallback {
   override val nodeName: String = "rf_local_biased_add"
   protected def op(left: Tile, right: Tile): Tile = DataBiasedOp.BiasedAdd(left, right)
   protected def op(left: Tile, right: Double): Tile = DataBiasedOp.BiasedAdd(left, right)
@@ -64,6 +63,8 @@ case class BiasedAdd(left: Expression, right: Expression) extends BinaryRasterFu
       else nullSafeEval(l, r)
     }
   }
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object BiasedAdd {
   def apply(left: Column, right: Column): Column = new Column(BiasedAdd(left.expr, right.expr))

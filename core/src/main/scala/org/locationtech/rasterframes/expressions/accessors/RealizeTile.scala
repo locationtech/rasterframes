@@ -57,7 +57,7 @@ case class RealizeTile(child: Expression) extends UnaryExpression with CodegenFa
     tileSer(tile.toArrayTile())
   }
 
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object RealizeTile {

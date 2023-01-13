@@ -38,6 +38,8 @@ case class GetTileContext(child: Expression) extends UnaryRasterFunction with Co
 
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     ctx.map(SerializersCache.serializer[TileContext].apply).orNull
+    
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GetTileContext {

@@ -82,7 +82,7 @@ case class InterpretAs(tile: Expression, cellType: Expression) extends BinaryExp
     toInternalRow(result, ctx)
   }
 
-  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
+  def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object InterpretAs{

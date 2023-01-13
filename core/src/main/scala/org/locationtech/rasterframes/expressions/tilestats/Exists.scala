@@ -28,7 +28,7 @@ case class Exists(child: Expression) extends UnaryRasterFunction with CodegenFal
   override def nodeName: String = "exists"
   def dataType: DataType = BooleanType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = Exists.op(tile)
-
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object Exists {

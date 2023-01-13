@@ -42,6 +42,7 @@ case class Abs(child: Expression) extends UnaryRasterOp with NullToValue with Co
   def na: Any = null
   protected def op(t: Tile): Tile = t.localAbs()
 
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object Abs {

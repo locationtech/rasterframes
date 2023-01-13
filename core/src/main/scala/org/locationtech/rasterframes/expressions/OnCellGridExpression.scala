@@ -26,7 +26,7 @@ import geotrellis.raster.CellGrid
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
+import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 
 /**
  * Implements boilerplate for subtype expressions processing TileUDT, RasterSourceUDT, and RasterRefs
@@ -34,9 +34,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
  *
  * @since 11/4/18
  */
-trait OnCellGridExpression extends UnaryExpression { self: HasUnaryExpressionCopy =>
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
-
+trait OnCellGridExpression extends UnaryExpression {
   private lazy val fromRow: InternalRow => CellGrid[Int] = {
     if (child.resolved) gridExtractor(child.dataType)
     else throw new IllegalStateException(s"Child expression unbound: ${child}")

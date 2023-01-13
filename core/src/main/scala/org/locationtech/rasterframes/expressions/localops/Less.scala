@@ -43,6 +43,8 @@ case class Less(left: Expression, right: Expression) extends BinaryRasterFunctio
   protected def op(left: Tile, right: Tile): Tile = left.localLess(right)
   protected def op(left: Tile, right: Double): Tile = left.localLess(right)
   protected def op(left: Tile, right: Int): Tile = left.localLess(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object Less {
   def apply(left: Column, right: Column): Column = new Column(Less(left.expr, right.expr))

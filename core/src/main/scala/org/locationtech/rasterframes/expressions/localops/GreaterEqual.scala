@@ -44,6 +44,8 @@ case class GreaterEqual(left: Expression, right: Expression) extends BinaryRaste
   protected def op(left: Tile, right: Tile): Tile = left.localGreaterOrEqual(right)
   protected def op(left: Tile, right: Double): Tile = left.localGreaterOrEqual(right)
   protected def op(left: Tile, right: Int): Tile = left.localGreaterOrEqual(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object GreaterEqual {

@@ -45,6 +45,7 @@ case class Equal(left: Expression, right: Expression) extends BinaryRasterFuncti
   protected def op(left: Tile, right: Double): Tile = left.localEqual(right)
   protected def op(left: Tile, right: Int): Tile = left.localEqual(right)
 
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object Equal {

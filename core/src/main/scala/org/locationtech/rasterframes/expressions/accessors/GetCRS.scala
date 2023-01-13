@@ -97,7 +97,7 @@ case class GetCRS(child: Expression) extends UnaryExpression with CodegenFallbac
     }
   }
 
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GetCRS {

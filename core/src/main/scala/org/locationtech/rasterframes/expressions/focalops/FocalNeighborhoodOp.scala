@@ -29,13 +29,10 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, TernaryExpression}
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
 import org.locationtech.rasterframes.expressions.DynamicExtractors.{neighborhoodExtractor, targetCellExtractor, tileExtractor}
-import org.locationtech.rasterframes.expressions.{HasTernaryExpressionCopy, RasterResult, row}
+import org.locationtech.rasterframes.expressions.{RasterResult, row}
 import org.slf4j.LoggerFactory
 
-trait FocalNeighborhoodOp extends TernaryExpression with RasterResult with CodegenFallback {self: HasTernaryExpressionCopy =>
-  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
-    copy(newFirst, newSecond, newThird)
-
+trait FocalNeighborhoodOp extends TernaryExpression with RasterResult with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   // Tile

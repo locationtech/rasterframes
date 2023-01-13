@@ -25,13 +25,11 @@ import org.locationtech.rasterframes.expressions.DynamicExtractors._
 import geotrellis.raster.Tile
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.analysis.TypeCheckResult.{TypeCheckFailure, TypeCheckSuccess}
-import org.apache.spark.sql.catalyst.expressions.{Expression, UnaryExpression}
+import org.apache.spark.sql.catalyst.expressions.UnaryExpression
 import org.locationtech.rasterframes.model.TileContext
 
 /** Boilerplate for expressions operating on a single Tile-like . */
-trait UnaryRasterFunction extends UnaryExpression { self: HasUnaryExpressionCopy =>
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
-
+trait UnaryRasterFunction extends UnaryExpression {
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!tileExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to a raster type.")

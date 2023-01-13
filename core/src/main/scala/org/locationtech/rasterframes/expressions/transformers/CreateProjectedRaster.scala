@@ -72,7 +72,7 @@ case class CreateProjectedRaster(tile: Expression, extent: Expression, crs: Expr
     toInternalRow(prt)
   }
 
-  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object CreateProjectedRaster {

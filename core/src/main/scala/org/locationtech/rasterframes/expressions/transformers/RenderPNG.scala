@@ -28,7 +28,7 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
 import org.apache.spark.sql.types.{BinaryType, DataType}
 import org.apache.spark.sql.{Column, TypedColumn}
 import org.locationtech.rasterframes.encoders.SparkBasicEncoders._
-import org.locationtech.rasterframes.expressions.{HasUnaryExpressionCopy, UnaryRasterFunction}
+import org.locationtech.rasterframes.expressions.UnaryRasterFunction
 import org.locationtech.rasterframes.model.TileContext
 
 /**
@@ -36,7 +36,7 @@ import org.locationtech.rasterframes.model.TileContext
   * @param child tile column
   * @param ramp color ramp to use for non-composite tiles.
   */
-abstract class RenderPNG(child: Expression, ramp: Option[ColorRamp]) extends UnaryRasterFunction with CodegenFallback with Serializable { self: HasUnaryExpressionCopy =>
+abstract class RenderPNG(child: Expression, ramp: Option[ColorRamp]) extends UnaryRasterFunction with CodegenFallback with Serializable {
   def dataType: DataType = BinaryType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = {
     val png = ramp.map(tile.renderPng).getOrElse(tile.renderPng())
@@ -54,6 +54,7 @@ object RenderPNG {
   )
   case class RenderCompositePNG(child: Expression) extends RenderPNG(child,  None) {
     override def nodeName: String = "rf_render_png"
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
 
   object RenderCompositePNG {
@@ -70,6 +71,7 @@ object RenderPNG {
   case class RenderColorRampPNG(child: Expression, colors: ColorRamp) extends RenderPNG(child,  Some(colors)) {
     override def nodeName: String = "rf_render_png"
     def copy(child: Expression): Expression = RenderColorRampPNG(child, colors: ColorRamp)
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
 
   object RenderColorRampPNG {

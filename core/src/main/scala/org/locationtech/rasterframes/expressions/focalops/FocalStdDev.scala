@@ -44,6 +44,7 @@ case class FocalStdDev(first: Expression, second: Expression, third: Expression)
     case bt: BufferTile => bt.focalStandardDeviation(neighborhood, target = target)
     case _ => t.focalStandardDeviation(neighborhood, target = target)
   }
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalStdDev {

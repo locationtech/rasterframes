@@ -52,10 +52,6 @@ import scala.language.implicitConversions
  * @since 10/10/17
  */
 package object expressions {
-  type HasTernaryExpressionCopy = { def copy(first: Expression, second: Expression, third: Expression): Expression }
-  type HasBinaryExpressionCopy = { def copy(left: Expression, right: Expression): Expression }
-  type HasUnaryExpressionCopy = { def copy(child: Expression): Expression }
-
   private[expressions] def row(input: Any) = input.asInstanceOf[InternalRow]
   /** Convert the tile to a floating point type as needed for scalar operations. */
   @inline

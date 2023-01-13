@@ -56,7 +56,7 @@ case class GeometryToExtent(child: Expression) extends UnaryExpression with Code
     Extent(geom.getEnvelopeInternal).toInternalRow
   }
 
-  override protected def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GeometryToExtent {

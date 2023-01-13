@@ -44,6 +44,7 @@ case class Exp(child: Expression) extends UnaryRasterOp with CodegenFallback {
   protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E)
 
   override def dataType: DataType = child.dataType
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object Exp {
   def apply(tile: Column): Column = new Column(Exp(tile.expr))
@@ -65,6 +66,7 @@ case class Exp10(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(10.0)
 
   override def dataType: DataType = child.dataType
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object Exp10 {
   def apply(tile: Column): Column = new Column(Exp10(tile.expr))
@@ -86,6 +88,7 @@ case class Exp2(child: Expression) extends UnaryRasterOp with CodegenFallback {
   protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(2.0)
 
   override def dataType: DataType = child.dataType
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object Exp2 {
   def apply(tile: Column): Column = new Column(Exp2(tile.expr))
@@ -107,6 +110,7 @@ case class ExpM1(child: Expression) extends UnaryRasterOp with CodegenFallback {
   protected def op(tile: Tile): Tile = fpTile(tile).localPowValue(math.E).localSubtract(1.0)
 
   override def dataType: DataType = child.dataType
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object ExpM1 {
   def apply(tile: Column): Column = new Column(ExpM1(tile.expr))

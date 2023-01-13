@@ -90,7 +90,7 @@ case class ReprojectGeometry(geometry: Expression, srcCRS: Expression, dstCRS: E
     }
   }
 
-  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object ReprojectGeometry {

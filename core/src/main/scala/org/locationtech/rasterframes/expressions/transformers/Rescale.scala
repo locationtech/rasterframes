@@ -79,7 +79,7 @@ case class Rescale(first: Expression, second: Expression, third: Expression) ext
         .normalize(min, max, 0.0, 1.0)
   }
 
-  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
     copy(newFirst, newSecond, newThird)
 }
 

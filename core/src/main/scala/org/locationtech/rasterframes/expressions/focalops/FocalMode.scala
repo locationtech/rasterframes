@@ -44,6 +44,7 @@ case class FocalMode(first: Expression, second: Expression, third: Expression) e
     case bt: BufferTile => bt.focalMode(neighborhood, target = target)
     case _ => t.focalMode(neighborhood, target = target)
   }
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalMode {

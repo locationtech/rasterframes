@@ -42,6 +42,8 @@ case class TileToArrayInt(child: Expression) extends UnaryRasterFunction with Co
   def dataType: DataType = DataTypes.createArrayType(IntegerType, false)
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     ArrayData.toArrayData(tile.toArray())
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object TileToArrayInt {
   def apply(tile: Column): TypedColumn[Any, Array[Int]] =

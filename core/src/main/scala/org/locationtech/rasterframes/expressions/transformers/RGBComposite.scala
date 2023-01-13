@@ -88,7 +88,7 @@ case class RGBComposite(red: Expression, green: Expression, blue: Expression) ex
     toInternalRow(composite, ctx)
   }
 
-  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object RGBComposite {

@@ -42,6 +42,7 @@ case class TileToArrayDouble(child: Expression) extends UnaryRasterFunction with
   def dataType: DataType = DataTypes.createArrayType(DoubleType, false)
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any =
     ArrayData.toArrayData(tile.toArrayDouble())
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object TileToArrayDouble {
   def apply(tile: Column): TypedColumn[Any, Array[Double]] =

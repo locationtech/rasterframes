@@ -46,6 +46,8 @@ case class GetDimensions(child: Expression) extends OnCellGridExpression with Co
   def dataType = dimensionsEncoder[Int].schema
 
   def eval(grid: CellGrid[Int]): Any = Dimensions[Int](grid.cols, grid.rows).toInternalRow
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GetDimensions {

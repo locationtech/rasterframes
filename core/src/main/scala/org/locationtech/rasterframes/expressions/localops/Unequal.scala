@@ -44,6 +44,8 @@ case class Unequal(left: Expression, right: Expression) extends BinaryRasterFunc
   protected def op(left: Tile, right: Tile): Tile = left.localUnequal(right)
   protected def op(left: Tile, right: Double): Tile = left.localUnequal(right)
   protected def op(left: Tile, right: Int): Tile = left.localUnequal(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object Unequal {
