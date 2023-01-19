@@ -70,6 +70,8 @@ case class SetNoDataValue(left: Expression, right: Expression) extends BinaryExp
 
     toInternalRow(result, leftCtx)
   }
+
+  def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object SetNoDataValue {

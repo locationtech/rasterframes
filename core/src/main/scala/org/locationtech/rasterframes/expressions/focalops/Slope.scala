@@ -48,28 +48,26 @@ import org.slf4j.LoggerFactory
     > SELECT _FUNC_(tile, 0.2, 'all');
        ..."""
 )
-case class Slope(left: Expression, middle: Expression, right: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
+case class Slope(first: Expression, second: Expression, third: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def nodeName: String = Slope.name
 
-  def dataType: DataType = left.dataType
-
-  val children: Seq[Expression] = Seq(left, middle, right)
+  def dataType: DataType = first.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if (!tileExtractor.isDefinedAt(left.dataType)) TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
-    else if (!numberArgExtractor.isDefinedAt(middle.dataType)) TypeCheckFailure(s"Input type '${middle.dataType}' does not conform to a numeric type.")
-    else if (!targetCellExtractor.isDefinedAt(right.dataType)) TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a TargetCell type.")
+    if (!tileExtractor.isDefinedAt(first.dataType)) TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a raster type.")
+    else if (!numberArgExtractor.isDefinedAt(second.dataType)) TypeCheckFailure(s"Input type '${second.dataType}' does not conform to a numeric type.")
+    else if (!targetCellExtractor.isDefinedAt(third.dataType)) TypeCheckFailure(s"Input type '${third.dataType}' does not conform to a TargetCell type.")
     else TypeCheckSuccess
 
   override protected def nullSafeEval(tileInput: Any, zFactorInput: Any, targetCellInput: Any): Any = {
-    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
-    val zFactor = numberArgExtractor(middle.dataType)(zFactorInput) match {
+    val (tile, ctx) = tileExtractor(first.dataType)(row(tileInput))
+    val zFactor = numberArgExtractor(second.dataType)(zFactorInput) match {
       case DoubleArg(value)  => value
       case IntegerArg(value) => value.toDouble
     }
-    val target = targetCellExtractor(right.dataType)(targetCellInput)
+    val target = targetCellExtractor(third.dataType)(targetCellInput)
     eval(extractBufferTile(tile), ctx, zFactor, target)
   }
   protected def eval(tile: Tile, ctx: Option[TileContext], zFactor: Double, target: TargetCell): Any = ctx match {
@@ -81,6 +79,8 @@ case class Slope(left: Expression, middle: Expression, right: Expression) extend
     case bt: BufferTile => bt.slope(CellSize(ctx.extent, cols = t.cols, rows = t.rows), zFactor, target = target)
     case _ => t.slope(CellSize(ctx.extent, cols = t.cols, rows = t.rows), zFactor, target = target)
   }
+
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object Slope {

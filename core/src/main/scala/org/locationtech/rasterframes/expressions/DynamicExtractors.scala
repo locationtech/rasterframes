@@ -26,6 +26,7 @@ import geotrellis.raster.{CellGrid, Neighborhood, Raster, TargetCell, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.jts.JTSTypes
 import org.apache.spark.sql.rf.{RasterSourceUDT, TileUDT}
 import org.apache.spark.sql.types._
@@ -104,6 +105,24 @@ object DynamicExtractors {
       (row: InternalRow) => row.as[RasterRef]
     case t if t.conformsToSchema(ProjectedRasterTile.projectedRasterTileEncoder.schema) =>
       (row: InternalRow) => row.as[ProjectedRasterTile]
+  }
+
+  lazy val intArrayExtractor: PartialFunction[DataType, ArrayData => Array[Int]] = {
+    case ArrayType(t, true) =>
+      throw new IllegalArgumentException(s"Can't turn array of $t to array<int>")
+    case ArrayType(DoubleType, false) =>
+      unsafe => unsafe.toDoubleArray.map(_.toInt)
+    case ArrayType(FloatType, false) =>
+      unsafe => unsafe.toFloatArray.map(_.toInt)
+    case ArrayType(IntegerType, false) =>
+      unsafe => unsafe.toIntArray
+    case ArrayType(ShortType, false) =>
+      unsafe => unsafe.toShortArray.map(_.toInt)
+    case ArrayType(ByteType, false) =>
+      unsafe => unsafe.toByteArray.map(_.toInt)
+    case ArrayType(BooleanType, false) =>
+      unsafe => unsafe.toBooleanArray().map(x => if (x) 1 else 0)
+
   }
 
   lazy val crsExtractor: PartialFunction[DataType, Any => CRS] = {

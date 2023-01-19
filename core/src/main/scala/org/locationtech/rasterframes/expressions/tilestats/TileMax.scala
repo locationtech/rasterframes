@@ -45,6 +45,7 @@ case class TileMax(child: Expression) extends UnaryRasterFunction with NullToVal
   protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMax.op(tile)
   def dataType: DataType = DoubleType
   def na: Any = Double.MinValue
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object TileMax {

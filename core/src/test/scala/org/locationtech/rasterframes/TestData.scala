@@ -143,15 +143,15 @@ trait TestData {
   }
 
   // Check the URL exists as of 2020-09-30; strictly these are not COGs because they do not have internal overviews
-  private def remoteCOGSingleBand(b: Int) = URI.create(s"https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/017/029/LC08_L1TP_017029_20200422_20200509_01_T1/LC08_L1TP_017029_20200422_20200509_01_T1_B${b}.TIF")
-  lazy val remoteCOGSingleband1: URI = remoteCOGSingleBand(1)
-  lazy val remoteCOGSingleband2: URI = remoteCOGSingleBand(2)
+  def remoteCOGSingleBand(b: Int) = URI.create(s"https://geotrellis-test.s3.us-east-1.amazonaws.com/landsat/LC80030172015001LGN00_B${b}.tiff")
+  lazy val remoteCOGSingleband1: URI = remoteCOGSingleBand(2)
+  lazy val remoteCOGSingleband2: URI = remoteCOGSingleBand(3)
 
   // a public 4 band COG TIF
-  lazy val remoteCOGMultiband: URI = URI.create("https://s22s-rasterframes-integration-tests.s3.amazonaws.com/m_4411708_ne_11_1_20141005.cog.tif")
+  lazy val remoteCOGMultiband: URI = URI.create("https://geotrellis-test.s3.us-east-1.amazonaws.com/landsat-multiband-band-cropped.tif")
 
   lazy val remoteMODIS: URI = URI.create("https://modis-pds.s3.amazonaws.com/MCD43A4.006/31/11/2017158/MCD43A4.A2017158.h31v11.006.2017171203421_B01.TIF")
-  lazy val remoteL8: URI = URI.create("https://landsat-pds.s3.amazonaws.com/c1/L8/017/033/LC08_L1TP_017033_20181010_20181030_01_T1/LC08_L1TP_017033_20181010_20181030_01_T1_B4.TIF")
+  lazy val remoteL8: URI = URI.create("https://geotrellis-test.s3.us-east-1.amazonaws.com/landsat/LC80030172015001LGN00_B4.tiff")
   lazy val remoteHttpMrfPath: URI = URI.create("https://s3.amazonaws.com/s22s-rasterframes-integration-tests/m_3607526_sw_18_1_20160708.mrf")
   lazy val remoteS3MrfPath: URI = URI.create("s3://naip-analytic/va/2016/100cm/rgbir/37077/m_3707764_sw_18_1_20160708.mrf")
 

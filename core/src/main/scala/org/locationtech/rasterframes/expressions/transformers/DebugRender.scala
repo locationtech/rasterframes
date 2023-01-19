@@ -55,6 +55,8 @@ object DebugRender {
   )
   case class RenderAscii(child: Expression) extends DebugRender(true) {
     override def nodeName: String = "rf_render_ascii"
+
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
   object RenderAscii {
     def apply(tile: Column): TypedColumn[Any, String] = new Column(RenderAscii(tile.expr)).as[String]
@@ -68,6 +70,8 @@ object DebugRender {
   )
   case class RenderMatrix(child: Expression) extends DebugRender(false) {
     override def nodeName: String = "rf_render_matrix"
+
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
   object RenderMatrix {
     def apply(tile: Column): TypedColumn[Any, String] = new Column(RenderMatrix(tile.expr)).as[String]

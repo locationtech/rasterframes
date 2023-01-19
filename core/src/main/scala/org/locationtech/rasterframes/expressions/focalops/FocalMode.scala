@@ -38,12 +38,13 @@ import org.apache.spark.sql.catalyst.expressions.{Expression, ExpressionDescript
     > SELECT _FUNC_(tile, 'square-1', 'all');
        ..."""
 )
-case class FocalMode(left: Expression, middle: Expression, right: Expression) extends FocalNeighborhoodOp {
+case class FocalMode(first: Expression, second: Expression, third: Expression) extends FocalNeighborhoodOp {
   override def nodeName: String = FocalMode.name
   protected def op(t: Tile, neighborhood: Neighborhood, target: TargetCell): Tile = t match {
     case bt: BufferTile => bt.focalMode(neighborhood, target = target)
     case _ => t.focalMode(neighborhood, target = target)
   }
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object FocalMode {

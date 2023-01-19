@@ -21,18 +21,18 @@
 
 package org.locationtech.rasterframes.functions
 import java.io.ByteArrayInputStream
-
 import geotrellis.raster._
-import geotrellis.raster.testkit.RasterMatchers
+
 import javax.imageio.ImageIO
 import org.apache.spark.sql.Encoders
-import org.apache.spark.sql.functions.{count, sum, isnull}
+import org.apache.spark.sql.functions.{count, isnull, sum}
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.ref.RasterRef
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util.ColorRampNames
+import org.scalatest.Assertions
 
-class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
+class TileFunctionsSpec extends TestEnvironment {
   import TestData._
   import spark.implicits._
 
@@ -469,7 +469,7 @@ class TileFunctionsSpec extends TestEnvironment with RasterMatchers {
     it("should convert names to ColorRamps") {
       forEvery(ColorRampNames()) {
         case ColorRampNames(ramp) => ramp.numStops should be > (0)
-        case o => fail(s"Expected $o to convert to color ramp")
+        case o => (this: Assertions).fail(s"Expected $o to convert to color ramp")
       }
     }
     it("should return None on unrecognized names") {

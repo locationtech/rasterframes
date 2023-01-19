@@ -45,6 +45,7 @@ case class NoDataCells(child: Expression) extends UnaryRasterFunction with Codeg
   def dataType: DataType = LongType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = NoDataCells.op(tile)
   def na: Any = 0L
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object NoDataCells {
   def apply(tile: Column): TypedColumn[Any, Long] =

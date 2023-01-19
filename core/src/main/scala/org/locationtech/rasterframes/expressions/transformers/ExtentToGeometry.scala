@@ -59,6 +59,8 @@ case class ExtentToGeometry(child: Expression) extends UnaryExpression with Code
     val geom = extent.toPolygon()
     JTSTypes.GeometryTypeInstance.serialize(geom)
   }
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object ExtentToGeometry extends SpatialEncoders {

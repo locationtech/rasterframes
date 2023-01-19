@@ -57,6 +57,8 @@ case class GetEnvelope(child: Expression) extends UnaryExpression with CodegenFa
   }
 
   def dataType: DataType = envelopeEncoder.schema
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GetEnvelope {

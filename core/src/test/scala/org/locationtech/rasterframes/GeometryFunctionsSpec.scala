@@ -32,10 +32,8 @@ import org.locationtech.jts.geom.{Coordinate, GeometryFactory}
  * @since 12/16/17
  */
 class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardColumns {
-  import spark.implicits._
-
   describe("Vector geometry operations") {
-    val rf = l8Sample(1).projectedRaster.toLayer(10, 10).withGeometry()
+    lazy val rf = l8Sample(1).projectedRaster.toLayer(10, 10).withGeometry()
     it("should allow joining and filtering of tiles based on points") {
       import spark.implicits._
 
@@ -136,6 +134,7 @@ class GeometryFunctionsSpec extends TestEnvironment with TestData with StandardC
   }
 
   it("should rasterize geometry") {
+    import spark.implicits._
     val rf = l8Sample(1).projectedRaster.toLayer.withGeometry()
     val df = GeomData.features.map(f => (
       f.geom.reproject(LatLng, rf.crs),

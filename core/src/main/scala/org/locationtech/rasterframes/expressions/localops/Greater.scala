@@ -43,6 +43,8 @@ case class Greater(left: Expression, right: Expression) extends BinaryRasterFunc
   protected def op(left: Tile, right: Tile): Tile = left.localGreater(right)
   protected def op(left: Tile, right: Double): Tile = left.localGreater(right)
   protected def op(left: Tile, right: Int): Tile = left.localGreater(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object Greater {

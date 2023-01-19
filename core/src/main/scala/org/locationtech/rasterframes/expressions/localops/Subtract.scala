@@ -46,6 +46,8 @@ case class Subtract(left: Expression, right: Expression) extends BinaryRasterFun
   protected def op(left: Tile, right: Tile): Tile = left.localSubtract(right)
   protected def op(left: Tile, right: Double): Tile = left.localSubtract(right)
   protected def op(left: Tile, right: Int): Tile = left.localSubtract(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object Subtract {
   def apply(left: Column, right: Column): Column = new Column(Subtract(left.expr, right.expr))

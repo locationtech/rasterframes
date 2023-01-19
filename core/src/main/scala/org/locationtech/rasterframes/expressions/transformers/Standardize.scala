@@ -46,28 +46,26 @@ import org.locationtech.rasterframes.expressions.tilestats.TileStats
     > SELECT  _FUNC_(tile, lit(4.0), lit(2.2))
        ..."""
 )
-case class Standardize(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
+case class Standardize(first: Expression, second: Expression, third: Expression) extends TernaryExpression with RasterResult with CodegenFallback with Serializable {
   override val nodeName: String = "rf_standardize"
 
-  def children: Seq[Expression] = Seq(child1, child2, child3)
-
-  def dataType: DataType = child1.dataType
+  def dataType: DataType = first.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if(!tileExtractor.isDefinedAt(child1.dataType)) {
-      TypeCheckFailure(s"Input type '${child1.dataType}' does not conform to a raster type.")
-    } else if (!doubleArgExtractor.isDefinedAt(child2.dataType)) {
-      TypeCheckFailure(s"Input type '${child2.dataType}' isn't floating point type.")
-    } else if (!doubleArgExtractor.isDefinedAt(child3.dataType)) {
-      TypeCheckFailure(s"Input type '${child3.dataType}' isn't floating point type." )
+    if(!tileExtractor.isDefinedAt(first.dataType)) {
+      TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a raster type.")
+    } else if (!doubleArgExtractor.isDefinedAt(second.dataType)) {
+      TypeCheckFailure(s"Input type '${second.dataType}' isn't floating point type.")
+    } else if (!doubleArgExtractor.isDefinedAt(third.dataType)) {
+      TypeCheckFailure(s"Input type '${third.dataType}' isn't floating point type." )
     } else TypeCheckSuccess
 
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    val (childTile, childCtx) = tileExtractor(child1.dataType)(row(input1))
+    val (childTile, childCtx) = tileExtractor(first.dataType)(row(input1))
 
-    val mean = doubleArgExtractor(child2.dataType)(input2).value
-    val stdDev = doubleArgExtractor(child3.dataType)(input3).value
+    val mean = doubleArgExtractor(second.dataType)(input2).value
+    val stdDev = doubleArgExtractor(third.dataType)(input3).value
     val result = op(childTile, mean, stdDev)
 
     toInternalRow(result, childCtx)
@@ -79,6 +77,8 @@ case class Standardize(child1: Expression, child2: Expression, child3: Expressio
       .localSubtract(mean)
       .localDivide(stdDev)
 
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+    copy(newFirst, newSecond, newThird)
 }
 object Standardize {
   def apply(tile: Column, mean: Column, stdDev: Column): Column =

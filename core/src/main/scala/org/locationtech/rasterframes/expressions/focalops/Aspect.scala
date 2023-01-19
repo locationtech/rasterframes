@@ -73,6 +73,8 @@ case class Aspect(left: Expression, right: Expression) extends BinaryExpression 
     case bt: BufferTile => bt.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows), target = target)
     case _ => t.aspect(CellSize(ctx.extent, cols = t.cols, rows = t.rows), target = target)
   }
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object Aspect {

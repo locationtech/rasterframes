@@ -130,13 +130,13 @@ trait LocalFunctions {
 
   /** Where the rf_mask tile contains NODATA, replace values in the source tile with NODATA */
   def rf_mask(sourceTile: Column, maskTile: Column, inverse: Boolean = false): TypedColumn[Any, Tile] =
-    if (!inverse) Mask.MaskByDefined(sourceTile, maskTile)
-    else Mask.InverseMaskByDefined(sourceTile, maskTile)
+    if (!inverse) MaskByDefined(sourceTile, maskTile)
+    else InverseMaskByDefined(sourceTile, maskTile)
 
   /** Where the `maskTile` equals `maskValue`, replace values in the source tile with `NoData` */
   def rf_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column, inverse: Boolean = false): TypedColumn[Any, Tile] =
-    if (!inverse) Mask.MaskByValue(sourceTile, maskTile, maskValue)
-    else Mask.InverseMaskByValue(sourceTile, maskTile, maskValue)
+    if (!inverse) MaskByValue(sourceTile, maskTile, maskValue)
+    else InverseMaskByValue(sourceTile, maskTile, maskValue)
 
   /** Where the `maskTile` equals `maskValue`, replace values in the source tile with `NoData` */
   def rf_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Int, inverse: Boolean): TypedColumn[Any, Tile] =
@@ -149,7 +149,7 @@ trait LocalFunctions {
   /** Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
        list, replace the value with NODATA. */
   def rf_mask_by_values(sourceTile: Column, maskTile: Column, maskValues: Column): TypedColumn[Any, Tile] =
-    Mask.MaskByValues(sourceTile, maskTile, maskValues)
+    MaskByValues(sourceTile, maskTile, maskValues)
 
   /** Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
        list, replace the value with NODATA. */
@@ -161,27 +161,33 @@ trait LocalFunctions {
 
   /** Where the `maskTile` does **not** contain `NoData`, replace values in the source tile with `NoData` */
   def rf_inverse_mask(sourceTile: Column, maskTile: Column): TypedColumn[Any, Tile] =
-    Mask.InverseMaskByDefined(sourceTile, maskTile)
+    InverseMaskByDefined(sourceTile, maskTile)
 
   /** Where the `maskTile` does **not** equal `maskValue`, replace values in the source tile with `NoData` */
   def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Column): TypedColumn[Any, Tile] =
-    Mask.InverseMaskByValue(sourceTile, maskTile, maskValue)
+    InverseMaskByValue(sourceTile, maskTile, maskValue)
 
   /** Where the `maskTile` does **not** equal `maskValue`, replace values in the source tile with `NoData` */
   def rf_inverse_mask_by_value(sourceTile: Column, maskTile: Column, maskValue: Int): TypedColumn[Any, Tile] =
-    Mask.InverseMaskByValue(sourceTile, maskTile, lit(maskValue))
+    InverseMaskByValue(sourceTile, maskTile, lit(maskValue))
 
   /** Applies a mask using bit values in the `mask_tile`. Working from the right, extract the bit at `bitPosition` from the `maskTile`. In all locations where these are equal to the `valueToMask`, the returned tile is set to NoData, else the original `dataTile` cell value. */
   def rf_mask_by_bit(dataTile: Column, maskTile: Column, bitPosition: Int, valueToMask: Boolean): TypedColumn[Any, Tile] =
     rf_mask_by_bit(dataTile, maskTile, lit(bitPosition), lit(if (valueToMask) 1 else 0))
 
-  /** Applies a mask using bit values in the `mask_tile`. Working from the right, extract the bit at `bitPosition` from the `maskTile`. In all locations where these are equal to the `valueToMask`, the returned tile is set to NoData, else the original `dataTile` cell value. */
+  /** Applies a mask using bit values in the `mask_tile`. Working from the right, extract the bit at `bitPosition` from the `maskTile`.
+   * In all locations where these are equal to the `valueToMask`, the returned tile is set to NoData, else the original `dataTile` cell value.
+   **/
   def rf_mask_by_bit(dataTile: Column, maskTile: Column, bitPosition: Column, valueToMask: Column): TypedColumn[Any, Tile] = {
     import org.apache.spark.sql.functions.array
     rf_mask_by_bits(dataTile, maskTile, bitPosition, lit(1), array(valueToMask))
   }
 
-  /** Applies a mask from blacklisted bit values in the `mask_tile`. Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`. In all locations where these are in the `mask_values`, the returned tile is set to NoData; otherwise the original `tile` cell value is returned. */
+  /** Applies a mask from blacklisted bit values in the `mask_tile`.
+   * Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`.
+   * In all locations where these are in the `mask_values`, the returned tile is set to NoData;
+   * otherwise the original `tile` cell value is returned.
+   **/
   def rf_mask_by_bits(
     dataTile: Column,
     maskTile: Column,
@@ -192,7 +198,11 @@ trait LocalFunctions {
     rf_mask_by_values(dataTile, bitMask, valuesToMask)
   }
 
-  /** Applies a mask from blacklisted bit values in the `mask_tile`. Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`. In all locations where these are in the `mask_values`, the returned tile is set to NoData; otherwise the original `tile` cell value is returned. */
+  /** Applies a mask from blacklisted bit values in the `mask_tile`.
+   * Working from the right, the bits from `start_bit` to `start_bit + num_bits` are @ref:[extracted](reference.md#rf_local_extract_bits) from cell values of the `mask_tile`.
+   * In all locations where these are in the `mask_values`, the returned tile is set to NoData;
+   * otherwise the original `tile` cell value is returned.
+   **/
   def rf_mask_by_bits(dataTile: Column, maskTile: Column, startBit: Int, numBits: Int, valuesToMask: Int*): TypedColumn[Any, Tile] = {
     import org.apache.spark.sql.functions.array
     val values = array(valuesToMask.map(lit): _*)

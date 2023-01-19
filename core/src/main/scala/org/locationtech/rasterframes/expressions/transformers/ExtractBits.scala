@@ -44,32 +44,32 @@ import org.locationtech.rasterframes.expressions._
     > SELECT  _FUNC_(tile, lit(4), lit(2))
        ..."""
 )
-case class ExtractBits(child1: Expression, child2: Expression, child3: Expression) extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
+case class ExtractBits(first: Expression, second: Expression, third: Expression) extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
   override val nodeName: String = "rf_local_extract_bits"
 
-  def children: Seq[Expression] = Seq(child1, child2, child3)
-
-  def dataType: DataType = child1.dataType
+  def dataType: DataType = first.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if(!tileExtractor.isDefinedAt(child1.dataType)) {
-      TypeCheckFailure(s"Input type '${child1.dataType}' does not conform to a raster type.")
-    } else if (!intArgExtractor.isDefinedAt(child2.dataType)) {
-      TypeCheckFailure(s"Input type '${child2.dataType}' isn't an integral type.")
-    } else if (!intArgExtractor.isDefinedAt(child3.dataType)) {
-      TypeCheckFailure(s"Input type '${child3.dataType}' isn't an integral type.")
+    if(!tileExtractor.isDefinedAt(first.dataType)) {
+      TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a raster type.")
+    } else if (!intArgExtractor.isDefinedAt(second.dataType)) {
+      TypeCheckFailure(s"Input type '${second.dataType}' isn't an integral type.")
+    } else if (!intArgExtractor.isDefinedAt(third.dataType)) {
+      TypeCheckFailure(s"Input type '${third.dataType}' isn't an integral type.")
     } else TypeCheckSuccess
 
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    val (childTile, childCtx) = tileExtractor(child1.dataType)(row(input1))
-    val startBits = intArgExtractor(child2.dataType)(input2).value
-    val numBits = intArgExtractor(child2.dataType)(input3).value
+    val (childTile, childCtx) = tileExtractor(first.dataType)(row(input1))
+    val startBits = intArgExtractor(second.dataType)(input2).value
+    val numBits = intArgExtractor(second.dataType)(input3).value
     val result = op(childTile, startBits, numBits)
     toInternalRow(result,childCtx)
   }
 
   protected def op(tile: Tile, startBit: Int, numBits: Int): Tile = ExtractBits(tile, startBit, numBits)
+
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object ExtractBits{

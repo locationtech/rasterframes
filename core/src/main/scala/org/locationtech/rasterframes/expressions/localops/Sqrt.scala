@@ -44,6 +44,7 @@ case class Sqrt(child: Expression) extends UnaryRasterOp with CodegenFallback {
   override val nodeName: String = "rf_sqrt"
   protected def op(tile: Tile): Tile = fpTile(tile).localPow(0.5)
   override def dataType: DataType = child.dataType
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object Sqrt {
   def apply(tile: Column): Column = new Column(Sqrt(tile.expr))

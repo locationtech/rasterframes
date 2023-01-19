@@ -46,6 +46,7 @@ case class IsNoDataTile(child: Expression) extends UnaryRasterFunction
   def na: Any = true
   def dataType: DataType = BooleanType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = tile.isNoDataTile
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object IsNoDataTile {
   def apply(tile: Column): TypedColumn[Any, Boolean] = new Column(IsNoDataTile(tile.expr)).as[Boolean]

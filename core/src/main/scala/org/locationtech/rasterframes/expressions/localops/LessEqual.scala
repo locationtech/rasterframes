@@ -44,6 +44,8 @@ case class LessEqual(left: Expression, right: Expression) extends BinaryRasterFu
   protected def op(left: Tile, right: Tile): Tile = left.localLessOrEqual(right)
   protected def op(left: Tile, right: Double): Tile = left.localLessOrEqual(right)
   protected def op(left: Tile, right: Int): Tile = left.localLessOrEqual(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object LessEqual {
   def apply(left: Column, right: Column): Column = new Column(LessEqual(left.expr, right.expr))

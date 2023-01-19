@@ -32,16 +32,17 @@ import org.locationtech.rasterframes.stats._
 import org.locationtech.rasterframes.util.DataBiasedOp._
 
 class StatFunctionsSpec extends TestEnvironment with TestData {
-  import spark.implicits._
 
-  val df = TestData.sampleGeoTiff
-    .toDF()
-    .withColumn("tilePlus2", rf_local_add(col("tile"), 2))
+  lazy val df = {
+    TestData.sampleGeoTiff.toDF().withColumn("tilePlus2", rf_local_add(col("tile"), 2))
+  }
 
 
   describe("Tile quantiles through built-in functions") {
 
     it("should compute approx percentiles for a single tile col") {
+      import spark.implicits._
+
       // Use "explode"
       val result = df
         .select(rf_explode_tiles($"tile"))
@@ -68,6 +69,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
   describe("Tile quantiles through custom aggregate") {
     it("should compute approx percentiles for a single tile col") {
+      import spark.implicits._
+
       val result = df
         .select(rf_agg_approx_quantiles($"tile", Seq(0.10, 0.50, 0.90), 0.0000001))
         .first()
@@ -81,6 +84,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
   describe("per-tile stats") {
     it("should compute data cell counts") {
+      import spark.implicits._
+
       val df = Seq(Option(TestData.injectND(numND)(two))).toDF("two")
       df.select(rf_data_cells($"two")).first() shouldBe (cols * rows - numND).toLong
 
@@ -94,6 +99,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       checkDocs("rf_data_cells")
     }
     it("should compute no-data cell counts") {
+      import spark.implicits._
+
       val df = Seq(Option(TestData.injectND(numND)(two))).toDF("two")
       df.select(rf_no_data_cells($"two")).first() should be(numND)
 
@@ -108,6 +115,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should properly count data and nodata cells on constant tiles") {
+      import spark.implicits._
+
       val rf = Seq(Option(randPRT)).toDF("tile")
 
       val df = rf
@@ -128,6 +137,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should detect no-data tiles") {
+      import spark.implicits._
+
       val df = Seq(Option(nd)).toDF("nd")
       df.select(rf_is_no_data_tile($"nd")).first() should be(true)
       val df2 = Seq(Option(two)).toDF("not_nd")
@@ -136,6 +147,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should evaluate exists and for_all") {
+      import spark.implicits._
+
       val df0 = Seq(Option(zero)).toDF("tile")
       df0.select(rf_exists($"tile")).first() should be(false)
       df0.select(rf_for_all($"tile")).first() should be(false)
@@ -152,6 +165,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should check values is_in") {
+      import spark.implicits._
+
       checkDocs("rf_local_is_in")
 
       // tile is 3 by 3 with values, 1 to 9
@@ -177,6 +192,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       e0Result.toArray() should contain only (0)
     }
     it("should find the minimum cell value") {
+      import spark.implicits._
+
       val min = randNDPRT.toArray().filter(c => isData(c)).min.toDouble
       val df = Seq(randNDPRT).toDF("rand")
       df.select(rf_tile_min($"rand")).first() should be(min)
@@ -185,6 +202,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should find the maximum cell value") {
+      import spark.implicits._
+
       val max = randNDPRT.toArray().filter(c => isData(c)).max.toDouble
       val df = Seq(randNDPRT).toDF("rand")
       df.select(rf_tile_max($"rand")).first() should be(max)
@@ -192,6 +211,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
       checkDocs("rf_tile_max")
     }
     it("should compute the tile mean cell value") {
+      import spark.implicits._
+
       val values = randNDPRT.toArray().filter(c => isData(c))
       val mean = values.sum.toDouble / values.length
       val df = Seq(Option(randNDPRT)).toDF("rand")
@@ -201,6 +222,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute the tile summary statistics") {
+      import spark.implicits._
+
       val values = randNDPRT.toArray().filter(c => isData(c))
       val mean = values.sum.toDouble / values.length
       val df = Seq(Option(randNDPRT)).toDF("rand")
@@ -233,6 +256,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute the tile histogram") {
+      import spark.implicits._
+
       val df = Seq(Option(randNDPRT)).toDF("rand")
       val h1 = df.select(rf_tile_histogram($"rand")).first()
 
@@ -250,6 +275,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
   describe("computing statistics over tiles") {
     //import org.apache.spark.sql.execution.debug._
     it("should report dimensions") {
+      import spark.implicits._
+
       val df = Seq[(Tile, Tile)]((byteArrayTile, byteArrayTile)).toDF("tile1", "tile2")
 
       val dims = df.select(rf_dimensions($"tile1") as "dims").select("dims.*")
@@ -273,6 +300,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should report cell type") {
+      import spark.implicits._
+
       val ct = functions.cellTypes().filter(_ != "bool")
       forEvery(ct) { c =>
         val expected = CellType.fromName(c)
@@ -288,6 +317,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     val tile3 = randomTile(255, 255, IntCellType)
 
     it("should compute accurate item counts") {
+      import spark.implicits._
+
       val ds = Seq[Option[Tile]](Option(tile1), Option(tile2), Option(tile3)).toDF("tiles")
       val checkedValues = Seq[Double](0, 4, 7, 13, 26)
       val result = checkedValues.map(x => ds.select(rf_tile_histogram($"tiles")).first().itemCount(x))
@@ -297,6 +328,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("Should compute quantiles") {
+      import spark.implicits._
+
       val ds = Seq[Option[Tile]](Option(tile1), Option(tile2), Option(tile3)).toDF("tiles")
       val numBreaks = 5
       val breaks = ds.select(rf_tile_histogram($"tiles")).map(_.quantileBreaks(numBreaks)).collect()
@@ -355,6 +388,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute per-tile histogram") {
+      import spark.implicits._
+
       val ds = Seq.fill[Option[Tile]](3)(Option(randomTile(5, 5, FloatCellType))).toDF("tiles")
       ds.createOrReplaceTempView("tmp")
 
@@ -382,6 +417,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate histogram") {
+      import spark.implicits._
+
       val tileSize = 5
       val rows = 10
       val ds = Seq
@@ -406,6 +443,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate mean") {
+      import spark.implicits._
+
       val ds = (Seq.fill[Tile](10)(randomTile(5, 5, FloatCellType)) :+ null).toDF("tiles")
       val agg = ds.select(rf_agg_mean($"tiles"))
       val stats = ds.select(rf_agg_stats($"tiles") as "stats").select($"stats.mean".as[Double])
@@ -413,6 +452,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute aggregate statistics") {
+      import spark.implicits._
+
       val ds = Seq.fill[Tile](10)(randomTile(5, 5, FloatConstantNoDataCellType)).toDF("tiles")
 
       val exploded = ds.select(rf_explode_tiles($"tiles"))
@@ -473,6 +514,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should compute accurate statistics") {
+      import spark.implicits._
+
       val completeTile = squareIncrementingTile(4).convert(IntConstantNoDataCellType)
       val incompleteTile = injectND(2)(completeTile)
 
@@ -506,13 +549,18 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     val tsize = 5
     val count = 20
     val nds = 2
-    val tiles = (Seq
-      .fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
-      .map(injectND(nds)) :+ null)
-      .map(Option.apply)
-      .toDF("tiles")
+    lazy val tiles = {
+      import spark.implicits._
+      (Seq
+        .fill[Tile](count)(randomTile(tsize, tsize, UByteUserDefinedNoDataCellType(255.toByte)))
+        .map(injectND(nds)) :+ null)
+        .map(Option.apply)
+        .toDF("tiles")
+    }
 
     it("should count cells by NoData state") {
+      import spark.implicits._
+
       val counts = tiles.select(rf_no_data_cells($"tiles")).collect().dropRight(1)
       forEvery(counts)(c => assert(c === nds))
       val counts2 = tiles.select(rf_data_cells($"tiles")).collect().dropRight(1)
@@ -520,6 +568,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
     }
 
     it("should detect all NoData tiles") {
+      import spark.implicits._
+
       val ndCount = tiles.select("*").where(rf_is_no_data_tile($"tiles")).count()
       ndCount should be(1)
 
@@ -584,6 +634,8 @@ class StatFunctionsSpec extends TestEnvironment with TestData {
 
   describe("proj_raster handling") {
     it("should handle proj_raster structures") {
+      import spark.implicits._
+
       val df = Seq(lazyPRT, lazyPRT).map(Option(_)).toDF("tile")
 
       val targets = Seq[Column => Column](

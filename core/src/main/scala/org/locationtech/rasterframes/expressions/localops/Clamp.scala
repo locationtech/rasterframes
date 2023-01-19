@@ -19,28 +19,26 @@ import org.locationtech.rasterframes.expressions.{RasterResult, row}
         * min - scalar or tile setting the minimum value for each cell
         * max - scalar or tile setting the maximum value for each cell"""
 )
-case class Clamp(left: Expression, middle: Expression, right: Expression) extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
-  def dataType: DataType = left.dataType
-
-  def children: Seq[Expression] = Seq(left, middle, right)
+case class Clamp(first: Expression, second: Expression, third: Expression) extends TernaryExpression with CodegenFallback with RasterResult with Serializable {
+  def dataType: DataType = first.dataType
 
   override val nodeName = "rf_local_clamp"
 
   override def checkInputDataTypes(): TypeCheckResult = {
-    if (!tileExtractor.isDefinedAt(left.dataType)) {
-      TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a Tile type")
-    } else if (!tileExtractor.isDefinedAt(middle.dataType) && !numberArgExtractor.isDefinedAt(middle.dataType)) {
-      TypeCheckFailure(s"Input type '${middle.dataType}' does not conform to a Tile or numeric type")
-    } else if (!tileExtractor.isDefinedAt(right.dataType) && !numberArgExtractor.isDefinedAt(right.dataType)) {
-      TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a Tile or numeric type")
+    if (!tileExtractor.isDefinedAt(first.dataType)) {
+      TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a Tile type")
+    } else if (!tileExtractor.isDefinedAt(second.dataType) && !numberArgExtractor.isDefinedAt(second.dataType)) {
+      TypeCheckFailure(s"Input type '${second.dataType}' does not conform to a Tile or numeric type")
+    } else if (!tileExtractor.isDefinedAt(third.dataType) && !numberArgExtractor.isDefinedAt(third.dataType)) {
+      TypeCheckFailure(s"Input type '${third.dataType}' does not conform to a Tile or numeric type")
     }
     else TypeCheckSuccess
   }
 
   override protected def nullSafeEval(input1: Any, input2: Any, input3: Any): Any = {
-    val (targetTile, targetCtx) = tileExtractor(left.dataType)(row(input1))
-    val minVal = tileOrNumberExtractor(middle.dataType)(input2)
-    val maxVal = tileOrNumberExtractor(right.dataType)(input3)
+    val (targetTile, targetCtx) = tileExtractor(first.dataType)(row(input1))
+    val minVal = tileOrNumberExtractor(second.dataType)(input2)
+    val maxVal = tileOrNumberExtractor(third.dataType)(input3)
 
     val result = (minVal, maxVal) match {
       case (mn: TileArg, mx: TileArg) => targetTile.localMin(mx.tile).localMax(mn.tile)
@@ -57,6 +55,8 @@ case class Clamp(left: Expression, middle: Expression, right: Expression) extend
     toInternalRow(result, targetCtx)
   }
 
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+    copy(newFirst, newSecond, newThird)
 }
 object Clamp {
   def apply(tile: Column, min: Column, max: Column): Column = new Column(Clamp(tile.expr, min.expr, max.expr))

@@ -49,6 +49,8 @@ case class GetGeometry(child: Expression) extends OnTileContextExpression with C
   override def nodeName: String = "rf_geometry"
   def eval(ctx: TileContext): InternalRow =
     JTSTypes.GeometryTypeInstance.serialize(ctx.extent.toPolygon())
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object GetGeometry {

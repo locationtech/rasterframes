@@ -45,6 +45,7 @@ case class TileMin(child: Expression) extends UnaryRasterFunction with NullToVal
   protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = TileMin.op(tile)
   def dataType: DataType = DoubleType
   def na: Any = Double.MaxValue
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object TileMin {
   def apply(tile: Column): TypedColumn[Any, Double] = new Column(TileMin(tile.expr)).as[Double]

@@ -35,8 +35,6 @@ import org.scalatest.Inspectors
 class TileUDTSpec extends TestEnvironment with TestData with Inspectors {
   import TestData.randomTile
 
-  spark.version
-
   describe("TileUDT") {
     val tileSizes = Seq(2, 7, 64, 128, 511)
     val ct = functions.cellTypes().filter(_ != "bool")

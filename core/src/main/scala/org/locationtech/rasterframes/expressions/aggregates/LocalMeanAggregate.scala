@@ -69,6 +69,8 @@ case class LocalMeanAggregate(child: Expression) extends UnaryRasterAggregate {
     BiasedAdd(sum.left, sum.right)
   )
   lazy val evaluateExpression: Expression = DivideTiles(sum, count)
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(newChildren.head)
 }
 object LocalMeanAggregate {
   def apply(tile: Column): TypedColumn[Any, Tile] =

@@ -54,6 +54,7 @@ object RenderPNG {
   )
   case class RenderCompositePNG(child: Expression) extends RenderPNG(child,  None) {
     override def nodeName: String = "rf_render_png"
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
 
   object RenderCompositePNG {
@@ -69,6 +70,8 @@ object RenderPNG {
   )
   case class RenderColorRampPNG(child: Expression, colors: ColorRamp) extends RenderPNG(child,  Some(colors)) {
     override def nodeName: String = "rf_render_png"
+    def copy(child: Expression): Expression = RenderColorRampPNG(child, colors: ColorRamp)
+    def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
   }
 
   object RenderColorRampPNG {

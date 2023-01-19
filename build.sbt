@@ -78,7 +78,7 @@ lazy val core = project
         ExclusionRule(organization = "com.github.mpilquist")
       ),
       scaffeine,
-      scalatest,
+      sparktestingbase excludeAll ExclusionRule("org.scala-lang.modules", "scala-xml_2.12"),
       `scala-logging`
     ),
     libraryDependencies ++= {

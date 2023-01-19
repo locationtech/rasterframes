@@ -69,6 +69,8 @@ case class CellMeanAggregate(child: Expression) extends UnaryRasterAggregate {
   val evaluateExpression = sum / new Cast(count, DoubleType)
 
   def dataType: DataType = DoubleType
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(newChildren.head)
 }
 
 object CellMeanAggregate {

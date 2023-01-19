@@ -68,7 +68,10 @@ object CellCountAggregate {
   )
   case class DataCells(child: Expression) extends CellCountAggregate(true) {
     override def nodeName: String = "rf_agg_data_cells"
+
+    override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(newChildren.head)
   }
+
   object DataCells {
     def apply(tile: Column): TypedColumn[Any, Long] =
       new Column(DataCells(tile.expr).toAggregateExpression()).as[Long]
@@ -85,6 +88,8 @@ object CellCountAggregate {
   )
   case class NoDataCells(child: Expression) extends CellCountAggregate(false) {
     override def nodeName: String = "rf_agg_no_data_cells"
+
+    override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(newChildren.head)
   }
   object NoDataCells {
     def apply(tile: Column): TypedColumn[Any, Long] =

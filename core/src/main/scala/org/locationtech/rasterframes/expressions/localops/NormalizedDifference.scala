@@ -50,6 +50,8 @@ case class NormalizedDifference(left: Expression, right: Expression) extends Bin
     val sum = fpTile(left.localAdd(right))
     diff.localDivide(sum)
   }
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object NormalizedDifference {
   def apply(left: Column, right: Column): TypedColumn[Any, Tile] = new Column(NormalizedDifference(left.expr, right.expr)).as[Tile]

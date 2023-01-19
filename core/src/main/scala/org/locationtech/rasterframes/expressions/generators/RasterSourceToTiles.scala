@@ -84,6 +84,8 @@ case class RasterSourceToTiles(children: Seq[Expression], bandIndexes: Seq[Int],
         Traversable.empty
     }
   }
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): Expression = copy(children = newChildren)
 }
 
 object RasterSourceToTiles {
@@ -93,5 +95,3 @@ object RasterSourceToTiles {
   def apply(subtileDims: Option[Dimensions[Int]], bandIndexes: Seq[Int], bufferSize: Short, rrs: Column*): TypedColumn[Any, ProjectedRasterTile] =
     new Column(new RasterSourceToTiles(rrs.map(_.expr), bandIndexes, subtileDims, bufferSize)).as[ProjectedRasterTile]
 }
-
-

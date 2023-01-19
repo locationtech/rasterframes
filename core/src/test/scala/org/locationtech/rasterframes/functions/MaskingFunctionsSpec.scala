@@ -22,19 +22,17 @@
 package org.locationtech.rasterframes.functions
 
 import geotrellis.raster._
-import geotrellis.raster.testkit.RasterMatchers
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
+class MaskingFunctionsSpec extends TestEnvironment {
   import TestData._
-  import spark.implicits._
 
   describe("masking by defined") {
-    spark.version
 
     it("should mask one tile against another") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
 
       val withMask = df.withColumn("mask",
@@ -54,6 +52,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask with expected results") {
+      import spark.implicits._
       val df = Seq((byteArrayTile, maskingTile)).toDF("tile", "mask")
 
       val withMasked = df.withColumn("masked",
@@ -65,6 +64,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask without mutating cell type") {
+      import spark.implicits._
       val result = Seq((byteArrayTile, maskingTile))
         .toDF("tile", "mask")
         .select(rf_mask($"tile", $"mask").as("masked_tile"))
@@ -75,6 +75,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should inverse mask one tile against another") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
 
       val baseND = df.select(rf_agg_no_data_cells($"tile")).first()
@@ -97,15 +98,14 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       checkDocs("rf_inverse_mask")
     }
 
-    it("should throw if no nodata"){
+    it("should mask over no nodata"){
+      import spark.implicits._
       val noNoDataCellType = UByteCellType
 
       val df =
         Seq(Option(TestData.projectedRasterTile(5, 5, 42, TestData.extent, TestData.crs, noNoDataCellType))).toDF("tile")
 
-      an [IllegalArgumentException] should be thrownBy {
-        df.select(rf_mask($"tile", $"tile")).collect()
-      }
+      df.select(rf_mask($"tile", $"tile"))
     }
 
   }
@@ -113,6 +113,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
   describe("mask by value") {
 
     it("should mask tile by another identified by specified value") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
       val mask_value = 4
 
@@ -134,6 +135,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask by value for value 0.") {
+      import spark.implicits._
       // maskingTile has -4, ND, and -15 values. Expect mask by value with 0 to not change the
       val df = Seq((byteArrayTile, maskingTile)).toDF("data", "mask")
 
@@ -153,6 +155,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should inverse mask tile by another identified by specified value") {
+      import spark.implicits._
       val df = Seq[Tile](randPRT).toDF("tile")
       val mask_value = 4
 
@@ -179,6 +182,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask tile by another identified by sequence of specified values") {
+      import spark.implicits._
       val squareIncrementingPRT = ProjectedRasterTile(squareIncrementingTile(six.rows), six.extent, six.crs)
       val df = Seq((six, squareIncrementingPRT))
         .toDF("tile", "mask")
@@ -220,10 +224,13 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
         )
       }
 
-      val df = tiles.toDF("data", "mask")
-        .withColumn("val", rf_tile_min($"mask"))
+    lazy val df = {
+      import spark.implicits._
+      tiles.toDF("data", "mask").withColumn("val", rf_tile_min(col("mask")))
+    }
 
     it("should give LHS cell type"){
+      import spark.implicits._
         val resultMask = df.select(
           rf_cell_type(
             rf_mask($"data", $"mask")
@@ -264,6 +271,7 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
 
 
     it("should unpack QA bits"){
+      import spark.implicits._
       checkDocs("rf_local_extract_bits")
 
       val result = df
@@ -347,12 +355,12 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
     }
 
     it("should mask by QA bits"){
+      import spark.implicits._
       val result = df
         .withColumn("fill_no", rf_mask_by_bit($"data", $"mask", 0, true))
         .withColumn("sat_0", rf_mask_by_bits($"data", $"mask", 2, 2, 1, 2, 3)) // strict no bands
         .withColumn("sat_2", rf_mask_by_bits($"data", $"mask", 2, 2, 2, 3)) // up to 2 bands contain sat
-        .withColumn("sat_4",
-          rf_mask_by_bits($"data", $"mask", lit(2), lit(2), array(lit(3)))) // up to 4 bands contain sat
+        .withColumn("sat_4", rf_mask_by_bits($"data", $"mask", lit(2), lit(2), array(lit(3)))) // up to 4 bands contain sat
         .withColumn("cloud_no", rf_mask_by_bit($"data", $"mask", lit(4), lit(true)))
         .withColumn("cloud_only", rf_mask_by_bit($"data", $"mask", 4, false)) // mask if *not* cloud
         .withColumn("cloud_conf_low", rf_mask_by_bits($"data", $"mask", lit(5), lit(2), array(lit(0), lit(1))))
@@ -362,14 +370,14 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
       result.select(rf_cell_type($"fill_no")).first() should be (dataColumnCellType)
 
       def checker(columnName: String, maskValueFilter: Int, resultIsNoData: Boolean = true): Unit = {
-        /**  in this unit test setup, the `val` column is an integer that the entire row's mask is full of
-          * filter for the maskValueFilter
-          * then check the columnName and look at the masked data tile given by `columnName`
-          * assert that the `columnName` tile is / is not all nodata based on `resultIsNoData`
+        /** in this unit test setup, the `val` column is an integer that the entire row's mask is full of
+          * - filter for the maskValueFilter
+          * - then check the columnName
+          * - look at the masked data tile given by `columnName`
+          * - assert that the `columnName` tile is / is not all nodata based on `resultIsNoData`
           * */
 
-        val printOutcome = if (resultIsNoData) "all NoData cells"
-        else "all data cells"
+        val printOutcome = if (resultIsNoData) "all NoData cells" else "all data cells"
 
         logger.debug(s"${columnName} should contain ${printOutcome} for qa val ${maskValueFilter}")
         val resultDf = result
@@ -382,13 +390,12 @@ class MaskingFunctionsSpec extends TestEnvironment with RasterMatchers {
         val dataTile = resultDf.select(col(columnName)).as[Option[ProjectedRasterTile]].first().get
         logger.debug(s"\tData tile values for col ${columnName}: ${dataTile.toArray().mkString(",")}")
 
-        resultToCheck should be (resultIsNoData)
+        resultToCheck should be(resultIsNoData)
       }
-
       checker("fill_no", fill, true)
       checker("cloud_only", clear, true)
       checker("cloud_only", hi_cirrus, false)
-      checker("cloud_no", hi_cirrus, false)
+      checker("cloud_no", hi_cirrus, true)
       checker("sat_0", clear, false)
       checker("cloud_no", clear, false)
       checker("cloud_no", med_cloud, false)

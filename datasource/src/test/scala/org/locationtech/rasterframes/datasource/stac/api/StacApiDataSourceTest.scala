@@ -34,8 +34,9 @@ import sttp.client3.UriContext
 
 class StacApiDataSourceTest extends TestEnvironment { self =>
 
+  //TODO: franklin.nasa-hsi.azavea.com is gone, we need some way to test this without external services
   describe("STAC API spark reader") {
-    it("should read items from Franklin service") {
+    ignore("should read items from Franklin service") {
       import spark.implicits._
 
       val results =

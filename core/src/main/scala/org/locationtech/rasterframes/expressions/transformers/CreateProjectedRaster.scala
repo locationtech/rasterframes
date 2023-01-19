@@ -43,8 +43,9 @@ import org.locationtech.rasterframes.encoders._
 )
 case class CreateProjectedRaster(tile: Expression, extent: Expression, crs: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
   override def nodeName: String = "rf_proj_raster"
-
-  def children: Seq[Expression] = Seq(tile, extent, crs)
+  def first: Expression = tile
+  def second: Expression = extent
+  def third: Expression = crs
 
   def dataType: DataType = ProjectedRasterTile.projectedRasterTileEncoder.schema
 
@@ -70,6 +71,8 @@ case class CreateProjectedRaster(tile: Expression, extent: Expression, crs: Expr
     val prt = ProjectedRasterTile(t, e, c)
     toInternalRow(prt)
   }
+
+  def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression = copy(newFirst, newSecond, newThird)
 }
 
 object CreateProjectedRaster {

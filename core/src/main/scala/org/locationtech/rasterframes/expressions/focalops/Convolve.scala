@@ -49,24 +49,23 @@ import org.slf4j.LoggerFactory
     > SELECT _FUNC_(tile, kernel, 'all');
        ..."""
 )
-case class Convolve(left: Expression, middle: Expression, right: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
+case class Convolve(first: Expression, second: Expression, third: Expression) extends TernaryExpression with RasterResult with CodegenFallback {
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   override def nodeName: String = Convolve.name
 
-  def dataType: DataType = left.dataType
-  val children: Seq[Expression] = Seq(left, middle, right)
+  def dataType: DataType = first.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if (!tileExtractor.isDefinedAt(left.dataType)) TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
-    else if (!middle.dataType.conformsToSchema(kernelEncoder.schema)) TypeCheckFailure(s"Input type '${middle.dataType}' does not conform to a Kernel type.")
-    else if (!targetCellExtractor.isDefinedAt(right.dataType)) TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a TargetCell type.")
+    if (!tileExtractor.isDefinedAt(first.dataType)) TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a raster type.")
+    else if (!second.dataType.conformsToSchema(kernelEncoder.schema)) TypeCheckFailure(s"Input type '${second.dataType}' does not conform to a Kernel type.")
+    else if (!targetCellExtractor.isDefinedAt(third.dataType)) TypeCheckFailure(s"Input type '${third.dataType}' does not conform to a TargetCell type.")
     else TypeCheckSuccess
 
   override protected def nullSafeEval(tileInput: Any, kernelInput: Any, targetCellInput: Any): Any = {
-    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
+    val (tile, ctx) = tileExtractor(first.dataType)(row(tileInput))
     val kernel = row(kernelInput).as[Kernel]
-    val target = targetCellExtractor(right.dataType)(targetCellInput)
+    val target = targetCellExtractor(third.dataType)(targetCellInput)
     val result = op(extractBufferTile(tile), kernel, target)
     toInternalRow(result, ctx)
   }
@@ -75,6 +74,9 @@ case class Convolve(left: Expression, middle: Expression, right: Expression) ext
     case bt: BufferTile => bt.convolve(kernel, target = target)
     case _ => t.convolve(kernel, target = target)
   }
+
+  override protected def withNewChildrenInternal(newFirst: Expression, newSecond: Expression, newThird: Expression): Expression =
+    copy(newFirst, newSecond, newThird)
 }
 
 object Convolve {

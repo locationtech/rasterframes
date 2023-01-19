@@ -46,6 +46,8 @@ case class Divide(left: Expression, right: Expression) extends BinaryRasterFunct
   protected def op(left: Tile, right: Tile): Tile = left.localDivide(right)
   protected def op(left: Tile, right: Double): Tile = left.localDivide(right)
   protected def op(left: Tile, right: Int): Tile = left.localDivide(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object Divide {
   def apply(left: Column, right: Column): Column = new Column(Divide(left.expr, right.expr))

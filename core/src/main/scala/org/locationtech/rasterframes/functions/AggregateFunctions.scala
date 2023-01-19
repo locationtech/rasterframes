@@ -108,7 +108,7 @@ trait AggregateFunctions {
     */
   def rf_agg_overview_raster(tile: Column, tileExtent: Column, tileCRS: Column, cols: Int, rows: Int, areaOfInterest: Extent, sampler: ResampleMethod): TypedColumn[Any, Tile] = {
     val params = ProjectedRasterDefinition(cols, rows, IntConstantNoDataCellType, WebMercator, areaOfInterest, sampler)
-    TileRasterizerAggregate(params, tileCRS, tileExtent, tile)
+    TileRasterizerAggregate(params, tile, tileExtent, tileCRS)
   }
 
   import org.apache.spark.sql.functions._

@@ -28,7 +28,6 @@ import org.locationtech.rasterframes.ref.RFRasterSource
 import org.locationtech.rasterframes.ref.RasterRef
 
 class CrsSpec extends TestEnvironment with TestData with Inspectors {
-  spark.version
   import spark.implicits._
 
   describe("CrsUDT") {

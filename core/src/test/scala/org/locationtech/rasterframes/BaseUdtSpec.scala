@@ -27,8 +27,6 @@ import org.scalatest.Inspectors
 
 class BaseUdtSpec extends TestEnvironment with TestData with Inspectors {
 
-  spark.version
-
   it("should (de)serialize CRS") {
     val udt = new CrsUDT()
     val in = geotrellis.proj4.LatLng
@@ -37,6 +35,5 @@ class BaseUdtSpec extends TestEnvironment with TestData with Inspectors {
     out shouldBe in
     assert(out.isInstanceOf[LazyCRS])
     info(out.toString())
-
   }
 }

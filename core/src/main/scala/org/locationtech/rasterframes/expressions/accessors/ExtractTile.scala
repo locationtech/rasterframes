@@ -43,6 +43,8 @@ case class ExtractTile(child: Expression) extends UnaryRasterFunction with Codeg
     case prt: ProjectedRasterTile => tileUDT.serialize(prt.tile)
     case tile: Tile => tileSer(tile)
   }
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object ExtractTile {

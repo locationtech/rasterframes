@@ -45,6 +45,8 @@ case class DataCells(child: Expression) extends UnaryRasterFunction with Codegen
   def dataType: DataType = LongType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = DataCells.op(tile)
   def na: Any = 0L
+
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object DataCells {
   def apply(tile: Column): TypedColumn[Any, Long] = new Column(DataCells(tile.expr)).as[Long]

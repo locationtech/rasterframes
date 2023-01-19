@@ -41,6 +41,7 @@ case class Identity(child: Expression) extends UnaryRasterOp with NullToValue wi
   override def nodeName: String = "rf_identity"
   def na: Any = null
   protected def op(t: Tile): Tile = t
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object Identity {

@@ -38,7 +38,7 @@ trait UnaryRasterAggregate extends DeclarativeAggregate {
 
   def nullable: Boolean = child.nullable
 
-  def children = Seq(child)
+  def children: Seq[Expression] = Seq(child)
 
   protected def tileOpAsExpression[R: TypeTag](name: String, op: Tile => R): Expression => ScalaUDF =
     udfiexpr[R, Any](name, (dataType: DataType) => (a: Any) => if(a == null) null.asInstanceOf[R] else op(UnaryRasterAggregate.extractTileFromAny(dataType, a)))

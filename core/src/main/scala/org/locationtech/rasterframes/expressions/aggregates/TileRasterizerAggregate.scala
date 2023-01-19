@@ -20,19 +20,19 @@
  */
 
 package org.locationtech.rasterframes.expressions.aggregates
-
 import geotrellis.layer._
 import geotrellis.proj4.CRS
 import geotrellis.raster.reproject.Reproject
 import geotrellis.raster.resample.{Bilinear, ResampleMethod}
-import geotrellis.raster.{ArrayTile, CellType, Dimensions, MultibandTile, ProjectedRaster, Tile}
+import geotrellis.raster.{ArrayTile, CellType, Dimensions, MultibandTile, MutableArrayTile, ProjectedRaster, Tile}
 import geotrellis.vector.Extent
-import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import org.apache.spark.sql.{Column, DataFrame, Row, TypedColumn}
+import org.apache.spark.sql.expressions.Aggregator
+import org.apache.spark.sql.functions.udaf
+import org.apache.spark.sql.{Column, DataFrame, Encoder, TypedColumn}
 import org.locationtech.rasterframes._
-import org.locationtech.rasterframes.encoders.syntax._
+import org.locationtech.rasterframes.encoders.StandardEncoders
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
+import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 import org.locationtech.rasterframes.util._
 import org.slf4j.LoggerFactory
 
@@ -41,48 +41,27 @@ import org.slf4j.LoggerFactory
   * `Tile`, `CRS` and `Extent` columns.
   * @param prd aggregation settings
   */
-class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends UserDefinedAggregateFunction {
-
+class TileRasterizerAggregate(prd: ProjectedRasterDefinition) extends Aggregator[ProjectedRasterTile, Tile, Tile] {
   val projOpts = Reproject.Options.DEFAULT.copy(method = prd.sampler)
 
-  def deterministic: Boolean = true
+  override def zero: MutableArrayTile = ArrayTile.empty(prd.destinationCellType, prd.totalCols, prd.totalRows)
 
-  def inputSchema: StructType = StructType(Seq(
-    StructField("crs", crsUDT, false),
-    StructField("extent", extentEncoder.schema, false),
-    StructField("tile", tileUDT)
-  ))
-
-  def bufferSchema: StructType = StructType(Seq(
-    StructField("tile_buffer", tileUDT)
-  ))
-
-  def dataType: DataType = tileUDT
-
-  def initialize(buffer: MutableAggregationBuffer): Unit =
-    buffer(0) = ArrayTile.empty(prd.destinationCellType, prd.totalCols, prd.totalRows)
-
-  def update(buffer: MutableAggregationBuffer, input: Row): Unit = {
-    val crs: CRS = input.getAs[CRS](0)
-    val extent: Extent = input.getAs[Row](1).as[Extent]
-
-    val localExtent = extent.reproject(crs, prd.destinationCRS)
-
+  override def reduce(b: Tile, a: ProjectedRasterTile): Tile = {
+    // TODO: this is not right, got to use dynamic reprojection for this extent
+    val localExtent = a.extent.reproject(a.crs, prd.destinationCRS)
     if (prd.destinationExtent.intersects(localExtent)) {
-      val localTile = input.getAs[Tile](2).reproject(extent, crs, prd.destinationCRS, projOpts)
-      val bt = buffer.getAs[Tile](0)
-      val merged = bt.merge(prd.destinationExtent, localExtent, localTile.tile, prd.sampler)
-      buffer(0) = merged
-    }
+      val localTile = a.tile.reproject(a.extent, a.crs, prd.destinationCRS, projOpts)
+      b.merge(prd.destinationExtent, localExtent, localTile.tile, prd.sampler)
+    } else b
   }
 
-  def merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit = {
-    val leftTile = buffer1.getAs[Tile](0)
-    val rightTile = buffer2.getAs[Tile](0)
-    buffer1(0) = leftTile.merge(rightTile)
-  }
+  override def merge(b1: Tile, b2: Tile): Tile = b1.merge(b2)
 
-  def evaluate(buffer: Row): Tile = buffer.getAs[Tile](0)
+  override def finish(reduction: Tile): Tile = reduction
+
+  override def bufferEncoder: Encoder[Tile] = StandardEncoders.tileEncoder
+
+  override def outputEncoder: Encoder[Tile] = StandardEncoders.tileEncoder
 }
 
 object TileRasterizerAggregate {
@@ -102,12 +81,13 @@ object TileRasterizerAggregate {
     }
   }
 
-  def apply(prd: ProjectedRasterDefinition, crsCol: Column, extentCol: Column, tileCol: Column): TypedColumn[Any, Tile] = {
+  def apply(prd: ProjectedRasterDefinition, tileCol: Column, extentCol: Column, crsCol: Column): TypedColumn[Any, Tile] = {
     if (prd.totalCols.toDouble * prd.totalRows * 64.0 > Runtime.getRuntime.totalMemory() * 0.5)
       logger.warn(
         s"You've asked for the construction of a very large image (${prd.totalCols} x ${prd.totalRows}). Out of memory error likely.")
 
-    new TileRasterizerAggregate(prd)(crsCol, extentCol, tileCol)
+    udaf(new TileRasterizerAggregate(prd))
+      .apply(tileCol, extentCol, crsCol)
       .as("rf_agg_overview_raster")
       .as[Tile]
   }
@@ -157,7 +137,7 @@ object TileRasterizerAggregate {
 
     destExtent.map { ext => c.copy(destinationExtent = ext) }
 
-    val aggs = tileCols.map(t => TileRasterizerAggregate(config, rf_crs(crsCol), extCol, rf_tile(t)).as(t.columnName))
+    val aggs = tileCols.map(t => TileRasterizerAggregate(config, rf_tile(t), extCol, rf_crs(crsCol)).as(t.columnName))
 
     val agg = df.select(aggs: _*)
 

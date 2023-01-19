@@ -37,7 +37,6 @@ import org.scalatest.Inspectors
 class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors {
 
   it("Dimensions encoder") {
-    spark.version
     import spark.implicits._
     val data = Dimensions[Int](256, 256)
     val df = List(data).toDF()
@@ -47,7 +46,6 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
   }
 
   it("TileDataContext encoder") {
-    spark.version
     import spark.implicits._
     val data = TileDataContext(IntCellType, Dimensions[Int](256, 256))
     val df = List(data).toDF()
@@ -57,7 +55,6 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
   }
 
   it("ProjectedExtent encoder") {
-    spark.version
     import spark.implicits._
     val data = ProjectedExtent(Extent(0, 0, 1, 1), LatLng)
     val df = List(data).toDF()
@@ -68,7 +65,6 @@ class StandardEncodersSpec extends TestEnvironment with TestData with Inspectors
   }
 
   it("TileLayerMetadata encoder"){
-    spark.version
     import spark.implicits._
     val data = TileLayerMetadata(
       IntCellType,

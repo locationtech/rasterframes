@@ -72,6 +72,7 @@ case class IsIn(left: Expression, right: Expression) extends BinaryExpression wi
     IfCell(left, fn(_: Int), 1, 0)
   }
 
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 
 object IsIn {

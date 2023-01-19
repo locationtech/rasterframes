@@ -87,6 +87,9 @@ case class XZ2Indexer(left: Expression, right: Expression, indexResolution: Shor
     )
     index
   }
+
+  def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression =
+    copy(newLeft, newRight)
 }
 
 object XZ2Indexer {

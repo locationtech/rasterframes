@@ -36,25 +36,24 @@ trait FocalNeighborhoodOp extends TernaryExpression with RasterResult with Codeg
   @transient protected lazy val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   // Tile
-  def left: Expression
+  def first: Expression
   // Neighborhood
-  def middle: Expression
+  def second: Expression
   // TargetCell
-  def right: Expression
+  def third: Expression
 
-  def dataType: DataType = left.dataType
-  def children: Seq[Expression] = Seq(left, middle, right)
+  def dataType: DataType = first.dataType
 
   override def checkInputDataTypes(): TypeCheckResult =
-    if (!tileExtractor.isDefinedAt(left.dataType)) TypeCheckFailure(s"Input type '${left.dataType}' does not conform to a raster type.")
-    else if(!neighborhoodExtractor.isDefinedAt(middle.dataType)) TypeCheckFailure(s"Input type '${middle.dataType}' does not conform to a string Neighborhood type.")
-    else if(!targetCellExtractor.isDefinedAt(right.dataType)) TypeCheckFailure(s"Input type '${right.dataType}' does not conform to a string TargetCell type.")
+    if (!tileExtractor.isDefinedAt(first.dataType)) TypeCheckFailure(s"Input type '${first.dataType}' does not conform to a raster type.")
+    else if(!neighborhoodExtractor.isDefinedAt(second.dataType)) TypeCheckFailure(s"Input type '${second.dataType}' does not conform to a string Neighborhood type.")
+    else if(!targetCellExtractor.isDefinedAt(third.dataType)) TypeCheckFailure(s"Input type '${third.dataType}' does not conform to a string TargetCell type.")
     else TypeCheckSuccess
 
   override protected def nullSafeEval(tileInput: Any, neighborhoodInput: Any, targetCellInput: Any): Any = {
-    val (tile, ctx) = tileExtractor(left.dataType)(row(tileInput))
-    val neighborhood = neighborhoodExtractor(middle.dataType)(neighborhoodInput)
-    val target = targetCellExtractor(right.dataType)(targetCellInput)
+    val (tile, ctx) = tileExtractor(first.dataType)(row(tileInput))
+    val neighborhood = neighborhoodExtractor(second.dataType)(neighborhoodInput)
+    val target = targetCellExtractor(third.dataType)(targetCellInput)
     val result = op(extractBufferTile(tile), neighborhood, target)
     toInternalRow(result, ctx)
   }

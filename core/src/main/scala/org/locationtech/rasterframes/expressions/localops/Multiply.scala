@@ -46,6 +46,8 @@ case class Multiply(left: Expression, right: Expression) extends BinaryRasterFun
   protected def op(left: Tile, right: Tile): Tile = left.localMultiply(right)
   protected def op(left: Tile, right: Double): Tile = left.localMultiply(right)
   protected def op(left: Tile, right: Int): Tile = left.localMultiply(right)
+
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): Expression = copy(newLeft, newRight)
 }
 object Multiply {
   def apply(left: Column, right: Column): Column = new Column(Multiply(left.expr, right.expr))

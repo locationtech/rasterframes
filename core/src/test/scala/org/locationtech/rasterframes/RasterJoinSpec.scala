@@ -23,7 +23,6 @@ package org.locationtech.rasterframes
 
 import geotrellis.proj4.CRS
 import geotrellis.raster.resample._
-import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{Dimensions, IntConstantNoDataCellType, Raster, Tile}
 import geotrellis.vector.Extent
 import org.apache.spark.SparkConf
@@ -32,18 +31,18 @@ import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggreg
 import org.locationtech.rasterframes.expressions.aggregates.TileRasterizerAggregate.ProjectedRasterDefinition
 
 
-class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
-  import spark.implicits._
+class RasterJoinSpec extends TestEnvironment with TestData {
   describe("Raster join between two DataFrames") {
     val b4nativeTif = readSingleband("L8-B4-Elkton-VA.tiff")
     // Same data, reprojected to EPSG:4326
     val b4warpedTif = readSingleband("L8-B4-Elkton-VA-4326.tiff")
 
-    val b4nativeRf = b4nativeTif.toDF(Dimensions(10, 10))
-    val b4warpedRf = b4warpedTif.toDF(Dimensions(10, 10))
+    lazy val b4nativeRf = b4nativeTif.toDF(Dimensions(10, 10))
+    lazy val b4warpedRf = b4warpedTif.toDF(Dimensions(10, 10))
       .withColumnRenamed("tile", "tile2")
 
     it("should join the same scene correctly") {
+      import spark.implicits._
       val b4nativeRfPrime = b4nativeTif.toDF(Dimensions(10, 10))
         .withColumnRenamed("tile", "tile2")
       val joined = b4nativeRf.rasterJoin(b4nativeRfPrime.hint("broadcast"))
@@ -59,6 +58,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should join same scene in different tile sizes"){
+      import spark.implicits._
       val r1prime = b4nativeTif.toDF(Dimensions(25, 25)).withColumnRenamed("tile", "tile2")
       r1prime.select(rf_dimensions($"tile2").getField("rows")).as[Int].first() should be (25)
       val joined = b4nativeRf.rasterJoin(r1prime)
@@ -75,13 +75,14 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should join same scene in two projections, same tile size") {
+      import spark.implicits._
       val srcExtent = b4nativeTif.extent
       // b4warpedRf source data is gdal warped b4nativeRf data; join them together.
       val joined = b4nativeRf.rasterJoin(b4warpedRf)
       // create a Raster from tile2 which should be almost equal to b4nativeTif
       val agg = joined.agg(TileRasterizerAggregate(
         ProjectedRasterDefinition(b4nativeTif.cols, b4nativeTif.rows, b4nativeTif.cellType, b4nativeTif.crs, b4nativeTif.extent, Bilinear),
-        $"crs", $"extent", $"tile2") as "raster"
+        $"tile2", $"extent", $"crs") as "raster"
       ).select(col("raster").as[Tile])
 
       val raster = Raster(agg.first(), srcExtent)
@@ -112,6 +113,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
      }
 
     it("should join multiple RHS tile columns"){
+      import spark.implicits._
       // join multiple native CRS bands to the EPSG 4326 RF
 
       val multibandRf = b4nativeRf
@@ -126,6 +128,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should join with heterogeneous LHS CRS and coverages"){
+      import spark.implicits._
 
       val df17 = readSingleband("m_3607824_se_17_1_20160620_subset.tif")
         .toDF(Dimensions(50, 50))
@@ -165,6 +168,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should handle proj_raster types") {
+      import spark.implicits._
       val df1 = Seq(Option(one)).toDF("one")
       val df2 = Seq(Option(two)).toDF("two")
       noException shouldBe thrownBy {
@@ -174,6 +178,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should raster join multiple times on projected raster"){
+      import spark.implicits._
       val df0 = Seq(Option(one)).toDF("proj_raster")
       val result = df0.select($"proj_raster" as "t1")
         .rasterJoin(df0.select($"proj_raster" as "t2"))
@@ -184,6 +189,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     }
 
     it("should honor resampling options") {
+      import spark.implicits._
       // test case. replicate existing test condition and check that resampling option results in different output
       val filterExpr = st_intersects(rf_geometry($"tile"), st_point(704940.0, 4251130.0))
       val result = b4nativeRf.rasterJoin(b4warpedRf.withColumnRenamed("tile2", "nearest"), NearestNeighbor)
@@ -200,6 +206,7 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
     // Failed to execute user defined function(package$$$Lambda$4417/0x00000008019e2840: (struct<xmax:double,xmin:double,ymax:double,ymin:double>, string, array<struct<cellType:string,cols:int,rows:int,cells:binary,ref:struct<source:struct<raster_source_kryo:binary>,bandIndex:int,subextent:struct<xmin:double,ymin:double,xmax:double,ymax:double>,subgrid:struct<colMin:int,rowMin:int,colMax:int,rowMax:int>>>>, array<struct<xmax:double,xmin:double,ymax:double,ymin:double>>, array<string>, struct<cols:int,rows:int>, string) => struct<cellType:string,cols:int,rows:int,cells:binary,ref:struct<source:struct<raster_source_kryo:binary>,bandIndex:int,subextent:struct<xmin:double,ymin:double,xmax:double,ymax:double>,subgrid:struct<colMin:int,rowMin:int,colMax:int,rowMax:int>>>)
 
     it("should raster join with null left head") {
+      import spark.implicits._
       // https://github.com/locationtech/rasterframes/issues/462
       val prt = TestData.projectedRasterTile(
         10, 10, 1,
@@ -264,5 +271,5 @@ class RasterJoinSpec extends TestEnvironment with TestData with RasterMatchers {
 
   }
 
-  override def additionalConf: SparkConf = super.additionalConf.set("spark.sql.codegen.comments", "true")
+  override def additionalConf(conf: SparkConf) = conf.set("spark.sql.codegen.comments", "true")
 }

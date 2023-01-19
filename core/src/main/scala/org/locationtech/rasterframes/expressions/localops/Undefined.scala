@@ -41,6 +41,7 @@ case class Undefined(child: Expression) extends UnaryRasterOp with NullToValue w
   override def nodeName: String = "rf_local_no_data"
   def na: Any = null
   protected def op(child: Tile): Tile = child.localUndefined()
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 object Undefined {
   def apply(tile: Column): Column = new Column(Undefined(tile.expr))

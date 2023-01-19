@@ -28,6 +28,7 @@ case class ForAll(child: Expression) extends UnaryRasterFunction with CodegenFal
   override def nodeName: String = "for_all"
   def dataType: DataType = BooleanType
   protected def eval(tile: Tile, ctx: Option[TileContext]): Any = ForAll.op(tile)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object ForAll {

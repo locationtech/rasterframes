@@ -44,6 +44,7 @@ case class Sum(child: Expression) extends UnaryRasterFunction with CodegenFallba
   override def nodeName: String = "rf_tile_sum"
   def dataType: DataType = DoubleType
   protected def eval(tile: Tile,  ctx: Option[TileContext]): Any = Sum.op(tile)
+  def withNewChildInternal(newChild: Expression): Expression = copy(newChild)
 }
 
 object Sum {

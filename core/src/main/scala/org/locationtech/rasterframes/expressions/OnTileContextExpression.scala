@@ -35,7 +35,6 @@ import org.locationtech.rasterframes.model.TileContext
  * @since 11/3/18
  */
 trait OnTileContextExpression extends UnaryExpression {
-
   override def checkInputDataTypes(): TypeCheckResult = {
     if (!projectedRasterLikeExtractor.isDefinedAt(child.dataType)) {
       TypeCheckFailure(s"Input type '${child.dataType}' does not conform to `ProjectedRasterLike`.")

@@ -22,11 +22,10 @@
 package org.locationtech.rasterframes
 
 import geotrellis.raster._
-import geotrellis.raster.testkit.RasterMatchers
 import org.apache.spark.sql.functions._
 import org.locationtech.rasterframes.tiles.ProjectedRasterTile
 
-class RasterFunctionsSpec extends TestEnvironment with RasterMatchers {
+class RasterFunctionsSpec extends TestEnvironment {
   import TestData._
   import spark.implicits._
 
