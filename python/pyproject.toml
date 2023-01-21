@@ -1,0 +1,58 @@
+[tool.poetry]
+name = "pyrasterframes"
+version = "10.2"
+authors = ["Astraea, Inc. <info@astraea.earth>"]
+description = "Access and process geospatial raster data in PySpark DataFrames"
+homepage = "https://rasterframes.io"
+license = "Apache-2.0"
+readme = "README.md"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Other Environment",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+]
+packages = [
+    { include = "geomesa_pyspark" },
+    { include = "pyrasterframes" },
+]
+
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+shapely = "^2.0.0"
+pyproj = "^3.4.1"
+deprecation = "^2.1.0"
+matplotlib = "^3.6.3"
+pandas = "^1.5.3"
+py4j = "^0.10.9.3"
+pyspark = "3.2.1"
+numpy = "^1.24.1"
+
+
+[tool.poetry.group.dev.dependencies]
+wheel = "^0.38.4"
+rasterio = {extras = ["s3"], version = "^1.3.4"}
+ipython = "^8.7.0"
+pweave = "^0.30.3"
+jupyter_client = "^5" 
+nbclient = "^0.1.0" 
+nbconvert = "^5.5.0"
+typer = "^0.7.0"
+pytest = "^4"
+
+
+[tool.pytest.ini_options]
+addopts = "--verbose"
+testpaths = ["tests"]
+python_files = "*.py"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
