@@ -9,7 +9,7 @@
    http://www.opensource.org/licenses/apache2.0.php.
 + ***********************************************************************/"""
 
-from pyspark.sql.types import UserDefinedType, StructField, BinaryType, StructType
+from pyspark.sql.types import BinaryType, StructField, StructType, UserDefinedType
 from shapely import wkb
 from shapely.geometry import LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon
 from shapely.geometry.base import BaseGeometry
@@ -17,18 +17,17 @@ from shapely.geometry.collection import GeometryCollection
 
 
 class ShapelyGeometryUDT(UserDefinedType):
-
     @classmethod
     def sqlType(cls):
         return StructType([StructField("wkb", BinaryType(), True)])
 
     @classmethod
     def module(cls):
-        return 'geomesa_pyspark.types'
+        return "geomesa_pyspark.types"
 
     @classmethod
     def scalaUDT(cls):
-        return 'org.apache.spark.sql.jts.' + cls.__name__
+        return "org.apache.spark.sql.jts." + cls.__name__
 
     def serialize(self, obj):
         return [_serialize_to_wkb(obj)]

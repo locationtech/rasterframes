@@ -21,12 +21,12 @@
 import os
 import tempfile
 
-from . import TestEnvironment
 import rasterio
+
+from . import TestEnvironment
 
 
 class GeoTiffWriter(TestEnvironment):
-
     @staticmethod
     def _tmpfile():
         return os.path.join(tempfile.gettempdir(), "pyrf-test.tif")
@@ -48,7 +48,7 @@ class GeoTiffWriter(TestEnvironment):
     def test_unstructured_write(self):
         rf = self.spark.read.raster(self.img_uri)
         dest_file = self._tmpfile()
-        rf.write.geotiff(dest_file, crs='EPSG:32616')
+        rf.write.geotiff(dest_file, crs="EPSG:32616")
 
         rf2 = self.spark.read.raster(dest_file)
         self.assertEqual(rf2.count(), rf.count())
@@ -64,12 +64,13 @@ class GeoTiffWriter(TestEnvironment):
     def test_unstructured_write_schemaless(self):
         # should be able to write a projected raster tile column to path like '/data/foo/file.tif'
         from pyrasterframes.rasterfunctions import rf_agg_stats, rf_crs
+
         rf = self.spark.read.raster(self.img_uri)
-        max = rf.agg(rf_agg_stats('proj_raster').max.alias('max')).first()['max']
-        crs = rf.select(rf_crs('proj_raster').alias('crs')).first()['crs']
+        max = rf.agg(rf_agg_stats("proj_raster").max.alias("max")).first()["max"]
+        crs = rf.select(rf_crs("proj_raster").alias("crs")).first()["crs"]
 
         dest_file = self._tmpfile()
-        self.assertTrue(not dest_file.startswith('file://'))
+        self.assertTrue(not dest_file.startswith("file://"))
         rf.write.geotiff(dest_file, crs=crs)
 
         with rasterio.open(dest_file) as src:
@@ -80,10 +81,9 @@ class GeoTiffWriter(TestEnvironment):
     def test_downsampled_write(self):
         rf = self.spark.read.raster(self.img_uri)
         dest = self._tmpfile()
-        rf.write.geotiff(dest, crs='EPSG:32616', raster_dimensions=(128, 128))
+        rf.write.geotiff(dest, crs="EPSG:32616", raster_dimensions=(128, 128))
 
         with rasterio.open(dest) as f:
             self.assertEqual((f.width, f.height), (128, 128))
 
         os.remove(dest)
-

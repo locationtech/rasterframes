@@ -72,14 +72,14 @@ scene2_B02 = "https://modis-pds.s3.amazonaws.com/MCD43A4.006/04/09/2018188/MCD43
 two_d_cat_pd = pd.DataFrame([
     {'B01': [scene1_B01], 'B02': [scene1_B02]},
     {'B01': [scene2_B01], 'B02': [scene2_B02]}
-])     
+])
 
 # or
 two_d_cat_df = spark.createDataFrame([
     Row(B01=scene1_B01, B02=scene1_B02),
     Row(B01=scene2_B01, B02=scene2_B02)
 ])
-    
+
 # As CSV string
 tow_d_cat_csv = '\n'.join(['B01,B02', scene1_B01 + "," + scene1_B02, scene2_B01 + "," + scene2_B02])
 ```
