@@ -1,0 +1,9 @@
+name: build rasterframes python
+description: build rasterframes python
+runs:
+  using: "composite"
+  steps:
+    - name: Configure python interpreter
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
