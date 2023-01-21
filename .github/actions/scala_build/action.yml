@@ -1,0 +1,41 @@
+name: build rasterframes scala
+description: build rasterframes scala
+inputs: 
+  skip_tests:
+    description: 'Skip Scala Tests? true or false'
+    default: 'false'
+runs:
+  using: "composite"
+  steps:
+
+        - name: Configure JDK
+          uses: actions/setup-java@v3
+          with:
+            distribution: temurin
+            java-version: 8
+            cache: sbt
+
+        - name: Build the scala JAR 
+          run: sbt -v -batch compile test:compile it:compile
+
+        - name: Core tests - skip tests is false
+          if: inputs.skip_tests == 'false'
+          run: sbt -batch core/test
+
+        - name: Datasource tests - skip tests is false
+          if: inputs.skip_tests == 'false'
+          run: sbt -batch datasource/test
+
+        - name: Experimental tests - skip tests is false
+          if: inputs.skip_tests == 'false'
+          run: sbt -batch experimental/test
+
+        - name: Collect artifacts
+          if: ${{ failure() }}
+          run: |
+            mkdir -p /tmp/core_dumps
+            ls -lh /tmp
+            cp core.* *.hs /tmp/core_dumps/ 2> /dev/null || true
+            cp ./core/*.log /tmp/core_dumps/ 2> /dev/null || true
+            cp -r /tmp/hsperfdata* /tmp/*.hprof /tmp/core_dumps/ 2> /dev/null || true
+            cp repo/core/core/* /tmp/core_dumps/ 2> /dev/null || true
