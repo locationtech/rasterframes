@@ -32,7 +32,7 @@ rf = spark.read.raster(scene(2), tile_dimensions=(256, 256))
 
 ## Overview Rasters
 
-In cases where writing and reading to/from a GeoTIFF isn't convenient, RasterFrames provides the @ref:[`rf_agg_overview_raster`](reference.md#rf-agg-overview-raster) aggregate function, where you can construct a single raster (rendered as a tile) downsampled from all or a subset of the DataFrame. This allows you to effectively construct the same operations the GeoTIFF writer performs, but without the file I/O. 
+In cases where writing and reading to/from a GeoTIFF isn't convenient, RasterFrames provides the @ref:[`rf_agg_overview_raster`](reference.md#rf-agg-overview-raster) aggregate function, where you can construct a single raster (rendered as a tile) downsampled from all or a subset of the DataFrame. This allows you to effectively construct the same operations the GeoTIFF writer performs, but without the file I/O.
 
 The `rf_agg_overview_raster` function will reproject data to the commonly used ["web mercator"](https://en.wikipedia.org/wiki/Web_Mercator_projection) CRS. You must specify an "Area of Interest" (AOI) in web mercator.  You can use @ref:[`rf_agg_reprojected_extent`](reference.md#rf-agg-reprojected-extent) to compute the extent of a DataFrame in any CRS or mix of CRSs.
 
@@ -57,7 +57,7 @@ GeoTIFF is one of the most common file formats for spatial data, providing flexi
 
 ### Limitations and mitigations
 
-One downside to GeoTIFF is that it is <b><u>not</u></b> a big-data native format. To create a GeoTIFF, all the data to be written must be `collect`ed in the memory of the Spark driver. This means you must actively limit the size of the data to be written. It is trivial to lazily read a set of inputs that cannot feasibly be written to GeoTIFF in the same environment. 
+One downside to GeoTIFF is that it is <b><u>not</u></b> a big-data native format. To create a GeoTIFF, all the data to be written must be `collect`ed in the memory of the Spark driver. This means you must actively limit the size of the data to be written. It is trivial to lazily read a set of inputs that cannot feasibly be written to GeoTIFF in the same environment.
 
 When writing GeoTIFFs in RasterFrames, you should limit the size of the collected data. Consider filtering the dataframe by time or @ref:[spatial filters](vector-data.md#geomesa-functions-and-spatial-relations).
 
@@ -71,7 +71,7 @@ If there are many _tile_ or projected raster columns in the DataFrame, the GeoTI
 * `crs`: the PROJ4 string of the CRS the GeoTIFF is to be written in
 * `raster_dimensions`: optional, a tuple of two ints giving the size of the resulting file. If specified, RasterFrames will downsample the data in distributed fashion using bilinear resampling. If not specified, the default is to write the dataframe at full resolution, which can result in an out of memory error.
 
-### Example 
+### Example
 
 See also the example in the @ref:[unsupervised learning page](unsupervised-learning.md).
 
@@ -107,7 +107,7 @@ If the DataFrame has three or four tile columns, the GeoTIFF is written with the
 
 Also see [Color Composite](ipython.md#color-composite) in the IPython/Juptyer Extensions.
 
-### PNG 
+### PNG
 
 In this example we will use the @ref:[`rf_rgb_composite`](reference.md#rf-rgb-composite) function, we will compute a three band PNG image as a `bytearray`. The resulting `bytearray` will be displayed as an image in either a Spark or pandas DataFrame display if `rf_ipython` has been imported.
 
@@ -130,7 +130,7 @@ pil_image = PIL_open(io.BytesIO(png_bytearray))
 pil_image
 ```
 
-### GeoTIFF 
+### GeoTIFF
 
 In this example we will write a false-color composite as a GeoTIFF
 
@@ -140,7 +140,7 @@ composite_df = spark.read.raster([[scene(3), scene(1), scene(4)]])
 composite_df.write.geotiff(outfile, crs='EPSG:4326', raster_dimensions=(256, 256))
 ```
 
-```python, show_geotiff 
+```python, show_geotiff
 with rasterio.open(outfile) as src:
     show(src)
 ```

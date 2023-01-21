@@ -13,10 +13,10 @@ from pyrasterframes.rf_types import Tile
 spark = create_rf_spark_session()
 ```
 
-Masking is a common operation in raster processing. It is setting certain cells to the @ref:[NoData value](nodata-handling.md). This is usually done to remove low-quality observations from the raster processing. Another related use case is to @ref:["clip"](masking.md#clipping) a raster to a given polygon.  
+Masking is a common operation in raster processing. It is setting certain cells to the @ref:[NoData value](nodata-handling.md). This is usually done to remove low-quality observations from the raster processing. Another related use case is to @ref:["clip"](masking.md#clipping) a raster to a given polygon.
 
 In this section we will demonstrate two common schemes for masking. In Sentinel 2, there is a separate classification raster that defines low quality areas. In Landsat 8, several quality factors are measured and the indications are packed into a single integer, which we have to unpack.
- 
+
 ## Masking Sentinel 2
 
 Let's demonstrate masking with a pair of bands of Sentinel-2 data. The measurement bands we will use, blue and green, have no defined NoData. They share quality information from a separate file called the scene classification (SCL), which delineates areas of missing data and probable clouds. For more information on this, see the [Sentinel-2 algorithm overview](https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-2a/algorithm). Figure 3 tells us how to interpret the scene classification. For this example, we will exclude NoData, defective pixels, probable clouds, and cirrus clouds: values 0, 1, 8, 9, and 10.
@@ -44,9 +44,9 @@ unmasked.select(rf_cell_type('blue'), rf_cell_type('scl')).distinct()
 
 ### Define CellType for Masked Tile
 
-Because there is not a NoData already defined for the blue band, we must choose one. If we try to apply a masking function to a tile whose cell type has no NoData defined, an error will be thrown. 
- 
-In this particular example, the minimum value of all cells in all tiles in the column is greater than zero, so we can use 0 as the NoData value. We will construct a new `CellType` object to represent this. 
+Because there is not a NoData already defined for the blue band, we must choose one. If we try to apply a masking function to a tile whose cell type has no NoData defined, an error will be thrown.
+
+In this particular example, the minimum value of all cells in all tiles in the column is greater than zero, so we can use 0 as the NoData value. We will construct a new `CellType` object to represent this.
 
 ```python, pick_nd
 blue_min = unmasked.agg(rf_agg_stats('blue').min.alias('blue_min'))
@@ -95,7 +95,7 @@ display(sample[1])
 
 ### Transferring Mask
 
-We can now apply the same mask from the blue column to the green column. Note here we have supressed the step of explicitly checking what a "safe" NoData value for the green band should be.  
+We can now apply the same mask from the blue column to the green column. Note here we have supressed the step of explicitly checking what a "safe" NoData value for the green band should be.
 
 ```python, mask_green
 masked.withColumn('green_masked', rf_mask(rf_convert_cell_type('green', masked_blue_ct), 'blue_masked'))  \
@@ -105,10 +105,10 @@ masked.withColumn('green_masked', rf_mask(rf_convert_cell_type('green', masked_b
 ## Masking Landsat 8
 
 
-We will work with the Landsat scene [here](https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/153/075/LC08_L1TP_153075_20190718_20190731_01_T1/index.html). For simplicity, we will just use two of the seven 30m bands. The quality mask for all bands is all contained in the `BQA` band. 
+We will work with the Landsat scene [here](https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/153/075/LC08_L1TP_153075_20190718_20190731_01_T1/index.html). For simplicity, we will just use two of the seven 30m bands. The quality mask for all bands is all contained in the `BQA` band.
 
 
-```python, build_l8_df 
+```python, build_l8_df
 base_url = 'https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/153/075/LC08_L1TP_153075_20190718_20190731_01_T1/LC08_L1TP_153075_20190718_20190731_01_T1_'
 data4 = base_url + 'B4.TIF'
 data2 = base_url + 'B2.TIF'
@@ -119,19 +119,19 @@ l8_df = spark.read.raster([[data4, data2, mask]]) \
                .withColumnRenamed('proj_raster_2', 'mask')
 ```
 
-Masking is described [on the Landsat Missions page](https://www.usgs.gov/land-resources/nli/landsat/landsat-collection-1-level-1-quality-assessment-band). It is pretty dense. Focus for this data set is the Collection 1 Level-1 for Landsat 8. 
- 
+Masking is described [on the Landsat Missions page](https://www.usgs.gov/land-resources/nli/landsat/landsat-collection-1-level-1-quality-assessment-band). It is pretty dense. Focus for this data set is the Collection 1 Level-1 for Landsat 8.
+
 There are several inter-related factors to consider. In this exercise we will mask away the following.
- 
+
  * Designated Fill = yes
  * Cloud = yes
  * Cloud Shadow Confidence = Medium or High
  * Cirrus Confidence = Medium or High
- 
+
 Note that you should consider your application and do your own exploratory analysis to determine the most appropriate mask!
- 
+
 According to the information on the Landsat site this translates to masking by bit values in the BQA according to the following table.
- 
+
 | Description        	| Value    	| Bits  	| Bit values     	|
 |--------------------	|----------	|-------	|----------------	|
 | Designated fill    	| yes      	| 0     	| 1              	|
@@ -145,9 +145,9 @@ In this case, we will use the value of 0 as the NoData in the band data. Inspect
 The code chunk below works through each of the rows in the table above. The first expression sets the cell type to have the selected NoData. The @ref:[`rf_mask_by_bit`](reference.md#rf-mask-by-bit) and @ref:[`rf_mask_by_bits`](reference.md#rf-mask-by-bits) functions extract the selected bit or bits from the `mask` cells and compare them to the provided values.
 
 ```python, build_l8_mask
-l8_df = l8_df.withColumn('data_masked', # set to cell type that has a nodata 
+l8_df = l8_df.withColumn('data_masked', # set to cell type that has a nodata
                    rf_convert_cell_type('data', CellType.uint16())) \
-       .withColumn('data_masked', # fill yes 
+       .withColumn('data_masked', # fill yes
                   rf_mask_by_bit('data_masked', 'mask', 0, 1)) \
        .withColumn('data_masked', # cloud yes
                   rf_mask_by_bit('data_masked', 'mask', 4, 1)) \
@@ -171,9 +171,9 @@ Clipping is the use of a polygon to determine the areas to mask in a raster. Typ
 
 
 ```python, reproject_geom
-to_rasterize = masked.withColumn('geom_4326', 
+to_rasterize = masked.withColumn('geom_4326',
                             st_bufferPoint(
-                                st_point(lit(-78.0783132), lit(38.3184340)), 
+                                st_point(lit(-78.0783132), lit(38.3184340)),
                                 lit(15000))) \
                 .withColumn('geom_native', st_reproject('geom_4326', rf_mk_crs('epsg:4326'), rf_crs('blue_masked')))
 ```
@@ -181,7 +181,7 @@ to_rasterize = masked.withColumn('geom_4326',
 Second, we will rasterize the geometry, or burn-in the geometry into the same grid as the raster.
 
 ```python, rasterize
-to_clip = to_rasterize.withColumn('clip_raster', 
+to_clip = to_rasterize.withColumn('clip_raster',
                                  rf_rasterize('geom_native', rf_geometry('blue_masked'), lit(1), rf_dimensions('blue_masked').cols, rf_dimensions('blue_masked').rows))
 
 # visualize some of the edges of our circle
@@ -193,11 +193,11 @@ to_clip.select('blue_masked', 'clip_raster') \
 Finally, we create a new _tile_ column with the blue band clipped to our circle. Again we will use the `rf_mask` function to pass the NoData regions along from the rasterized geometry.
 
 ```python, clip
-to_clip.select('blue_masked', 
+to_clip.select('blue_masked',
                'clip_raster',
                rf_mask('blue_masked', 'clip_raster').alias('blue_clipped')) \
            .filter(rf_data_cells('clip_raster') > 20) \
-           .orderBy(rf_data_cells('clip_raster')) 
+           .orderBy(rf_data_cells('clip_raster'))
 ```
 
 This kind of clipping technique is further used in @ref:[zonal statistics](zonal-algebra.md).

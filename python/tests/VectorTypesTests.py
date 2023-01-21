@@ -18,33 +18,32 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from pyrasterframes.rasterfunctions import *
 from pyspark.sql import Row
 from pyspark.sql.functions import *
 
+from pyrasterframes.rasterfunctions import *
+
 from . import TestEnvironment
 
-class VectorTypes(TestEnvironment):
 
+class VectorTypes(TestEnvironment):
     def setUp(self):
         self.create_layer()
         import pandas as pd
-        self.pandas_df = pd.DataFrame({
-            'eye': ['a', 'b', 'c', 'd'],
-            'x': [0.0, 1.0, 2.0, 3.0],
-            'y': [-4.0, -3.0, -2.0, -1.0],
-        })
+
+        self.pandas_df = pd.DataFrame(
+            {"eye": ["a", "b", "c", "d"], "x": [0.0, 1.0, 2.0, 3.0], "y": [-4.0, -3.0, -2.0, -1.0],}
+        )
         df = self.spark.createDataFrame(self.pandas_df)
-        df = df.withColumn("point_geom",
-                           st_point(df.x, df.y)
-                           )
+        df = df.withColumn("point_geom", st_point(df.x, df.y))
         self.df = df.withColumn("poly_geom", st_bufferPoint(df.point_geom, lit(1250.0)))
 
     def test_spatial_relations(self):
-        from pyspark.sql.functions import udf, sum
-        from geomesa_pyspark.types import PointUDT
-        import shapely
         import numpy.testing
+        import shapely
+        from pyspark.sql.functions import sum, udf
+
+        from geomesa_pyspark.types import PointUDT
 
         # Use python shapely UDT in a UDF
         @udf("double")
@@ -66,9 +65,11 @@ class VectorTypes(TestEnvironment):
 
         df = df.withColumn("any_point", some_point_udf(df.poly_geom))
         # spark-side UDF/UDT are correct
-        intersect_total = df.agg(sum(
-            st_intersects(df.poly_geom, df.any_point).astype('double')
-        ).alias('s')).collect()[0].s
+        intersect_total = (
+            df.agg(sum(st_intersects(df.poly_geom, df.any_point).astype("double")).alias("s"))
+            .collect()[0]
+            .s
+        )
         self.assertTrue(intersect_total == df.count())
 
         # Collect to python driver in shapely UDT
@@ -82,24 +83,21 @@ class VectorTypes(TestEnvironment):
         xs_correct = pandas_df_out.point_geom.apply(lambda g: g.coords[0][0]) == self.pandas_df.x
         self.assertTrue(all(xs_correct))
 
-        centroid_ys = pandas_df_out.poly_geom.apply(lambda g:
-                                                    g.centroid.coords[0][1]).tolist()
+        centroid_ys = pandas_df_out.poly_geom.apply(lambda g: g.centroid.coords[0][1]).tolist()
         numpy.testing.assert_almost_equal(centroid_ys, self.pandas_df.y.tolist())
 
         # Including from UDF's
         numpy.testing.assert_almost_equal(
-            pandas_df_out.poly_geom.apply(lambda g: g.area).values,
-            pandas_df_out.poly_area.values
+            pandas_df_out.poly_geom.apply(lambda g: g.area).values, pandas_df_out.poly_area.values
         )
         numpy.testing.assert_almost_equal(
-            pandas_df_out.poly_geom.apply(lambda g: g.length).values,
-            pandas_df_out.poly_len.values
+            pandas_df_out.poly_geom.apply(lambda g: g.length).values, pandas_df_out.poly_len.values
         )
 
     def test_geometry_udf(self):
         from geomesa_pyspark.types import PolygonUDT
-        # simple test that raster contents are not invalid
 
+        # simple test that raster contents are not invalid
         # create a udf to buffer (the bounds) polygon
         def _buffer(g, d):
             return g.buffer(d)
@@ -111,8 +109,10 @@ class VectorTypes(TestEnvironment):
         buffer_udf = udf(_buffer, PolygonUDT())
 
         buf_cells = 10
-        with_poly = self.rf.withColumn('poly', buffer_udf(self.rf.geometry, lit(-15 * buf_cells)))  # cell res is 15x15
-        area = with_poly.select(area('poly') < area('geometry'))
+        with_poly = self.rf.withColumn(
+            "poly", buffer_udf(self.rf.geometry, lit(-15 * buf_cells))
+        )  # cell res is 15x15
+        area = with_poly.select(area("poly") < area("geometry"))
         area_result = area.collect()
         self.assertTrue(all([r[0] for r in area_result]))
 
@@ -125,84 +125,120 @@ class VectorTypes(TestEnvironment):
 
         # start with known polygon, the tile extents, **negative buffered**  by 10 cells
         buf_cells = 10
-        with_poly = self.rf.withColumn('poly', buffer(self.rf.geometry, lit(-15 * buf_cells)))  # cell res is 15x15
+        with_poly = self.rf.withColumn(
+            "poly", buffer(self.rf.geometry, lit(-15 * buf_cells))
+        )  # cell res is 15x15
 
         # rasterize value 16 into buffer shape.
         cols = 194  # from dims of tile
         rows = 250  # from dims of tile
-        with_raster = with_poly.withColumn('rasterized',
-                                           rf_rasterize('poly', 'geometry', lit(16), lit(cols), lit(rows)))
-        result = with_raster.select(rf_tile_sum(rf_local_equal_int(with_raster.rasterized, 16)),
-                                    rf_tile_sum(with_raster.rasterized))
+        with_raster = with_poly.withColumn(
+            "rasterized", rf_rasterize("poly", "geometry", lit(16), lit(cols), lit(rows))
+        )
+        result = with_raster.select(
+            rf_tile_sum(rf_local_equal_int(with_raster.rasterized, 16)),
+            rf_tile_sum(with_raster.rasterized),
+        )
         #
         expected_burned_in_cells = (cols - 2 * buf_cells) * (rows - 2 * buf_cells)
         self.assertEqual(result.first()[0], float(expected_burned_in_cells))
-        self.assertEqual(result.first()[1], 16. * expected_burned_in_cells)
+        self.assertEqual(result.first()[1], 16.0 * expected_burned_in_cells)
 
     def test_parse_crs(self):
         df = self.spark.createDataFrame([Row(id=1)])
-        self.assertEqual(df.select(rf_mk_crs('EPSG:4326')).count(), 1)
+        self.assertEqual(df.select(rf_mk_crs("EPSG:4326")).count(), 1)
 
     def test_reproject(self):
-        reprojected = self.rf.withColumn('reprojected',
-                                         st_reproject('center', rf_mk_crs('EPSG:4326'), rf_mk_crs('EPSG:3857')))
+        reprojected = self.rf.withColumn(
+            "reprojected", st_reproject("center", rf_mk_crs("EPSG:4326"), rf_mk_crs("EPSG:3857"))
+        )
         reprojected.show()
         self.assertEqual(reprojected.count(), 8)
 
     def test_geojson(self):
         import os
-        sample = 'file://' + os.path.join(self.resource_dir, 'buildings.geojson')
+
+        sample = "file://" + os.path.join(self.resource_dir, "buildings.geojson")
         geo = self.spark.read.geojson(sample)
         geo.show()
-        self.assertEqual(geo.select('geometry').count(), 8)
+        self.assertEqual(geo.select("geometry").count(), 8)
 
     def test_xz2_index(self):
         from pyspark.sql.functions import min as F_min
-        df = self.df.select(rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
+
+        df = self.df.select(
+            rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias("index")
+        )
         expected = {22858201775, 38132946267, 38166922588, 38180072113}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
         # Test against proj_raster (has CRS and Extent embedded).
         df = self.spark.read.raster(self.img_uri)
-        result_one_arg = df.select(rf_xz2_index('proj_raster').alias('ix')) \
-            .agg(F_min('ix')).first()[0]
+        result_one_arg = (
+            df.select(rf_xz2_index("proj_raster").alias("ix")).agg(F_min("ix")).first()[0]
+        )
 
-        result_two_arg = df.select(rf_xz2_index(rf_extent('proj_raster'), rf_crs('proj_raster')).alias('ix')) \
-            .agg(F_min('ix')).first()[0]
+        result_two_arg = (
+            df.select(rf_xz2_index(rf_extent("proj_raster"), rf_crs("proj_raster")).alias("ix"))
+            .agg(F_min("ix"))
+            .first()[0]
+        )
 
         self.assertEqual(result_two_arg, result_one_arg)
-        self.assertEqual(result_one_arg, 55179438768)  # this is a bit more fragile but less important
+        self.assertEqual(
+            result_one_arg, 55179438768
+        )  # this is a bit more fragile but less important
 
         # Custom resolution
-        df = self.df.select(rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias('index'))
+        df = self.df.select(
+            rf_xz2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 3).alias("index")
+        )
         expected = {21, 36}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
     def test_z2_index(self):
-        df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias('index'))
+        df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326"))).alias("index"))
 
         expected = {28596898472, 28625192874, 28635062506, 28599712232}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
         # Custom resolution
-        df = self.df.select(rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 6).alias('index'))
+        df = self.df.select(
+            rf_z2_index(self.df.poly_geom, rf_crs(lit("EPSG:4326")), 6).alias("index")
+        )
         expected = {1704, 1706}
         indexes = {x[0] for x in df.collect()}
         self.assertSetEqual(indexes, expected)
 
     def test_agg_extent(self):
-        r = self.df.select(rf_agg_extent(st_extent('poly_geom')).alias('agg_extent')).select('agg_extent.*').first()
+        r = (
+            self.df.select(rf_agg_extent(st_extent("poly_geom")).alias("agg_extent"))
+            .select("agg_extent.*")
+            .first()
+        )
         self.assertDictEqual(
             r.asDict(),
-            Row(xmin=-0.011268955205879273, ymin=-4.011268955205879, xmax=3.0112432169934484, ymax=-0.9887567830065516).asDict()
+            Row(
+                xmin=-0.011268955205879273,
+                ymin=-4.011268955205879,
+                xmax=3.0112432169934484,
+                ymax=-0.9887567830065516,
+            ).asDict(),
         )
 
     def test_agg_reprojected_extent(self):
-        r = self.df.select(rf_agg_reprojected_extent(st_extent('poly_geom'), rf_mk_crs("EPSG:4326"), "EPSG:3857")).first()[0]
+        r = self.df.select(
+            rf_agg_reprojected_extent(st_extent("poly_geom"), rf_mk_crs("EPSG:4326"), "EPSG:3857")
+        ).first()[0]
         self.assertDictEqual(
             r.asDict(),
-            Row(xmin=-1254.45435529069, ymin=-446897.63591665257, xmax=335210.0615704097, ymax=-110073.36515944061).asDict()
+            Row(
+                xmin=-1254.45435529069,
+                ymin=-446897.63591665257,
+                xmax=335210.0615704097,
+                ymax=-110073.36515944061,
+            ).asDict(),
         )

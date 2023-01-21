@@ -43,7 +43,7 @@ df = df.withColumn('crs', rf_crs(df.b1)) \
 df.printSchema()
 ```
 
-In this small example, all the images in our `catalog_df` have the same @ref:[CRS](concepts.md#coordinate-reference-system-crs-), which we verify in the code snippet below. The `crs` object will be useful for visualization later. 
+In this small example, all the images in our `catalog_df` have the same @ref:[CRS](concepts.md#coordinate-reference-system-crs-), which we verify in the code snippet below. The `crs` object will be useful for visualization later.
 
 ```python, crses
 crses = df.select('crs.crsProj4').distinct().collect()

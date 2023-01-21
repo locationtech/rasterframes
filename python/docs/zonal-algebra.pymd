@@ -64,7 +64,7 @@ park_vector = park_vector.withColumn('geo_simp', simplify('geometry', lit(0.005)
 
 ## Catalog Read
 
-Both parks are entirely contained in MODIS granule h11 v04. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations). 
+Both parks are entirely contained in MODIS granule h11 v04. We will simply filter on this granule, rather than using a @ref:[spatial relation](vector-data.md#geomesa-functions-and-spatial-relations).
 
 ```python query_catalog
 cat = spark.read.format('aws-pds-modis-catalog').load().repartition(50)
@@ -72,10 +72,10 @@ park_cat = cat \
             .filter(
                     (cat.granule_id == 'h11v04') &
                     (cat.acquisition_date >= lit('2018-05-01')) &
-                    (cat.acquisition_date < lit('2018-06-01'))            
+                    (cat.acquisition_date < lit('2018-06-01'))
                     ) \
             .crossJoin(park_vector)
-                
+
 park_cat.printSchema()
 ```
 
@@ -89,7 +89,7 @@ park_rf = spark.read.raster(
         park_cat.select(['acquisition_date', 'granule_id'] + raster_cols + park_vector.columns),
         catalog_col_names=raster_cols) \
     .withColumn('park_native', st_reproject('geo_simp', lit('EPSG:4326'), rf_crs('B01'))) \
-    .filter(st_intersects('park_native', rf_geometry('B01'))) 
+    .filter(st_intersects('park_native', rf_geometry('B01')))
 
 park_rf.printSchema()
 ```

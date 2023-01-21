@@ -19,7 +19,7 @@ spark = create_rf_spark_session("local[4]")
 
 In this example, we will show how the flexibility of the DataFrame concept for raster data allows a simple and intuitive way to extract a time series from Earth observation data. We will continue our example from the @ref:[Zonal Map Algebra page](zonal-algebra.md).
 
-We will summarize the change in @ref:[NDVI](local-algebra.md#computing-ndvi) over the spring and early summer of 2018 in the Cuyahoga Valley National Park in Ohio, USA. 
+We will summarize the change in @ref:[NDVI](local-algebra.md#computing-ndvi) over the spring and early summer of 2018 in the Cuyahoga Valley National Park in Ohio, USA.
 
 ```python vector, echo=False, results='hidden'
 cat = spark.read.format('aws-pds-modis-catalog').load().repartition(200)
@@ -45,17 +45,17 @@ park_vector = park_vector.withColumn('geo_simp', simplify('geometry', lit(0.001)
 
 ## Catalog Read
 
-As in our other example, we will query for a single known MODIS granule directly. We limit the vector data to the single park of interest. The longer time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer. The definitions of `cat` and `park_vector` are as in the @ref:[Zonal Map Algebra page](zonal-algebra.md). 
+As in our other example, we will query for a single known MODIS granule directly. We limit the vector data to the single park of interest. The longer time period selected should show the change in plant vigor as leaves emerge over the spring and into early summer. The definitions of `cat` and `park_vector` are as in the @ref:[Zonal Map Algebra page](zonal-algebra.md).
 
 ```python query_catalog
 park_cat = cat \
             .filter(
                     (cat.granule_id == 'h11v04') &
                     (cat.acquisition_date > lit('2018-02-19')) &
-                    (cat.acquisition_date < lit('2018-07-01'))            
+                    (cat.acquisition_date < lit('2018-07-01'))
                     ) \
             .crossJoin(park_vector.filter('UNIT_CODE == "CUVA"')) #only coyahuga
-                
+
 ```
 
 ## Vector and Raster Data Interaction
@@ -78,16 +78,16 @@ rf_park_tile = spark.read.raster(
 
 ## Create Time Series
 
-We next aggregate across the cell values to arrive at an average NDVI for each week of the year. We use `pyspark`'s built in `groupby` and time functions with a RasterFrames @ref:[aggregate function](aggregation.md) to do this. Note that the computation is creating a weighted average, which is weighted by the number of valid observations per week. 
+We next aggregate across the cell values to arrive at an average NDVI for each week of the year. We use `pyspark`'s built in `groupby` and time functions with a RasterFrames @ref:[aggregate function](aggregation.md) to do this. Note that the computation is creating a weighted average, which is weighted by the number of valid observations per week.
 
 ```python ndvi_time_series
 from pyspark.sql.functions import col, year, weekofyear, month
 
 time_series = rf_park_tile \
         .groupby(
-            year('acquisition_date').alias('year'), 
+            year('acquisition_date').alias('year'),
             weekofyear('acquisition_date').alias('week')) \
-        .agg(rf_agg_mean('ndvi_masked').alias('ndvi')) 
+        .agg(rf_agg_mean('ndvi_masked').alias('ndvi'))
 ```
 
 Finally, we will take a look at the NDVI over time.

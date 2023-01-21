@@ -20,18 +20,17 @@
 
 from unittest import skip
 
+import numpy as np
+from IPython.testing import globalipapp
+from py4j.protocol import Py4JJavaError
 
 import pyrasterframes
 from pyrasterframes.rf_types import *
 
-import numpy as np
-
-from py4j.protocol import Py4JJavaError
-from IPython.testing import globalipapp
 from . import TestEnvironment
 
-class IpythonTests(TestEnvironment):
 
+class IpythonTests(TestEnvironment):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -41,21 +40,27 @@ class IpythonTests(TestEnvironment):
     def tearDownClass(cls) -> None:
         globalipapp.get_ipython().atexit_operations()
 
-
     @skip("Pending fix for issue #458")
     def test_all_nodata_tile(self):
         # https://github.com/locationtech/rasterframes/issues/458
 
-        from pyspark.sql.types import StructType, StructField
-
         from pyspark.sql import Row
-        df = self.spark.createDataFrame([
-            Row(
-                tile=Tile(np.array([[np.nan, np.nan, np.nan], [np.nan, np.nan, np.nan]], dtype='float64'),
-                          CellType.float64())
-            ),
-            Row(tile=None)
-        ], schema=StructType([StructField('tile', TileUDT(), True)]))
+        from pyspark.sql.types import StructField, StructType
+
+        df = self.spark.createDataFrame(
+            [
+                Row(
+                    tile=Tile(
+                        np.array(
+                            [[np.nan, np.nan, np.nan], [np.nan, np.nan, np.nan]], dtype="float64"
+                        ),
+                        CellType.float64(),
+                    )
+                ),
+                Row(tile=None),
+            ],
+            schema=StructType([StructField("tile", TileUDT(), True)]),
+        )
 
         try:
             pyrasterframes.rf_ipython.spark_df_to_html(df)
@@ -77,14 +82,14 @@ class IpythonTests(TestEnvironment):
 
         def counter(data, md):
             nonlocal result
-            result['payload'] = (data, md)
-            result['row_count'] = data.count('<tr>')
-        ip.mime_renderers['text/html'] = counter
+            result["payload"] = (data, md)
+            result["row_count"] = data.count("<tr>")
+
+        ip.mime_renderers["text/html"] = counter
 
         # ip.mime_renderers['text/markdown'] = lambda a, b: print(a, b)
 
         self.df.display(num_rows=num_rows)
 
         # Plus one for the header row.
-        self.assertIs(result['row_count'], num_rows+1, msg=f"Received: {result['payload']}")
-        
+        self.assertIs(result["row_count"], num_rows + 1, msg=f"Received: {result['payload']}")

@@ -1,0 +1,24 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+files: ^python/
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: black
+        name: black formatting
+        language: system
+        types: [python]
+        entry: poetry run black
+
+      - id: isort
+        name: isort import sorting
+        language: system
+        types: [python]
+        entry: poetry run isort
+        args: ["--profile", "black"]

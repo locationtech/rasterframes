@@ -44,17 +44,17 @@ rf # or `display(rf)`, or `rf.display()`
 
 By default the RasterFrame sample display renders 5 rows. Because the `IPython.display.display` function doesn't pass parameters to the underlying rendering functions, we have to provide a different means of passing parameters to the rendering code. Pandas approach to this is to use  global settings via `set_option`/`get_option`. We take a more functional approach and have the user invoke an explicit `display` method:
 
-```python custom_display, evaluate=False 
+```python custom_display, evaluate=False
 rf.display(num_rows=1, truncate=True)
-```  
+```
 
-```python custom_display_mime, echo=False 
+```python custom_display_mime, echo=False
 rf.display(num_rows=1, truncate=True, mimetype='text/markdown')
-```  
+```
 
 ### Pandas
 
-There is similar rendering support injected into the Pandas by the `rf_ipython` module, for Pandas Dataframes having Tiles in them: 
+There is similar rendering support injected into the Pandas by the `rf_ipython` module, for Pandas Dataframes having Tiles in them:
 
 ```python pandas_dataframe
 # Limit copy of data from Spark to a few tiles.
@@ -66,7 +66,7 @@ pandas_df # or `display(pandas_df)`
 
 RasterFrames uses the "Viridis" color ramp as the default color profile for tile column. There are other options for reasoning about how color should be applied in the results.
 
-### Color Composite 
+### Color Composite
 
 As shown in @ref:[Writing Raster Data section](raster-write.md) section, composites can be constructed for visualization:
 
@@ -76,7 +76,7 @@ from IPython.display import Image # For telling IPython how to interpret the PNG
 three_band_rf = spark.read.raster(source=[[scene(1), scene(4), scene(3)]])
 composite_rf = three_band_rf.withColumn('png',
                     rf_render_png('proj_raster_0', 'proj_raster_1', 'proj_raster_2'))
-png_bytes = composite_rf.select('png').first()['png'] 
+png_bytes = composite_rf.select('png').first()['png']
 Image(png_bytes)
 ```
 

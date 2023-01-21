@@ -22,21 +22,21 @@
 This module contains access to the jvm SparkContext with RasterFrameLayer support.
 """
 
+from typing import Any, List, Tuple
+
+from py4j.java_collections import JavaList, JavaMap
+from py4j.java_gateway import JavaMember
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 
-from typing import Any, List
-from py4j.java_gateway import JavaMember
-from py4j.java_collections import JavaList, JavaMap
-from typing import Tuple
-
-__all__ = ['RFContext']
+__all__ = ["RFContext"]
 
 
 class RFContext(object):
     """
     Entrypoint to RasterFrames services
     """
+
     def __init__(self, spark_session: SparkSession):
         self._spark_session = spark_session
         self._gateway = spark_session.sparkContext._gateway
@@ -45,7 +45,7 @@ class RFContext(object):
         self._jrfctx = self._jvm.org.locationtech.rasterframes.py.PyRFContext(jsess)
 
     def list_to_seq(self, py_list: List[Any]) -> JavaList:
-        conv = self.lookup('_listToSeq')
+        conv = self.lookup("_listToSeq")
         return conv(py_list)
 
     def lookup(self, function_name: str) -> JavaMember:
@@ -79,9 +79,10 @@ class RFContext(object):
         Get the active Python RFContext and throw an error if it is not enabled for RasterFrames.
         """
         sc = SparkContext._active_spark_context
-        if not hasattr(sc, '_rf_context'):
+        if not hasattr(sc, "_rf_context"):
             raise AttributeError(
-                "RasterFrames have not been enabled for the active session. Call 'SparkSession.withRasterFrames()'.")
+                "RasterFrames have not been enabled for the active session. Call 'SparkSession.withRasterFrames()'."
+            )
         return sc._rf_context
 
     @staticmethod
@@ -95,4 +96,3 @@ class RFContext(object):
         Get the active Scala PyRFContext and throw an error if it is not enabled for RasterFrames.
         """
         return RFContext.active()._jvm
-
