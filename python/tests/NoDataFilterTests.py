@@ -18,26 +18,24 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from . import TestEnvironment
+import unittest
+
+from pyspark.ml import Pipeline, PipelineModel
+from pyspark.ml.feature import VectorAssembler
+from pyspark.sql.functions import *
 
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 
-from pyspark.ml.feature import VectorAssembler
-from pyspark.ml import Pipeline, PipelineModel
-from pyspark.sql.functions import *
-
-import unittest
+from . import TestEnvironment
 
 
 class ExploderTests(TestEnvironment):
-
     def test_no_data_filter_read_write(self):
-        path = 'test_no_data_filter_read_write.pipe'
-        df = self.spark.read.raster(self.img_uri) \
-            .select(rf_tile_mean('proj_raster').alias('mean'))
+        path = "test_no_data_filter_read_write.pipe"
+        df = self.spark.read.raster(self.img_uri).select(rf_tile_mean("proj_raster").alias("mean"))
 
-        input_cols = ['mean']
+        input_cols = ["mean"]
         ndf = NoDataFilter().setInputCols(input_cols)
         assembler = VectorAssembler().setInputCols(input_cols)
 

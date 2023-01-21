@@ -125,7 +125,7 @@ libraryDependencies ++= Seq(
     // This is optional. Provides access to AWS PDS catalogs.
     "org.locationtech.rasterframes" %% "rasterframes-experimental" % ${VERSION}
 )
-``` 
+```
 
 RasterFrames is compatible with Spark 2.4.x.
 

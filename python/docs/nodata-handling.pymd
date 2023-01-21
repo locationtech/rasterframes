@@ -42,7 +42,7 @@ We can also inspect the cell type of a given _tile_ or `proj_raster` column.
 ```python, ct_from_sen
 cell_types = spark.read.raster('https://rasterframes.s3.amazonaws.com/samples/luray_snp/B02.tif') \
     .select(rf_cell_type('proj_raster')).distinct()
-cell_types    
+cell_types
 ```
 
 ### Understanding Cell Types and NoData
@@ -181,7 +181,7 @@ sums = rf.select(
     rf_cell_type('y'),
     rf_cell_type(rf_local_add('x', 'y')).alias('xy_sum'),
     )
-sums    
+sums
 ```
 
 Combining _tile_ columns of different cell types gets a little trickier when user defined NoData cell types are involved. Let's create two _tile_ columns: one with a NoData value of 1, and one with a NoData value of 2 (using our previously defined `get_nodata_ct` function).
