@@ -4,6 +4,15 @@ runs:
   using: "composite"
   steps:
     - name: Configure python interpreter
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
+    - uses: abatilo/actions-poetry@v2
+    - name: Install dependencies
+      run: make init
+    - name: Static checks
+      run: make lint
+    - name: Run tests
+      run: make test
+    - name: Build wheel
+      run: make build
