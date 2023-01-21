@@ -18,7 +18,7 @@ init:
 	poetry run pre-commit install
 
 test: clean init
-	poetry run pytest -vv tests --cov=h3xtiles --cov-report=term-missing
+	poetry run pytest -vv tests --cov=pyrasterframes --cov=geomesa_pyspark --cov-report=term-missing
 
 lint:
 	poetry run pre-commit run --all-file
@@ -32,7 +32,7 @@ docs: clean-md
 notebooks: clean-ipynb
 	poetry run python docs/build_docs.py --format notebook
 
-clean: clean-build clean-pyc clean-test clean-venv
+clean: clean-build clean-pyc clean-test clean-venv clean-md clean-ipynb
 
 clean-build:
 	rm -fr build/
