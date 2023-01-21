@@ -1,6 +1,6 @@
 SHELL := /usr/bin/env bash
 
-.PHONY: init test lint build help
+.PHONY: init test lint build docs notebooks help
 
 help:
 	@echo "init - Setup the repository"
@@ -8,6 +8,7 @@ help:
 	@echo "test - run unit tests"
 	@echo "lint - run linter and checks"
 	@echo "build - build wheel"
+	@echo "docs - build documentations"
 	@echo "help - this command"
 
 init:
@@ -24,6 +25,12 @@ lint:
 
 build: clean-build
 	poetry build
+
+docs: clean-md
+	poetry run python docs/build_docs.py
+
+notebooks: clean-ipynb
+	poetry run python docs/build_docs.py --format notebook
 
 clean: clean-build clean-pyc clean-test clean-venv
 
@@ -49,4 +56,10 @@ clean-test:
 	rm -fr htmlcov/
 
 clean-venv:
-		rm -fr .venv/
+	rm -fr .venv/
+
+clean-md:
+	find docs -name '*.md' -exec rm -f {} +
+
+clean-ipynb:
+	find docs -name '*.ipynb' -exec rm -f {} +
