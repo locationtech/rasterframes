@@ -1,4 +1,0 @@
-# These packages should be installed from conda-forge, given their complex binary components.
-gdal
-rasterio[s3]
-rtree
