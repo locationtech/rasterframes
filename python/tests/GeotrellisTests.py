@@ -17,19 +17,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 import os
+import pathlib
 import shutil
 import tempfile
-import pathlib
-from . import TestEnvironment
 from unittest import skipIf
-import os
+
+from . import TestEnvironment
 
 
 class GeotrellisTests(TestEnvironment):
 
-    on_circle_ci = os.environ.get('CIRCLECI', 'false') == 'true'
+    on_circle_ci = os.environ.get("CIRCLECI", "false") == "true"
 
-    @skipIf(on_circle_ci, 'CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt')
+    @skipIf(
+        on_circle_ci,
+        "CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
+    )
     def test_write_geotrellis_layer(self):
         rf = self.spark.read.geotiff(self.img_uri).cache()
         rf_count = rf.count()
@@ -42,7 +45,12 @@ class GeotrellisTests(TestEnvironment):
         dest_uri = pathlib.Path(dest).as_uri()
         rf.write.option("layer", layer).option("zoom", zoom).geotrellis(dest_uri)
 
-        rf_gt = self.spark.read.format("geotrellis").option("layer", layer).option("zoom", zoom).load(dest_uri)
+        rf_gt = (
+            self.spark.read.format("geotrellis")
+            .option("layer", layer)
+            .option("zoom", zoom)
+            .load(dest_uri)
+        )
         rf_gt_count = rf_gt.count()
         self.assertTrue(rf_gt_count > 0)
 
@@ -50,7 +58,10 @@ class GeotrellisTests(TestEnvironment):
 
         shutil.rmtree(dest, ignore_errors=True)
 
-    @skipIf(on_circle_ci, 'CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt')
+    @skipIf(
+        on_circle_ci,
+        "CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
+    )
     def test_write_geotrellis_multiband_layer(self):
         rf = self.spark.read.geotiff(self.img_rgb_uri).cache()
         rf_count = rf.count()
@@ -63,7 +74,12 @@ class GeotrellisTests(TestEnvironment):
         dest_uri = pathlib.Path(dest).as_uri()
         rf.write.option("layer", layer).option("zoom", zoom).geotrellis(dest_uri)
 
-        rf_gt = self.spark.read.format("geotrellis").option("layer", layer).option("zoom", zoom).load(dest_uri)
+        rf_gt = (
+            self.spark.read.format("geotrellis")
+            .option("layer", layer)
+            .option("zoom", zoom)
+            .load(dest_uri)
+        )
         rf_gt_count = rf_gt.count()
         self.assertTrue(rf_gt_count > 0)
 

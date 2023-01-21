@@ -32,7 +32,7 @@ df.select(rf_local_add(df.tile, lit(3))).show(5, False)
 
 Reach out to us on [gitter][gitter]!
 
-Issue tracking is through [github](https://github.com/locationtech/rasterframes/issues). 
+Issue tracking is through [github](https://github.com/locationtech/rasterframes/issues).
 
 ## Contributing
 
@@ -44,9 +44,9 @@ For best results, we suggest using `conda` and the `conda-forge` channel to inst
 
     conda create -n rasterframes python==3.7
     conda install --file ./requirements-condaforge.txt
-    
+
 Then you can install the source dependencies:
 
-    pip install -e . 
+    pip install -e .
 
 [gitter]: https://gitter.im/locationtech/rasterframes

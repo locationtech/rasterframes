@@ -97,7 +97,7 @@ The @ref:[`rf_agg_stats`](reference.md#rf-agg-stats) function aggregates over al
 ```python, agg_stats
 stats = rf.agg(rf_agg_stats('proj_raster').alias('stats')) \
     .select('stats.min', 'stats.max', 'stats.mean', 'stats.variance')
-stats   
+stats
 ```
 
 The @ref:[`rf_agg_local_stats`](reference.md#rf-agg-local-stats) function computes the element-wise local aggregate statistical summary as shown below. The DataFrame used in the previous two code blocks has unequal _tile_ dimensions, so a different DataFrame is used in this code block to avoid a runtime error.
@@ -108,7 +108,7 @@ rf = spark.createDataFrame([
     Row(id=3, tile=t1 * 3),
     Row(id=5, tile=t1 * 5)
 ]).agg(rf_agg_local_stats('tile').alias('stats'))
-    
+
 agg_local_stats = rf.select('stats.min', 'stats.max', 'stats.mean', 'stats.variance').collect()
 
 for r in agg_local_stats:

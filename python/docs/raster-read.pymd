@@ -42,10 +42,10 @@ rf.select(
 )
 ```
 
-You can also see that the single raster has been broken out into many rows containing arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per row. 
+You can also see that the single raster has been broken out into many rows containing arbitrary non-overlapping regions. Doing so takes advantage of parallel in-memory reads from the cloud hosted data source and allows Spark to work on manageable amounts of data per row.
 The map below shows downsampled imagery with the bounds of the individual tiles.
 
-@@@ note 
+@@@ note
 
 The image contains visible "seams" between the tile extents due to reprojection and downsampling used to create the image.
 The native imagery in the DataFrame does not contain any gaps in the source raster's coverage.
@@ -54,13 +54,13 @@ The native imagery in the DataFrame does not contain any gaps in the source rast
 
 ```python, folium_map_of_tile_extents, echo=False
 from pyrasterframes.rf_types import Extent
-import folium 
-import pyproj 
+import folium
+import pyproj
 from functools import partial
 from shapely.ops import transform as shtransform
 from shapely.geometry import box
 import geopandas
-import numpy 
+import numpy
 
 wm_crs = 'EPSG:3857'
 crs84 = 'urn:ogc:def:crs:OGC:1.3:CRS84'
@@ -98,8 +98,8 @@ ntiles = numpy.nanquantile(ov.cells, [0.03, 0.97])
 
 # use `filled` because folium doesn't know how to maskedArray
 a = numpy.clip(ov.cells.filled(0), ntiles[0], ntiles[1])
- 
-m = folium.Map([crs84_extent.centroid.y, crs84_extent.centroid.x], 
+
+m = folium.Map([crs84_extent.centroid.y, crs84_extent.centroid.x],
                zoom_start=9) \
     .add_child(
         folium.raster_layers.ImageOverlay(
@@ -135,17 +135,17 @@ bands = [f'B{b}' for b in [4, 5]]
 uris = [f'https://landsat-pds.s3.us-west-2.amazonaws.com/c1/L8/014/032/LC08_L1TP_014032_20190720_20190731_01_T1/LC08_L1TP_014032_20190720_20190731_01_T1_{b}.TIF' for b in bands]
 catalog = ','.join(bands) + '\n' + ','.join(uris)
 
-rf = (spark.read.raster(catalog, bands) 
-    # Adding semantic names 
-    .withColumnRenamed('B4', 'red').withColumnRenamed('B5', 'NIR')  
-    # Adding tile center point for reference 
+rf = (spark.read.raster(catalog, bands)
+    # Adding semantic names
+    .withColumnRenamed('B4', 'red').withColumnRenamed('B5', 'NIR')
+    # Adding tile center point for reference
     .withColumn('longitude_latitude', st_reproject(st_centroid(rf_geometry('red')), rf_crs('red'), lit('EPSG:4326')))
-    # Compute NDVI  
+    # Compute NDVI
     .withColumn('NDVI', rf_normalized_difference('NIR', 'red'))
-    # For the purposes of inspection, filter out rows where there's not much vegetation  
-    .where(rf_tile_sum('NDVI') > 10000) 
-    # Order output 
-    .select('longitude_latitude', 'red', 'NIR', 'NDVI')) 
+    # For the purposes of inspection, filter out rows where there's not much vegetation
+    .where(rf_tile_sum('NDVI') > 10000)
+    # Order output
+    .select('longitude_latitude', 'red', 'NIR', 'NDVI'))
 display(rf)
 ```
 
@@ -193,7 +193,7 @@ mb2.printSchema()
 
 RasterFrames relies on three different I/O drivers, selected based on a combination of scheme, file extentions, and library availability. GDAL is used by default if a compatible version of GDAL (>= 2.4) is installed, and if GDAL supports the specified scheme. If GDAL is not available, either the _Java I/O_ or _Hadoop_ driver will be selected, depending on scheme.
 
-Note: The GDAL driver is the only one that can read non-GeoTIFF files. 
+Note: The GDAL driver is the only one that can read non-GeoTIFF files.
 
 
 | Prefix              | GDAL        | Java I/O | Hadoop   |
@@ -249,7 +249,7 @@ MODIS data products are delivered on a regular, consistent grid, making identifi
 For example, MODIS data right above the equator is all grid coordinates with `v07`.
 
 ```python, catalog_filtering
-equator = modis_catalog.where(F.col('gid').like('%v07%')) 
+equator = modis_catalog.where(F.col('gid').like('%v07%'))
 equator.select('date', 'gid')
 ```
 
@@ -266,7 +266,7 @@ Observe the schema of the resulting DataFrame has a projected raster struct for 
 sample = rf \
     .select('gid', rf_extent('red'), rf_extent('nir'), rf_tile('red'), rf_tile('nir')) \
     .where(~rf_is_no_data_tile('red'))
-sample.limit(3)    
+sample.limit(3)
 ```
 
 ## Lazy Raster Reading
@@ -296,7 +296,7 @@ This is an experimental feature, and may be removed.
 
 
 It's often desirable to take extra steps in ensuring your data is effectively distributed over your computing resources. One way of doing that is using something called a ["space filling curve"](https://en.wikipedia.org/wiki/Space-filling_curve), which turns an N-dimensional value into a one dimensional value, with properties that favor keeping entities near each other in N-space near each other in index space. In particular RasterFrames support space-filling curves mapping the geographic location of _tiles_ to a one-dimensional index space called [`xz2`](https://www.geomesa.org/documentation/user/datastores/index_overview.html). To have RasterFrames add a spatial index based partitioning on a raster reads, use the `spatial_index_partitions` parameter. By default it will use the same number of partitions as configured in [`spark.sql.shuffle.partitions`](https://spark.apache.org/docs/latest/sql-performance-tuning.html#other-configuration-options).
- 
+
 ```python, spatial_indexing
 df = spark.read.raster(uri, spatial_index_partitions=True)
 df

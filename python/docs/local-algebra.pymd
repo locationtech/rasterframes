@@ -25,7 +25,7 @@ Here is an example of computing the Normalized Differential Vegetation Index (ND
 
 > NDVI is often used worldwide to monitor drought, monitor and predict agricultural production, assist in predicting hazardous fire zones, and map desert encroachment. The NDVI is preferred for global vegetation monitoring because it helps to compensate for changing illumination conditions, surface slope, aspect, and other extraneous factors (Lillesand. _Remote sensing and image interpretation_. 2004)
 
-We will apply the @ref:[catalog pattern](raster-catalogs.md) for defining the data we wish to process. To compute NDVI we need to compute local algebra on the *red* and *near infrared* (nir) bands: 
+We will apply the @ref:[catalog pattern](raster-catalogs.md) for defining the data we wish to process. To compute NDVI we need to compute local algebra on the *red* and *near infrared* (nir) bands:
 
            nir - red
     NDVI = ---------

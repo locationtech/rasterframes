@@ -1,6 +1,6 @@
 # Vector Data
 
-RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data.  
+RasterFrames provides a variety of ways to work with spatial vector data (points, lines, and polygons) alongside raster data.
 
  * DataSource for GeoJSON format
  * Ability to convert between from [GeoPandas][GeoPandas] and Spark DataFrames

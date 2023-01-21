@@ -71,7 +71,7 @@ print('Found ', len(crses), 'distinct CRS.')
 crs = crses[0][0]
 
 from pyspark import SparkFiles
-spark.sparkContext.addFile('https://rasterframes.s3.amazonaws.com/samples/luray_snp/luray-labels.geojson') 
+spark.sparkContext.addFile('https://rasterframes.s3.amazonaws.com/samples/luray_snp/luray-labels.geojson')
 
 label_df = spark.read.geojson(SparkFiles.get('luray-labels.geojson')) \
     .select('id', st_reproject('geometry', lit('EPSG:4326'), lit(crs)).alias('geometry')) \
@@ -80,7 +80,7 @@ label_df = spark.read.geojson(SparkFiles.get('luray-labels.geojson')) \
 df_joined = df.join(label_df, st_intersects(st_geometry('extent'), 'geometry')) \
     .withColumn('dims', rf_dimensions('B01'))
 
-df_labeled = df_joined.withColumn('label', 
+df_labeled = df_joined.withColumn('label',
    rf_rasterize('geometry', st_geometry('extent'), 'id', 'dims.cols', 'dims.rows')
 )
 ```
@@ -174,14 +174,14 @@ accuracy = eval.evaluate(prediction_df)
 print("\nAccuracy:", accuracy)
 ```
 
-As an example of using the flexibility provided by DataFrames, the code below computes and displays the confusion matrix. 
+As an example of using the flexibility provided by DataFrames, the code below computes and displays the confusion matrix.
 
 ```python, confusion_mtrx
 cnf_mtrx = prediction_df.groupBy(classifier.getPredictionCol()) \
     .pivot(classifier.getLabelCol()) \
     .count() \
     .sort(classifier.getPredictionCol())
-cnf_mtrx	
+cnf_mtrx
 ```
 
 ## Visualize Prediction

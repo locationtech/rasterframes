@@ -18,25 +18,24 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from . import TestEnvironment
+import unittest
 
-from pyrasterframes.rasterfunctions import *
-from pyrasterframes.rf_types import *
-from pyrasterframes import TileExploder
-
-from pyspark.ml.feature import VectorAssembler
 from pyspark.ml import Pipeline, PipelineModel
+from pyspark.ml.feature import VectorAssembler
 from pyspark.sql.functions import *
 
-import unittest
+from pyrasterframes import TileExploder
+from pyrasterframes.rasterfunctions import *
+from pyrasterframes.rf_types import *
+
+from . import TestEnvironment
 
 
 class ExploderTests(TestEnvironment):
-
     def test_tile_exploder_pipeline_for_prt(self):
         # NB the tile is a Projected Raster Tile
         df = self.spark.read.raster(self.img_uri)
-        t_col = 'proj_raster'
+        t_col = "proj_raster"
         self.assertTrue(t_col in df.columns)
 
         assembler = VectorAssembler().setInputCols([t_col])
@@ -46,10 +45,12 @@ class ExploderTests(TestEnvironment):
         self.assertTrue(tranformed_df.count() > df.count())
 
     def test_tile_exploder_pipeline_for_tile(self):
-        t_col = 'tile'
-        df = self.spark.read.raster(self.img_uri) \
-            .withColumn(t_col, rf_tile('proj_raster')) \
-            .drop('proj_raster')
+        t_col = "tile"
+        df = (
+            self.spark.read.raster(self.img_uri)
+            .withColumn(t_col, rf_tile("proj_raster"))
+            .drop("proj_raster")
+        )
 
         assembler = VectorAssembler().setInputCols([t_col])
         pipe = Pipeline().setStages([TileExploder(), assembler])
@@ -58,10 +59,10 @@ class ExploderTests(TestEnvironment):
         self.assertTrue(tranformed_df.count() > df.count())
 
     def test_tile_exploder_read_write(self):
-        path = 'test_tile_exploder_read_write.pipe'
+        path = "test_tile_exploder_read_write.pipe"
         df = self.spark.read.raster(self.img_uri)
 
-        assembler = VectorAssembler().setInputCols(['proj_raster'])
+        assembler = VectorAssembler().setInputCols(["proj_raster"])
         pipe = Pipeline().setStages([TileExploder(), assembler])
 
         pipe.fit(df).write().overwrite().save(path)

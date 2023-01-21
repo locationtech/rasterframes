@@ -24,28 +24,44 @@ meant to provide smoother pathways between the jvm and Python, and whenever poss
 the implementations take advantage of the existing Scala functionality. The RasterFrameLayer
 class here provides the PyRasterFrames entry point.
 """
+import functools
+import math
 from itertools import product
-import functools, math
-
-import pyproj
-from pyspark import SparkContext
-from pyspark.sql import DataFrame, Column
-from pyspark.sql.types import (UserDefinedType, StructType, StructField, BinaryType, DoubleType, ShortType, IntegerType, StringType)
-
-from pyspark.ml.param.shared import HasInputCols
-from pyspark.ml.wrapper import JavaTransformer
-from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
-
-from pyrasterframes.rf_context import RFContext
-from pyspark.sql import SparkSession
-from py4j.java_collections import Sequence
-
-import numpy as np
-
 from typing import List, Tuple
 
-__all__ = ['RasterFrameLayer', 'Tile', 'TileUDT', 'CellType', 'Extent',
-           'CRS', 'CrsUDT', 'RasterSourceUDT', 'TileExploder', 'NoDataFilter']
+import numpy as np
+import pyproj
+from py4j.java_collections import Sequence
+from pyspark import SparkContext
+from pyspark.ml.param.shared import HasInputCols
+from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
+from pyspark.ml.wrapper import JavaTransformer
+from pyspark.sql import Column, DataFrame, SparkSession
+from pyspark.sql.types import (
+    BinaryType,
+    DoubleType,
+    IntegerType,
+    ShortType,
+    StringType,
+    StructField,
+    StructType,
+    UserDefinedType,
+)
+
+from pyrasterframes.rf_context import RFContext
+
+__all__ = [
+    "RasterFrameLayer",
+    "Tile",
+    "TileUDT",
+    "CellType",
+    "Extent",
+    "CRS",
+    "CrsUDT",
+    "RasterSourceUDT",
+    "TileExploder",
+    "NoDataFilter",
+]
 
 
 class cached_property(object):
@@ -59,6 +75,7 @@ class cached_property(object):
         val = self.function(obj)
         obj.__dict__[self.function.__name__] = val
         return val
+
 
 class RasterFrameLayer(DataFrame):
     def __init__(self, jdf: DataFrame, spark_session: SparkSession):
@@ -95,6 +112,7 @@ class RasterFrameLayer(DataFrame):
         :return: A dictionary of metadata.
         """
         import json
+
         return json.loads(str(self._jrfctx.tileLayerMetadata(self._jdf)))
 
     def spatial_join(self, other_df: DataFrame):
@@ -162,16 +180,15 @@ class RasterFrameLayer(DataFrame):
 class RasterSourceUDT(UserDefinedType):
     @classmethod
     def sqlType(cls):
-        return StructType([
-            StructField("raster_source_kryo", BinaryType(), False)])
+        return StructType([StructField("raster_source_kryo", BinaryType(), False)])
 
     @classmethod
     def module(cls):
-        return 'pyrasterframes.rf_types'
+        return "pyrasterframes.rf_types"
 
     @classmethod
     def scalaUDT(cls):
-        return 'org.apache.spark.sql.rf.RasterSourceUDT'
+        return "org.apache.spark.sql.rf.RasterSourceUDT"
 
     def needConversion(self):
         return False
@@ -218,14 +235,12 @@ class Extent(object):
 
     def buffer(self, amount):
         return Extent(
-            self.xmin - amount,
-            self.ymin - amount,
-            self.xmax + amount,
-            self.ymax + amount
+            self.xmin - amount, self.ymin - amount, self.xmax + amount, self.ymax + amount
         )
 
     def __str__(self):
         return self.__jvm__.toString()
+
 
 class CRS(object):
     # NB: The name `crsProj4` has to match what's used in StandardSerializers.crsSerializers
@@ -235,7 +250,7 @@ class CRS(object):
         elif isinstance(crsProj4, str):
             self.crsProj4 = crsProj4
         else:
-            raise ValueError('Unexpected CRS definition type: {}'.format(type(crsProj4)))
+            raise ValueError("Unexpected CRS definition type: {}".format(type(crsProj4)))
 
     @cached_property
     def __jvm__(self):
@@ -256,7 +271,7 @@ class CRS(object):
 
 class CellType(object):
     def __init__(self, cell_type_name):
-        assert(isinstance(cell_type_name, str))
+        assert isinstance(cell_type_name, str)
         self.cell_type_name = cell_type_name
 
     @classmethod
@@ -265,38 +280,38 @@ class CellType(object):
 
     @classmethod
     def bool(cls):
-        return CellType('bool')
+        return CellType("bool")
 
     @classmethod
     def int8(cls):
-        return CellType('int8')
+        return CellType("int8")
 
     @classmethod
     def uint8(cls):
-        return CellType('uint8')
+        return CellType("uint8")
 
     @classmethod
     def int16(cls):
-        return CellType('int16')
+        return CellType("int16")
 
     @classmethod
     def uint16(cls):
-        return CellType('uint16')
+        return CellType("uint16")
 
     @classmethod
     def int32(cls):
-        return CellType('int32')
+        return CellType("int32")
 
     @classmethod
     def float32(cls):
-        return CellType('float32')
+        return CellType("float32")
 
     @classmethod
     def float64(cls):
-        return CellType('float64')
+        return CellType("float64")
 
     def is_raw(self) -> bool:
-        return self.cell_type_name.endswith('raw')
+        return self.cell_type_name.endswith("raw")
 
     def is_user_defined_no_data(self) -> bool:
         return "ud" in self.cell_type_name
@@ -305,13 +320,13 @@ class CellType(object):
         return not (self.is_raw() or self.is_user_defined_no_data())
 
     def is_floating_point(self) -> bool:
-        return self.cell_type_name.startswith('float')
+        return self.cell_type_name.startswith("float")
 
     def base_cell_type_name(self) -> str:
         if self.is_raw():
             return self.cell_type_name[:-3]
         elif self.is_user_defined_no_data():
-            return self.cell_type_name.split('ud')[0]
+            return self.cell_type_name.split("ud")[0]
         else:
             return self.cell_type_name
 
@@ -322,7 +337,7 @@ class CellType(object):
         if self.is_raw():
             return None
         elif self.is_user_defined_no_data():
-            num_str = self.cell_type_name.split('ud')[1]
+            num_str = self.cell_type_name.split("ud")[1]
             if self.is_floating_point():
                 return float(num_str)
             else:
@@ -332,21 +347,21 @@ class CellType(object):
                 return np.nan
             else:
                 n = self.base_cell_type_name()
-                if n == 'uint8' or n == 'uint16':
+                if n == "uint8" or n == "uint16":
                     return 0
-                elif n == 'int8':
+                elif n == "int8":
                     return -128
-                elif n == 'int16':
+                elif n == "int16":
                     return -32768
-                elif n == 'int32':
+                elif n == "int32":
                     return -2147483648
-                elif n == 'bool':
+                elif n == "bool":
                     return None
         raise Exception("Unable to determine no_data_value from '{}'".format(n))
 
     def to_numpy_dtype(self) -> np.dtype:
         n = self.base_cell_type_name()
-        return np.dtype(n).newbyteorder('>')
+        return np.dtype(n).newbyteorder(">")
 
     def with_no_data_value(self, no_data):
         if self.has_no_data() and self.no_data_value() == no_data:
@@ -355,7 +370,7 @@ class CellType(object):
             no_data = str(float(no_data))
         else:
             no_data = str(int(no_data))
-        return CellType(self.base_cell_type_name() + 'ud' + no_data)
+        return CellType(self.base_cell_type_name() + "ud" + no_data)
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -393,22 +408,23 @@ class Tile(object):
         # is it a buffer tile? crop it on extraction to preserve the tile behavior
         if grid_bounds is not None:
             colmin, rowmin, colmax, rowmax = grid_bounds
-            self.cells = self.cells[rowmin:(rowmax+1), colmin:(colmax+1)]
+            self.cells = self.cells[rowmin : (rowmax + 1), colmin : (colmax + 1)]
 
     def __eq__(self, other):
         if type(other) is type(self):
-            return self.cell_type == other.cell_type and \
-                   np.ma.allequal(self.cells, other.cells, fill_value=True)
+            return self.cell_type == other.cell_type and np.ma.allequal(
+                self.cells, other.cells, fill_value=True
+            )
         else:
             return False
 
     def __str__(self):
-        return "Tile(dimensions={}, cell_type={}, cells=\n{})" \
-            .format(self.dimensions(), self.cell_type, self.cells)
+        return "Tile(dimensions={}, cell_type={}, cells=\n{})".format(
+            self.dimensions(), self.cell_type, self.cells
+        )
 
     def __repr__(self):
-        return "Tile({}, {})" \
-            .format(repr(self.cells), repr(self.cell_type))
+        return "Tile({}, {})".format(repr(self.cells), repr(self.cell_type))
 
     def __add__(self, right):
         if isinstance(right, Tile):
@@ -460,56 +476,59 @@ class TileUDT(UserDefinedType):
         """
         Mirrors `schema` in scala companion object org.apache.spark.sql.rf.TileUDT
         """
-        extent = StructType([
-            StructField("xmin",DoubleType(), True),
-            StructField("ymin",DoubleType(), True),
-            StructField("xmax",DoubleType(), True),
-            StructField("ymax",DoubleType(), True)
-        ])
-        grid = StructType([
-            StructField("colMin", IntegerType(), True),
-            StructField("rowMin", IntegerType(), True),
-            StructField("colMax", IntegerType(), True),
-            StructField("rowMax", IntegerType() ,True)
-        ])
+        extent = StructType(
+            [
+                StructField("xmin", DoubleType(), True),
+                StructField("ymin", DoubleType(), True),
+                StructField("xmax", DoubleType(), True),
+                StructField("ymax", DoubleType(), True),
+            ]
+        )
+        grid = StructType(
+            [
+                StructField("colMin", IntegerType(), True),
+                StructField("rowMin", IntegerType(), True),
+                StructField("colMax", IntegerType(), True),
+                StructField("rowMax", IntegerType(), True),
+            ]
+        )
 
-        ref = StructType([
-            StructField("source", StructType([
-                StructField("raster_source_kryo", BinaryType(), False)
-            ]),True),
-            StructField("bandIndex", IntegerType(), True),
-            StructField("subextent", extent ,True),
-            StructField("subgrid", grid, True),
-        ])
+        ref = StructType(
+            [
+                StructField(
+                    "source",
+                    StructType([StructField("raster_source_kryo", BinaryType(), False)]),
+                    True,
+                ),
+                StructField("bandIndex", IntegerType(), True),
+                StructField("subextent", extent, True),
+                StructField("subgrid", grid, True),
+            ]
+        )
 
-        return StructType([
-             StructField("cellType", StringType(), False),
-             StructField("cols", IntegerType(), False),
-             StructField("rows", IntegerType(), False),
-             StructField("cells", BinaryType(), True),
-             StructField("gridBounds", grid, True),
-             StructField("ref", ref, True)
-        ])
+        return StructType(
+            [
+                StructField("cellType", StringType(), False),
+                StructField("cols", IntegerType(), False),
+                StructField("rows", IntegerType(), False),
+                StructField("cells", BinaryType(), True),
+                StructField("gridBounds", grid, True),
+                StructField("ref", ref, True),
+            ]
+        )
 
     @classmethod
     def module(cls):
-        return 'pyrasterframes.rf_types'
+        return "pyrasterframes.rf_types"
 
     @classmethod
     def scalaUDT(cls):
-        return 'org.apache.spark.sql.rf.TileUDT'
+        return "org.apache.spark.sql.rf.TileUDT"
 
     def serialize(self, tile):
         cells = bytearray(tile.cells.flatten().tobytes())
         dims = tile.dimensions()
-        return [
-            tile.cell_type.cell_type_name,
-            dims[0],
-            dims[1],
-            cells,
-            None,
-            None
-        ]
+        return [tile.cell_type.cell_type_name, dims[0], dims[1], cells, None, None]
 
     def deserialize(self, datum):
         """
@@ -542,15 +561,18 @@ class TileUDT(UserDefinedType):
             reshaped = as_numpy.reshape((rows, cols))
             t = Tile(reshaped, cell_type, datum.gridBounds)
         except ValueError as e:
-            raise ValueError({
-                "cell_type": cell_type,
-                "cols": cols,
-                "rows": rows,
-                "cell_data.length": len(cell_data_bytes),
-                "cell_data.type": type(cell_data_bytes),
-                "cell_data.values": repr(cell_data_bytes),
-                "grid_bounds": datum.gridBounds
-            }, e)
+            raise ValueError(
+                {
+                    "cell_type": cell_type,
+                    "cols": cols,
+                    "rows": rows,
+                    "cell_data.length": len(cell_data_bytes),
+                    "cell_data.type": type(cell_data_bytes),
+                    "cell_data.values": repr(cell_data_bytes),
+                    "grid_bounds": datum.gridBounds,
+                },
+                e,
+            )
         return t
 
     deserialize.__safe_for_unpickling__ = True
@@ -569,11 +591,11 @@ class CrsUDT(UserDefinedType):
 
     @classmethod
     def module(cls):
-        return 'pyrasterframes.rf_types'
+        return "pyrasterframes.rf_types"
 
     @classmethod
     def scalaUDT(cls):
-        return 'org.apache.spark.sql.rf.CrsUDT'
+        return "org.apache.spark.sql.rf.CrsUDT"
 
     def serialize(self, crs):
         return crs.proj4_str
@@ -594,7 +616,9 @@ class TileExploder(JavaTransformer, DefaultParamsReadable, DefaultParamsWritable
 
     def __init__(self):
         super(TileExploder, self).__init__()
-        self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.TileExploder", self.uid)
+        self._java_obj = self._new_java_obj(
+            "org.locationtech.rasterframes.ml.TileExploder", self.uid
+        )
 
 
 class NoDataFilter(JavaTransformer, HasInputCols, DefaultParamsReadable, DefaultParamsWritable):
@@ -604,8 +628,9 @@ class NoDataFilter(JavaTransformer, HasInputCols, DefaultParamsReadable, Default
 
     def __init__(self):
         super(NoDataFilter, self).__init__()
-        self._java_obj = self._new_java_obj("org.locationtech.rasterframes.ml.NoDataFilter", self.uid)
-
+        self._java_obj = self._new_java_obj(
+            "org.locationtech.rasterframes.ml.NoDataFilter", self.uid
+        )
 
     def setInputCols(self, value):
         """
