@@ -1,3 +1,6 @@
 .coverage
 htmlcov
 dist/
+docs/*.md
+docs/*.ipynb
+__pycache__
