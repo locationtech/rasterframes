@@ -1,4 +1,5 @@
 .coverage
+.venv
 htmlcov
 dist/
 docs/*.md
