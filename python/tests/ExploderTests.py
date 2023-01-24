@@ -31,13 +31,13 @@ def test_tile_exploder_pipeline_for_prt(spark, img_uri):
     # NB the tile is a Projected Raster Tile
     df = spark.read.raster(img_uri)
     t_col = "proj_raster"
-    assert (t_col in df.columns, "proj_raster column not found")
+    assert t_col in df.columns, "proj_raster column not found"
 
     assembler = VectorAssembler().setInputCols([t_col])
     pipe = Pipeline().setStages([TileExploder(), assembler])
     pipe_model = pipe.fit(df)
     tranformed_df = pipe_model.transform(df)
-    assert (tranformed_df.count() > df.count(), "DF count has not the expected size")
+    assert tranformed_df.count() > df.count(), "DF count has not the expected size"
 
 
 def test_tile_exploder_pipeline_for_tile(spark, img_uri):
@@ -48,7 +48,7 @@ def test_tile_exploder_pipeline_for_tile(spark, img_uri):
     pipe = Pipeline().setStages([TileExploder(), assembler])
     pipe_model = pipe.fit(df)
     tranformed_df = pipe_model.transform(df)
-    assert (tranformed_df.count() > df.count(), "DF count has not the expected size")
+    assert tranformed_df.count() > df.count(), "DF count has not the expected size"
 
 
 def test_tile_exploder_read_write(spark, img_uri):

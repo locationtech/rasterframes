@@ -21,8 +21,7 @@
 import json
 import os.path
 import urllib.request
-from functools import cache
-from unittest import skip
+from functools import lru_cache
 
 import pandas as pd
 import pyspark.sql.functions as F
@@ -33,7 +32,7 @@ from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 
 
-@cache
+@lru_cache(maxsize=None)
 def get_signed_url(url):
     sas_url = f"https://planetarycomputer.microsoft.com/api/sas/v1/sign?href={url}"
     with urllib.request.urlopen(sas_url) as response:
