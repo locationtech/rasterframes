@@ -39,7 +39,7 @@ from .conftest import assert_png, rounded_compare
 def test_setup(spark):
     assert (
         spark.sparkContext.getConf().get("spark.serializer")
-        == "org.apache.spark.serializer.KryoSerializer",
+        == "org.apache.spark.serializer.KryoSerializer"
     )
     print("GDAL version", gdal_version())
 

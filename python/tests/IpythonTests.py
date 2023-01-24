@@ -81,4 +81,4 @@ def test_display_extension(ip, df):
     df.display(num_rows=num_rows)
 
     # Plus one for the header row.
-    assert (result["row_count"] == num_rows + 1, f"Received: {result['payload']}")
+    assert result["row_count"] == num_rows + 1, f"Received: {result['payload']}"
