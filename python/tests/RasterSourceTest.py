@@ -65,9 +65,6 @@ def path_pandas_df():
     )
 
 
-mak
-
-
 def test_handle_lazy_eval(spark):
     df = spark.read.raster(path(1, 1))
     ltdf = df.select("proj_raster")
