@@ -18,7 +18,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import json
 import os.path
+import urllib.request
+from functools import cache
 from unittest import skip
 
 import pandas as pd
@@ -30,18 +33,26 @@ from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 
 
-# FIXME: URLS are not valid anymore
+@cache
+def get_signed_url(url):
+    sas_url = f"https://planetarycomputer.microsoft.com/api/sas/v1/sign?href={url}"
+    with urllib.request.urlopen(sas_url) as response:
+        signed_url = json.loads(response.read())["href"]
+    return signed_url
+
+
 def path(scene, band):
+
     scene_dict = {
-        1: "https://landsat-pds.s3.amazonaws.com/c1/L8/015/041/LC08_L1TP_015041_20190305_20190309_01_T1/LC08_L1TP_015041_20190305_20190309_01_T1_B{}.TIF",
-        2: "https://landsat-pds.s3.amazonaws.com/c1/L8/015/042/LC08_L1TP_015042_20190305_20190309_01_T1/LC08_L1TP_015042_20190305_20190309_01_T1_B{}.TIF",
-        3: "https://landsat-pds.s3.amazonaws.com/c1/L8/016/041/LC08_L1TP_016041_20190224_20190309_01_T1/LC08_L1TP_016041_20190224_20190309_01_T1_B{}.TIF",
+        1: "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2022/195/023/LC08_L2SP_195023_20220902_20220910_02_T1/LC08_L2SP_195023_20220902_20220910_02_T1_SR_B{}.TIF",
+        2: "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2022/195/022/LC08_L2SP_195022_20220902_20220910_02_T1/LC08_L2SP_195022_20220902_20220910_02_T1_SR_B{}.TIF",
+        3: "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2022/196/022/LC08_L2SP_196022_20220418_20220427_02_T1/LC08_L2SP_196022_20220418_20220427_02_T1_SR_B{}.TIF",
     }
 
     assert band in range(1, 12)
     assert scene in scene_dict.keys()
     p = scene_dict[scene]
-    return p.format(band)
+    return get_signed_url(p.format(band))
 
 
 def path_pandas_df():
@@ -52,6 +63,9 @@ def path_pandas_df():
             {"b1": path(3, 1), "b2": path(3, 2), "b3": path(3, 3), "geo": Point(3, 3),},
         ]
     )
+
+
+mak
 
 
 def test_handle_lazy_eval(spark):
@@ -94,8 +108,9 @@ def test_list_of_str(spark):
 
     def l8path(b):
         assert b in range(1, 12)
-        base = "https://s3-us-west-2.amazonaws.com/landsat-pds/c1/L8/199/026/LC08_L1TP_199026_20180919_20180928_01_T1/LC08_L1TP_199026_20180919_20180928_01_T1_B{}.TIF"
-        return base.format(b)
+
+        base = "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2022/196/022/LC08_L2SP_196022_20220418_20220427_02_T1/LC08_L2SP_196022_20220418_20220427_02_T1_SR_B{}.TIF"
+        return get_signed_url(base.format(b))
 
     path_param = [l8path(b) for b in [1, 2, 3]]
     tile_size = 512
