@@ -17,8 +17,10 @@ init:
 	poetry install
 	poetry run pre-commit install
 
-test: clean init
+test:
 	poetry run pytest -vv tests --cov=pyrasterframes --cov=geomesa_pyspark --cov-report=term-missing
+
+clean-test: clean init test
 
 lint:
 	poetry run pre-commit run --all-file
