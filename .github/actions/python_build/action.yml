@@ -9,10 +9,14 @@ runs:
         python-version: ${{ matrix.python }}
     - uses: abatilo/actions-poetry@v2
     - name: Install dependencies
+      shell: bash
       run: make init
     - name: Static checks
+      shell: bash
       run: make lint
     - name: Run tests
+      shell: bash
       run: make test
     - name: Build wheel
+      shell: bash
       run: make build
