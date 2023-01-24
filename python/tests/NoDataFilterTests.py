@@ -18,7 +18,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import unittest
 
 from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.feature import VectorAssembler
@@ -27,23 +26,20 @@ from pyspark.sql.functions import *
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 
-from . import TestEnvironment
 
+def test_no_data_filter_read_write(spark, img_uri):
+    path = "test_no_data_filter_read_write.pipe"
+    df = spark.read.raster(img_uri).select(rf_tile_mean("proj_raster").alias("mean"))
 
-class ExploderTests(TestEnvironment):
-    def test_no_data_filter_read_write(self):
-        path = "test_no_data_filter_read_write.pipe"
-        df = self.spark.read.raster(self.img_uri).select(rf_tile_mean("proj_raster").alias("mean"))
+    input_cols = ["mean"]
+    ndf = NoDataFilter().setInputCols(input_cols)
+    assembler = VectorAssembler().setInputCols(input_cols)
 
-        input_cols = ["mean"]
-        ndf = NoDataFilter().setInputCols(input_cols)
-        assembler = VectorAssembler().setInputCols(input_cols)
+    pipe = Pipeline().setStages([ndf, assembler])
 
-        pipe = Pipeline().setStages([ndf, assembler])
+    pipe.fit(df).write().overwrite().save(path)
 
-        pipe.fit(df).write().overwrite().save(path)
-
-        read_pipe = PipelineModel.load(path)
-        self.assertEqual(len(read_pipe.stages), 2)
-        actual_stages_ndf = read_pipe.stages[0].getInputCols()
-        self.assertEqual(actual_stages_ndf, input_cols)
+    read_pipe = PipelineModel.load(path)
+    assert len(read_pipe.stages) == 2
+    actual_stages_ndf = read_pipe.stages[0].getInputCols()
+    assert actual_stages_ndf == input_cols
