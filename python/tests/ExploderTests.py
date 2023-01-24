@@ -18,8 +18,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import unittest
-
 from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql.functions import *
@@ -28,45 +26,40 @@ from pyrasterframes import TileExploder
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 
-from . import TestEnvironment
+
+def test_tile_exploder_pipeline_for_prt(spark, img_uri):
+    # NB the tile is a Projected Raster Tile
+    df = spark.read.raster(img_uri)
+    t_col = "proj_raster"
+    assert (t_col in df.columns, "proj_raster column not found")
+
+    assembler = VectorAssembler().setInputCols([t_col])
+    pipe = Pipeline().setStages([TileExploder(), assembler])
+    pipe_model = pipe.fit(df)
+    tranformed_df = pipe_model.transform(df)
+    assert (tranformed_df.count() > df.count(), "DF count has not the expected size")
 
 
-class ExploderTests(TestEnvironment):
-    def test_tile_exploder_pipeline_for_prt(self):
-        # NB the tile is a Projected Raster Tile
-        df = self.spark.read.raster(self.img_uri)
-        t_col = "proj_raster"
-        self.assertTrue(t_col in df.columns)
+def test_tile_exploder_pipeline_for_tile(spark, img_uri):
+    t_col = "tile"
+    df = spark.read.raster(img_uri).withColumn(t_col, rf_tile("proj_raster")).drop("proj_raster")
 
-        assembler = VectorAssembler().setInputCols([t_col])
-        pipe = Pipeline().setStages([TileExploder(), assembler])
-        pipe_model = pipe.fit(df)
-        tranformed_df = pipe_model.transform(df)
-        self.assertTrue(tranformed_df.count() > df.count())
+    assembler = VectorAssembler().setInputCols([t_col])
+    pipe = Pipeline().setStages([TileExploder(), assembler])
+    pipe_model = pipe.fit(df)
+    tranformed_df = pipe_model.transform(df)
+    assert (tranformed_df.count() > df.count(), "DF count has not the expected size")
 
-    def test_tile_exploder_pipeline_for_tile(self):
-        t_col = "tile"
-        df = (
-            self.spark.read.raster(self.img_uri)
-            .withColumn(t_col, rf_tile("proj_raster"))
-            .drop("proj_raster")
-        )
 
-        assembler = VectorAssembler().setInputCols([t_col])
-        pipe = Pipeline().setStages([TileExploder(), assembler])
-        pipe_model = pipe.fit(df)
-        tranformed_df = pipe_model.transform(df)
-        self.assertTrue(tranformed_df.count() > df.count())
+def test_tile_exploder_read_write(spark, img_uri):
+    path = "test_tile_exploder_read_write.pipe"
+    df = spark.read.raster(img_uri)
 
-    def test_tile_exploder_read_write(self):
-        path = "test_tile_exploder_read_write.pipe"
-        df = self.spark.read.raster(self.img_uri)
+    assembler = VectorAssembler().setInputCols(["proj_raster"])
+    pipe = Pipeline().setStages([TileExploder(), assembler])
 
-        assembler = VectorAssembler().setInputCols(["proj_raster"])
-        pipe = Pipeline().setStages([TileExploder(), assembler])
+    pipe.fit(df).write().overwrite().save(path)
 
-        pipe.fit(df).write().overwrite().save(path)
-
-        read_pipe = PipelineModel.load(path)
-        self.assertEqual(len(read_pipe.stages), 2)
-        self.assertTrue(isinstance(read_pipe.stages[0], TileExploder))
+    read_pipe = PipelineModel.load(path)
+    assert len(read_pipe.stages) == 2
+    assert isinstance(read_pipe.stages[0], TileExploder)
