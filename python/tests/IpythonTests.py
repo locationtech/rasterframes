@@ -18,78 +18,67 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from unittest import skip
 
 import numpy as np
+import pytest
 from IPython.testing import globalipapp
 from py4j.protocol import Py4JJavaError
+from pyspark.sql import Row
+from pyspark.sql.types import StructField, StructType
 
 import pyrasterframes
 from pyrasterframes.rf_types import *
 
-from . import TestEnvironment
+
+@pytest.fixture(scope="module")
+def ip():
+    globalipapp.start_ipython()
+    yield globalipapp.get_ipython()
+    globalipapp.get_ipython().atexit_operations()
 
 
-class IpythonTests(TestEnvironment):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        globalipapp.start_ipython()
+@pytest.mark.skip("Pending fix for issue #458")
+def test_all_nodata_tile(spark):
+    # https://github.com/locationtech/rasterframes/issues/458
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        globalipapp.get_ipython().atexit_operations()
+    df = spark.createDataFrame(
+        [
+            Row(
+                tile=Tile(
+                    np.array([[np.nan, np.nan, np.nan], [np.nan, np.nan, np.nan]], dtype="float64"),
+                    CellType.float64(),
+                )
+            ),
+            Row(tile=None),
+        ],
+        schema=StructType([StructField("tile", TileUDT(), True)]),
+    )
 
-    @skip("Pending fix for issue #458")
-    def test_all_nodata_tile(self):
-        # https://github.com/locationtech/rasterframes/issues/458
+    try:
+        pyrasterframes.rf_ipython.spark_df_to_html(df)
+    except Py4JJavaError:
+        raise Exception("test_all_nodata_tile failed with Py4JJavaError")
+    except:
+        raise Exception("um")
 
-        from pyspark.sql import Row
-        from pyspark.sql.types import StructField, StructType
 
-        df = self.spark.createDataFrame(
-            [
-                Row(
-                    tile=Tile(
-                        np.array(
-                            [[np.nan, np.nan, np.nan], [np.nan, np.nan, np.nan]], dtype="float64"
-                        ),
-                        CellType.float64(),
-                    )
-                ),
-                Row(tile=None),
-            ],
-            schema=StructType([StructField("tile", TileUDT(), True)]),
-        )
+def test_display_extension(ip, df):
+    import pyrasterframes.rf_ipython
 
-        try:
-            pyrasterframes.rf_ipython.spark_df_to_html(df)
-        except Py4JJavaError:
-            self.fail("test_all_nodata_tile failed with Py4JJavaError")
-        except:
-            self.fail("um")
+    num_rows = 2
 
-    def test_display_extension(self):
-        # noinspection PyUnresolvedReferences
-        import pyrasterframes.rf_ipython
+    result = {}
 
-        self.create_layer()
-        ip = globalipapp.get_ipython()
+    def counter(data, md):
+        nonlocal result
+        result["payload"] = (data, md)
+        result["row_count"] = data.count("<tr>")
 
-        num_rows = 2
+    ip.mime_renderers["text/html"] = counter
 
-        result = {}
+    # ip.mime_renderers['text/markdown'] = lambda a, b: print(a, b)
 
-        def counter(data, md):
-            nonlocal result
-            result["payload"] = (data, md)
-            result["row_count"] = data.count("<tr>")
+    df.display(num_rows=num_rows)
 
-        ip.mime_renderers["text/html"] = counter
-
-        # ip.mime_renderers['text/markdown'] = lambda a, b: print(a, b)
-
-        self.df.display(num_rows=num_rows)
-
-        # Plus one for the header row.
-        self.assertIs(result["row_count"], num_rows + 1, msg=f"Received: {result['payload']}")
+    # Plus one for the header row.
+    assert (result["row_count"] == num_rows + 1, f"Received: {result['payload']}")

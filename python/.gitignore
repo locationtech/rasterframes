@@ -5,3 +5,6 @@ dist/
 docs/*.md
 docs/*.ipynb
 __pycache__
+*.pipe/
+.coverage*
+*.jar

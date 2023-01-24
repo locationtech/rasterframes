@@ -21,69 +21,62 @@
 import os
 import tempfile
 
+import pytest
 import rasterio
 
-from . import TestEnvironment
+
+@pytest.fixture
+def tmpfile():
+    file_name = os.path.join(tempfile.gettempdir(), "pyrf-test.tif")
+    yield file_name
+    os.remove(file_name)
 
 
-class GeoTiffWriter(TestEnvironment):
-    @staticmethod
-    def _tmpfile():
-        return os.path.join(tempfile.gettempdir(), "pyrf-test.tif")
+def test_identity_write(spark, img_uri, tmpfile):
+    rf = spark.read.geotiff(img_uri)
+    rf_count = rf.count()
+    assert rf_count > 0
 
-    def test_identity_write(self):
-        rf = self.spark.read.geotiff(self.img_uri)
-        rf_count = rf.count()
-        self.assertTrue(rf_count > 0)
+    rf.write.geotiff(tmpfile)
+    rf2 = spark.read.geotiff(tmpfile)
+    assert rf2.count() == rf.count()
 
-        dest = self._tmpfile()
-        rf.write.geotiff(dest)
 
-        rf2 = self.spark.read.geotiff(dest)
+def test_unstructured_write(spark, img_uri, tmpfile):
+    rf = spark.read.raster(img_uri)
 
-        self.assertEqual(rf2.count(), rf.count())
+    rf.write.geotiff(tmpfile, crs="EPSG:32616")
 
-        os.remove(dest)
+    rf2 = spark.read.raster(tmpfile)
 
-    def test_unstructured_write(self):
-        rf = self.spark.read.raster(self.img_uri)
-        dest_file = self._tmpfile()
-        rf.write.geotiff(dest_file, crs="EPSG:32616")
+    assert rf2.count() == rf.count()
 
-        rf2 = self.spark.read.raster(dest_file)
-        self.assertEqual(rf2.count(), rf.count())
+    with rasterio.open(img_uri) as source:
+        with rasterio.open(tmpfile) as dest:
+            assert (dest.width, dest.height) == (source.width, source.height)
+            assert dest.bounds == source.bounds
+            assert dest.crs == source.crs
 
-        with rasterio.open(self.img_uri) as source:
-            with rasterio.open(dest_file) as dest:
-                self.assertEqual((dest.width, dest.height), (source.width, source.height))
-                self.assertEqual(dest.bounds, source.bounds)
-                self.assertEqual(dest.crs, source.crs)
 
-        os.remove(dest_file)
+def test_unstructured_write_schemaless(spark, img_uri, tmpfile):
+    # should be able to write a projected raster tile column to path like '/data/foo/file.tif'
+    from pyrasterframes.rasterfunctions import rf_agg_stats, rf_crs
 
-    def test_unstructured_write_schemaless(self):
-        # should be able to write a projected raster tile column to path like '/data/foo/file.tif'
-        from pyrasterframes.rasterfunctions import rf_agg_stats, rf_crs
+    rf = spark.read.raster(img_uri)
+    max = rf.agg(rf_agg_stats("proj_raster").max.alias("max")).first()["max"]
+    crs = rf.select(rf_crs("proj_raster").alias("crs")).first()["crs"]
 
-        rf = self.spark.read.raster(self.img_uri)
-        max = rf.agg(rf_agg_stats("proj_raster").max.alias("max")).first()["max"]
-        crs = rf.select(rf_crs("proj_raster").alias("crs")).first()["crs"]
+    assert not tmpfile.startswith("file://")
 
-        dest_file = self._tmpfile()
-        self.assertTrue(not dest_file.startswith("file://"))
-        rf.write.geotiff(dest_file, crs=crs)
+    rf.write.geotiff(tmpfile, crs=crs)
 
-        with rasterio.open(dest_file) as src:
-            self.assertEqual(src.read().max(), max)
+    with rasterio.open(tmpfile) as src:
+        assert src.read().max() == max
 
-        os.remove(dest_file)
 
-    def test_downsampled_write(self):
-        rf = self.spark.read.raster(self.img_uri)
-        dest = self._tmpfile()
-        rf.write.geotiff(dest, crs="EPSG:32616", raster_dimensions=(128, 128))
+def test_downsampled_write(spark, img_uri, tmpfile):
+    rf = spark.read.raster(img_uri)
+    rf.write.geotiff(tmpfile, crs="EPSG:32616", raster_dimensions=(128, 128))
 
-        with rasterio.open(dest) as f:
-            self.assertEqual((f.width, f.height), (128, 128))
-
-        os.remove(dest)
+    with rasterio.open(tmpfile) as f:
+        assert (f.width, f.height) == (128, 128)
