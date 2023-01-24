@@ -20,69 +20,56 @@ import os
 import pathlib
 import shutil
 import tempfile
-from unittest import skipIf
 
-from . import TestEnvironment
+import pytest
+
+on_circle_ci = os.environ.get("CIRCLECI", "false") == "true"
 
 
-class GeotrellisTests(TestEnvironment):
+@pytest.fixture()
+def tmpdir():
+    dest = tempfile.mkdtemp()
+    yield pathlib.Path(dest).as_uri()
+    shutil.rmtree(dest, ignore_errors=True)
 
-    on_circle_ci = os.environ.get("CIRCLECI", "false") == "true"
 
-    @skipIf(
-        on_circle_ci,
-        "CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
-    )
-    def test_write_geotrellis_layer(self):
-        rf = self.spark.read.geotiff(self.img_uri).cache()
-        rf_count = rf.count()
-        self.assertTrue(rf_count > 0)
+@pytest.mark.skipif(
+    on_circle_ci,
+    reason="CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
+)
+def test_write_geotrellis_layer(spark, img_uri, tmpdir):
+    rf = spark.read.geotiff(img_uri).cache()
+    rf_count = rf.count()
+    assert rf_count > 0
 
-        layer = "gt_layer"
-        zoom = 0
+    layer = "gt_layer"
+    zoom = 0
 
-        dest = tempfile.mkdtemp()
-        dest_uri = pathlib.Path(dest).as_uri()
-        rf.write.option("layer", layer).option("zoom", zoom).geotrellis(dest_uri)
+    rf.write.option("layer", layer).option("zoom", zoom).geotrellis(tmpdir)
 
-        rf_gt = (
-            self.spark.read.format("geotrellis")
-            .option("layer", layer)
-            .option("zoom", zoom)
-            .load(dest_uri)
-        )
-        rf_gt_count = rf_gt.count()
-        self.assertTrue(rf_gt_count > 0)
+    rf_gt = spark.read.format("geotrellis").option("layer", layer).option("zoom", zoom).load(tmpdir)
+    rf_gt_count = rf_gt.count()
+    assert rf_gt_count > 0
 
-        _ = rf_gt.take(1)
+    _ = rf_gt.take(1)
 
-        shutil.rmtree(dest, ignore_errors=True)
 
-    @skipIf(
-        on_circle_ci,
-        "CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
-    )
-    def test_write_geotrellis_multiband_layer(self):
-        rf = self.spark.read.geotiff(self.img_rgb_uri).cache()
-        rf_count = rf.count()
-        self.assertTrue(rf_count > 0)
+@pytest.mark.skipif(
+    on_circle_ci,
+    reason="CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
+)
+def test_write_geotrellis_multiband_layer(spark, img_rgb_uri, tmpdir):
+    rf = spark.read.geotiff(img_rgb_uri).cache()
+    rf_count = rf.count()
+    assert rf_count > 0
 
-        layer = "gt_multiband_layer"
-        zoom = 0
+    layer = "gt_multiband_layer"
+    zoom = 0
 
-        dest = tempfile.mkdtemp()
-        dest_uri = pathlib.Path(dest).as_uri()
-        rf.write.option("layer", layer).option("zoom", zoom).geotrellis(dest_uri)
+    rf.write.option("layer", layer).option("zoom", zoom).geotrellis(tmpdir)
 
-        rf_gt = (
-            self.spark.read.format("geotrellis")
-            .option("layer", layer)
-            .option("zoom", zoom)
-            .load(dest_uri)
-        )
-        rf_gt_count = rf_gt.count()
-        self.assertTrue(rf_gt_count > 0)
+    rf_gt = spark.read.format("geotrellis").option("layer", layer).option("zoom", zoom).load(tmpdir)
+    rf_gt_count = rf_gt.count()
+    assert rf_gt_count > 0
 
-        _ = rf_gt.take(1)
-
-        shutil.rmtree(dest, ignore_errors=True)
+    _ = rf_gt.take(1)
