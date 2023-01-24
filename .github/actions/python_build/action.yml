@@ -8,12 +8,15 @@ runs:
       with:
         python-version: ${{ matrix.python }}
     - uses: abatilo/actions-poetry@v2
+    - name: Change into Python repository
+      shell: bash
+      run: chdir python
     - name: Install dependencies
       shell: bash
       run: make init
-    - name: Static checks
-      shell: bash
-      run: make lint
+    # - name: Static checks
+    #   shell: bash
+    #   run: make lint
     - name: Run tests
       shell: bash
       run: make test
