@@ -39,7 +39,7 @@ __all__ = ["RasterFrameLayer", "TileExploder"]
 
 
 def _rf_init(spark_session: SparkSession) -> SparkSession:
-    """ Adds RasterFrames functionality to PySpark session."""
+    """Adds RasterFrames functionality to PySpark session."""
     if not hasattr(spark_session, "rasterframes"):
         spark_session.rasterframes = RFContext(spark_session)
         spark_session.sparkContext._rf_context = spark_session.rasterframes
@@ -57,7 +57,7 @@ def _kryo_init(builder: SparkSession.Builder) -> SparkSession.Builder:
 
 
 def _convert_df(df: DataFrame, sp_key=None, metadata=None) -> RasterFrameLayer:
-    """ Internal function to convert a DataFrame to a RasterFrameLayer. """
+    """Internal function to convert a DataFrame to a RasterFrameLayer."""
     ctx = SparkContext._active_spark_context._rf_context
 
     if sp_key is None:
@@ -123,7 +123,7 @@ def _raster_join(
 def _layer_reader(
     df_reader: DataFrameReader, format_key: str, path: Optional[str], **options: str
 ) -> RasterFrameLayer:
-    """ Loads the file of the given type at the given path."""
+    """Loads the file of the given type at the given path."""
     df = df_reader.format(format_key).load(path, **options)
     return _convert_df(df)
 
@@ -131,14 +131,14 @@ def _layer_reader(
 def _aliased_reader(
     df_reader: DataFrameReader, format_key: str, path: Optional[str], **options: str
 ) -> DataFrame:
-    """ Loads the file of the given type at the given path."""
+    """Loads the file of the given type at the given path."""
     return df_reader.format(format_key).load(path, **options)
 
 
 def _aliased_writer(
     df_writer: DataFrameWriter, format_key: str, path: Optional[str], **options: str
 ):
-    """ Saves the dataframe to a file of the given type at the given path."""
+    """Saves the dataframe to a file of the given type at the given path."""
     return df_writer.format(format_key).save(path, **options)
 
 
@@ -185,7 +185,7 @@ def _raster_reader(
             return ",".join(str(v) for v in comp)
 
     def temp_name():
-        """ Create a random name for a temporary view """
+        """Create a random name for a temporary view"""
         import uuid
 
         return str(uuid.uuid4()).replace("-", "")
@@ -233,7 +233,11 @@ def _raster_reader(
             catalog_col_names = [
                 "proj_raster_{}".format(i) for i in range(len(source[0]))
             ]  # assign these names
-            catalog = PdDataFrame(source, columns=catalog_col_names, dtype=str,)
+            catalog = PdDataFrame(
+                source,
+                columns=catalog_col_names,
+                dtype=str,
+            )
     elif isinstance(source, str):
         if "\n" in source or "\r" in source:
             # then the `source` string is a catalog as a CSV (header is required)

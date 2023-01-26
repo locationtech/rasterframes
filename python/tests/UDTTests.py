@@ -51,7 +51,20 @@ def test_tile_udt_serialization(spark):
 
 
 def test_masked_deser(spark):
-    t = Tile(np.array([[1, 2, 3,], [4, 5, 6], [7, 8, 9]]), CellType("uint8"))
+    t = Tile(
+        np.array(
+            [
+                [
+                    1,
+                    2,
+                    3,
+                ],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]
+        ),
+        CellType("uint8"),
+    )
 
     df = spark.createDataFrame([Row(t=t)])
     roundtrip = df.select(rf_mask_by_value("t", rf_local_greater("t", lit(6)), 1)).first()[0]
