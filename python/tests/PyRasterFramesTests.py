@@ -26,10 +26,9 @@ import pandas as pd
 import pyspark.sql.functions as F
 import pytest
 from py4j.protocol import Py4JJavaError
-from pyspark.sql import Row, SQLContext
-
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
+from pyspark.sql import Row, SQLContext
 
 
 def test_spark_confs(spark, app_name):

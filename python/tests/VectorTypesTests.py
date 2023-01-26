@@ -25,10 +25,9 @@ import pandas as pd
 import pyspark.sql.functions as F
 import pytest
 import shapely
-from pyspark.sql import Row
-
 from geomesa_pyspark.types import PointUDT, PolygonUDT
 from pyrasterframes.rasterfunctions import *
+from pyspark.sql import Row
 
 
 @pytest.fixture

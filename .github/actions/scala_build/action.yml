@@ -14,31 +14,18 @@ runs:
             distribution: temurin
             java-version: 8
             cache: sbt
-        - name: Assembly PyRasterFrames
+        - name: Compile Scala
           shell: bash
-          run: sbt "pyrasterframes/assembly"
+          run: make compile-scala
 
-        - name: Copy FatJar
+        - name: Test Scale
+          if: inputs.skip_tests == 'false'
           shell: bash
-          run: |
-            mkdir -p python/pyrasterframes/jars/
-            cp pyrasterframes/target/scala-2.12/pyrasterframes-assembly-*.jar python/pyrasterframes/jars/
+          run: make test-scala
 
-        # - name: Build the scala JAR 
-        #   run: sbt -v -batch compile test:compile it:compile
-
-        # - name: Core tests - skip tests is false
-        #   if: inputs.skip_tests == 'false'
-        #   run: sbt -batch core/test
-
-        # - name: Datasource tests - skip tests is false
-        #   if: inputs.skip_tests == 'false'
-        #   run: sbt -batch datasource/test
-
-        # - name: Experimental tests - skip tests is false
-        #   if: inputs.skip_tests == 'false'
-        #   shell: bash
-        #   run: sbt -batch experimental/test
+        - name: Build FatJar
+          shell: bash
+          run: make build-scala
 
         # - name: Collect artifacts
         #   if: ${{ failure() }}

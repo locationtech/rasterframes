@@ -25,11 +25,10 @@ appended to PySpark classes.
 
 from typing import Dict, List, Optional, Tuple, Union
 
+import geomesa_pyspark.types  # enable vector integrations
 from pyspark import SparkContext
 from pyspark.sql import DataFrame, DataFrameReader, DataFrameWriter, SparkSession
 from pyspark.sql.column import _to_java_column
-
-import geomesa_pyspark.types  # enable vector integrations
 
 # Import RasterFrameLayer types and functions
 from .rf_context import RFContext

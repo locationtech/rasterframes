@@ -20,5 +20,5 @@ jobs:
         uses: actions/checkout@v2
       - name: build scala with tests
         uses: ./.github/actions/scala_build
-      - name: upload artefacts
-        uses: ./.github/actions/upload_artefacts
+      # - name: upload artefacts
+      #   uses: ./.github/actions/upload_artefacts
