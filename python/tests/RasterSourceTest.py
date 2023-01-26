@@ -56,9 +56,24 @@ def path(scene, band):
 def path_pandas_df():
     return pd.DataFrame(
         [
-            {"b1": path(1, 1), "b2": path(1, 2), "b3": path(1, 3), "geo": Point(1, 1),},
-            {"b1": path(2, 1), "b2": path(2, 2), "b3": path(2, 3), "geo": Point(2, 2),},
-            {"b1": path(3, 1), "b2": path(3, 2), "b3": path(3, 3), "geo": Point(3, 3),},
+            {
+                "b1": path(1, 1),
+                "b2": path(1, 2),
+                "b3": path(1, 3),
+                "geo": Point(1, 1),
+            },
+            {
+                "b1": path(2, 1),
+                "b2": path(2, 2),
+                "b3": path(2, 3),
+                "geo": Point(2, 2),
+            },
+            {
+                "b1": path(3, 1),
+                "b2": path(3, 2),
+                "b3": path(3, 3),
+                "geo": Point(3, 3),
+            },
         ]
     )
 
@@ -111,7 +126,9 @@ def test_list_of_str(spark):
     tile_size = 512
 
     df = spark.read.raster(
-        path_param, tile_dimensions=(tile_size, tile_size), lazy_tiles=True,
+        path_param,
+        tile_dimensions=(tile_size, tile_size),
+        lazy_tiles=True,
     ).cache()
 
     print(df.take(3))
@@ -223,7 +240,12 @@ def test_csv_string(spark):
         b,{},{}
         c,{},{}
         """.format(
-        path(1, 1), path(1, 2), path(2, 1), path(2, 2), path(3, 1), path(3, 2),
+        path(1, 1),
+        path(1, 2),
+        path(2, 1),
+        path(2, 2),
+        path(3, 1),
+        path(3, 2),
     )
 
     df = spark.read.raster(s, ["b1", "b2"])

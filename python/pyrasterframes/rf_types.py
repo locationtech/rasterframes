@@ -465,7 +465,7 @@ class Tile(object):
         return Tile(np.matmul(self.cells, other))
 
     def dimensions(self) -> Tuple[int, int]:
-        """ Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
+        """Return a list of cols, rows as is conventional in GeoTrellis and RasterFrames."""
         return [self.cells.shape[1], self.cells.shape[0]]
 
 

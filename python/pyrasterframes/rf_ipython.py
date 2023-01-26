@@ -95,7 +95,7 @@ def tile_to_png(
     title: Optional[str] = None,
     fig_size: Optional[Tuple[int, int]] = None,
 ) -> bytes:
-    """ Provide image of Tile."""
+    """Provide image of Tile."""
     if tile.cells is None:
         return None
 
@@ -131,7 +131,7 @@ def tile_to_png(
 
 
 def tile_to_html(tile: Tile, fig_size: Optional[Tuple[int, int]] = None) -> str:
-    """ Provide HTML string representation of Tile image."""
+    """Provide HTML string representation of Tile image."""
     import base64
 
     b64_img_html = '<img src="data:image/png;base64,{}" />'
@@ -141,8 +141,8 @@ def tile_to_html(tile: Tile, fig_size: Optional[Tuple[int, int]] = None) -> str:
 
 
 def binary_to_html(blob) -> Union[str, bytearray]:
-    """ When using rf_render_png, the result from the JVM is a byte string with special PNG header
-        Look for this header and return base64 encoded HTML for Jupyter display
+    """When using rf_render_png, the result from the JVM is a byte string with special PNG header
+    Look for this header and return base64 encoded HTML for Jupyter display
     """
     import base64
 
@@ -155,7 +155,7 @@ def binary_to_html(blob) -> Union[str, bytearray]:
 
 
 def pandas_df_to_html(df: DataFrame) -> Optional[str]:
-    """Provide HTML formatting for pandas.DataFrame with rf_types.Tile in the columns.  """
+    """Provide HTML formatting for pandas.DataFrame with rf_types.Tile in the columns."""
     import pandas as pd
 
     # honor the existing options on display
@@ -238,7 +238,7 @@ def spark_df_to_html(df: DataFrame, num_rows: int = 5, truncate: bool = False) -
 
 
 def _folium_map_formatter(map) -> str:
-    """ inputs a folium.Map object and returns html of rendered map """
+    """inputs a folium.Map object and returns html of rendered map"""
 
     import base64
 

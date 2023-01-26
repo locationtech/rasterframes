@@ -74,7 +74,9 @@ def test_multi_column_operations(rf):
     df3 = df3.withColumn("norm_diff", rf_normalized_difference("t1", "t2"))
     # df3.printSchema()
 
-    aggs = df3.agg(rf_agg_mean("norm_diff"),)
+    aggs = df3.agg(
+        rf_agg_mean("norm_diff"),
+    )
     aggs.show()
     row = aggs.first()
 
@@ -264,7 +266,8 @@ def test_mask_by_value(rf):
     rf1 = rf.select(
         rf.tile,
         rf_local_multiply(
-            rf_convert_cell_type(rf_local_greater(rf.tile, 25000), "uint8"), F.lit(mask_value),
+            rf_convert_cell_type(rf_local_greater(rf.tile, 25000), "uint8"),
+            F.lit(mask_value),
         ).alias("mask"),
     )
     rf2 = rf1.select(

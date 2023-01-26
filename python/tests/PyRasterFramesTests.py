@@ -148,7 +148,12 @@ def test_subtraction(tile_data):
     t3 = t1 * 4
     r1 = t3 - t1
     # note careful construction of mask value and dtype above
-    e1 = Tile(np.ma.masked_equal(np.array([[4 - 1, 8 - 2], [3, 16 - 4]], dtype="int8"), 3,))
+    e1 = Tile(
+        np.ma.masked_equal(
+            np.array([[4 - 1, 8 - 2], [3, 16 - 4]], dtype="int8"),
+            3,
+        )
+    )
     assert r1 == e1, "{} does not equal {}".format(r1, e1)
     # put another way
     assert r1 == t1 * 3, "{} does not equal {}".format(r1, t1 * 3)
@@ -201,7 +206,13 @@ def test_extended_pandas_ops(spark, rf):
     assert Tile(np.random.randn(10, 10), CellType.int8()).dimensions() == [10, 10]
 
     tiles = [Tile(np.random.randn(10, 12), CellType.float64()) for _ in range(3)]
-    to_spark = pd.DataFrame({"t": tiles, "b": ["a", "b", "c"], "c": [1, 2, 4],})
+    to_spark = pd.DataFrame(
+        {
+            "t": tiles,
+            "b": ["a", "b", "c"],
+            "c": [1, 2, 4],
+        }
+    )
     rf_maybe = spark.createDataFrame(to_spark)
 
     # rf_maybe.select(rf_render_matrix(rf_maybe.t)).show(truncate=False)
@@ -268,10 +279,12 @@ def test_raster_join_resample_method(spark, resource_dir):
             df_prime.withColumnRenamed("tile2", "bilinear"), resampling_method="bilinear"
         )
         .select(
-            "tile", rf_proj_raster("bilinear", rf_extent("tile"), rf_crs("tile")).alias("bilinear"),
+            "tile",
+            rf_proj_raster("bilinear", rf_extent("tile"), rf_crs("tile")).alias("bilinear"),
         )
         .raster_join(
-            df_prime.withColumnRenamed("tile2", "cubic_spline"), resampling_method="cubic_spline",
+            df_prime.withColumnRenamed("tile2", "cubic_spline"),
+            resampling_method="cubic_spline",
         )
         .select(rf_local_subtract("bilinear", "cubic_spline").alias("diff"))
         .agg(rf_agg_stats("diff").alias("stats"))
@@ -298,9 +311,11 @@ def test_raster_join_with_null_left_head(spark):
         [Row(i=1, j="a", t=t, u=t, e=e, c=c), Row(i=1, j="b", t=None, u=t, e=e, c=c)]
     ).withColumn("e2", F.struct("e.xmin", "e.ymin", "e.xmax", "e.ymax"))
 
-    right = spark.createDataFrame([Row(i=1, r=Tile(ones, CellType.uint8()), e=e, c=c),]).withColumn(
-        "e2", F.struct("e.xmin", "e.ymin", "e.xmax", "e.ymax")
-    )
+    right = spark.createDataFrame(
+        [
+            Row(i=1, r=Tile(ones, CellType.uint8()), e=e, c=c),
+        ]
+    ).withColumn("e2", F.struct("e.xmin", "e.ymin", "e.xmax", "e.ymax"))
 
     try:
         joined = left.raster_join(
