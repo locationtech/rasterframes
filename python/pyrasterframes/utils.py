@@ -79,7 +79,7 @@ def quiet_logs(sc):
 
 
 def create_rf_spark_session(master="local[*]", **kwargs: str) -> Optional[SparkSession]:
-    """ Create a SparkSession with pyrasterframes enabled and configured. """
+    """Create a SparkSession with pyrasterframes enabled and configured."""
     jar_path = find_pyrasterframes_assembly()
 
     if "spark.jars" in kwargs.keys():

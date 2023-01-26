@@ -33,7 +33,11 @@ from pyspark.sql import Row
 @pytest.fixture
 def pandas_df():
     return pd.DataFrame(
-        {"eye": ["a", "b", "c", "d"], "x": [0.0, 1.0, 2.0, 3.0], "y": [-4.0, -3.0, -2.0, -1.0],}
+        {
+            "eye": ["a", "b", "c", "d"],
+            "x": [0.0, 1.0, 2.0, 3.0],
+            "y": [-4.0, -3.0, -2.0, -1.0],
+        }
     )
 
 
