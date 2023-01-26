@@ -22,7 +22,6 @@ import builtins
 import os
 
 import pytest
-
 from pyrasterframes.rasterfunctions import rf_convert_cell_type
 from pyrasterframes.utils import create_rf_spark_session
 

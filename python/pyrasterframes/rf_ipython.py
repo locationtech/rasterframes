@@ -21,12 +21,11 @@ from functools import partial
 from typing import Optional, Tuple, Union
 
 import numpy as np
+import pyrasterframes.rf_types
 from matplotlib.axes import Axes
 from pandas import DataFrame
-from shapely.geometry.base import BaseGeometry
-
-import pyrasterframes.rf_types
 from pyrasterframes.rf_types import Tile
+from shapely.geometry.base import BaseGeometry
 
 _png_header = bytearray([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
 
@@ -258,7 +257,6 @@ try:
     if get_ipython() is not None:
         import pandas
         import pyspark.sql
-
         from pyrasterframes.rf_types import Tile
 
         ip = get_ipython()

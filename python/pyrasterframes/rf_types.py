@@ -32,6 +32,7 @@ from typing import List, Tuple
 import numpy as np
 import pyproj
 from py4j.java_collections import Sequence
+from pyrasterframes.rf_context import RFContext
 from pyspark import SparkContext
 from pyspark.ml.param.shared import HasInputCols
 from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
@@ -47,8 +48,6 @@ from pyspark.sql.types import (
     StructType,
     UserDefinedType,
 )
-
-from pyrasterframes.rf_context import RFContext
 
 __all__ = [
     "RasterFrameLayer",
