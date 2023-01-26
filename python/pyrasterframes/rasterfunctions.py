@@ -56,7 +56,7 @@ def _apply_scalar_to_tile(name: str, tile_col: Column_type, scalar: Union[int, f
 
 
 def _parse_cell_type(cell_type_arg: Union[str, CellType]) -> JavaObject:
-    """ Convert the cell type representation to the expected JVM CellType object."""
+    """Convert the cell type representation to the expected JVM CellType object."""
 
     def to_jvm(ct):
         return _context_call("_parse_cell_type", ct)
@@ -487,7 +487,7 @@ def rf_agg_extent(extent_col):
 
 
 def rf_agg_reprojected_extent(extent_col, src_crs_col, dest_crs):
-    """Compute the aggregate extent over a column, first projecting from the row CRS to the destination CRS. """
+    """Compute the aggregate extent over a column, first projecting from the row CRS to the destination CRS."""
     return Column(
         RFContext.call(
             "rf_agg_reprojected_extent",
@@ -632,7 +632,7 @@ def rf_agg_local_stats(tile_col: Column_type) -> Column:
 
 def rf_mask(src_tile_col: Column_type, mask_tile_col: Column_type, inverse: bool = False) -> Column:
     """Where the rf_mask (second) tile contains NODATA, replace values in the source (first) tile with NODATA.
-       If `inverse` is true, replaces values in the source tile with NODATA where the mask tile contains valid data.
+    If `inverse` is true, replaces values in the source tile with NODATA where the mask tile contains valid data.
     """
     if not inverse:
         return _apply_column_function("rf_mask", src_tile_col, mask_tile_col)
@@ -642,7 +642,7 @@ def rf_mask(src_tile_col: Column_type, mask_tile_col: Column_type, inverse: bool
 
 def rf_inverse_mask(src_tile_col: Column_type, mask_tile_col: Column_type) -> Column:
     """Where the rf_mask (second) tile DOES NOT contain NODATA, replace values in the source
-       (first) tile with NODATA."""
+    (first) tile with NODATA."""
     return _apply_column_function("rf_inverse_mask", src_tile_col, mask_tile_col)
 
 
@@ -653,7 +653,7 @@ def rf_mask_by_value(
     inverse: bool = False,
 ) -> Column:
     """Generate a tile with the values from the data tile, but where cells in the masking tile contain the masking
-    value, replace the data value with NODATA. """
+    value, replace the data value with NODATA."""
     if isinstance(mask_value, (int, float)):
         mask_value = lit(mask_value)
     jfcn = RFContext.active().lookup("rf_mask_by_value")
@@ -674,7 +674,7 @@ def rf_mask_by_values(
     mask_values: Union[List[Union[int, float]], Column_type],
 ) -> Column:
     """Generate a tile with the values from `data_tile`, but where cells in the `mask_tile` are in the `mask_values`
-       list, replace the value with NODATA.
+    list, replace the value with NODATA.
     """
     from pyspark.sql.functions import array as sql_array
 
@@ -690,7 +690,7 @@ def rf_inverse_mask_by_value(
     data_tile: Column_type, mask_tile: Column_type, mask_value: Union[int, float, Column_type]
 ) -> Column:
     """Generate a tile with the values from the data tile, but where cells in the masking tile do not contain the
-    masking value, replace the data value with NODATA. """
+    masking value, replace the data value with NODATA."""
     if isinstance(mask_value, (int, float)):
         mask_value = lit(mask_value)
     return _apply_column_function("rf_inverse_mask_by_value", data_tile, mask_tile, mask_value)
@@ -739,7 +739,7 @@ def rf_local_extract_bits(
 ) -> Column:
     """Extract value from specified bits of the cells' underlying binary data.
     * `startBit` is the first bit to consider, working from the right. It is zero indexed.
-    * `numBits` is the number of bits to take moving further to the left. """
+    * `numBits` is the number of bits to take moving further to the left."""
     if isinstance(start_bit, int):
         start_bit = lit(start_bit)
     if isinstance(num_bits, int):
@@ -767,7 +767,7 @@ def rf_local_max(tile_col, max):
 
 
 def rf_local_clamp(tile_col, min, max):
-    """ Return the tile with its values limited to a range defined by min and max, inclusive.  """
+    """Return the tile with its values limited to a range defined by min and max, inclusive."""
     if isinstance(min, (int, float)):
         min = lit(min)
     if isinstance(max, (int, float)):
@@ -777,7 +777,7 @@ def rf_local_clamp(tile_col, min, max):
 
 def rf_where(condition, x, y):
     """Return a tile with cell values chosen from `x` or `y` depending on `condition`.
-       Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`."""
+    Operates cell-wise in a similar fashion to Spark SQL `when` and `otherwise`."""
     return _apply_column_function("rf_where", condition, x, y)
 
 
@@ -1061,7 +1061,7 @@ def rf_xz2_index(
     geom_col: Column_type, crs_col: Optional[Column_type] = None, index_resolution: int = 18
 ) -> Column:
     """Constructs a XZ2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS.
-       For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html """
+    For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html"""
 
     jfcn = RFContext.active().lookup("rf_xz2_index")
 
@@ -1075,8 +1075,8 @@ def rf_z2_index(
     geom_col: Column_type, crs_col: Optional[Column_type] = None, index_resolution: int = 18
 ) -> Column:
     """Constructs a Z2 index in WGS84 from either a Geometry, Extent, ProjectedRasterTile, or RasterSource and its CRS.
-        First the native extent is extracted or computed, and then center is used as the indexing location.
-        For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html """
+    First the native extent is extracted or computed, and then center is used as the indexing location.
+    For details: https://www.geomesa.org/documentation/user/datastores/index_overview.html"""
 
     jfcn = RFContext.active().lookup("rf_z2_index")
 
