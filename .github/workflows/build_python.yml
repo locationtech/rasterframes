@@ -25,5 +25,5 @@ jobs:
           skip_tests: "true"
       - name: build python
         uses: ./.github/actions/python_build
-      - name: upload artefacts
-        uses: ./.github/actions/upload_artefacts
+      # - name: upload artefacts
+      #   uses: ./.github/actions/upload_artefacts

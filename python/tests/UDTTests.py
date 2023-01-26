@@ -5,11 +5,10 @@ import numpy.testing
 import pandas
 import pyspark.sql.functions as F
 from pyproj import CRS as pyCRS
-from pyspark.sql import DataFrame, Row
-from pyspark.sql.types import StructField, StructType
-
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
+from pyspark.sql import DataFrame, Row
+from pyspark.sql.types import StructField, StructType
 
 
 def test_mask_no_data():
