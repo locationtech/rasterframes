@@ -1,3 +1,0 @@
-
-global-exclude *.py[cod] __pycache__ .DS_Store
-recursive-include pyrasterframes/jars *.jar

@@ -25,12 +25,11 @@ import pyspark.sql.functions as F
 import pytest
 from deprecation import fail_if_not_removed
 from numpy.testing import assert_allclose, assert_equal
-from pyspark.sql import Row
-
 from pyrasterframes.rasterfunctions import *
 from pyrasterframes.rf_types import *
 from pyrasterframes.rf_types import CellType, Tile
 from pyrasterframes.utils import gdal_version
+from pyspark.sql import Row
 
 from .conftest import assert_png, rounded_compare
 

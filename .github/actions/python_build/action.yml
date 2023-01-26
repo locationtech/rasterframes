@@ -11,18 +11,15 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        cd python
-        make init
-    # - name: Static checks
-    #   shell: bash
-    #   run: make lint
+        make init-python
+    - name: Static checks
+      shell: bash
+      run: make lint-python
     - name: Run tests
       shell: bash
       run: |
-        cd python
-        make test
+        make test-python
     - name: Build wheel
       shell: bash
       run:
-        cd python 
-        make build
+        make build-python

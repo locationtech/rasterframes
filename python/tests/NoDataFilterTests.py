@@ -19,12 +19,11 @@
 #
 
 
+from pyrasterframes.rasterfunctions import *
+from pyrasterframes.rf_types import *
 from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql.functions import *
-
-from pyrasterframes.rasterfunctions import *
-from pyrasterframes.rf_types import *
 
 
 def test_no_data_filter_read_write(spark, img_uri):

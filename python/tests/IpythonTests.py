@@ -23,11 +23,11 @@ import numpy as np
 import pytest
 from IPython.testing import globalipapp
 from py4j.protocol import Py4JJavaError
+from pyrasterframes.rf_types import *
 from pyspark.sql import Row
 from pyspark.sql.types import StructField, StructType
 
 import pyrasterframes
-from pyrasterframes.rf_types import *
 
 
 @pytest.fixture(scope="module")
