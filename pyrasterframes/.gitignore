@@ -1,7 +1,6 @@
-*.pyc
+**/*.pyc
 **/dist/
 **/build/
 **/*.egg-info
 .eggs
 .pytest_cache
-

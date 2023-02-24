@@ -1,5 +1,5 @@
-import com.typesafe.sbt.{GitPlugin, SbtGit}
-import com.typesafe.sbt.SbtGit.git
+import com.github.sbt.git.{GitPlugin, SbtGit}
+import com.github.sbt.git.SbtGit.git
 import sbt.Keys._
 import sbt._
 import xerial.sbt.Sonatype.autoImport._
@@ -42,8 +42,6 @@ object RFProjectPlugin extends AutoPlugin {
       }
     },
     Global / cancelable := true,
-    ThisBuild / publishTo := sonatypePublishTo.value,
-    publishMavenStyle := true,
     Compile / packageDoc / publishArtifact := true,
     Test / publishArtifact := false,
     // don't fork it in tests to reduce memory usage

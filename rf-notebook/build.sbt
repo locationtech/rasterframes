@@ -1,6 +1,6 @@
 import scala.sys.process.Process
 import PythonBuildPlugin.autoImport.pyWhl
-import com.typesafe.sbt.git.DefaultReadableGit
+import com.github.sbt.git.DefaultReadableGit
 
 lazy val includeNotebooks = settingKey[Boolean]("Whether to build documentation into notebooks and include them")
 includeNotebooks := true
@@ -10,7 +10,7 @@ Docker / packageName := "s22s/rasterframes-notebook"
 Docker / version := version.value
 
 dockerAliases += dockerAlias.value.withTag({
-  val sha = new DefaultReadableGit(file(".")).withGit(_.headCommitSha)
+  val sha = new DefaultReadableGit(file("."), None).withGit(_.headCommitSha)
   sha.map(_.take(7))
 })
 

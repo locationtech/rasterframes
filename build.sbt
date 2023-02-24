@@ -21,11 +21,15 @@
 
 // Leave me and my custom keys alone!
 Global / lintUnusedKeysOnLoad := false
+ThisBuild / versionScheme := Some("semver-spec")
 
 addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("ghpagesPushSite", "docs/ghpagesPushSite")
 addCommandAlias("console", "datasource/console")
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
 // Prefer our own IntegrationTest config definition, which inherits from Test.
 lazy val IntegrationTest = config("it") extend Test
@@ -34,14 +38,10 @@ lazy val root = project
   .in(file("."))
   .withId("RasterFrames")
   .aggregate(core, datasource, pyrasterframes)
-  .enablePlugins(RFReleasePlugin)
-  .settings(
-    publish / skip := true,
-    clean := clean.dependsOn(`rf-notebook`/clean, docs/clean).value
-  )
 
 lazy val `rf-notebook` = project
   .dependsOn(pyrasterframes)
+  .disablePlugins(CiReleasePlugin)
   .enablePlugins(RFAssemblyPlugin, DockerPlugin)
   .settings(publish / skip := true)
 
@@ -102,8 +102,10 @@ lazy val core = project
 
 lazy val pyrasterframes = project
   .dependsOn(core, datasource)
+  .disablePlugins(CiReleasePlugin)
   .enablePlugins(RFAssemblyPlugin, PythonBuildPlugin)
   .settings(
+    publish / skip := true,
     libraryDependencies ++= Seq(
       geotrellis("s3").value excludeAll ExclusionRule(organization = "com.github.mpilquist"),
       spark("core").value % Provided,
@@ -138,7 +140,7 @@ lazy val datasource = project
         |import org.locationtech.rasterframes.datasource.geotiff._
         |""".stripMargin,
     IntegrationTest / fork := true,
-    IntegrationTest / javaOptions := Seq("-Xmx3g")
+    IntegrationTest / javaOptions := Seq("-Xmx3g -XX:+UseG1GC")
   )
 
 lazy val experimental = project
@@ -160,8 +162,10 @@ lazy val experimental = project
 
 lazy val docs = project
   .dependsOn(core, datasource, pyrasterframes)
+  .disablePlugins(CiReleasePlugin)
   .enablePlugins(SiteScaladocPlugin, ParadoxPlugin, ParadoxMaterialThemePlugin, GhpagesPlugin, ScalaUnidocPlugin)
   .settings(
+    publish / skip := true,
     apiURL := Some(url("https://rasterframes.io/latest/api")),
     autoAPIMappings := true,
     ghpagesNoJekyll := true,
@@ -197,5 +201,6 @@ lazy val docs = project
   )
 
 lazy val bench = project
+  .disablePlugins(CiReleasePlugin)
   .dependsOn(core % "compile->test")
   .settings(publish / skip := true)
