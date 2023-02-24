@@ -54,10 +54,10 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
     val stac4s = "com.azavea.stac4s" %% "client" % "0.7.2"
     val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.15"
-    val frameless = "org.typelevel" %% "frameless-dataset" % "0.12.0"
-    val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.12.0"
+    val frameless = "org.typelevel" %% "frameless-dataset" % "0.13.0"
+    val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.13.0"
     val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
-    val sparktestingbase = "com.holdenkarau" %% "spark-testing-base" % "3.2.1_1.3.0" % Test
+    val sparktestingbase = "com.holdenkarau" %% "spark-testing-base" % "3.3.1_1.4.0" % Test
 
   }
   import autoImport._
@@ -72,7 +72,7 @@ object RFDependenciesPlugin extends AutoPlugin {
       "jitpack" at "https://jitpack.io"
     ),
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-    rfSparkVersion := "3.2.1",
+    rfSparkVersion := "3.3.1",
     rfGeoTrellisVersion := "3.6.3",
     rfGeoMesaVersion := "3.4.1"
   )
