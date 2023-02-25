@@ -59,7 +59,7 @@ case class MaskByDefined(targetTile: Expression, maskTile: Expression)
     val (mask, maskCtx) = maskTileExtractor(row(maskInput))
     val result = maskEval(targetTile, mask,
       { (v, m) => if (isNoData(m)) NODATA else v },
-      { (v, m) => if (isNoData(m)) NODATA else v }
+      { (v, m) => if (isNoData(m)) Double.NaN else v }
     )
     toInternalRow(result, targetCtx)
   }

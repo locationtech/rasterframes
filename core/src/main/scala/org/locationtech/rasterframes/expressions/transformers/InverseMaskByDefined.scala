@@ -60,7 +60,7 @@ case class InverseMaskByDefined(targetTile: Expression, maskTile: Expression)
     val (mask, maskCtx) = maskTileExtractor(row(maskInput))
     val result = maskEval(targetTile, mask,
       { (v, m) => if (isNoData(m)) v else NODATA },
-      { (v, m) => if (isNoData(m)) v else NODATA }
+      { (v, m) => if (isNoData(m)) v else Double.NaN }
     )
     toInternalRow(result, targetCtx)
   }

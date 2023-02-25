@@ -73,7 +73,7 @@ case class MaskByValue(targetTile: Expression, maskTile: Expression, maskValue: 
 
     val result = maskEval(targetTile, mask,
       { (v, m) => if (m == maskValue) NODATA else v },
-      { (v, m) => if (m == maskValue) NODATA else v }
+      { (v, m) => if (m == maskValue) Double.NaN else v }
     )
     toInternalRow(result, targetCtx)
   }
