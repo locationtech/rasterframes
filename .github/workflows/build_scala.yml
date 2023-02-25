@@ -9,8 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-      container:
-        image: osgeo/gdal:ubuntu-small-3.6.2
+    container:
+      image: osgeo/gdal:ubuntu-small-3.6.2
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     strategy:

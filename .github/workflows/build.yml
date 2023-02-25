@@ -8,7 +8,7 @@ on:
       - 'develop'
       - 'release/*'
       - 'spark-3.2'
-    branches-ignore:
+  branches-ignore:
       - "python/*"
       - "scala/*"
   pull_request:
