@@ -134,6 +134,31 @@ class MaskingFunctionsSpec extends TestEnvironment {
       checkDocs("rf_mask_by_value")
     }
 
+    it("should mask_by_value") {
+      val values = (0 to 16)
+      val tile: Tile = DoubleArrayTile(values.map(_.toDouble).toArray, 4, 4)
+      // array([[ 0,  1,  2,  3],
+      //        [ 4,  5,  6,  7],
+      //        [ 8,  9, 10, 11],
+      //        [12, 13, 14, 15]])
+      val mask: Tile = IntArrayTile(values.map(x => x % 2 * 4).toArray, 4, 4)
+      // array([[0, 4, 0, 4],
+      //        [0, 4, 0, 4],
+      //        [0, 4, 0, 4],
+      //        [0, 4, 0, 4]])
+
+      import spark.implicits._
+      val df = List((tile, mask)).toDF("tile", "mask")
+
+      val (maskedTile, inverseMaskedTile) = df.select(
+        rf_mask_by_value(col("tile"), col("mask"), lit(4), inverse=false).alias("m1"),
+        rf_mask_by_value(col("tile"), col("mask"), lit(4), inverse=true).alias("m2")
+      ).as[(Tile, Tile)].first()
+
+      maskedTile.findMinMax shouldBe (0, 14)
+      inverseMaskedTile.findMinMax shouldBe (1, 15)
+    }
+
     it("should mask by value for value 0.") {
       import spark.implicits._
       // maskingTile has -4, ND, and -15 values. Expect mask by value with 0 to not change the
