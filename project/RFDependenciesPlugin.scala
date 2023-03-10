@@ -47,7 +47,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     }
     val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
-    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.18.1"
+    val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.18.2"
     val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.36"
     val scaffeine = "com.github.blemale" %% "scaffeine" % "4.1.0"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.6"
