@@ -1,21 +1,21 @@
 name: build main
 on:
-  push:
-   tags: 
-    - 'v*'
-   branches: 
-      - 'master' 
-      - 'develop'
-      - 'release/*'
-      - 'spark-3.2'
-  branches-ignore:
-      - "python/*"
-      - "scala/*"
-  pull_request:
-    branches:
-      - '**'
-  release:
-    types: [published]
+    push:
+      tags:
+        - 'v*'
+      branches:
+        - 'master'
+        - 'develop'
+        - 'release/*'
+        - 'spark-3.2'
+      branches-ignore:
+        - "python/*"
+        - "scala/*"
+    pull_request:
+      branches:
+        - '**'
+    release:
+      types: [published]
 
 jobs:
   build:
