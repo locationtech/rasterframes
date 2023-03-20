@@ -39,6 +39,9 @@ build-scala:
 clean-scala:
 	sbt clean
 
+publish-scala:
+	sbt publish
+
 ################
 # PYTHON
 ################
@@ -52,10 +55,13 @@ init-python:
 test-python: build-scala
 	poetry run pytest -vv python/tests --cov=python/pyrasterframes --cov=python/geomesa_pyspark --cov-report=term-missing
 
+test-python-quick:
+	poetry run pytest -vv python/tests --cov=python/pyrasterframes --cov=python/geomesa_pyspark --cov-report=term-missing
+
 lint-python:
 	poetry run pre-commit run --all-file
 
-build-python: clean-build
+build-python: clean-build-python
 	poetry build
 
 docs-python: clean-docs-python

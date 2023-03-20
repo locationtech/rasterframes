@@ -1,0 +1,10 @@
+name: setup scala
+description: setup scala environment
+runs:
+  using: "composite"
+  steps:
+    - uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: zulu:8.0.362
+        apps: sbt
