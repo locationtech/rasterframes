@@ -11,6 +11,7 @@ help:
 	@echo "docs - build documentations"
 	@echo "help - this command"
 
+test: test-scala test-python
 
 ###############
 # SCALA
@@ -57,10 +58,10 @@ lint-python:
 build-python: clean-build
 	poetry build
 
-docs-python: clean-md
+docs-python: clean-docs-python
 	poetry run python python/docs/build_docs.py
 
-notebooks-python: clean-ipynb
+notebooks-python: clean-notebooks-python
 	poetry run python python/docs/build_docs.py --format notebook
 
 clean-python: clean-build-python clean-pyc-python clean-test-python clean-venv-python clean-docs-python clean-notebooks-python

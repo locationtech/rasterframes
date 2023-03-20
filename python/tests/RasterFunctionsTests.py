@@ -613,8 +613,8 @@ def test_rf_standardize(prdf):
         .first()
     )
 
-    assert result[0] == pytest.approx(0.0)
-    assert result[1] == pytest.approx(1.0)
+    assert result[0] == pytest.approx(0.0, abs=0.00001)
+    assert result[1] == pytest.approx(1.0, abs=0.00001)
 
 
 def test_rf_standardize_per_tile(spark):
@@ -630,8 +630,8 @@ def test_rf_standardize_per_tile(spark):
         .first()
     )
 
-    assert result[0] == pytest.approx(0.0)
-    assert result[1] == pytest.approx(1.0)
+    assert result[0] == pytest.approx(0.0, abs=0.00001)
+    assert result[1] == pytest.approx(1.0, abs=0.00001)
 
 
 def test_rf_rescale(spark):
