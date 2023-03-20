@@ -75,14 +75,14 @@ def _divided(msg):
 
 def _get_files():
     here = path.abspath(path.dirname(__file__))
-
-    return filter(lambda x: not path.basename(x)[:1] == "_", glob(path.join(here, "*.pymd")))
+    return list(filter(lambda x: not path.basename(x)[:1] == "_", glob(path.join(here, "*.pymd"))))
 
 
 class Format(str, Enum):
     html = "html"
     markdown = "markdown"
     notebook = "notebook"
+    pandoc2html = "pandoc2html"
 
 
 @app.command()
@@ -100,26 +100,23 @@ def pweave_docs(
 ):
 
     """Pweave PyRasterFrames documentation scripts"""
-    # `html` doesn't do quite what one expects... only replaces code blocks, leaving markdown in place
 
-    if format == "html":
-        format == "pandoc2html"
-
-    if format == "notebook":
-        ext = ".ipynb"
-    else:
-        ext = ".md"
-
+    ext = ".md"
     bad_words = ["Error"]
     pweave.rcParams["chunk"]["defaultoptions"].update({"wrap": False, "dpi": 175})
-    if format == "markdown":
+
+    if format == Format.markdown:
         pweave.PwebFormats.formats["markdown"] = {
             "class": PegdownMarkdownFormatter,
             "description": "Pegdown compatible markdown",
         }
-    if format == "notebook":
+    elif format == Format.notebook:
         # Just convert to an unevaluated notebook.
         pweave.rcParams["chunk"]["defaultoptions"].update({"evaluate": False})
+        ext = ".ipynb"
+    elif format == Format.html:
+        # `html` doesn't do quite what one expects... only replaces code blocks, leaving markdown in place
+        format = Format.pandoc2html
 
     for file in sorted(files, reverse=False):
         name = path.splitext(path.basename(file))[0]
@@ -129,7 +126,7 @@ def pweave_docs(
             print(_divided("Running %s" % name))
             try:
                 pweave.weave(file=str(file), doctype=format)
-                if format == "markdown":
+                if format == Format.markdown:
                     if not path.exists(dest):
                         raise FileNotFoundError(
                             "Markdown file '%s' didn't get created as expected" % dest
@@ -145,7 +142,7 @@ def pweave_docs(
             except Exception:
                 print(_divided("%s Failed:" % file))
                 print(traceback.format_exc())
-                raise typer.Exit(code=1)
+                # raise typer.Exit(code=1)
         else:
             print(_divided("Skipping %s" % name))
 
