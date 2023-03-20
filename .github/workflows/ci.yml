@@ -2,10 +2,13 @@ name: Continuous Integration
 
 on:
   pull_request:
-    types: [ "opened", "reopened" ]
+    branches:
+      - '**'
   push:
-    branches: [ '**' ]
-    tags: [ v* ]
+    branches:
+      - '**'
+    tags:
+      - 'v*'
 
 jobs:
 
