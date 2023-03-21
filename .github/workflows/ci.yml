@@ -26,6 +26,9 @@ jobs:
       - name: Setup Scala Build Tools
         uses: ./.github/actions/init-scala-env
 
+      - name: Install make
+        run: sudo apt-get install -y make
+
       - name: Compile Scala Project
         run: make compile-scala
 
@@ -48,6 +51,8 @@ jobs:
     # scala/* branches are not supposed to change python code, trust them
     if: ${{ !startsWith(github.event.inputs.from_branch, 'scala/') }}
     runs-on: ubuntu-20.04
+    container:
+      image: osgeo/gdal:ubuntu-small-3.6.2
     needs: build-scala
 
     strategy:
@@ -63,6 +68,9 @@ jobs:
       - uses: ./.github/actions/init-python-env
         with:
           python_version: ${{ matrix.python }}
+
+      - name: Install make
+        run: sudo apt-get install -y make
 
       - name: Static checks
         shell: bash
@@ -91,6 +99,9 @@ jobs:
 
       - name: Setup Scala Build Tools
         uses: ./.github/actions/init-scala-env
+
+      - name: Install make
+        run: sudo apt-get install -y make
 
       - name: Publish JARs to GitHub Packages
         shell: bash
