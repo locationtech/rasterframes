@@ -31,7 +31,7 @@ deprecation = "^2.1.0"
 matplotlib = "^3.6.3"
 pandas = "^1.5.3"
 py4j = "^0.10.9.3"
-pyspark = "3.2.1"
+pyspark = "3.3.2"
 numpy = "^1.24.1"
 
 
