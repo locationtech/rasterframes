@@ -77,17 +77,17 @@ clean-build-python:
 	rm -fr dist/
 	rm -fr .eggs/
 	rm -fr wheelhouse/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
-	find . -name '*.so' -exec rm -f {} +
-	find . -name '*.c' -exec rm -f {} +
-	find . -name '*.html' -exec rm -f {} +
+	find ./python -name '*.egg-info' -exec rm -fr {} +
+	find ./python -name '*.egg' -exec rm -f {} +
+	find ./python -name '*.so' -exec rm -f {} +
+	find ./python -name '*.c' -exec rm -f {} +
+	find ./python -name '*.html' -exec rm -f {} +
 
 clean-pyc-python:
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
+	find ./python -name '*.pyc' -exec rm -f {} +
+	find ./python -name '*.pyo' -exec rm -f {} +
+	find ./python -name '*~' -exec rm -f {} +
+	find ./python -name '__pycache__' -exec rm -fr {} +
 
 clean-test-python:
 	rm -f .coverage
