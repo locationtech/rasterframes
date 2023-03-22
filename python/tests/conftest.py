@@ -20,6 +20,7 @@
 
 import builtins
 import os
+from pathlib import Path
 
 import pytest
 from pyrasterframes.rasterfunctions import rf_convert_cell_type
@@ -46,6 +47,10 @@ def _chmodit():
 
 _chmodit()
 
+jar_dir = Path(".") / "dist"
+jar_path = next(jar_dir.glob("*assembly*.jar"))
+print(jar_path)
+
 
 @pytest.fixture(scope="session")
 def app_name():
@@ -65,6 +70,7 @@ def spark(app_name):
             "spark.master": "local[*, 2]",
             "spark.ui.enabled": "false",
             "spark.app.name": app_name,
+            "spark.jars": jar_path,
             #'spark.driver.extraJavaOptions': '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
         }
     )

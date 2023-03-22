@@ -33,8 +33,6 @@ test-experimental-scala:
 
 build-scala:
 	sbt "pyrasterframes/assembly"
-	mkdir -p python/pyrasterframes/jars/
-	cp pyrasterframes/target/scala-2.12/pyrasterframes-assembly-*.jar python/pyrasterframes/jars/
 
 clean-scala:
 	sbt clean

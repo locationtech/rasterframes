@@ -18,9 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import glob
-import os
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
@@ -29,47 +27,11 @@ from . import RFContext
 
 __all__ = [
     "create_rf_spark_session",
-    "find_pyrasterframes_jar_dir",
-    "find_pyrasterframes_assembly",
     "gdal_version",
     "gdal_version",
     "build_info",
     "quiet_logs",
 ]
-
-
-def find_pyrasterframes_jar_dir() -> str:
-    """
-    Locates the directory where JVM libraries for Spark are stored.
-    :return: path to jar director as a string
-    """
-    jar_dir = None
-
-    from importlib.util import find_spec
-
-    try:
-        module_home = find_spec("pyrasterframes").origin
-        jar_dir = os.path.join(os.path.dirname(module_home), "jars")
-    except ImportError as e:
-        import logging
-
-        logging.critical("Error finding runtime JAR directory", exc_info=e)
-        raise e
-
-    return os.path.realpath(jar_dir)
-
-
-def find_pyrasterframes_assembly() -> Union[bytes, str]:
-    jar_dir = find_pyrasterframes_jar_dir()
-    jarpath = glob.glob(os.path.join(jar_dir, "pyrasterframes-assembly*.jar"))
-
-    if not len(jarpath) == 1:
-        raise RuntimeError(
-            f"""
-Expected to find exactly one assembly in '{jar_dir}'.
-Found '{jarpath}' instead."""
-        )
-    return jarpath[0]
 
 
 def quiet_logs(sc):
@@ -79,21 +41,14 @@ def quiet_logs(sc):
 
 
 def create_rf_spark_session(master="local[*]", **kwargs: str) -> Optional[SparkSession]:
-    """Create a SparkSession with pyrasterframes enabled and configured."""
-    jar_path = find_pyrasterframes_assembly()
-
-    if "spark.jars" in kwargs.keys():
-        if "pyrasterframes" not in kwargs["spark.jars"]:
-            raise UserWarning(
-                "spark.jars config is set, but it seems to be missing the pyrasterframes assembly jar."
-            )
-
+    """Create a SparkSession with pyrasterframes enabled and configured.
+    Expects pyrasterframes-assembly-x.x.x.jar in JarPath"""
     conf = SparkConf().setAll([(k, kwargs[k]) for k in kwargs])
 
     spark = (
         SparkSession.builder.master(master)
         .appName("RasterFrames")
-        .config("spark.jars", jar_path)
+        # .config("spark.jars", jar_path)
         .withKryoSerialization()
         .config(conf=conf)  # user can override the defaults
         .getOrCreate()

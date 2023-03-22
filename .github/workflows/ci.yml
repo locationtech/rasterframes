@@ -39,7 +39,7 @@ jobs:
       - name: Cache Spark Assembly
         uses: actions/cache@v3
         with:
-          path: ./python/pyrasterframes/jars/*
+          path: ./dist/*
           key: dist-${{ github.sha }}
 
   build-python:
@@ -68,7 +68,7 @@ jobs:
 
       - uses: actions/cache@v3
         with:
-          path: ./python/pyrasterframes/jars/*
+          path: ./dist/*
           key: dist-${{ github.sha }}
 
       - name: Run tests
@@ -112,7 +112,7 @@ jobs:
 # TODO: Where does this go, do we need it?
 #      - uses: actions/cache@v3
 #        with:
-#          path: ./python/pyrasterframes/jars/*
+#          path: ./dist/*
 #          key: dist-${{ github.sha }}
 
 # TODO: Where does this go?

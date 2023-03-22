@@ -23,7 +23,7 @@ Module initialization for PyRasterFrames. This is where much of the cool stuff i
 appended to PySpark classes.
 """
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import geomesa_pyspark.types  # enable vector integrations
 from pyspark import SparkContext
