@@ -78,7 +78,7 @@ class cached_property(object):
 
 class RasterFrameLayer(DataFrame):
     def __init__(self, jdf: DataFrame, spark_session: SparkSession):
-        DataFrame.__init__(self, jdf, spark_session._wrapped)
+        DataFrame.__init__(self, jdf, spark_session)
         self._jrfctx = spark_session.rasterframes._jrfctx
 
     def tile_columns(self) -> List[Column]:

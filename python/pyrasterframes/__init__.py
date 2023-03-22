@@ -117,7 +117,7 @@ def _raster_join(
     else:
         jdf = ctx._jrfctx.rasterJoin(df._jdf, other._jdf, resampling_method)
 
-    return DataFrame(jdf, ctx._spark_session._wrapped)
+    return DataFrame(jdf, ctx._spark_session)
 
 
 def _layer_reader(
