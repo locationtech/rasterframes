@@ -72,15 +72,9 @@ notebooks-python: clean-notebooks-python
 clean-python: clean-build-python clean-pyc-python clean-test-python clean-venv-python clean-docs-python clean-notebooks-python
 
 clean-build-python:
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	rm -fr wheelhouse/
-	find ./python -name '*.egg-info' -exec rm -fr {} +
-	find ./python -name '*.egg' -exec rm -f {} +
-	find ./python -name '*.so' -exec rm -f {} +
-	find ./python -name '*.c' -exec rm -f {} +
-	find ./python -name '*.html' -exec rm -f {} +
+	find ./dist -name 'pyrasterframes*.whl' -exec rm -fr {} +
+	find ./dist -name 'pyrasterframes*.tar.gz' -exec rm -fr {} +
+
 
 clean-pyc-python:
 	find ./python -name '*.pyc' -exec rm -f {} +
