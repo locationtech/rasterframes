@@ -16,14 +16,11 @@
 # the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-import os
 import pathlib
 import shutil
 import tempfile
 
 import pytest
-
-on_circle_ci = os.environ.get("CIRCLECI", "false") == "true"
 
 
 @pytest.fixture()
@@ -33,10 +30,6 @@ def tmpdir():
     shutil.rmtree(dest, ignore_errors=True)
 
 
-@pytest.mark.skipif(
-    on_circle_ci,
-    reason="CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
-)
 def test_write_geotrellis_layer(spark, img_uri, tmpdir):
     rf = spark.read.geotiff(img_uri).cache()
     rf_count = rf.count()
@@ -54,10 +47,6 @@ def test_write_geotrellis_layer(spark, img_uri, tmpdir):
     _ = rf_gt.take(1)
 
 
-@pytest.mark.skipif(
-    on_circle_ci,
-    reason="CircleCI has java.lang.NoClassDefFoundError fs2/Stream when taking action on rf_gt",
-)
 def test_write_geotrellis_multiband_layer(spark, img_rgb_uri, tmpdir):
     rf = spark.read.geotiff(img_rgb_uri).cache()
     rf_count = rf.count()
