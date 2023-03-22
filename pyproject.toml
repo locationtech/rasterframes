@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyrasterframes"
-version = "10.2"
+version = "0.0.0" # versioning is handled by poetry-dynamic-versioning
 authors = ["Astraea, Inc. <info@astraea.earth>"]
 description = "Access and process geospatial raster data in PySpark DataFrames"
 homepage = "https://rasterframes.io"
@@ -21,6 +21,11 @@ packages = [
     { include = "geomesa_pyspark", from = "python" },
     { include = "pyrasterframes", from = "python"},
 ]
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+pattern = "^((?P<epoch>\\d+)!)?(?P<base>\\d+(\\.\\d+)*)"
 
 
 [tool.poetry.dependencies]
@@ -65,5 +70,5 @@ profile = "black"
 line_length = 100
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"

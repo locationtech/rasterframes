@@ -49,6 +49,7 @@ publish-scala:
 init-python:
 	python -m venv ./.venv
 	./.venv/bin/python -m pip install --upgrade pip
+	poetry self add "poetry-dynamic-versioning[plugin]"
 	poetry install
 	poetry run pre-commit install
 

@@ -37,6 +37,4 @@ runs:
     - name: Install Poetry project dependencies
       # if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       shell: bash
-      run: |
-        poetry self add "poetry-dynamic-versioning[plugin]"
-        poetry install
+      run: make init-python
