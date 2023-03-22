@@ -49,7 +49,6 @@ _chmodit()
 
 jar_dir = Path(".") / "dist"
 jar_path = next(jar_dir.glob("*assembly*.jar"))
-print(jar_path)
 
 
 @pytest.fixture(scope="session")

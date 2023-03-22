@@ -27,6 +27,8 @@ enable = true
 vcs = "git"
 pattern = "^((?P<epoch>\\d+)!)?(?P<base>\\d+(\\.\\d+)*)"
 
+[tool.poetry-dynamic-versioning.substitution]
+files = ["python/pyrasterframes/version.py"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4"

@@ -41,14 +41,15 @@ def quiet_logs(sc):
 
 
 def create_rf_spark_session(master="local[*]", **kwargs: str) -> Optional[SparkSession]:
-    """Create a SparkSession with pyrasterframes enabled and configured.
-    Expects pyrasterframes-assembly-x.x.x.jar in JarPath"""
+    """
+    Create a SparkSession with pyrasterframes enabled and configured.
+    Expects pyrasterframes-assembly-x.x.x.jar in JarPath
+    """
     conf = SparkConf().setAll([(k, kwargs[k]) for k in kwargs])
 
     spark = (
         SparkSession.builder.master(master)
         .appName("RasterFrames")
-        # .config("spark.jars", jar_path)
         .withKryoSerialization()
         .config(conf=conf)  # user can override the defaults
         .getOrCreate()
