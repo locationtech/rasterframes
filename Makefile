@@ -69,24 +69,16 @@ docs-python: clean-docs-python
 notebooks-python: clean-notebooks-python
 	poetry run python python/docs/build_docs.py --format notebook
 
-clean-python: clean-build-python clean-pyc-python clean-test-python clean-venv-python clean-docs-python clean-notebooks-python
+clean-python: clean-build-python clean-test-python clean-venv-python clean-docs-python clean-notebooks-python
 
 clean-build-python:
 	find ./dist -name 'pyrasterframes*.whl' -exec rm -fr {} +
 	find ./dist -name 'pyrasterframes*.tar.gz' -exec rm -fr {} +
 
-
-clean-pyc-python:
-	find ./python -name '*.pyc' -exec rm -f {} +
-	find ./python -name '*.pyo' -exec rm -f {} +
-	find ./python -name '*~' -exec rm -f {} +
-	find ./python -name '__pycache__' -exec rm -fr {} +
-
 clean-test-python:
 	rm -f .coverage
 	rm -fr htmlcov/
 	rm -fr test*.pipe
-
 
 clean-venv-python:
 	rm -fr .venv/
