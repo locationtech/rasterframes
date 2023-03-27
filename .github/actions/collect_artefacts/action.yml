@@ -1,0 +1,10 @@
+name: upload rasterframes artefacts
+description: upload rasterframes artefacts
+runs:
+  using: "composite"
+  steps:
+    - name: upload core dumps
+      uses: actions/upload-artifact@v3
+      with:
+          name: core-dumps
+          path: /tmp/core_dumps

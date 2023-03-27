@@ -1,0 +1,76 @@
+[tool.poetry]
+name = "pyrasterframes"
+version = "0.0.0" # versioning is handled by poetry-dynamic-versioning
+authors = ["Astraea, Inc. <info@astraea.earth>"]
+description = "Access and process geospatial raster data in PySpark DataFrames"
+homepage = "https://rasterframes.io"
+license = "Apache-2.0"
+readme = "python/README.md"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Other Environment",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+]
+packages = [
+    { include = "geomesa_pyspark", from = "python" },
+    { include = "pyrasterframes", from = "python"},
+]
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+pattern = "^((?P<epoch>\\d+)!)?(?P<base>\\d+(\\.\\d+)*)"
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["python/pyrasterframes/version.py"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4"
+shapely = "^2.0.0"
+pyproj = "^3.4.1"
+deprecation = "^2.1.0"
+matplotlib = "^3.6.3"
+pandas = "^1.5.3"
+py4j = "^0.10.9.3"
+pyspark = "3.3.2"
+numpy = "^1.24.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.21.0"
+rasterio =  {extras = ["s3"], version = "^1.3.5"}
+wheel = "^0.38.4"
+ipython = "^8.7.0"
+pweave = "^0.30.3"
+ipython-genutils = "^0.2.0"
+typer = "^0.7.0"
+pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
+geopandas = "^0.12.2"
+isort = "^5.11.4"
+black = "^22.12.0"
+
+
+[tool.pytest.ini_options]
+addopts = "--verbose"
+testpaths = ["tests"]
+python_files = "*.py"
+
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"

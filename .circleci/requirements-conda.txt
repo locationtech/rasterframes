@@ -1,5 +1,0 @@
-python==3.8
-gdal==3.1.2
-libspatialindex
-rasterio[s3]
-rtree

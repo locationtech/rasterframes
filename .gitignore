@@ -48,3 +48,16 @@ rf-notebook/src/main/notebooks/.ipython
 .bloop
 metals.sbt
 *.parquet/
+
+# Python
+
+.coverage
+.venv
+htmlcov
+dist/
+docs/*.md
+docs/*.ipynb
+__pycache__
+*.pipe/
+.coverage*
+*.jar

@@ -1,0 +1,40 @@
+name: Setup Python Environment
+
+description: Install Python, Poetry and project dependencies
+
+inputs:
+  python_version:
+    description: 'Version of Python to configure'
+    default: '3.8'
+  poetry_version:
+    description: 'Version of Poetry to configure'
+    default: '1.3.2'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Load cached Poetry installation
+      id: cached-poetry
+      uses: actions/cache@v3
+      with:
+        path: ~/.local  # the path depends on the OS, this is linux
+        key: poetry-${{inputs.poetry_version}}-0   # increment to reset cache
+
+    - name: Install Poetry
+      if: steps.cached-poetry.outputs.cache-hit != 'true'
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ inputs.poetry_version }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python_version }}
+        cache: 'poetry'
+
+    - name: Install Poetry project dependencies
+      # if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      shell: bash
+      run: make init-python

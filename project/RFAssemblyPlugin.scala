@@ -27,8 +27,8 @@ import sbtassembly.AssemblyPlugin.autoImport.{ShadeRule, _}
 import scala.util.matching.Regex
 
 /**
-  * Standard support for creating assembly jars.
-  */
+ * Standard support for creating assembly jars.
+ */
 object RFAssemblyPlugin extends AutoPlugin {
   override def requires = AssemblyPlugin && RFDependenciesPlugin
 
@@ -48,7 +48,7 @@ object RFAssemblyPlugin extends AutoPlugin {
       "scalatest.*".r,
       "junit.*".r
     ),
-    assembly / assemblyShadeRules:= {
+    assembly / assemblyShadeRules := {
       val shadePrefixes = Seq(
         "shapeless",
         "com.github.ben-manes.caffeine",
@@ -69,7 +69,7 @@ object RFAssemblyPlugin extends AutoPlugin {
     },
     assembly / assemblyOption :=
       (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / assemblyJarName := s"${normalizedName.value}-assembly-${version.value}.jar",
+    assembly / assemblyOutputPath := (ThisBuild / baseDirectory).value / "dist" / s"${normalizedName.value}-assembly-${version.value}.jar",
     assembly / assemblyExcludedJars := {
       val cp = (assembly / fullClasspath).value
       val excludedJarPatterns = autoImport.assemblyExcludedJarPatterns.value
@@ -85,15 +85,17 @@ object RFAssemblyPlugin extends AutoPlugin {
       // org.threeten % threeten-extra % 1.6.0
       case "module-info.class" => MergeStrategy.discard
       case x if Assembly.isConfigFile(x) => MergeStrategy.concat
-      case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) =>
+      case PathList(ps@_*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) =>
         MergeStrategy.rename
-      case PathList("META-INF", xs @ _*) =>
-        xs map { _.toLowerCase } match {
+      case PathList("META-INF", xs@_*) =>
+        xs map {
+          _.toLowerCase
+        } match {
           case "manifest.mf" :: Nil | "index.list" :: Nil | "dependencies" :: Nil =>
             MergeStrategy.discard
           case "io.netty.versions.properties" :: Nil =>
             MergeStrategy.concat
-          case ps @ x :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") =>
+          case ps@x :: _ if ps.last.endsWith(".sf") || ps.last.endsWith(".dsa") =>
             MergeStrategy.discard
           case "plexus" :: _ =>
             MergeStrategy.discard
