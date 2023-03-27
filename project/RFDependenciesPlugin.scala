@@ -31,7 +31,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val rfGeoMesaVersion = settingKey[String]("GeoMesa version")
 
     def geotrellis(module: String) = Def.setting {
-      "org.locationtech.geotrellis" %% s"geotrellis-$module" % rfGeoTrellisVersion.value
+      "org.locationtech.geotrellis" %% s"geotrellis-$module" % rfGeoTrellisVersion.value excludeAll("org.scala-lang.modules", "scala-xml")
     }
     def spark(module: String) = Def.setting {
       "org.apache.spark" %% s"spark-$module" % rfSparkVersion.value
@@ -41,7 +41,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     }
     def circe(module: String) = Def.setting {
       module match {
-        case "json-schema" => "io.circe" %% s"circe-$module" % "0.1.0"
+        case "json-schema" => "io.circe" %% s"circe-$module" % "0.2.0"
         case _             => "io.circe" %% s"circe-$module" % "0.14.1"
       }
     }
@@ -51,9 +51,9 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `slf4j-api` = "org.slf4j" % "slf4j-api" % "1.7.36"
     val scaffeine = "com.github.blemale" %% "scaffeine" % "4.1.0"
     val `spray-json` = "io.spray" %%  "spray-json" % "1.3.6"
-    val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
-    val stac4s = "com.azavea.stac4s" %% "client" % "0.7.2"
-    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.3.15"
+    val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
+    val stac4s = "com.azavea.stac4s" %% "client" % "0.8.1"
+    val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.7.0"
     val frameless = "org.typelevel" %% "frameless-dataset" % "0.13.0"
     val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.13.0"
     val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
@@ -74,6 +74,6 @@ object RFDependenciesPlugin extends AutoPlugin {
     // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
     rfSparkVersion := "3.3.1",
     rfGeoTrellisVersion := "3.6.3",
-    rfGeoMesaVersion := "3.4.1"
+    rfGeoMesaVersion := "3.5.1"
   )
 }
