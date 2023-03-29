@@ -22,22 +22,23 @@
 // Leave me and my custom keys alone!
 Global / lintUnusedKeysOnLoad := false
 ThisBuild / versionScheme := Some("semver-spec")
+ThisBuild / dynverVTagPrefix := false
+ThisBuild / dynverSonatypeSnapshots := true
+ThisBuild / publishMavenStyle := true
+ThisBuild / Test / publishArtifact := false
 
 addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("ghpagesPushSite", "docs/ghpagesPushSite")
 addCommandAlias("console", "datasource/console")
 
-ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
-ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
-
 // Prefer our own IntegrationTest config definition, which inherits from Test.
 lazy val IntegrationTest = config("it") extend Test
 
 lazy val root = project
-  .in(file("."))
   .withId("RasterFrames")
-  .aggregate(core, datasource, pyrasterframes)
+  .aggregate(core, datasource)
+  .settings(publish / skip := true)
 
 lazy val `rf-notebook` = project
   .dependsOn(pyrasterframes)

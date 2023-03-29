@@ -2,7 +2,6 @@ import com.github.sbt.git.{GitPlugin, SbtGit}
 import com.github.sbt.git.SbtGit.git
 import sbt.Keys._
 import sbt._
-import xerial.sbt.Sonatype.autoImport._
 
 /**
  * @since 8/20/17
