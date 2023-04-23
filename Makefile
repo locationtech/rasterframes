@@ -19,27 +19,27 @@ test: test-scala test-python
 ###############
 
 compile-scala:
-	sbt -v -batch compile test:compile it:compile -DrfSparkVersion=$SPARK_VERSION
+	sbt -v -batch compile test:compile it:compile -DrfSparkVersion=${SPARK_VERSION}
 
 test-scala: test-core-scala test-datasource-scala test-experimental-scala
 	
 test-core-scala:
-	sbt -batch core/test -DrfSparkVersion=$SPARK_VERSION
+	sbt -batch core/test -DrfSparkVersion=${SPARK_VERSION}
 
 test-datasource-scala:
-	sbt -batch datasource/test -DrfSparkVersion=$SPARK_VERSION
+	sbt -batch datasource/test -DrfSparkVersion=${SPARK_VERSION}
 
 test-experimental-scala:
-	sbt -batch experimental/test -DrfSparkVersion=$SPARK_VERSION
+	sbt -batch experimental/test -DrfSparkVersion=${SPARK_VERSION}
 
 build-scala:
-	sbt "pyrasterframes/assembly" -DrfSparkVersion=$SPARK_VERSION
+	sbt "pyrasterframes/assembly" -DrfSparkVersion=${SPARK_VERSION}
 
 clean-scala:
 	sbt clean
 
 publish-scala:
-	sbt publish -DrfSparkVersion=$SPARK_VERSION
+	sbt publish -DrfSparkVersion=${SPARK_VERSION}
 
 ################
 # PYTHON
