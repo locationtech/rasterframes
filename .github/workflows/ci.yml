@@ -1,3 +1,6 @@
+define: &spark_version ["3.2.4", "3.3.2"] # "3.4.0"
+define: &python_version ["3.8", "3.9"]
+
 name: Continuous Integration
 
 on:
@@ -17,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
+        spark_version: *spark_version
 
     steps:
       - name: Checkout Repository
@@ -60,8 +63,9 @@ jobs:
 
     strategy:
       matrix:
-        python: [ "3.8", "3.9"]
-        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
+        python: *python_version
+        spark_version: *spark_version
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -94,7 +98,7 @@ jobs:
 
     strategy:
       matrix:
-        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
+        spark_version: *spark_version
 
     steps:
       - name: Checkout Repository
@@ -133,8 +137,8 @@ jobs:
 
     strategy:
       matrix:
-        python: [ "3.8", "3.9"]
-        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
+        python: *python_version
+        spark_version: *spark_version
 
     steps:
       - name: Checkout Repository

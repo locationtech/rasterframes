@@ -57,8 +57,8 @@ object RFDependenciesPlugin extends AutoPlugin {
     val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
     val stac4s = "com.azavea.stac4s" %% "client" % "0.8.1"
     val sttpCatsCe2 = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats-ce2" % "3.7.0"
-    val frameless = "org.typelevel" %% "frameless-dataset" % "0.13.0"
-    val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.13.0"
+    val frameless = "org.typelevel" %% "frameless-dataset" % "0.14.0"
+    val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.14.0"
     val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
 //    val sparktestingbase = "com.holdenkarau" %% "spark-testing-base" % s"${rfSparkVersion.value}_1.4.3" % Test
 
