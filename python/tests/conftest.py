@@ -48,7 +48,7 @@ def _chmodit():
 _chmodit()
 
 jar_dir = Path(".") / "dist"
-jar_path = next(jar_dir.glob("*assembly*.jar"))
+jar_path = next(jar_dir.glob(f"pyrasterframes-assembly-{os.environ['SPARK_VERSION']}*.jar"))
 
 
 @pytest.fixture(scope="session")

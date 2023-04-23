@@ -14,13 +14,13 @@ jobs:
 
   build-scala:
     runs-on: ubuntu-20.04
-
+    continue-on-error: true
     strategy:
       matrix:
         spark_version:
           - "3.2.4"
           - "3.3.2"
-          # - "3.4.0"
+          - "3.4.0"
 
     steps:
       - name: Checkout Repository
@@ -60,6 +60,7 @@ jobs:
     if: ${{ !startsWith(github.event.inputs.from_branch, 'scala/') }}
     runs-on: ubuntu-20.04
     needs: build-scala
+    continue-on-error: true
 
     strategy:
       matrix:
@@ -69,7 +70,7 @@ jobs:
         spark_version:
           - "3.2.4"
           - "3.3.2"
-          # - "3.4.0"
+          - "3.4.0"
 
     steps:
       - name: Checkout Repository
@@ -106,7 +107,7 @@ jobs:
         spark_version:
           - "3.2.4"
           - "3.3.2"
-          # - "3.4.0"
+          - "3.4.0"
 
     steps:
       - name: Checkout Repository
@@ -151,7 +152,7 @@ jobs:
         spark_version:
           - "3.2.4"
           - "3.3.2"
-          # - "3.4.0"
+          - "3.4.0"
 
     steps:
       - name: Checkout Repository

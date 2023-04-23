@@ -32,8 +32,11 @@ test-datasource-scala:
 test-experimental-scala:
 	sbt -batch experimental/test -DrfSparkVersion=${SPARK_VERSION}
 
-build-scala:
+build-scala: clean-build-scala
 	sbt "pyrasterframes/assembly" -DrfSparkVersion=${SPARK_VERSION}
+
+clean-build-scala:
+	find ./dist -name 'pyrasterframes-assembly-${SPARK_VERSION}*.jar' -exec rm -fr {} +
 
 clean-scala:
 	sbt clean
