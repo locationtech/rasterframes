@@ -26,7 +26,7 @@ import sbt._
 object RFDependenciesPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   object autoImport {
-    val rfSparkVersion = settingKey[String]("Apache Spark version")
+    val rfSparkVersion =  settingKey[String]("Apache Spark version")
     val rfGeoTrellisVersion = settingKey[String]("GeoTrellis version")
     val rfGeoMesaVersion = settingKey[String]("GeoMesa version")
 
@@ -45,6 +45,9 @@ object RFDependenciesPlugin extends AutoPlugin {
         case _             => "io.circe" %% s"circe-$module" % "0.14.1"
       }
     }
+    def sparktestingbase() = Def.setting {
+      "com.holdenkarau" %% "spark-testing-base" % s"${rfSparkVersion.value}_1.4.3"
+    }
     val scalatest = "org.scalatest" %% "scalatest" % "3.2.5" % Test
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
     val `jts-core` = "org.locationtech.jts" % "jts-core" % "1.18.2"
@@ -57,7 +60,7 @@ object RFDependenciesPlugin extends AutoPlugin {
     val frameless = "org.typelevel" %% "frameless-dataset" % "0.13.0"
     val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.13.0"
     val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
-    val sparktestingbase = "com.holdenkarau" %% "spark-testing-base" % "3.3.1_1.4.0" % Test
+//    val sparktestingbase = "com.holdenkarau" %% "spark-testing-base" % s"${rfSparkVersion.value}_1.4.3" % Test
 
   }
   import autoImport._
@@ -71,8 +74,8 @@ object RFDependenciesPlugin extends AutoPlugin {
       "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
       "jitpack" at "https://jitpack.io"
     ),
-    // NB: Make sure to update the Spark version in pyrasterframes/python/setup.py
-    rfSparkVersion := "3.3.1",
+    // NB: Make sure to update the Spark version in pyproject.toml
+    rfSparkVersion := System.getProperty("rfSparkVersion", "3.4.0"),
     rfGeoTrellisVersion := "3.6.3",
     rfGeoMesaVersion := "3.5.1"
   )

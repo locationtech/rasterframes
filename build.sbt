@@ -27,24 +27,27 @@ ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / publishMavenStyle := true
 ThisBuild / Test / publishArtifact := false
 
+
 addCommandAlias("makeSite", "docs/makeSite")
 addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("ghpagesPushSite", "docs/ghpagesPushSite")
 addCommandAlias("console", "datasource/console")
 
-// Prefer our own IntegrationTest config definition, which inherits from Test.
+// Prefer our own IntegrationTest conf  ig definition, which inherits from Test.
 lazy val IntegrationTest = config("it") extend Test
 
 lazy val root = project
   .withId("RasterFrames")
   .aggregate(core, datasource)
-  .settings(publish / skip := true)
+  .settings(
+    publish / skip := true)
 
 lazy val `rf-notebook` = project
   .dependsOn(pyrasterframes)
   .disablePlugins(CiReleasePlugin)
   .enablePlugins(RFAssemblyPlugin, DockerPlugin)
-  .settings(publish / skip := true)
+  .settings(
+    publish / skip := true)
 
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)
@@ -79,7 +82,7 @@ lazy val core = project
         ExclusionRule(organization = "com.github.mpilquist")
       ),
       scaffeine,
-      sparktestingbase excludeAll ExclusionRule("org.scala-lang.modules", "scala-xml_2.12"),
+      sparktestingbase().value % Test excludeAll ExclusionRule("org.scala-lang.modules", "scala-xml_2.12"),
       `scala-logging`
     ),
     libraryDependencies ++= {

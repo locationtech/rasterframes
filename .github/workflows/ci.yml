@@ -15,6 +15,10 @@ jobs:
   build-scala:
     runs-on: ubuntu-20.04
 
+    strategy:
+      matrix:
+        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -25,14 +29,20 @@ jobs:
         uses: ./.github/actions/init-scala-env
 
       - name: Compile Scala Project
+        env:
+          SPARK_VERSION: ${{ matrix.spark_version }}
         run: make compile-scala
 
       - name: Test Scala Project
         # python/* branches are not supposed to change scala code, trust them
         if: ${{ !startsWith(github.event.inputs.from_branch, 'python/') }}
+        env:
+          SPARK_VERSION: ${{ matrix.spark_version }}
         run: make test-scala
 
       - name: Build Spark Assembly
+        env:
+          SPARK_VERSION: ${{ matrix.spark_version }}
         shell: bash
         run: make build-scala
 
@@ -40,7 +50,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./dist/*
-          key: dist-${{ github.sha }}
+          key: dist-${{ matrix.spark_version }}-${{ github.sha }}
 
   build-python:
     # scala/* branches are not supposed to change python code, trust them
@@ -50,8 +60,8 @@ jobs:
 
     strategy:
       matrix:
-        python: [ "3.8" ]
-
+        python: [ "3.8", "3.9"]
+        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -61,6 +71,7 @@ jobs:
       - uses: ./.github/actions/init-python-env
         with:
           python_version: ${{ matrix.python }}
+          spark_version: ${{ matrix.spark_version }}
 
       - name: Static checks
         shell: bash
@@ -69,17 +80,21 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./dist/*
-          key: dist-${{ github.sha }}
+          key: dist-${{ matrix.spark_version }}-${{ github.sha }}
 
       - name: Run tests
         shell: bash
         run: make test-python-quick
 
-  publish:
-    name: Publish Artifacts
+  publish-scala:
+    name: Publish Scala Artifacts
     needs: [ build-scala, build-python ]
     runs-on: ubuntu-20.04
     if: (github.event_name != 'pull_request') && startsWith(github.ref, 'refs/tags/v')
+
+    strategy:
+      matrix:
+        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
 
     steps:
       - name: Checkout Repository
@@ -94,16 +109,52 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          SPARK_VERSION: ${{ matrix.spark_version }}
         run: make publish-scala
+
+      - name: Build Spark Assembly
+        env:
+          SPARK_VERSION: ${{ matrix.spark_version }}
+        shell: bash
+        run: make build-scala
+
+      - name: Cache Spark Assembly
+        uses: actions/cache@v3
+        with:
+          path: ./dist/*
+          key: dist-${{ matrix.spark_version }}-${{ github.ref }}
+
+
+  publish-python:
+    name: Publish Scala Artifacts
+    needs: [ publish-scala ]
+    runs-on: ubuntu-20.04
+    if: (github.event_name != 'pull_request') && startsWith(github.ref, 'refs/tags/v')
+
+    strategy:
+      matrix:
+        python: [ "3.8", "3.9"]
+        spark_version: [ "3.2.4", "3.3.2", "3.4.0"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - uses: ./.github/actions/init-python-env
         with:
-          python_version: "3.8"
+          python_version: ${{ matrix.python }}
+          spark_version: ${{ matrix.spark_version }}
+
+      - uses: actions/cache@v3
+        with:
+          path: ./dist/*
+          key: dist-${{ matrix.spark_version }}-${{ github.ref }}
 
       - name: Build Python whl
         shell: bash
         run: make build-python
-
 
 # TODO: Where does this go, do we need it?
 #      - name: upload artefacts
