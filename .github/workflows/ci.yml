@@ -14,7 +14,7 @@ jobs:
 
   build-scala:
     runs-on: ubuntu-20.04
-    continue-on-error: true
+
     strategy:
       matrix:
         spark_version:
@@ -60,7 +60,6 @@ jobs:
     if: ${{ !startsWith(github.event.inputs.from_branch, 'scala/') }}
     runs-on: ubuntu-20.04
     needs: build-scala
-    continue-on-error: true
 
     strategy:
       matrix:
