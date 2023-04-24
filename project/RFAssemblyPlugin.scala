@@ -43,9 +43,9 @@ object RFAssemblyPlugin extends AutoPlugin {
   }
 
   def chooseJarName(name: String, ver: String, sparkVer: String): String = {
-//    if (System.getenv("CI") == null)
-//      s"$name-assembly-$sparkVer.jar"
-//    else
+    if (System.getenv("CI") == null)
+      s"$name-assembly-$sparkVer.jar"
+    else
       s"$name-assembly-$sparkVer-$ver.jar"
   }
 

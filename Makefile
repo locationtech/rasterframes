@@ -3,6 +3,8 @@ SPARK_VERSION ?= 3.4.0
 
 .PHONY: init test lint build docs notebooks help
 
+DIST_DIR = ./dist
+
 help:
 	@echo "init - Setup the repository"
 	@echo "clean - clean all compiled python files, build artifacts and virtual envs. Run \`make init\` anew afterwards."
@@ -36,10 +38,12 @@ build-scala: clean-build-scala
 	sbt "pyrasterframes/assembly" -DrfSparkVersion=${SPARK_VERSION}
 
 clean-build-scala:
-	find ./dist -name 'pyrasterframes-assembly-${SPARK_VERSION}*.jar' -exec rm -fr {} +
+	if [ -d "$(DIST_DIR)" ]; then \
+		find ./dist -name 'pyrasterframes-assembly-${SPARK_VERSION}*.jar' -exec rm -fr {} +; \
+	fi
 
 clean-scala:
-	sbt clean
+	sbt clean -DrfSparkVersion=${SPARK_VERSION}
 
 publish-scala:
 	sbt publish -DrfSparkVersion=${SPARK_VERSION}
@@ -57,6 +61,7 @@ init-python:
 	poetry run pre-commit install
 
 test-python: build-scala
+	poetry add pyspark@${SPARK_VERSION}
 	poetry run pytest -vv python/tests --cov=python/pyrasterframes --cov=python/geomesa_pyspark --cov-report=term-missing
 
 test-python-quick:
@@ -77,8 +82,10 @@ notebooks-python: clean-notebooks-python
 clean-python: clean-build-python clean-test-python clean-venv-python clean-docs-python clean-notebooks-python
 
 clean-build-python:
-	find ./dist -name 'pyrasterframes*.whl' -exec rm -fr {} +
-	find ./dist -name 'pyrasterframes*.tar.gz' -exec rm -fr {} +
+	if [ -d "$(DIST_DIR)" ]; then \
+		find ./dist -name 'pyrasterframes*.whl' -exec rm -fr {} +; \
+		find ./dist -name 'pyrasterframes*.tar.gz' -exec rm -fr {} +; \
+	fi
 
 clean-test-python:
 	rm -f .coverage

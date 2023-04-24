@@ -34,7 +34,6 @@ class SlippyDataSourceSpec extends TestEnvironment with TestData with BeforeAndA
 
   def tileFilesCount(dir: File): Long = {
     val r = countFiles(dir, ".png")
-    println(dir, r)
     r
   }
 
