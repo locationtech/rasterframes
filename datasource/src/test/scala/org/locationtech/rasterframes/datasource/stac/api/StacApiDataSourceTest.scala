@@ -146,8 +146,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
       rasters.count() shouldBe 4182L
     }
 
-    // TODO: revert back to it once frameless supports Spark 3.4.0
-    ignore("should read from Astraea Earth service") {
+    it("should read from Astraea Earth service") {
       import spark.implicits._
 
       val results = spark.read.stacApi("https://eod-catalog-svc-prod.astraea.earth/").load.limit(1)
@@ -220,8 +219,7 @@ class StacApiDataSourceTest extends TestEnvironment { self =>
     }
   }
 
-  // TODO: revert back to it once frameless supports Spark 3.4.0
-  ignore("STAC API Client should query Astraea STAC API") {
+  it("STAC API Client should query Astraea STAC API") {
     import spark.implicits._
 
     implicit val cs = IO.contextShift(BlockingThreadPool.executionContext)
