@@ -26,7 +26,6 @@ class here provides the PyRasterFrames entry point.
 """
 import functools
 import math
-from itertools import product
 from typing import List, Tuple
 
 import numpy as np
@@ -42,12 +41,12 @@ from pyspark.sql.types import (
     BinaryType,
     DoubleType,
     IntegerType,
-    ShortType,
     StringType,
     StructField,
     StructType,
     UserDefinedType,
 )
+from pyspark.version import __version__ as pyspark_version
 
 __all__ = [
     "RasterFrameLayer",
@@ -78,7 +77,10 @@ class cached_property(object):
 
 class RasterFrameLayer(DataFrame):
     def __init__(self, jdf: DataFrame, spark_session: SparkSession):
-        DataFrame.__init__(self, jdf, spark_session)
+        if pyspark_version < "3.3":
+            DataFrame.__init__(self, jdf, spark_session._wrapped)
+        else:
+            DataFrame.__init__(self, jdf, spark_session)
         self._jrfctx = spark_session.rasterframes._jrfctx
 
     def tile_columns(self) -> List[Column]:

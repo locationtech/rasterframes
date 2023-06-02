@@ -70,7 +70,6 @@ def spark(app_name):
             "spark.ui.enabled": "false",
             "spark.app.name": app_name,
             "spark.jars": jar_path,
-            "spark.sql.session.timeZone": "UTC"
             #'spark.driver.extraJavaOptions': '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
         }
     )
