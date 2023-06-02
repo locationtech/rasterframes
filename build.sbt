@@ -33,7 +33,7 @@ addCommandAlias("previewSite", "docs/previewSite")
 addCommandAlias("ghpagesPushSite", "docs/ghpagesPushSite")
 addCommandAlias("console", "datasource/console")
 
-// Prefer our own IntegrationTest conf  ig definition, which inherits from Test.
+// Prefer our own IntegrationTest config definition, which inherits from Test.
 lazy val IntegrationTest = config("it") extend Test
 
 lazy val root = project

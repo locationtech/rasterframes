@@ -41,7 +41,9 @@ jobs:
         if: ${{ !startsWith(github.event.inputs.from_branch, 'python/') }}
         env:
           SPARK_VERSION: ${{ matrix.spark_version }}
-        run: make test-scala
+        run:
+          ulimit -c unlimited
+          make test-scala
 
       - name: Build Spark Assembly
         env:

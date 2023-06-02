@@ -60,7 +60,6 @@ object RFDependenciesPlugin extends AutoPlugin {
     val frameless = "org.typelevel" %% "frameless-dataset" % "0.14.1"
     val framelessRefined = "org.typelevel" %% "frameless-refined" % "0.14.0"
     val `better-files` = "com.github.pathikrit" %% "better-files" % "3.9.1" % Test
-//    val sparktestingbase = "com.holdenkarau" %% "spark-testing-base" % s"${rfSparkVersion.value}_1.4.3" % Test
 
   }
   import autoImport._
