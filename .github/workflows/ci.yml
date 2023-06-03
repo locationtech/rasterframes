@@ -94,6 +94,8 @@ jobs:
           key: dist-${{ matrix.spark_version }}-${{ github.sha }}
 
       - name: Run tests
+        env:
+          SPARK_VERSION: ${{ matrix.spark_version }}
         shell: bash
         run: make test-python-quick
 
