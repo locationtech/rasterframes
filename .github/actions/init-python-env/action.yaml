@@ -9,6 +9,9 @@ inputs:
   poetry_version:
     description: 'Version of Poetry to configure'
     default: '1.3.2'
+  spark_version:
+    description: 'Version of Spark to configure'
+    default: '3.4.0'
 
 runs:
   using: "composite"
@@ -36,5 +39,7 @@ runs:
 
     - name: Install Poetry project dependencies
       # if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      env:
+        SPARK_VERSION:  ${{ inputs.spark_version }}
       shell: bash
       run: make init-python

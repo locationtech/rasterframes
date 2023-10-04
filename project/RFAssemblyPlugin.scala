@@ -42,6 +42,13 @@ object RFAssemblyPlugin extends AutoPlugin {
     )
   }
 
+  def chooseJarName(name: String, ver: String, sparkVer: String): String = {
+    if (System.getenv("CI") == null)
+      s"$name-assembly-$sparkVer.jar"
+    else
+      s"$name-assembly-$sparkVer-$ver.jar"
+  }
+
   override def projectSettings = Seq(
     assembly / test := {},
     autoImport.assemblyExcludedJarPatterns := Seq(
@@ -69,7 +76,8 @@ object RFAssemblyPlugin extends AutoPlugin {
     },
     assembly / assemblyOption :=
       (assembly / assemblyOption).value.withIncludeScala(false),
-    assembly / assemblyOutputPath := (ThisBuild / baseDirectory).value / "dist" / s"${normalizedName.value}-assembly-${version.value}.jar",
+    assembly / assemblyOutputPath := (ThisBuild / baseDirectory).value / "dist" / chooseJarName(normalizedName.value, version.value, RFDependenciesPlugin.autoImport.rfSparkVersion.value),
+//    assembly / assemblyOutputPath := (ThisBuild / baseDirectory).value / "dist" / s"${normalizedName.value}-assembly-${version.value}.jar",
     assembly / assemblyExcludedJars := {
       val cp = (assembly / fullClasspath).value
       val excludedJarPatterns = autoImport.assemblyExcludedJarPatterns.value

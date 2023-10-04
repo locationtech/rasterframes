@@ -1,6 +1,9 @@
-SHELL := /usr/bin/env bash
+SHELL := env SPARK_VERSION=$(SPARK_VERSION) /usr/bin/env bash
+SPARK_VERSION ?= 3.4.0
 
 .PHONY: init test lint build docs notebooks help
+
+DIST_DIR = ./dist
 
 help:
 	@echo "init - Setup the repository"
@@ -18,27 +21,32 @@ test: test-scala test-python
 ###############
 
 compile-scala:
-	sbt -v -batch compile test:compile it:compile
+	sbt -v -batch compile test:compile it:compile -DrfSparkVersion=${SPARK_VERSION}
 
 test-scala: test-core-scala test-datasource-scala test-experimental-scala
 	
 test-core-scala:
-	sbt -batch core/test
+	sbt -batch core/test -DrfSparkVersion=${SPARK_VERSION}
 
 test-datasource-scala:
-	sbt -batch datasource/test
+	sbt -batch datasource/test -DrfSparkVersion=${SPARK_VERSION}
 
 test-experimental-scala:
-	sbt -batch experimental/test
+	sbt -batch experimental/test -DrfSparkVersion=${SPARK_VERSION}
 
-build-scala:
-	sbt "pyrasterframes/assembly"
+build-scala: clean-build-scala
+	sbt "pyrasterframes/assembly" -DrfSparkVersion=${SPARK_VERSION}
+
+clean-build-scala:
+	if [ -d "$(DIST_DIR)" ]; then \
+		find ./dist -name 'pyrasterframes-assembly-${SPARK_VERSION}*.jar' -exec rm -fr {} +; \
+	fi
 
 clean-scala:
-	sbt clean
+	sbt clean -DrfSparkVersion=${SPARK_VERSION}
 
 publish-scala:
-	sbt publish
+	sbt publish -DrfSparkVersion=${SPARK_VERSION}
 
 ################
 # PYTHON
@@ -49,9 +57,11 @@ init-python:
 	./.venv/bin/python -m pip install --upgrade pip
 	poetry self add "poetry-dynamic-versioning[plugin]"
 	poetry install
+	poetry add pyspark@${SPARK_VERSION}
 	poetry run pre-commit install
 
 test-python: build-scala
+	poetry add pyspark@${SPARK_VERSION}
 	poetry run pytest -vv python/tests --cov=python/pyrasterframes --cov=python/geomesa_pyspark --cov-report=term-missing
 
 test-python-quick:
@@ -72,8 +82,10 @@ notebooks-python: clean-notebooks-python
 clean-python: clean-build-python clean-test-python clean-venv-python clean-docs-python clean-notebooks-python
 
 clean-build-python:
-	find ./dist -name 'pyrasterframes*.whl' -exec rm -fr {} +
-	find ./dist -name 'pyrasterframes*.tar.gz' -exec rm -fr {} +
+	if [ -d "$(DIST_DIR)" ]; then \
+		find ./dist -name 'pyrasterframes*.whl' -exec rm -fr {} +; \
+		find ./dist -name 'pyrasterframes*.tar.gz' -exec rm -fr {} +; \
+	fi
 
 clean-test-python:
 	rm -f .coverage
