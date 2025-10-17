@@ -62,3 +62,9 @@ __pycache__
 .coverage*
 *.jar
 .python-version
+
+# Ignore SBT lock files
+project/.boot/**/sbt.boot.lock
+project/.boot/**/sbt.components.lock
+project/.ivy/.sbt.ivy.lock
+project/.sbtboot/**/.sbt.cache.lock
