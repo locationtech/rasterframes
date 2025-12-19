@@ -29,7 +29,6 @@ import org.apache.spark.sql.catalyst.{FunctionIdentifier, InternalRow, ScalaRefl
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.SQLContext
 import org.locationtech.rasterframes.expressions.accessors._
-import org.locationtech.rasterframes.expressions.aggregates.CellCountAggregate.DataCells
 import org.locationtech.rasterframes.expressions.aggregates._
 import org.locationtech.rasterframes.expressions.generators._
 import org.locationtech.rasterframes.expressions.localops._
@@ -146,7 +145,7 @@ package object expressions {
     registerFunction[TileMean](name = "rf_tile_mean")(TileMean.apply)
     registerFunction[TileStats](name = "rf_tile_stats")(TileStats.apply)
     registerFunction[TileHistogram](name = "rf_tile_histogram")(TileHistogram.apply)
-    registerFunction[DataCells](name = "rf_agg_data_cells")(DataCells.apply)
+    registerFunction[CellCountAggregate.DataCells](name = "rf_agg_data_cells")(CellCountAggregate.DataCells.apply)
     registerFunction[CellCountAggregate.NoDataCells](name = "rf_agg_no_data_cells")(CellCountAggregate.NoDataCells.apply)
     registerFunction[CellStatsAggregate.CellStatsAggregateUDAF](name = "rf_agg_stats")(CellStatsAggregate.CellStatsAggregateUDAF.apply)
     registerFunction[HistogramAggregate.HistogramAggregateUDAF](name = "rf_agg_approx_histogram")(HistogramAggregate.HistogramAggregateUDAF.apply)
