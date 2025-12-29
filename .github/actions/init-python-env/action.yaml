@@ -37,13 +37,6 @@ runs:
         python-version: ${{ inputs.python_version }}
         cache: 'poetry'
 
-    - name: Install Poetry (fixed)
-      shell: bash
-      run: |
-        pipx uninstall poetry || true
-        pipx install poetry
-        pipx inject poetry "setuptools<80"
-
     - name: Install Poetry project dependencies
       # if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       env:

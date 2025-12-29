@@ -54,7 +54,10 @@ publish-scala:
 
 init-python:
 	python -m venv ./.venv
-	./.venv/bin/python -m pip install --upgrade pip
+	./.venv/bin/python -m pip install --upgrade pip==25.3
+	./.venv/bin/python -m pip install setuptools
+	poetry run python -m pip install --upgrade pip==25.3
+	poetry run python -m pip install setuptools
 	poetry self add "poetry-dynamic-versioning[plugin]"
 	poetry install
 	poetry add pyspark@${SPARK_VERSION}
