@@ -5,6 +5,9 @@ SPARK_VERSION ?= 3.4.0
 
 DIST_DIR = ./dist
 
+# poetry settings
+export SETUPTOOLS_USE_DISTUTILS=stdlib
+
 help:
 	@echo "init - Setup the repository"
 	@echo "clean - clean all compiled python files, build artifacts and virtual envs. Run \`make init\` anew afterwards."
@@ -55,6 +58,7 @@ publish-scala:
 init-python:
 	python -m venv ./.venv
 	./.venv/bin/python -m pip install --upgrade pip
+	poetry self add "setuptools<80"
 	poetry self add "poetry-dynamic-versioning[plugin]"
 	poetry install
 	poetry add pyspark@${SPARK_VERSION}
