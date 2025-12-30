@@ -13,7 +13,7 @@ on:
 jobs:
 
   build-scala:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -52,7 +52,7 @@ jobs:
         run: make build-scala
 
       - name: Cache Spark Assembly
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ./dist/*
           key: dist-${{ matrix.spark_version }}-${{ github.sha }}
@@ -60,7 +60,7 @@ jobs:
   build-python:
     # scala/* branches are not supposed to change python code, trust them
     if: ${{ !startsWith(github.event.inputs.from_branch, 'scala/') }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: build-scala
 
     strategy:
@@ -75,7 +75,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -88,7 +88,7 @@ jobs:
         shell: bash
         run: make lint-python
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v5
         with:
           path: ./dist/*
           key: dist-${{ matrix.spark_version }}-${{ github.sha }}
@@ -102,7 +102,7 @@ jobs:
   publish-scala:
     name: Publish Scala Artifacts
     needs: [ build-scala, build-python ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: (github.event_name != 'pull_request') && startsWith(github.ref, 'refs/tags/v')
 
     strategy:
@@ -114,7 +114,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -135,7 +135,7 @@ jobs:
         run: make build-scala
 
       - name: Cache Spark Assembly
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ./dist/*
           key: dist-${{ matrix.spark_version }}-${{ github.ref }}
@@ -144,7 +144,7 @@ jobs:
   publish-python:
     name: Publish Scala Artifacts
     needs: [ publish-scala ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: (github.event_name != 'pull_request') && startsWith(github.ref, 'refs/tags/v')
 
     strategy:
@@ -159,7 +159,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -168,7 +168,7 @@ jobs:
           python_version: ${{ matrix.python }}
           spark_version: ${{ matrix.spark_version }}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v5
         with:
           path: ./dist/*
           key: dist-${{ matrix.spark_version }}-${{ github.ref }}
@@ -182,7 +182,7 @@ jobs:
 #        uses: ./.github/actions/upload_artefacts
 
 # TODO: Where does this go, do we need it?
-#      - uses: actions/cache@v3
+#      - uses: actions/cache@v5
 #        with:
 #          path: ./dist/*
 #          key: dist-${{ github.sha }}
