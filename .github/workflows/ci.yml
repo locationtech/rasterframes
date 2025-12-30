@@ -13,7 +13,7 @@ on:
 jobs:
 
   build-scala:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -60,7 +60,7 @@ jobs:
   build-python:
     # scala/* branches are not supposed to change python code, trust them
     if: ${{ !startsWith(github.event.inputs.from_branch, 'scala/') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs: build-scala
 
     strategy:
@@ -102,7 +102,7 @@ jobs:
   publish-scala:
     name: Publish Scala Artifacts
     needs: [ build-scala, build-python ]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     if: (github.event_name != 'pull_request') && startsWith(github.ref, 'refs/tags/v')
 
     strategy:
@@ -144,7 +144,7 @@ jobs:
   publish-python:
     name: Publish Scala Artifacts
     needs: [ publish-scala ]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     if: (github.event_name != 'pull_request') && startsWith(github.ref, 'refs/tags/v')
 
     strategy:
