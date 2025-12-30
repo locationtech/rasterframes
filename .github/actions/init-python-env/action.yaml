@@ -37,12 +37,6 @@ runs:
         python-version: ${{ inputs.python_version }}
         cache: 'poetry'
 
-    - name: Install distutils
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install python3-setuptools -y
-
     - name: Install Poetry project dependencies
       # if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       env:
