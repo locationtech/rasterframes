@@ -42,12 +42,13 @@ case class GDALRasterSource(source: URI) extends RFRasterSource with URIRasterSo
       .replace("gdal+", "")
       .replace("gdal:/", "")
     // VSIPath doesn't like single slash "file:/path..."
+    // Local windows path regex used in VSIPath incorrectly removes only 1 slash of scheme
     val tweaked =
       if (cleaned.matches("^file:/[^/].*"))
-        cleaned.replace("file:", "")
+        cleaned.replaceFirst("^file:/", "file://")
       else cleaned
 
-    VLMRasterSource(tweaked)
+    VLMRasterSource(cleaned) // temporary work around to use `cleaned` not `tweaked`
   }
 
   protected def tiffInfo = SimpleRasterInfo(source.toASCIIString, _ => SimpleRasterInfo(gdal))
