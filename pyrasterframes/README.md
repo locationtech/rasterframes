@@ -80,6 +80,17 @@ As a tip, know that `sbt` is much faster if run in "interactive" mode, where you
 and subsequent commands are invoked via an interactive shell. But for context clarity, we'll prefix each command
 example below with `sbt`.
 
+## Basic Python environment
+
+Recommend the following steps to set up a conda environment with a few requirements. 
+
+```bash
+$ conda create -n $ENV_NAME python==3.7 
+$ conda activate $ENV_NAME
+($ENV_NAME) $ conda install -c conda-forge --yes --file pyrasterframes/src/main/python/requirements-condaforge.txt
+```
+
+Run the various `sbt` commands below with this environment activated.
 
 ## Running Tests
 
@@ -98,8 +109,8 @@ sbt pyrasterframes/test # alias 'pyTest'
 After running `sbt pyrasterframes/package`, you can run tests more directly in the `src/main/python` directory like this:
 
 ```bash
-python -m unittest tests/RasterFunctionsTests.py
-python -m unittest tests/RasterFunctionsTests.py -k test_rf_agg_overview_raster
+($ENV_NAME) $ python setup.py test  # all tests
+($ENV_NAME) $ python setup.py test --addopts "-k rf_agg_overview_raster"  # tests matching pattern
 ```
 
 ## Running Python Markdown Sources

@@ -9,7 +9,9 @@ Python / doc := (Python / doc / target).toTask.dependsOn(
   Def.sequential(
     assembly,
     Test / compile,
-    pySetup.toTask(" pweave --quick True")
+    pySetup.toTask(" develop"),
+    pySetup.toTask(" pweave --quick True"),
+    pySetup.toTask(" develop --uninstall") // put environment back how it was
   )
 ).value
 
