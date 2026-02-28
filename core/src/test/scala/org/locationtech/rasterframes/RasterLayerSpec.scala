@@ -264,6 +264,39 @@ class RasterLayerSpec extends TestEnvironment with MetadataKeys with TestData {
       prt.extent should be(extent)
      }
 
+    it("should create layer from arbitrarily named tile, crs, extent type columns") {
+      val src = RFRasterSource(URI.create("https://raw.githubusercontent.com/locationtech/rasterframes/develop/core/src/test/resources/LC08_RGB_Norfolk_COG.tiff"))
+      val srcCrs = src.crs
+
+      val rasters = src.readAll()
+        .map(r ⇒ ProjectedRasterTile(r.tile.bands.head, r.extent, srcCrs))
+
+      // this sets up the condition we are trying to test in this. No ProjectedRasterTile and "nonstandard" names.
+      val df = rasters.toDF("red")
+        .select(rf_tile($"red"), rf_extent($"red") as "red_extent", rf_crs($"red") as "red_crs")
+
+      val crs = CRS.fromString("+proj=utm +zone=18 +datum=WGS84 +units=m +no_defs")
+
+      val extent = Extent(364455.0, 4080315.0, 395295.0, 4109985.0)
+      val layout = LayoutDefinition(extent, TileLayout(2, 2, 32, 32))
+
+      val tlm =  new TileLayerMetadata[SpatialKey](
+        UByteConstantNoDataCellType,
+        layout,
+        extent,
+        crs,
+        KeyBounds(SpatialKey(0, 0), SpatialKey(1, 1))
+      )
+
+      val Dimensions(cols, rows) = tlm.totalDimensions
+      // this is what we are really trying to exercise here
+      val layer = df.toLayer(tlm)
+      val prt = layer.toRaster($"red", cols.toInt, rows.toInt)
+
+      prt.tile.dimensions should be (Dimensions(cols, rows))
+      prt.crs should be(crs)
+    }
+
     it("shouldn't clip already clipped extents") {
       val rf = TestData.randomSpatialTileLayerRDD(1024, 1024, 8, 8).toLayer
 
